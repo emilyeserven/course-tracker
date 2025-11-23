@@ -70,6 +70,7 @@ export function LoadDialog() {
                     aria-invalid={isInvalid}
                     placeholder="Noodles"
                     autoComplete="off"
+                    className="max-w-[400px]"
                   />
                   {isInvalid && (
                     <FieldError errors={field.state.meta.errors} />

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink } from "lucide-react";
+import { CheckCircle, Circle, CircleDashed, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/courses")({
   component: Courses,
@@ -10,6 +10,9 @@ interface Course {
   key: string;
   link: string;
   topic: string;
+  progressCurrent?: number;
+  progressTotal?: number;
+  status?: "active" | "inactive" | "complete";
 }
 
 export function Courses() {
@@ -29,10 +32,21 @@ export function Courses() {
             return (
               <div
                 key={course.key}
-                className="rounded border p-2"
+                className="flex flex-col gap-2 rounded border p-2"
               >
                 <div className="flex items-start justify-between">
-                  <h3 className="text-2xl">{course.name}</h3>
+                  <div className="flex flex-row items-center gap-2">
+                    {course.status && course.status === "active" && (
+                      <CircleDashed size={20} />
+                    )}
+                    {course.status && course.status === "inactive" && (
+                      <Circle size={20} />
+                    )}
+                    {course.status && course.status === "complete" && (
+                      <CheckCircle size={20} />
+                    )}
+                    <h3 className="text-2xl">{course.name}</h3>
+                  </div>
                   <a
                     href={course.link}
                     target="_blank"
@@ -43,6 +57,18 @@ export function Courses() {
                   </a>
                 </div>
                 <p>{course.topic}</p>
+                {
+                  course.progressCurrent && course.progressTotal && (
+                    <div className="bg-secondary mt-2 w-full">
+                      <div
+                        className="bg-primary h-1 rounded"
+                        style={{
+                          width: `${course.progressTotal / course.progressCurrent}%`,
+                        }}
+                      />
+                    </div>
+                  )
+                }
               </div>
             );
           })
