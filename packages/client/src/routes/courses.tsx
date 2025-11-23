@@ -82,7 +82,7 @@ export function Courses() {
                         </i>
                       )}
                   </div>
-                  <div className="flex flex-row items-center gap-2">
+                  <div className="flex flex-row items-center">
                     <DollarSign size={16} />
                     {course?.cost
                       ? `${course.cost}`
