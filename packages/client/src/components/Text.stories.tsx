@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { within, expect } from "@storybook/test";
 
-import { Test } from "./Test";
+import { Text } from "./Text";
 
 const meta = {
-  component: Test,
-} satisfies Meta<typeof Test>;
+  component: Text,
+} satisfies Meta<typeof Text>;
 
 export default meta;
 
