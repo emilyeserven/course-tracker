@@ -29,7 +29,7 @@ export function CourseFields({
         </FieldLegend>
 
       </div>
-      <FieldGroup className="inline-flex w-3/4 flex-col gap-4">
+      <FieldGroup className="inline-flex w-3/4 flex-col gap-6">
         <form.Field
           name={name + "Name"}
           children={(field) => {
@@ -39,7 +39,7 @@ export function CourseFields({
               <Field data-invalid={isInvalid}>
                 <FieldLabel
                   htmlFor={field.name}
-                  className="text-lg"
+                  className="text-2xl font-normal"
                 >Course Name
                 </FieldLabel>
                 <Input
@@ -72,7 +72,7 @@ export function CourseFields({
               <Field data-invalid={isInvalid}>
                 <FieldLabel
                   htmlFor={field.name}
-                  className="text-lg"
+                  className="text-2xl font-normal"
                 >Course URL
                 </FieldLabel>
                 <Input

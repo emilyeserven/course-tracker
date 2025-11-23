@@ -111,6 +111,7 @@ export function About() {
       value,
     }) => {
       console.log(value);
+      localStorage.setItem("courseDate", JSON.stringify(value));
     },
   });
   const name = useStore(form.store, state => state.values.name);
@@ -123,7 +124,7 @@ export function About() {
   const course1Url = useStore(form.store, state => state.values.course1Url);
 
   return (
-    <div className="flex flex-col gap-20 p-4">
+    <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
       <form
         id="onboarding"
         onSubmit={(e) => {
@@ -246,14 +247,40 @@ export function About() {
         )}
 
         { isStep2Revealed && isStep3Revealed && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             <span className="text-3xl">Let&#39;s add a course per topic.</span>
-            <CourseFields
-              form={form}
-              condition={true}
-              name={topic1}
-              label={topic1}
-            />
+            <div className="flex flex-col gap-12">
+              <CourseFields
+                form={form}
+                condition={true}
+                name="course1"
+                label={topic1}
+              />
+              <CourseFields
+                form={form}
+                condition={!!topic2 && topic2 !== ""}
+                name="course2"
+                label={topic2}
+              />
+              <CourseFields
+                form={form}
+                condition={!!topic3 && topic3 !== ""}
+                name="course3"
+                label={topic3}
+              />
+              <CourseFields
+                form={form}
+                condition={!!topic4 && topic4 !== ""}
+                name="course4"
+                label={topic4}
+              />
+              <CourseFields
+                form={form}
+                condition={!!topic5 && topic5 !== ""}
+                name="course5"
+                label={topic5}
+              />
+            </div>
 
             {!isStep3Revealed && topic1 && (
               <div>
