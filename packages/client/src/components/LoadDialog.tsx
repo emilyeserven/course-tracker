@@ -1,5 +1,4 @@
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/button";
@@ -14,8 +13,6 @@ const formSchema = z.object({
 });
 
 export function LoadDialog() {
-  const navigate = useNavigate();
-
   const form = useForm({
     defaultValues: {
       data: "",
@@ -28,10 +25,8 @@ export function LoadDialog() {
     }) => {
       console.log(value);
 
-      localStorage.setItem("courseData", JSON.stringify(value.data));
-      await navigate({
-        to: "/courses",
-      });
+      localStorage.setItem("courseData", value.data);
+      location.reload();
     },
   });
 
@@ -64,7 +59,7 @@ export function LoadDialog() {
                 <Field data-invalid={isInvalid}>
                   <FieldLabel
                     htmlFor={field.name}
-                  >What&#39;s your first name?
+                  >Paste the data here.
                   </FieldLabel>
                   <Textarea
                     id={field.name}
