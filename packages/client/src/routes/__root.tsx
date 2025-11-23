@@ -1,6 +1,6 @@
 import React from "react";
 
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 
 import { Button } from "@/components/button";
 import { LoadDialog } from "@/components/LoadDialog";
@@ -8,12 +8,16 @@ import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
 
 const RootComponent: React.FunctionComponent = () => {
+  const navigate = useNavigate();
   const {
     theme, setTheme,
   } = useTheme();
 
   function handleClearLocal() {
     localStorage.clear();
+    navigate({
+      to: "/about",
+    });
   }
 
   return (
