@@ -15,7 +15,8 @@ interface Course {
 export function Courses() {
   const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
-  console.log(local);
+  console.log("lI", localItem);
+  console.log("l", local);
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
