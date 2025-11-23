@@ -1,0 +1,21 @@
+{
+  "name": "@emstack/types",
+  "description": "",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  },
+  "module": "dist/index.js",
+  "packageManager": "pnpm@10.13.1",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

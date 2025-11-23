@@ -1,0 +1,40 @@
+{
+  "name": "@emstack/middleware",
+  "description": "",
+  "version": "1.0.0",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/env": "^5.0.3",
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "fastify": "^5.6.2"
+  },
+  "devDependencies": {
+    "@emstack/types": "workspace:*",
+    "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "nodemon": "^3.1.11",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "main": "dist/app.js",
+  "packageManager": "pnpm@10.13.1",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "nodemon --exec tsx src/app.ts",
+    "test": "node --test"
+  },
+  "lint-staged": {
+    "*": "eslint --fix",
+    "*.{js,ts}": "pnpm run test"
+  },
+  "type": "module"
+}
