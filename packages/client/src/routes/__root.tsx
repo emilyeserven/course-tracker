@@ -3,6 +3,7 @@ import React from "react";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 
 import { Button } from "@/components/button";
+import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
 
 const RootComponent: React.FunctionComponent = () => {
@@ -40,6 +41,7 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
         </div>
         <div className="flex flex-row gap-2">
+          <SaveDialog />
           {
             theme === "dark"
               ? (

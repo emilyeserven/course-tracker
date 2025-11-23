@@ -5,8 +5,15 @@ export const Route = createFileRoute("/courses")({
   component: Courses,
 });
 
+interface Course {
+  name: string;
+  key: string;
+  link: string;
+  topic: string;
+}
+
 export function Courses() {
-  const localItem = localStorage.getItem("courseDate");
+  const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
   console.log(local);
   return (
@@ -14,7 +21,7 @@ export function Courses() {
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
       <div className="grid grid-cols-3">
         {
-          local.courses.map((course) => {
+          local.courses.map((course: Course) => {
             if (course.name === "") {
               return;
             }

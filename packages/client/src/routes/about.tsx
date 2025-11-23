@@ -151,7 +151,7 @@ export function About() {
       };
       console.log(cleanedValue);
 
-      localStorage.setItem("courseDate", JSON.stringify(cleanedValue));
+      localStorage.setItem("courseData", JSON.stringify(cleanedValue));
       await navigate({
         to: "/courses",
       });
