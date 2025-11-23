@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCheck, CheckCircle, Circle, CircleDashed, DollarSign, ExternalLink, Timer } from "lucide-react";
+import {
+  CheckCheck,
+  CheckCircle,
+  Circle,
+  DollarSign,
+  ExternalLink,
+  PauseCircle,
+  Timer,
+} from "lucide-react";
 
 export const Route = createFileRoute("/courses")({
   component: Courses,
@@ -25,7 +33,7 @@ export function Courses() {
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 gap-2">
         {
           local.courses.map((course: Course) => {
             if (course.name === "") {
@@ -38,10 +46,10 @@ export function Courses() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex flex-row items-center gap-2">
-                    {course.status && course.status === "active" && (
-                      <CircleDashed size={20} />
-                    )}
                     {course.status && course.status === "inactive" && (
+                      <PauseCircle size={20} />
+                    )}
+                    {course.status && course.status === "active" && (
                       <Circle size={20} />
                     )}
                     {course.status && course.status === "complete" && (
@@ -98,7 +106,12 @@ export function Courses() {
                   course.progressCurrent && course.progressTotal && (
                     <div className="bg-secondary mt-2 w-full">
                       <div
-                        className="bg-primary h-1 rounded"
+                        className={`
+                          ${course?.status && course.status === "inactive"
+                      ? "bg-primary/50"
+                      : "bg-primary"}
+                          h-1 rounded
+                        `}
                         style={{
                           width: `${course.progressTotal / course.progressCurrent}%`,
                         }}
