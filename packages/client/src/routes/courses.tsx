@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle, Circle, CircleDashed, ExternalLink } from "lucide-react";
+import { CheckCheck, CheckCircle, Circle, CircleDashed, DollarSign, ExternalLink, Timer } from "lucide-react";
 
 export const Route = createFileRoute("/courses")({
   component: Courses,
@@ -13,6 +13,8 @@ interface Course {
   progressCurrent?: number;
   progressTotal?: number;
   status?: "active" | "inactive" | "complete";
+  dateExpires?: string;
+  cost?: string;
 }
 
 export function Courses() {
@@ -57,6 +59,41 @@ export function Courses() {
                   </a>
                 </div>
                 <p>{course.topic}</p>
+                <div className="flex flex-row gap-8">
+                  <div className="flex flex-row items-center gap-1">
+                    <Timer size={16} />
+                    {course?.dateExpires
+                      ? course.dateExpires
+                      : (
+                        <i
+                          className="text-sm"
+                        >No course expiry given
+                        </i>
+                      )}
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <CheckCheck size={16} />
+                    {course?.progressCurrent && course?.progressTotal
+                      ? `${course.progressCurrent} / ${course.progressTotal}`
+                      : (
+                        <i
+                          className="text-sm"
+                        >No current progress given
+                        </i>
+                      )}
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <DollarSign size={16} />
+                    {course?.cost
+                      ? `${course.cost}`
+                      : (
+                        <i
+                          className="text-sm"
+                        >No cost given
+                        </i>
+                      )}
+                  </div>
+                </div>
                 {
                   course.progressCurrent && course.progressTotal && (
                     <div className="bg-secondary mt-2 w-full">
