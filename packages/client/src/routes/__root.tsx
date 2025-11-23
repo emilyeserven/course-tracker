@@ -2,6 +2,7 @@ import React from "react";
 
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 
+import { Button } from "@/components/button";
 import { useTheme } from "@/hooks/useTheme.ts";
 
 const RootComponent: React.FunctionComponent = () => {
@@ -9,32 +10,60 @@ const RootComponent: React.FunctionComponent = () => {
     theme, setTheme,
   } = useTheme();
 
+  function handleClearLocal() {
+    localStorage.clear();
+  }
+
   return (
     <>
-      <div className="flex gap-2 p-2">
-        <Link
-          to="/"
-          className="[&.active]:font-bold"
-        >
-          Home
-        </Link>
+      <div className="flex items-center justify-between gap-2 p-2">
+        <div className="flex gap-2">
+          <Link
+            to="/"
+            className="[&.active]:font-bold"
+          >
+            Home
+          </Link>
 
-        <Link
-          to="/about"
-          className="[&.active]:font-bold"
-        >
-          About
-        </Link>
+          <Link
+            to="/about"
+            className="[&.active]:font-bold"
+          >
+            About
+          </Link>
 
-        {
-          theme === "dark"
-            ? (
-              <button onClick={() => { setTheme("light"); }}>Set to Light Mode</button>
-            )
-            : (
-              <button onClick={() => { setTheme("dark"); }}>Set to Dark Mode</button>
-            )
-        }
+          <Link
+            to="/courses"
+            className="[&.active]:font-bold"
+          >
+            Courses
+          </Link>
+        </div>
+        <div className="flex flex-row gap-2">
+          {
+            theme === "dark"
+              ? (
+                <Button
+                  variant="outline"
+                  onClick={() => { setTheme("light"); }}
+                >Set to Light Mode
+                </Button>
+              )
+              : (
+                <Button
+                  variant="outline"
+                  onClick={() => { setTheme("dark"); }}
+                >Set to Dark Mode
+                </Button>
+              )
+          }
+          <Button
+            variant="outline"
+            onClick={() => handleClearLocal()}
+          >
+            Clear Local
+          </Button>
+        </div>
       </div>
       <hr />
       <Outlet />

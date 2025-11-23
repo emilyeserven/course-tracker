@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useForm, useStore } from "@tanstack/react-form";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
@@ -85,6 +85,8 @@ const formSchema = z.object({
 export function About() {
   const [isStep2Revealed, setIsStep2Revealed] = useState(false);
   const [isStep3Revealed, setIsStep3Revealed] = useState(false);
+  const navigate = useNavigate();
+
   const form = useForm({
     defaultValues: {
       name: "",
@@ -111,7 +113,48 @@ export function About() {
       value,
     }) => {
       console.log(value);
-      localStorage.setItem("courseDate", JSON.stringify(value));
+      const cleanedValue = {
+        name: value.name,
+        topics: [topic1, topic2, topic3, topic4, topic5],
+        courses: [
+          {
+            name: value.course1Name,
+            topic: topic1,
+            url: value.course1Url,
+            key: 1,
+          },
+          {
+            name: value.course2Name,
+            topic: topic2,
+            url: value.course2Url,
+            key: 2,
+          },
+          {
+            name: value.course3Name,
+            topic: topic3,
+            url: value.course3Url,
+            key: 3,
+          },
+          {
+            name: value.course4Name,
+            topic: topic4,
+            url: value.course4Url,
+            key: 4,
+          },
+          {
+            name: value.course5Name,
+            topic: topic5,
+            url: value.course5Url,
+            key: 5,
+          },
+        ],
+      };
+      console.log(cleanedValue);
+
+      localStorage.setItem("courseDate", JSON.stringify(cleanedValue));
+      await navigate({
+        to: "/courses",
+      });
     },
   });
   const name = useStore(form.store, state => state.values.name);
@@ -222,8 +265,7 @@ export function About() {
                 { !!topic5 && topic5 !== "" && (
                   <div
                     className={`
-                      text-primary/80 flex flex-col justify-center text-xl
-                      italic
+                      text-primary flex flex-col justify-center text-xl italic
                     `}
                   >
                     You may add more topics later!
