@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
 import { Button } from "@/components/button";
+import { CourseFields } from "@/components/CourseFields";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/field";
 import { Input } from "@/components/input";
 import { TopicField } from "@/components/TopicField";
@@ -39,6 +40,46 @@ const formSchema = z.object({
     .string()
     .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
+  course1Name: z
+    .string()
+    .min(0, "Course name must be at least 1 characters")
+    .max(200, "Course name must be at most 32 characters."),
+  course1Url: z
+    .string()
+    .min(0, "Course URL must be at least 1 characters")
+    .max(200, "Course URL must be at most 32 characters."),
+  course2Name: z
+    .string()
+    .min(0, "Course name must be at least 1 characters")
+    .max(200, "Course name must be at most 32 characters."),
+  course2Url: z
+    .string()
+    .min(0, "Course URL must be at least 1 characters")
+    .max(200, "Course URL must be at most 32 characters."),
+  course3Name: z
+    .string()
+    .min(0, "Course name must be at least 1 characters")
+    .max(200, "Course name must be at most 32 characters."),
+  course3Url: z
+    .string()
+    .min(0, "Course URL must be at least 1 characters")
+    .max(200, "Course URL must be at most 32 characters."),
+  course4Name: z
+    .string()
+    .min(0, "Course name must be at least 1 characters")
+    .max(200, "Course name must be at most 32 characters."),
+  course4Url: z
+    .string()
+    .min(0, "Course URL must be at least 1 characters")
+    .max(200, "Course URL must be at most 32 characters."),
+  course5Name: z
+    .string()
+    .min(0, "Course name must be at least 1 characters")
+    .max(200, "Course name must be at most 32 characters."),
+  course5Url: z
+    .string()
+    .min(0, "Course URL must be at least 1 characters")
+    .max(200, "Course URL must be at most 32 characters."),
 });
 
 export function About() {
@@ -52,6 +93,16 @@ export function About() {
       topic3: "",
       topic4: "",
       topic5: "",
+      course1Name: "",
+      course1Url: "",
+      course2Name: "",
+      course2Url: "",
+      course3Name: "",
+      course3Url: "",
+      course4Name: "",
+      course4Url: "",
+      course5Name: "",
+      course5Url: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -68,6 +119,8 @@ export function About() {
   const topic3 = useStore(form.store, state => state.values.topic3);
   const topic4 = useStore(form.store, state => state.values.topic4);
   const topic5 = useStore(form.store, state => state.values.topic5);
+  const course1Name = useStore(form.store, state => state.values.course1Name);
+  const course1Url = useStore(form.store, state => state.values.course1Url);
 
   return (
     <div className="flex flex-col gap-20 p-4">
@@ -130,10 +183,10 @@ export function About() {
           <div className="flex flex-col gap-4">
             <FieldSet>
               <FieldLegend
-                className="data-[variant=legend]:text-2xl"
+                className="data-[variant=legend]:text-3xl"
               >Nice to meet you{name ? `, ${name}` : ""}! What are you learning about?
               </FieldLegend>
-              <FieldDescription className="text-primary text-xl">This will create some categories for you.</FieldDescription>
+              <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
               <FieldGroup className="grid grid-cols-2">
                 <TopicField
                   form={form}
@@ -166,14 +219,19 @@ export function About() {
                   label="Topic 5"
                 />
                 { !!topic5 && topic5 !== "" && (
-                  <div className="flex flex-col justify-center">
-                    <i>You may add more topics later!</i>
+                  <div
+                    className={`
+                      text-primary/80 flex flex-col justify-center text-xl
+                      italic
+                    `}
+                  >
+                    You may add more topics later!
                   </div>
                 )}
               </FieldGroup>
             </FieldSet>
 
-            {!isStep3Revealed && (
+            {!isStep3Revealed && topic1 && (
               <div>
                 <Button
                   className="inline-flex grow-0"
@@ -186,7 +244,32 @@ export function About() {
             )}
           </div>
         )}
+
         { isStep2Revealed && isStep3Revealed && (
+          <div className="flex flex-col gap-4">
+            <span className="text-3xl">Let&#39;s add a course per topic.</span>
+            <CourseFields
+              form={form}
+              condition={true}
+              name={topic1}
+              label={topic1}
+            />
+
+            {!isStep3Revealed && topic1 && (
+              <div>
+                <Button
+                  className="inline-flex grow-0"
+                  onClick={() => { setIsStep3Revealed(true); }}
+                >
+                  Next
+                  <ArrowRight />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        { isStep2Revealed && isStep3Revealed && course1Name && course1Url && (
           <div className="flex flex-row gap-4">
             <Button
               type="submit"

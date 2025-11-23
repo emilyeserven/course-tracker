@@ -1,4 +1,4 @@
-import { ReactFormExtendedApi } from "@tanstack/react-form";
+import type { ReactFormExtendedApi } from "@tanstack/react-form";
 
 import { Field, FieldError, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
@@ -26,7 +26,11 @@ export function TopicField({
           = field.state.meta.isTouched && !field.state.meta.isValid;
         return (
           <Field data-invalid={isInvalid}>
-            <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+            <FieldLabel
+              htmlFor={field.name}
+              className="text-2xl"
+            >{label}
+            </FieldLabel>
             <Input
               id={field.name}
               name={field.name}
@@ -36,6 +40,10 @@ export function TopicField({
               aria-invalid={isInvalid}
               placeholder="Memes"
               autoComplete="off"
+              className={`
+                h-11
+                md:text-xl
+              `}
             />
             {isInvalid && (
               <FieldError errors={field.state.meta.errors} />
