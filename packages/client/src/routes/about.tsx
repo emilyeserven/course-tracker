@@ -1,9 +1,14 @@
+import { useState } from "react";
+
 import { useForm, useStore } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/field";
+import { Button } from "@/components/button";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/field";
 import { Input } from "@/components/input";
+import { TopicField } from "@/components/TopicField";
 
 export const Route = createFileRoute("/about")({
   component: About,
@@ -16,27 +21,29 @@ const formSchema = z.object({
     .max(32, "Name must be at most 32 characters."),
   topic1: z
     .string()
-    .min(1, "Topic must be at least 1 characters")
+    .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
   topic2: z
     .string()
-    .min(1, "Topic must be at least 1 characters")
+    .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
   topic3: z
     .string()
-    .min(1, "Topic must be at least 1 characters")
+    .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
   topic4: z
     .string()
-    .min(1, "Topic must be at least 1 characters")
+    .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
   topic5: z
     .string()
-    .min(1, "Topic must be at least 1 characters")
+    .min(0, "Topic must be at least 1 characters")
     .max(32, "Topic must be at most 32 characters."),
 });
 
 export function About() {
+  const [isStep2Revealed, setIsStep2Revealed] = useState(false);
+  const [isStep3Revealed, setIsStep3Revealed] = useState(false);
   const form = useForm({
     defaultValues: {
       name: "",
@@ -56,6 +63,11 @@ export function About() {
     },
   });
   const name = useStore(form.store, state => state.values.name);
+  const topic1 = useStore(form.store, state => state.values.topic1);
+  const topic2 = useStore(form.store, state => state.values.topic2);
+  const topic3 = useStore(form.store, state => state.values.topic3);
+  const topic4 = useStore(form.store, state => state.values.topic4);
+  const topic5 = useStore(form.store, state => state.values.topic5);
 
   return (
     <div className="flex flex-col gap-20 p-4">
@@ -65,75 +77,132 @@ export function About() {
           e.preventDefault();
           form.handleSubmit();
         }}
+        className="flex flex-col gap-20"
       >
-        <Field>
-          <FieldLabel
-            htmlFor="name"
-            className="text-2xl"
-          >What&#39;s your first name?
-          </FieldLabel>
-          <Input
-            id="name"
-            autoComplete="off"
-            placeholder="First Name"
-            className={`
-              h-12 w-full
-              md:text-2xl
-            `}
+        <div className="flex flex-col gap-4">
+          <form.Field
+            name="name"
+            children={(field) => {
+              const isInvalid
+                = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-3xl"
+                  >What&#39;s your first name?
+                  </FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={e => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="Noodles"
+                    autoComplete="off"
+                    className={`
+                      h-12
+                      md:text-2xl
+                    `}
+                  />
+                  {isInvalid && (
+                    <FieldError errors={field.state.meta.errors} />
+                  )}
+                </Field>
+              );
+            }}
           />
-        </Field>
-        <FieldSet>
-          <FieldLegend
-            className="data-[variant=legend]:text-2xl"
-          >Nice to meet you{name ? `, ${name}` : ""}! What are you learning about?
-          </FieldLegend>
-          <FieldDescription className="text-primary text-xl">This will create some categories for you.</FieldDescription>
-          <FieldGroup className="grid grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="topic1">Topic 1</FieldLabel>
-              <Input
-                id="topic1"
-                autoComplete="off"
-                placeholder="Memes"
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="topic2">Topic 2</FieldLabel>
-              <Input
-                id="topic2"
-                autoComplete="off"
-                placeholder="Internet"
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="topic3">Topic 3</FieldLabel>
-              <Input
-                id="topic3"
-                autoComplete="off"
-                placeholder="Internet"
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="topic4">Topic 4</FieldLabel>
-              <Input
-                id="topic4"
-                autoComplete="off"
-                placeholder="Internet"
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="topic5">Topic 5</FieldLabel>
-              <Input
-                id="topic5"
-                autoComplete="off"
-                placeholder="Internet"
-              />
-            </Field>
-            <div className="flex flex-col justify-center">
-              <i>You may add more topics later!</i>
+          {!isStep2Revealed && (
+            <div>
+              <Button
+                className="inline-flex grow-0"
+                onClick={() => { setIsStep2Revealed(true); }}
+              >
+                Next
+                <ArrowRight />
+              </Button>
             </div>
-          </FieldGroup>
-        </FieldSet>
+          )}
+        </div>
+
+        {isStep2Revealed && (
+          <div className="flex flex-col gap-4">
+            <FieldSet>
+              <FieldLegend
+                className="data-[variant=legend]:text-2xl"
+              >Nice to meet you{name ? `, ${name}` : ""}! What are you learning about?
+              </FieldLegend>
+              <FieldDescription className="text-primary text-xl">This will create some categories for you.</FieldDescription>
+              <FieldGroup className="grid grid-cols-2">
+                <TopicField
+                  form={form}
+                  condition={true}
+                  name="topic1"
+                  label="Topic 1"
+                />
+                <TopicField
+                  form={form}
+                  condition={!!topic1 && topic1 !== ""}
+                  name="topic2"
+                  label="Topic 2"
+                />
+                <TopicField
+                  form={form}
+                  condition={!!topic2 && topic2 !== ""}
+                  name="topic3"
+                  label="Topic 3"
+                />
+                <TopicField
+                  form={form}
+                  condition={!!topic3 && topic3 !== ""}
+                  name="topic4"
+                  label="Topic 4"
+                />
+                <TopicField
+                  form={form}
+                  condition={!!topic4 && topic4 !== ""}
+                  name="topic5"
+                  label="Topic 5"
+                />
+                { !!topic5 && topic5 !== "" && (
+                  <div className="flex flex-col justify-center">
+                    <i>You may add more topics later!</i>
+                  </div>
+                )}
+              </FieldGroup>
+            </FieldSet>
+
+            {!isStep3Revealed && (
+              <div>
+                <Button
+                  className="inline-flex grow-0"
+                  onClick={() => { setIsStep3Revealed(true); }}
+                >
+                  Next
+                  <ArrowRight />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+        { isStep2Revealed && isStep3Revealed && (
+          <div className="flex flex-row gap-4">
+            <Button
+              type="submit"
+              form="onboarding"
+            >
+              Submit
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => form.reset()}
+            >
+              Reset
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
