@@ -1,0 +1,26 @@
+import type { Course } from "@/routes/courses";
+
+import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+
+import { getCourse } from "@/utils/getCourse";
+
+export const Route = createFileRoute("/courses/$id")({
+  component: SingleCourse,
+  loader: async ({
+    params,
+  }) => {
+    return getCourse(params.id);
+  },
+});
+
+export function SingleCourse() {
+  const data: Course = useLoaderData({
+    strict: false,
+  });
+  console.log("data", data);
+  return (
+    <div>
+      {data.name}
+    </div>
+  );
+}

@@ -1,8 +1,16 @@
 import React from "react";
 
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { EraserIcon, MoonIcon, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/dropdown-menu";
 import { LoadDialog } from "@/components/LoadDialog";
 import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
@@ -48,29 +56,48 @@ const RootComponent: React.FunctionComponent = () => {
         <div className="flex flex-row gap-2">
           <SaveDialog />
           <LoadDialog />
-          {
-            theme === "dark"
-              ? (
-                <Button
-                  variant="outline"
-                  onClick={() => { setTheme("light"); }}
-                >Set to Light Mode
-                </Button>
-              )
-              : (
-                <Button
-                  variant="outline"
-                  onClick={() => { setTheme("dark"); }}
-                >Set to Dark Mode
-                </Button>
-              )
-          }
-          <Button
-            variant="outline"
-            onClick={() => handleClearLocal()}
-          >
-            Clear Local
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true}>
+              <Button>Menu</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Data Tools</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => handleClearLocal()}
+                >
+                  <EraserIcon />
+                  Clear Data
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>
+                Settings
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+
+                {
+                  theme === "dark"
+                    ? (
+                      <DropdownMenuItem
+                        onClick={() => { setTheme("light"); }}
+                      >
+                        <SunIcon />
+                        Set to Light Mode
+                      </DropdownMenuItem>
+                    )
+                    : (
+                      <DropdownMenuItem
+                        onClick={() => { setTheme("dark"); }}
+                      >
+                        <MoonIcon />
+                        Set to Dark Mode
+                      </DropdownMenuItem>
+                    )
+                }
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       <hr />
