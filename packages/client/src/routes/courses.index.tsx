@@ -1,10 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { CourseBox } from "@/components/CourseBox";
 
 export const Route = createFileRoute("/courses/")({
   component: Courses,
+  errorComponent: CoursesError,
+  pendingComponent: CoursesPending,
 });
+
+function CoursesPending() {
+  return (
+    <div className="p-4">
+      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
+    </div>
+  );
+}
+
+function CoursesError() {
+  return (
+    <div className="p-4">
+      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <p>
+        Try to use the
+        {" "}
+        <Link to="/onboard">Onboarding Wizard</Link>
+        {" "}
+        again, or load in properly formed course data.
+      </p>
+    </div>
+  );
+}
 
 export interface Course {
   name: string;
@@ -20,7 +45,7 @@ export interface Course {
   cost?: string;
 }
 
-export function Courses() {
+function Courses() {
   const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
 
