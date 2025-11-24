@@ -14,7 +14,7 @@ export const Route = createFileRoute("/courses/$id")({
   component: SingleCourse,
 });
 
-export function SingleCourse() {
+function SingleCourse() {
   const data: Course = Route.useLoaderData();
   console.log("data", data);
   return (
