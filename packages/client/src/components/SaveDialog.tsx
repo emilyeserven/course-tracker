@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/dialog";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/input-group";
@@ -18,7 +18,7 @@ export function SaveDialog() {
   return (
     <Dialog onOpenChange={() => setIsCopied(false)}>
       <DialogTrigger>
-        Save/Backup Data
+        <DownloadIcon />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

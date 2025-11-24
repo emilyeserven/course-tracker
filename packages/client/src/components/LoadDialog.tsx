@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useForm } from "@tanstack/react-form";
 import { useNavigate, useRouter } from "@tanstack/react-router";
+import { Upload } from "lucide-react";
 import * as z from "zod";
 
 import { Button } from "@/components/button";
@@ -54,7 +55,7 @@ export function LoadDialog({
         onClick={() => setIsOpen(true)}
         className={triggerClassName}
       >
-        Load Data
+        <Upload />
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-scroll">
         <DialogHeader>
