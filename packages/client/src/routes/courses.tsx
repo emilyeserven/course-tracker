@@ -86,7 +86,7 @@ export function Courses() {
                       : (
                         <i
                           className="text-sm"
-                        >No current progress given
+                        >No progress
                         </i>
                       )}
                   </div>

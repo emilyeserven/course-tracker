@@ -74,7 +74,9 @@ const RootComponent: React.FunctionComponent = () => {
         </div>
       </div>
       <hr />
-      <Outlet />
+      <div className="m-auto max-w-[1200px]">
+        <Outlet />
+      </div>
     </>
   );
 };
