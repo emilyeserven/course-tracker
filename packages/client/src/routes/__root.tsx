@@ -14,10 +14,10 @@ const RootComponent: React.FunctionComponent = () => {
   } = useTheme();
 
   function handleClearLocal() {
-    localStorage.clear();
     navigate({
-      to: "/about",
+      to: "/onboard",
     });
+    localStorage.clear();
   }
 
   return (
@@ -32,10 +32,10 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
 
           <Link
-            to="/about"
+            to="/onboard"
             className="[&.active]:font-bold"
           >
-            About
+            Onboard
           </Link>
 
           <Link

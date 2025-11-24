@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import { useForm } from "@tanstack/react-form";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/button";
@@ -13,6 +16,9 @@ const formSchema = z.object({
 });
 
 export function LoadDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const router = useRouter();
   const form = useForm({
     defaultValues: {
       data: "",
@@ -23,16 +29,23 @@ export function LoadDialog() {
     onSubmit: async ({
       value,
     }) => {
-      console.log(value);
-
       localStorage.setItem("courseData", value.data);
-      location.reload();
+
+      if (router.state.location.pathname === "/courses") {
+        location.reload();
+      }
+      else {
+        navigate({
+          to: "/courses",
+        });
+        setIsOpen(false);
+      }
     },
   });
 
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog open={isOpen}>
+      <DialogTrigger onClick={() => setIsOpen(true)}>
         Load Data
       </DialogTrigger>
       <DialogContent>
