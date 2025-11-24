@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { OnboardingInput } from './OnboardingInput';
+import { OnboardingInput } from "./OnboardingInput";
 
 const meta = {
   component: OnboardingInput,
@@ -11,5 +11,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {}
+  args: {
+    label: "Sample",
+    id: "sample",
+    placeholder: "Sample Input",
+  },
 };
