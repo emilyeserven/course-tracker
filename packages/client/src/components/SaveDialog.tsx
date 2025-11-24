@@ -7,6 +7,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } fro
 
 export function SaveDialog() {
   const [isCopied, setIsCopied] = useState(false);
+  const [copyValue, setCopyValue] = useState(localStorage.getItem("courseData") ?? "");
 
   function copy_to_clipboard(elm_id: string) {
     const text = document.getElementById(elm_id)?.innerHTML;
@@ -15,12 +16,17 @@ export function SaveDialog() {
     setIsCopied(true);
   }
 
+  function handleOpenChange() {
+    setCopyValue(localStorage.getItem("courseData") ?? "");
+    setIsCopied(false);
+  }
+
   return (
-    <Dialog onOpenChange={() => setIsCopied(false)}>
+    <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger>
         <DownloadIcon />
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Backup/Save Data</DialogTitle>
           <DialogDescription>
@@ -32,7 +38,7 @@ export function SaveDialog() {
           <InputGroup>
             <InputGroupTextarea
               id="copyContent"
-              value={localStorage.getItem("courseData") ?? ""}
+              value={copyValue}
               className="min-h-[200px]"
               readOnly={true}
             />
