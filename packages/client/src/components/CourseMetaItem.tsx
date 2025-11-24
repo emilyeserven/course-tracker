@@ -1,18 +1,16 @@
-import type { IconName } from "lucide-react/dynamic";
-
-import { DynamicIcon } from "lucide-react/dynamic";
+import type { ReactNode } from "react";
 
 interface CourseMetaItemProps {
   value?: string | number;
   condition?: boolean;
-  icon?: IconName;
+  iconNode?: ReactNode;
   emptyText?: string;
 }
 
 export function CourseMetaItem({
   value,
   condition,
-  icon,
+  iconNode,
   emptyText,
 }: CourseMetaItemProps) {
   if (!condition) {
@@ -20,12 +18,7 @@ export function CourseMetaItem({
   }
   return (
     <div className="flex flex-row items-center gap-1">
-      {icon && (
-        <DynamicIcon
-          name={icon}
-          size={16}
-        />
-      )}
+      {iconNode && iconNode}
       <span className="text-sm">
         {condition
           ? `${value}`

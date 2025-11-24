@@ -1,7 +1,15 @@
 import type { Course } from "@/routes/courses";
 
 import { Link } from "@tanstack/react-router";
-import { CheckCircle, ExternalLink, PauseCircle, PlayCircle } from "lucide-react";
+import {
+  CheckCheckIcon,
+  CheckCircle,
+  DollarSignIcon,
+  ExternalLink,
+  PauseCircle,
+  PlayCircle,
+  TimerIcon,
+} from "lucide-react";
 
 import { CourseMetaItem } from "@/components/CourseMetaItem";
 
@@ -25,7 +33,7 @@ export function CourseBox({
     >
       <div
         className={`
-          bg-border flex flex-row items-center justify-between border-b px-2
+          flex flex-row items-center justify-between border-b bg-border px-2
           py-1
         `}
       >
@@ -71,7 +79,7 @@ export function CourseBox({
                 >{name}
                 </Link>
               </h3>
-              { service && <h4 className="text-md">From {service}</h4> }
+              { service && <h4>From {service}</h4> }
             </div>
           </div>
           <div className="px-2 pb-2">
@@ -88,19 +96,19 @@ export function CourseBox({
         <CourseMetaItem
           value={dateExpires}
           condition={!!dateExpires}
-          icon="timer"
+          iconNode={<TimerIcon size={16} />}
           emptyText="No course expiry given"
         />
         <CourseMetaItem
           value={progressCurrent && progressTotal ? `${progressCurrent} / ${progressTotal}` : 0}
           condition={!!progressCurrent && !!progressTotal}
-          icon="check-check"
+          iconNode={<CheckCheckIcon size={16} />}
           emptyText="No progress"
         />
         <CourseMetaItem
           value={cost}
           condition={!!cost}
-          icon="dollar-sign"
+          iconNode={<DollarSignIcon size={16} />}
           emptyText="No cost given"
         />
       </div>
