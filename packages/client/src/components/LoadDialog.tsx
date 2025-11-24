@@ -46,64 +46,70 @@ export function LoadDialog({
   });
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => setIsOpen(!isOpen)}
+    >
       <DialogTrigger
         onClick={() => setIsOpen(true)}
         className={triggerClassName}
       >
         Load Data
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Load Data</DialogTitle>
           <DialogDescription>
             Paste data below to pick up where you left off.
           </DialogDescription>
         </DialogHeader>
-        <form
-          id="loadData"
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="flex flex-col gap-4"
-        >
-          <form.Field
-            name="data"
-            children={(field) => {
-              const isInvalid
-                = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    htmlFor={field.name}
-                  >Paste the data here.
-                  </FieldLabel>
-                  <Textarea
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={e => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="Noodles"
-                    autoComplete="off"
-                    className="max-w-[400px]"
-                  />
-                  {isInvalid && (
-                    <FieldError errors={field.state.meta.errors} />
-                  )}
-                </Field>
-              );
+        <div>
+          <form
+            id="loadData"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
             }}
-          />
-          <Button
-            type="submit"
-            form="loadData"
+            className="flex flex-col gap-4"
           >
-            Submit
-          </Button>
-        </form>
+            <form.Field
+              name="data"
+              children={(field) => {
+                const isInvalid
+                  = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                    >Paste the data here.
+                    </FieldLabel>
+                    <Textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={e => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Noodles"
+                      autoComplete="off"
+                      rows={5}
+                      className="max-h-[200px] max-w-[475px]"
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <Button
+              type="submit"
+              form="loadData"
+            >
+              Submit
+            </Button>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

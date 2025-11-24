@@ -81,7 +81,7 @@ export function CourseBox({
         </div>
       </div>
       {
-        progressCurrent && progressTotal && (
+        !!progressCurrent && progressTotal && progressCurrent !== 0 && (progressTotal / progressCurrent) !== 0 && (
           <div className="bg-secondary mt-2 w-full">
             <div
               className={`
