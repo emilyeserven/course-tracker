@@ -83,7 +83,7 @@ const formSchema = z.object({
     .max(200, "Course URL must be at most 32 characters."),
 });
 
-export function Onboard() {
+function Onboard() {
   const [isStep2Revealed, setIsStep2Revealed] = useState(false);
   const [isStep3Revealed, setIsStep3Revealed] = useState(false);
   const navigate = useNavigate();
@@ -114,43 +114,50 @@ export function Onboard() {
       value,
     }) => {
       console.log(value);
+
+      const rawCourses = [
+        {
+          name: value.course1Name,
+          topic: topic1,
+          url: value.course1Url,
+          id: 1,
+        },
+        {
+          name: value.course2Name,
+          topic: topic2,
+          url: value.course2Url,
+          id: 2,
+        },
+        {
+          name: value.course3Name,
+          topic: topic3,
+          url: value.course3Url,
+          id: 3,
+        },
+        {
+          name: value.course4Name,
+          topic: topic4,
+          url: value.course4Url,
+          id: 4,
+        },
+        {
+          name: value.course5Name,
+          topic: topic5,
+          url: value.course5Url,
+          id: 5,
+        }];
+      const filteredCourses = rawCourses.filter(item => item.name !== "");
+
+      const rawTopics = [topic1, topic2, topic3, topic4, topic5];
+      const filteredTopics = rawTopics.filter(topic => topic !== "");
+
       const cleanedValue = {
         name: value.name,
-        topics: [topic1, topic2, topic3, topic4, topic5],
+        topics: [...filteredTopics],
         courses: [
-          {
-            name: value.course1Name,
-            topic: topic1,
-            url: value.course1Url,
-            key: 1,
-          },
-          {
-            name: value.course2Name,
-            topic: topic2,
-            url: value.course2Url,
-            key: 2,
-          },
-          {
-            name: value.course3Name,
-            topic: topic3,
-            url: value.course3Url,
-            key: 3,
-          },
-          {
-            name: value.course4Name,
-            topic: topic4,
-            url: value.course4Url,
-            key: 4,
-          },
-          {
-            name: value.course5Name,
-            topic: topic5,
-            url: value.course5Url,
-            key: 5,
-          },
+          ...filteredCourses,
         ],
       };
-      console.log(cleanedValue);
 
       localStorage.setItem("courseData", JSON.stringify(cleanedValue));
       await navigate({
@@ -271,7 +278,7 @@ export function Onboard() {
                 { !!topic5 && topic5 !== "" && (
                   <div
                     className={`
-                      text-primary flex flex-col justify-center text-xl italic
+                      flex flex-col justify-center text-xl text-primary italic
                     `}
                   >
                     You may add more topics later!
