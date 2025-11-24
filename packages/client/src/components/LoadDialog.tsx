@@ -15,7 +15,9 @@ const formSchema = z.object({
     .min(0, "Name must be at least 0 characters."),
 });
 
-export function LoadDialog() {
+export function LoadDialog({
+  triggerClassName,
+}: { triggerClassName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const router = useRouter();
@@ -45,7 +47,10 @@ export function LoadDialog() {
 
   return (
     <Dialog open={isOpen}>
-      <DialogTrigger onClick={() => setIsOpen(true)}>
+      <DialogTrigger
+        onClick={() => setIsOpen(true)}
+        className={triggerClassName}
+      >
         Load Data
       </DialogTrigger>
       <DialogContent>

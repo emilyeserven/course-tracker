@@ -22,11 +22,13 @@ function DialogTrigger({
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
-      className={`
-        bg-primary cursor-pointer rounded-lg px-4 text-white
-        hover:bg-primary/80
-      `}
       {...props}
+
+      className={`
+        bg-primary cursor-pointer rounded-lg px-4 py-1 text-white
+        hover:bg-primary/80
+        ${props.className ? props.className : ""}
+      `}
     />
   );
 }
