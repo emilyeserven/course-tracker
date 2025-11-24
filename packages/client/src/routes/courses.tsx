@@ -21,12 +21,17 @@ export interface Course {
 export function Courses() {
   const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
-  console.log("lI", localItem);
-  console.log("l", local);
+
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
-      <div className="grid grid-cols-3 gap-2">
+      <div
+        className={`
+          grid grid-cols-1 gap-2
+          sm:grid-cols-2
+          md:grid-cols-3
+        `}
+      >
         {
           local.courses.map((course: Course) => {
             if (course.name === "") {

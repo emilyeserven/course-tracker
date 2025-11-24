@@ -33,17 +33,19 @@ export function CourseBox({
           </div>
           <h3 className="text-2xl">{name}</h3>
         </div>
-        <a
-          href={link}
-          target="_blank"
-          className="mt-1.5 cursor-pointer"
-          rel="noopener noreferrer"
-        >
-          <ExternalLink size={16} />
-        </a>
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            className="mt-1.5 cursor-pointer"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink size={16} />
+          </a>
+        )}
       </div>
       <p>{topic}</p>
-      <div className="flex flex-row justify-between gap-8">
+      <div className="flex flex-row flex-wrap justify-between gap-8 gap-y-1">
         <div className="flex flex-row items-center gap-1">
           <Timer size={16} />
           {dateExpires
