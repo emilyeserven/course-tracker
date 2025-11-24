@@ -4,11 +4,11 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config([
   ...emstackConfig,
-    {
-        rules: {
-            "react/no-children-prop": ["error", {
-                "allowFunctions": true
-            }]
-        }
-    }
+  {
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: "./packages/client/src/index.css",
+      },
+    },
+  },
 ]);

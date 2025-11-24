@@ -14,8 +14,8 @@ importers:
         version: 9.2.1
     devDependencies:
       '@emilyeserven/eslint-config':
-        specifier: 1.0.31
-        version: 1.0.31(e4ddfb6d0a66bd91b0188e8a3396efec)
+        specifier: 1.0.36
+        version: 1.0.36(e4ddfb6d0a66bd91b0188e8a3396efec)
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.6.1)
@@ -464,8 +464,8 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@emilyeserven/eslint-config@1.0.31':
-    resolution: {integrity: sha512-r6i98ZQKrWLIOCv/5Jmc6dIK9W2/PzGyhAtZiegtlcKwEHH3V8xjtVCMPfXdG1GwWVTkvKad+DIAWUAeUdqp8A==, tarball: https://npm.pkg.github.com/download/@emilyeserven/eslint-config/1.0.31/c355c34a6509290f0122b1e1abab6a129f58c3cb}
+  '@emilyeserven/eslint-config@1.0.36':
+    resolution: {integrity: sha512-iP+4Uja+E+7Zg4MNU/2uPsN3+JEBAegANi3yCm9ispza9TCmS3Zm16SzXbb0do/63+G14po0RgvtjbfVuomefw==, tarball: https://npm.pkg.github.com/download/@emilyeserven/eslint-config/1.0.36/7e83e182367db76607db9b0121b996519af32387}
     peerDependencies:
       '@eslint/js': ^9.34.0
       '@stylistic/eslint-plugin': ^5.2.3
@@ -4857,7 +4857,7 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@emilyeserven/eslint-config@1.0.31(e4ddfb6d0a66bd91b0188e8a3396efec)':
+  '@emilyeserven/eslint-config@1.0.36(e4ddfb6d0a66bd91b0188e8a3396efec)':
     dependencies:
       '@eslint/js': 9.39.1
       '@stylistic/eslint-plugin': 5.5.0(eslint@9.39.1(jiti@2.6.1))
