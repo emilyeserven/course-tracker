@@ -9,10 +9,11 @@ import { Button } from "@/components/button";
 import { CourseFields } from "@/components/CourseFields";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/field";
 import { Input } from "@/components/input";
+import { LoadDialog } from "@/components/LoadDialog";
 import { TopicField } from "@/components/TopicField";
 
-export const Route = createFileRoute("/about")({
-  component: About,
+export const Route = createFileRoute("/onboard")({
+  component: Onboard,
 });
 
 const formSchema = z.object({
@@ -82,7 +83,7 @@ const formSchema = z.object({
     .max(200, "Course URL must be at most 32 characters."),
 });
 
-export function About() {
+export function Onboard() {
   const [isStep2Revealed, setIsStep2Revealed] = useState(false);
   const [isStep3Revealed, setIsStep3Revealed] = useState(false);
   const navigate = useNavigate();
@@ -151,7 +152,7 @@ export function About() {
       };
       console.log(cleanedValue);
 
-      localStorage.setItem("courseDate", JSON.stringify(cleanedValue));
+      localStorage.setItem("courseData", JSON.stringify(cleanedValue));
       await navigate({
         to: "/courses",
       });
@@ -168,6 +169,11 @@ export function About() {
 
   return (
     <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
+      <div className="flex flex-row items-center gap-3">
+        Already have courses tracked?
+        {" "}
+        <LoadDialog triggerClassName="bg-primary/90" />
+      </div>
       <form
         id="onboarding"
         onSubmit={(e) => {

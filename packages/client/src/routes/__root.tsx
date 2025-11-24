@@ -1,16 +1,30 @@
 import React from "react";
 
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { EraserIcon, MoonIcon, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/dropdown-menu";
+import { LoadDialog } from "@/components/LoadDialog";
+import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
 
 const RootComponent: React.FunctionComponent = () => {
+  const navigate = useNavigate();
   const {
     theme, setTheme,
   } = useTheme();
 
   function handleClearLocal() {
+    navigate({
+      to: "/onboard",
+    });
     localStorage.clear();
   }
 
@@ -26,10 +40,10 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
 
           <Link
-            to="/about"
+            to="/onboard"
             className="[&.active]:font-bold"
           >
-            About
+            Onboard
           </Link>
 
           <Link
@@ -40,33 +54,56 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
         </div>
         <div className="flex flex-row gap-2">
-          {
-            theme === "dark"
-              ? (
-                <Button
-                  variant="outline"
-                  onClick={() => { setTheme("light"); }}
-                >Set to Light Mode
-                </Button>
-              )
-              : (
-                <Button
-                  variant="outline"
-                  onClick={() => { setTheme("dark"); }}
-                >Set to Dark Mode
-                </Button>
-              )
-          }
-          <Button
-            variant="outline"
-            onClick={() => handleClearLocal()}
-          >
-            Clear Local
-          </Button>
+          <SaveDialog />
+          <LoadDialog />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true}>
+              <Button>Menu</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Data Tools</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => handleClearLocal()}
+                >
+                  <EraserIcon />
+                  Clear Data
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>
+                Settings
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+
+                {
+                  theme === "dark"
+                    ? (
+                      <DropdownMenuItem
+                        onClick={() => { setTheme("light"); }}
+                      >
+                        <SunIcon />
+                        Set to Light Mode
+                      </DropdownMenuItem>
+                    )
+                    : (
+                      <DropdownMenuItem
+                        onClick={() => { setTheme("dark"); }}
+                      >
+                        <MoonIcon />
+                        Set to Dark Mode
+                      </DropdownMenuItem>
+                    )
+                }
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       <hr />
-      <Outlet />
+      <div className="m-auto max-w-[1200px]">
+        <Outlet />
+      </div>
     </>
   );
 };

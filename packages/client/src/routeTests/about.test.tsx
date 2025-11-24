@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, beforeEach, test, expect, vi } from "vitest";
 
-import { About } from "@/routes/about";
+import { Onboard } from "@/routes/onboard";
 // eslint-disable-next-line import/no-unassigned-import
 import "@testing-library/jest-dom";
 
@@ -13,10 +13,10 @@ vi.mock("@tanstack/react-query", () => ({
   useQuery: vi.fn(),
 }));
 
-describe("About Component", () => {
+describe("Onboard Component", () => {
   const mockUseQuery = useQuery as Mock;
 
-  const renderComponent = () => render(<About />);
+  const renderComponent = () => render(<Onboard />);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,7 +33,7 @@ describe("About Component", () => {
 
     expect(screen.getByRole("heading", {
       level: 2,
-      name: /Hello from About!/i,
+      name: /Hello from Onboard!/i,
     })).toBeInTheDocument();
 
     const statusMessage = screen.getByTestId("status-message");
@@ -53,7 +53,7 @@ describe("About Component", () => {
 
     expect(screen.getByRole("heading", {
       level: 2,
-      name: /Hello from About!/i,
+      name: /Hello from Onboard!/i,
     })).toBeInTheDocument();
 
     const statusMessage = screen.getByTestId("status-message");
