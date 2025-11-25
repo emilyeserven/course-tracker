@@ -1,7 +1,7 @@
 import type { Course } from "@/routes/courses";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, EditIcon, ExternalLink } from "lucide-react";
+import { EditIcon, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/button";
 import { getCourse } from "@/utils/getCourse";
@@ -23,14 +23,27 @@ function SingleCourseEdit() {
   console.log("data", data);
   return (
     <div>
-      <Link
-        to="/courses"
-        className="mb-8 flex flex-row"
-      >
-        <ArrowLeft />
-        {" "}
-        Courses
-      </Link>
+      <div className="flex flex-row gap-3">
+        <Link
+          to="/courses"
+          className="mb-8 flex flex-row"
+        >
+          Courses
+        </Link>
+        <span>/</span>
+        <Link
+          to="/courses/$id"
+          params={{
+            id: data.id,
+          }}
+          className="mb-8 flex flex-row"
+        >
+          {data.name}
+        </Link>
+
+        <span>/</span>
+        <span className="font-bold">Edit</span>
+      </div>
       <span className="mb-4 text-lg">EDIT COURSE</span>
       <h1 className="mb-4 text-3xl">{data.name}</h1>
       <div className="flex flex-col gap-8">
