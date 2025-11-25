@@ -14,6 +14,8 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
+import { Route as CoursesIdIndexRouteImport } from './routes/courses.$id.index'
+import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
 
 const OnboardRoute = OnboardRouteImport.update({
   id: '/onboard',
@@ -40,34 +42,64 @@ const CoursesIdRoute = CoursesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => CoursesRoute,
 } as any)
+const CoursesIdIndexRoute = CoursesIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesIdRoute,
+} as any)
+const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => CoursesIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
-  '/courses/$id': typeof CoursesIdRoute
+  '/courses/$id': typeof CoursesIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/courses/$id/': typeof CoursesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboard': typeof OnboardRoute
-  '/courses/$id': typeof CoursesIdRoute
   '/courses': typeof CoursesIndexRoute
+  '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/courses/$id': typeof CoursesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
-  '/courses/$id': typeof CoursesIdRoute
+  '/courses/$id': typeof CoursesIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/courses/$id/': typeof CoursesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/courses' | '/onboard' | '/courses/$id' | '/courses/'
+  fullPaths:
+    | '/'
+    | '/courses'
+    | '/onboard'
+    | '/courses/$id'
+    | '/courses/'
+    | '/courses/$id/edit'
+    | '/courses/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboard' | '/courses/$id' | '/courses'
-  id: '__root__' | '/' | '/courses' | '/onboard' | '/courses/$id' | '/courses/'
+  to: '/' | '/onboard' | '/courses' | '/courses/$id/edit' | '/courses/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/courses'
+    | '/onboard'
+    | '/courses/$id'
+    | '/courses/'
+    | '/courses/$id/edit'
+    | '/courses/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -113,16 +145,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIdRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/courses/$id/': {
+      id: '/courses/$id/'
+      path: '/'
+      fullPath: '/courses/$id/'
+      preLoaderRoute: typeof CoursesIdIndexRouteImport
+      parentRoute: typeof CoursesIdRoute
+    }
+    '/courses/$id/edit': {
+      id: '/courses/$id/edit'
+      path: '/edit'
+      fullPath: '/courses/$id/edit'
+      preLoaderRoute: typeof CoursesIdEditRouteImport
+      parentRoute: typeof CoursesIdRoute
+    }
   }
 }
 
+interface CoursesIdRouteChildren {
+  CoursesIdEditRoute: typeof CoursesIdEditRoute
+  CoursesIdIndexRoute: typeof CoursesIdIndexRoute
+}
+
+const CoursesIdRouteChildren: CoursesIdRouteChildren = {
+  CoursesIdEditRoute: CoursesIdEditRoute,
+  CoursesIdIndexRoute: CoursesIdIndexRoute,
+}
+
+const CoursesIdRouteWithChildren = CoursesIdRoute._addFileChildren(
+  CoursesIdRouteChildren,
+)
+
 interface CoursesRouteChildren {
-  CoursesIdRoute: typeof CoursesIdRoute
+  CoursesIdRoute: typeof CoursesIdRouteWithChildren
   CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
-  CoursesIdRoute: CoursesIdRoute,
+  CoursesIdRoute: CoursesIdRouteWithChildren,
   CoursesIndexRoute: CoursesIndexRoute,
 }
 
