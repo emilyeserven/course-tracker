@@ -17,3 +17,5 @@ appout
 tsconfig.build.tsbuildinfo
 
 .npmrc
+
+.env
