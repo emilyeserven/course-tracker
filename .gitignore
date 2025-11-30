@@ -19,3 +19,4 @@ tsconfig.build.tsbuildinfo
 .npmrc
 
 .env
+.env.production

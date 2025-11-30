@@ -11,12 +11,16 @@ let db:
   | NeonHttpDatabase<Record<string, never>>
   | NodePgDatabase<Record<string, never>>;
 if (process.env.NODE_ENV === "production") {
+  console.log("Using Neon DB");
   const sql = neon(process.env.DATABASE_URL!);
   db = NeonDrizzle({
     client: sql,
   });
 }
 else {
+  console.log("Using local DB");
+  console.log(process.env);
+
   db = LocalDrizzle(process.env.DATABASE_URL!);
 }
 
@@ -24,6 +28,7 @@ async function main() {
   const user: typeof usersTable.$inferInsert = {
     name: "John",
     age: 30,
+    test: true,
     email: "john@example.com",
   };
 
