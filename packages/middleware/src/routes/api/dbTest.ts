@@ -1,6 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { usersTable } from "@/db/schema.ts";
+import { usersTable } from "@/db/schema";
 import { db } from "@/db";
 
 export default async function (server: FastifyInstance) {

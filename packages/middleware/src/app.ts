@@ -5,10 +5,10 @@ import fastifySwaggerUi from "@fastify/swagger-ui";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import Fastify from "fastify";
 
-import routes from "./routes/routes.ts";
-import { makeEnvOptions } from "./services/env.ts";
-import swaggerOptions from "./services/swaggerOptions.ts";
-import swaggerUiOptions from "./services/swaggerUiOptions.ts";
+import routes from "./routes/routes";
+import { makeEnvOptions } from "./services/env";
+import swaggerOptions from "./services/swaggerOptions";
+import swaggerUiOptions from "./services/swaggerUiOptions";
 import { fileURLToPath } from "url";
 import path from "path";
 

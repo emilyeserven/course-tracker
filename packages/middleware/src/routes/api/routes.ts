@@ -1,9 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 
-import apiRoot from "./root.ts";
-import apiTest from "./testRoute.ts";
-import dbTest from "./dbTest.ts";
+import apiRoot from "./root";
+import apiTest from "./testRoute";
+import dbTest from "./dbTest";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();

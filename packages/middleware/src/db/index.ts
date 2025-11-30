@@ -2,7 +2,7 @@ import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { drizzle as LocalDrizzle } from "drizzle-orm/node-postgres";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { usersTable } from "@/db/schema.ts";
+import { usersTable } from "@/db/schema";
 import { neon } from "@neondatabase/serverless";
 import { drizzle as NeonDrizzle } from "drizzle-orm/neon-http";
 import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
