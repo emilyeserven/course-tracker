@@ -53,4 +53,10 @@ const start = async () => {
     process.exit(1);
   }
 };
-start();
+
+if (process.env.NODE_ENV === "production") {
+  module.exports = fastify;
+}
+else {
+  start();
+}
