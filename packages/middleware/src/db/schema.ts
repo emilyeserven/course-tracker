@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, numeric, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const usersTable = pgTable("users", {
@@ -14,6 +14,7 @@ export const usersTable = pgTable("users", {
 });
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
+export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
 
 export const courseProviders = pgTable("courseProviders", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -37,7 +38,11 @@ export const courses = pgTable("courses", {
     length: 255,
   }).notNull(),
   isCostFromPlatform: boolean().notNull(),
-  cost: numeric().notNull(),
+  progressCurrent: integer(),
+  progressTotal: integer(),
+  dateExpires: date(),
+  cost: numeric(),
+  status: statusEnum(),
   courseProviderId: integer("course_provider_id"),
 });
 
