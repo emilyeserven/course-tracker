@@ -35,7 +35,8 @@
   "packageManager": "pnpm@10.13.1",
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:types": "pnpm --filter types build",
+    "build": "pnpm build:types && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "nodemon --exec tsx src/app.ts",
     "test": "node --test",
     "push:prod": "dotenv -e .env.production -- drizzle-kit push",
