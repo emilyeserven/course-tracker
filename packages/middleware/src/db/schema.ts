@@ -16,18 +16,28 @@ export const usersTable = pgTable("users", {
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
 
+export const topics = pgTable("topics", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({
+    length: 255,
+  }).notNull().unique(),
+  description: varchar(),
+  reason: varchar(),
+});
+
 export const courseProviders = pgTable("courseProviders", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({
     length: 255,
   }).notNull(),
+  description: varchar(),
   url: varchar({
     length: 255,
-  }).notNull(),
+  }).notNull().unique(),
   cost: numeric(),
   isRecurring: boolean().notNull(),
-  recurPeriodUnit: recurPeriodUnitEnum(),
-  recurPeriod: integer().notNull(),
+  recurPeriodUnit: recurPeriodUnitEnum().notNull().default("years"),
+  recurPeriod: integer().notNull().default(1),
   isCourseFeesShared: boolean().notNull(),
 });
 
@@ -36,13 +46,13 @@ export const courses = pgTable("courses", {
   name: varchar({}).notNull(),
   url: varchar({
     length: 255,
-  }).notNull(),
+  }).notNull().unique(),
   isCostFromPlatform: boolean().notNull(),
   progressCurrent: integer(),
   progressTotal: integer(),
   dateExpires: date(),
   cost: numeric(),
-  status: statusEnum(),
+  status: statusEnum().default("active"),
   courseProviderId: integer("course_provider_id"),
 });
 
@@ -53,10 +63,11 @@ export const courseProviderRelations = relations(courseProviders, ({
 }));
 
 export const coursesRelations = relations(courses, ({
-  one,
+  one, many,
 }) => ({
   courseProvider: one(courseProviders, {
     fields: [courses.courseProviderId],
     references: [courseProviders.id],
   }),
+  topics: many(topics),
 }));

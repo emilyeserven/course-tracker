@@ -1,27 +1,11 @@
 import "dotenv/config";
+import * as schema from "@/db/schema";
 import { drizzle as LocalDrizzle } from "drizzle-orm/node-postgres";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { courseProviders, courses } from "@/db/schema";
-import { neon } from "@neondatabase/serverless";
-import { drizzle as NeonDrizzle } from "drizzle-orm/neon-http";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
 
-let db:
-  | NeonHttpDatabase<Record<string, never>>
-  | NodePgDatabase<Record<string, never>>;
-if (process.env.NODE_ENV === "production") {
-  console.log("Using Neon DB");
-  const sql = neon(process.env.DATABASE_URL!);
-  db = NeonDrizzle({
-    client: sql,
-  });
-}
-else {
-  console.log("Using local DB");
-  console.log(process.env);
-
-  db = LocalDrizzle(process.env.DATABASE_URL!);
-}
+const db = LocalDrizzle(process.env.DATABASE_URL!, {
+  schema,
+});
 
 async function main() {
   const uidevData: typeof courseProviders.$inferInsert = {
@@ -32,14 +16,22 @@ async function main() {
     isCourseFeesShared: true,
     url: "https://ui.dev/",
   };
+
+  const provider = await db.insert(courseProviders).values([uidevData])
+    .onConflictDoNothing().returning();
+  console.log("New courses providers created!");
+  console.log("provider", provider);
+
   const coursesData: typeof courses.$inferInsert[] = [{
     name: "react.gg",
     url: "https://ui.dev/c/react",
     isCostFromPlatform: true,
+    courseProviderId: provider[0] ? provider[0].id : null,
   }, {
     name: "Typescript",
     url: "https://ui.dev/c/typescript",
     isCostFromPlatform: true,
+    courseProviderId: provider[0] ? provider[0].id : null,
   }, {
     name: "Renshuu",
     url: "https://www.renshuu.org",
@@ -50,12 +42,12 @@ async function main() {
     .onConflictDoNothing();
   console.log("New courses created!");
 
-  await db.insert(courseProviders).values([uidevData])
-    .onConflictDoNothing();
-  console.log("New courses providers created!");
-
-  const users = await db.select().from(courses);
-  console.log("Getting all users from the database: ", users);
+  const result = await db.query.courseProviders.findMany({
+    with: {
+      courses: true,
+    },
+  });
+  console.log("result", result);
 }
 
 main();
