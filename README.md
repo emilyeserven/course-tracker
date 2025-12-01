@@ -1,25 +1,12 @@
-# The Stack
+App to stop me from buying courses I don't need.
 
-This template exists because I don't really like fullstack frameworks.
+Currently won't work via vercel etc due to DB needs.
 
-## Overall Tech
-- TypeScript
-- React (Frontend)
-- Fastify (Middleware/Backend)
-
-## Tooling
-- ESLint - [config package](https://github.com/emilyeserven/eslint-config)
-- PNPM
-- Vite
-- Docker
-- Storybook
-
-## FE Tech
-- TanStack Query + Router
-- ShadCN + Radix Primitives
+# Ideas
+- LLM call to take info in and tell you if a course you're considering is worth it or not
 
 # Local stuff
 ## DB
-- Command for docker: `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
+1. Run command for docker: `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
   - Verify with `docker ps`
-- While running: Don't forget to `npx drizzle-kit push`!
+2. Run `npx drizzle-kit push`
