@@ -4,6 +4,7 @@ import { FastifyInstance } from "fastify";
 import apiRoot from "./root";
 import apiTest from "./testRoute";
 import dbTest from "./dbTest";
+import courses from "./courses";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -11,4 +12,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(apiRoot);
   fastify.register(apiTest);
   fastify.register(dbTest);
+  fastify.register(courses);
 }

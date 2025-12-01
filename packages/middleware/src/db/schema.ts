@@ -35,15 +35,16 @@ export const courseProviders = pgTable("courseProviders", {
     length: 255,
   }).notNull().unique(),
   cost: numeric(),
-  isRecurring: boolean().notNull(),
-  recurPeriodUnit: recurPeriodUnitEnum().notNull().default("years"),
-  recurPeriod: integer().notNull().default(1),
-  isCourseFeesShared: boolean().notNull(),
+  isRecurring: boolean(),
+  recurPeriodUnit: recurPeriodUnitEnum().default("years"),
+  recurPeriod: integer().default(1),
+  isCourseFeesShared: boolean(),
 });
 
 export const courses = pgTable("courses", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({}).notNull(),
+  description: varchar(),
   url: varchar({
     length: 255,
   }).notNull().unique(),

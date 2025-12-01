@@ -1,4 +1,4 @@
-import type { Course } from "@/routes/courses";
+import type { Course } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,10 +16,10 @@ import { CourseMetaItem } from "@/components/CourseMetaItem";
 export function CourseBox({
   status,
   id,
-  service,
-  link,
+  courseProvider,
+  url,
   name,
-  topic,
+  // topic,
   description,
   dateExpires,
   progressCurrent = 0,
@@ -49,14 +49,13 @@ export function CourseBox({
               <CheckCircle size={16} />
             )}
           </div>
-          <div className="rounded bg-gray-50 px-2 py-0.5 text-xs">
-            {topic}
+          <div className="rounded bg-gray-50 px-2 py-0.5 text-xs">{/* topic */}
           </div>
         </div>
 
-        {link && (
+        {url && (
           <a
-            href={link}
+            href={url}
             target="_blank"
             className="cursor-pointer"
             rel="noopener noreferrer"
@@ -74,12 +73,12 @@ export function CourseBox({
                   to="/courses/$id"
                   from="/courses"
                   params={{
-                    id: id,
+                    id: id + "",
                   }}
                 >{name}
                 </Link>
               </h3>
-              { service && <h4>From {service}</h4> }
+              { courseProvider && courseProvider.name && <h4>From {courseProvider.name}</h4> }
             </div>
           </div>
           <div className="px-2 pb-2">
