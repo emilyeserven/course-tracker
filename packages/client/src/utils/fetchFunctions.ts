@@ -13,5 +13,5 @@ export async function fetchCourses(): Promise<CourseInCourses[]> {
 }
 
 export async function fetchSingleCourse(id: number): Promise<Course> {
-  return await fetch(`http://localhost:3001/api/course/${id}`).then(res => res.json());
+  return await fetch(`http://localhost:3001/api/courses/${id}`).then(res => res.json());
 }

@@ -2,13 +2,35 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 
+const testSchema = {
+  schema: {
+    description: "It's like looking into a mirror...",
+    params: {
+      type: "object",
+      properties: {
+        test: {
+          type: "string",
+        },
+      },
+      required: ["id"],
+    },
+  },
+} as const;
+
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.get(
-    "/courses",
-    async (request, reply) => {
-      const rawData = await db.query.courses.findMany({
+    "/:id",
+    testSchema,
+    async function (request, reply) {
+      const {
+        id,
+      } = request.params;
+      const course = await db.query.courses.findFirst({
+        where: (courses, {
+          eq,
+        }) => (eq(courses.id, Number(id))),
         with: {
           courseProvider: {
             with: {
@@ -27,7 +49,7 @@ export default async function (server: FastifyInstance) {
         },
       });
 
-      const processedData = rawData.map((course) => {
+      if (course) {
         let costData = {};
         if (course.isCostFromPlatform === true && course.courseProvider) {
           costData = {
@@ -47,7 +69,7 @@ export default async function (server: FastifyInstance) {
           return topicToCourse.topic.name;
         });
 
-        return {
+        const rawData = {
           id: course.id,
           name: course.name,
           description: course.description,
@@ -60,9 +82,9 @@ export default async function (server: FastifyInstance) {
           topics: topics,
           provider: course.courseProvider ? course.courseProvider.name : "",
         };
-      });
 
-      return processedData;
+        return rawData;
+      }
     },
   );
 }
