@@ -1,4 +1,4 @@
-import { boolean, date, integer, numeric, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, numeric, pgEnum, pgTable, primaryKey, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const usersTable = pgTable("users", {
@@ -53,6 +53,7 @@ export const courses = pgTable("courses", {
   dateExpires: date(),
   cost: numeric(),
   status: statusEnum().default("active"),
+  minutesLength: integer(),
   courseProviderId: integer("course_provider_id"),
 });
 
@@ -69,5 +70,40 @@ export const coursesRelations = relations(courses, ({
     fields: [courses.courseProviderId],
     references: [courseProviders.id],
   }),
-  topics: many(topics),
+  topicsToCourses: many(topicsToCourses),
+}));
+
+export const topicsRelations = relations(topics, ({
+  many,
+}) => ({
+  topicsToCourses: many(topicsToCourses),
+}));
+
+export const topicsToCourses = pgTable(
+  "topics_to_courses",
+  {
+    topicId: integer("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    courseId: integer("course_id")
+      .notNull()
+      .references(() => courses.id),
+  },
+  t => [
+    primaryKey({
+      columns: [t.topicId, t.courseId],
+    }),
+  ],
+);
+export const topicsToCoursesRelation = relations(topicsToCourses, ({
+  one,
+}) => ({
+  topic: one(topics, {
+    fields: [topicsToCourses.topicId],
+    references: [topics.id],
+  }),
+  course: one(courses, {
+    fields: [topicsToCourses.courseId],
+    references: [courses.id],
+  }),
 }));
