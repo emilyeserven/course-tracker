@@ -16,17 +16,21 @@ import { CourseMetaItem } from "@/components/CourseMetaItem";
 export function CourseBox({
   status,
   id,
-  courseProvider,
+  provider,
   url,
   name,
-  // topic,
-  description,
+  topics,
   dateExpires,
+  description,
   progressCurrent = 0,
   progressTotal = 0,
   cost,
 }: Course) {
   console.log("key", id);
+
+  const costValue = cost.isCostFromPlatform
+    ? `${(Number(cost.cost) / cost.splitBy)}*`
+    : Number(cost.cost);
   return (
     <div
       className="flex flex-col justify-between gap-2 rounded border"
@@ -49,7 +53,15 @@ export function CourseBox({
               <CheckCircle size={16} />
             )}
           </div>
-          <div className="rounded bg-gray-50 px-2 py-0.5 text-xs">{/* topic */}
+          <div className="flex flex-row gap-1">
+            {topics && topics.map(topic => (
+              <div
+                className="rounded bg-gray-50 px-2 py-0.5 text-xs"
+                key={topic}
+              >
+                {topic}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -78,7 +90,7 @@ export function CourseBox({
                 >{name}
                 </Link>
               </h3>
-              { courseProvider && courseProvider.name && <h4>From {courseProvider.name}</h4> }
+              { provider && <h4>From {provider}</h4> }
             </div>
           </div>
           <div className="px-2 pb-2">
@@ -105,8 +117,8 @@ export function CourseBox({
           emptyText="No progress"
         />
         <CourseMetaItem
-          value={cost}
-          condition={!!cost}
+          value={costValue}
+          condition={!!cost.cost}
           iconNode={<DollarSignIcon size={16} />}
           emptyText="No cost given"
         />

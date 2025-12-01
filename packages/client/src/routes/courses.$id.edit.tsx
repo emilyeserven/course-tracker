@@ -1,23 +1,57 @@
-import type { Course } from "@/routes/courses";
-
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/button";
-import { getCourse } from "@/utils/getCourse";
+import { fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
 export const Route = createFileRoute("/courses/$id/edit")({
-  loader: async ({
-    params,
-  }) => {
-    return getCourse(params.id);
-  },
   component: SingleCourseEdit,
 });
 
+function CoursesPending() {
+  return (
+    <div className="p-4">
+      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
+    </div>
+  );
+}
+
+function CoursesError() {
+  return (
+    <div className="p-4">
+      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <p>
+        Try to use the
+        {" "}
+        <Link to="/onboard">Onboarding Wizard</Link>
+        {" "}
+        again, or load in properly formed course data.
+      </p>
+    </div>
+  );
+}
+
 function SingleCourseEdit() {
-  const data: Course = Route.useLoaderData();
+  const {
+    id,
+  } = Route.useParams();
+
+  const {
+    isPending, error, data,
+  } = useQuery({
+    queryKey: ["course", id],
+    queryFn: () => fetchSingleCourse(Number(id)),
+  });
+
+  if (isPending || !data) {
+    <CoursesPending />;
+  }
+
+  if (error) {
+    <CoursesError />;
+  }
 
   const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
   console.log("data", data);
@@ -34,30 +68,32 @@ function SingleCourseEdit() {
         <Link
           to="/courses/$id"
           params={{
-            id: data.id,
+            id: data?.id + "",
           }}
           className="mb-8 flex flex-row"
         >
-          {data.name}
+          {data?.name}
         </Link>
 
         <span>/</span>
         <span className="font-bold">Edit</span>
       </div>
       <span className="mb-4 text-lg">EDIT COURSE</span>
-      <h1 className="mb-4 text-3xl">{data.name}</h1>
+      <h1 className="mb-4 text-3xl">{data?.name}</h1>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col">
-          {data?.service && (
+          {data?.provider && (
             <div className="flex flex-row gap-4">
               <b>Course Provider</b>
-              {data.service}
+              {data.provider}
             </div>
           )}
-          {data?.topic && (
+          {data?.topics && (
             <div className="flex flex-row gap-4">
               <b>Topic</b>
-              {data.topic}
+              {data.topics.map(topic => (
+                <span key={topic}>{topic}</span>
+              ))}
             </div>
           )}
 
@@ -102,19 +138,19 @@ function SingleCourseEdit() {
               {data.cost && !percentComplete && (
                 <div className="flex flex-row gap-4">
                   <b>Course Cost</b>
-                  {data.cost}
+                  {data.cost.cost}
                 </div>
               )}
 
               {data?.cost && percentComplete && (
-                <span>${Number(Number(data.cost) / Number(percentComplete)).toFixed(2)} out of ${data.cost}</span>
+                <span>${Number(Number(data.cost.cost) / Number(percentComplete)).toFixed(2)} out of ${data.cost.cost}</span>
               )}
             </div>
           </div>
         )}
         <div className="flex flex-row gap-2">
           <a
-            href={data.link}
+            href={data?.url}
             target="_blank"
             rel="noreferrer"
           >

@@ -1,6 +1,6 @@
-export type CourseStatus = "active" | "inactive" | "complete";
+import { CourseStatus } from "@/Course";
 
-export interface Course {
+export interface CourseInCourses {
   id: number;
   name: string;
   description?: string | null;

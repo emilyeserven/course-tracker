@@ -32,7 +32,10 @@ if (!rootElement.innerHTML) {
           defaultTheme="light"
           storageKey="vite-ui-theme"
         >
-          <RouterProvider router={router} />
+          <RouterProvider
+            router={router}
+            context={queryClient}
+          />
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,

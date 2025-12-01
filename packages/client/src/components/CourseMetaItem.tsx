@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 interface CourseMetaItemProps {
-  value?: string | number;
+  value?: string | number | null;
   condition?: boolean;
   iconNode?: ReactNode;
   emptyText?: string;
