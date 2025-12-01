@@ -3,21 +3,30 @@ import type { ReactFormExtendedApi } from "@tanstack/react-form";
 import { Field, FieldError, FieldLabel } from "@/components/field";
 import { Input } from "@/components/input";
 
-interface TopicFieldProps {
+interface FormFieldProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: ReactFormExtendedApi<any, any, any, any, any, any, any, any, any, any, any, any>;
-  condition: boolean;
+  condition?: boolean;
   name: string;
   label: string;
+  className?: string;
+  fieldClassName?: string;
+  placeholder?: string;
 }
-export function TopicField({
+
+export function FormField({
   form,
-  condition,
+  condition = true,
   name,
   label,
-}: TopicFieldProps) {
+  className = "text-2xl",
+  placeholder,
+  fieldClassName = "h-11 md:text-xl",
+}: FormFieldProps) {
   if (!condition) {
     return <></>;
   }
+
   return (
     <form.Field
       name={name}
@@ -28,7 +37,7 @@ export function TopicField({
           <Field data-invalid={isInvalid}>
             <FieldLabel
               htmlFor={field.name}
-              className="text-2xl"
+              className={className}
             >{label}
             </FieldLabel>
             <Input
@@ -38,12 +47,9 @@ export function TopicField({
               onBlur={field.handleBlur}
               onChange={e => field.handleChange(e.target.value)}
               aria-invalid={isInvalid}
-              placeholder="Memes"
+              placeholder={placeholder}
               autoComplete="off"
-              className={`
-                h-11
-                md:text-xl
-              `}
+              className={fieldClassName}
             />
             {isInvalid && (
               <FieldError errors={field.state.meta.errors} />
