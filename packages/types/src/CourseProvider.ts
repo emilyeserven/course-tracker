@@ -1,13 +1,16 @@
+import { CourseFromServer } from "./CourseFromServer";
+
 export type RecurPeriodUnit = "days" | "months" | "years";
 
 export interface CourseProvider {
   id: number;
   name: string;
-  description?: string;
+  description?: string | null;
   url: string;
-  cost?: number;
-  isRecurring?: boolean;
-  recurPeriodUnit?: RecurPeriodUnit;
-  recurPeriod?: number;
-  isCourseFeesShared?: boolean;
+  cost?: string | null;
+  isRecurring?: boolean | null;
+  recurPeriodUnit?: RecurPeriodUnit | null;
+  recurPeriod?: number | null;
+  isCourseFeesShared?: boolean | null;
+  courses?: CourseFromServer[] | null;
 }

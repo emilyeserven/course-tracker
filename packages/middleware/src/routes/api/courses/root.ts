@@ -1,6 +1,8 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { processCost } from "@/utils/processCost";
+import { processTopics } from "@/utils/processTopics";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -28,24 +30,9 @@ export default async function (server: FastifyInstance) {
       });
 
       const processedData = rawData.map((course) => {
-        let costData = {};
-        if (course.isCostFromPlatform === true && course.courseProvider) {
-          costData = {
-            cost: course.courseProvider.cost,
-            isCostFromPlatform: course.isCostFromPlatform,
-            splitBy: course.courseProvider.courses.length,
-          };
-        }
-        else {
-          costData = {
-            cost: course.cost,
-            isCostFromPlatform: course.isCostFromPlatform,
-          };
-        }
+        const costData = processCost(course);
 
-        const topics = course.topicsToCourses.map((topicToCourse) => {
-          return topicToCourse.topic.name;
-        });
+        const topics = processTopics(course);
 
         return {
           id: course.id,
