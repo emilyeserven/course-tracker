@@ -1,6 +1,10 @@
+import type { Course } from "@emstack/types/src";
+
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { CourseBox } from "@/components/CourseBox";
+import { fetchCourses } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/courses/")({
   component: Courses,
@@ -31,23 +35,18 @@ function CoursesError() {
   );
 }
 
-export interface Course {
-  name: string;
-  id: string;
-  link: string;
-  topic: string;
-  service?: string;
-  description?: string;
-  progressCurrent?: number;
-  progressTotal?: number;
-  status?: "active" | "inactive" | "complete";
-  dateExpires?: string;
-  cost?: string;
-}
-
 function Courses() {
   const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
+
+  const {
+    data,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchCourses(),
+  });
+
+  const dataToUse = data ? data : local.courses;
 
   return (
     <div className="p-4">
@@ -60,7 +59,7 @@ function Courses() {
         `}
       >
         {
-          local.courses.map((course: Course) => {
+          dataToUse.map((course: Course) => {
             if (course.name === "") {
               return;
             }

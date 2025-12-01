@@ -113,8 +113,6 @@ function Onboard() {
     onSubmit: async ({
       value,
     }) => {
-      console.log(value);
-
       const rawCourses = [
         {
           name: value.course1Name,
