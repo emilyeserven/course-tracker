@@ -27,8 +27,6 @@ export default async function (server: FastifyInstance) {
         },
       });
 
-      console.log(rawData);
-
       const processedData = rawData.map((course) => {
         let costData = {};
         if (course.isCostFromPlatform === true && course.courseProvider) {

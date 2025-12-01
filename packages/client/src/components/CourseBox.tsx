@@ -26,8 +26,6 @@ export function CourseBox({
   progressTotal = 0,
   cost,
 }: Course) {
-  console.log("key", id);
-
   const costValue = cost.isCostFromPlatform
     ? `${(Number(cost.cost) / cost.splitBy)}*`
     : Number(cost.cost);

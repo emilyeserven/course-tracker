@@ -54,7 +54,6 @@ function SingleCourseEdit() {
   }
 
   const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
-  console.log("data", data);
   return (
     <div>
       <div className="flex flex-row gap-3">

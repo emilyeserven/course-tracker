@@ -45,7 +45,6 @@ function Courses() {
     queryKey: ["courses"],
     queryFn: () => fetchCourses(),
   });
-  console.log("data", data);
 
   const dataToUse = data ? data : local.courses;
 
