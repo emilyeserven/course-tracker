@@ -3,6 +3,8 @@ import { FastifyInstance } from "fastify";
 
 import apiRoot from "./root";
 import apiTest from "./testRoute";
+import apiSeed from "./seed";
+import apiClear from "./clearData";
 import dbTest from "./dbTest";
 import courses from "./courses/routes";
 
@@ -11,6 +13,8 @@ export default async function (server: FastifyInstance) {
 
   fastify.register(apiRoot);
   fastify.register(apiTest);
+  fastify.register(apiSeed);
+  fastify.register(apiClear);
   fastify.register(dbTest);
   fastify.register(courses, {
     prefix: "/courses",

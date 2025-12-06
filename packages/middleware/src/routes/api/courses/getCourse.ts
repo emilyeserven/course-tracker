@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
+import type { Course, CourseFromServer } from "@emstack/types/src";
 
 const testSchema = {
   schema: {
@@ -29,7 +30,7 @@ export default async function (server: FastifyInstance) {
       const {
         id,
       } = request.params;
-      const course = await db.query.courses.findFirst({
+      const course: CourseFromServer | undefined = await db.query.courses.findFirst({
         where: (courses, {
           eq,
         }) => (eq(courses.id, Number(id))),
@@ -57,7 +58,7 @@ export default async function (server: FastifyInstance) {
 
         const topics = processTopics(course);
 
-        const rawData = {
+        const rawData: Course = {
           id: course.id,
           name: course.name,
           description: course.description,

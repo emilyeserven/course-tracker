@@ -1,7 +1,8 @@
 import React from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { EraserIcon, MoonIcon, SunIcon } from "lucide-react";
+import { EraserIcon, LoaderIcon, MoonIcon, SproutIcon, SunIcon, TriangleAlertIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
 import {
@@ -14,6 +15,7 @@ import {
 import { LoadDialog } from "@/components/LoadDialog";
 import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
+import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
 
 const RootComponent: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -21,11 +23,46 @@ const RootComponent: React.FunctionComponent = () => {
     theme, setTheme,
   } = useTheme();
 
-  function handleClearLocal() {
-    navigate({
-      to: "/onboard",
-    });
-    localStorage.clear();
+  const {
+    isFetching: isSeedFetching,
+    error: seedError,
+    refetch: seedRefetch,
+  } = useQuery({
+    enabled: false,
+    queryKey: ["seed"],
+    queryFn: () => fetchSeed(),
+  });
+
+  const {
+    isFetching: isClearFetching,
+    error: clearError,
+    refetch: clearRefetch,
+  } = useQuery({
+    enabled: false,
+    queryKey: ["clear"],
+    queryFn: () => fetchClear(),
+  });
+
+  async function handleClearLocal() {
+    const clearRefetchResult = await clearRefetch();
+
+    if (clearRefetchResult.status === "success") {
+      navigate({
+        to: "/courses",
+        reloadDocument: true,
+      });
+    }
+  }
+
+  async function handleClearSeedLocal() {
+    console.log("clear seed clicked");
+    const seedRefetchResult = await seedRefetch();
+    if (seedRefetchResult.status === "success") {
+      navigate({
+        to: "/courses",
+        reloadDocument: true,
+      });
+    }
   }
 
   return (
@@ -68,6 +105,28 @@ const RootComponent: React.FunctionComponent = () => {
                 >
                   <EraserIcon />
                   Clear Data
+                  {isClearFetching && (
+                    <LoaderIcon
+                      className="animate-spin"
+                    />
+                  )}
+                  {clearError && (
+                    <TriangleAlertIcon />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleClearSeedLocal()}
+                >
+                  <SproutIcon />
+                  Clear & Seed Data
+                  {isSeedFetching && (
+                    <LoaderIcon
+                      className="animate-spin"
+                    />
+                  )}
+                  {seedError && (
+                    <TriangleAlertIcon />
+                  )}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
