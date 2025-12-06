@@ -9,6 +9,7 @@ import { Button } from "@/components/button";
 import { CourseFields } from "@/components/CourseFields";
 import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
 import { FormField } from "@/components/FormField";
+import { fetchOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({
   component: Onboard,
@@ -155,7 +156,8 @@ function Onboard() {
         ],
       };
 
-      localStorage.setItem("courseData", JSON.stringify(cleanedValue));
+      await fetchOnboardForm(cleanedValue);
+
       await navigate({
         to: "/courses",
       });
