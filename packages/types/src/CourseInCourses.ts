@@ -1,7 +1,7 @@
 import { CourseStatus } from "./Course";
 
 export interface CourseInCourses {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
   url: string;

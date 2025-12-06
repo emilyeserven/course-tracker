@@ -3,7 +3,7 @@ import { CourseFromServer } from "./CourseFromServer";
 export type RecurPeriodUnit = "days" | "months" | "years";
 
 export interface CourseProvider {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
   url: string;
