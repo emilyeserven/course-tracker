@@ -17,7 +17,7 @@ export async function fetchCourses(): Promise<CourseInCourses[]> {
   return await fetch("http://localhost:3001/api/courses").then(res => res.json());
 }
 
-export async function fetchSingleCourse(id: number): Promise<Course> {
+export async function fetchSingleCourse(id: string): Promise<Course> {
   return await fetch(`http://localhost:3001/api/courses/${id}`).then(res => res.json());
 }
 
@@ -30,7 +30,6 @@ export async function fetchClear(): Promise<SuccessObj> {
 }
 
 export async function fetchOnboardForm(formData: OnboardData): Promise<SuccessObj> {
-  console.log("fOF", formData);
   return await fetch("http://localhost:3001/api/submitOnboardData", {
     method: "POST",
     headers: {

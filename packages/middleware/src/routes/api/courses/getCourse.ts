@@ -11,7 +11,7 @@ const testSchema = {
     params: {
       type: "object",
       properties: {
-        test: {
+        id: {
           type: "string",
         },
       },
@@ -33,7 +33,7 @@ export default async function (server: FastifyInstance) {
       const course: CourseFromServer | undefined = await db.query.courses.findFirst({
         where: (courses, {
           eq,
-        }) => (eq(courses.id, Number(id))),
+        }) => (eq(courses.id, id)),
         with: {
           courseProvider: {
             with: {

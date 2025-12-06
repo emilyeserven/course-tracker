@@ -3,10 +3,10 @@ import type { CostData } from "@/CostData.ts";
 export type CourseStatus = "active" | "inactive" | "complete";
 
 export interface Course {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
-  url: string;
+  url?: string;
   dateExpires?: string | null;
   cost: CostData;
   progressCurrent: number;

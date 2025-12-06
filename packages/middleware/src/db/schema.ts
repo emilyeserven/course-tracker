@@ -2,7 +2,7 @@ import { boolean, date, integer, numeric, pgEnum, pgTable, primaryKey, varchar }
 import { relations } from "drizzle-orm";
 
 export const usersTable = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: varchar().primaryKey(),
   name: varchar({
     length: 255,
   }).notNull(),
@@ -17,7 +17,7 @@ export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", 
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
 
 export const topics = pgTable("topics", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: varchar().primaryKey(),
   name: varchar({
     length: 255,
   }).notNull().unique(),
@@ -26,7 +26,7 @@ export const topics = pgTable("topics", {
 });
 
 export const courseProviders = pgTable("courseProviders", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: varchar().primaryKey(),
   name: varchar({
     length: 255,
   }).notNull(),
@@ -43,12 +43,12 @@ export const courseProviders = pgTable("courseProviders", {
 });
 
 export const courses = pgTable("courses", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: varchar().primaryKey(),
   name: varchar({}).notNull(),
   description: varchar(),
   url: varchar({
     length: 255,
-  }).notNull().unique(),
+  }).unique(),
   isCostFromPlatform: boolean().notNull(),
   progressCurrent: integer(),
   progressTotal: integer(),
@@ -57,7 +57,7 @@ export const courses = pgTable("courses", {
   cost: numeric(),
   status: statusEnum().default("active"),
   minutesLength: integer(),
-  courseProviderId: integer("course_provider_id"),
+  courseProviderId: varchar("course_provider_id"),
 });
 
 export const courseProviderRelations = relations(courseProviders, ({
@@ -85,10 +85,10 @@ export const topicsRelations = relations(topics, ({
 export const topicsToCourses = pgTable(
   "topics_to_courses",
   {
-    topicId: integer("topic_id")
+    topicId: varchar("topic_id")
       .notNull()
       .references(() => topics.id),
-    courseId: integer("course_id")
+    courseId: varchar("course_id")
       .notNull()
       .references(() => courses.id),
   },
