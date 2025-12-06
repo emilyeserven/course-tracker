@@ -12,8 +12,6 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/dropdown-menu";
-import { LoadDialog } from "@/components/LoadDialog";
-import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
 import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
 
@@ -91,8 +89,6 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
         </div>
         <div className="flex flex-row gap-2">
-          <SaveDialog />
-          <LoadDialog />
           <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
               <Button>Menu</Button>

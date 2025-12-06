@@ -9,7 +9,6 @@ import { Button } from "@/components/button";
 import { CourseFields } from "@/components/CourseFields";
 import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
 import { FormField } from "@/components/FormField";
-import { LoadDialog } from "@/components/LoadDialog";
 
 export const Route = createFileRoute("/onboard")({
   component: Onboard,
@@ -173,11 +172,6 @@ function Onboard() {
 
   return (
     <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
-      <div className="flex flex-row items-center gap-3">
-        Already have courses tracked?
-        {" "}
-        <LoadDialog triggerClassName="bg-primary/90" />
-      </div>
       <form
         id="onboarding"
         onSubmit={(e) => {
