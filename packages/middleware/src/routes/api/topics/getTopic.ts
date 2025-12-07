@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
+import { processCourses } from "@/utils/processCourses";
 
 const testSchema = {
   schema: {
@@ -38,6 +39,7 @@ export default async function (server: FastifyInstance) {
               course: {
                 columns: {
                   name: true,
+                  id: true,
                 },
               },
             },
@@ -47,6 +49,7 @@ export default async function (server: FastifyInstance) {
 
       if (topic) {
         const courseCount = topic.topicsToCourses?.length ?? 0;
+        const courses = processCourses(topic.topicsToCourses);
 
         return {
           id: topic.id,
@@ -54,6 +57,7 @@ export default async function (server: FastifyInstance) {
           description: topic.description,
           reason: topic.reason,
           courseCount: courseCount,
+          courses: courses,
         };
       }
     },

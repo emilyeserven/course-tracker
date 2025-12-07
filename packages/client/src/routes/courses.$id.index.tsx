@@ -81,9 +81,14 @@ function SingleCourse() {
           {data?.topics && (
             <div className="flex flex-row gap-4">
               <b>Topic</b>
-              {data.topics.map(topic => (
-                <span key={topic}>{topic}</span>
-              ))}
+              {data.topics.map((topic) => {
+                if (!topic) {
+                  return <></>;
+                }
+                return (
+                  <span key={topic.id}>{topic.name}</span>
+                );
+              })}
             </div>
           )}
 

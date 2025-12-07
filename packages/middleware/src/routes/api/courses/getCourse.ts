@@ -56,7 +56,7 @@ export default async function (server: FastifyInstance) {
       if (course) {
         const costData = processCost(course);
 
-        const topics = processTopics(course);
+        const topics = processTopics(course.topicsToCourses);
 
         const rawData: Course = {
           id: course.id,

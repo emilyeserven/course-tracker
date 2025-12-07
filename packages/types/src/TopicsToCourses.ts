@@ -5,5 +5,5 @@ export interface TopicsToCourses {
   topicId: string;
   courseId: string;
   topic?: Partial<TopicsFromServer>;
-  courses?: Partial<Course>;
+  course?: Partial<Course>;
 }

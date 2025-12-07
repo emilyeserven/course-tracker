@@ -34,7 +34,7 @@ export default async function (server: FastifyInstance) {
       const processedData: Course[] = rawData.map((course: CourseFromServer) => {
         const costData = processCost(course);
 
-        const topics = processTopics(course);
+        const topics = processTopics(course.topicsToCourses);
 
         return {
           id: course.id,

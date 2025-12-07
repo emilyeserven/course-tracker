@@ -86,6 +86,27 @@ function SingleTopic() {
             </p>
           </InfoArea>
         </div>
+        <div>
+          <InfoArea
+            header="Courses"
+            condition={!!data?.courseCount && data.courseCount > 0}
+          >
+            <ul>
+              {data?.courses.map(course => (
+                <li key={course.id}>
+                  <Link
+                    to="/courses/$id"
+                    from="/topics/$id"
+                    params={{
+                      id: course.id + "",
+                    }}
+                  >{course.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </InfoArea>
+        </div>
         <div className="flex flex-row gap-2">
           <Link
             to="/courses/$id/edit"
