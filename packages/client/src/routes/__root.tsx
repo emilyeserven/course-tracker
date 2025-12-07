@@ -2,13 +2,13 @@ import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { EraserIcon, LoaderIcon, MoonIcon, SproutIcon, SunIcon, TriangleAlertIcon } from "lucide-react";
+import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuGroup, DropdownMenuItem, DropdownMenuItemInteractive,
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/dropdown-menu";
@@ -95,34 +95,22 @@ const RootComponent: React.FunctionComponent = () => {
             <DropdownMenuContent>
               <DropdownMenuLabel>Data Tools</DropdownMenuLabel>
               <DropdownMenuGroup>
-                <DropdownMenuItem
+                <DropdownMenuItemInteractive
                   onClick={() => handleClearLocal()}
+                  isLoading={isClearFetching}
+                  isError={clearError}
                 >
                   <EraserIcon />
                   Clear Data
-                  {isClearFetching && (
-                    <LoaderIcon
-                      className="animate-spin"
-                    />
-                  )}
-                  {clearError && (
-                    <TriangleAlertIcon />
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                </DropdownMenuItemInteractive>
+                <DropdownMenuItemInteractive
                   onClick={() => handleClearSeedLocal()}
+                  isLoading={isSeedFetching}
+                  isError={seedError}
                 >
                   <SproutIcon />
                   Clear & Seed Data
-                  {isSeedFetching && (
-                    <LoaderIcon
-                      className="animate-spin"
-                    />
-                  )}
-                  {seedError && (
-                    <TriangleAlertIcon />
-                  )}
-                </DropdownMenuItem>
+                </DropdownMenuItemInteractive>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>

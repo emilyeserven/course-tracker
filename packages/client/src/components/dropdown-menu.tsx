@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon, CircleIcon, LoaderIcon, TriangleAlertIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -116,6 +116,52 @@ function DropdownMenuItem({
       )}
       {...props}
     />
+  );
+}
+
+function DropdownMenuItemInteractive({
+  className,
+  inset,
+  variant = "default",
+  isLoading = false,
+  isError = false,
+  onClick,
+  children,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
+  inset?: boolean;
+  variant?: "default" | "destructive";
+  isLoading?: boolean;
+  isError?: boolean | Error | null;
+  onClick?: () => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <DropdownMenuItem
+      onClick={onClick}
+      data-inset={inset}
+      data-variant={variant}
+      className={`
+        ${className}
+        flex flex-row justify-between gap-3
+      `}
+      {...props}
+    >
+      <div className="flex flex-row items-center gap-1">
+        {children}
+      </div>
+      {isLoading && (
+        <LoaderIcon
+          className="animate-spin"
+        />
+      )}
+      {!!isError && (
+        <TriangleAlertIcon />
+      )}
+      {!isError && !isLoading && (
+        <span className="w-4" />
+      )}
+    </DropdownMenuItem>
   );
 }
 
@@ -337,6 +383,7 @@ export {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuItem,
+  DropdownMenuItemInteractive,
   DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
