@@ -9,14 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as TopicsIdRouteImport } from './routes/topics.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
+import { Route as TopicsIdIndexRouteImport } from './routes/topics.$id.index'
 import { Route as CoursesIdIndexRouteImport } from './routes/courses.$id.index'
 import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
 
+const TopicsRoute = TopicsRouteImport.update({
+  id: '/topics',
+  path: '/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardRoute = OnboardRouteImport.update({
   id: '/onboard',
   path: '/onboard',
@@ -32,15 +41,30 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TopicsIndexRoute = TopicsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TopicsRoute,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CoursesRoute,
 } as any)
+const TopicsIdRoute = TopicsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TopicsRoute,
+} as any)
 const CoursesIdRoute = CoursesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => CoursesRoute,
+} as any)
+const TopicsIdIndexRoute = TopicsIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TopicsIdRoute,
 } as any)
 const CoursesIdIndexRoute = CoursesIdIndexRouteImport.update({
   id: '/',
@@ -57,27 +81,37 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
+  '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
+  '/topics/$id/': typeof TopicsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboard': typeof OnboardRoute
   '/courses': typeof CoursesIndexRoute
+  '/topics': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id': typeof CoursesIdIndexRoute
+  '/topics/$id': typeof TopicsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
+  '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
+  '/topics/$id/': typeof TopicsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -85,31 +119,54 @@ export interface FileRouteTypes {
     | '/'
     | '/courses'
     | '/onboard'
+    | '/topics'
     | '/courses/$id'
+    | '/topics/$id'
     | '/courses/'
+    | '/topics/'
     | '/courses/$id/edit'
     | '/courses/$id/'
+    | '/topics/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboard' | '/courses' | '/courses/$id/edit' | '/courses/$id'
+  to:
+    | '/'
+    | '/onboard'
+    | '/courses'
+    | '/topics'
+    | '/courses/$id/edit'
+    | '/courses/$id'
+    | '/topics/$id'
   id:
     | '__root__'
     | '/'
     | '/courses'
     | '/onboard'
+    | '/topics'
     | '/courses/$id'
+    | '/topics/$id'
     | '/courses/'
+    | '/topics/'
     | '/courses/$id/edit'
     | '/courses/$id/'
+    | '/topics/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   OnboardRoute: typeof OnboardRoute
+  TopicsRoute: typeof TopicsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/topics': {
+      id: '/topics'
+      path: '/topics'
+      fullPath: '/topics'
+      preLoaderRoute: typeof TopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboard': {
       id: '/onboard'
       path: '/onboard'
@@ -131,6 +188,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/topics/': {
+      id: '/topics/'
+      path: '/'
+      fullPath: '/topics/'
+      preLoaderRoute: typeof TopicsIndexRouteImport
+      parentRoute: typeof TopicsRoute
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -138,12 +202,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/topics/$id': {
+      id: '/topics/$id'
+      path: '/$id'
+      fullPath: '/topics/$id'
+      preLoaderRoute: typeof TopicsIdRouteImport
+      parentRoute: typeof TopicsRoute
+    }
     '/courses/$id': {
       id: '/courses/$id'
       path: '/$id'
       fullPath: '/courses/$id'
       preLoaderRoute: typeof CoursesIdRouteImport
       parentRoute: typeof CoursesRoute
+    }
+    '/topics/$id/': {
+      id: '/topics/$id/'
+      path: '/'
+      fullPath: '/topics/$id/'
+      preLoaderRoute: typeof TopicsIdIndexRouteImport
+      parentRoute: typeof TopicsIdRoute
     }
     '/courses/$id/': {
       id: '/courses/$id/'
@@ -189,10 +267,36 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface TopicsIdRouteChildren {
+  TopicsIdIndexRoute: typeof TopicsIdIndexRoute
+}
+
+const TopicsIdRouteChildren: TopicsIdRouteChildren = {
+  TopicsIdIndexRoute: TopicsIdIndexRoute,
+}
+
+const TopicsIdRouteWithChildren = TopicsIdRoute._addFileChildren(
+  TopicsIdRouteChildren,
+)
+
+interface TopicsRouteChildren {
+  TopicsIdRoute: typeof TopicsIdRouteWithChildren
+  TopicsIndexRoute: typeof TopicsIndexRoute
+}
+
+const TopicsRouteChildren: TopicsRouteChildren = {
+  TopicsIdRoute: TopicsIdRouteWithChildren,
+  TopicsIndexRoute: TopicsIndexRoute,
+}
+
+const TopicsRouteWithChildren =
+  TopicsRoute._addFileChildren(TopicsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoursesRoute: CoursesRouteWithChildren,
   OnboardRoute: OnboardRoute,
+  TopicsRoute: TopicsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

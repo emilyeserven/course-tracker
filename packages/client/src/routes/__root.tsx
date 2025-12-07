@@ -86,6 +86,13 @@ const RootComponent: React.FunctionComponent = () => {
           >
             Courses
           </Link>
+
+          <Link
+            to="/topics"
+            className="[&.active]:font-bold"
+          >
+            Topics
+          </Link>
         </div>
         <div className="flex flex-row gap-2">
           <DropdownMenu>
