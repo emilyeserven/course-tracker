@@ -45,11 +45,30 @@ const testSchema = {
   },
 } as const;
 
+interface FormCourseData {
+  [x: string]: unknown;
+  name: string;
+  topic?: string;
+  url?: string;
+  id?: string;
+}
+
 function makeTopicData(topicData: string[]) {
   return topicData.map((topic: string) => {
     return {
       id: uuidv4(),
       name: topic,
+    };
+  });
+}
+
+function makeCourseData(courseData: FormCourseData[]) {
+  return courseData.map((course) => {
+    return {
+      id: uuidv4(),
+      name: course.name,
+      url: course.url,
+      isCostFromPlatform: false,
     };
   });
 }
@@ -69,15 +88,8 @@ export default async function (server: FastifyInstance) {
 
       const reqCourses = request.body.courses;
 
-      const coursesData = request.body.courses
-        ? request.body.courses.map((course) => {
-          return {
-            id: uuidv4(),
-            name: course.name,
-            url: course.url,
-            isCostFromPlatform: false,
-          };
-        })
+      const coursesData = reqCourses
+        ? makeCourseData(reqCourses)
         : [];
       if (coursesData) {
         const topicsDb = await db.insert(topics).values(topicsData).onConflictDoNothing().returning();
