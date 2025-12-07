@@ -14,7 +14,12 @@ export interface CourseInCourses {
   progressCurrent: number;
   progressTotal: number;
   status: CourseStatus;
-  topics?: string[];
+  topics?: (
+    {
+      name: string;
+      id: string;
+    }
+  )[];
   provider?: string;
 
 }

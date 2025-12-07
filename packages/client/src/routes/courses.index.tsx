@@ -77,8 +77,8 @@ function Courses() {
 
         {
           data && data.length > 0 && data.map((course: Course) => {
-            if (course.name === "") {
-              return;
+            if (!course) {
+              return <></>;
             }
             return (
               <CourseBox

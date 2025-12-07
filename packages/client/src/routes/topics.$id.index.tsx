@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
+import { InfoArea } from "@/components/InfoArea";
 import { fetchSingleTopic } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/$id/")({
@@ -67,18 +68,23 @@ function SingleTopic() {
       <span className="mb-4 text-lg">TOPIC</span>
       <h1 className="mb-4 text-3xl">{data?.name}</h1>
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col">
-          {data?.description && (
+        <div className="flex flex-col gap-6">
+          <InfoArea
+            header="About"
+            condition={!!data?.description}
+          >
             <p>
-              {data.description}
+              {data?.description}
             </p>
-          )}
-
-          {data?.reason && (
+          </InfoArea>
+          <InfoArea
+            header="Why am I learning this?"
+            condition={!!data?.reason}
+          >
             <p>
-              {data.reason}
+              {data?.reason}
             </p>
-          )}
+          </InfoArea>
         </div>
         <div className="flex flex-row gap-2">
           <Link
@@ -86,8 +92,12 @@ function SingleTopic() {
             params={{
               id: data?.id + "",
             }}
+            disabled={true}
           >
-            <Button variant="secondary">
+            <Button
+              variant="secondary"
+              disabled={true}
+            >
               Edit Topic
               {" "}
               <EditIcon />

@@ -2,6 +2,11 @@ import type { CostData } from "@/CostData.ts";
 
 export type CourseStatus = "active" | "inactive" | "complete";
 
+interface Topic {
+  id: string;
+  name: string;
+}
+
 export interface Course {
   id: string;
   name: string;
@@ -12,6 +17,6 @@ export interface Course {
   progressCurrent: number;
   progressTotal: number;
   status: CourseStatus;
-  topics?: string[];
+  topics?: (Topic | undefined)[];
   provider?: string;
 }

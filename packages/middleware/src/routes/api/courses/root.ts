@@ -23,6 +23,7 @@ export default async function (server: FastifyInstance) {
               topic: {
                 columns: {
                   name: true,
+                  id: true,
                 },
               },
             },

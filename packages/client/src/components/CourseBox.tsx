@@ -52,14 +52,27 @@ export function CourseBox({
             )}
           </div>
           <div className="flex flex-row gap-1">
-            {topics && topics.map(topic => (
-              <div
-                className="rounded bg-gray-50 px-2 py-0.5 text-xs"
-                key={topic}
-              >
-                {topic}
-              </div>
-            ))}
+            {topics && topics.map((topic) => {
+              if (!topic) {
+                return null;
+              }
+              return (
+                <div
+                  className="rounded bg-gray-50 px-2 py-0.5 text-xs"
+                  key={topic.id}
+                >
+                  <Link
+                    to="/topics/$id"
+                    from="/courses"
+                    params={{
+                      id: topic.id + "",
+                    }}
+                  >
+                    {topic.name}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </div>
 
