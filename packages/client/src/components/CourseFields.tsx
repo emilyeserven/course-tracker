@@ -4,6 +4,7 @@ import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from
 import { Input } from "@/components/input";
 
 interface TopicFieldProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: ReactFormExtendedApi<any, any, any, any, any, any, any, any, any, any, any, any>;
   condition: boolean;
   name: string;
