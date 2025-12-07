@@ -17,6 +17,6 @@ export interface Course {
   progressCurrent: number;
   progressTotal: number;
   status: CourseStatus;
-  topics?: (Topic | undefined)[];
+  topics?: Topic[] | undefined;
   provider?: string;
 }

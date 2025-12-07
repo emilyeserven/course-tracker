@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/CourseMetaItem";
+import { TopicTags } from "@/components/TopicTags";
 
 export function CourseBox({
   status,
@@ -51,29 +52,8 @@ export function CourseBox({
               <CheckCircle size={16} />
             )}
           </div>
-          <div className="flex flex-row gap-1">
-            {topics && topics.map((topic) => {
-              if (!topic) {
-                return null;
-              }
-              return (
-                <Link
-                  to="/topics/$id"
-                  from="/courses"
-                  params={{
-                    id: topic.id + "",
-                  }}
-                  className={`
-                    rounded bg-gray-50 px-2 py-0.5 text-xs
-                    hover:bg-gray-900 hover:text-white
-                  `}
-                  key={topic.id}
-                >
-                  {topic.name}
-                </Link>
-              );
-            })}
-          </div>
+          <TopicTags topics={topics} />
+          <div className="flex flex-row gap-1" />
         </div>
 
         {url && (
