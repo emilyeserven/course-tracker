@@ -3,10 +3,10 @@ import { CourseProvider } from "@/CourseProvider";
 import { TopicsToCourses } from "@/TopicsToCourses";
 
 export interface CourseFromServer {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
-  url: string;
+  url: string | null;
   isCostFromPlatform: boolean;
   progressCurrent?: number | null;
   progressTotal?: number | null;
@@ -15,7 +15,7 @@ export interface CourseFromServer {
   cost?: string | null;
   status?: CourseStatus | null;
   minutesLength?: number | null;
-  courseProviderId?: number | null;
+  courseProviderId?: string | null;
   courseProvider?: Partial<CourseProvider> | null;
   topicsToCourses?: TopicsToCourses[] | null;
 }

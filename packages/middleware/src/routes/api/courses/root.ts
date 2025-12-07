@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
+import type { Course, CourseFromServer } from "@emstack/types/src";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -29,7 +30,7 @@ export default async function (server: FastifyInstance) {
         },
       });
 
-      const processedData = rawData.map((course) => {
+      const processedData: Course[] = rawData.map((course: CourseFromServer) => {
         const costData = processCost(course);
 
         const topics = processTopics(course);

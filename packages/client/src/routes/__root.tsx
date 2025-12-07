@@ -1,19 +1,19 @@
 import React from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { EraserIcon, MoonIcon, SunIcon } from "lucide-react";
+import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuGroup, DropdownMenuItem, DropdownMenuItemInteractive,
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/dropdown-menu";
-import { LoadDialog } from "@/components/LoadDialog";
-import { SaveDialog } from "@/components/SaveDialog";
 import { useTheme } from "@/hooks/useTheme.ts";
+import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
 
 const RootComponent: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -21,11 +21,45 @@ const RootComponent: React.FunctionComponent = () => {
     theme, setTheme,
   } = useTheme();
 
-  function handleClearLocal() {
-    navigate({
-      to: "/onboard",
-    });
-    localStorage.clear();
+  const {
+    isFetching: isSeedFetching,
+    error: seedError,
+    refetch: seedRefetch,
+  } = useQuery({
+    enabled: false,
+    queryKey: ["seed"],
+    queryFn: () => fetchSeed(),
+  });
+
+  const {
+    isFetching: isClearFetching,
+    error: clearError,
+    refetch: clearRefetch,
+  } = useQuery({
+    enabled: false,
+    queryKey: ["clear"],
+    queryFn: () => fetchClear(),
+  });
+
+  async function handleClearLocal() {
+    const clearRefetchResult = await clearRefetch();
+
+    if (clearRefetchResult.status === "success") {
+      navigate({
+        to: "/courses",
+        reloadDocument: true,
+      });
+    }
+  }
+
+  async function handleClearSeedLocal() {
+    const seedRefetchResult = await seedRefetch();
+    if (seedRefetchResult.status === "success") {
+      navigate({
+        to: "/courses",
+        reloadDocument: true,
+      });
+    }
   }
 
   return (
@@ -54,8 +88,6 @@ const RootComponent: React.FunctionComponent = () => {
           </Link>
         </div>
         <div className="flex flex-row gap-2">
-          <SaveDialog />
-          <LoadDialog />
           <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
               <Button>Menu</Button>
@@ -63,12 +95,22 @@ const RootComponent: React.FunctionComponent = () => {
             <DropdownMenuContent>
               <DropdownMenuLabel>Data Tools</DropdownMenuLabel>
               <DropdownMenuGroup>
-                <DropdownMenuItem
+                <DropdownMenuItemInteractive
                   onClick={() => handleClearLocal()}
+                  isLoading={isClearFetching}
+                  isError={clearError}
                 >
                   <EraserIcon />
                   Clear Data
-                </DropdownMenuItem>
+                </DropdownMenuItemInteractive>
+                <DropdownMenuItemInteractive
+                  onClick={() => handleClearSeedLocal()}
+                  isLoading={isSeedFetching}
+                  isError={seedError}
+                >
+                  <SproutIcon />
+                  Clear & Seed Data
+                </DropdownMenuItemInteractive>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>

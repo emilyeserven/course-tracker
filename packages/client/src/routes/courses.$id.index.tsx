@@ -42,7 +42,7 @@ function SingleCourse() {
     isPending, error, data,
   } = useQuery({
     queryKey: ["course", id],
-    queryFn: () => fetchSingleCourse(Number(id)),
+    queryFn: () => fetchSingleCourse(id),
   });
 
   if (isPending) {

@@ -2,7 +2,9 @@ import type { Course } from "@emstack/types/src";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRightIcon } from "lucide-react";
 
+import { Button } from "@/components/button";
 import { CourseBox } from "@/components/CourseBox";
 import { fetchCourses } from "@/utils/fetchFunctions";
 
@@ -46,8 +48,6 @@ function Courses() {
     queryFn: () => fetchCourses(),
   });
 
-  const dataToUse = data ? data : local.courses;
-
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
@@ -58,8 +58,25 @@ function Courses() {
           md:grid-cols-3
         `}
       >
+        {(!data || data.length === 0) && (
+          <div className="flex flex-col gap-6">
+            <i>No courses yet!</i>
+
+            <Link
+              to="/onboard"
+              className=""
+            >
+              <Button>
+                Go to onboarding
+                {" "}
+                <ArrowRightIcon />
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {
-          dataToUse.map((course: Course) => {
+          data && data.length > 0 && data.map((course: Course) => {
             if (course.name === "") {
               return;
             }

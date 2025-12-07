@@ -7,10 +7,9 @@ import * as z from "zod";
 
 import { Button } from "@/components/button";
 import { CourseFields } from "@/components/CourseFields";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/field";
-import { Input } from "@/components/input";
-import { LoadDialog } from "@/components/LoadDialog";
-import { TopicField } from "@/components/TopicField";
+import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
+import { FormField } from "@/components/FormField";
+import { postOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({
   component: Onboard,
@@ -157,7 +156,8 @@ function Onboard() {
         ],
       };
 
-      localStorage.setItem("courseData", JSON.stringify(cleanedValue));
+      await postOnboardForm(cleanedValue);
+
       await navigate({
         to: "/courses",
       });
@@ -174,11 +174,6 @@ function Onboard() {
 
   return (
     <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
-      <div className="flex flex-row items-center gap-3">
-        Already have courses tracked?
-        {" "}
-        <LoadDialog triggerClassName="bg-primary/90" />
-      </div>
       <form
         id="onboarding"
         onSubmit={(e) => {
@@ -188,38 +183,13 @@ function Onboard() {
         className="flex flex-col gap-20"
       >
         <div className="flex flex-col gap-4">
-          <form.Field
+          <FormField
+            form={form}
             name="name"
-            children={(field) => {
-              const isInvalid
-                = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    htmlFor={field.name}
-                    className="text-3xl"
-                  >What&#39;s your first name?
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={e => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="Noodles"
-                    autoComplete="off"
-                    className={`
-                      h-12
-                      md:text-2xl
-                    `}
-                  />
-                  {isInvalid && (
-                    <FieldError errors={field.state.meta.errors} />
-                  )}
-                </Field>
-              );
-            }}
+            label={"What's your first name?"}
+            className="text-3xl"
+            placeholder="Noodles"
+            fieldClassName="h-12 md:text-2xl"
           />
           {!isStep2Revealed && (
             <div>
@@ -243,35 +213,40 @@ function Onboard() {
               </FieldLegend>
               <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
               <FieldGroup className="grid grid-cols-2">
-                <TopicField
+                <FormField
                   form={form}
                   condition={true}
                   name="topic1"
                   label="Topic 1"
+                  placeholder="Memes"
                 />
-                <TopicField
+                <FormField
                   form={form}
                   condition={!!topic1 && topic1 !== ""}
                   name="topic2"
                   label="Topic 2"
+                  placeholder="Memes"
                 />
-                <TopicField
+                <FormField
                   form={form}
                   condition={!!topic2 && topic2 !== ""}
                   name="topic3"
                   label="Topic 3"
+                  placeholder="Memes"
                 />
-                <TopicField
+                <FormField
                   form={form}
                   condition={!!topic3 && topic3 !== ""}
                   name="topic4"
                   label="Topic 4"
+                  placeholder="Memes"
                 />
-                <TopicField
+                <FormField
                   form={form}
                   condition={!!topic4 && topic4 !== ""}
                   name="topic5"
                   label="Topic 5"
+                  placeholder="Memes"
                 />
                 { !!topic5 && topic5 !== "" && (
                   <div
