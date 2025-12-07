@@ -29,7 +29,7 @@ export async function fetchClear(): Promise<SuccessObj> {
   return await fetch("http://localhost:3001/api/clearData").then(res => res.json());
 }
 
-export async function fetchOnboardForm(formData: OnboardData): Promise<SuccessObj> {
+export async function postOnboardForm(formData: OnboardData): Promise<SuccessObj> {
   return await fetch("http://localhost:3001/api/submitOnboardData", {
     method: "POST",
     headers: {
