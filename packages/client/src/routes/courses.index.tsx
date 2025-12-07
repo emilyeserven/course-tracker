@@ -48,8 +48,6 @@ function Courses() {
     queryFn: () => fetchCourses(),
   });
 
-  console.log("data", data);
-
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>

@@ -52,8 +52,6 @@ export default async function (server: FastifyInstance) {
     "/submitOnboardData",
     testSchema,
     async (request, reply) => {
-      console.log(request.body);
-
       // make user or edit user with name, url param for user? session thing? idk
 
       const topicsData = request.body.topics
@@ -83,13 +81,10 @@ export default async function (server: FastifyInstance) {
 
         if (reqCourses) {
           coursesDb.map(async (course) => {
-            console.log("topicsDb", topicsDb);
             const courseTopicName = reqCourses.find(courses => course.name === courses.name);
-            console.log("courseTopicName", courseTopicName);
             if (courseTopicName) {
               const courseTopic = topicsDb.find(topic => topic.name === courseTopicName.topic);
 
-              console.log("courseTopic", courseTopic);
               if (courseTopic) {
                 await db.insert(topicsToCourses).values([{
                   courseId: course.id,
@@ -100,8 +95,6 @@ export default async function (server: FastifyInstance) {
           });
         }
 
-        console.log("topics", topicsDb);
-        console.log("courses", coursesDb);
         return {
           status: "ok",
         };

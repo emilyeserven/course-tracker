@@ -169,5 +169,4 @@ export async function seed() {
     email: "name@email.com",
     age: 30,
   }]).onConflictDoNothing();
-  console.log("New courses created!");
 }

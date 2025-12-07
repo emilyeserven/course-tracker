@@ -8,7 +8,6 @@ export default async function (server: FastifyInstance) {
   fastify.get(
     "/seed",
     async (request, reply) => {
-      console.log("middleware seed");
       await seed();
       return {
         status: "ok",

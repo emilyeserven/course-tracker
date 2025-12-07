@@ -53,7 +53,6 @@ const RootComponent: React.FunctionComponent = () => {
   }
 
   async function handleClearSeedLocal() {
-    console.log("clear seed clicked");
     const seedRefetchResult = await seedRefetch();
     if (seedRefetchResult.status === "success") {
       navigate({

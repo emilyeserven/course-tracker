@@ -52,7 +52,6 @@ export default async function (server: FastifyInstance) {
         },
       });
 
-      console.log(course);
       if (course) {
         const costData = processCost(course);
 
