@@ -1,4 +1,4 @@
-import type { Topic } from "@emstack/types/src";
+import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -12,7 +12,7 @@ export function TopicBox({
   name,
   description,
   courseCount,
-}: Topic) {
+}: TopicForTopicsPage) {
   return (
     <div
       className="flex flex-col justify-between gap-2 rounded border"

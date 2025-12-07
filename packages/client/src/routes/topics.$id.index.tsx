@@ -12,7 +12,7 @@ export const Route = createFileRoute("/topics/$id/")({
 function TopicPending() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
+      <h1 className="mb-4 text-3xl">Hold on, loading your topics...</h1>
     </div>
   );
 }
@@ -20,7 +20,7 @@ function TopicPending() {
 function TopicError() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <h1 className="mb-4 text-3xl">There was an error loading your topics.</h1>
       <p>
         Try to use the
         {" "}
@@ -56,15 +56,15 @@ function SingleTopic() {
     <div>
       <div className="flex flex-row gap-3">
         <Link
-          to="/courses"
+          to="/topics"
           className="mb-8 flex flex-row"
         >
-          Courses
+          Topics
         </Link>
         <span>/</span>
         <span className="font-bold">{data?.name}</span>
       </div>
-      <span className="mb-4 text-lg">COURSE</span>
+      <span className="mb-4 text-lg">TOPIC</span>
       <h1 className="mb-4 text-3xl">{data?.name}</h1>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col">

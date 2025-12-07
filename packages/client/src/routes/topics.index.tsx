@@ -1,4 +1,4 @@
-import type { Topic } from "@emstack/types/src";
+import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -77,7 +77,7 @@ function Topics() {
         )}
 
         {
-          data && data.length > 0 && data.map((topic: Topic) => {
+          data && data.length > 0 && data.map((topic: TopicForTopicsPage) => {
             if (topic.name === "") {
               return;
             }

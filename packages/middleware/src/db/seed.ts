@@ -47,14 +47,18 @@ export async function seed() {
   const topicReactData: typeof topics.$inferInsert = {
     id: "80d8e391-6140-493c-b5a8-2f788d3d1245",
     name: "React",
+    description: "That one framework.",
+    reason: "That's where the jobs are!",
   };
   const topicTypescriptData: typeof topics.$inferInsert = {
     id: "32574ce7-cd41-4a1f-a860-3bb16641e10f",
     name: "Typescript",
+    description: "JavaScript but typier.",
   };
   const topicJapaneseData: typeof topics.$inferInsert = {
     id: "15795947-e6fd-4f17-892d-284906a10c53",
     name: "Japanese",
+    reason: "I want to understand anime.",
   };
 
   const topicDevopsData: typeof topics.$inferInsert = {
@@ -77,6 +81,7 @@ export async function seed() {
   const reactCourseData: typeof courses.$inferInsert = {
     id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
     name: "react.gg",
+    description: "React course with videos and graphics.",
     url: "https://ui.dev/c/react",
     progressCurrent: 0,
     progressTotal: 146,
@@ -98,6 +103,7 @@ export async function seed() {
   const akikoData: typeof courses.$inferInsert = {
     id: "05ea0e1b-74d7-4710-9a67-1b04556c6553",
     name: "Akiko's American Foreign Exchange",
+    description: "Story with accessible Japanese.",
     url: "https://www.satorireader.com/series/akiko-nikki",
     progressCurrent: 9,
     progressTotal: 133,
@@ -108,6 +114,7 @@ export async function seed() {
   const npmPackageCourseData: typeof courses.$inferInsert = {
     id: "664b3245-6505-416f-b959-4c82a3573b12",
     name: "Creating NPM packages: The Complete Guide",
+    description: "NPM packages are their own art...",
     url: "https://www.udemy.com/course/creating-npm-packages-the-complete-guide/",
     cost: "10.62",
     isCostFromPlatform: false,

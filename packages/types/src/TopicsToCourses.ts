@@ -1,9 +1,9 @@
 import { Course } from "@/Course";
-import { Topic } from "@/Topic";
+import { TopicsFromServer } from "@/TopicsFromServer";
 
 export interface TopicsToCourses {
   topicId: string;
   courseId: string;
-  topic?: Partial<Topic>;
+  topic?: Partial<TopicsFromServer>;
   courses?: Partial<Course>;
 }
