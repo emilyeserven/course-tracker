@@ -91,7 +91,7 @@ function SingleTopic() {
             header="Courses"
             condition={!!data?.courseCount && data.courseCount > 0}
           >
-            <ul>
+            <ul className="ml-5 list-disc">
               {data?.courses.map(course => (
                 <li key={course.id}>
                   <Link
@@ -100,6 +100,10 @@ function SingleTopic() {
                     params={{
                       id: course.id + "",
                     }}
+                    className={`
+                      font-bold text-blue-800
+                      hover:text-blue-600
+                    `}
                   >{course.name}
                   </Link>
                 </li>

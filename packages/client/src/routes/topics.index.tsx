@@ -47,7 +47,6 @@ function Topics() {
     queryKey: ["topics"],
     queryFn: () => fetchTopics(),
   });
-  console.log("data", data);
 
   return (
     <div className="p-4">

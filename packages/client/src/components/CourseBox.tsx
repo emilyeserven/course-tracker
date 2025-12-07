@@ -57,20 +57,20 @@ export function CourseBox({
                 return null;
               }
               return (
-                <div
-                  className="rounded bg-gray-50 px-2 py-0.5 text-xs"
+                <Link
+                  to="/topics/$id"
+                  from="/courses"
+                  params={{
+                    id: topic.id + "",
+                  }}
+                  className={`
+                    rounded bg-gray-50 px-2 py-0.5 text-xs
+                    hover:bg-gray-900 hover:text-white
+                  `}
                   key={topic.id}
                 >
-                  <Link
-                    to="/topics/$id"
-                    from="/courses"
-                    params={{
-                      id: topic.id + "",
-                    }}
-                  >
-                    {topic.name}
-                  </Link>
-                </div>
+                  {topic.name}
+                </Link>
               );
             })}
           </div>
@@ -98,6 +98,7 @@ export function CourseBox({
                   params={{
                     id: id + "",
                   }}
+                  className="hover:text-blue-600"
                 >{name}
                 </Link>
               </h3>

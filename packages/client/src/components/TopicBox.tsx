@@ -28,6 +28,7 @@ export function TopicBox({
                   params={{
                     id: id + "",
                   }}
+                  className="hover:text-blue-600"
                 >{name}
                 </Link>
               </h3>
