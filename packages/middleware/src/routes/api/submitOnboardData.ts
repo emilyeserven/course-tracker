@@ -45,6 +45,15 @@ const testSchema = {
   },
 } as const;
 
+function makeTopicData(topicData: string[]) {
+  return topicData.map((topic: string) => {
+    return {
+      id: uuidv4(),
+      name: topic,
+    };
+  });
+}
+
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
@@ -55,12 +64,7 @@ export default async function (server: FastifyInstance) {
       // make user or edit user with name, url param for user? session thing? idk
 
       const topicsData = request.body.topics
-        ? request.body.topics.map((topic: string) => {
-          return {
-            id: uuidv4(),
-            name: topic,
-          };
-        })
+        ? makeTopicData(request.body.topics)
         : [];
 
       const reqCourses = request.body.courses;

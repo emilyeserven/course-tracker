@@ -6,7 +6,7 @@ export interface CourseFromServer {
   id: string;
   name: string;
   description?: string | null;
-  url: string;
+  url: string | null;
   isCostFromPlatform: boolean;
   progressCurrent?: number | null;
   progressTotal?: number | null;

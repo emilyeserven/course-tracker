@@ -6,7 +6,7 @@ export interface Course {
   id: string;
   name: string;
   description?: string | null;
-  url?: string;
+  url?: string | null;
   dateExpires?: string | null;
   cost: CostData;
   progressCurrent: number;
