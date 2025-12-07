@@ -1,20 +1,20 @@
-import type { Course } from "@emstack/types/src";
+import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
-import { CourseBox } from "@/components/CourseBox";
-import { fetchCourses } from "@/utils/fetchFunctions";
+import { TopicBox } from "@/components/TopicBox";
+import { fetchTopics } from "@/utils/fetchFunctions";
 
-export const Route = createFileRoute("/courses/")({
-  component: Courses,
-  errorComponent: CoursesError,
-  pendingComponent: CoursesPending,
+export const Route = createFileRoute("/topics/")({
+  component: Topics,
+  errorComponent: TopicsError,
+  pendingComponent: TopicsPending,
 });
 
-function CoursesPending() {
+function TopicsPending() {
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
@@ -22,7 +22,7 @@ function CoursesPending() {
   );
 }
 
-function CoursesError() {
+function TopicsError() {
   return (
     <div className="p-4">
       <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
@@ -37,20 +37,20 @@ function CoursesError() {
   );
 }
 
-function Courses() {
+function Topics() {
   const localItem = localStorage.getItem("courseData");
   const local = JSON.parse(localItem ? localItem : "");
 
   const {
     data,
   } = useQuery({
-    queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
   });
 
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">{local.name}&#39;s Courses</h1>
+      <h1 className="mb-4 text-3xl">{local.name}&#39;s Topics</h1>
       <div
         className={`
           grid grid-cols-1 gap-4 gap-y-6
@@ -76,14 +76,14 @@ function Courses() {
         )}
 
         {
-          data && data.length > 0 && data.map((course: Course) => {
-            if (!course) {
-              return <></>;
+          data && data.length > 0 && data.map((topic: TopicForTopicsPage) => {
+            if (topic.name === "") {
+              return;
             }
             return (
-              <CourseBox
-                {...course}
-                key={course.id}
+              <TopicBox
+                {...topic}
+                key={topic.id}
               />
             );
           })

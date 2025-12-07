@@ -52,14 +52,27 @@ export function CourseBox({
             )}
           </div>
           <div className="flex flex-row gap-1">
-            {topics && topics.map(topic => (
-              <div
-                className="rounded bg-gray-50 px-2 py-0.5 text-xs"
-                key={topic}
-              >
-                {topic}
-              </div>
-            ))}
+            {topics && topics.map((topic) => {
+              if (!topic) {
+                return null;
+              }
+              return (
+                <Link
+                  to="/topics/$id"
+                  from="/courses"
+                  params={{
+                    id: topic.id + "",
+                  }}
+                  className={`
+                    rounded bg-gray-50 px-2 py-0.5 text-xs
+                    hover:bg-gray-900 hover:text-white
+                  `}
+                  key={topic.id}
+                >
+                  {topic.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -85,6 +98,7 @@ export function CourseBox({
                   params={{
                     id: id + "",
                   }}
+                  className="hover:text-blue-600"
                 >{name}
                 </Link>
               </h3>

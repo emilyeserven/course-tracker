@@ -1,5 +1,6 @@
-import type { Test, DbTest, Course, CourseInCourses } from "@emstack/types/src/index.js";
+import type { Test, DbTest, Course, CourseInCourses, TopicForTopicsPage } from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
+import type { Topic } from "@emstack/types/src/Topic";
 
 interface SuccessObj {
   status: string;
@@ -13,12 +14,20 @@ export async function fetchDbTest(): Promise<DbTest[]> {
   return await fetch("http://localhost:3001/api/dbTest").then(res => res.json());
 }
 
+export async function fetchTopics(): Promise<TopicForTopicsPage[]> {
+  return await fetch("http://localhost:3001/api/topics").then(res => res.json());
+}
+
 export async function fetchCourses(): Promise<CourseInCourses[]> {
   return await fetch("http://localhost:3001/api/courses").then(res => res.json());
 }
 
 export async function fetchSingleCourse(id: string): Promise<Course> {
   return await fetch(`http://localhost:3001/api/courses/${id}`).then(res => res.json());
+}
+
+export async function fetchSingleTopic(id: string): Promise<Topic> {
+  return await fetch(`http://localhost:3001/api/topics/${id}`).then(res => res.json());
 }
 
 export async function fetchSeed(): Promise<SuccessObj> {

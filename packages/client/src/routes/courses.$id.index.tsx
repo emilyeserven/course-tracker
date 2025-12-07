@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/button";
+import { InfoArea } from "@/components/InfoArea";
 import { fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
@@ -80,41 +81,56 @@ function SingleCourse() {
           {data?.topics && (
             <div className="flex flex-row gap-4">
               <b>Topic</b>
-              {data.topics.map(topic => (
-                <span key={topic}>{topic}</span>
-              ))}
+              {data.topics.map((topic) => {
+                if (!topic) {
+                  return <></>;
+                }
+                return (
+                  <span key={topic.id}>{topic.name}</span>
+                );
+              })}
             </div>
           )}
 
-          {data?.description && (
+          <InfoArea
+            header="About"
+            condition={!!data?.description}
+          >
             <p>
-              {data.description}
+              {data?.description}
             </p>
-          )}
+          </InfoArea>
         </div>
         <div>
           <h2 className="mb-1 text-2xl">Progress</h2>
-          <div className="flex flex-col gap-1">
-            {!!data?.progressCurrent && (
-              <div className="flex flex-row gap-4">
-                <b>Current Progress</b>
-                {data.progressCurrent}
-              </div>
-            )}
+          <div className="flex flex-row gap-8">
 
-            {!!data?.progressTotal && (
-              <div className="flex flex-row gap-4">
-                <b>Total Modules</b>
-                {data.progressTotal}
-              </div>
-            )}
-            {!!data?.progressCurrent && !!data?.progressTotal && (
-              <div className="flex flex-row gap-4">
-                <b>% Complete</b>
-                {percentComplete}
-                %
-              </div>
-            )}
+            <InfoArea
+              header="Current Progress"
+              condition={!!data?.progressCurrent}
+            >
+              <p>
+                {data?.progressCurrent}
+              </p>
+            </InfoArea>
+
+            <InfoArea
+              header="Total Modules"
+              condition={!!data?.progressTotal}
+            >
+              <p>
+                {data?.progressTotal}
+              </p>
+            </InfoArea>
+
+            <InfoArea
+              header="% Complete"
+              condition={!!data?.progressTotal && !!data?.progressCurrent}
+            >
+              <p>
+                {percentComplete}%
+              </p>
+            </InfoArea>
             {!data?.progressCurrent && !data?.progressTotal && (
               <span>No progress information given.</span>
             )}
@@ -138,23 +154,29 @@ function SingleCourse() {
           </div>
         )}
         <div className="flex flex-row gap-2">
-          <a
-            href={data?.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button>
-              Go to Course
-              <ExternalLink />
-            </Button>
-          </a>
+          {!!data?.url && (
+            <a
+              href={data?.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>
+                Go to Course
+                <ExternalLink />
+              </Button>
+            </a>
+          )}
           <Link
             to="/courses/$id/edit"
             params={{
               id: data?.id + "",
             }}
+            disabled={true}
           >
-            <Button variant="secondary">
+            <Button
+              variant="secondary"
+              disabled={true}
+            >
               Edit Course
               {" "}
               <EditIcon />
