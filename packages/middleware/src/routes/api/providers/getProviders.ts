@@ -1,8 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
-import { processCourses } from "@/utils/processCourses";
 
 const testSchema = {
   schema: {
@@ -29,33 +27,37 @@ export default async function (server: FastifyInstance) {
       const {
         id,
       } = request.params;
-      const topic: TopicsFromServer | undefined = await db.query.topics.findFirst({
+      const provider = await db.query.courseProviders.findFirst({
         where: (courses, {
           eq,
         }) => (eq(courses.id, id)),
         with: {
-          topicsToCourses: {
-            with: {
-              course: {
-                columns: {
-                  name: true,
-                  id: true,
-                },
-              },
-            },
-          },
+          courses: true,
         },
       });
 
-      if (topic) {
-        const courseCount = topic.topicsToCourses?.length ?? 0;
-        const courses = processCourses(topic.topicsToCourses);
+      if (provider) {
+        const courseCount = provider.courses?.length ?? 0;
+        const courses = provider.courses.map((course) => {
+          if (course) {
+            return {
+              name: course.name,
+              id: course.id,
+            };
+          }
+        });
 
         return {
-          id: topic.id,
-          name: topic.name,
-          description: topic.description,
-          reason: topic.reason,
+          id: provider.id,
+          name: provider.name,
+          description: provider.description,
+          url: provider.url,
+          cost: provider.cost,
+          isRecurring: provider.isRecurring,
+          recurDate: provider.recurDate,
+          recurPeriodUnit: provider.recurPeriodUnit,
+          recurPeriod: provider.recurPeriod,
+          isCourseFeesShared: provider.isCourseFeesShared,
           courseCount: courseCount,
           courses: courses,
         };

@@ -29,8 +29,8 @@ export function ProviderBox({
         <ContentBoxTitle>
           <h3 className="text-2xl">
             <Link
-              to="/topics/$id"
-              from="/topics"
+              to="/providers/$id"
+              from="/providers"
               params={{
                 id: id + "",
               }}

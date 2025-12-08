@@ -41,6 +41,10 @@ export async function fetchSingleTopic(id: string): Promise<Topic> {
   return await fetch(`http://localhost:3001/api/topics/${id}`).then(res => res.json());
 }
 
+export async function fetchSingleProvider(id: string): Promise<CourseProvider> {
+  return await fetch(`http://localhost:3001/api/providers/${id}`).then(res => res.json());
+}
+
 export async function fetchSeed(): Promise<SuccessObj> {
   return await fetch("http://localhost:3001/api/seed").then(res => res.json());
 }
