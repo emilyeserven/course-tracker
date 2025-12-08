@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
+import { EditIcon, ExternalLink } from "lucide-react";
 
+import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { InfoArea } from "@/components/layout/InfoArea";
+import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils/fetchFunctions";
@@ -61,6 +63,18 @@ function SingleProviders() {
         pageSection="providers"
       >
         <div className="flex flex-row gap-2">
+          {!!data?.url && (
+            <a
+              href={data?.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>
+                Go to Platform
+                <ExternalLink />
+              </Button>
+            </a>
+          )}
           <Link
             to="/courses/$id/edit"
             params={{
@@ -88,6 +102,43 @@ function SingleProviders() {
             {data?.description}
           </p>
         </InfoArea>
+        <InfoRow
+          header="Money Things"
+        >
+          <InfoArea
+            header="Course Cost"
+            condition={!!data?.cost}
+          >
+            <p>
+              ${data?.cost}
+            </p>
+          </InfoArea>
+          <InfoArea
+            header="Fees Shared BTW Courses?"
+          >
+            <YesNoDisplay value={!!data?.isCourseFeesShared} />
+          </InfoArea>
+          <InfoArea
+            header="Re-Up Date"
+            condition={!!data?.recurDate}
+          >
+            {data?.recurDate}
+          </InfoArea>
+
+          <InfoArea
+            header="Subscription Recurrance"
+            condition={!!data?.recurPeriodUnit}
+          >
+            <span
+              className="first-letter:uppercase"
+            >
+              {data?.recurPeriodUnit && (
+                `Every ${data?.recurPeriod ? data.recurPeriod : ""} ${data.recurPeriodUnit}`
+              )}
+            </span>
+
+          </InfoArea>
+        </InfoRow>
         <div>
           <InfoArea
             header="Courses"
