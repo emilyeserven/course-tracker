@@ -10,6 +10,7 @@ import {
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
+import { TopicList } from "@/components/boxElements/TopicList";
 import {
   ContentBox,
   ContentBoxBody,
@@ -17,8 +18,7 @@ import {
   ContentBoxHeader, ContentBoxHeaderBar,
   ContentBoxProgress, ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
-import { Button } from "@/components/button";
-import { TopicList } from "@/components/TopicList";
+import { Button } from "@/components/ui/button";
 
 export function CourseBox({
   status,
