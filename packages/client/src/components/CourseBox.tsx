@@ -3,15 +3,14 @@ import type { Course } from "@emstack/types/src";
 import { Link } from "@tanstack/react-router";
 import {
   CheckCheckIcon,
-  CheckCircle,
   DollarSignIcon,
   ExternalLink,
-  PauseCircle,
-  PlayCircle,
   TimerIcon,
 } from "lucide-react";
 
+import { Button } from "@/components/button";
 import { CourseMetaItem } from "@/components/CourseMetaItem";
+import { StatusIndicator } from "@/components/StatusIndicator";
 import { TopicList } from "@/components/TopicList";
 
 export function CourseBox({
@@ -36,35 +35,29 @@ export function CourseBox({
     >
       <div
         className={`
-          flex flex-row items-center justify-between border-b bg-border px-2
-          py-1
+          flex flex-row items-center justify-between border-b bg-border py-1
+          pr-1 pl-2
         `}
       >
         <div className="flex flex-row items-center gap-2">
-          <div>
-            {status && status === "inactive" && (
-              <PauseCircle size={16} />
-            )}
-            {status && status === "active" && (
-              <PlayCircle size={16} />
-            )}
-            {status && status === "complete" && (
-              <CheckCircle size={16} />
-            )}
-          </div>
+          <StatusIndicator status={status} />
           <TopicList topics={topics} />
-          <div className="flex flex-row gap-1" />
         </div>
 
         {url && (
-          <a
-            href={url}
-            target="_blank"
-            className="cursor-pointer"
-            rel="noopener noreferrer"
+          <Button
+            variant="ghost"
+            size="icon-xs"
           >
-            <ExternalLink size={16} />
-          </a>
+            <a
+              href={url}
+              target="_blank"
+              className="cursor-pointer"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink />
+            </a>
+          </Button>
         )}
       </div>
       <div className="flex h-full flex-col justify-between">

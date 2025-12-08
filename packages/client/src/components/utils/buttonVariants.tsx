@@ -62,6 +62,7 @@ const buttonVariants = cva(
         `,
         "icon": "size-9",
         "icon-sm": "size-8",
+        "icon-xs": "size-6",
         "icon-lg": "size-10",
       },
     },
