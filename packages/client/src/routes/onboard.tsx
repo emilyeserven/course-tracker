@@ -6,9 +6,9 @@ import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
 import { Button } from "@/components/button";
-import { CourseFields } from "@/components/CourseFields";
 import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
 import { FormField } from "@/components/FormField";
+import { CourseFields } from "@/components/forms/CourseFields";
 import { postOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({
