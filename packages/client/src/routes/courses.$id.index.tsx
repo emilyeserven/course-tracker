@@ -66,6 +66,9 @@ function SingleCourse() {
       <PageHeader
         pageTitle={data?.name}
         pageSection="courses"
+        progressCurrent={data?.progressCurrent ?? 0}
+        progressTotal={data?.progressTotal ?? 0}
+        status={data?.status}
       >
         <div className="flex flex-row gap-2">
           {!!data?.url && (

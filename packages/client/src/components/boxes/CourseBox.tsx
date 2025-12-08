@@ -15,10 +15,10 @@ import {
   ContentBox,
   ContentBoxBody,
   ContentBoxFooter,
-  ContentBoxHeader, ContentBoxHeaderBar,
-  ContentBoxProgress, ContentBoxTitle,
+  ContentBoxHeader, ContentBoxHeaderBar, ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { Button } from "@/components/ui/button";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export function CourseBox({
   status,
@@ -118,7 +118,7 @@ export function CourseBox({
           emptyText="No cost given"
         />
       </ContentBoxFooter>
-      <ContentBoxProgress
+      <ProgressBar
         progressCurrent={progressCurrent}
         progressTotal={progressTotal}
         status={status}
