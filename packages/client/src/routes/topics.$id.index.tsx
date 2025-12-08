@@ -4,7 +4,7 @@ import { EditIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
 import { InfoArea } from "@/components/layout/InfoArea";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { fetchSingleTopic } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/$id/")({

@@ -6,7 +6,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { TopicBox } from "@/components/boxes/TopicBox";
 import { Button } from "@/components/button";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { fetchTopics } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/")({

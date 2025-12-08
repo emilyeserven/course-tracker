@@ -5,7 +5,7 @@ import { EditIcon, ExternalLink } from "lucide-react";
 import { Button } from "@/components/button";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { TopicList } from "@/components/TopicList";
 import { fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";

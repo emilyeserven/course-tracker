@@ -6,7 +6,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { Button } from "@/components/button";
-import { PageHeader } from "@/components/PageHeader";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { fetchCourses } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/courses/")({
