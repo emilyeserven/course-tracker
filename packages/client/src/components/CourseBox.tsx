@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/CourseMetaItem";
-import { TopicTags } from "@/components/TopicTags";
+import { TopicList } from "@/components/TopicList";
 
 export function CourseBox({
   status,
@@ -52,7 +52,7 @@ export function CourseBox({
               <CheckCircle size={16} />
             )}
           </div>
-          <TopicTags topics={topics} />
+          <TopicList topics={topics} />
           <div className="flex flex-row gap-1" />
         </div>
 
