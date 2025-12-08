@@ -8,14 +8,14 @@ import {
   TimerIcon,
 } from "lucide-react";
 
-import { Button } from "@/components/button";
 import {
   ContentBox,
   ContentBoxBody,
   ContentBoxFooter,
   ContentBoxHeader, ContentBoxHeaderBar,
   ContentBoxProgress, ContentBoxTitle,
-} from "@/components/ContentBox";
+} from "@/components/boxes/ContentBox";
+import { Button } from "@/components/button";
 import { CourseMetaItem } from "@/components/CourseMetaItem";
 import { StatusIndicator } from "@/components/StatusIndicator";
 import { TopicList } from "@/components/TopicList";

@@ -11,7 +11,7 @@ import {
   ContentBoxFooter, ContentBoxHeader,
   ContentBoxHeaderBar,
   ContentBoxTitle,
-} from "@/components/ContentBox";
+} from "@/components/boxes/ContentBox";
 import { CourseMetaItem } from "@/components/CourseMetaItem";
 
 export function TopicBox({
