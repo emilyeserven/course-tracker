@@ -109,6 +109,17 @@ const RootComponent: React.FunctionComponent = () => {
           >
             Topics
           </Link>
+
+          <Link
+            to="/providers"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
+          >
+            Providers
+          </Link>
         </div>
         <div className="flex flex-row gap-2">
           <DropdownMenu>

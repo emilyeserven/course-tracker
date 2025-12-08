@@ -81,13 +81,19 @@ export function CourseBox({
           <h4 className="text-xs font-semibold uppercase">
             From
             {" "}
-            <span
+            <Link
+              to="/providers/$id"
+              from="/courses/$id"
+              params={{
+                id: provider.id + "",
+              }}
               className={`
                 text-blue-800
                 hover:text-blue-600
               `}
-            >{provider}
-            </span>
+            >
+              {provider?.name}
+            </Link>
           </h4>
         ) }
         <p>{description ? description : <i>No description provided.</i>}</p>

@@ -2,10 +2,11 @@ interface InfoAreaProps {
   header?: string;
   condition?: boolean;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export function InfoArea({
-  header, condition, children,
+  header, condition = true, children,
 }: InfoAreaProps) {
   if (!condition) {
     return null;

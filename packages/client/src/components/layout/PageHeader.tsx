@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 interface PageHeaderProps {
   pageTitle?: string;
-  pageSection?: "" | "courses" | "topics";
+  pageSection?: "" | "courses" | "topics" | "providers";
   children?: React.ReactNode;
 }
 
@@ -31,6 +31,14 @@ export function PageHeader({
                   className="text-sm uppercase"
                 >
                   Topics
+                </Link>
+              )}
+              {pageSection === "providers" && (
+                <Link
+                  to="/providers"
+                  className="text-sm uppercase"
+                >
+                  Providers
                 </Link>
               )}
             </div>
