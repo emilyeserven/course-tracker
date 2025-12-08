@@ -115,19 +115,21 @@ export function CourseBox({
           emptyText="No cost given"
         />
       </div>
-      <div className="-mt-2 w-full rounded-br bg-gray-50">
-        <div
-          className={`
-            ${status && status === "inactive"
-      ? "bg-primary/50"
-      : "bg-primary"}
-            h-2 rounded-bl
-          `}
-          style={{
-            width: `${progressCurrent !== 0 ? progressTotal / progressCurrent : 0}%`,
-          }}
-        />
-      </div>
+      {progressCurrent > 0 && (
+        <div className="-mt-2 w-full rounded-br bg-gray-50">
+          <div
+            className={`
+              ${status && status === "inactive"
+          ? "bg-primary/50"
+          : "bg-primary"}
+              h-2 rounded-bl
+            `}
+            style={{
+              width: `${progressCurrent !== 0 ? progressTotal / progressCurrent : 0}%`,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
