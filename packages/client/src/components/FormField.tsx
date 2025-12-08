@@ -1,7 +1,7 @@
 import type { ReactFormExtendedApi } from "@tanstack/react-form";
 
+import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/input";
-import { Field, FieldError, FieldLabel } from "@/componentsforms/field";
 
 interface FormFieldProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
