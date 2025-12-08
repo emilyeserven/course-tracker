@@ -1,4 +1,11 @@
-import type { Test, DbTest, Course, CourseInCourses, TopicForTopicsPage } from "@emstack/types/src/index.js";
+import type {
+  Test,
+  DbTest,
+  Course,
+  CourseInCourses,
+  TopicForTopicsPage,
+  CourseProvider,
+} from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
 import type { Topic } from "@emstack/types/src/Topic";
 
@@ -16,6 +23,10 @@ export async function fetchDbTest(): Promise<DbTest[]> {
 
 export async function fetchTopics(): Promise<TopicForTopicsPage[]> {
   return await fetch("http://localhost:3001/api/topics").then(res => res.json());
+}
+
+export async function fetchProviders(): Promise<CourseProvider[]> {
+  return await fetch("http://localhost:3001/api/providers").then(res => res.json());
 }
 
 export async function fetchCourses(): Promise<CourseInCourses[]> {

@@ -10,10 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
+import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
+import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as TopicsIdRouteImport } from './routes/topics.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
@@ -24,6 +26,11 @@ import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
   path: '/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProvidersRoute = ProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardRoute = OnboardRouteImport.update({
@@ -45,6 +52,11 @@ const TopicsIndexRoute = TopicsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TopicsRoute,
+} as any)
+const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProvidersRoute,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
@@ -81,10 +93,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/providers': typeof ProvidersRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/providers/': typeof ProvidersIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
@@ -94,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboard': typeof OnboardRoute
   '/courses': typeof CoursesIndexRoute
+  '/providers': typeof ProvidersIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id': typeof CoursesIdIndexRoute
@@ -104,10 +119,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/providers': typeof ProvidersRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/providers/': typeof ProvidersIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
@@ -119,10 +136,12 @@ export interface FileRouteTypes {
     | '/'
     | '/courses'
     | '/onboard'
+    | '/providers'
     | '/topics'
     | '/courses/$id'
     | '/topics/$id'
     | '/courses/'
+    | '/providers/'
     | '/topics/'
     | '/courses/$id/edit'
     | '/courses/$id/'
@@ -132,6 +151,7 @@ export interface FileRouteTypes {
     | '/'
     | '/onboard'
     | '/courses'
+    | '/providers'
     | '/topics'
     | '/courses/$id/edit'
     | '/courses/$id'
@@ -141,10 +161,12 @@ export interface FileRouteTypes {
     | '/'
     | '/courses'
     | '/onboard'
+    | '/providers'
     | '/topics'
     | '/courses/$id'
     | '/topics/$id'
     | '/courses/'
+    | '/providers/'
     | '/topics/'
     | '/courses/$id/edit'
     | '/courses/$id/'
@@ -155,6 +177,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   OnboardRoute: typeof OnboardRoute
+  ProvidersRoute: typeof ProvidersRouteWithChildren
   TopicsRoute: typeof TopicsRouteWithChildren
 }
 
@@ -165,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/topics'
       fullPath: '/topics'
       preLoaderRoute: typeof TopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/providers': {
+      id: '/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof ProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboard': {
@@ -194,6 +224,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/topics/'
       preLoaderRoute: typeof TopicsIndexRouteImport
       parentRoute: typeof TopicsRoute
+    }
+    '/providers/': {
+      id: '/providers/'
+      path: '/'
+      fullPath: '/providers/'
+      preLoaderRoute: typeof ProvidersIndexRouteImport
+      parentRoute: typeof ProvidersRoute
     }
     '/courses/': {
       id: '/courses/'
@@ -267,6 +304,18 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface ProvidersRouteChildren {
+  ProvidersIndexRoute: typeof ProvidersIndexRoute
+}
+
+const ProvidersRouteChildren: ProvidersRouteChildren = {
+  ProvidersIndexRoute: ProvidersIndexRoute,
+}
+
+const ProvidersRouteWithChildren = ProvidersRoute._addFileChildren(
+  ProvidersRouteChildren,
+)
+
 interface TopicsIdRouteChildren {
   TopicsIdIndexRoute: typeof TopicsIdIndexRoute
 }
@@ -296,6 +345,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoursesRoute: CoursesRouteWithChildren,
   OnboardRoute: OnboardRoute,
+  ProvidersRoute: ProvidersRouteWithChildren,
   TopicsRoute: TopicsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
