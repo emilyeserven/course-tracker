@@ -173,7 +173,7 @@ function Onboard() {
   const course1Url = useStore(form.store, state => state.values.course1Url);
 
   return (
-    <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
+    <div className="container mt-4 mb-20 flex flex-col gap-20">
       <form
         id="onboarding"
         onSubmit={(e) => {

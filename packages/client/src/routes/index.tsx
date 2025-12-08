@@ -22,28 +22,30 @@ function Index() {
     queryFn: () => fetchDbTest(),
   });
   return (
-    <div
-      className={`
-        bg-white p-2 text-black
-        dark:bg-gray-800 dark:text-white
-      `}
-    >
-      <h3 className="text-3xl font-bold">Welcome Home!</h3>
+    <div className="container">
+      <div
+        className={`
+          bg-white text-black
+          dark:bg-gray-800 dark:text-white
+        `}
+      >
+        <h3 className="text-3xl font-bold">Welcome Home!</h3>
 
-      <p data-testid="status-message">
-        Test data is{" "}
-        {isPending && "Pending"}
-        {error && "Erroring"}
-        {data && "loaded!"}
-      </p>
-      {data && data.item}
-      <p data-testid="status-message-db">
-        Test DB data is{" "}
-        {dbPending && "Pending"}
-        {dbError && "Erroring"}
-        {dbData && "loaded!"}
-      </p>
-      {dbData && <span>Sample name (should be &#34;John&#34;): {dbData[0].name}</span>}
+        <p data-testid="status-message">
+          Test data is{" "}
+          {isPending && "Pending"}
+          {error && "Erroring"}
+          {data && "loaded!"}
+        </p>
+        {data && data.item}
+        <p data-testid="status-message-db">
+          Test DB data is{" "}
+          {dbPending && "Pending"}
+          {dbError && "Erroring"}
+          {dbData && "loaded!"}
+        </p>
+        {dbData && <span>Sample name (should be &#34;John&#34;): {dbData[0].name}</span>}
+      </div>
     </div>
   );
 }

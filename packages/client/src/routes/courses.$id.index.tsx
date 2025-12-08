@@ -63,45 +63,41 @@ function SingleCourse() {
 
   return (
     <div>
-      <div className="mb-4 bg-gray-200 py-6">
-        <div className="container">
-          <PageHeader
-            pageTitle={data?.name}
-            pageSection="courses"
+      <PageHeader
+        pageTitle={data?.name}
+        pageSection="courses"
+      >
+        <div className="flex flex-row gap-2">
+          {!!data?.url && (
+            <a
+              href={data?.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>
+                Go to Course
+                <ExternalLink />
+              </Button>
+            </a>
+          )}
+          <Link
+            to="/courses/$id/edit"
+            params={{
+              id: data?.id + "",
+            }}
+            disabled={true}
           >
-            <div className="flex flex-row gap-2">
-              {!!data?.url && (
-                <a
-                  href={data?.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Button>
-                    Go to Course
-                    <ExternalLink />
-                  </Button>
-                </a>
-              )}
-              <Link
-                to="/courses/$id/edit"
-                params={{
-                  id: data?.id + "",
-                }}
-                disabled={true}
-              >
-                <Button
-                  variant="secondary"
-                  disabled={true}
-                >
-                  Edit Course
-                  {" "}
-                  <EditIcon />
-                </Button>
-              </Link>
-            </div>
-          </PageHeader>
+            <Button
+              variant="secondary"
+              disabled={true}
+            >
+              Edit Course
+              {" "}
+              <EditIcon />
+            </Button>
+          </Link>
         </div>
-      </div>
+      </PageHeader>
       <div className="container flex-col gap-12">
         <InfoArea
           header="About"

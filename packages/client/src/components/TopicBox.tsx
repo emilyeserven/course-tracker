@@ -15,7 +15,7 @@ export function TopicBox({
 }: TopicForTopicsPage) {
   return (
     <div
-      className="flex flex-col justify-between gap-2 rounded border"
+      className="flex w-full flex-col justify-between gap-2 rounded border"
     >
       <div className="flex h-full flex-col justify-between">
         <div className="flex flex-col justify-between gap-4">

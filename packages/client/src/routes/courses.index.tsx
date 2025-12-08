@@ -51,22 +51,12 @@ function Courses() {
 
   return (
     <div>
-      <div className="mb-4 bg-gray-200 py-6">
-        <div className="container">
-          <PageHeader
-            pageTitle={`${local.name}'s Courses`}
-            pageSection=""
-          />
-        </div>
-      </div>
+      <PageHeader
+        pageTitle={`${local.name}'s Courses`}
+        pageSection=""
+      />
       <div className="container">
-        <div
-          className={`
-            grid grid-cols-1 gap-4 gap-y-6
-            sm:grid-cols-2
-            md:grid-cols-3
-          `}
-        >
+        <div className="card-grid">
           {(!data || data.length === 0) && (
             <div className="flex flex-col gap-6">
               <i>No courses yet!</i>
