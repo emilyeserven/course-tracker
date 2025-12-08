@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
-import { Button } from "@/components/button";
+import { TopicList } from "@/components/boxElements/TopicList";
+import { Button } from "@/components/ui/button";
 import { fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
@@ -90,9 +91,10 @@ function SingleCourseEdit() {
           {data?.topics && (
             <div className="flex flex-row gap-4">
               <b>Topic</b>
-              {data.topics.map(topic => (
-                <span key={topic}>{topic}</span>
-              ))}
+              <TopicList
+                topics={data.topics}
+                isPills={false}
+              />
             </div>
           )}
 
@@ -148,16 +150,18 @@ function SingleCourseEdit() {
           </div>
         )}
         <div className="flex flex-row gap-2">
-          <a
-            href={data?.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button>
-              Go to Course
-              <ExternalLink />
-            </Button>
-          </a>
+          {data?.url && (
+            <a
+              href={data?.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>
+                Go to Course
+                <ExternalLink />
+              </Button>
+            </a>
+          )}
           <Button variant="secondary">
             Edit Course
             {" "}

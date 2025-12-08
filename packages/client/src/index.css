@@ -121,3 +121,11 @@
         @apply bg-background text-foreground;
     }
 }
+
+@utility container {
+    @apply m-auto flex max-w-[1200px] w-full;
+}
+
+@utility card-grid {
+    @apply grid grid-cols-1 gap-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3 w-full
+}

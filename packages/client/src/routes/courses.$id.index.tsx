@@ -2,8 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
-import { Button } from "@/components/button";
-import { InfoArea } from "@/components/InfoArea";
+import { TopicList } from "@/components/boxElements/TopicList";
+import { InfoArea } from "@/components/layout/InfoArea";
+import { InfoRow } from "@/components/layout/InfoRow";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
 import { fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
@@ -56,103 +59,14 @@ function SingleCourse() {
 
   const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
 
+  const topics = data?.topics ?? null;
+
   return (
     <div>
-      <div className="flex flex-row gap-3">
-        <Link
-          to="/courses"
-          className="mb-8 flex flex-row"
-        >
-          Courses
-        </Link>
-        <span>/</span>
-        <span className="font-bold">{data?.name}</span>
-      </div>
-      <span className="mb-4 text-lg">COURSE</span>
-      <h1 className="mb-4 text-3xl">{data?.name}</h1>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col">
-          {data?.provider && (
-            <div className="flex flex-row gap-4">
-              <b>Course Provider</b>
-              {data.provider}
-            </div>
-          )}
-          {data?.topics && (
-            <div className="flex flex-row gap-4">
-              <b>Topic</b>
-              {data.topics.map((topic) => {
-                if (!topic) {
-                  return <></>;
-                }
-                return (
-                  <span key={topic.id}>{topic.name}</span>
-                );
-              })}
-            </div>
-          )}
-
-          <InfoArea
-            header="About"
-            condition={!!data?.description}
-          >
-            <p>
-              {data?.description}
-            </p>
-          </InfoArea>
-        </div>
-        <div>
-          <h2 className="mb-1 text-2xl">Progress</h2>
-          <div className="flex flex-row gap-8">
-
-            <InfoArea
-              header="Current Progress"
-              condition={!!data?.progressCurrent}
-            >
-              <p>
-                {data?.progressCurrent}
-              </p>
-            </InfoArea>
-
-            <InfoArea
-              header="Total Modules"
-              condition={!!data?.progressTotal}
-            >
-              <p>
-                {data?.progressTotal}
-              </p>
-            </InfoArea>
-
-            <InfoArea
-              header="% Complete"
-              condition={!!data?.progressTotal && !!data?.progressCurrent}
-            >
-              <p>
-                {percentComplete}%
-              </p>
-            </InfoArea>
-            {!data?.progressCurrent && !data?.progressTotal && (
-              <span>No progress information given.</span>
-            )}
-          </div>
-        </div>
-        {data?.cost && (
-          <div>
-            <h2 className="text-2xl">Amortization</h2>
-            <div className="flex flex-row gap-1">
-              {data.cost && !percentComplete && (
-                <div className="flex flex-row gap-4">
-                  <b>Course Cost</b>
-                  {data.cost.cost}
-                </div>
-              )}
-
-              {data?.cost && percentComplete && (
-                <span>${Number(Number(data.cost.cost) / Number(percentComplete)).toFixed(2)} out of ${data.cost.cost}</span>
-              )}
-            </div>
-          </div>
-        )}
+      <PageHeader
+        pageTitle={data?.name}
+        pageSection="courses"
+      >
         <div className="flex flex-row gap-2">
           {!!data?.url && (
             <a
@@ -183,6 +97,85 @@ function SingleCourse() {
             </Button>
           </Link>
         </div>
+      </PageHeader>
+      <div className="container flex-col gap-12">
+        <InfoArea
+          header="About"
+          condition={!!data?.description}
+        >
+          <p>
+            {data?.description}
+          </p>
+        </InfoArea>
+        <InfoRow header="Basic Info">
+          <InfoArea
+            header="Course Provider"
+            condition={!!data?.provider}
+          >
+            {data?.provider}
+          </InfoArea>
+          <InfoArea
+            header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
+            condition={!!topics}
+          >
+            <TopicList
+              topics={data?.topics}
+              isPills={false}
+            />
+          </InfoArea>
+        </InfoRow>
+        <InfoRow header="Progress">
+          <InfoArea
+            header="Current Progress"
+            condition={!!data?.progressCurrent}
+          >
+            <p>
+              {data?.progressCurrent}
+            </p>
+          </InfoArea>
+          <InfoArea
+            header="Total Modules"
+            condition={!!data?.progressTotal}
+          >
+            <p>
+              {data?.progressTotal}
+            </p>
+          </InfoArea>
+          <InfoArea
+            header="% Complete"
+            condition={!!data?.progressTotal && !!data?.progressCurrent}
+          >
+            <p>
+              {percentComplete}%
+            </p>
+          </InfoArea>
+          {!data?.progressCurrent && !data?.progressTotal && (
+            <span>No progress information given.</span>
+          )}
+        </InfoRow>
+        <InfoRow
+          condition={!!data?.cost}
+          header="Money Things"
+        >
+          <div className="flex flex-row gap-1">
+            <InfoArea
+              header="Course Cost"
+              condition={!percentComplete}
+            >
+              <p>
+                {data?.cost.cost}
+              </p>
+            </InfoArea>
+            <InfoArea
+              header="Amortization"
+              condition={!!percentComplete}
+            >
+              <p>
+                <span>${Number(Number(data?.cost.cost) / Number(percentComplete)).toFixed(2)} out of ${data?.cost.cost}</span>
+              </p>
+            </InfoArea>
+          </div>
+        </InfoRow>
       </div>
     </div>
   );

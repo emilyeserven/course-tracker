@@ -5,10 +5,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
-import { Button } from "@/components/button";
-import { CourseFields } from "@/components/CourseFields";
-import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
-import { FormField } from "@/components/FormField";
+import { CourseFields } from "@/components/forms/CourseFields";
+import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/forms/field";
+import { FormField } from "@/components/forms/FormField";
+import { Button } from "@/components/ui/button";
 import { postOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({
@@ -173,7 +173,7 @@ function Onboard() {
   const course1Url = useStore(form.store, state => state.values.course1Url);
 
   return (
-    <div className="mt-4 mb-20 flex flex-col gap-20 p-4">
+    <div className="container mt-4 mb-20 flex flex-col gap-20">
       <form
         id="onboarding"
         onSubmit={(e) => {

@@ -6,5 +6,5 @@ export interface Topic {
   description?: string | null;
   reason?: string | null;
   courseCount?: number;
-  courses: Course[];
+  courses?: Course[];
 }

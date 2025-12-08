@@ -4,8 +4,8 @@ import { useMemo } from "react";
 
 import { cva } from "class-variance-authority";
 
-import { Label } from "@/components/label";
-import { Separator } from "@/components/separator";
+import { Separator } from "@/components/layout/separator";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 function FieldSet({
@@ -160,8 +160,8 @@ function FieldLabel({
           [&>*]:data-[slot=field]:p-4
         `,
         `
-          has-data-[state=checked]:bg-primary/5
           has-data-[state=checked]:border-primary
+          has-data-[state=checked]:bg-primary/5
           dark:has-data-[state=checked]:bg-primary/10
         `,
         className,
@@ -197,7 +197,7 @@ function FieldDescription({
       data-slot="field-description"
       className={cn(
         `
-          text-muted-foreground text-sm leading-normal font-normal
+          text-sm leading-normal font-normal text-muted-foreground
           group-has-[[data-orientation=horizontal]]/field:text-balance
         `,
         `
@@ -206,8 +206,8 @@ function FieldDescription({
           [[data-variant=legend]+&]:-mt-1.5
         `,
         `
-          [&>a:hover]:text-primary
           [&>a]:underline [&>a]:underline-offset-4
+          [&>a:hover]:text-primary
         `,
         className,
       )}
@@ -240,8 +240,8 @@ function FieldSeparator({
       {children && (
         <span
           className={`
-            bg-background text-muted-foreground relative mx-auto block w-fit
-            px-2
+            relative mx-auto block w-fit bg-background px-2
+            text-muted-foreground
           `}
           data-slot="field-separator-content"
         >
@@ -295,7 +295,7 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("text-destructive text-sm font-normal", className)}
+      className={cn("text-sm font-normal text-destructive", className)}
       {...props}
     >
       {content}

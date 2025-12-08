@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
-import { Button } from "@/components/button";
-import { InfoArea } from "@/components/InfoArea";
+import { InfoArea } from "@/components/layout/InfoArea";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
 import { fetchSingleTopic } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/$id/")({
@@ -55,62 +56,10 @@ function SingleTopic() {
 
   return (
     <div>
-      <div className="flex flex-row gap-3">
-        <Link
-          to="/topics"
-          className="mb-8 flex flex-row"
-        >
-          Topics
-        </Link>
-        <span>/</span>
-        <span className="font-bold">{data?.name}</span>
-      </div>
-      <span className="mb-4 text-lg">TOPIC</span>
-      <h1 className="mb-4 text-3xl">{data?.name}</h1>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-6">
-          <InfoArea
-            header="About"
-            condition={!!data?.description}
-          >
-            <p>
-              {data?.description}
-            </p>
-          </InfoArea>
-          <InfoArea
-            header="Why am I learning this?"
-            condition={!!data?.reason}
-          >
-            <p>
-              {data?.reason}
-            </p>
-          </InfoArea>
-        </div>
-        <div>
-          <InfoArea
-            header="Courses"
-            condition={!!data?.courseCount && data.courseCount > 0}
-          >
-            <ul className="ml-5 list-disc">
-              {data?.courses.map(course => (
-                <li key={course.id}>
-                  <Link
-                    to="/courses/$id"
-                    from="/topics/$id"
-                    params={{
-                      id: course.id + "",
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >{course.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </InfoArea>
-        </div>
+      <PageHeader
+        pageTitle={data?.name}
+        pageSection="topics"
+      >
         <div className="flex flex-row gap-2">
           <Link
             to="/courses/$id/edit"
@@ -128,6 +77,49 @@ function SingleTopic() {
               <EditIcon />
             </Button>
           </Link>
+        </div>
+      </PageHeader>
+      <div className="container flex flex-col gap-12">
+        <InfoArea
+          header="About"
+          condition={!!data?.description}
+        >
+          <p>
+            {data?.description}
+          </p>
+        </InfoArea>
+        <InfoArea
+          header="Why am I learning this?"
+          condition={!!data?.reason}
+        >
+          <p>
+            {data?.reason}
+          </p>
+        </InfoArea>
+        <div>
+          <InfoArea
+            header="Courses"
+            condition={!!data?.courseCount && data.courseCount > 0}
+          >
+            <ul className="ml-5 list-disc">
+              {data?.courses && data.courses.map(course => (
+                <li key={course.id}>
+                  <Link
+                    to="/courses/$id"
+                    from="/topics/$id"
+                    params={{
+                      id: course.id + "",
+                    }}
+                    className={`
+                      font-bold text-blue-800
+                      hover:text-blue-600
+                    `}
+                  >{course.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </InfoArea>
         </div>
       </div>
     </div>

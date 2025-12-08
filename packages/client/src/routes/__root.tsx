@@ -4,14 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup, DropdownMenuItem, DropdownMenuItemInteractive,
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme.ts";
 import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
 
@@ -64,32 +64,48 @@ const RootComponent: React.FunctionComponent = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 p-2">
-        <div className="flex gap-2">
+      <div className="container items-center justify-between gap-2 py-2">
+        <div className="flex gap-4">
           <Link
             to="/"
-            className="[&.active]:font-bold"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
           >
             Home
           </Link>
 
           <Link
             to="/onboard"
-            className="[&.active]:font-bold"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
           >
             Onboard
           </Link>
 
           <Link
             to="/courses"
-            className="[&.active]:font-bold"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
           >
             Courses
           </Link>
 
           <Link
             to="/topics"
-            className="[&.active]:font-bold"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
           >
             Topics
           </Link>
@@ -150,7 +166,7 @@ const RootComponent: React.FunctionComponent = () => {
         </div>
       </div>
       <hr />
-      <div className="m-auto max-w-[1200px]">
+      <div className="mb-8">
         <Outlet />
       </div>
     </>

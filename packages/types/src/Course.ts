@@ -1,11 +1,9 @@
-import type { CostData } from "@/CostData.ts";
+import type { CostData } from "@/CostData";
+
+import { MinimalTopic } from "@/MinimalTopic";
+import { Topic } from "@/Topic";
 
 export type CourseStatus = "active" | "inactive" | "complete";
-
-interface Topic {
-  id: string;
-  name: string;
-}
 
 export interface Course {
   id: string;
@@ -17,6 +15,6 @@ export interface Course {
   progressCurrent: number;
   progressTotal: number;
   status: CourseStatus;
-  topics?: (Topic | undefined)[];
+  topics?: MinimalTopic | Topic[] | undefined;
   provider?: string;
 }
