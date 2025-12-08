@@ -3,8 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/button";
-import { InfoArea } from "@/components/InfoArea";
 import { InfoRow } from "@/components/InfoRow";
+import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/PageHeader";
 import { TopicList } from "@/components/TopicList";
 import { fetchSingleCourse } from "@/utils/fetchFunctions";

@@ -5,7 +5,7 @@ import * as React from "react";
 import { cva } from "class-variance-authority";
 
 import { Button } from "@/components/button";
-import { Input } from "@/components/input";
+import { Input } from "@/components/forms/input";
 import { Textarea } from "@/components/textarea";
 import { cn } from "@/lib/utils";
 

@@ -1,5 +1,5 @@
 import { Field, FieldLabel } from "@/components/forms/field";
-import { Input } from "@/components/input";
+import { Input } from "@/components/forms/input";
 
 interface OnboardingInputProps {
   label: string;

@@ -7,8 +7,8 @@ import * as z from "zod";
 
 import { Button } from "@/components/button";
 import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
-import { FormField } from "@/components/FormField";
 import { CourseFields } from "@/components/forms/CourseFields";
+import { FormField } from "@/components/forms/FormField";
 import { postOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({

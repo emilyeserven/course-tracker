@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { Button } from "@/components/button";
-import { InfoArea } from "@/components/InfoArea";
+import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/PageHeader";
 import { fetchSingleTopic } from "@/utils/fetchFunctions";
 
