@@ -5,8 +5,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
 import { TopicBox } from "@/components/boxes/TopicBox";
-import { Button } from "@/components/button";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
 import { fetchTopics } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/")({

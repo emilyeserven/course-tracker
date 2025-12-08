@@ -5,10 +5,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
-import { Button } from "@/components/button";
-import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/field";
 import { CourseFields } from "@/components/forms/CourseFields";
+import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/forms/field";
 import { FormField } from "@/components/forms/FormField";
+import { Button } from "@/components/ui/button";
 import { postOnboardForm } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/onboard")({
