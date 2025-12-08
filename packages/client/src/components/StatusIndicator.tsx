@@ -9,12 +9,14 @@ interface StatusIndicatorProps { status: CourseStatus }
 export function StatusIndicator({
   status,
 }: StatusIndicatorProps) {
+  const ICON_SIZE = 18;
+
   return (
     <div className="flex items-center justify-center">
       {status && status === "inactive" && (
         <Tooltip>
           <TooltipTrigger>
-            <PauseCircle size={16} />
+            <PauseCircle size={ICON_SIZE} />
           </TooltipTrigger>
           <TooltipContent>
             Paused
@@ -24,7 +26,7 @@ export function StatusIndicator({
       {status && status === "active" && (
         <Tooltip>
           <TooltipTrigger>
-            <PlayCircle size={16} />
+            <PlayCircle size={ICON_SIZE} />
           </TooltipTrigger>
           <TooltipContent>
             Active
@@ -34,7 +36,7 @@ export function StatusIndicator({
       {status && status === "complete" && (
         <Tooltip>
           <TooltipTrigger>
-            <CheckCircle size={16} />
+            <CheckCircle size={ICON_SIZE} />
           </TooltipTrigger>
           <TooltipContent>
             Completed
