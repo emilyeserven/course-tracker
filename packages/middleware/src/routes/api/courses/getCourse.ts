@@ -69,7 +69,7 @@ export default async function (server: FastifyInstance) {
           progressTotal: course.progressTotal ? course.progressTotal : 0,
           status: course.status,
           topics: topics,
-          provider: course.courseProvider ? course.courseProvider.name : "",
+          provider: course.courseProvider ? course.courseProvider.name : undefined,
         };
 
         return rawData;

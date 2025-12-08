@@ -16,5 +16,8 @@ export interface Course {
   progressTotal: number;
   status: CourseStatus;
   topics?: MinimalTopic | Topic[] | undefined;
-  provider?: string;
+  provider?: {
+    name: string;
+    id: string;
+  };
 }

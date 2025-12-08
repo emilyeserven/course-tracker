@@ -112,7 +112,18 @@ function SingleCourse() {
             header="Course Provider"
             condition={!!data?.provider}
           >
-            {data?.provider}
+            {!!data?.provider && (
+              <Link
+                to="/providers/$id"
+                from="/courses/$id"
+                params={{
+                  id: data.provider.id + "",
+                }}
+              >
+                {data?.provider?.name}
+              </Link>
+            )}
+
           </InfoArea>
           <InfoArea
             header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
