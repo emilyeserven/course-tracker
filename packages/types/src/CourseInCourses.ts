@@ -20,6 +20,9 @@ export interface CourseInCourses {
       id: string;
     }
   )[];
-  provider?: string;
+  provider?: {
+    name: string;
+    id: string;
+  };
 
 }

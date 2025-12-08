@@ -52,7 +52,7 @@ export default async function (server: FastifyInstance) {
               name: course.courseProvider.name,
               id: course.courseProvider.id,
             }
-            : "",
+            : undefined,
         };
       });
 

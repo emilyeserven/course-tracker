@@ -112,13 +112,17 @@ function SingleCourse() {
             header="Course Provider"
             condition={!!data?.provider}
           >
-            {!!data?.provider && (
+            {data?.provider && data.provider.name && (
               <Link
                 to="/providers/$id"
                 from="/courses/$id"
                 params={{
                   id: data.provider.id + "",
                 }}
+                className={`
+                  text-blue-800
+                  hover:text-blue-600
+                `}
               >
                 {data?.provider?.name}
               </Link>
