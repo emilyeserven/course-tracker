@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
+import { TopicBox } from "@/components/boxes/TopicBox";
 import { Button } from "@/components/button";
 import { PageHeader } from "@/components/PageHeader";
-import { TopicBox } from "@/components/TopicBox";
 import { fetchTopics } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/topics/")({

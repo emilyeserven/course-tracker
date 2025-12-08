@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
+import { CourseBox } from "@/components/boxes/CourseBox";
 import { Button } from "@/components/button";
-import { CourseBox } from "@/components/CourseBox";
 import { PageHeader } from "@/components/PageHeader";
 import { fetchCourses } from "@/utils/fetchFunctions";
 
