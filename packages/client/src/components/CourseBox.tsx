@@ -9,6 +9,13 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/button";
+import {
+  ContentBox,
+  ContentBoxBody,
+  ContentBoxFooter,
+  ContentBoxHeader, ContentBoxHeaderBar,
+  ContentBoxProgress, ContentBoxTitle,
+} from "@/components/ContentBox";
 import { CourseMetaItem } from "@/components/CourseMetaItem";
 import { StatusIndicator } from "@/components/StatusIndicator";
 import { TopicList } from "@/components/TopicList";
@@ -30,65 +37,50 @@ export function CourseBox({
     ? `${(Number(cost.cost) / cost.splitBy)}*`
     : Number(cost.cost);
   return (
-    <div
-      className="flex flex-col justify-between gap-2 rounded border"
-    >
-      <div
-        className={`
-          flex flex-row items-center justify-between border-b bg-border py-1
-          pr-1 pl-2
-        `}
-      >
-        <div className="flex flex-row items-center gap-2">
-          <StatusIndicator status={status} />
-          <TopicList topics={topics} />
-        </div>
+    <ContentBox>
+      <ContentBoxHeader>
 
-        {url && (
-          <Button
-            variant="ghost"
-            size="icon-xs"
-          >
-            <a
-              href={url}
-              target="_blank"
-              className="cursor-pointer"
-              rel="noopener noreferrer"
+        <ContentBoxHeaderBar>
+          <div className="flex flex-row items-center gap-2">
+            <StatusIndicator status={status} />
+            <TopicList topics={topics} />
+          </div>
+
+          {url && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
             >
-              <ExternalLink />
-            </a>
-          </Button>
-        )}
-      </div>
-      <div className="flex h-full flex-col justify-between">
-        <div className="flex flex-col justify-between gap-4">
-          <div className="flex items-start justify-between px-2 pt-1">
-            <div className="flex flex-col items-start gap-1">
-              <h3 className="text-2xl">
-                <Link
-                  to="/courses/$id"
-                  from="/courses"
-                  params={{
-                    id: id + "",
-                  }}
-                  className="hover:text-blue-600"
-                >{name}
-                </Link>
-              </h3>
-              { provider && <h4>From {provider}</h4> }
-            </div>
-          </div>
-          <div className="px-2 pb-2">
-            <p>{description ? description : <i>No description provided.</i>}</p>
-          </div>
-        </div>
-      </div>
-      <div
-        className={`
-          flex flex-row flex-wrap justify-between gap-8 gap-y-1 border-t
-          bg-gray-50 px-2 pt-2 pb-2
-        `}
-      >
+              <a
+                href={url}
+                target="_blank"
+                className="cursor-pointer"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink />
+              </a>
+            </Button>
+          )}
+        </ContentBoxHeaderBar>
+        <ContentBoxTitle>
+          <h3 className="text-xl">
+            <Link
+              to="/courses/$id"
+              from="/courses"
+              params={{
+                id: id + "",
+              }}
+              className="hover:text-blue-600"
+            >{name}
+            </Link>
+          </h3>
+        </ContentBoxTitle>
+      </ContentBoxHeader>
+      <ContentBoxBody>
+        { provider && <h4>From {provider}</h4> }
+        <p>{description ? description : <i>No description provided.</i>}</p>
+      </ContentBoxBody>
+      <ContentBoxFooter>
         <CourseMetaItem
           value={dateExpires}
           condition={!!dateExpires}
@@ -107,22 +99,12 @@ export function CourseBox({
           iconNode={<DollarSignIcon size={16} />}
           emptyText="No cost given"
         />
-      </div>
-      {progressCurrent > 0 && (
-        <div className="-mt-2 w-full rounded-br bg-gray-50">
-          <div
-            className={`
-              ${status && status === "inactive"
-          ? "bg-primary/50"
-          : "bg-primary"}
-              h-2 rounded-bl
-            `}
-            style={{
-              width: `${progressCurrent !== 0 ? progressTotal / progressCurrent : 0}%`,
-            }}
-          />
-        </div>
-      )}
-    </div>
+      </ContentBoxFooter>
+      <ContentBoxProgress
+        progressCurrent={progressCurrent}
+        progressTotal={progressTotal}
+        status={status}
+      />
+    </ContentBox>
   );
 }
