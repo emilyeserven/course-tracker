@@ -4,14 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup, DropdownMenuItem, DropdownMenuItemInteractive,
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme.ts";
 import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
 

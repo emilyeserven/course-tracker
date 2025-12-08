@@ -2,7 +2,7 @@ import type { CourseStatus } from "@emstack/types/src";
 
 import { CheckCircle, PauseCircle, PlayCircle } from "lucide-react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface StatusIndicatorProps { status: CourseStatus }
 
