@@ -8,6 +8,8 @@ import {
   TimerIcon,
 } from "lucide-react";
 
+import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
+import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
 import {
   ContentBox,
   ContentBoxBody,
@@ -16,8 +18,6 @@ import {
   ContentBoxProgress, ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { Button } from "@/components/button";
-import { CourseMetaItem } from "@/components/CourseMetaItem";
-import { StatusIndicator } from "@/components/StatusIndicator";
 import { TopicList } from "@/components/TopicList";
 
 export function CourseBox({
