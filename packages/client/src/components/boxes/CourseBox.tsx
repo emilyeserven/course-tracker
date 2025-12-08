@@ -77,7 +77,19 @@ export function CourseBox({
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        { provider && <h4>From {provider}</h4> }
+        { provider && (
+          <h4 className="text-xs font-semibold uppercase">
+            From
+            {" "}
+            <span
+              className={`
+                text-blue-800
+                hover:text-blue-600
+              `}
+            >{provider}
+            </span>
+          </h4>
+        ) }
         <p>{description ? description : <i>No description provided.</i>}</p>
       </ContentBoxBody>
       <ContentBoxFooter>

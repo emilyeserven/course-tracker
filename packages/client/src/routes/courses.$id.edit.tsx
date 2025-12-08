@@ -91,7 +91,10 @@ function SingleCourseEdit() {
           {data?.topics && (
             <div className="flex flex-row gap-4">
               <b>Topic</b>
-              <TopicList topics={data.topics} />
+              <TopicList
+                topics={data.topics}
+                isPills={false}
+              />
             </div>
           )}
 

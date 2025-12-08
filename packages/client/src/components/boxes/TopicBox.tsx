@@ -5,6 +5,7 @@ import {
   BookIcon,
 } from "lucide-react";
 
+import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import {
   ContentBox,
   ContentBoxBody,
@@ -12,7 +13,6 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
-import { CourseMetaItem } from "@/components/CourseMetaItem";
 
 export function TopicBox({
   id,

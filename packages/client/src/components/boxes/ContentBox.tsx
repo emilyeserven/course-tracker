@@ -62,7 +62,7 @@ function ContentBoxBody({
   return (
     <div
       className={cn(`
-        flex h-full flex-col items-start justify-between gap-4 px-2 pt-1
+        flex h-full flex-col items-start justify-between gap-4 px-2
       `, className)}
       {...props}
     />

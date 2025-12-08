@@ -120,6 +120,7 @@ function SingleCourse() {
           >
             <TopicList
               topics={data?.topics}
+              isPills={false}
             />
           </InfoArea>
         </InfoRow>
