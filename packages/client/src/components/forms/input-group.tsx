@@ -6,7 +6,7 @@ import { cva } from "class-variance-authority";
 
 import { Button } from "@/components/button";
 import { Input } from "@/components/forms/input";
-import { Textarea } from "@/components/textarea";
+import { Textarea } from "@/components/forms/textarea";
 import { cn } from "@/lib/utils";
 
 function InputGroup({
