@@ -42,7 +42,8 @@
     "test": "node --test",
     "push:prod": "dotenv -e .env.production -- drizzle-kit push",
     "push:dev": "dotenv -e .env -- drizzle-kit push",
-    "push": "pnpm run push:prod && pnpm run push:dev"
+    "push": "pnpm run push:prod && pnpm run push:dev",
+    "studio": "pnpm drizzle-kit studio"
   },
   "type": "module"
 }

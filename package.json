@@ -26,6 +26,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint .. --fix",
     "storybook": "pnpm --filter=@emstack/client run storybook",
+    "studio": "pnpm --filter=@emstack/middleware run studio",
     "prepare": "husky"
   },
   "lint-staged": {
