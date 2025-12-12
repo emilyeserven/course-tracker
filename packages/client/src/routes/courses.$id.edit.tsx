@@ -85,7 +85,7 @@ function SingleCourseEdit() {
           {data?.provider && (
             <div className="flex flex-row gap-4">
               <b>Course Provider</b>
-              {data.provider}
+              {data.provider.name}
             </div>
           )}
           {data?.topics && (
