@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
@@ -7,7 +7,7 @@ import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchSingleCourse } from "@/utils/fetchFunctions";
+import { deleteSingleCourse, fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
 export const Route = createFileRoute("/courses/$id/")({
@@ -41,12 +41,21 @@ function SingleCourse() {
   const {
     id,
   } = Route.useParams();
+  const navigate = useNavigate();
 
   const {
     isPending, error, data,
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
+  });
+
+  const {
+    refetch: deletePost,
+  } = useQuery({
+    queryKey: ["course", id],
+    enabled: false,
+    queryFn: () => deleteSingleCourse(id),
   });
 
   if (isPending) {
@@ -60,6 +69,13 @@ function SingleCourse() {
   const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
 
   const topics = data?.topics ?? null;
+
+  async function handleDelete() {
+    await deletePost();
+    await navigate({
+      to: "/courses",
+    });
+  }
 
   return (
     <div>
@@ -194,6 +210,9 @@ function SingleCourse() {
             </InfoArea>
           </div>
         </InfoRow>
+        <div>
+          <Button onClick={handleDelete} />
+        </div>
       </div>
     </div>
   );

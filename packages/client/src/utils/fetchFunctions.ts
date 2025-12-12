@@ -33,6 +33,13 @@ export async function fetchCourses(): Promise<CourseInCourses[]> {
   return await fetch("http://localhost:3001/api/courses").then(res => res.json());
 }
 
+export async function deleteSingleCourse(id: string): Promise<Course> {
+  console.log("delete single course");
+  return await fetch(`http://localhost:3001/api/courses/${id}`, {
+    method: "DELETE",
+  }).then(res => res.json());
+}
+
 export async function fetchSingleCourse(id: string): Promise<Course> {
   return await fetch(`http://localhost:3001/api/courses/${id}`).then(res => res.json());
 }
