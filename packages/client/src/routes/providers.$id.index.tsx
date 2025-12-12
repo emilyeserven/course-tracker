@@ -53,7 +53,7 @@ function SingleProviders() {
   const {
     refetch: deletePlatform,
   } = useQuery({
-    queryKey: ["course", id],
+    queryKey: ["provider", "delete", id],
     enabled: false,
     queryFn: () => deleteSinglePlatform(id),
   });
