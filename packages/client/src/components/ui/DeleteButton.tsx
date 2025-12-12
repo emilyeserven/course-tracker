@@ -42,7 +42,10 @@ export function DeleteButton({
     <Button
       variant="secondary"
       onClick={() => setIsConfirming(true)}
-    >{children}
+    >
+      {children}
+      {" "}
+      <TrashIcon />
     </Button>
   );
 }
