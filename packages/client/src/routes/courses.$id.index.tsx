@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, ExternalLink, TrashIcon } from "lucide-react";
+import { EditIcon, ExternalLink } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -52,7 +52,7 @@ function SingleCourse() {
   });
 
   const {
-    refetch: deletePost,
+    refetch: deleteCourse,
   } = useQuery({
     queryKey: ["course", id],
     enabled: false,
@@ -72,7 +72,7 @@ function SingleCourse() {
   const topics = data?.topics ?? null;
 
   async function handleDelete() {
-    await deletePost();
+    await deleteCourse();
     await navigate({
       to: "/courses",
     });
@@ -214,8 +214,6 @@ function SingleCourse() {
         <div>
           <DeleteButton onClick={handleDelete}>
             Delete Course
-            {" "}
-            <TrashIcon />
           </DeleteButton>
         </div>
       </div>
