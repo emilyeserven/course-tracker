@@ -140,7 +140,7 @@ function SingleTopic() {
         </div>
         <div>
           <DeleteButton onClick={handleDelete}>
-            Delete Platform
+            Delete Topic
           </DeleteButton>
         </div>
       </div>
