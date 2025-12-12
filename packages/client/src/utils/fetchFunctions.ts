@@ -47,6 +47,13 @@ export async function deleteSinglePlatform(id: string): Promise<Course> {
   }).then(res => res.json());
 }
 
+export async function deleteSingleTopic(id: string): Promise<Course> {
+  console.log("delete single topic");
+  return await fetch(`http://localhost:3001/api/topics/${id}`, {
+    method: "DELETE",
+  }).then(res => res.json());
+}
+
 export async function fetchSingleCourse(id: string): Promise<Course> {
   return await fetch(`http://localhost:3001/api/courses/${id}`).then(res => res.json());
 }
