@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, ExternalLink } from "lucide-react";
+import { EditIcon, ExternalLink, TrashIcon } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { DeleteButton } from "@/components/ui/DeleteButton";
 import { deleteSingleCourse, fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
 
@@ -211,7 +212,11 @@ function SingleCourse() {
           </div>
         </InfoRow>
         <div>
-          <Button onClick={handleDelete} />
+          <DeleteButton onClick={handleDelete}>
+            Delete Course
+            {" "}
+            <TrashIcon />
+          </DeleteButton>
         </div>
       </div>
     </div>
