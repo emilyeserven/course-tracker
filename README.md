@@ -4,9 +4,12 @@ Currently won't work via vercel etc due to DB needs.
 
 # Ideas
 - LLM call to take info in and tell you if a course you're considering is worth it or not
-- "Dailies" attachable to courses or providers, which can show up on a dashboard and checked off each day. Should direct link to a place the daily can be done.
+- "Goals" attachable to courses or providers, which can show up on a dashboard and checked off each day. Should direct link to a place the daily can be done.
   - ex: Doing 20 flashcards a day on Renshuu
   - ex: Maintaining a streak on a service like UXcel or TryHackMe
+  - 2 types: "Target" and "Marathon"
+    - Marathon being something like just doing tasks daily (Renshuu)
+    - Target being "finish a course by X date", or "do course X times a week"
 
 # Local stuff
 ## DB
