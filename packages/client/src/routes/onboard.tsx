@@ -15,72 +15,44 @@ export const Route = createFileRoute("/onboard")({
   component: Onboard,
 });
 
+const FIELD_COUNT = 5;
+const FIELD_INDICES = Array.from({ length: FIELD_COUNT }, (_, i) => i);
+
+const topicSchema = z
+  .string()
+  .min(0, "Topic must be at least 1 characters")
+  .max(32, "Topic must be at most 32 characters.");
+
+const courseNameSchema = z
+  .string()
+  .min(0, "Course name must be at least 1 characters")
+  .max(200, "Course name must be at most 32 characters.");
+
+const courseUrlSchema = z
+  .string()
+  .min(0, "Course URL must be at least 1 characters")
+  .max(200, "Course URL must be at most 32 characters.");
+
 const formSchema = z.object({
   name: z
     .string()
     .min(0, "Name must be at least 0 characters.")
     .max(32, "Name must be at most 32 characters."),
-  topic1: z
-    .string()
-    .min(0, "Topic must be at least 1 characters")
-    .max(32, "Topic must be at most 32 characters."),
-  topic2: z
-    .string()
-    .min(0, "Topic must be at least 1 characters")
-    .max(32, "Topic must be at most 32 characters."),
-  topic3: z
-    .string()
-    .min(0, "Topic must be at least 1 characters")
-    .max(32, "Topic must be at most 32 characters."),
-  topic4: z
-    .string()
-    .min(0, "Topic must be at least 1 characters")
-    .max(32, "Topic must be at most 32 characters."),
-  topic5: z
-    .string()
-    .min(0, "Topic must be at least 1 characters")
-    .max(32, "Topic must be at most 32 characters."),
-  course1Name: z
-    .string()
-    .min(0, "Course name must be at least 1 characters")
-    .max(200, "Course name must be at most 32 characters."),
-  course1Url: z
-    .string()
-    .min(0, "Course URL must be at least 1 characters")
-    .max(200, "Course URL must be at most 32 characters."),
-  course2Name: z
-    .string()
-    .min(0, "Course name must be at least 1 characters")
-    .max(200, "Course name must be at most 32 characters."),
-  course2Url: z
-    .string()
-    .min(0, "Course URL must be at least 1 characters")
-    .max(200, "Course URL must be at most 32 characters."),
-  course3Name: z
-    .string()
-    .min(0, "Course name must be at least 1 characters")
-    .max(200, "Course name must be at most 32 characters."),
-  course3Url: z
-    .string()
-    .min(0, "Course URL must be at least 1 characters")
-    .max(200, "Course URL must be at most 32 characters."),
-  course4Name: z
-    .string()
-    .min(0, "Course name must be at least 1 characters")
-    .max(200, "Course name must be at most 32 characters."),
-  course4Url: z
-    .string()
-    .min(0, "Course URL must be at least 1 characters")
-    .max(200, "Course URL must be at most 32 characters."),
-  course5Name: z
-    .string()
-    .min(0, "Course name must be at least 1 characters")
-    .max(200, "Course name must be at most 32 characters."),
-  course5Url: z
-    .string()
-    .min(0, "Course URL must be at least 1 characters")
-    .max(200, "Course URL must be at most 32 characters."),
+  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, topicSchema])),
+  ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
+    [`course${i}Name`, courseNameSchema],
+    [`course${i}Url`, courseUrlSchema],
+  ])),
 });
+
+const defaultValues: Record<string, string> = {
+  name: "",
+  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, ""])),
+  ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
+    [`course${i}Name`, ""],
+    [`course${i}Url`, ""],
+  ])),
+};
 
 function Onboard() {
   const [isStep2Revealed, setIsStep2Revealed] = useState(false);
@@ -88,65 +60,22 @@ function Onboard() {
   const navigate = useNavigate();
 
   const form = useForm({
-    defaultValues: {
-      name: "",
-      topic1: "",
-      topic2: "",
-      topic3: "",
-      topic4: "",
-      topic5: "",
-      course1Name: "",
-      course1Url: "",
-      course2Name: "",
-      course2Url: "",
-      course3Name: "",
-      course3Url: "",
-      course4Name: "",
-      course4Url: "",
-      course5Name: "",
-      course5Url: "",
-    },
+    defaultValues,
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({
       value,
     }) => {
-      const rawCourses = [
-        {
-          name: value.course1Name,
-          topic: topic1,
-          url: value.course1Url,
-          id: 1,
-        },
-        {
-          name: value.course2Name,
-          topic: topic2,
-          url: value.course2Url,
-          id: 2,
-        },
-        {
-          name: value.course3Name,
-          topic: topic3,
-          url: value.course3Url,
-          id: 3,
-        },
-        {
-          name: value.course4Name,
-          topic: topic4,
-          url: value.course4Url,
-          id: 4,
-        },
-        {
-          name: value.course5Name,
-          topic: topic5,
-          url: value.course5Url,
-          id: 5,
-        }];
+      const topicValues = FIELD_INDICES.map(i => value[`topic${i}`]);
+      const rawCourses = FIELD_INDICES.map(i => ({
+        name: value[`course${i}Name`],
+        topic: topicValues[i],
+        url: value[`course${i}Url`],
+        id: i,
+      }));
       const filteredCourses = rawCourses.filter(item => item.name !== "");
-
-      const rawTopics = [topic1, topic2, topic3, topic4, topic5];
-      const filteredTopics = rawTopics.filter(topic => topic !== "");
+      const filteredTopics = topicValues.filter(topic => topic !== "");
 
       const cleanedValue = {
         name: value.name,
@@ -163,14 +92,10 @@ function Onboard() {
       });
     },
   });
-  const name = useStore(form.store, state => state.values.name);
-  const topic1 = useStore(form.store, state => state.values.topic1);
-  const topic2 = useStore(form.store, state => state.values.topic2);
-  const topic3 = useStore(form.store, state => state.values.topic3);
-  const topic4 = useStore(form.store, state => state.values.topic4);
-  const topic5 = useStore(form.store, state => state.values.topic5);
-  const course1Name = useStore(form.store, state => state.values.course1Name);
-  const course1Url = useStore(form.store, state => state.values.course1Url);
+
+  const formValues = useStore(form.store, state => state.values);
+  const name = formValues.name;
+  const topics = FIELD_INDICES.map(i => formValues[`topic${i}`]);
 
   return (
     <div className="container mt-4 mb-20 flex flex-col gap-20">
@@ -213,42 +138,17 @@ function Onboard() {
               </FieldLegend>
               <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
               <FieldGroup className="grid grid-cols-2">
-                <FormField
-                  form={form}
-                  condition={true}
-                  name="topic1"
-                  label="Topic 1"
-                  placeholder="Memes"
-                />
-                <FormField
-                  form={form}
-                  condition={!!topic1 && topic1 !== ""}
-                  name="topic2"
-                  label="Topic 2"
-                  placeholder="Memes"
-                />
-                <FormField
-                  form={form}
-                  condition={!!topic2 && topic2 !== ""}
-                  name="topic3"
-                  label="Topic 3"
-                  placeholder="Memes"
-                />
-                <FormField
-                  form={form}
-                  condition={!!topic3 && topic3 !== ""}
-                  name="topic4"
-                  label="Topic 4"
-                  placeholder="Memes"
-                />
-                <FormField
-                  form={form}
-                  condition={!!topic4 && topic4 !== ""}
-                  name="topic5"
-                  label="Topic 5"
-                  placeholder="Memes"
-                />
-                { !!topic5 && topic5 !== "" && (
+                {FIELD_INDICES.map(i => (
+                  <FormField
+                    key={`topic${i}`}
+                    form={form}
+                    condition={i === 0 || !!topics[i - 1]}
+                    name={`topic${i}`}
+                    label={`Topic ${i + 1}`}
+                    placeholder="Memes"
+                  />
+                ))}
+                { !!topics[FIELD_COUNT - 1] && (
                   <div
                     className={`
                       flex flex-col justify-center text-xl text-primary italic
@@ -260,7 +160,7 @@ function Onboard() {
               </FieldGroup>
             </FieldSet>
 
-            {!isStep3Revealed && topic1 && (
+            {!isStep3Revealed && topics[0] && (
               <div>
                 <Button
                   className="inline-flex grow-0"
@@ -278,39 +178,18 @@ function Onboard() {
           <div className="flex flex-col gap-6">
             <span className="text-3xl">Let&#39;s add a course per topic.</span>
             <div className="flex flex-col gap-12">
-              <CourseFields
-                form={form}
-                condition={true}
-                name="course1"
-                label={topic1}
-              />
-              <CourseFields
-                form={form}
-                condition={!!topic2 && topic2 !== ""}
-                name="course2"
-                label={topic2}
-              />
-              <CourseFields
-                form={form}
-                condition={!!topic3 && topic3 !== ""}
-                name="course3"
-                label={topic3}
-              />
-              <CourseFields
-                form={form}
-                condition={!!topic4 && topic4 !== ""}
-                name="course4"
-                label={topic4}
-              />
-              <CourseFields
-                form={form}
-                condition={!!topic5 && topic5 !== ""}
-                name="course5"
-                label={topic5}
-              />
+              {FIELD_INDICES.map(i => (
+                <CourseFields
+                  key={`course${i}`}
+                  form={form}
+                  condition={i === 0 || !!topics[i]}
+                  name={`course${i}`}
+                  label={topics[i]}
+                />
+              ))}
             </div>
 
-            {!isStep3Revealed && topic1 && (
+            {!isStep3Revealed && topics[0] && (
               <div>
                 <Button
                   className="inline-flex grow-0"
@@ -324,7 +203,7 @@ function Onboard() {
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && course1Name && course1Url && (
+        { isStep2Revealed && isStep3Revealed && formValues.course0Name && formValues.course0Url && (
           <div className="flex flex-row gap-4">
             <Button
               type="submit"
