@@ -16,7 +16,7 @@ export const Route = createFileRoute("/onboard")({
 });
 
 const FIELD_COUNT = 5;
-const FIELD_INDICES = Array.from({ length: FIELD_COUNT }, (_, i) => i + 1);
+const FIELD_INDICES = Array.from({ length: FIELD_COUNT }, (_, i) => i);
 
 const topicSchema = z
   .string()
@@ -70,7 +70,7 @@ function Onboard() {
       const topicValues = FIELD_INDICES.map(i => value[`topic${i}`]);
       const rawCourses = FIELD_INDICES.map(i => ({
         name: value[`course${i}Name`],
-        topic: topicValues[i - 1],
+        topic: topicValues[i],
         url: value[`course${i}Url`],
         id: i,
       }));
@@ -138,13 +138,13 @@ function Onboard() {
               </FieldLegend>
               <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
               <FieldGroup className="grid grid-cols-2">
-                {FIELD_INDICES.map((idx, i) => (
+                {FIELD_INDICES.map(i => (
                   <FormField
-                    key={`topic${idx}`}
+                    key={`topic${i}`}
                     form={form}
                     condition={i === 0 || !!topics[i - 1]}
-                    name={`topic${idx}`}
-                    label={`Topic ${idx}`}
+                    name={`topic${i}`}
+                    label={`Topic ${i + 1}`}
                     placeholder="Memes"
                   />
                 ))}
@@ -178,12 +178,12 @@ function Onboard() {
           <div className="flex flex-col gap-6">
             <span className="text-3xl">Let&#39;s add a course per topic.</span>
             <div className="flex flex-col gap-12">
-              {FIELD_INDICES.map((idx, i) => (
+              {FIELD_INDICES.map(i => (
                 <CourseFields
-                  key={`course${idx}`}
+                  key={`course${i}`}
                   form={form}
                   condition={i === 0 || !!topics[i]}
-                  name={`course${idx}`}
+                  name={`course${i}`}
                   label={topics[i]}
                 />
               ))}
@@ -203,7 +203,7 @@ function Onboard() {
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && formValues.course1Name && formValues.course1Url && (
+        { isStep2Revealed && isStep3Revealed && formValues.course0Name && formValues.course0Url && (
           <div className="flex flex-row gap-4">
             <Button
               type="submit"
