@@ -39,8 +39,8 @@ function CoursesError() {
 }
 
 function Courses() {
-  const localItem = localStorage.getItem("courseData");
-  const local = JSON.parse(localItem ? localItem : "");
+  // const localItem = localStorage.getItem("courseData");
+  // const local = JSON.parse(localItem ? localItem : "");
 
   const {
     data,
@@ -52,7 +52,7 @@ function Courses() {
   return (
     <div>
       <PageHeader
-        pageTitle={`${local.name}'s Courses`}
+        pageTitle="Your Courses"
         pageSection=""
       />
       <div className="container">
