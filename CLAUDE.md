@@ -99,6 +99,5 @@ Ports: client on 3000, middleware on 3001
 
 ## Deployment
 
-- **Client:** Vercel (SPA with rewrite rules in `vercel.json`)
 - **Containers:** Docker Compose for local multi-service; Dockerfiles use multi-stage builds with distroless base
 - **Environment:** Middleware uses `.env` (local) / `.env.production` with `DATABASE_URL` as the key variable

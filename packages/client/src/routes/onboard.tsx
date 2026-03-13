@@ -24,7 +24,7 @@ const FIELD_INDICES = Array.from(
 );
 
 const fieldSchema = (label: string, max: number) =>
-  z.string().min(0, `${label} is required`).max(max, `${label} must be at most ${max} characters.`);
+  z.string().max(max, `${label} must be at most ${max} characters.`);
 
 const formSchema = z.object({
   name: fieldSchema("Name", 32),
@@ -45,15 +45,13 @@ function NextButton({
   onClick: () => void;
 }) {
   return (
-    <div>
-      <Button
-        className="inline-flex grow-0"
-        onClick={onClick}
-      >
-        Next
-        <ArrowRight />
-      </Button>
-    </div>
+    <Button
+      className="inline-flex grow-0"
+      onClick={onClick}
+    >
+      Next
+      <ArrowRight />
+    </Button>
   );
 }
 
