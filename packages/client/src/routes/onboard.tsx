@@ -16,43 +16,44 @@ export const Route = createFileRoute("/onboard")({
 });
 
 const FIELD_COUNT = 5;
-const FIELD_INDICES = Array.from({ length: FIELD_COUNT }, (_, i) => i);
+const FIELD_INDICES = Array.from(
+  {
+    length: FIELD_COUNT,
+  },
+  (_, i) => i,
+);
 
-const topicSchema = z
-  .string()
-  .min(0, "Topic must be at least 1 characters")
-  .max(32, "Topic must be at most 32 characters.");
-
-const courseNameSchema = z
-  .string()
-  .min(0, "Course name must be at least 1 characters")
-  .max(200, "Course name must be at most 32 characters.");
-
-const courseUrlSchema = z
-  .string()
-  .min(0, "Course URL must be at least 1 characters")
-  .max(200, "Course URL must be at most 32 characters.");
+const fieldSchema = (label: string, max: number) =>
+  z.string().max(max, `${label} must be at most ${max} characters.`);
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(0, "Name must be at least 0 characters.")
-    .max(32, "Name must be at most 32 characters."),
-  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, topicSchema])),
+  name: fieldSchema("Name", 32),
+  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, fieldSchema("Topic", 32)])),
   ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
-    [`course${i}Name`, courseNameSchema],
-    [`course${i}Url`, courseUrlSchema],
+    [`course${i}Name`, fieldSchema("Course name", 200)],
+    [`course${i}Url`, fieldSchema("Course URL", 200)],
   ])),
 });
 
-const defaultValues: Record<string, string> = {
-  name: "",
-  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, ""])),
-  ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
-    [`course${i}Name`, ""],
-    [`course${i}Url`, ""],
-  ])),
-};
+const defaultValues: Record<string, string> = Object.fromEntries(
+  Object.keys(formSchema.shape).map(key => [key, ""]),
+);
+
+function NextButton({
+  onClick,
+}: {
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      className="inline-flex grow-0"
+      onClick={onClick}
+    >
+      Next
+      <ArrowRight />
+    </Button>
+  );
+}
 
 function Onboard() {
   const [isStep2Revealed, setIsStep2Revealed] = useState(false);
@@ -79,10 +80,8 @@ function Onboard() {
 
       const cleanedValue = {
         name: value.name,
-        topics: [...filteredTopics],
-        courses: [
-          ...filteredCourses,
-        ],
+        topics: filteredTopics,
+        courses: filteredCourses,
       };
 
       await postOnboardForm(cleanedValue);
@@ -117,15 +116,7 @@ function Onboard() {
             fieldClassName="h-12 md:text-2xl"
           />
           {!isStep2Revealed && (
-            <div>
-              <Button
-                className="inline-flex grow-0"
-                onClick={() => { setIsStep2Revealed(true); }}
-              >
-                Next
-                <ArrowRight />
-              </Button>
-            </div>
+            <NextButton onClick={() => { setIsStep2Revealed(true); }} />
           )}
         </div>
 
@@ -161,15 +152,7 @@ function Onboard() {
             </FieldSet>
 
             {!isStep3Revealed && topics[0] && (
-              <div>
-                <Button
-                  className="inline-flex grow-0"
-                  onClick={() => { setIsStep3Revealed(true); }}
-                >
-                  Next
-                  <ArrowRight />
-                </Button>
-              </div>
+              <NextButton onClick={() => { setIsStep3Revealed(true); }} />
             )}
           </div>
         )}
@@ -188,18 +171,6 @@ function Onboard() {
                 />
               ))}
             </div>
-
-            {!isStep3Revealed && topics[0] && (
-              <div>
-                <Button
-                  className="inline-flex grow-0"
-                  onClick={() => { setIsStep3Revealed(true); }}
-                >
-                  Next
-                  <ArrowRight />
-                </Button>
-              </div>
-            )}
           </div>
         )}
 
