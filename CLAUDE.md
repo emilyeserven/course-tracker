@@ -43,11 +43,13 @@ pnpm studio           # Drizzle ORM database GUI
 # Client
 pnpm --filter=@emstack/client test       # Run client tests
 pnpm --filter=@emstack/client build      # Build client
+pnpm --filter=@emstack/client run routeTree   # Regenerate TanStack Router route tree
 
 # Middleware
 pnpm --filter=@emstack/middleware test    # Run middleware tests
 pnpm --filter=@emstack/middleware dev     # Run middleware dev server
 pnpm --filter=@emstack/middleware push:dev   # Push DB schema (dev)
+pnpm --filter=@emstack/middleware push:prod  # Push DB schema (prod)
 ```
 
 ## Local Development Setup
@@ -75,8 +77,14 @@ Ports: client on 3000, middleware on 3001
 - Fastify plugin pattern with nested route modules under `src/routes/api/`
 - Resources: courses, topics, providers (each has `routes.ts`, `root.ts`, handler files)
 - Drizzle ORM schema in `src/db/schema.ts` — tables: users, topics, courseProviders, courses
-- JSON Schema type provider for type-safe route handlers
-- Swagger/OpenAPI docs auto-generated
+- JSON Schema type provider (`@fastify/type-provider-json-schema-to-ts`) for type-safe route handlers
+- Swagger/OpenAPI docs auto-generated at `/documentation`
+- Auto-seeds on empty database via `src/db/seed.ts`
+
+### Database Schema
+- Key tables: `users`, `courseProviders`, `courses`, `topics`, `topics_to_courses` (junction)
+- Enums: `recurPeriodUnit` (days/months/years), `status` (active/inactive/complete)
+- Uses `drizzle-kit push` (not migration files) — schema changes pushed directly to database
 
 ### Shared Types
 - `@emstack/types` package exports Course, Topic, CourseProvider, etc.
@@ -87,8 +95,10 @@ Ports: client on 3000, middleware on 3001
 - **ESLint:** Flat config (`eslint.config.js`) with typescript-eslint and Tailwind CSS plugin
 - **Git hooks:** Husky pre-commit and pre-push run lint-staged (`eslint --fix` on all staged files)
 - **Dependency checks:** knip for unused dependencies, syncpack for version consistency
+- **TypeScript:** Strict mode, ES2022 target
 
 ## Deployment
 
 - **Client:** Vercel (SPA with rewrite rules in `vercel.json`)
 - **Containers:** Docker Compose for local multi-service; Dockerfiles use multi-stage builds with distroless base
+- **Environment:** Middleware uses `.env` (local) / `.env.production` with `DATABASE_URL` as the key variable
