@@ -1,10 +1,10 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { FastifyInstance } from "fastify";
 import { usersTable } from "@/db/schema";
 import { db } from "@/db";
 
 export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+  const fastify = server.withTypeProvider<ZodTypeProvider>();
 
   fastify.get(
     "/dbTest",
