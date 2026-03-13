@@ -1,30 +1,25 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
 import { processCourses } from "@/utils/processCourses";
+import { z } from "zod";
 
-const testSchema = {
+const getTopicSchema = {
   schema: {
     description: "It's like looking into a mirror...",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: z.object({
+      id: z.string(),
+    }),
   },
-} as const;
+};
 
 export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+  const fastify = server.withTypeProvider<ZodTypeProvider>();
 
   fastify.get(
     "/:id",
-    testSchema,
+    getTopicSchema,
     async function (request, reply) {
       const {
         id,

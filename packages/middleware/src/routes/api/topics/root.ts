@@ -1,11 +1,11 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import type { TopicForTopicsPage } from "@emstack/types/src";
 import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
 
 export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+  const fastify = server.withTypeProvider<ZodTypeProvider>();
 
   fastify.get(
     "/",

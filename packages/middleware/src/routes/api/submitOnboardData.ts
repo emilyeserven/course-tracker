@@ -1,52 +1,27 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { FastifyInstance } from "fastify";
 import { courses, topics, topicsToCourses } from "@/db/schema";
 import { db } from "@/db";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 
-const testSchema = {
+const submitSchema = {
   schema: {
     description: "It's like looking into a mirror...",
-    body: {
-      type: "object",
-      properties: {
-        name: {
-          type: "string",
-        },
-        topics: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        courses: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["name"],
-            properties: {
-              name: {
-                type: "string",
-              },
-              topic: {
-                type: "string",
-              },
-              url: {
-                type: "string",
-              },
-              id: {
-                type: "string",
-              },
-            },
-          },
-        },
-      },
-    },
+    body: z.object({
+      name: z.string(),
+      topics: z.array(z.string()),
+      courses: z.array(z.object({
+        name: z.string(),
+        topic: z.string().optional(),
+        url: z.string().optional(),
+        id: z.string().optional(),
+      })),
+    }),
   },
-} as const;
+};
 
 interface FormCourseData {
-  [x: string]: unknown;
   name: string;
   topic?: string;
   url?: string;
@@ -80,11 +55,11 @@ function makeCourseData(courseData: FormCourseData[] | undefined) {
 }
 
 export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+  const fastify = server.withTypeProvider<ZodTypeProvider>();
 
   fastify.post(
     "/submitOnboardData",
-    testSchema,
+    submitSchema,
     async (request, reply) => {
       // make user or edit user with name, url param for user? session thing? idk
 

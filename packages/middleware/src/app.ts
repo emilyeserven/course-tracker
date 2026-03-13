@@ -2,7 +2,11 @@ import fastifyCors from "@fastify/cors";
 import fastifyEnv from "@fastify/env";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import {
+  serializerCompiler,
+  validatorCompiler,
+  ZodTypeProvider,
+} from "fastify-type-provider-zod";
 import Fastify from "fastify";
 
 import routes from "./routes/routes";
@@ -25,7 +29,10 @@ declare module "fastify" {
 
 const fastify = Fastify({
   logger: false,
-}).withTypeProvider<JsonSchemaToTsProvider>();
+}).withTypeProvider<ZodTypeProvider>();
+
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
 
 await fastify.register(fastifyCors, {
   methods: ["GET", "HEAD", "DELETE", "POST"],
