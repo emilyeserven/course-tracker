@@ -56,8 +56,10 @@ pnpm --filter=@emstack/middleware push:prod  # Push DB schema (prod)
 
 1. Copy `.npmrc.example` to `.npmrc` and configure GitHub token for `@emilyeserven` scoped packages
 2. Run `pnpm install`
-3. Start PostgreSQL: `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
-4. Configure middleware `.env` with database URL
+3. Start PostgreSQL (pick one):
+   - **Docker Compose:** `docker compose up db` (uses compose defaults)
+   - **Standalone:** `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
+4. Copy `packages/middleware/.env.example` to `.env` and adjust if needed
 5. Push DB schema: `cd packages/middleware && pnpm push:dev`
 6. Run `pnpm dev`
 
@@ -103,8 +105,11 @@ Ports: client on 3000, middleware on 3001
 |---|---|---|---|
 | `DATABASE_URL` | middleware | PostgreSQL connection string | — |
 | `VITE_API_URL` | client | Middleware API base URL (build-time) | `http://localhost:3001` |
+| `POSTGRES_USER` | docker-compose | Database user | `postgres` |
+| `POSTGRES_PASSWORD` | docker-compose | Database password | `password` |
+| `POSTGRES_DB` | docker-compose | Database name | `coursetracker` |
 
-See `packages/client/.env.example` for client env template.
+See `packages/client/.env.example` and `packages/middleware/.env.example` for env templates.
 
 ## Deployment
 

@@ -1,4 +1,20 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: coursetracker-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB:-coursetracker}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   middleware:
     build:
       context: ./
@@ -7,7 +23,10 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - VALUE="Hi there!"
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-coursetracker}
+    depends_on:
+      db:
+        condition: service_healthy
   client:
     build:
       context: ./
@@ -17,3 +36,6 @@ services:
       - "3000:3000"
     depends_on:
       - middleware
+
+volumes:
+  pgdata:
