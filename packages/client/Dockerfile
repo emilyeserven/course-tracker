@@ -21,11 +21,9 @@ WORKDIR /app
 # the dependencies won't be reinstalled on every build.
 COPY . .
 
-# Mount the pnpm store as a cache and the npm auth token as a secret.
-# Pass the secret at build time: docker build --secret id=npmrc,src=.npmrc ...
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    --mount=type=secret,id=npmrc,target=/app/.npmrc \
-    pnpm install --frozen-lockfile
+# Mount the pnpm store as a cache. This dramatically speeds up builds
+# by preventing re-downloads of packages.
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 ENV FASTIFY_ADDRESS=0.0.0.0
 
