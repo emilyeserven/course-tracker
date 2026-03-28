@@ -54,14 +54,13 @@ pnpm --filter=@emstack/middleware push:prod  # Push DB schema (prod)
 
 ## Local Development Setup
 
-1. Copy `.npmrc.example` to `.npmrc` and configure GitHub token for `@emilyeserven` scoped packages
-2. Run `pnpm install`
-3. Start PostgreSQL (pick one):
+1. Run `pnpm install`
+2. Start PostgreSQL (pick one):
    - **Docker Compose:** `docker compose up db` (uses compose defaults)
    - **Standalone:** `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
-4. Copy `packages/middleware/.env.example` to `.env` and adjust if needed
-5. Push DB schema: `cd packages/middleware && pnpm push:dev`
-6. Run `pnpm dev`
+3. Copy `packages/middleware/.env.example` to `.env` and adjust if needed
+4. Push DB schema: `cd packages/middleware && pnpm push:dev`
+5. Run `pnpm dev`
 
 Ports: client on 3000, middleware on 3001
 
