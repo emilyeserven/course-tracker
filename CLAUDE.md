@@ -54,7 +54,7 @@ pnpm --filter=@emstack/middleware push:prod  # Push DB schema (prod)
 
 ## Local Development Setup
 
-1. Set `GH_TOKEN` environment variable with a GitHub token that has `read:packages` scope
+1. Copy `.npmrc.example` to `.npmrc` and configure GitHub token for `@emilyeserven` scoped packages
 2. Run `pnpm install`
 3. Start PostgreSQL: `docker run --name course-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
 4. Configure middleware `.env` with database URL
