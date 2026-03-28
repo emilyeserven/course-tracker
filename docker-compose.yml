@@ -27,13 +27,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  middleware:
+  gateway:
     build:
       context: ./
-      dockerfile: ./packages/middleware/Dockerfile
-    container_name: coursetracker-middleware
+      dockerfile: Dockerfile
+    container_name: coursetracker-gateway
     ports:
-      - "3001:3001"
+      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-coursetracker}
     depends_on:
@@ -41,15 +41,6 @@ services:
         condition: service_healthy
       db-push:
         condition: service_completed_successfully
-  client:
-    build:
-      context: ./
-      dockerfile: ./packages/client/Dockerfile
-    container_name: coursetracker-client
-    ports:
-      - "3000:3000"
-    depends_on:
-      - middleware
 
 volumes:
   pgdata:

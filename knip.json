@@ -2,27 +2,20 @@
   "workspaces": {
     "packages/client": {
       "vite": {
-        "config": [
-          "vite.config.ts"
-        ]
+        "config": ["vite.config.ts"]
       },
       "ignore": "src/routeTree.gen.ts",
-      "ignoreDependencies": [
-        "tailwindcss"
-      ]
+      "ignoreDependencies": ["tailwindcss"]
     },
     "packages/types": {
-      "project": [
-        "src/*.{js,ts}"
-      ]
+      "project": ["src/*.{js,ts}"]
     },
     "packages/middleware": {
-      "project": [
-        "src/**/*.ts"
-      ]
+      "project": ["src/**/*.ts"]
+    },
+    "packages/gateway": {
+      "entry": ["server.js"]
     }
   },
-  "ignoreDependencies": [
-    "syncpack"
-  ]
+  "ignoreDependencies": ["syncpack"]
 }
