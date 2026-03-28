@@ -20,9 +20,9 @@
   "packageManager": "pnpm@10.13.1",
   "private": true,
   "scripts": {
-    "build": "pnpm run -r build",
+    "build": "pnpm --filter=@emstack/types build && pnpm --filter=@emstack/middleware --filter=@emstack/client -r build",
     "test": "pnpm run -r test",
-    "dev": "concurrently -n \"models,server,ui\" -c \"yellow,blue,green\" \"pnpm --filter=@emstack/types --stream run dev\" \"pnpm --filter=@emstack/middleware --stream run dev\" \"pnpm --filter=@emstack/client --stream run dev\"",
+    "dev": "docker compose up --wait db && pnpm --filter=@emstack/middleware run push:dev && concurrently -n \"models,server,ui\" -c \"yellow,blue,green\" \"pnpm --filter=@emstack/types --stream run dev\" \"pnpm --filter=@emstack/middleware --stream run dev\" \"pnpm --filter=@emstack/client --stream run dev\"",
     "lint": "eslint .",
     "lint:fix": "eslint .. --fix",
     "storybook": "pnpm --filter=@emstack/client run storybook",

@@ -23,17 +23,15 @@ const testSchema = {
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
-  fastify.get(
-    "/:id",
-    testSchema,
-    async function (request, reply) {
-      const {
-        id,
-      } = request.params;
-      const course: CourseFromServer | undefined = await db.query.courses.findFirst({
+  fastify.get("/:id", testSchema, async function (request, reply) {
+    const {
+      id,
+    } = request.params;
+    const course: CourseFromServer | undefined
+      = await db.query.courses.findFirst({
         where: (courses, {
           eq,
-        }) => (eq(courses.id, id)),
+        }) => eq(courses.id, id),
         with: {
           courseProvider: {
             with: {
@@ -53,32 +51,32 @@ export default async function (server: FastifyInstance) {
         },
       });
 
-      if (course) {
-        const costData = processCost(course);
+    if (course) {
+      const costData = processCost(course);
 
-        const topics = processTopics(course.topicsToCourses);
+      const topics = processTopics(course.topicsToCourses);
 
-        const rawData: Course = {
-          id: course.id,
-          name: course.name,
-          description: course.description,
-          url: course.url,
-          cost: costData,
-          dateExpires: course.dateExpires,
-          progressCurrent: course.progressCurrent ? course.progressCurrent : 0,
-          progressTotal: course.progressTotal ? course.progressTotal : 0,
-          status: course.status,
-          topics: topics,
-          provider: course.courseProvider
+      const rawData: Course = {
+        id: course.id,
+        name: course.name,
+        description: course.description,
+        url: course.url,
+        cost: costData,
+        dateExpires: course.dateExpires,
+        progressCurrent: course.progressCurrent ? course.progressCurrent : 0,
+        progressTotal: course.progressTotal ? course.progressTotal : 0,
+        status: course.status ?? "inactive",
+        topics: topics,
+        provider:
+          course.courseProvider?.name && course.courseProvider?.id
             ? {
               name: course.courseProvider.name,
               id: course.courseProvider.id,
             }
             : undefined,
-        };
+      };
 
-        return rawData;
-      }
-    },
-  );
+      return rawData;
+    }
+  });
 }
