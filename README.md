@@ -1,7 +1,5 @@
 App to stop me from buying courses I don't need.
 
-Currently won't work via vercel etc due to DB needs.
-
 # Ideas
 - LLM call to take info in and tell you if a course you're considering is worth it or not
 - Need to be able to add a course via a provider
