@@ -1,5 +1,11 @@
-import { courseProviders, courses, topics, topicsToCourses, usersTable } from "@/db/schema.ts";
-import { db } from "@/db/index.ts";
+import {
+  courseProviders,
+  courses,
+  topics,
+  topicsToCourses,
+  usersTable,
+} from "@/db/schema";
+import { db } from "@/db/index";
 import { clearData } from "@/db/clearData";
 
 export async function seed() {
@@ -35,14 +41,23 @@ export async function seed() {
     url: "https://www.udemy.com/",
   };
 
-  const providerUidev = await db.insert(courseProviders).values([uidevData])
-    .onConflictDoNothing().returning();
+  const providerUidev = await db
+    .insert(courseProviders)
+    .values([uidevData])
+    .onConflictDoNothing()
+    .returning();
 
-  const providerSatori = await db.insert(courseProviders).values([satoriReaderData])
-    .onConflictDoNothing().returning();
+  const providerSatori = await db
+    .insert(courseProviders)
+    .values([satoriReaderData])
+    .onConflictDoNothing()
+    .returning();
 
-  const providerUdemy = await db.insert(courseProviders).values([udemyData])
-    .onConflictDoNothing().returning();
+  const providerUdemy = await db
+    .insert(courseProviders)
+    .values([udemyData])
+    .onConflictDoNothing()
+    .returning();
 
   const topicReactData: typeof topics.$inferInsert = {
     id: "80d8e391-6140-493c-b5a8-2f788d3d1245",
@@ -66,17 +81,29 @@ export async function seed() {
     name: "DevOps",
   };
 
-  const topicReact = await db.insert(topics).values([topicReactData])
-    .onConflictDoNothing().returning();
+  const topicReact = await db
+    .insert(topics)
+    .values([topicReactData])
+    .onConflictDoNothing()
+    .returning();
 
-  const topicTypescript = await db.insert(topics).values([topicTypescriptData])
-    .onConflictDoNothing().returning();
+  const topicTypescript = await db
+    .insert(topics)
+    .values([topicTypescriptData])
+    .onConflictDoNothing()
+    .returning();
 
-  const topicJapanese = await db.insert(topics).values([topicJapaneseData])
-    .onConflictDoNothing().returning();
+  const topicJapanese = await db
+    .insert(topics)
+    .values([topicJapaneseData])
+    .onConflictDoNothing()
+    .returning();
 
-  await db.insert(topics).values([topicDevopsData])
-    .onConflictDoNothing().returning();
+  await db
+    .insert(topics)
+    .values([topicDevopsData])
+    .onConflictDoNothing()
+    .returning();
 
   const reactCourseData: typeof courses.$inferInsert = {
     id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
@@ -88,7 +115,6 @@ export async function seed() {
     status: "active",
     isCostFromPlatform: true,
     courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
-
   };
   const typescriptCourseData: typeof courses.$inferInsert = {
     id: "e09b541d-8e03-4d00-9f7e-bd75acd0c903",
@@ -124,56 +150,97 @@ export async function seed() {
     progressTotal: 74,
     minutesLength: 341,
     courseProviderId: providerUdemy[0] ? providerUdemy[0].id : null,
-
   };
 
-  const courseReact = await db.insert(courses).values([reactCourseData])
-    .onConflictDoNothing().returning();
+  const courseReact = await db
+    .insert(courses)
+    .values([reactCourseData])
+    .onConflictDoNothing()
+    .returning();
 
-  const courseTypescript = await db.insert(courses).values([typescriptCourseData])
-    .onConflictDoNothing().returning();
+  const courseTypescript = await db
+    .insert(courses)
+    .values([typescriptCourseData])
+    .onConflictDoNothing()
+    .returning();
 
-  const courseNpmPackage = await db.insert(courses).values([npmPackageCourseData])
-    .onConflictDoNothing().returning();
+  const courseNpmPackage = await db
+    .insert(courses)
+    .values([npmPackageCourseData])
+    .onConflictDoNothing()
+    .returning();
 
-  const courseAkiko = await db.insert(courses).values([akikoData])
-    .onConflictDoNothing().returning();
+  const courseAkiko = await db
+    .insert(courses)
+    .values([akikoData])
+    .onConflictDoNothing()
+    .returning();
 
   if (courseReact[0] && topicReact[0]) {
-    await db.insert(topicsToCourses).values([{
-      courseId: courseReact[0].id,
-      topicId: topicReact[0].id,
-    }]).onConflictDoNothing();
+    await db
+      .insert(topicsToCourses)
+      .values([
+        {
+          courseId: courseReact[0].id,
+          topicId: topicReact[0].id,
+        },
+      ])
+      .onConflictDoNothing();
   }
   if (courseReact[0] && topicTypescript[0]) {
-    await db.insert(topicsToCourses).values([{
-      courseId: courseReact[0].id,
-      topicId: topicTypescript[0].id,
-    }]).onConflictDoNothing();
+    await db
+      .insert(topicsToCourses)
+      .values([
+        {
+          courseId: courseReact[0].id,
+          topicId: topicTypescript[0].id,
+        },
+      ])
+      .onConflictDoNothing();
   }
   if (courseTypescript[0] && topicTypescript[0]) {
-    await db.insert(topicsToCourses).values([{
-      courseId: courseTypescript[0].id,
-      topicId: topicTypescript[0].id,
-    }]).onConflictDoNothing();
+    await db
+      .insert(topicsToCourses)
+      .values([
+        {
+          courseId: courseTypescript[0].id,
+          topicId: topicTypescript[0].id,
+        },
+      ])
+      .onConflictDoNothing();
   }
   if (courseNpmPackage[0] && topicTypescript[0]) {
-    await db.insert(topicsToCourses).values([{
-      courseId: courseNpmPackage[0].id,
-      topicId: topicTypescript[0].id,
-    }]).onConflictDoNothing();
+    await db
+      .insert(topicsToCourses)
+      .values([
+        {
+          courseId: courseNpmPackage[0].id,
+          topicId: topicTypescript[0].id,
+        },
+      ])
+      .onConflictDoNothing();
   }
   if (courseAkiko[0] && topicJapanese[0]) {
-    await db.insert(topicsToCourses).values([{
-      courseId: courseAkiko[0].id,
-      topicId: topicJapanese[0].id,
-    }]).onConflictDoNothing();
+    await db
+      .insert(topicsToCourses)
+      .values([
+        {
+          courseId: courseAkiko[0].id,
+          topicId: topicJapanese[0].id,
+        },
+      ])
+      .onConflictDoNothing();
   }
 
-  await db.insert(usersTable).values([{
-    id: "1",
-    name: "Name",
-    email: "name@email.com",
-    age: 30,
-  }]).onConflictDoNothing();
+  await db
+    .insert(usersTable)
+    .values([
+      {
+        id: "1",
+        name: "Name",
+        email: "name@email.com",
+        age: 30,
+      },
+    ])
+    .onConflictDoNothing();
 }

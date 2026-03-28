@@ -21,9 +21,11 @@ WORKDIR /app
 # the dependencies won't be reinstalled on every build.
 COPY . .
 
-# Mount the pnpm store as a cache. This dramatically speeds up builds
-# by preventing re-downloads of packages.
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+# Mount the pnpm store as a cache and the npm auth token as a secret.
+# Pass the secret at build time: docker build --secret id=npmrc,src=.npmrc ...
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    --mount=type=secret,id=npmrc,target=/app/.npmrc \
+    pnpm install --frozen-lockfile
 
 ENV FASTIFY_ADDRESS=0.0.0.0
 
@@ -31,7 +33,11 @@ RUN pnpm run -r build
 
 RUN pnpm deploy --filter=@emstack/middleware --prod appout
 
-RUN ls
+# Stage: db-push — one-shot container for pushing the Drizzle schema to the database.
+# Used by docker-compose as a separate service that runs before middleware starts.
+FROM devbuild AS db-push
+WORKDIR /app/packages/middleware
+CMD ["pnpm", "push:dev"]
 
 # Stage 3: The `final` stage creates a small, clean production image.
 # It only includes the necessary files to run the app, not the build tools.

@@ -1,5 +1,5 @@
-import { courseProviders, courses, topics, topicsToCourses } from "@/db/schema.ts";
-import { db } from "@/db/index.ts";
+import { courseProviders, courses, topics, topicsToCourses } from "@/db/schema";
+import { db } from "@/db/index";
 
 export async function clearData() {
   await db.delete(topicsToCourses);

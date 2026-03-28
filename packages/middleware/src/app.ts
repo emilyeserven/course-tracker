@@ -31,10 +31,9 @@ await fastify.register(fastifyCors, {
   methods: ["GET", "HEAD", "DELETE", "POST"],
 });
 
-fastify.register(fastifyEnv, makeEnvOptions(__dirname))
-  .ready((err) => {
-    if (err) console.error(err);
-  });
+fastify.register(fastifyEnv, makeEnvOptions(__dirname)).ready((err) => {
+  if (err) console.error(err);
+});
 
 fastify.register(fastifySwagger, swaggerOptions);
 fastify.register(fastifySwaggerUi, swaggerUiOptions);
@@ -51,14 +50,13 @@ const start = async () => {
   }
   catch (err) {
     fastify.log.error(err);
-    console.error("Make sure there are not multiple instances of a server running on port 3001.");
+    console.error(
+      "Make sure there are not multiple instances of a server running on port 3001.",
+    );
     process.exit(1);
   }
 };
 
-if (process.env.NODE_ENV === "production") {
-  module.exports = fastify;
-}
-else {
-  start();
-}
+start();
+
+export default fastify;
