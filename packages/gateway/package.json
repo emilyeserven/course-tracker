@@ -1,0 +1,18 @@
+{
+  "name": "@emstack/gateway",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "http-proxy-middleware": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

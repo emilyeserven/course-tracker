@@ -8,17 +8,29 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+const dirname
+  = typeof __dirname !== "undefined"
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   preview: {
     port: 4173,
   },
-  plugins: [tanstackRouter({
-    target: "react",
-    autoCodeSplitting: true,
-  }), react(), tailwindcss()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:3001",
+    },
+  },
+  plugins: [
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+    }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -33,7 +45,13 @@ export default defineConfig({
           globals: true,
           environment: "jsdom",
           include: ["**/*.test.{ts,tsx,js,jsx}"],
-          exclude: ["**/node_modules/**", "**/dist/**", "**/cypress/**", "**/.{idea,git,cache,output,temp}/**", "**/*.stories.{js,jsx,ts,tsx}"],
+          exclude: [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/cypress/**",
+            "**/.{idea,git,cache,output,temp}/**",
+            "**/*.stories.{js,jsx,ts,tsx}",
+          ],
           setupFiles: ["./setupTests.js"],
         },
       },
@@ -44,19 +62,23 @@ export default defineConfig({
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
           storybookTest({
             configDir: path.join(dirname, ".storybook"),
-          })],
+          }),
+        ],
         test: {
           name: "storybook",
           browser: {
             enabled: true,
             headless: true,
             provider: "playwright",
-            instances: [{
-              browser: "chromium",
-            }],
+            instances: [
+              {
+                browser: "chromium",
+              },
+            ],
           },
           setupFiles: [".storybook/vitest.setup.ts"],
         },
-      }],
+      },
+    ],
   },
 });

@@ -18,11 +18,12 @@ Course Tracker ("emstack") — a full-stack TypeScript monorepo for tracking onl
 ```
 packages/
   client/       # React frontend (Vite + TypeScript)
+  gateway/      # Express reverse proxy (production entrypoint)
   middleware/   # Fastify API backend
   types/        # Shared TypeScript type definitions
 ```
 
-Build order: types → middleware → client
+Build order: types → middleware → client (gateway is plain JS, no build step)
 
 ## Common Commands
 
@@ -30,6 +31,7 @@ Build order: types → middleware → client
 pnpm install          # Install all dependencies
 pnpm dev              # Start all packages concurrently (client + middleware + types watch)
 pnpm build            # Build all packages
+pnpm start            # Start the gateway (production mode, requires pnpm build first)
 pnpm test             # Run all tests
 pnpm lint             # Lint all files (ESLint flat config)
 pnpm lint:fix         # Auto-fix lint issues
@@ -62,7 +64,7 @@ pnpm --filter=@emstack/middleware push:prod  # Push DB schema (prod)
 4. Push DB schema: `cd packages/middleware && pnpm push:dev`
 5. Run `pnpm dev`
 
-Ports: client on 3000, middleware on 3001
+Ports: client dev server on 5173 (Vite proxies `/api` to middleware), middleware on 3001
 
 ## Architecture Notes
 
@@ -103,15 +105,15 @@ Ports: client on 3000, middleware on 3001
 | Variable | Package | Purpose | Default |
 |---|---|---|---|
 | `DATABASE_URL` | middleware | PostgreSQL connection string | — |
-| `VITE_API_URL` | client | Middleware API base URL (build-time) | `http://localhost:3001` |
 | `POSTGRES_USER` | docker-compose | Database user | `postgres` |
 | `POSTGRES_PASSWORD` | docker-compose | Database password | `password` |
 | `POSTGRES_DB` | docker-compose | Database name | `coursetracker` |
 
-See `packages/client/.env.example` and `packages/middleware/.env.example` for env templates.
+See `packages/middleware/.env.example` for env templates.
 
 ## Deployment
 
-- **Containers:** Docker Compose for local multi-service; Dockerfiles use multi-stage builds with distroless base
-- **Coolify:** Set `VITE_API_URL` to the middleware's externally reachable URL (e.g. `http://<host>:3001`) as a build-time variable
+- **Gateway pattern:** The gateway (`packages/gateway`) is the single production entrypoint — an Express server that spawns middleware as a child process, proxies `/api/*` to it, and serves the client's static build files. This means same-origin requests (no CORS needed) and a single container to deploy.
+- **Containers:** Docker Compose for local multi-service; root `Dockerfile` builds everything and runs the gateway
+- **Coolify:** Deploy the root Dockerfile. Only `DATABASE_URL` is needed as an env var.
 - **Environment:** Middleware uses `.env` (local) / `.env.production` with `DATABASE_URL` as the key variable
