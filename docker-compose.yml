@@ -21,6 +21,7 @@ services:
       dockerfile: ./packages/middleware/Dockerfile
       target: db-push
     container_name: coursetracker-db-push
+    restart: "no"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-coursetracker}
     depends_on:
