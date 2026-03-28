@@ -97,8 +97,18 @@ Ports: client on 3000, middleware on 3001
 - **Dependency checks:** knip for unused dependencies, syncpack for version consistency
 - **TypeScript:** Strict mode, ES2022 target
 
+## Environment Variables
+
+| Variable | Package | Purpose | Default |
+|---|---|---|---|
+| `DATABASE_URL` | middleware | PostgreSQL connection string | — |
+| `VITE_API_URL` | client | Middleware API base URL (build-time) | `http://localhost:3001` |
+
+See `packages/client/.env.example` for client env template.
+
 ## Deployment
 
 - **Client:** Vercel (SPA with rewrite rules in `vercel.json`)
 - **Containers:** Docker Compose for local multi-service; Dockerfiles use multi-stage builds with distroless base
+- **Coolify:** Set `VITE_API_URL` to the middleware's externally reachable URL (e.g. `http://<host>:3001`) as a build-time variable
 - **Environment:** Middleware uses `.env` (local) / `.env.production` with `DATABASE_URL` as the key variable
