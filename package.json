@@ -6,7 +6,6 @@
     "concurrently": "^9.2.1"
   },
   "devDependencies": {
-    "@emilyeserven/eslint-config": "1.0.36",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
@@ -31,6 +30,9 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
+  },
+  "optionalDependencies": {
+    "@emilyeserven/eslint-config": "1.0.36"
   },
   "type": "module"
 }
