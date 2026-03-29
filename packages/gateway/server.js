@@ -110,7 +110,7 @@ app.use(
 );
 
 // SPA fallback: any route that wasn't a static file or API call gets index.html
-app.get("*", (_req, res) => {
+app.get("/{*splat}", (_req, res) => {
   res.sendFile(path.join(CLIENT_DIST, "index.html"));
 });
 
