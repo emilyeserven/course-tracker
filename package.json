@@ -33,5 +33,10 @@
   "lint-staged": {
     "*": "eslint --fix"
   },
-  "type": "module"
+  "type": "module",
+  "pnpm": {
+    "overrides": {
+      "picomatch": "~2.3.2"
+    }
+  }
 }
