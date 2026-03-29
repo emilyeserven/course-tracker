@@ -11,7 +11,7 @@
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "knip": "6.1.0",
-    "lint-staged": "^16.2.7",
+    "lint-staged": "16.4.0",
     "syncpack": "^13.0.4",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
