@@ -2,8 +2,9 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import fastifyHttpProxy from "@fastify/http-proxy";
+import fastifyStatic from "@fastify/static";
+import Fastify from "fastify";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +15,6 @@ const CLIENT_DIST = path.resolve(__dirname, "../client/dist");
 const MIDDLEWARE_DIR = path.resolve(__dirname, "../middleware");
 
 let middlewareChild = null;
-let server = null;
 
 // --- Child process management ---
 
@@ -56,62 +56,51 @@ async function waitForService(name, port, maxRetries = 30, interval = 1000) {
   throw new Error(`[gateway] ${name} failed to start on port ${port}`);
 }
 
-// --- Express app ---
+// --- Fastify app ---
 
-const app = express();
-
-// Health check (before any middleware)
-app.get("/healthz", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  });
+const app = Fastify({
+  logger: false,
 });
 
 // Security headers
-app.use((_req, res, next) => {
-  res.setHeader(
+app.addHook("onSend", async (_request, reply) => {
+  reply.header(
     "Strict-Transport-Security",
     "max-age=31536000; includeSubDomains",
   );
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  next();
+  reply.header("X-Content-Type-Options", "nosniff");
+  reply.header("X-Frame-Options", "DENY");
+});
+
+// Health check
+app.get("/healthz", async () => {
+  return {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  };
 });
 
 // Proxy /api/* to middleware
-// Use pathFilter (not Express mount path) to preserve the full /api prefix in the proxied request.
-app.use(
-  createProxyMiddleware({
-    target: `http://127.0.0.1:${MIDDLEWARE_PORT}`,
-    pathFilter: "/api",
-    changeOrigin: false,
-    xfwd: true,
-    on: {
-      error: (err, _req, res) => {
-        console.error("[gateway] Middleware proxy error:", err.message);
-        if (res.writeHead) {
-          res.writeHead(502, {
-            "Content-Type": "text/plain",
-          });
-          res.end("Bad Gateway");
-        }
-      },
+await app.register(fastifyHttpProxy, {
+  upstream: `http://127.0.0.1:${MIDDLEWARE_PORT}`,
+  prefix: "/api",
+  rewritePrefix: "/api",
+  http: {
+    requestOptions: {
+      timeout: 30000,
     },
-  }),
-);
+  },
+});
 
 // Serve client SPA static files
-app.use(
-  express.static(CLIENT_DIST, {
-    maxAge: "1h",
-    index: "index.html",
-  }),
-);
+await app.register(fastifyStatic, {
+  root: CLIENT_DIST,
+  maxAge: "1h",
+});
 
 // SPA fallback: any route that wasn't a static file or API call gets index.html
-app.get("/{*splat}", (_req, res) => {
-  res.sendFile(path.join(CLIENT_DIST, "index.html"));
+app.setNotFoundHandler(async (_request, reply) => {
+  return reply.sendFile("index.html");
 });
 
 // --- Graceful shutdown ---
@@ -124,12 +113,7 @@ function shutdown() {
     middlewareChild.kill("SIGTERM");
   }
 
-  if (server) {
-    server.close(() => process.exit(0));
-  }
-  else {
-    process.exit(0);
-  }
+  app.close().then(() => process.exit(0));
 
   // Force exit after 10 seconds
   setTimeout(() => process.exit(1), 10000);
@@ -145,11 +129,13 @@ async function main() {
 
   await waitForService("middleware (fastify)", MIDDLEWARE_PORT);
 
-  server = app.listen(GATEWAY_PORT, "0.0.0.0", () => {
-    console.log(`[gateway] Listening on port ${GATEWAY_PORT}`);
-    console.log(`[gateway] /api/*  -> middleware on port ${MIDDLEWARE_PORT}`);
-    console.log(`[gateway] /*      -> client SPA (static from ${CLIENT_DIST})`);
+  await app.listen({
+    port: GATEWAY_PORT,
+    host: "0.0.0.0",
   });
+  console.log(`[gateway] listening on http://localhost:${GATEWAY_PORT}`);
+  console.log(`[gateway] /api/*  -> middleware on port ${MIDDLEWARE_PORT}`);
+  console.log(`[gateway] /*      -> client SPA (static from ${CLIENT_DIST})`);
 }
 
 main().catch((err) => {
