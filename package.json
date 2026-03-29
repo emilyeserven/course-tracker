@@ -3,19 +3,24 @@
   "description": "",
   "version": "1.0.0",
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "9.2.1"
   },
   "devDependencies": {
     "@emilyeserven/eslint-config": "1.1.4",
-    "eslint": "^9.34.0",
-    "globals": "^17.4.0",
-    "husky": "^9.1.7",
-    "knip": "^5.69.1",
-    "lint-staged": "^16.2.7",
-    "syncpack": "^13.0.4",
-    "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4"
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@tanstack/eslint-plugin-query": "5.95.2",
+    "@tanstack/eslint-plugin-router": "1.161.6",
+    "eslint": "9.39.4",
+    "eslint-plugin-better-tailwindcss": "4.3.2",
+    "eslint-plugin-react-refresh": "0.5.2",
+    "globals": "17.4.0",
+    "husky": "9.1.7",
+    "knip": "6.1.0",
+    "lint-staged": "16.4.0",
+    "syncpack": "14.3.0",
+    "tailwindcss": "4.2.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.57.2"
   },
   "packageManager": "pnpm@10.13.1",
   "private": true,
@@ -33,5 +38,10 @@
   "lint-staged": {
     "*": "eslint --fix"
   },
-  "type": "module"
+  "type": "module",
+  "pnpm": {
+    "overrides": {
+      "picomatch": "2.3.2"
+    }
+  }
 }
