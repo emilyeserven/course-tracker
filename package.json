@@ -42,7 +42,10 @@
   "pnpm": {
     "overrides": {
       "picomatch": "2.3.2",
-      "flatted": ">=3.4.2"
+      "flatted": ">=3.4.2",
+      "diff": ">=8.0.3",
+      "esbuild": ">=0.25.0",
+      "lodash": ">=4.17.23"
     }
   }
 }
