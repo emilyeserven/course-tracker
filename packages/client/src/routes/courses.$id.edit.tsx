@@ -54,7 +54,7 @@ function SingleCourseEdit() {
     enabled: !isNew,
   });
 
-  const defaultValues = useMemo(() => ({
+  const startingValues = useMemo(() => ({
     name: data?.name ?? "",
     description: data?.description ?? "",
     url: data?.url ?? "",
@@ -66,7 +66,7 @@ function SingleCourseEdit() {
   }), [data]);
 
   const form = useForm({
-    defaultValues,
+    defaultValues: startingValues,
     validators: {
       onSubmit: formSchema,
     },
@@ -124,7 +124,7 @@ function SingleCourseEdit() {
   });
 
   const currentValues = form.useStore(state => state.values);
-  const hasChanges = formHasChanges(currentValues, defaultValues);
+  const hasChanges = formHasChanges(currentValues, startingValues);
 
   return (
     <div className="container flex-col">
