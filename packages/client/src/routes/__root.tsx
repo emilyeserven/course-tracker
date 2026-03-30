@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme.ts";
-import { fetchClear, fetchSeed } from "@/utils/fetchFunctions";
+import { fetchClear, fetchCourses, fetchProviders, fetchSeed, fetchTopics } from "@/utils/fetchFunctions";
 
 const RootComponent: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -50,6 +50,30 @@ const RootComponent: React.FunctionComponent = () => {
     queryFn: () => fetchClear(),
   });
 
+  const {
+    data: coursesData,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchCourses(),
+  });
+
+  const {
+    data: topicsData,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+  });
+
+  const {
+    data: providersData,
+  } = useQuery({
+    queryKey: ["providers"],
+    queryFn: () => fetchProviders(),
+  });
+
+  const allLoaded = coursesData !== undefined && topicsData !== undefined && providersData !== undefined;
+  const showOnboard = !allLoaded || (!coursesData?.length && !topicsData?.length && !providersData?.length);
+
   async function handleClearLocal() {
     const clearRefetchResult = await clearRefetch();
 
@@ -75,27 +99,18 @@ const RootComponent: React.FunctionComponent = () => {
     <>
       <div className="container items-center justify-between gap-2 py-2">
         <div className="flex gap-4">
-          <Link
-            to="/"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-          >
-            Home
-          </Link>
-
-          <Link
-            to="/onboard"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-          >
-            Onboard
-          </Link>
+          {showOnboard && (
+            <Link
+              to="/onboard"
+              className={`
+                underline-offset-2
+                hover:underline
+                [&.active]:font-bold
+              `}
+            >
+              Onboard
+            </Link>
+          )}
 
           <Link
             to="/courses"

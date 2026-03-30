@@ -60,7 +60,10 @@ export function PageHeader({
             </div>
           )}
           <div
-            className="m-auto flex w-full flex-row items-start justify-between"
+            className="
+              m-auto flex w-full flex-col items-start gap-2
+              sm:flex-row sm:justify-between
+            "
           >
             <div>
               <h1 className="text-3xl">{pageTitle}</h1>
