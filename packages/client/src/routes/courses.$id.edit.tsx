@@ -96,7 +96,7 @@ function SingleCourseEdit() {
   });
 
   return (
-    <div className="container">
+    <div className="container flex-col">
       <h2 className="mb-6 text-2xl">Edit Course</h2>
       <form
         onSubmit={(e) => {
