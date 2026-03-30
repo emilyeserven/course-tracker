@@ -74,6 +74,23 @@ export async function fetchClear(): Promise<SuccessObj> {
   return await fetch("/api/clearData").then(res => res.json());
 }
 
+export async function createCourse(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/courses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create course: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function upsertCourse(
   id: string,
   data: Record<string, unknown>,

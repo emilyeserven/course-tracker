@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
+import { createCourse, fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
@@ -36,6 +36,7 @@ function SingleCourseEdit() {
   const {
     id,
   } = Route.useParams();
+  const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -44,6 +45,7 @@ function SingleCourseEdit() {
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
+    enabled: !isNew,
   });
 
   const form = useForm({
@@ -63,41 +65,58 @@ function SingleCourseEdit() {
     onSubmit: async ({
       value,
     }) => {
+      const courseData = {
+        name: value.name,
+        description: value.description || null,
+        url: value.url || null,
+        status: value.status,
+        progressCurrent: value.progressCurrent,
+        progressTotal: value.progressTotal,
+        cost: value.cost ? String(value.cost) : null,
+        isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
+        dateExpires: value.dateExpires
+          ? value.dateExpires.toISOString().split("T")[0]
+          : null,
+        isExpires: !!value.dateExpires,
+      };
+
       try {
-        await upsertCourse(id, {
-          name: value.name,
-          description: value.description || null,
-          url: value.url || null,
-          status: value.status,
-          progressCurrent: value.progressCurrent,
-          progressTotal: value.progressTotal,
-          cost: value.cost ? String(value.cost) : null,
-          isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
-          dateExpires: value.dateExpires
-            ? value.dateExpires.toISOString().split("T")[0]
-            : null,
-          isExpires: !!value.dateExpires,
-        });
+        let courseId: string;
+        if (isNew) {
+          const result = await createCourse(courseData);
+          courseId = result.id;
+        }
+        else {
+          await upsertCourse(id, courseData);
+          courseId = id;
+          await queryClient.invalidateQueries({
+            queryKey: ["course", id],
+          });
+        }
 
         await queryClient.invalidateQueries({
-          queryKey: ["course", id],
+          queryKey: ["courses"],
         });
         await navigate({
           to: "/courses/$id",
           params: {
-            id,
+            id: courseId,
           },
         });
       }
       catch {
-        toast.error("Failed to save course. Please try again.");
+        toast.error(
+          isNew
+            ? "Failed to create course. Please try again."
+            : "Failed to save course. Please try again.",
+        );
       }
     },
   });
 
   return (
     <div className="container flex-col">
-      <h2 className="mb-6 text-2xl">Edit Course</h2>
+      <h2 className="mb-6 text-2xl">{isNew ? "New Course" : "Edit Course"}</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -331,16 +350,20 @@ function SingleCourseEdit() {
         />
 
         <div className="flex flex-row gap-4">
-          <Button type="submit">Save Changes</Button>
+          <Button type="submit">{isNew ? "Create Course" : "Save Changes"}</Button>
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({
-              to: "/courses/$id",
-              params: {
-                id,
-              },
-            })}
+            onClick={() => isNew
+              ? navigate({
+                to: "/courses",
+              })
+              : navigate({
+                to: "/courses/$id",
+                params: {
+                  id,
+                },
+              })}
           >
             Cancel
           </Button>
