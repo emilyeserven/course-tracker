@@ -19,4 +19,10 @@ export default tseslint.config([
       globals: globals.node,
     },
   },
+  {
+    files: ["packages/client/src/routes/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 ]);

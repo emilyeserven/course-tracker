@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, ExternalLink } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import { deleteSingleCourse, fetchSingleCourse } from "@/utils/fetchFunctions";
 import { makePercentageComplete } from "@/utils/makePercentageComplete";
@@ -15,29 +12,6 @@ export const Route = createFileRoute("/courses/$id/")({
   component: SingleCourse,
 });
 
-function CoursesPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-    </div>
-  );
-}
-
-function CoursesError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or load in properly formed course data.
-      </p>
-    </div>
-  );
-}
-
 function SingleCourse() {
   const {
     id,
@@ -45,7 +19,7 @@ function SingleCourse() {
   const navigate = useNavigate();
 
   const {
-    isPending, error, data,
+    data,
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
@@ -59,15 +33,10 @@ function SingleCourse() {
     queryFn: () => deleteSingleCourse(id),
   });
 
-  if (isPending) {
-    <CoursesPending />;
-  }
-
-  if (error) {
-    <CoursesError />;
-  }
-
-  const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
+  const percentComplete = makePercentageComplete(
+    data?.progressCurrent,
+    data?.progressTotal,
+  );
 
   const topics = data?.topics ?? null;
 
@@ -79,143 +48,96 @@ function SingleCourse() {
   }
 
   return (
-    <div>
-      <PageHeader
-        pageTitle={data?.name}
-        pageSection="courses"
-        progressCurrent={data?.progressCurrent ?? 0}
-        progressTotal={data?.progressTotal ?? 0}
-        status={data?.status}
+    <div className="container flex-col gap-12">
+      <InfoArea
+        header="About"
+        condition={!!data?.description}
       >
-        <div className="flex flex-row gap-2">
-          {!!data?.url && (
-            <a
-              href={data?.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button>
-                Go to Course
-                <ExternalLink />
-              </Button>
-            </a>
-          )}
-          <Link
-            to="/courses/$id/edit"
-            params={{
-              id: data?.id + "",
-            }}
-            disabled={true}
-          >
-            <Button
-              variant="secondary"
-              disabled={true}
-            >
-              Edit Course
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
-        </div>
-      </PageHeader>
-      <div className="container flex-col gap-12">
+        <p>{data?.description}</p>
+      </InfoArea>
+      <InfoRow header="Basic Info">
         <InfoArea
-          header="About"
-          condition={!!data?.description}
+          header="Course Provider"
+          condition={!!data?.provider}
         >
-          <p>
-            {data?.description}
-          </p>
-        </InfoArea>
-        <InfoRow header="Basic Info">
-          <InfoArea
-            header="Course Provider"
-            condition={!!data?.provider}
-          >
-            {data?.provider && data.provider.name && (
-              <Link
-                to="/providers/$id"
-                from="/courses/$id"
-                params={{
-                  id: data.provider.id + "",
-                }}
-                className={`
-                  text-blue-800
-                  hover:text-blue-600
-                `}
-              >
-                {data?.provider?.name}
-              </Link>
-            )}
-
-          </InfoArea>
-          <InfoArea
-            header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
-            condition={!!topics}
-          >
-            <TopicList
-              topics={data?.topics}
-              isPills={false}
-            />
-          </InfoArea>
-        </InfoRow>
-        <InfoRow header="Progress">
-          <InfoArea
-            header="Current Progress"
-            condition={!!data?.progressCurrent}
-          >
-            <p>
-              {data?.progressCurrent}
-            </p>
-          </InfoArea>
-          <InfoArea
-            header="Total Modules"
-            condition={!!data?.progressTotal}
-          >
-            <p>
-              {data?.progressTotal}
-            </p>
-          </InfoArea>
-          <InfoArea
-            header="% Complete"
-            condition={!!data?.progressTotal && !!data?.progressCurrent}
-          >
-            <p>
-              {percentComplete}%
-            </p>
-          </InfoArea>
-          {!data?.progressCurrent && !data?.progressTotal && (
-            <span>No progress information given.</span>
+          {data?.provider && data.provider.name && (
+            <Link
+              to="/providers/$id"
+              from="/courses/$id"
+              params={{
+                id: data.provider.id + "",
+              }}
+              className={`
+                text-blue-800
+                hover:text-blue-600
+              `}
+            >
+              {data?.provider?.name}
+            </Link>
           )}
-        </InfoRow>
-        <InfoRow
-          condition={!!data?.cost}
-          header="Money Things"
+        </InfoArea>
+        <InfoArea
+          header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
+          condition={!!topics}
         >
-          <div className="flex flex-row gap-1">
-            <InfoArea
-              header="Course Cost"
-              condition={!percentComplete}
-            >
-              <p>
-                {data?.cost.cost}
-              </p>
-            </InfoArea>
-            <InfoArea
-              header="Amortization"
-              condition={!!percentComplete}
-            >
-              <p>
-                <span>${Number(Number(data?.cost.cost) / Number(percentComplete)).toFixed(2)} out of ${data?.cost.cost}</span>
-              </p>
-            </InfoArea>
-          </div>
-        </InfoRow>
-        <div>
-          <DeleteButton onClick={handleDelete}>
-            Delete Course
-          </DeleteButton>
+          <TopicList
+            topics={data?.topics}
+            isPills={false}
+          />
+        </InfoArea>
+      </InfoRow>
+      <InfoRow header="Progress">
+        <InfoArea
+          header="Current Progress"
+          condition={!!data?.progressCurrent}
+        >
+          <p>{data?.progressCurrent}</p>
+        </InfoArea>
+        <InfoArea
+          header="Total Modules"
+          condition={!!data?.progressTotal}
+        >
+          <p>{data?.progressTotal}</p>
+        </InfoArea>
+        <InfoArea
+          header="% Complete"
+          condition={!!data?.progressTotal && !!data?.progressCurrent}
+        >
+          <p>{percentComplete}%</p>
+        </InfoArea>
+        {!data?.progressCurrent && !data?.progressTotal && (
+          <span>No progress information given.</span>
+        )}
+      </InfoRow>
+      <InfoRow
+        condition={!!data?.cost}
+        header="Money Things"
+      >
+        <div className="flex flex-row gap-1">
+          <InfoArea
+            header="Course Cost"
+            condition={!percentComplete}
+          >
+            <p>{data?.cost.cost}</p>
+          </InfoArea>
+          <InfoArea
+            header="Amortization"
+            condition={!!percentComplete}
+          >
+            <p>
+              <span>
+                $
+                {Number(
+                  Number(data?.cost.cost) / Number(percentComplete),
+                ).toFixed(2)}{" "}
+                out of ${data?.cost.cost}
+              </span>
+            </p>
+          </InfoArea>
         </div>
+      </InfoRow>
+      <div>
+        <DeleteButton onClick={handleDelete}>Delete Course</DeleteButton>
       </div>
     </div>
   );
