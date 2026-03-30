@@ -1,7 +1,6 @@
-/* eslint-disable react-refresh/only-export-components */
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -33,32 +32,6 @@ const formSchema = z.object({
   dateExpires: z.date().nullable(),
 });
 
-function CoursesPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-    </div>
-  );
-}
-
-function CoursesError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">
-        There was an error loading your courses.
-      </h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
-}
-
 function SingleCourseEdit() {
   const {
     id,
@@ -67,7 +40,7 @@ function SingleCourseEdit() {
   const queryClient = useQueryClient();
 
   const {
-    isPending, error, data,
+    data,
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
@@ -122,37 +95,9 @@ function SingleCourseEdit() {
     },
   });
 
-  if (isPending || !data) {
-    return <CoursesPending />;
-  }
-
-  if (error) {
-    return <CoursesError />;
-  }
-
   return (
-    <div>
-      <div className="flex flex-row gap-3">
-        <Link
-          to="/courses"
-          className="mb-8 flex flex-row"
-        >
-          Courses
-        </Link>
-        <span>/</span>
-        <Link
-          to="/courses/$id"
-          params={{
-            id: data.id + "",
-          }}
-          className="mb-8 flex flex-row"
-        >
-          {data.name}
-        </Link>
-        <span>/</span>
-        <span className="font-bold">Edit</span>
-      </div>
-      <h1 className="mb-6 text-3xl">Edit Course</h1>
+    <div className="container">
+      <h2 className="mb-6 text-2xl">Edit Course</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -390,13 +335,12 @@ function SingleCourseEdit() {
           <Button
             type="button"
             variant="outline"
-            onClick={() =>
-              navigate({
-                to: "/courses/$id",
-                params: {
-                  id,
-                },
-              })}
+            onClick={() => navigate({
+              to: "/courses/$id",
+              params: {
+                id,
+              },
+            })}
           >
             Cancel
           </Button>
