@@ -22,26 +22,16 @@ export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
 });
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, "Name is required").max(255),
-    description: z.string().max(500).optional().or(z.literal("")),
-    url: z
-      .string()
-      .url("Must be a valid URL")
-      .max(255)
-      .optional()
-      .or(z.literal("")),
-    status: z.enum(["active", "inactive", "complete"]),
-    progressCurrent: z.coerce.number().int().min(0),
-    progressTotal: z.coerce.number().int().min(0),
-    cost: z.coerce.number().min(0).optional(),
-    dateExpires: z.coerce.date().optional().nullable(),
-  })
-  .refine(data => data.progressCurrent <= data.progressTotal, {
-    message: "Current progress cannot exceed total modules",
-    path: ["progressCurrent"],
-  });
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  description: z.string().max(500),
+  url: z.string().max(255),
+  status: z.enum(["active", "inactive", "complete"]),
+  progressCurrent: z.number().int().min(0),
+  progressTotal: z.number().int().min(0),
+  cost: z.number().min(0),
+  dateExpires: z.date().nullable(),
+});
 
 function CoursesPending() {
   return (
@@ -246,6 +236,19 @@ function SingleCourseEdit() {
         <div className="grid grid-cols-2 gap-4">
           <form.Field
             name="progressCurrent"
+            validators={{
+              onSubmit: ({
+                value, fieldApi,
+              }) => {
+                const total = fieldApi.form.getFieldValue("progressTotal");
+                if (value > total) {
+                  return {
+                    message: "Current progress cannot exceed total modules",
+                  };
+                }
+                return undefined;
+              },
+            }}
             children={(field) => {
               const isInvalid
                 = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -326,7 +329,7 @@ function SingleCourseEdit() {
                   onBlur={field.handleBlur}
                   onChange={e =>
                     field.handleChange(
-                      e.target.value ? Number(e.target.value) : undefined,
+                      e.target.value ? Number(e.target.value) : 0,
                     )}
                   aria-invalid={isInvalid}
                 />
@@ -387,12 +390,13 @@ function SingleCourseEdit() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({
-              to: "/courses/$id",
-              params: {
-                id,
-              },
-            })}
+            onClick={() =>
+              navigate({
+                to: "/courses/$id",
+                params: {
+                  id,
+                },
+              })}
           >
             Cancel
           </Button>
