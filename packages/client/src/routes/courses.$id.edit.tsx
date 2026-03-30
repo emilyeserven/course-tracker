@@ -1,3 +1,5 @@
+import { useMemo, useRef } from "react";
+
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -14,8 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { cn } from "@/lib/utils";
 import { createCourse, fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
+import { formHasChanges } from "@/utils/formHasChanges";
 
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
@@ -40,6 +44,8 @@ function SingleCourseEdit() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const skipBlocker = useRef(false);
+
   const {
     data,
   } = useQuery({
@@ -48,17 +54,19 @@ function SingleCourseEdit() {
     enabled: !isNew,
   });
 
+  const defaultValues = useMemo(() => ({
+    name: data?.name ?? "",
+    description: data?.description ?? "",
+    url: data?.url ?? "",
+    status: data?.status ?? ("active" as const),
+    progressCurrent: data?.progressCurrent ?? 0,
+    progressTotal: data?.progressTotal ?? 0,
+    cost: data?.cost ? Number(data.cost.cost) : 0,
+    dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
+  }), [data]);
+
   const form = useForm({
-    defaultValues: {
-      name: data?.name ?? "",
-      description: data?.description ?? "",
-      url: data?.url ?? "",
-      status: data?.status ?? "active",
-      progressCurrent: data?.progressCurrent ?? 0,
-      progressTotal: data?.progressTotal ?? 0,
-      cost: data?.cost ? Number(data.cost.cost) : 0,
-      dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-    },
+    defaultValues,
     validators: {
       onSubmit: formSchema,
     },
@@ -97,6 +105,7 @@ function SingleCourseEdit() {
         await queryClient.invalidateQueries({
           queryKey: ["courses"],
         });
+        skipBlocker.current = true;
         await navigate({
           to: "/courses/$id",
           params: {
@@ -113,6 +122,9 @@ function SingleCourseEdit() {
       }
     },
   });
+
+  const currentValues = form.useStore(state => state.values);
+  const hasChanges = formHasChanges(currentValues, defaultValues);
 
   return (
     <div className="container flex-col">
@@ -354,21 +366,28 @@ function SingleCourseEdit() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => isNew
-              ? navigate({
-                to: "/courses",
-              })
-              : navigate({
-                to: "/courses/$id",
-                params: {
-                  id,
-                },
-              })}
+            onClick={() => {
+              skipBlocker.current = true;
+              if (isNew) {
+                navigate({
+                  to: "/courses",
+                });
+              }
+              else {
+                navigate({
+                  to: "/courses/$id",
+                  params: {
+                    id,
+                  },
+                });
+              }
+            }}
           >
             Cancel
           </Button>
         </div>
       </form>
+      <UnsavedChangesDialog hasChanges={hasChanges && !skipBlocker.current} />
     </div>
   );
 }
