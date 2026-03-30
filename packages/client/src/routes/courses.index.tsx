@@ -2,8 +2,9 @@ import type { Course } from "@emstack/types/src";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, PlusIcon } from "lucide-react";
 
+import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,24 @@ function Courses() {
               );
             })
           }
+
+          <Link
+            to="/courses/$id/edit"
+            params={{
+              id: "new",
+            }}
+          >
+            <ContentBox
+              className="
+                h-full items-center justify-center border-dashed p-8
+                text-muted-foreground transition-colors
+                hover:border-solid hover:bg-accent hover:text-accent-foreground
+              "
+            >
+              <PlusIcon size={32} />
+              <span className="text-lg font-medium">Add New Course</span>
+            </ContentBox>
+          </Link>
         </div>
       </div>
     </div>
