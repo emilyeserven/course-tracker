@@ -15,7 +15,9 @@ const dirname
     : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-export default defineConfig({
+export default defineConfig(({
+  mode,
+}) => ({
   preview: {
     port: 4173,
   },
@@ -25,10 +27,12 @@ export default defineConfig({
     },
   },
   plugins: [
-    tanstackRouter({
-      target: "react",
-      autoCodeSplitting: true,
-    }),
+    ...(mode !== "test"
+      ? [tanstackRouter({
+        target: "react",
+        autoCodeSplitting: true,
+      })]
+      : []),
     react(),
     tailwindcss(),
   ],
@@ -84,4 +88,4 @@ export default defineConfig({
       },
     ],
   },
-});
+}));
