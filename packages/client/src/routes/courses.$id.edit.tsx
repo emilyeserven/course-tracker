@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
@@ -123,7 +123,7 @@ function SingleCourseEdit() {
     },
   });
 
-  const currentValues = form.useStore(state => state.values);
+  const currentValues = useStore(form.store, state => state.values);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
   return (
