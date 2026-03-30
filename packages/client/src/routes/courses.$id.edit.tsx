@@ -387,7 +387,7 @@ function SingleCourseEdit() {
           </Button>
         </div>
       </form>
-      <UnsavedChangesDialog hasChanges={hasChanges && !skipBlocker.current} />
+      <UnsavedChangesDialog shouldBlockFn={() => hasChanges && !skipBlocker.current} />
     </div>
   );
 }

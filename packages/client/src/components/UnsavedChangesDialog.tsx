@@ -16,33 +16,31 @@ import {
  * page with unsaved changes.
  *
  * Usage:
- * 1. Compute a `hasChanges` boolean (e.g. by comparing current form values to
- *    their defaults using the `formHasChanges` utility).
- * 2. Render `<UnsavedChangesDialog hasChanges={hasChanges} />` anywhere in your
+ * 1. Pass a `shouldBlockFn` callback that returns `true` when navigation should
+ *    be blocked (e.g. when the form has unsaved changes). This callback is
+ *    evaluated at navigation time, so it can read refs and other mutable values.
+ * 2. Render `<UnsavedChangesDialog shouldBlockFn={...} />` anywhere in your
  *    page component.
- * 3. If the user should be allowed to navigate without the dialog in certain
- *    cases (e.g. a Cancel or Save button), set `hasChanges` to `false` before
- *    calling `navigate()` — for example via a ref that you toggle just before
- *    navigating.
  *
  * @example
  * ```tsx
+ * const skipBlocker = useRef(false);
  * const hasChanges = formHasChanges(currentValues, defaultValues);
  * return (
  *   <>
  *     <form>...</form>
- *     <UnsavedChangesDialog hasChanges={hasChanges} />
+ *     <UnsavedChangesDialog shouldBlockFn={() => hasChanges && !skipBlocker.current} />
  *   </>
  * );
  * ```
  */
 export function UnsavedChangesDialog({
-  hasChanges,
+  shouldBlockFn,
 }: {
-  hasChanges: boolean;
+  shouldBlockFn: () => boolean;
 }) {
   const blocker = useBlocker({
-    condition: hasChanges,
+    shouldBlockFn,
   });
 
   return (
