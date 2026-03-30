@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
@@ -26,13 +27,16 @@ function CoursesPending() {
 function CoursesError() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <h1 className="mb-4 text-3xl">
+        There was an error loading your courses.
+      </h1>
       <p>
         Try to use the
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -67,7 +71,10 @@ function SingleCourse() {
     <CoursesError />;
   }
 
-  const percentComplete = makePercentageComplete(data?.progressCurrent, data?.progressTotal);
+  const percentComplete = makePercentageComplete(
+    data?.progressCurrent,
+    data?.progressTotal,
+  );
 
   const topics = data?.topics ?? null;
 
@@ -105,12 +112,8 @@ function SingleCourse() {
             params={{
               id: data?.id + "",
             }}
-            disabled={true}
           >
-            <Button
-              variant="secondary"
-              disabled={true}
-            >
+            <Button variant="secondary">
               Edit Course
               {" "}
               <EditIcon />
@@ -123,9 +126,7 @@ function SingleCourse() {
           header="About"
           condition={!!data?.description}
         >
-          <p>
-            {data?.description}
-          </p>
+          <p>{data?.description}</p>
         </InfoArea>
         <InfoRow header="Basic Info">
           <InfoArea
@@ -147,7 +148,6 @@ function SingleCourse() {
                 {data?.provider?.name}
               </Link>
             )}
-
           </InfoArea>
           <InfoArea
             header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
@@ -164,25 +164,19 @@ function SingleCourse() {
             header="Current Progress"
             condition={!!data?.progressCurrent}
           >
-            <p>
-              {data?.progressCurrent}
-            </p>
+            <p>{data?.progressCurrent}</p>
           </InfoArea>
           <InfoArea
             header="Total Modules"
             condition={!!data?.progressTotal}
           >
-            <p>
-              {data?.progressTotal}
-            </p>
+            <p>{data?.progressTotal}</p>
           </InfoArea>
           <InfoArea
             header="% Complete"
             condition={!!data?.progressTotal && !!data?.progressCurrent}
           >
-            <p>
-              {percentComplete}%
-            </p>
+            <p>{percentComplete}%</p>
           </InfoArea>
           {!data?.progressCurrent && !data?.progressTotal && (
             <span>No progress information given.</span>
@@ -197,24 +191,26 @@ function SingleCourse() {
               header="Course Cost"
               condition={!percentComplete}
             >
-              <p>
-                {data?.cost.cost}
-              </p>
+              <p>{data?.cost.cost}</p>
             </InfoArea>
             <InfoArea
               header="Amortization"
               condition={!!percentComplete}
             >
               <p>
-                <span>${Number(Number(data?.cost.cost) / Number(percentComplete)).toFixed(2)} out of ${data?.cost.cost}</span>
+                <span>
+                  $
+                  {Number(
+                    Number(data?.cost.cost) / Number(percentComplete),
+                  ).toFixed(2)}{" "}
+                  out of ${data?.cost.cost}
+                </span>
               </p>
             </InfoArea>
           </div>
         </InfoRow>
         <div>
-          <DeleteButton onClick={handleDelete}>
-            Delete Course
-          </DeleteButton>
+          <DeleteButton onClick={handleDelete}>Delete Course</DeleteButton>
         </div>
       </div>
     </div>
