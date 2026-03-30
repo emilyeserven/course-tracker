@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
+import { createCourse, fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
 
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
@@ -65,31 +65,38 @@ function SingleCourseEdit() {
     onSubmit: async ({
       value,
     }) => {
-      const courseId = isNew ? crypto.randomUUID() : id;
-      try {
-        await upsertCourse(courseId, {
-          name: value.name,
-          description: value.description || null,
-          url: value.url || null,
-          status: value.status,
-          progressCurrent: value.progressCurrent,
-          progressTotal: value.progressTotal,
-          cost: value.cost ? String(value.cost) : null,
-          isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
-          dateExpires: value.dateExpires
-            ? value.dateExpires.toISOString().split("T")[0]
-            : null,
-          isExpires: !!value.dateExpires,
-        });
+      const courseData = {
+        name: value.name,
+        description: value.description || null,
+        url: value.url || null,
+        status: value.status,
+        progressCurrent: value.progressCurrent,
+        progressTotal: value.progressTotal,
+        cost: value.cost ? String(value.cost) : null,
+        isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
+        dateExpires: value.dateExpires
+          ? value.dateExpires.toISOString().split("T")[0]
+          : null,
+        isExpires: !!value.dateExpires,
+      };
 
-        await queryClient.invalidateQueries({
-          queryKey: ["courses"],
-        });
-        if (!isNew) {
+      try {
+        let courseId: string;
+        if (isNew) {
+          const result = await createCourse(courseData);
+          courseId = result.id;
+        }
+        else {
+          await upsertCourse(id, courseData);
+          courseId = id;
           await queryClient.invalidateQueries({
             queryKey: ["course", id],
           });
         }
+
+        await queryClient.invalidateQueries({
+          queryKey: ["courses"],
+        });
         await navigate({
           to: "/courses/$id",
           params: {
