@@ -1,15 +1,25 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { createRootRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  Link,
+  Outlet,
+  useNavigate,
+} from "@tanstack/react-router";
 import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
+import { Toaster } from "@/components/sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup, DropdownMenuItem, DropdownMenuItemInteractive,
-  DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuItemInteractive,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme.ts";
@@ -147,30 +157,29 @@ const RootComponent: React.FunctionComponent = () => {
                 </DropdownMenuItemInteractive>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>
-                Settings
-              </DropdownMenuLabel>
+              <DropdownMenuLabel>Settings</DropdownMenuLabel>
               <DropdownMenuGroup>
-
-                {
-                  theme === "dark"
-                    ? (
-                      <DropdownMenuItem
-                        onClick={() => { setTheme("light"); }}
-                      >
-                        <SunIcon />
-                        Set to Light Mode
-                      </DropdownMenuItem>
-                    )
-                    : (
-                      <DropdownMenuItem
-                        onClick={() => { setTheme("dark"); }}
-                      >
-                        <MoonIcon />
-                        Set to Dark Mode
-                      </DropdownMenuItem>
-                    )
-                }
+                {theme === "dark"
+                  ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setTheme("light");
+                      }}
+                    >
+                      <SunIcon />
+                      Set to Light Mode
+                    </DropdownMenuItem>
+                  )
+                  : (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setTheme("dark");
+                      }}
+                    >
+                      <MoonIcon />
+                      Set to Dark Mode
+                    </DropdownMenuItem>
+                  )}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -180,6 +189,7 @@ const RootComponent: React.FunctionComponent = () => {
       <div className="mb-8">
         <Outlet />
       </div>
+      <Toaster />
     </>
   );
 };
