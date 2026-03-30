@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { EditIcon, ExternalLink } from "lucide-react";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useMatchRoute,
+} from "@tanstack/react-router";
+import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -14,6 +19,13 @@ function SingleCourseLayout() {
   const {
     id,
   } = Route.useParams();
+  const matchRoute = useMatchRoute();
+  const isEditing = !!matchRoute({
+    to: "/courses/$id/edit",
+    params: {
+      id,
+    },
+  });
 
   const {
     isPending, error, data,
@@ -70,18 +82,35 @@ function SingleCourseLayout() {
               </Button>
             </a>
           )}
-          <Link
-            to="/courses/$id/edit"
-            params={{
-              id: data.id + "",
-            }}
-          >
-            <Button variant="secondary">
-              Edit Course
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
+          {isEditing
+            ? (
+              <Link
+                to="/courses/$id"
+                params={{
+                  id: data.id + "",
+                }}
+              >
+                <Button variant="secondary">
+                  View Course
+                  {" "}
+                  <EyeIcon />
+                </Button>
+              </Link>
+            )
+            : (
+              <Link
+                to="/courses/$id/edit"
+                params={{
+                  id: data.id + "",
+                }}
+              >
+                <Button variant="secondary">
+                  Edit Course
+                  {" "}
+                  <EditIcon />
+                </Button>
+              </Link>
+            )}
         </div>
       </PageHeader>
       <Outlet />
