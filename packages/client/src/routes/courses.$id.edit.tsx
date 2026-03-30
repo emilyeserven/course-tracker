@@ -36,6 +36,7 @@ function SingleCourseEdit() {
   const {
     id,
   } = Route.useParams();
+  const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -44,6 +45,7 @@ function SingleCourseEdit() {
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
+    enabled: !isNew,
   });
 
   const form = useForm({
@@ -63,8 +65,9 @@ function SingleCourseEdit() {
     onSubmit: async ({
       value,
     }) => {
+      const courseId = isNew ? crypto.randomUUID() : id;
       try {
-        await upsertCourse(id, {
+        await upsertCourse(courseId, {
           name: value.name,
           description: value.description || null,
           url: value.url || null,
@@ -80,24 +83,33 @@ function SingleCourseEdit() {
         });
 
         await queryClient.invalidateQueries({
-          queryKey: ["course", id],
+          queryKey: ["courses"],
         });
+        if (!isNew) {
+          await queryClient.invalidateQueries({
+            queryKey: ["course", id],
+          });
+        }
         await navigate({
           to: "/courses/$id",
           params: {
-            id,
+            id: courseId,
           },
         });
       }
       catch {
-        toast.error("Failed to save course. Please try again.");
+        toast.error(
+          isNew
+            ? "Failed to create course. Please try again."
+            : "Failed to save course. Please try again.",
+        );
       }
     },
   });
 
   return (
     <div className="container flex-col">
-      <h2 className="mb-6 text-2xl">Edit Course</h2>
+      <h2 className="mb-6 text-2xl">{isNew ? "New Course" : "Edit Course"}</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -331,16 +343,20 @@ function SingleCourseEdit() {
         />
 
         <div className="flex flex-row gap-4">
-          <Button type="submit">Save Changes</Button>
+          <Button type="submit">{isNew ? "Create Course" : "Save Changes"}</Button>
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({
-              to: "/courses/$id",
-              params: {
-                id,
-              },
-            })}
+            onClick={() => isNew
+              ? navigate({
+                to: "/courses",
+              })
+              : navigate({
+                to: "/courses/$id",
+                params: {
+                  id,
+                },
+              })}
           >
             Cancel
           </Button>

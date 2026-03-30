@@ -19,6 +19,7 @@ function SingleCourseLayout() {
   const {
     id,
   } = Route.useParams();
+  const isNew = id === "new";
   const matchRoute = useMatchRoute();
   const isEditing = !!matchRoute({
     to: "/courses/$id/edit",
@@ -32,7 +33,20 @@ function SingleCourseLayout() {
   } = useQuery({
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
+    enabled: !isNew,
   });
+
+  if (isNew) {
+    return (
+      <div>
+        <PageHeader
+          pageTitle="New Course"
+          pageSection="courses"
+        />
+        <Outlet />
+      </div>
+    );
+  }
 
   if (isPending || !data) {
     return (
