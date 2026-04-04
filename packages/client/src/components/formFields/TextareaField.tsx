@@ -1,7 +1,6 @@
-import { useFieldContext } from "./fieldContext";
-
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Textarea } from "@/components/forms/textarea";
+import { useFieldContext } from "@/utils/fieldContext";
 
 interface TextareaFieldProps {
   label: string;

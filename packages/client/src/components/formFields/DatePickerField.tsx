@@ -1,12 +1,11 @@
 import { CalendarIcon } from "lucide-react";
 
-import { useFieldContext } from "./fieldContext";
-
 import { Calendar } from "@/components/calendar";
 import { Field, FieldLabel } from "@/components/forms/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useFieldContext } from "@/utils/fieldContext";
 
 interface DatePickerFieldProps {
   label: string;

@@ -1,7 +1,6 @@
-import { useFieldContext } from "./fieldContext";
-
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
+import { useFieldContext } from "@/utils/fieldContext";
 
 interface NumberFieldProps {
   label: string;

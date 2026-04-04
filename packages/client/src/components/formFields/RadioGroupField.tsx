@@ -1,8 +1,7 @@
-import { useFieldContext } from "./fieldContext";
-
 import { Field, FieldLabel } from "@/components/forms/field";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Label } from "@/components/ui/label";
+import { useFieldContext } from "@/utils/fieldContext";
 
 interface RadioGroupFieldProps {
   label: string;
