@@ -122,8 +122,10 @@ export function CourseBox({
         />
         <CourseMetaItem
           value={costValue}
-          condition={cost.cost != null && cost.cost !== ""}
-          iconNode={<DollarSignIcon size={16} />}
+          condition={true}
+          iconNode={
+            costValue != null ? <DollarSignIcon size={16} /> : undefined
+          }
           emptyText="No cost given"
         />
       </ContentBoxFooter>
