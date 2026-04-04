@@ -1,28 +1,40 @@
 import type { ReactFormExtendedApi } from "@tanstack/react-form";
 
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { Input } from "@/components/forms/input";
+import { Textarea } from "@/components/forms/textarea";
 
-interface FormFieldProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: ReactFormExtendedApi<any, any, any, any, any, any, any, any, any, any, any, any>;
+interface TextareaFieldProps {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  form: ReactFormExtendedApi<
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any
+  >;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   condition?: boolean;
   name: string;
   label: string;
   className?: string;
-  fieldClassName?: string;
   placeholder?: string;
 }
 
-export function FormField({
+export function TextareaField({
   form,
   condition = true,
   name,
   label,
   className = "text-2xl",
   placeholder,
-  fieldClassName = "h-11 md:text-xl",
-}: FormFieldProps) {
+}: TextareaFieldProps) {
   if (!condition) {
     return <></>;
   }
@@ -38,9 +50,10 @@ export function FormField({
             <FieldLabel
               htmlFor={field.name}
               className={className}
-            >{label}
+            >
+              {label}
             </FieldLabel>
-            <Input
+            <Textarea
               id={field.name}
               name={field.name}
               value={field.state.value}
@@ -48,12 +61,8 @@ export function FormField({
               onChange={e => field.handleChange(e.target.value)}
               aria-invalid={isInvalid}
               placeholder={placeholder}
-              autoComplete="off"
-              className={fieldClassName}
             />
-            {isInvalid && (
-              <FieldError errors={field.state.meta.errors} />
-            )}
+            {isInvalid && <FieldError errors={field.state.meta.errors} />}
           </Field>
         );
       }}
