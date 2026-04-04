@@ -1,15 +1,14 @@
 import type { CourseProvider } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
-import {
-  BookIcon, DollarSignIcon, RefreshCwIcon,
-} from "lucide-react";
+import { BookIcon, DollarSignIcon, RefreshCwIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import {
   ContentBox,
   ContentBoxBody,
-  ContentBoxFooter, ContentBoxHeader,
+  ContentBoxFooter,
+  ContentBoxHeader,
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
@@ -35,7 +34,8 @@ export function ProviderBox({
                 id: id + "",
               }}
               className="hover:text-blue-600"
-            >{name}
+            >
+              {name}
             </Link>
           </h3>
         </ContentBoxTitle>
@@ -51,7 +51,7 @@ export function ProviderBox({
         />
         <CourseMetaItem
           value={cost}
-          condition={!!cost}
+          condition={cost != null && cost !== ""}
           iconNode={<DollarSignIcon size={16} />}
         />
         <CourseMetaItem

@@ -7,7 +7,7 @@ export interface CourseInCourses {
   url: string;
   dateExpires: string;
   cost: {
-    cost: string;
+    cost: string | null;
     isCostFromPlatform: boolean;
     splitBy: number;
   };

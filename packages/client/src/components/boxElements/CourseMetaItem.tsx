@@ -20,12 +20,9 @@ export function CourseMetaItem({
     <div className="flex flex-row items-center gap-1">
       {iconNode && iconNode}
       <span className="text-sm">
-        {value && (`${value}`)}
-        {!value && (
-          <i
-            className="italic"
-          >{emptyText}
-          </i>
+        {value != null && value !== "" && `${value}`}
+        {(value == null || value === "") && (
+          <i className="italic">{emptyText}</i>
         )}
       </span>
     </div>

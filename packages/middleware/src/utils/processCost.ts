@@ -3,13 +3,13 @@ import { CourseFromServer } from "@emstack/types/src";
 
 export function processCost(course: CourseFromServer): CostData {
   let costData: CostData = {
-    cost: "0",
+    cost: null,
     isCostFromPlatform: false,
   };
   if (course) {
     if (course.isCostFromPlatform === true && course.courseProvider) {
       costData = {
-        cost: course.courseProvider.cost ?? "0",
+        cost: course.courseProvider.cost ?? null,
         isCostFromPlatform: course.isCostFromPlatform,
         splitBy: course.courseProvider.courses
           ? course.courseProvider.courses.length
@@ -18,7 +18,7 @@ export function processCost(course: CourseFromServer): CostData {
     }
     else {
       costData = {
-        cost: course.cost ?? "0",
+        cost: course.cost ?? null,
         isCostFromPlatform: course.isCostFromPlatform,
       };
     }
