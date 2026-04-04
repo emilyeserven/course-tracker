@@ -27,9 +27,9 @@ const formSchema = z.object({
   description: z.string().max(500),
   url: z.string().max(255),
   status: z.enum(["active", "inactive", "complete"]),
-  progressCurrent: z.number().int().min(0),
-  progressTotal: z.number().int().min(0),
-  cost: z.number().min(0),
+  progressCurrent: z.number().int().min(0).nullable(),
+  progressTotal: z.number().int().min(0).nullable(),
+  cost: z.number().min(0).nullable(),
   dateExpires: z.date().nullable(),
 });
 
@@ -57,9 +57,9 @@ function SingleCourseEdit() {
       description: data?.description ?? "",
       url: data?.url ?? "",
       status: data?.status ?? ("active" as const),
-      progressCurrent: data?.progressCurrent ?? 0,
-      progressTotal: data?.progressTotal ?? 0,
-      cost: data?.cost ? Number(data.cost.cost) : 0,
+      progressCurrent: data?.progressCurrent ?? null,
+      progressTotal: data?.progressTotal ?? null,
+      cost: data?.cost ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
     }),
     [data],
@@ -78,8 +78,8 @@ function SingleCourseEdit() {
         description: value.description || null,
         url: value.url || null,
         status: value.status,
-        progressCurrent: value.progressCurrent,
-        progressTotal: value.progressTotal,
+        progressCurrent: value.progressCurrent ?? 0,
+        progressTotal: value.progressTotal ?? 0,
         cost: value.cost ? String(value.cost) : null,
         isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
         dateExpires: value.dateExpires
@@ -185,11 +185,11 @@ function SingleCourseEdit() {
                 value,
                 fieldApi,
               }: {
-                value: number;
+                value: number | null;
                 fieldApi: AnyFieldApi;
               }) => {
                 const total = fieldApi.form.getFieldValue("progressTotal");
-                if (value > total) {
+                if (value != null && total != null && value > total) {
                   return {
                     message: "Current progress cannot exceed total modules",
                   };

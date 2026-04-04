@@ -15,7 +15,7 @@ export function NumberField({
   min,
   step,
 }: NumberFieldProps) {
-  const field = useFieldContext<number>();
+  const field = useFieldContext<number | null>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
@@ -35,7 +35,7 @@ export function NumberField({
         value={field.state.value ?? ""}
         onBlur={field.handleBlur}
         onChange={e =>
-          field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+          field.handleChange(e.target.value ? Number(e.target.value) : null)}
         aria-invalid={isInvalid}
       />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
