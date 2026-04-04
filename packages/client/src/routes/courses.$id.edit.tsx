@@ -2,19 +2,13 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 
 import { useMemo, useRef } from "react";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import {
-  DatePickerField,
-  InputField,
-  NumberField,
-  RadioGroupField,
-  TextareaField,
-} from "@/components/formFields";
+import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
@@ -71,7 +65,7 @@ function SingleCourseEdit() {
     [data],
   );
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: startingValues,
     validators: {
       onSubmit: formSchema,
@@ -142,51 +136,48 @@ function SingleCourseEdit() {
         }}
         className="flex max-w-2xl flex-col gap-8"
       >
-        <InputField
-          form={form}
-          name="name"
-          label="Course Name"
-        />
+        <form.AppField name="name">
+          {field => <field.InputField label="Course Name" />}
+        </form.AppField>
 
-        <TextareaField
-          form={form}
-          name="description"
-          label="Description"
-          placeholder="What is this course about?"
-        />
+        <form.AppField name="description">
+          {field => (
+            <field.TextareaField
+              label="Description"
+              placeholder="What is this course about?"
+            />
+          )}
+        </form.AppField>
 
-        <InputField
-          form={form}
-          name="url"
-          label="Course URL"
-        />
+        <form.AppField name="url">
+          {field => <field.InputField label="Course URL" />}
+        </form.AppField>
 
-        <RadioGroupField
-          form={form}
-          name="status"
-          label="Status"
-          options={[
-            {
-              value: "active",
-              label: "active",
-            },
-            {
-              value: "inactive",
-              label: "inactive",
-            },
-            {
-              value: "complete",
-              label: "complete",
-            },
-          ]}
-        />
+        <form.AppField name="status">
+          {field => (
+            <field.RadioGroupField
+              label="Status"
+              options={[
+                {
+                  value: "active",
+                  label: "active",
+                },
+                {
+                  value: "inactive",
+                  label: "inactive",
+                },
+                {
+                  value: "complete",
+                  label: "complete",
+                },
+              ]}
+            />
+          )}
+        </form.AppField>
 
         <div className="grid grid-cols-2 gap-4">
-          <NumberField
-            form={form}
+          <form.AppField
             name="progressCurrent"
-            label="Current Progress"
-            min={0}
             validators={{
               onSubmit: ({
                 value,
@@ -204,29 +195,38 @@ function SingleCourseEdit() {
                 return undefined;
               },
             }}
-          />
+          >
+            {field => (
+              <field.NumberField
+                label="Current Progress"
+                min={0}
+              />
+            )}
+          </form.AppField>
 
-          <NumberField
-            form={form}
-            name="progressTotal"
-            label="Total Modules"
-            min={0}
-          />
+          <form.AppField name="progressTotal">
+            {field => (
+              <field.NumberField
+                label="Total Modules"
+                min={0}
+              />
+            )}
+          </form.AppField>
         </div>
 
-        <NumberField
-          form={form}
-          name="cost"
-          label="Cost ($)"
-          min={0}
-          step="0.01"
-        />
+        <form.AppField name="cost">
+          {field => (
+            <field.NumberField
+              label="Cost ($)"
+              min={0}
+              step="0.01"
+            />
+          )}
+        </form.AppField>
 
-        <DatePickerField
-          form={form}
-          name="dateExpires"
-          label="Expiry Date"
-        />
+        <form.AppField name="dateExpires">
+          {field => <field.DatePickerField label="Expiry Date" />}
+        </form.AppField>
 
         <div className="flex flex-row gap-4">
           <Button type="submit">

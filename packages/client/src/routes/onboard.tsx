@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useStore } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
-import { InputField } from "@/components/formFields";
+import { useAppForm } from "@/components/formFields";
 import { CourseFields } from "@/components/forms/CourseFields";
 import {
   FieldDescription,
@@ -21,12 +21,9 @@ export const Route = createFileRoute("/onboard")({
 });
 
 const FIELD_COUNT = 5;
-const FIELD_INDICES = Array.from(
-  {
-    length: FIELD_COUNT,
-  },
-  (_, i) => i,
-);
+const FIELD_INDICES = Array.from({
+  length: FIELD_COUNT,
+}, (_, i) => i);
 
 const fieldSchema = (label: string, max: number) =>
   z.string().max(max, `${label} must be at most ${max} characters.`);
@@ -67,7 +64,7 @@ function Onboard() {
   const [isStep3Revealed, setIsStep3Revealed] = useState(false);
   const navigate = useNavigate();
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues,
     validators: {
       onSubmit: formSchema,
@@ -114,20 +111,18 @@ function Onboard() {
         className="flex flex-col gap-20"
       >
         <div className="flex flex-col gap-4">
-          <InputField
-            form={form}
-            name="name"
-            label={"What's your first name?"}
-            className="text-3xl"
-            placeholder="Noodles"
-            fieldClassName="h-12 md:text-2xl"
-          />
+          <form.AppField name="name">
+            {field => (
+              <field.InputField
+                label="What's your first name?"
+                className="text-3xl"
+                placeholder="Noodles"
+                fieldClassName="h-12 md:text-2xl"
+              />
+            )}
+          </form.AppField>
           {!isStep2Revealed && (
-            <NextButton
-              onClick={() => {
-                setIsStep2Revealed(true);
-              }}
-            />
+            <NextButton onClick={() => setIsStep2Revealed(true)} />
           )}
         </div>
 
@@ -142,16 +137,22 @@ function Onboard() {
                 This will create some categories for you.
               </FieldDescription>
               <FieldGroup className="grid grid-cols-2">
-                {FIELD_INDICES.map(i => (
-                  <InputField
-                    key={`topic${i}`}
-                    form={form}
-                    condition={i === 0 || !!topics[i - 1]}
-                    name={`topic${i}`}
-                    label={`Topic ${i + 1}`}
-                    placeholder="Memes"
-                  />
-                ))}
+                {FIELD_INDICES.map(
+                  i =>
+                    (i === 0 || !!topics[i - 1]) && (
+                      <form.AppField
+                        key={`topic${i}`}
+                        name={`topic${i}`}
+                      >
+                        {field => (
+                          <field.InputField
+                            label={`Topic ${i + 1}`}
+                            placeholder="Memes"
+                          />
+                        )}
+                      </form.AppField>
+                    ),
+                )}
                 {!!topics[FIELD_COUNT - 1] && (
                   <div
                     className={`
@@ -165,11 +166,7 @@ function Onboard() {
             </FieldSet>
 
             {!isStep3Revealed && topics[0] && (
-              <NextButton
-                onClick={() => {
-                  setIsStep3Revealed(true);
-                }}
-              />
+              <NextButton onClick={() => setIsStep3Revealed(true)} />
             )}
           </div>
         )}
