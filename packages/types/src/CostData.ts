@@ -1,5 +1,5 @@
 export interface CostData {
-  cost: string;
+  cost: string | null;
   isCostFromPlatform: boolean;
   splitBy?: number;
 }

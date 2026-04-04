@@ -35,9 +35,12 @@ export function CourseBox({
   progressTotal = 0,
   cost,
 }: Course) {
-  const costValue = cost.isCostFromPlatform
-    ? `${Number(cost.cost) / cost.splitBy}*`
-    : Number(cost.cost);
+  const costValue
+    = cost.cost != null
+      ? cost.isCostFromPlatform
+        ? `${Number(cost.cost) / cost.splitBy}*`
+        : Number(cost.cost)
+      : null;
   return (
     <ContentBox>
       <ContentBoxHeader>
