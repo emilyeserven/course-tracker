@@ -1,3 +1,5 @@
+import type { AnyFieldApi } from "@tanstack/react-form";
+
 import { useMemo, useRef } from "react";
 
 import { useForm, useStore } from "@tanstack/react-form";
@@ -6,19 +8,21 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { DatePickerField } from "@/components/formFields/DatePickerField";
-import { InputField } from "@/components/formFields/InputField";
-import { NumberField } from "@/components/formFields/NumberField";
-import { RadioGroupField } from "@/components/formFields/RadioGroupField";
-import { TextareaField } from "@/components/formFields/TextareaField";
+import {
+  DatePickerField,
+  InputField,
+  NumberField,
+  RadioGroupField,
+  TextareaField,
+} from "@/components/formFields";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createCourse,
   fetchSingleCourse,
+  formHasChanges,
   upsertCourse,
-} from "@/utils/fetchFunctions";
-import { formHasChanges } from "@/utils/formHasChanges";
+} from "@/utils";
 
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
@@ -185,7 +189,11 @@ function SingleCourseEdit() {
             min={0}
             validators={{
               onSubmit: ({
-                value, fieldApi,
+                value,
+                fieldApi,
+              }: {
+                value: number;
+                fieldApi: AnyFieldApi;
               }) => {
                 const total = fieldApi.form.getFieldValue("progressTotal");
                 if (value > total) {

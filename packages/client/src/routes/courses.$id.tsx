@@ -9,7 +9,7 @@ import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchSingleCourse } from "@/utils/fetchFunctions";
+import { fetchSingleCourse } from "@/utils";
 
 export const Route = createFileRoute("/courses/$id")({
   component: SingleCourseLayout,

@@ -5,7 +5,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
-import { InputField } from "@/components/formFields/InputField";
+import { InputField } from "@/components/formFields";
 import { CourseFields } from "@/components/forms/CourseFields";
 import {
   FieldDescription,
@@ -14,7 +14,7 @@ import {
   FieldSet,
 } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
-import { postOnboardForm } from "@/utils/fetchFunctions";
+import { postOnboardForm } from "@/utils";
 
 export const Route = createFileRoute("/onboard")({
   component: Onboard,

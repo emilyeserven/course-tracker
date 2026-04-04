@@ -7,7 +7,7 @@ import { ArrowRightIcon } from "lucide-react";
 import { TopicBox } from "@/components/boxes/TopicBox";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchTopics } from "@/utils/fetchFunctions";
+import { fetchTopics } from "@/utils";
 
 export const Route = createFileRoute("/topics/")({
   component: Topics,
@@ -26,13 +26,16 @@ function TopicsPending() {
 function TopicsError() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <h1 className="mb-4 text-3xl">
+        There was an error loading your courses.
+      </h1>
       <p>
         Try to use the
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -71,8 +74,9 @@ function Topics() {
             </div>
           )}
 
-          {
-            data && data.length > 0 && data.map((topic: TopicForTopicsPage) => {
+          {data
+            && data.length > 0
+            && data.map((topic: TopicForTopicsPage) => {
               if (topic.name === "") {
                 return;
               }
@@ -82,8 +86,7 @@ function Topics() {
                   key={topic.id}
                 />
               );
-            })
-          }
+            })}
         </div>
       </div>
     </div>

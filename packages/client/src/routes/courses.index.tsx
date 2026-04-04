@@ -8,7 +8,7 @@ import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchCourses } from "@/utils/fetchFunctions";
+import { fetchCourses } from "@/utils";
 
 export const Route = createFileRoute("/courses/")({
   component: Courses,
@@ -27,13 +27,16 @@ function CoursesPending() {
 function CoursesError() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <h1 className="mb-4 text-3xl">
+        There was an error loading your courses.
+      </h1>
       <p>
         Try to use the
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -75,8 +78,9 @@ function Courses() {
             </div>
           )}
 
-          {
-            data && data.length > 0 && data.map((course: Course) => {
+          {data
+            && data.length > 0
+            && data.map((course: Course) => {
               if (!course) {
                 return <></>;
               }
@@ -86,8 +90,7 @@ function Courses() {
                   key={course.id}
                 />
               );
-            })
-          }
+            })}
 
           <Link
             to="/courses/$id/edit"

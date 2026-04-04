@@ -22,7 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/hooks/useTheme.ts";
-import { fetchClear, fetchCourses, fetchProviders, fetchSeed, fetchTopics } from "@/utils/fetchFunctions";
+import {
+  fetchClear,
+  fetchCourses,
+  fetchProviders,
+  fetchSeed,
+  fetchTopics,
+} from "@/utils";
 
 const RootComponent: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -71,8 +77,13 @@ const RootComponent: React.FunctionComponent = () => {
     queryFn: () => fetchProviders(),
   });
 
-  const allLoaded = coursesData !== undefined && topicsData !== undefined && providersData !== undefined;
-  const showOnboard = !allLoaded || (!coursesData?.length && !topicsData?.length && !providersData?.length);
+  const allLoaded
+    = coursesData !== undefined
+      && topicsData !== undefined
+      && providersData !== undefined;
+  const showOnboard
+    = !allLoaded
+      || (!coursesData?.length && !topicsData?.length && !providersData?.length);
 
   async function handleClearLocal() {
     const clearRefetchResult = await clearRefetch();
