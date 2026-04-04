@@ -71,10 +71,11 @@ Ports: client dev server on 5173 (Vite proxies `/api` to middleware), middleware
 ### Frontend
 - File-based routing with TanStack Router (routes in `packages/client/src/routes/`)
 - Auto-generated route tree (`routeTree.gen.ts` — do not edit manually)
-- Components organized by purpose: `layout/`, `ui/`, `boxes/`, `boxElements/`, `forms/`, `utils/`
+- Components organized by purpose: `layout/`, `ui/`, `boxes/`, `boxElements/`, `forms/`, `formFields/`, `utils/`
 - shadcn/ui components live in `components/ui/` — add new ones via shadcn CLI
 - Path alias: `@` → `packages/client/src`
 - Theme support via ThemeProvider context (dark/light mode)
+- **Forms:** Uses TanStack Form's `createFormHook` API. The `useAppForm` hook (`hooks/useAppForm.ts`) provides context-based field components (`InputField`, `TextareaField`, `NumberField`, `RadioGroupField`, `DatePickerField`) via `form.AppField`. Field components live in `components/formFields/` and access form state via `useFieldContext()` from `utils/fieldContext.ts`. To add a new reusable field: create the component, register it in `useAppForm.ts`.
 
 ### Backend
 - Fastify plugin pattern with nested route modules under `src/routes/api/`
