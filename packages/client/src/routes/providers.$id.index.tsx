@@ -8,7 +8,7 @@ import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSinglePlatform, fetchSingleProvider } from "@/utils/fetchFunctions";
+import { deleteSinglePlatform, fetchSingleProvider } from "@/utils";
 
 export const Route = createFileRoute("/providers/$id/")({
   component: SingleProviders,
@@ -31,7 +31,8 @@ function TopicError() {
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -115,24 +116,16 @@ function SingleProviders() {
           header="About"
           condition={!!data?.description}
         >
-          <p>
-            {data?.description}
-          </p>
+          <p>{data?.description}</p>
         </InfoArea>
-        <InfoRow
-          header="Money Things"
-        >
+        <InfoRow header="Money Things">
           <InfoArea
             header="Course Cost"
             condition={!!data?.cost}
           >
-            <p>
-              ${data?.cost}
-            </p>
+            <p>${data?.cost}</p>
           </InfoArea>
-          <InfoArea
-            header="Fees Shared BTW Courses?"
-          >
+          <InfoArea header="Fees Shared BTW Courses?">
             <YesNoDisplay value={!!data?.isCourseFeesShared} />
           </InfoArea>
           <InfoArea
@@ -146,14 +139,10 @@ function SingleProviders() {
             header="Subscription Recurrance"
             condition={!!data?.recurPeriodUnit}
           >
-            <span
-              className="first-letter:uppercase"
-            >
-              {data?.recurPeriodUnit && (
-                `Every ${data?.recurPeriod ? data.recurPeriod : ""} ${data.recurPeriodUnit}`
-              )}
+            <span className="first-letter:uppercase">
+              {data?.recurPeriodUnit
+                && `Every ${data?.recurPeriod ? data.recurPeriod : ""} ${data.recurPeriodUnit}`}
             </span>
-
           </InfoArea>
         </InfoRow>
         <div>
@@ -162,29 +151,29 @@ function SingleProviders() {
             condition={!!data?.courseCount && data.courseCount > 0}
           >
             <ul className="ml-5 list-disc">
-              {data?.courses && data.courses.map(course => (
-                <li key={course.id}>
-                  <Link
-                    to="/courses/$id"
-                    from="/topics/$id"
-                    params={{
-                      id: course.id + "",
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >{course.name}
-                  </Link>
-                </li>
-              ))}
+              {data?.courses
+                && data.courses.map(course => (
+                  <li key={course.id}>
+                    <Link
+                      to="/courses/$id"
+                      from="/topics/$id"
+                      params={{
+                        id: course.id + "",
+                      }}
+                      className={`
+                        font-bold text-blue-800
+                        hover:text-blue-600
+                      `}
+                    >
+                      {course.name}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </InfoArea>
         </div>
         <div>
-          <DeleteButton onClick={handleDelete}>
-            Delete Platform
-          </DeleteButton>
+          <DeleteButton onClick={handleDelete}>Delete Platform</DeleteButton>
         </div>
       </div>
     </div>

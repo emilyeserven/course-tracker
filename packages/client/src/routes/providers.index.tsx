@@ -7,7 +7,7 @@ import { ArrowRightIcon } from "lucide-react";
 import { ProviderBox } from "@/components/boxes/ProviderBox";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchProviders } from "@/utils/fetchFunctions";
+import { fetchProviders } from "@/utils";
 
 export const Route = createFileRoute("/providers/")({
   component: Topics,
@@ -26,13 +26,16 @@ function TopicsPending() {
 function TopicsError() {
   return (
     <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your courses.</h1>
+      <h1 className="mb-4 text-3xl">
+        There was an error loading your courses.
+      </h1>
       <p>
         Try to use the
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -71,8 +74,9 @@ function Topics() {
             </div>
           )}
 
-          {
-            data && data.length > 0 && data.map((provider: CourseProvider) => {
+          {data
+            && data.length > 0
+            && data.map((provider: CourseProvider) => {
               if (provider.name === "") {
                 return;
               }
@@ -82,8 +86,7 @@ function Topics() {
                   key={provider.id}
                 />
               );
-            })
-          }
+            })}
         </div>
       </div>
     </div>

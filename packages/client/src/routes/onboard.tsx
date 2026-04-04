@@ -1,38 +1,44 @@
 import { useState } from "react";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useStore } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
+import { useAppForm } from "@/components/formFields";
 import { CourseFields } from "@/components/forms/CourseFields";
-import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/forms/field";
-import { FormField } from "@/components/forms/FormField";
+import {
+  FieldDescription,
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
-import { postOnboardForm } from "@/utils/fetchFunctions";
+import { postOnboardForm } from "@/utils";
 
 export const Route = createFileRoute("/onboard")({
   component: Onboard,
 });
 
 const FIELD_COUNT = 5;
-const FIELD_INDICES = Array.from(
-  {
-    length: FIELD_COUNT,
-  },
-  (_, i) => i,
-);
+const FIELD_INDICES = Array.from({
+  length: FIELD_COUNT,
+}, (_, i) => i);
 
 const fieldSchema = (label: string, max: number) =>
   z.string().max(max, `${label} must be at most ${max} characters.`);
 
 const formSchema = z.object({
   name: fieldSchema("Name", 32),
-  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, fieldSchema("Topic", 32)])),
-  ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
-    [`course${i}Name`, fieldSchema("Course name", 200)],
-    [`course${i}Url`, fieldSchema("Course URL", 200)],
-  ])),
+  ...Object.fromEntries(
+    FIELD_INDICES.map(i => [`topic${i}`, fieldSchema("Topic", 32)]),
+  ),
+  ...Object.fromEntries(
+    FIELD_INDICES.flatMap(i => [
+      [`course${i}Name`, fieldSchema("Course name", 200)],
+      [`course${i}Url`, fieldSchema("Course URL", 200)],
+    ]),
+  ),
 });
 
 const defaultValues: Record<string, string> = Object.fromEntries(
@@ -41,9 +47,7 @@ const defaultValues: Record<string, string> = Object.fromEntries(
 
 function NextButton({
   onClick,
-}: {
-  onClick: () => void;
-}) {
+}: { onClick: () => void }) {
   return (
     <Button
       className="inline-flex grow-0"
@@ -60,7 +64,7 @@ function Onboard() {
   const [isStep3Revealed, setIsStep3Revealed] = useState(false);
   const navigate = useNavigate();
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues,
     validators: {
       onSubmit: formSchema,
@@ -107,39 +111,49 @@ function Onboard() {
         className="flex flex-col gap-20"
       >
         <div className="flex flex-col gap-4">
-          <FormField
-            form={form}
-            name="name"
-            label={"What's your first name?"}
-            className="text-3xl"
-            placeholder="Noodles"
-            fieldClassName="h-12 md:text-2xl"
-          />
+          <form.AppField name="name">
+            {field => (
+              <field.InputField
+                label="What's your first name?"
+                className="text-3xl"
+                placeholder="Noodles"
+                fieldClassName="h-12 md:text-2xl"
+              />
+            )}
+          </form.AppField>
           {!isStep2Revealed && (
-            <NextButton onClick={() => { setIsStep2Revealed(true); }} />
+            <NextButton onClick={() => setIsStep2Revealed(true)} />
           )}
         </div>
 
         {isStep2Revealed && (
           <div className="flex flex-col gap-4">
             <FieldSet>
-              <FieldLegend
-                className="data-[variant=legend]:text-3xl"
-              >Nice to meet you{name ? `, ${name}` : ""}! What are you learning about?
+              <FieldLegend className="data-[variant=legend]:text-3xl">
+                Nice to meet you{name ? `, ${name}` : ""}! What are you learning
+                about?
               </FieldLegend>
-              <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
+              <FieldDescription className="text-xl">
+                This will create some categories for you.
+              </FieldDescription>
               <FieldGroup className="grid grid-cols-2">
-                {FIELD_INDICES.map(i => (
-                  <FormField
-                    key={`topic${i}`}
-                    form={form}
-                    condition={i === 0 || !!topics[i - 1]}
-                    name={`topic${i}`}
-                    label={`Topic ${i + 1}`}
-                    placeholder="Memes"
-                  />
-                ))}
-                { !!topics[FIELD_COUNT - 1] && (
+                {FIELD_INDICES.map(
+                  i =>
+                    (i === 0 || !!topics[i - 1]) && (
+                      <form.AppField
+                        key={`topic${i}`}
+                        name={`topic${i}`}
+                      >
+                        {field => (
+                          <field.InputField
+                            label={`Topic ${i + 1}`}
+                            placeholder="Memes"
+                          />
+                        )}
+                      </form.AppField>
+                    ),
+                )}
+                {!!topics[FIELD_COUNT - 1] && (
                   <div
                     className={`
                       flex flex-col justify-center text-xl text-primary italic
@@ -152,12 +166,12 @@ function Onboard() {
             </FieldSet>
 
             {!isStep3Revealed && topics[0] && (
-              <NextButton onClick={() => { setIsStep3Revealed(true); }} />
+              <NextButton onClick={() => setIsStep3Revealed(true)} />
             )}
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && (
+        {isStep2Revealed && isStep3Revealed && (
           <div className="flex flex-col gap-6">
             <span className="text-3xl">Let&#39;s add a course per topic.</span>
             <div className="flex flex-col gap-12">
@@ -174,7 +188,10 @@ function Onboard() {
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && formValues.course0Name && formValues.course0Url && (
+        {isStep2Revealed
+          && isStep3Revealed
+          && formValues.course0Name
+          && formValues.course0Url && (
           <div className="flex flex-row gap-4">
             <Button
               type="submit"

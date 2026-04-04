@@ -1,25 +1,22 @@
+import type { AnyFieldApi } from "@tanstack/react-form";
+
 import { useMemo, useRef } from "react";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { Calendar } from "@/components/calendar";
-import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { FormField } from "@/components/forms/FormField";
-import { Input } from "@/components/forms/input";
-import { Textarea } from "@/components/forms/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
-import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
+import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
-import { cn } from "@/lib/utils";
-import { createCourse, fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
-import { formHasChanges } from "@/utils/formHasChanges";
+import {
+  createCourse,
+  fetchSingleCourse,
+  formHasChanges,
+  upsertCourse,
+} from "@/utils";
 
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
@@ -54,18 +51,21 @@ function SingleCourseEdit() {
     enabled: !isNew,
   });
 
-  const startingValues = useMemo(() => ({
-    name: data?.name ?? "",
-    description: data?.description ?? "",
-    url: data?.url ?? "",
-    status: data?.status ?? ("active" as const),
-    progressCurrent: data?.progressCurrent ?? 0,
-    progressTotal: data?.progressTotal ?? 0,
-    cost: data?.cost ? Number(data.cost.cost) : 0,
-    dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-  }), [data]);
+  const startingValues = useMemo(
+    () => ({
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      url: data?.url ?? "",
+      status: data?.status ?? ("active" as const),
+      progressCurrent: data?.progressCurrent ?? 0,
+      progressTotal: data?.progressTotal ?? 0,
+      cost: data?.cost ? Number(data.cost.cost) : 0,
+      dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
+    }),
+    [data],
+  );
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: startingValues,
     validators: {
       onSubmit: formSchema,
@@ -123,7 +123,9 @@ function SingleCourseEdit() {
     },
   });
 
-  const currentValues = useStore(form.store, state => state.values);
+  const currentValues = useStore(form.store, state => ({
+    ...state.values,
+  }));
   const hasChanges = formHasChanges(currentValues, startingValues);
 
   return (
@@ -136,85 +138,55 @@ function SingleCourseEdit() {
         }}
         className="flex max-w-2xl flex-col gap-8"
       >
-        <FormField
-          form={form}
-          name="name"
-          label="Course Name"
-        />
+        <form.AppField name="name">
+          {field => <field.InputField label="Course Name" />}
+        </form.AppField>
 
-        <form.Field
-          name="description"
-          children={(field) => {
-            const isInvalid
-              = field.state.meta.isTouched && !field.state.meta.isValid;
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel
-                  htmlFor={field.name}
-                  className="text-2xl"
-                >
-                  Description
-                </FieldLabel>
-                <Textarea
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={e => field.handleChange(e.target.value)}
-                  aria-invalid={isInvalid}
-                  placeholder="What is this course about?"
-                />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-
-        <FormField
-          form={form}
-          name="url"
-          label="Course URL"
-        />
-
-        <form.Field
-          name="status"
-          children={field => (
-            <Field>
-              <FieldLabel className="text-2xl">Status</FieldLabel>
-              <RadioGroup
-                value={field.state.value}
-                onValueChange={val =>
-                  field.handleChange(val as "active" | "inactive" | "complete")}
-                className="flex flex-row gap-4"
-              >
-                {(["active", "inactive", "complete"] as const).map(status => (
-                  <div
-                    key={status}
-                    className="flex items-center gap-2"
-                  >
-                    <RadioGroupItem
-                      value={status}
-                      id={`status-${status}`}
-                    />
-                    <Label
-                      htmlFor={`status-${status}`}
-                      className="capitalize"
-                    >
-                      {status}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </Field>
+        <form.AppField name="description">
+          {field => (
+            <field.TextareaField
+              label="Description"
+              placeholder="What is this course about?"
+            />
           )}
-        />
+        </form.AppField>
+
+        <form.AppField name="url">
+          {field => <field.InputField label="Course URL" />}
+        </form.AppField>
+
+        <form.AppField name="status">
+          {field => (
+            <field.RadioGroupField
+              label="Status"
+              options={[
+                {
+                  value: "active",
+                  label: "active",
+                },
+                {
+                  value: "inactive",
+                  label: "inactive",
+                },
+                {
+                  value: "complete",
+                  label: "complete",
+                },
+              ]}
+            />
+          )}
+        </form.AppField>
 
         <div className="grid grid-cols-2 gap-4">
-          <form.Field
+          <form.AppField
             name="progressCurrent"
             validators={{
               onSubmit: ({
-                value, fieldApi,
+                value,
+                fieldApi,
+              }: {
+                value: number;
+                fieldApi: AnyFieldApi;
               }) => {
                 const total = fieldApi.form.getFieldValue("progressTotal");
                 if (value > total) {
@@ -225,149 +197,47 @@ function SingleCourseEdit() {
                 return undefined;
               },
             }}
-            children={(field) => {
-              const isInvalid
-                = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    htmlFor={field.name}
-                    className="text-2xl"
-                  >
-                    Current Progress
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="number"
-                    min={0}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={e => field.handleChange(Number(e.target.value))}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
+          >
+            {field => (
+              <field.NumberField
+                label="Current Progress"
+                min={0}
+              />
+            )}
+          </form.AppField>
 
-          <form.Field
-            name="progressTotal"
-            children={(field) => {
-              const isInvalid
-                = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    htmlFor={field.name}
-                    className="text-2xl"
-                  >
-                    Total Modules
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="number"
-                    min={0}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={e => field.handleChange(Number(e.target.value))}
-                    aria-invalid={isInvalid}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          />
+          <form.AppField name="progressTotal">
+            {field => (
+              <field.NumberField
+                label="Total Modules"
+                min={0}
+              />
+            )}
+          </form.AppField>
         </div>
 
-        <form.Field
-          name="cost"
-          children={(field) => {
-            const isInvalid
-              = field.state.meta.isTouched && !field.state.meta.isValid;
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel
-                  htmlFor={field.name}
-                  className="text-2xl"
-                >
-                  Cost ($)
-                </FieldLabel>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={field.state.value ?? ""}
-                  onBlur={field.handleBlur}
-                  onChange={e =>
-                    field.handleChange(
-                      e.target.value ? Number(e.target.value) : 0,
-                    )}
-                  aria-invalid={isInvalid}
-                />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            );
-          }}
-        />
-
-        <form.Field
-          name="dateExpires"
-          children={field => (
-            <Field>
-              <FieldLabel className="text-2xl">Expiry Date</FieldLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      "w-[240px] justify-start text-left font-normal",
-                      !field.state.value && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 size-4" />
-                    {field.state.value
-                      ? field.state.value.toLocaleDateString()
-                      : "No expiry date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-auto p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={field.state.value ?? undefined}
-                    onSelect={date => field.handleChange(date ?? null)}
-                  />
-                </PopoverContent>
-              </Popover>
-              {field.state.value && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => field.handleChange(null)}
-                >
-                  Clear date
-                </Button>
-              )}
-            </Field>
+        <form.AppField name="cost">
+          {field => (
+            <field.NumberField
+              label="Cost ($)"
+              min={0}
+              step="0.01"
+            />
           )}
-        />
+        </form.AppField>
+
+        <form.AppField name="dateExpires">
+          {field => <field.DatePickerField label="Expiry Date" />}
+        </form.AppField>
 
         <div className="flex flex-row gap-4">
-          <Button type="submit">{isNew ? "Create Course" : "Save Changes"}</Button>
+          <Button type="submit">
+            {isNew ? "Create Course" : "Save Changes"}
+          </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => {
-              skipBlocker.current = true;
               if (isNew) {
                 navigate({
                   to: "/courses",
@@ -387,7 +257,9 @@ function SingleCourseEdit() {
           </Button>
         </div>
       </form>
-      <UnsavedChangesDialog shouldBlockFn={() => hasChanges && !skipBlocker.current} />
+      <UnsavedChangesDialog
+        shouldBlockFn={() => hasChanges && !skipBlocker.current}
+      />
     </div>
   );
 }

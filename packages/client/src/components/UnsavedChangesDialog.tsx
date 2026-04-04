@@ -41,6 +41,7 @@ export function UnsavedChangesDialog({
 }) {
   const blocker = useBlocker({
     shouldBlockFn,
+    withResolver: true,
   });
 
   return (

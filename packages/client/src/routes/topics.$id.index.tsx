@@ -6,7 +6,7 @@ import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleTopic, fetchSingleTopic } from "@/utils/fetchFunctions";
+import { deleteSingleTopic, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({
   component: SingleTopic,
@@ -29,7 +29,8 @@ function TopicError() {
         {" "}
         <Link to="/onboard">Onboarding Wizard</Link>
         {" "}
-        again, or load in properly formed course data.
+        again, or
+        load in properly formed course data.
       </p>
     </div>
   );
@@ -101,17 +102,13 @@ function SingleTopic() {
           header="About"
           condition={!!data?.description}
         >
-          <p>
-            {data?.description}
-          </p>
+          <p>{data?.description}</p>
         </InfoArea>
         <InfoArea
           header="Why am I learning this?"
           condition={!!data?.reason}
         >
-          <p>
-            {data?.reason}
-          </p>
+          <p>{data?.reason}</p>
         </InfoArea>
         <div>
           <InfoArea
@@ -119,29 +116,29 @@ function SingleTopic() {
             condition={!!data?.courseCount && data.courseCount > 0}
           >
             <ul className="ml-5 list-disc">
-              {data?.courses && data.courses.map(course => (
-                <li key={course.id}>
-                  <Link
-                    to="/courses/$id"
-                    from="/topics/$id"
-                    params={{
-                      id: course.id + "",
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >{course.name}
-                  </Link>
-                </li>
-              ))}
+              {data?.courses
+                && data.courses.map(course => (
+                  <li key={course.id}>
+                    <Link
+                      to="/courses/$id"
+                      from="/topics/$id"
+                      params={{
+                        id: course.id + "",
+                      }}
+                      className={`
+                        font-bold text-blue-800
+                        hover:text-blue-600
+                      `}
+                    >
+                      {course.name}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </InfoArea>
         </div>
         <div>
-          <DeleteButton onClick={handleDelete}>
-            Delete Topic
-          </DeleteButton>
+          <DeleteButton onClick={handleDelete}>Delete Topic</DeleteButton>
         </div>
       </div>
     </div>

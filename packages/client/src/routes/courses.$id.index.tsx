@@ -5,8 +5,11 @@ import { TopicList } from "@/components/boxElements/TopicList";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleCourse, fetchSingleCourse } from "@/utils/fetchFunctions";
-import { makePercentageComplete } from "@/utils/makePercentageComplete";
+import {
+  deleteSingleCourse,
+  fetchSingleCourse,
+  makePercentageComplete,
+} from "@/utils";
 
 export const Route = createFileRoute("/courses/$id/")({
   component: SingleCourse,
