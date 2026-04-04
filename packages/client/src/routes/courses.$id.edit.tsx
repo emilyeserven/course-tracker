@@ -60,7 +60,7 @@ function SingleCourseEdit() {
       status: data?.status ?? ("active" as const),
       progressCurrent: data?.progressCurrent ?? null,
       progressTotal: data?.progressTotal ?? null,
-      cost: data?.cost ? Number(data.cost.cost) : null,
+      cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
     }),
     [data],
@@ -81,7 +81,7 @@ function SingleCourseEdit() {
         status: value.status,
         progressCurrent: value.progressCurrent ?? 0,
         progressTotal: value.progressTotal ?? 0,
-        cost: value.cost ? String(value.cost) : null,
+        cost: value.cost != null ? String(value.cost) : null,
         isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
         dateExpires: value.dateExpires
           ? value.dateExpires.toISOString().split("T")[0]
