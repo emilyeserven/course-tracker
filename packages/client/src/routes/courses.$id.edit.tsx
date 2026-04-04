@@ -123,7 +123,9 @@ function SingleCourseEdit() {
     },
   });
 
-  const currentValues = useStore(form.store, state => state.values);
+  const currentValues = useStore(form.store, state => ({
+    ...state.values,
+  }));
   const hasChanges = formHasChanges(currentValues, startingValues);
 
   return (
@@ -236,7 +238,6 @@ function SingleCourseEdit() {
             type="button"
             variant="outline"
             onClick={() => {
-              skipBlocker.current = true;
               if (isNew) {
                 navigate({
                   to: "/courses",
