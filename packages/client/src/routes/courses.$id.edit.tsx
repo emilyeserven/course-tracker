@@ -5,6 +5,7 @@ import { useMemo, useRef } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -126,6 +127,7 @@ function SingleCourseEdit() {
   const currentValues = useStore(form.store, state => ({
     ...state.values,
   }));
+  const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
   return (
@@ -231,7 +233,11 @@ function SingleCourseEdit() {
         </form.AppField>
 
         <div className="flex flex-row gap-4">
-          <Button type="submit">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting && <Loader2 className="animate-spin" />}
             {isNew ? "Create Course" : "Save Changes"}
           </Button>
           <Button
