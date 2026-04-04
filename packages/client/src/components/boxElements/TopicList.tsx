@@ -40,7 +40,7 @@ export function TopicList({
                 id: topic.id + "",
               }}
               className={cn({
-                "rounded bg-gray-50 px-2 py-0.5 text-xs hover:bg-gray-900 hover:text-white": isPills,
+                "rounded-sm bg-gray-50 px-2 py-0.5 text-xs hover:bg-gray-900 hover:text-white": isPills,
                 "text-sm text-blue-800 hover:text-blue-600": !isPills,
               })}
               key={topic.id}

@@ -8,7 +8,7 @@ function ContentBox({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex flex-col justify-between gap-2 rounded border", className)}
+      className={cn("flex flex-col justify-between gap-2 rounded-sm border", className)}
       {...props}
     />
   );
@@ -75,7 +75,7 @@ function ContentBoxFooter({
     <div
       className={cn(`
         flex flex-row flex-wrap justify-between gap-8 gap-y-1 border-t
-        bg-gray-50 px-2 pt-2 pb-2
+        bg-gray-50 p-2
       `, className)}
       {...props}
     />
