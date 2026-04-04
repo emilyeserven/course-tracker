@@ -113,7 +113,7 @@ function SingleCourse() {
         )}
       </InfoRow>
       <InfoRow
-        condition={!!data?.cost}
+        condition={data?.cost != null}
         header="Money Things"
       >
         <div className="flex flex-row gap-1">

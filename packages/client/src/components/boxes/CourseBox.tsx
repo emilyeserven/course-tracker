@@ -15,7 +15,9 @@ import {
   ContentBox,
   ContentBoxBody,
   ContentBoxFooter,
-  ContentBoxHeader, ContentBoxHeaderBar, ContentBoxTitle,
+  ContentBoxHeader,
+  ContentBoxHeaderBar,
+  ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -34,12 +36,11 @@ export function CourseBox({
   cost,
 }: Course) {
   const costValue = cost.isCostFromPlatform
-    ? `${(Number(cost.cost) / cost.splitBy)}*`
+    ? `${Number(cost.cost) / cost.splitBy}*`
     : Number(cost.cost);
   return (
     <ContentBox>
       <ContentBoxHeader>
-
         <ContentBoxHeaderBar>
           <div className="flex flex-row items-center gap-2">
             <StatusIndicator status={status} />
@@ -71,13 +72,14 @@ export function CourseBox({
                 id: id + "",
               }}
               className="hover:text-blue-600"
-            >{name}
+            >
+              {name}
             </Link>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        { provider && (
+        {provider && (
           <h4 className="text-xs font-semibold uppercase">
             From
             {" "}
@@ -95,7 +97,7 @@ export function CourseBox({
               {provider?.name}
             </Link>
           </h4>
-        ) }
+        )}
         <p>{description ? description : <i>No description provided.</i>}</p>
       </ContentBoxBody>
       <ContentBoxFooter>
@@ -106,14 +108,18 @@ export function CourseBox({
           emptyText="No course expiry given"
         />
         <CourseMetaItem
-          value={progressCurrent && progressTotal ? `${progressCurrent} / ${progressTotal}` : 0}
+          value={
+            progressCurrent && progressTotal
+              ? `${progressCurrent} / ${progressTotal}`
+              : 0
+          }
           condition={!!progressCurrent && !!progressTotal}
           iconNode={<CheckCheckIcon size={16} />}
           emptyText="No progress"
         />
         <CourseMetaItem
           value={costValue}
-          condition={!!cost.cost}
+          condition={cost.cost != null && cost.cost !== ""}
           iconNode={<DollarSignIcon size={16} />}
           emptyText="No cost given"
         />
