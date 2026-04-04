@@ -6,7 +6,12 @@ import { ArrowRight } from "lucide-react";
 import * as z from "zod";
 
 import { CourseFields } from "@/components/forms/CourseFields";
-import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from "@/components/forms/field";
+import {
+  FieldDescription,
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "@/components/forms/field";
 import { FormField } from "@/components/forms/FormField";
 import { Button } from "@/components/ui/button";
 import { postOnboardForm } from "@/utils/fetchFunctions";
@@ -28,11 +33,15 @@ const fieldSchema = (label: string, max: number) =>
 
 const formSchema = z.object({
   name: fieldSchema("Name", 32),
-  ...Object.fromEntries(FIELD_INDICES.map(i => [`topic${i}`, fieldSchema("Topic", 32)])),
-  ...Object.fromEntries(FIELD_INDICES.flatMap(i => [
-    [`course${i}Name`, fieldSchema("Course name", 200)],
-    [`course${i}Url`, fieldSchema("Course URL", 200)],
-  ])),
+  ...Object.fromEntries(
+    FIELD_INDICES.map(i => [`topic${i}`, fieldSchema("Topic", 32)]),
+  ),
+  ...Object.fromEntries(
+    FIELD_INDICES.flatMap(i => [
+      [`course${i}Name`, fieldSchema("Course name", 200)],
+      [`course${i}Url`, fieldSchema("Course URL", 200)],
+    ]),
+  ),
 });
 
 const defaultValues: Record<string, string> = Object.fromEntries(
@@ -41,9 +50,7 @@ const defaultValues: Record<string, string> = Object.fromEntries(
 
 function NextButton({
   onClick,
-}: {
-  onClick: () => void;
-}) {
+}: { onClick: () => void }) {
   return (
     <Button
       className="inline-flex grow-0"
@@ -108,7 +115,8 @@ function Onboard() {
       >
         <div className="flex flex-col gap-4">
           <FormField
-            form={form}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            form={form as any}
             name="name"
             label={"What's your first name?"}
             className="text-3xl"
@@ -116,30 +124,37 @@ function Onboard() {
             fieldClassName="h-12 md:text-2xl"
           />
           {!isStep2Revealed && (
-            <NextButton onClick={() => { setIsStep2Revealed(true); }} />
+            <NextButton
+              onClick={() => {
+                setIsStep2Revealed(true);
+              }}
+            />
           )}
         </div>
 
         {isStep2Revealed && (
           <div className="flex flex-col gap-4">
             <FieldSet>
-              <FieldLegend
-                className="data-[variant=legend]:text-3xl"
-              >Nice to meet you{name ? `, ${name}` : ""}! What are you learning about?
+              <FieldLegend className="data-[variant=legend]:text-3xl">
+                Nice to meet you{name ? `, ${name}` : ""}! What are you learning
+                about?
               </FieldLegend>
-              <FieldDescription className="text-xl">This will create some categories for you.</FieldDescription>
+              <FieldDescription className="text-xl">
+                This will create some categories for you.
+              </FieldDescription>
               <FieldGroup className="grid grid-cols-2">
                 {FIELD_INDICES.map(i => (
                   <FormField
                     key={`topic${i}`}
-                    form={form}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    form={form as any}
                     condition={i === 0 || !!topics[i - 1]}
                     name={`topic${i}`}
                     label={`Topic ${i + 1}`}
                     placeholder="Memes"
                   />
                 ))}
-                { !!topics[FIELD_COUNT - 1] && (
+                {!!topics[FIELD_COUNT - 1] && (
                   <div
                     className={`
                       flex flex-col justify-center text-xl text-primary italic
@@ -152,19 +167,24 @@ function Onboard() {
             </FieldSet>
 
             {!isStep3Revealed && topics[0] && (
-              <NextButton onClick={() => { setIsStep3Revealed(true); }} />
+              <NextButton
+                onClick={() => {
+                  setIsStep3Revealed(true);
+                }}
+              />
             )}
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && (
+        {isStep2Revealed && isStep3Revealed && (
           <div className="flex flex-col gap-6">
             <span className="text-3xl">Let&#39;s add a course per topic.</span>
             <div className="flex flex-col gap-12">
               {FIELD_INDICES.map(i => (
                 <CourseFields
                   key={`course${i}`}
-                  form={form}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  form={form as any}
                   condition={i === 0 || !!topics[i]}
                   name={`course${i}`}
                   label={topics[i]}
@@ -174,7 +194,10 @@ function Onboard() {
           </div>
         )}
 
-        { isStep2Revealed && isStep3Revealed && formValues.course0Name && formValues.course0Url && (
+        {isStep2Revealed
+          && isStep3Revealed
+          && formValues.course0Name
+          && formValues.course0Url && (
           <div className="flex flex-row gap-4">
             <Button
               type="submit"

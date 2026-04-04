@@ -18,7 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { cn } from "@/lib/utils";
-import { createCourse, fetchSingleCourse, upsertCourse } from "@/utils/fetchFunctions";
+import {
+  createCourse,
+  fetchSingleCourse,
+  upsertCourse,
+} from "@/utils/fetchFunctions";
 import { formHasChanges } from "@/utils/formHasChanges";
 
 export const Route = createFileRoute("/courses/$id/edit")({
@@ -54,16 +58,19 @@ function SingleCourseEdit() {
     enabled: !isNew,
   });
 
-  const startingValues = useMemo(() => ({
-    name: data?.name ?? "",
-    description: data?.description ?? "",
-    url: data?.url ?? "",
-    status: data?.status ?? ("active" as const),
-    progressCurrent: data?.progressCurrent ?? 0,
-    progressTotal: data?.progressTotal ?? 0,
-    cost: data?.cost ? Number(data.cost.cost) : 0,
-    dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-  }), [data]);
+  const startingValues = useMemo(
+    () => ({
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      url: data?.url ?? "",
+      status: data?.status ?? ("active" as const),
+      progressCurrent: data?.progressCurrent ?? 0,
+      progressTotal: data?.progressTotal ?? 0,
+      cost: data?.cost ? Number(data.cost.cost) : 0,
+      dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
+    }),
+    [data],
+  );
 
   const form = useForm({
     defaultValues: startingValues,
@@ -362,12 +369,13 @@ function SingleCourseEdit() {
         />
 
         <div className="flex flex-row gap-4">
-          <Button type="submit">{isNew ? "Create Course" : "Save Changes"}</Button>
+          <Button type="submit">
+            {isNew ? "Create Course" : "Save Changes"}
+          </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => {
-              skipBlocker.current = true;
               if (isNew) {
                 navigate({
                   to: "/courses",
@@ -387,7 +395,9 @@ function SingleCourseEdit() {
           </Button>
         </div>
       </form>
-      <UnsavedChangesDialog shouldBlockFn={() => hasChanges && !skipBlocker.current} />
+      <UnsavedChangesDialog
+        shouldBlockFn={() => hasChanges && !skipBlocker.current}
+      />
     </div>
   );
 }
