@@ -108,6 +108,40 @@ export async function upsertCourse(
   return await response.json();
 }
 
+export async function createTopic(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/topics", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create topic: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function upsertTopic(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<SuccessObj> {
+  const response = await fetch(`/api/topics/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update topic: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function postOnboardForm(
   formData: OnboardData,
 ): Promise<SuccessObj> {

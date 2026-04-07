@@ -80,16 +80,12 @@ function SingleTopic() {
       >
         <div className="flex flex-row gap-2">
           <Link
-            to="/courses/$id/edit"
+            to="/topics/$id/edit"
             params={{
               id: data?.id + "",
             }}
-            disabled={true}
           >
-            <Button
-              variant="secondary"
-              disabled={true}
-            >
+            <Button variant="secondary">
               Edit Topic
               {" "}
               <EditIcon />
