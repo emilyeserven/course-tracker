@@ -94,16 +94,12 @@ function SingleProviders() {
             </a>
           )}
           <Link
-            to="/courses/$id/edit"
+            to="/providers/$id/edit"
             params={{
               id: data?.id + "",
             }}
-            disabled={true}
           >
-            <Button
-              variant="secondary"
-              disabled={true}
-            >
+            <Button variant="secondary">
               Edit Provider
               {" "}
               <EditIcon />

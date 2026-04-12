@@ -142,6 +142,40 @@ export async function upsertTopic(
   return await response.json();
 }
 
+export async function createProvider(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/providers", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create provider: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function upsertProvider(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<SuccessObj> {
+  const response = await fetch(`/api/providers/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update provider: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function postOnboardForm(
   formData: OnboardData,
 ): Promise<SuccessObj> {
