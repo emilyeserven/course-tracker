@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -7,7 +7,13 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
-import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  EraserIcon,
+  MoonIcon,
+  SproutIcon,
+  SunIcon,
+} from "lucide-react";
 
 import { Toaster } from "@/components/sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +35,59 @@ import {
   fetchSeed,
   fetchTopics,
 } from "@/utils";
+
+function CoursesNavItem() {
+  const [open, setOpen] = useState(false);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = useCallback(() => {
+    if (closeTimeout.current) {
+      clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+    setOpen(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    closeTimeout.current = setTimeout(() => setOpen(false), 150);
+  }, []);
+
+  return (
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <DropdownMenu
+        open={open}
+        onOpenChange={setOpen}
+      >
+        <DropdownMenuTrigger asChild>
+          <span className="inline-flex items-center gap-0.5">
+            <Link
+              to="/courses"
+              className={`
+                underline-offset-2
+                hover:underline
+                [&.active]:font-bold
+              `}
+            >
+              Courses
+            </Link>
+            <ChevronDownIcon className="size-3.5" />
+          </span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer"
+          >
+            <Link to="/providers">Providers</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
 
 const RootComponent: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -123,16 +182,7 @@ const RootComponent: React.FunctionComponent = () => {
             </Link>
           )}
 
-          <Link
-            to="/courses"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-          >
-            Courses
-          </Link>
+          <CoursesNavItem />
 
           <Link
             to="/topics"
@@ -143,17 +193,6 @@ const RootComponent: React.FunctionComponent = () => {
             `}
           >
             Topics
-          </Link>
-
-          <Link
-            to="/providers"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-          >
-            Providers
           </Link>
         </div>
         <div className="flex flex-row gap-2">

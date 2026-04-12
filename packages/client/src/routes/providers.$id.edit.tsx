@@ -29,7 +29,7 @@ const formSchema = z.object({
   cost: z.number().min(0).nullable(),
   isRecurring: z.string(),
   recurDate: z.date().nullable(),
-  recurPeriodUnit: z.string(),
+  recurPeriodUnit: z.enum(["days", "months", "years"]),
   recurPeriod: z.number().int().min(1).nullable(),
   isCourseFeesShared: z.string(),
 });
