@@ -110,12 +110,12 @@ function SingleCourseEdit() {
         status: value.status,
         progressCurrent: value.progressCurrent ?? 0,
         progressTotal: value.progressTotal ?? 0,
-        cost: data?.cost?.isCostFromPlatform
+        cost: isCostFromPlatform
           ? null
           : value.cost != null
             ? String(value.cost)
             : null,
-        isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
+        isCostFromPlatform,
         dateExpires: value.dateExpires
           ? value.dateExpires.toISOString().split("T")[0]
           : null,
@@ -162,6 +162,17 @@ function SingleCourseEdit() {
   }));
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
+  const selectedProvider = (providers ?? []).find(
+    p => p.id === currentValues.courseProviderId,
+  );
+  const isCostFromPlatform = !!selectedProvider?.isCourseFeesShared;
+
+  if (isCostFromPlatform && selectedProvider?.cost != null) {
+    const providerCost = Number(selectedProvider.cost);
+    if (currentValues.cost !== providerCost) {
+      form.setFieldValue("cost", providerCost);
+    }
+  }
 
   return (
     <div className="container flex-col">
@@ -277,7 +288,7 @@ function SingleCourseEdit() {
               label="Cost ($)"
               min={0}
               step="0.01"
-              disabled={data?.cost?.isCostFromPlatform ?? false}
+              disabled={isCostFromPlatform}
             />
           )}
         </form.AppField>
