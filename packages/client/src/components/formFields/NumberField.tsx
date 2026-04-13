@@ -7,6 +7,7 @@ interface NumberFieldProps {
   className?: string;
   min?: number;
   step?: string;
+  disabled?: boolean;
 }
 
 export function NumberField({
@@ -14,6 +15,7 @@ export function NumberField({
   className = "text-2xl",
   min,
   step,
+  disabled,
 }: NumberFieldProps) {
   const field = useFieldContext<number | null>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -32,6 +34,7 @@ export function NumberField({
         type="number"
         min={min}
         step={step}
+        disabled={disabled}
         value={field.state.value ?? ""}
         onBlur={field.handleBlur}
         onChange={e =>
