@@ -10,6 +10,7 @@ import apiFormSubmit from "./submitOnboardData";
 import courses from "./courses/routes";
 import topics from "./topics/routes";
 import providers from "./providers/routes";
+import domains from "./domains/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -28,5 +29,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(providers, {
     prefix: "/providers",
+  });
+  fastify.register(domains, {
+    prefix: "/domains",
   });
 }

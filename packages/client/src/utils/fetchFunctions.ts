@@ -5,6 +5,7 @@ import type {
   CourseInCourses,
   TopicForTopicsPage,
   CourseProvider,
+  Domain,
 } from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
 import type { Topic } from "@emstack/types/src/Topic";
@@ -169,4 +170,54 @@ export async function postOnboardForm(
     },
     body: JSON.stringify(formData),
   }).then(res => res.json());
+}
+
+export async function fetchDomains(): Promise<Domain[]> {
+  return await fetch("/api/domains").then(res => res.json());
+}
+
+export async function fetchSingleDomain(id: string): Promise<Domain> {
+  return await fetch(`/api/domains/${id}`).then(res => res.json());
+}
+
+export async function deleteSingleDomain(
+  id: string,
+): Promise<{ status: string }> {
+  return await fetch(`/api/domains/${id}`, {
+    method: "DELETE",
+  }).then(res => res.json());
+}
+
+export async function createDomain(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/domains", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create domain: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function upsertDomain(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<SuccessObj> {
+  const response = await fetch(`/api/domains/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update domain: ${response.statusText}`);
+  }
+  return await response.json();
 }

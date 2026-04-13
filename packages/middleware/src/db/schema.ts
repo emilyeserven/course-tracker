@@ -80,6 +80,52 @@ export const topicsRelations = relations(topics, ({
   many,
 }) => ({
   topicsToCourses: many(topicsToCourses),
+  topicsToDomains: many(topicsToDomains),
+}));
+
+export const domains = pgTable("domains", {
+  id: varchar().primaryKey(),
+  title: varchar({
+    length: 255,
+  }).notNull(),
+  description: varchar(),
+  hasRadar: boolean(),
+});
+
+export const domainsRelations = relations(domains, ({
+  many,
+}) => ({
+  topicsToDomains: many(topicsToDomains),
+}));
+
+export const topicsToDomains = pgTable(
+  "topics_to_domains",
+  {
+    topicId: varchar("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    domainId: varchar("domain_id")
+      .notNull()
+      .references(() => domains.id),
+  },
+  t => [
+    primaryKey({
+      columns: [t.topicId, t.domainId],
+    }),
+  ],
+);
+
+export const topicsToDomainsRelation = relations(topicsToDomains, ({
+  one,
+}) => ({
+  topic: one(topics, {
+    fields: [topicsToDomains.topicId],
+    references: [topics.id],
+  }),
+  domain: one(domains, {
+    fields: [topicsToDomains.domainId],
+    references: [domains.id],
+  }),
 }));
 
 export const topicsToCourses = pgTable(
