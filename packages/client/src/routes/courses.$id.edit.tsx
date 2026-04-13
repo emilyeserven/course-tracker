@@ -96,7 +96,11 @@ function SingleCourseEdit() {
         status: value.status,
         progressCurrent: value.progressCurrent ?? 0,
         progressTotal: value.progressTotal ?? 0,
-        cost: value.cost != null ? String(value.cost) : null,
+        cost: data?.cost?.isCostFromPlatform
+          ? null
+          : value.cost != null
+            ? String(value.cost)
+            : null,
         isCostFromPlatform: data?.cost?.isCostFromPlatform ?? false,
         dateExpires: value.dateExpires
           ? value.dateExpires.toISOString().split("T")[0]
@@ -253,6 +257,7 @@ function SingleCourseEdit() {
               label="Cost ($)"
               min={0}
               step="0.01"
+              disabled={data?.cost?.isCostFromPlatform ?? false}
             />
           )}
         </form.AppField>

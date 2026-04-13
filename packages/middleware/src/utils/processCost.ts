@@ -7,10 +7,10 @@ export function processCost(course: CourseFromServer): CostData {
     isCostFromPlatform: false,
   };
   if (course) {
-    if (course.isCostFromPlatform === true && course.courseProvider) {
+    if (course.courseProvider?.isCourseFeesShared === true) {
       costData = {
         cost: course.courseProvider.cost ?? null,
-        isCostFromPlatform: course.isCostFromPlatform,
+        isCostFromPlatform: true,
         splitBy: course.courseProvider.courses
           ? course.courseProvider.courses.length
           : 1,
@@ -19,7 +19,7 @@ export function processCost(course: CourseFromServer): CostData {
     else {
       costData = {
         cost: course.cost ?? null,
-        isCostFromPlatform: course.isCostFromPlatform,
+        isCostFromPlatform: false,
       };
     }
   }
