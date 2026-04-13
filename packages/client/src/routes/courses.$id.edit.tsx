@@ -15,6 +15,7 @@ import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createCourse,
   fetchSingleCourse,
+  fetchTopics,
   formHasChanges,
   upsertCourse,
 } from "@/utils";
@@ -32,6 +33,7 @@ const formSchema = z.object({
   progressTotal: z.number().int().min(0).nullable(),
   cost: z.number().min(0).nullable(),
   dateExpires: z.date().nullable(),
+  topicId: z.string(),
 });
 
 function SingleCourseEdit() {
@@ -52,6 +54,18 @@ function SingleCourseEdit() {
     enabled: !isNew,
   });
 
+  const {
+    data: topics,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+  });
+
+  const topicOptions = (topics ?? []).map(t => ({
+    value: t.id,
+    label: t.name,
+  }));
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
@@ -62,6 +76,7 @@ function SingleCourseEdit() {
       progressTotal: data?.progressTotal ?? null,
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
+      topicId: (Array.isArray(data?.topics) && data.topics[0]?.id) || "",
     }),
     [data],
   );
@@ -87,6 +102,7 @@ function SingleCourseEdit() {
           ? value.dateExpires.toISOString().split("T")[0]
           : null,
         isExpires: !!value.dateExpires,
+        topicId: value.topicId || null,
       };
 
       try {
@@ -105,6 +121,9 @@ function SingleCourseEdit() {
 
         await queryClient.invalidateQueries({
           queryKey: ["courses"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["topics"],
         });
         skipBlocker.current = true;
         await navigate({
@@ -155,6 +174,16 @@ function SingleCourseEdit() {
 
         <form.AppField name="url">
           {field => <field.InputField label="Course URL" />}
+        </form.AppField>
+
+        <form.AppField name="topicId">
+          {field => (
+            <field.ComboboxField
+              label="Topic"
+              options={topicOptions}
+              placeholder="Search topics..."
+            />
+          )}
         </form.AppField>
 
         <form.AppField name="status">

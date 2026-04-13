@@ -1,5 +1,6 @@
 import { createFormHook } from "@tanstack/react-form";
 
+import { ComboboxField } from "@/components/formFields/ComboboxField";
 import { DatePickerField } from "@/components/formFields/DatePickerField";
 import { InputField } from "@/components/formFields/InputField";
 import { NumberField } from "@/components/formFields/NumberField";
@@ -16,6 +17,7 @@ export const {
     NumberField,
     RadioGroupField,
     DatePickerField,
+    ComboboxField,
   },
   formComponents: {},
   fieldContext,
