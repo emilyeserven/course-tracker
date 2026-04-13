@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { courses } from "@/db/schema";
+import { courses, topicsToCourses } from "@/db/schema";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -42,6 +42,9 @@ const createSchema = {
         isExpires: {
           type: ["boolean", "null"],
         },
+        topicId: {
+          type: ["string", "null"],
+        },
       },
     },
   },
@@ -70,6 +73,13 @@ export default async function (server: FastifyInstance) {
         dateExpires: body.dateExpires ?? null,
         isExpires: body.isExpires ?? null,
       });
+
+      if (body.topicId) {
+        await db.insert(topicsToCourses).values({
+          topicId: body.topicId,
+          courseId: id,
+        });
+      }
 
       return {
         status: "ok",

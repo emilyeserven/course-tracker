@@ -1,7 +1,8 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { courses } from "@/db/schema";
+import { courses, topicsToCourses } from "@/db/schema";
 import { v4 as uuidv4 } from "uuid";
 
 const upsertSchema = {
@@ -50,6 +51,9 @@ const upsertSchema = {
         },
         isExpires: {
           type: ["boolean", "null"],
+        },
+        topicId: {
+          type: ["string", "null"],
         },
       },
     },
@@ -100,6 +104,14 @@ export default async function (server: FastifyInstance) {
             isExpires: courseData.isExpires,
           },
         });
+
+      await db.delete(topicsToCourses).where(eq(topicsToCourses.courseId, courseData.id));
+      if (body.topicId) {
+        await db.insert(topicsToCourses).values({
+          topicId: body.topicId,
+          courseId: courseData.id,
+        });
+      }
 
       return {
         status: "ok",

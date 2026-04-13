@@ -1,3 +1,4 @@
+export { ComboboxField } from "./ComboboxField";
 export { DatePickerField } from "./DatePickerField";
 export { InputField } from "./InputField";
 export { NumberField } from "./NumberField";
