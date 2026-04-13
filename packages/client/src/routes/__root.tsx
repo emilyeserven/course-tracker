@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
+import { NavDropdown } from "@/components/layout/NavDropdown";
 import { Toaster } from "@/components/sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -123,16 +124,17 @@ const RootComponent: React.FunctionComponent = () => {
             </Link>
           )}
 
-          <Link
+          <NavDropdown
+            label="Courses"
             to="/courses"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
           >
-            Courses
-          </Link>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer"
+            >
+              <Link to="/providers">Providers</Link>
+            </DropdownMenuItem>
+          </NavDropdown>
 
           <Link
             to="/topics"
@@ -143,17 +145,6 @@ const RootComponent: React.FunctionComponent = () => {
             `}
           >
             Topics
-          </Link>
-
-          <Link
-            to="/providers"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-          >
-            Providers
           </Link>
         </div>
         <div className="flex flex-row gap-2">
