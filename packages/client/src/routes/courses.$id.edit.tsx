@@ -13,7 +13,7 @@ import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
-  createCourse,
+  fetchProviders,
   fetchSingleCourse,
   fetchTopics,
   formHasChanges,
@@ -34,6 +34,7 @@ const formSchema = z.object({
   cost: z.number().min(0).nullable(),
   dateExpires: z.date().nullable(),
   topicId: z.string(),
+  courseProviderId: z.string(),
 });
 
 function SingleCourseEdit() {
@@ -61,9 +62,21 @@ function SingleCourseEdit() {
     queryFn: () => fetchTopics(),
   });
 
+  const {
+    data: providers,
+  } = useQuery({
+    queryKey: ["providers"],
+    queryFn: () => fetchProviders(),
+  });
+
   const topicOptions = (topics ?? []).map(t => ({
     value: t.id,
     label: t.name,
+  }));
+
+  const providerOptions = (providers ?? []).map(p => ({
+    value: p.id,
+    label: p.name,
   }));
 
   const startingValues = useMemo(
@@ -77,6 +90,7 @@ function SingleCourseEdit() {
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
       topicId: (Array.isArray(data?.topics) && data.topics[0]?.id) || "",
+      courseProviderId: data?.provider?.id ?? "",
     }),
     [data],
   );
@@ -107,17 +121,13 @@ function SingleCourseEdit() {
           : null,
         isExpires: !!value.dateExpires,
         topicId: value.topicId || null,
+        courseProviderId: value.courseProviderId || null,
       };
 
       try {
-        let courseId: string;
-        if (isNew) {
-          const result = await createCourse(courseData);
-          courseId = result.id;
-        }
-        else {
-          await upsertCourse(id, courseData);
-          courseId = id;
+        const courseId = isNew ? crypto.randomUUID() : id;
+        await upsertCourse(courseId, courseData);
+        if (!isNew) {
           await queryClient.invalidateQueries({
             queryKey: ["course", id],
           });
@@ -186,6 +196,16 @@ function SingleCourseEdit() {
               label="Topic"
               options={topicOptions}
               placeholder="Search topics..."
+            />
+          )}
+        </form.AppField>
+
+        <form.AppField name="courseProviderId">
+          {field => (
+            <field.ComboboxField
+              label="Provider"
+              options={providerOptions}
+              placeholder="Search providers..."
             />
           )}
         </form.AppField>

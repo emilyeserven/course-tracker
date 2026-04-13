@@ -55,6 +55,9 @@ const upsertSchema = {
         topicId: {
           type: ["string", "null"],
         },
+        courseProviderId: {
+          type: ["string", "null"],
+        },
       },
     },
   },
@@ -84,6 +87,7 @@ export default async function (server: FastifyInstance) {
         isCostFromPlatform: body.isCostFromPlatform ?? false,
         dateExpires: body.dateExpires ?? null,
         isExpires: body.isExpires ?? null,
+        courseProviderId: body.courseProviderId ?? null,
       };
 
       await db
@@ -102,6 +106,7 @@ export default async function (server: FastifyInstance) {
             isCostFromPlatform: courseData.isCostFromPlatform,
             dateExpires: courseData.dateExpires,
             isExpires: courseData.isExpires,
+            courseProviderId: courseData.courseProviderId,
           },
         });
 
@@ -115,6 +120,7 @@ export default async function (server: FastifyInstance) {
 
       return {
         status: "ok",
+        id: courseData.id,
       };
     },
   );
