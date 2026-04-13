@@ -1,3 +1,4 @@
+/* eslint-disable import/max-dependencies */
 export * from "./CostData";
 export * from "./DynamicTest";
 export * from "./Test";
@@ -9,5 +10,6 @@ export * from "./CourseProvider";
 export * from "./Topic";
 export * from "./TopicsFromServer";
 export * from "./TopicForTopicsPage";
-// eslint-disable-next-line import/max-dependencies
 export * from "./TopicsToCourses";
+export * from "./Domain";
+export * from "./TopicsToDomains";

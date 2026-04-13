@@ -12,19 +12,24 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardRouteImport } from './routes/onboard'
+import { Route as DomainsRouteImport } from './routes/domains'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
+import { Route as DomainsIndexRouteImport } from './routes/domains.index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as TopicsIdRouteImport } from './routes/topics.$id'
 import { Route as ProvidersIdRouteImport } from './routes/providers.$id'
+import { Route as DomainsIdRouteImport } from './routes/domains.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 import { Route as TopicsIdIndexRouteImport } from './routes/topics.$id.index'
 import { Route as ProvidersIdIndexRouteImport } from './routes/providers.$id.index'
+import { Route as DomainsIdIndexRouteImport } from './routes/domains.$id.index'
 import { Route as CoursesIdIndexRouteImport } from './routes/courses.$id.index'
 import { Route as TopicsIdEditRouteImport } from './routes/topics.$id.edit'
 import { Route as ProvidersIdEditRouteImport } from './routes/providers.$id.edit'
+import { Route as DomainsIdEditRouteImport } from './routes/domains.$id.edit'
 import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
 
 const TopicsRoute = TopicsRouteImport.update({
@@ -40,6 +45,11 @@ const ProvidersRoute = ProvidersRouteImport.update({
 const OnboardRoute = OnboardRouteImport.update({
   id: '/onboard',
   path: '/onboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DomainsRoute = DomainsRouteImport.update({
+  id: '/domains',
+  path: '/domains',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -62,6 +72,11 @@ const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProvidersRoute,
 } as any)
+const DomainsIndexRoute = DomainsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DomainsRoute,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -76,6 +91,11 @@ const ProvidersIdRoute = ProvidersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ProvidersRoute,
+} as any)
+const DomainsIdRoute = DomainsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DomainsRoute,
 } as any)
 const CoursesIdRoute = CoursesIdRouteImport.update({
   id: '/$id',
@@ -92,6 +112,11 @@ const ProvidersIdIndexRoute = ProvidersIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProvidersIdRoute,
 } as any)
+const DomainsIdIndexRoute = DomainsIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DomainsIdRoute,
+} as any)
 const CoursesIdIndexRoute = CoursesIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -107,6 +132,11 @@ const ProvidersIdEditRoute = ProvidersIdEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => ProvidersIdRoute,
 } as any)
+const DomainsIdEditRoute = DomainsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => DomainsIdRoute,
+} as any)
 const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -116,19 +146,24 @@ const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
+  '/domains/$id': typeof DomainsIdRouteWithChildren
   '/providers/$id': typeof ProvidersIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/domains/$id/edit': typeof DomainsIdEditRoute
   '/providers/$id/edit': typeof ProvidersIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
+  '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
 }
@@ -136,12 +171,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboard': typeof OnboardRoute
   '/courses': typeof CoursesIndexRoute
+  '/domains': typeof DomainsIndexRoute
   '/providers': typeof ProvidersIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/domains/$id/edit': typeof DomainsIdEditRoute
   '/providers/$id/edit': typeof ProvidersIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
   '/courses/$id': typeof CoursesIdIndexRoute
+  '/domains/$id': typeof DomainsIdIndexRoute
   '/providers/$id': typeof ProvidersIdIndexRoute
   '/topics/$id': typeof TopicsIdIndexRoute
 }
@@ -149,19 +187,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
+  '/domains/$id': typeof DomainsIdRouteWithChildren
   '/providers/$id': typeof ProvidersIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/courses/': typeof CoursesIndexRoute
+  '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/courses/$id/edit': typeof CoursesIdEditRoute
+  '/domains/$id/edit': typeof DomainsIdEditRoute
   '/providers/$id/edit': typeof ProvidersIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
+  '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
 }
@@ -170,19 +213,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/courses'
+    | '/domains'
     | '/onboard'
     | '/providers'
     | '/topics'
     | '/courses/$id'
+    | '/domains/$id'
     | '/providers/$id'
     | '/topics/$id'
     | '/courses/'
+    | '/domains/'
     | '/providers/'
     | '/topics/'
     | '/courses/$id/edit'
+    | '/domains/$id/edit'
     | '/providers/$id/edit'
     | '/topics/$id/edit'
     | '/courses/$id/'
+    | '/domains/$id/'
     | '/providers/$id/'
     | '/topics/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -190,31 +238,39 @@ export interface FileRouteTypes {
     | '/'
     | '/onboard'
     | '/courses'
+    | '/domains'
     | '/providers'
     | '/topics'
     | '/courses/$id/edit'
+    | '/domains/$id/edit'
     | '/providers/$id/edit'
     | '/topics/$id/edit'
     | '/courses/$id'
+    | '/domains/$id'
     | '/providers/$id'
     | '/topics/$id'
   id:
     | '__root__'
     | '/'
     | '/courses'
+    | '/domains'
     | '/onboard'
     | '/providers'
     | '/topics'
     | '/courses/$id'
+    | '/domains/$id'
     | '/providers/$id'
     | '/topics/$id'
     | '/courses/'
+    | '/domains/'
     | '/providers/'
     | '/topics/'
     | '/courses/$id/edit'
+    | '/domains/$id/edit'
     | '/providers/$id/edit'
     | '/topics/$id/edit'
     | '/courses/$id/'
+    | '/domains/$id/'
     | '/providers/$id/'
     | '/topics/$id/'
   fileRoutesById: FileRoutesById
@@ -222,6 +278,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  DomainsRoute: typeof DomainsRouteWithChildren
   OnboardRoute: typeof OnboardRoute
   ProvidersRoute: typeof ProvidersRouteWithChildren
   TopicsRoute: typeof TopicsRouteWithChildren
@@ -248,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/onboard'
       fullPath: '/onboard'
       preLoaderRoute: typeof OnboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/domains': {
+      id: '/domains'
+      path: '/domains'
+      fullPath: '/domains'
+      preLoaderRoute: typeof DomainsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -278,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersIndexRouteImport
       parentRoute: typeof ProvidersRoute
     }
+    '/domains/': {
+      id: '/domains/'
+      path: '/'
+      fullPath: '/domains/'
+      preLoaderRoute: typeof DomainsIndexRouteImport
+      parentRoute: typeof DomainsRoute
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -298,6 +369,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/providers/$id'
       preLoaderRoute: typeof ProvidersIdRouteImport
       parentRoute: typeof ProvidersRoute
+    }
+    '/domains/$id': {
+      id: '/domains/$id'
+      path: '/$id'
+      fullPath: '/domains/$id'
+      preLoaderRoute: typeof DomainsIdRouteImport
+      parentRoute: typeof DomainsRoute
     }
     '/courses/$id': {
       id: '/courses/$id'
@@ -320,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersIdIndexRouteImport
       parentRoute: typeof ProvidersIdRoute
     }
+    '/domains/$id/': {
+      id: '/domains/$id/'
+      path: '/'
+      fullPath: '/domains/$id/'
+      preLoaderRoute: typeof DomainsIdIndexRouteImport
+      parentRoute: typeof DomainsIdRoute
+    }
     '/courses/$id/': {
       id: '/courses/$id/'
       path: '/'
@@ -340,6 +425,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/providers/$id/edit'
       preLoaderRoute: typeof ProvidersIdEditRouteImport
       parentRoute: typeof ProvidersIdRoute
+    }
+    '/domains/$id/edit': {
+      id: '/domains/$id/edit'
+      path: '/edit'
+      fullPath: '/domains/$id/edit'
+      preLoaderRoute: typeof DomainsIdEditRouteImport
+      parentRoute: typeof DomainsIdRoute
     }
     '/courses/$id/edit': {
       id: '/courses/$id/edit'
@@ -377,6 +469,33 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
+
+interface DomainsIdRouteChildren {
+  DomainsIdEditRoute: typeof DomainsIdEditRoute
+  DomainsIdIndexRoute: typeof DomainsIdIndexRoute
+}
+
+const DomainsIdRouteChildren: DomainsIdRouteChildren = {
+  DomainsIdEditRoute: DomainsIdEditRoute,
+  DomainsIdIndexRoute: DomainsIdIndexRoute,
+}
+
+const DomainsIdRouteWithChildren = DomainsIdRoute._addFileChildren(
+  DomainsIdRouteChildren,
+)
+
+interface DomainsRouteChildren {
+  DomainsIdRoute: typeof DomainsIdRouteWithChildren
+  DomainsIndexRoute: typeof DomainsIndexRoute
+}
+
+const DomainsRouteChildren: DomainsRouteChildren = {
+  DomainsIdRoute: DomainsIdRouteWithChildren,
+  DomainsIndexRoute: DomainsIndexRoute,
+}
+
+const DomainsRouteWithChildren =
+  DomainsRoute._addFileChildren(DomainsRouteChildren)
 
 interface ProvidersIdRouteChildren {
   ProvidersIdEditRoute: typeof ProvidersIdEditRoute
@@ -436,6 +555,7 @@ const TopicsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  DomainsRoute: DomainsRouteWithChildren,
   OnboardRoute: OnboardRoute,
   ProvidersRoute: ProvidersRouteWithChildren,
   TopicsRoute: TopicsRouteWithChildren,
