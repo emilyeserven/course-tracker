@@ -10,10 +10,10 @@
     "@neondatabase/serverless": "1.0.2",
     "dotenv": "17.2.3",
     "dotenv-cli": "11.0.0",
-    "drizzle-orm": "0.44.7",
-    "fastify": "5.8.3",
+    "drizzle-orm": "0.45.2",
+    "fastify": "5.8.5",
     "pg": "8.16.3",
-    "uuid": "13.0.0"
+    "uuid": "14.0.0"
   },
   "devDependencies": {
     "@emstack/types": "workspace:*",
