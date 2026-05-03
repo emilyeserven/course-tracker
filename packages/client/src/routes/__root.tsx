@@ -26,6 +26,7 @@ import { useTheme } from "@/hooks/useTheme.ts";
 import {
   fetchClear,
   fetchCourses,
+  fetchDomains,
   fetchProviders,
   fetchSeed,
   fetchTopics,
@@ -78,13 +79,24 @@ const RootComponent: React.FunctionComponent = () => {
     queryFn: () => fetchProviders(),
   });
 
+  const {
+    data: domainsData,
+  } = useQuery({
+    queryKey: ["domains"],
+    queryFn: () => fetchDomains(),
+  });
+
   const allLoaded
     = coursesData !== undefined
       && topicsData !== undefined
-      && providersData !== undefined;
+      && providersData !== undefined
+      && domainsData !== undefined;
   const showOnboard
     = !allLoaded
-      || (!coursesData?.length && !topicsData?.length && !providersData?.length);
+      || (!coursesData?.length
+        && !topicsData?.length
+        && !providersData?.length
+        && !domainsData?.length);
 
   async function handleClearLocal() {
     const clearRefetchResult = await clearRefetch();
@@ -136,16 +148,17 @@ const RootComponent: React.FunctionComponent = () => {
             </DropdownMenuItem>
           </NavDropdown>
 
-          <Link
+          <NavDropdown
+            label="Topics"
             to="/topics"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
           >
-            Topics
-          </Link>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer"
+            >
+              <Link to="/domains">Domains</Link>
+            </DropdownMenuItem>
+          </NavDropdown>
         </div>
         <div className="flex flex-row gap-2">
           <DropdownMenu>

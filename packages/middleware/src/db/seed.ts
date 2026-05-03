@@ -1,8 +1,10 @@
 import {
   courseProviders,
   courses,
+  domains,
   topics,
   topicsToCourses,
+  topicsToDomains,
   usersTable,
 } from "@/db/schema";
 import { db } from "@/db/index";
@@ -229,6 +231,59 @@ export async function seed() {
           topicId: topicJapanese[0].id,
         },
       ])
+      .onConflictDoNothing();
+  }
+
+  const domainWebDevData: typeof domains.$inferInsert = {
+    id: "c1a2b3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    title: "Web Development",
+    description: "Building applications for the web.",
+    hasRadar: true,
+  };
+  const domainLanguageLearningData: typeof domains.$inferInsert = {
+    id: "d2b3c4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+    title: "Language Learning",
+    description: "Studying foreign languages.",
+    hasRadar: false,
+  };
+
+  const domainWebDev = await db
+    .insert(domains)
+    .values([domainWebDevData])
+    .onConflictDoNothing()
+    .returning();
+
+  const domainLanguageLearning = await db
+    .insert(domains)
+    .values([domainLanguageLearningData])
+    .onConflictDoNothing()
+    .returning();
+
+  if (domainWebDev[0] && topicReact[0]) {
+    await db
+      .insert(topicsToDomains)
+      .values([{
+        domainId: domainWebDev[0].id,
+        topicId: topicReact[0].id,
+      }])
+      .onConflictDoNothing();
+  }
+  if (domainWebDev[0] && topicTypescript[0]) {
+    await db
+      .insert(topicsToDomains)
+      .values([{
+        domainId: domainWebDev[0].id,
+        topicId: topicTypescript[0].id,
+      }])
+      .onConflictDoNothing();
+  }
+  if (domainLanguageLearning[0] && topicJapanese[0]) {
+    await db
+      .insert(topicsToDomains)
+      .values([{
+        domainId: domainLanguageLearning[0].id,
+        topicId: topicJapanese[0].id,
+      }])
       .onConflictDoNothing();
   }
 
