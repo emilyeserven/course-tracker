@@ -1,85 +1,23 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  CheckIcon,
-  CircleDashedIcon,
-  CircleIcon,
-  FlameIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { FlameIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
-import { Button } from "@/components/ui/button";
+import {
+  DailyRecentDaysStrip,
+  DailyStatusButtons,
+} from "@/components/dailies";
 import { cn } from "@/lib/utils";
-import { fetchDailies, upsertDaily } from "@/utils";
-
-const STATUS_OPTIONS: {
-  value: DailyCompletionStatus;
-  label: string;
-  icon: React.ReactNode;
-}[] = [
-  {
-    value: "incomplete",
-    label: "Incomplete",
-    icon: <CircleIcon className="size-4" />,
-  },
-  {
-    value: "touched",
-    label: "Touched",
-    icon: <CircleDashedIcon className="size-4" />,
-  },
-  {
-    value: "goal",
-    label: "Goal",
-    icon: <CheckIcon className="size-4" />,
-  },
-  {
-    value: "exceeded",
-    label: "Exceeded",
-    icon: <SparklesIcon className="size-4" />,
-  },
-];
-
-function getTodayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function findTodayStatus(daily: Daily, todayKey: string): DailyCompletionStatus {
-  return (
-    daily.completions.find(c => c.date === todayKey)?.status ?? "incomplete"
-  );
-}
-
-function shiftDateKey(key: string, deltaDays: number): string {
-  const d = new Date(`${key}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + deltaDays);
-  return d.toISOString().slice(0, 10);
-}
-
-function getCurrentChain(daily: Daily, todayKey: string): number {
-  const completedDates = new Set(
-    daily.completions
-      .filter(c => c.status !== "incomplete")
-      .map(c => c.date),
-  );
-
-  let cursor = todayKey;
-  if (!completedDates.has(cursor)) {
-    cursor = shiftDateKey(cursor, -1);
-    if (!completedDates.has(cursor)) {
-      return 0;
-    }
-  }
-
-  let count = 0;
-  while (completedDates.has(cursor)) {
-    count++;
-    cursor = shiftDateKey(cursor, -1);
-  }
-  return count;
-}
+import {
+  fetchDailies,
+  findStatusForDate,
+  getCurrentChain,
+  getTodayKey,
+  upsertDaily,
+  withCompletion,
+} from "@/utils";
 
 export function DashboardDailies() {
   const queryClient = useQueryClient();
@@ -97,14 +35,7 @@ export function DashboardDailies() {
       daily, status,
     }: { daily: Daily;
       status: DailyCompletionStatus; }) => {
-      const others = daily.completions.filter(c => c.date !== todayKey);
-      const completions = [
-        ...others,
-        {
-          date: todayKey,
-          status,
-        },
-      ];
+      const completions = withCompletion(daily, todayKey, status);
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -139,12 +70,12 @@ export function DashboardDailies() {
       {dailies && dailies.length > 0 && (
         <ul className="flex flex-col divide-y">
           {dailies.map((daily) => {
-            const currentStatus = findTodayStatus(daily, todayKey);
+            const currentStatus = findStatusForDate(daily, todayKey);
             const chain = getCurrentChain(daily, todayKey);
             return (
               <li
                 key={daily.id}
-                className="flex flex-col gap-2 py-2"
+                className="flex flex-col gap-3 py-3"
               >
                 <div
                   className="flex flex-row items-center justify-between gap-2"
@@ -171,27 +102,15 @@ export function DashboardDailies() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-row flex-wrap gap-1">
-                  {STATUS_OPTIONS.map(opt => (
-                    <Button
-                      key={opt.value}
-                      type="button"
-                      size="sm"
-                      variant={currentStatus === opt.value ? "default" : "outline"}
-                      disabled={mutation.isPending}
-                      onClick={() => mutation.mutate({
-                        daily,
-                        status: opt.value,
-                      })}
-                      className={cn({
-                        "ring-2 ring-ring": currentStatus === opt.value,
-                      })}
-                    >
-                      {opt.icon}
-                      {opt.label}
-                    </Button>
-                  ))}
-                </div>
+                <DailyRecentDaysStrip daily={daily} />
+                <DailyStatusButtons
+                  currentStatus={currentStatus}
+                  disabled={mutation.isPending}
+                  onChange={status => mutation.mutate({
+                    daily,
+                    status,
+                  })}
+                />
               </li>
             );
           })}

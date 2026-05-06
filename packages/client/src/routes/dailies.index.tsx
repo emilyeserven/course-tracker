@@ -1,12 +1,21 @@
-import type { Daily } from "@emstack/types/src";
+import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FlameIcon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { ContentBox, ContentBoxBody, ContentBoxFooter, ContentBoxHeader, ContentBoxHeaderBar, ContentBoxTitle } from "@/components/boxes/ContentBox";
+import { DailyRecentDaysStrip, DailyStatusButtons } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { fetchDailies } from "@/utils";
+import {
+  fetchDailies,
+  findStatusForDate,
+  getCurrentChain,
+  getTodayKey,
+  upsertDaily,
+  withCompletion,
+} from "@/utils";
 
 export const Route = createFileRoute("/dailies/")({
   component: Dailies,
@@ -28,36 +37,6 @@ function DailiesError() {
       <h1 className="mb-4 text-3xl">There was an error loading your dailies.</h1>
     </div>
   );
-}
-
-function shiftDateKey(key: string, deltaDays: number): string {
-  const d = new Date(`${key}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + deltaDays);
-  return d.toISOString().slice(0, 10);
-}
-
-function getCurrentChain(daily: Daily): number {
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const completedDates = new Set(
-    daily.completions
-      .filter(c => c.status !== "incomplete")
-      .map(c => c.date),
-  );
-
-  let cursor = todayKey;
-  if (!completedDates.has(cursor)) {
-    cursor = shiftDateKey(cursor, -1);
-    if (!completedDates.has(cursor)) {
-      return 0;
-    }
-  }
-
-  let count = 0;
-  while (completedDates.has(cursor)) {
-    count++;
-    cursor = shiftDateKey(cursor, -1);
-  }
-  return count;
 }
 
 function Dailies() {
@@ -117,7 +96,32 @@ function Dailies() {
 function DailyBox({
   daily,
 }: { daily: Daily }) {
-  const chain = getCurrentChain(daily);
+  const queryClient = useQueryClient();
+  const todayKey = getTodayKey();
+  const chain = getCurrentChain(daily, todayKey);
+  const currentStatus = findStatusForDate(daily, todayKey);
+
+  const mutation = useMutation({
+    mutationFn: (status: DailyCompletionStatus) => {
+      const completions = withCompletion(daily, todayKey, status);
+      return upsertDaily(daily.id, {
+        name: daily.name,
+        location: daily.location ?? null,
+        description: daily.description ?? null,
+        completions,
+        courseProviderId: daily.provider?.id ?? null,
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["dailies"],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to update daily.");
+    },
+  });
+
   return (
     <ContentBox>
       <ContentBoxHeader>
@@ -141,6 +145,17 @@ function DailyBox({
         <p>
           {daily.description ? daily.description : <i>No description provided.</i>}
         </p>
+        <DailyRecentDaysStrip daily={daily} />
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground uppercase">
+            Today&apos;s status
+          </span>
+          <DailyStatusButtons
+            currentStatus={currentStatus}
+            disabled={mutation.isPending}
+            onChange={status => mutation.mutate(status)}
+          />
+        </div>
       </ContentBoxBody>
       <ContentBoxFooter>
         <span

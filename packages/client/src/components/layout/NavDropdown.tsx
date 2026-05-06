@@ -37,25 +37,36 @@ export function NavDropdown({
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      className="inline-flex items-center gap-0.5"
     >
+      <Link
+        to={to}
+        className={`
+          underline-offset-2
+          hover:underline
+          [&.active]:font-bold
+        `}
+        onClick={() => setOpen(false)}
+      >
+        {label}
+      </Link>
       <DropdownMenu
         open={open}
         onOpenChange={setOpen}
       >
         <DropdownMenuTrigger asChild>
-          <span className="inline-flex items-center gap-0.5">
-            <Link
-              to={to}
-              className={`
-                underline-offset-2
-                hover:underline
-                [&.active]:font-bold
-              `}
-            >
-              {label}
-            </Link>
+          <button
+            type="button"
+            aria-label={`Open ${label} menu`}
+            className="
+              inline-flex size-5 items-center justify-center rounded-sm
+              text-muted-foreground
+              hover:bg-accent hover:text-accent-foreground
+              focus:outline-none
+            "
+          >
             <ChevronDownIcon className="size-3.5" />
-          </span>
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">{children}</DropdownMenuContent>
       </DropdownMenu>

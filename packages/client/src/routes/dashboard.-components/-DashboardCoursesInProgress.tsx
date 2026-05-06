@@ -1,18 +1,9 @@
-import type { CourseInCourses } from "@emstack/types/src";
-
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { fetchCourses } from "@/utils";
-
-function isInProgress(course: CourseInCourses): boolean {
-  if (course.status !== "active") return false;
-  if (!course.progressTotal || course.progressTotal === 0) return false;
-  return course.progressCurrent > 0
-    && course.progressCurrent < course.progressTotal;
-}
 
 export function DashboardCoursesInProgress() {
   const {
@@ -22,7 +13,7 @@ export function DashboardCoursesInProgress() {
     queryFn: () => fetchCourses(),
   });
 
-  const inProgress = (courses ?? []).filter(isInProgress);
+  const inProgress = (courses ?? []).filter(c => c.status === "active");
 
   return (
     <DashboardCard
@@ -70,11 +61,13 @@ export function DashboardCoursesInProgress() {
                 >
                   {course.name}
                 </Link>
-                <span className="text-xs text-muted-foreground">
-                  {course.progressCurrent}
-                  {" / "}
-                  {course.progressTotal}
-                </span>
+                {course.progressTotal > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {course.progressCurrent}
+                    {" / "}
+                    {course.progressTotal}
+                  </span>
+                )}
               </div>
               <ProgressBar
                 progressCurrent={course.progressCurrent}
