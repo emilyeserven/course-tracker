@@ -1,5 +1,12 @@
-import { boolean, date, integer, numeric, pgEnum, pgTable, primaryKey, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, jsonb, numeric, pgEnum, pgTable, primaryKey, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded";
+
+export interface DailyCompletion {
+  date: string;
+  status: DailyCompletionStatus;
+}
 
 export const usersTable = pgTable("users", {
   id: varchar().primaryKey(),
@@ -15,6 +22,7 @@ export const usersTable = pgTable("users", {
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
+export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded"]);
 
 export const topics = pgTable("topics", {
   id: varchar().primaryKey(),
@@ -60,10 +68,33 @@ export const courses = pgTable("courses", {
   courseProviderId: varchar("course_provider_id"),
 });
 
+export const dailies = pgTable("dailies", {
+  id: varchar().primaryKey(),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  location: varchar({
+    length: 255,
+  }),
+  description: varchar(),
+  completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
+  courseProviderId: varchar("course_provider_id"),
+});
+
 export const courseProviderRelations = relations(courseProviders, ({
   many,
 }) => ({
   courses: many(courses),
+  dailies: many(dailies),
+}));
+
+export const dailiesRelations = relations(dailies, ({
+  one,
+}) => ({
+  courseProvider: one(courseProviders, {
+    fields: [dailies.courseProviderId],
+    references: [courseProviders.id],
+  }),
 }));
 
 export const coursesRelations = relations(courses, ({

@@ -13,3 +13,4 @@ export * from "./TopicForTopicsPage";
 export * from "./TopicsToCourses";
 export * from "./Domain";
 export * from "./TopicsToDomains";
+export * from "./Daily";
