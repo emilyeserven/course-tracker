@@ -5,6 +5,7 @@ import {
   CheckIcon,
   CircleDashedIcon,
   CircleIcon,
+  FlameIcon,
   SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -49,6 +50,35 @@ function findTodayStatus(daily: Daily, todayKey: string): DailyCompletionStatus 
   return (
     daily.completions.find(c => c.date === todayKey)?.status ?? "incomplete"
   );
+}
+
+function shiftDateKey(key: string, deltaDays: number): string {
+  const d = new Date(`${key}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + deltaDays);
+  return d.toISOString().slice(0, 10);
+}
+
+function getCurrentChain(daily: Daily, todayKey: string): number {
+  const completedDates = new Set(
+    daily.completions
+      .filter(c => c.status !== "incomplete")
+      .map(c => c.date),
+  );
+
+  let cursor = todayKey;
+  if (!completedDates.has(cursor)) {
+    cursor = shiftDateKey(cursor, -1);
+    if (!completedDates.has(cursor)) {
+      return 0;
+    }
+  }
+
+  let count = 0;
+  while (completedDates.has(cursor)) {
+    count++;
+    cursor = shiftDateKey(cursor, -1);
+  }
+  return count;
 }
 
 export function DashboardDailies() {
@@ -110,6 +140,7 @@ export function DashboardDailies() {
         <ul className="flex flex-col divide-y">
           {dailies.map((daily) => {
             const currentStatus = findTodayStatus(daily, todayKey);
+            const chain = getCurrentChain(daily, todayKey);
             return (
               <li
                 key={daily.id}
@@ -119,11 +150,26 @@ export function DashboardDailies() {
                   className="flex flex-row items-center justify-between gap-2"
                 >
                   <span className="font-medium">{daily.name}</span>
-                  {daily.provider && (
-                    <span className="text-xs text-muted-foreground">
-                      {daily.provider.name}
+                  <div className="flex flex-row items-center gap-2">
+                    <span
+                      className={cn("inline-flex items-center gap-1 text-xs", chain > 0
+                        ? "text-orange-600"
+                        : "text-muted-foreground")}
+                      title={
+                        chain > 0
+                          ? `${chain}-day chain`
+                          : "No active chain"
+                      }
+                    >
+                      <FlameIcon className="size-3.5" />
+                      {chain}
                     </span>
-                  )}
+                    {daily.provider && (
+                      <span className="text-xs text-muted-foreground">
+                        {daily.provider.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-row flex-wrap gap-1">
                   {STATUS_OPTIONS.map(opt => (
