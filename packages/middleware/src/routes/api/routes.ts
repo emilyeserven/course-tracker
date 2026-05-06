@@ -11,6 +11,7 @@ import courses from "./courses/routes";
 import topics from "./topics/routes";
 import providers from "./providers/routes";
 import domains from "./domains/routes";
+import dailies from "./dailies/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -32,5 +33,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(domains, {
     prefix: "/domains",
+  });
+  fastify.register(dailies, {
+    prefix: "/dailies",
   });
 }
