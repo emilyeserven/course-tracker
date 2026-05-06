@@ -123,6 +123,17 @@ const RootComponent: React.FunctionComponent = () => {
     <>
       <div className="container items-center justify-between gap-2 py-2">
         <div className="flex gap-4">
+          <Link
+            to="/dashboard"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
+          >
+            Dashboard
+          </Link>
+
           {showOnboard && (
             <Link
               to="/onboard"

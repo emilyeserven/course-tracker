@@ -13,6 +13,7 @@ import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as DomainsRouteImport } from './routes/domains'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
@@ -50,6 +51,11 @@ const OnboardRoute = OnboardRouteImport.update({
 const DomainsRoute = DomainsRouteImport.update({
   id: '/domains',
   path: '/domains',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -146,6 +152,7 @@ const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
@@ -169,6 +176,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/onboard': typeof OnboardRoute
   '/courses': typeof CoursesIndexRoute
   '/domains': typeof DomainsIndexRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/courses'
+    | '/dashboard'
     | '/domains'
     | '/onboard'
     | '/providers'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/onboard'
     | '/courses'
     | '/domains'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/courses'
+    | '/dashboard'
     | '/domains'
     | '/onboard'
     | '/providers'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
   DomainsRoute: typeof DomainsRouteWithChildren
   OnboardRoute: typeof OnboardRoute
   ProvidersRoute: typeof ProvidersRouteWithChildren
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       path: '/domains'
       fullPath: '/domains'
       preLoaderRoute: typeof DomainsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -555,6 +575,7 @@ const TopicsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  DashboardRoute: DashboardRoute,
   DomainsRoute: DomainsRouteWithChildren,
   OnboardRoute: OnboardRoute,
   ProvidersRoute: ProvidersRouteWithChildren,
