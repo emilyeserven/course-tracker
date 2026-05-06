@@ -1,12 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
+import { EditIcon, FlameIcon } from "lucide-react";
 
+import {
+  DailyCompletionsManager,
+  DailyRecentDaysStrip,
+} from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleDaily, fetchSingleDaily } from "@/utils";
+import {
+  deleteSingleDaily,
+  fetchSingleDaily,
+  getCurrentChain,
+} from "@/utils";
 
 export const Route = createFileRoute("/dailies/$id/")({
   component: SingleDaily,
@@ -50,11 +58,11 @@ function SingleDaily() {
   });
 
   if (isPending) {
-    <DailyPending />;
+    return <DailyPending />;
   }
 
-  if (error) {
-    <DailyError />;
+  if (error || !data) {
+    return <DailyError />;
   }
 
   async function handleDelete() {
@@ -64,21 +72,22 @@ function SingleDaily() {
     });
   }
 
-  const completionsCount = data?.completions?.filter(
+  const completionsCount = data.completions?.filter(
     c => c.status !== "incomplete",
   ).length ?? 0;
+  const chain = getCurrentChain(data);
 
   return (
     <div>
       <PageHeader
-        pageTitle={data?.name}
+        pageTitle={data.name}
         pageSection="dailies"
       >
         <div className="flex flex-row gap-2">
           <Link
             to="/dailies/$id/edit"
             params={{
-              id: data?.id + "",
+              id: data.id + "",
             }}
           >
             <Button variant="secondary">
@@ -92,27 +101,58 @@ function SingleDaily() {
       <div className="container flex flex-col gap-12">
         <InfoArea
           header="Description"
-          condition={!!data?.description}
+          condition={!!data.description}
         >
-          <p>{data?.description}</p>
+          <p>{data.description}</p>
         </InfoArea>
         <InfoArea
           header="Location"
-          condition={!!data?.location}
+          condition={!!data.location}
         >
-          <p>{data?.location}</p>
+          <p>{data.location}</p>
         </InfoArea>
         <InfoArea
           header="Provider"
-          condition={!!data?.provider}
+          condition={!!data.provider}
         >
-          <p>{data?.provider?.name}</p>
+          <p>{data.provider?.name}</p>
         </InfoArea>
         <InfoArea
-          header="Completions logged"
-          condition={!!data}
+          header="Last 14 days"
+          condition={true}
         >
-          <p>{completionsCount}</p>
+          <DailyRecentDaysStrip
+            daily={data}
+            count={14}
+          />
+        </InfoArea>
+        <InfoArea
+          header="Stats"
+          condition={true}
+        >
+          <div className="flex flex-row flex-wrap gap-6 text-sm">
+            <span className="inline-flex items-center gap-1">
+              <FlameIcon
+                size={16}
+                className={chain > 0
+                  ? "text-orange-600"
+                  : "text-muted-foreground"}
+              />
+              <strong>{chain}</strong>
+              <span className="text-muted-foreground">day chain</span>
+            </span>
+            <span>
+              <strong>{completionsCount}</strong>
+              {" "}
+              <span className="text-muted-foreground">completions logged</span>
+            </span>
+          </div>
+        </InfoArea>
+        <InfoArea
+          header="Day entries"
+          condition={true}
+        >
+          <DailyCompletionsManager daily={data} />
         </InfoArea>
         <div>
           <DeleteButton onClick={handleDelete}>Delete Daily</DeleteButton>

@@ -7,6 +7,7 @@ import { EyeIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { DailyCompletionsManager } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -222,6 +223,15 @@ function SingleDailyEdit() {
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}
         />
+        {!isNew && data && (
+          <div className="mt-12 flex max-w-2xl flex-col gap-4 border-t pt-8">
+            <h2 className="text-2xl">Completions</h2>
+            <p className="text-sm text-muted-foreground">
+              Pick a date below to retroactively set or change the status for that day.
+            </p>
+            <DailyCompletionsManager daily={data} />
+          </div>
+        )}
       </div>
     </div>
   );
