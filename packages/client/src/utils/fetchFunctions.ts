@@ -227,6 +227,27 @@ export async function fetchDailies(): Promise<Daily[]> {
   return await fetch("/api/dailies").then(res => res.json());
 }
 
+export async function fetchSingleDaily(id: string): Promise<Daily> {
+  return await fetch(`/api/dailies/${id}`).then(res => res.json());
+}
+
+export async function createDaily(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/dailies", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create daily: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function upsertDaily(
   id: string,
   data: Record<string, unknown>,
@@ -243,4 +264,12 @@ export async function upsertDaily(
     throw new Error(`Failed to update daily: ${response.statusText}`);
   }
   return await response.json();
+}
+
+export async function deleteSingleDaily(
+  id: string,
+): Promise<{ status: string }> {
+  return await fetch(`/api/dailies/${id}`, {
+    method: "DELETE",
+  }).then(res => res.json());
 }
