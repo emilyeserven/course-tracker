@@ -6,6 +6,7 @@ import type {
   TopicForTopicsPage,
   CourseProvider,
   Domain,
+  Daily,
 } from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
 import type { Topic } from "@emstack/types/src/Topic";
@@ -218,6 +219,28 @@ export async function upsertDomain(
   });
   if (!response.ok) {
     throw new Error(`Failed to update domain: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function fetchDailies(): Promise<Daily[]> {
+  return await fetch("/api/dailies").then(res => res.json());
+}
+
+export async function upsertDaily(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch(`/api/dailies/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update daily: ${response.statusText}`);
   }
   return await response.json();
 }
