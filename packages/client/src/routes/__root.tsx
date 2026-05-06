@@ -170,6 +170,17 @@ const RootComponent: React.FunctionComponent = () => {
               <Link to="/domains">Domains</Link>
             </DropdownMenuItem>
           </NavDropdown>
+
+          <Link
+            to="/dailies"
+            className={`
+              underline-offset-2
+              hover:underline
+              [&.active]:font-bold
+            `}
+          >
+            Dailies
+          </Link>
         </div>
         <div className="flex flex-row gap-2">
           <DropdownMenu>
