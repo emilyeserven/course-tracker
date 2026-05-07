@@ -13,6 +13,7 @@ export interface DailyStatusOption {
   icon: React.ReactNode;
   circleClass: string;
   pillClass: string;
+  borderColor: string;
 }
 
 export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
@@ -22,6 +23,7 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     icon: <CircleDashedIcon className="size-4" />,
     circleClass: "bg-muted text-muted-foreground border-muted-foreground/40",
     pillClass: "bg-muted text-muted-foreground border-muted-foreground/40",
+    borderColor: "rgb(115 115 115 / 0.4)",
   },
   {
     value: "touched",
@@ -29,6 +31,7 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     icon: <CircleSlashIcon className="size-4" />,
     circleClass: "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
     pillClass: "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
+    borderColor: "#fbbf24",
   },
   {
     value: "goal",
@@ -36,6 +39,7 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     icon: <CircleCheckIcon className="size-4" />,
     circleClass: "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
     pillClass: "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
+    borderColor: "#10b981",
   },
   {
     value: "exceeded",
@@ -43,6 +47,7 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     icon: <SparklesIcon className="size-4" />,
     circleClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
     pillClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
+    borderColor: "#8b5cf6",
   },
 ];
 

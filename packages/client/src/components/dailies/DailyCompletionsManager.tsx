@@ -1,3 +1,4 @@
+import type { ViewMonth } from "./MonthYearPicker";
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
@@ -13,24 +14,27 @@ import { toast } from "sonner";
 
 import { DailyStatusButtons } from "./DailyStatusButtons";
 import { DailyStatusCircle } from "./DailyStatusCircle";
+import { MonthYearPicker } from "./MonthYearPicker";
+import { NoteEditButton } from "./NoteEditButton";
 
-import { Calendar } from "@/components/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
-  getDateKey,
   getTodayKey,
   shiftDateKey,
   upsertDaily,
   withCompletion,
+  withCompletionNote,
 } from "@/utils";
 
 interface DailyCompletionsManagerProps {
   daily: Daily;
+  readOnly?: boolean;
 }
 
 const RECENT_DAYS_COUNT = 30;
+const EARLIEST_PICKER_YEAR = 2020;
 
 function formatDateLabel(dateKey: string): string {
   const d = new Date(`${dateKey}T00:00:00Z`);
@@ -61,11 +65,6 @@ function dateKeyFromYM(year: number, month: number, day: number): string {
 
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-}
-
-interface ViewMonth {
-  year: number;
-  month: number;
 }
 
 function getMonthFromKey(dateKey: string): ViewMonth {
@@ -114,25 +113,29 @@ function buildVisibleDateKeys(
 
 export function DailyCompletionsManager({
   daily,
+  readOnly = false,
 }: DailyCompletionsManagerProps) {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
   const currentMonth = getMonthFromKey(todayKey);
 
-  const [selectedDateKey, setSelectedDateKey] = useState<string>(todayKey);
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [viewMonth, setViewMonth] = useState<ViewMonth>(currentMonth);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
 
   const completionsByDate = useMemo(() => {
-    const map = new Map<string, DailyCompletionStatus>();
+    const map = new Map<
+      string,
+      { status: DailyCompletionStatus | null;
+        note: string | null; }
+    >();
     for (const c of daily.completions) {
-      map.set(c.date, c.status);
+      map.set(c.date, {
+        status: c.status ?? null,
+        note: c.note ?? null,
+      });
     }
     return map;
   }, [daily.completions]);
-
-  const selectedStatus = completionsByDate.get(selectedDateKey) ?? null;
 
   const visibleDateKeys = useMemo(
     () => buildVisibleDateKeys(viewMonth, currentMonth, todayKey),
@@ -140,11 +143,22 @@ export function DailyCompletionsManager({
   );
 
   const mutation = useMutation({
-    mutationFn: ({
-      dateKey, status,
-    }: { dateKey: string;
-      status: DailyCompletionStatus | null; }) => {
-      const completions = withCompletion(daily, dateKey, status);
+    mutationFn: (
+      args:
+        | {
+          kind: "status";
+          dateKey: string;
+          status: DailyCompletionStatus | null;
+        }
+        | {
+          kind: "note";
+          dateKey: string;
+          note: string | null;
+        },
+    ) => {
+      const completions = args.kind === "status"
+        ? withCompletion(daily, args.dateKey, args.status)
+        : withCompletionNote(daily, args.dateKey, args.note);
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -168,272 +182,180 @@ export function DailyCompletionsManager({
     },
   });
 
-  const selectedDate = new Date(`${selectedDateKey}T00:00:00Z`);
-  const viewMonthDate = new Date(Date.UTC(viewMonth.year, viewMonth.month, 1));
   const isCurrentMonth = isSameMonth(viewMonth, currentMonth);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <h3 className="text-lg font-semibold">Set status for a date</h3>
-        <div className="flex flex-row flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-3">
+      <div
+        className="flex flex-row flex-wrap items-center justify-between gap-2"
+      >
+        <h3 className="text-lg font-semibold">Logged entries</h3>
+        <div className="flex flex-row items-center gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setViewMonth(m => shiftMonth(m, -1))}
+            disabled={shiftMonth(viewMonth, -1).year < EARLIEST_PICKER_YEAR}
+            aria-label="Previous month"
+          >
+            <ChevronLeftIcon className="size-4" />
+          </Button>
           <Popover
-            open={calendarOpen}
-            onOpenChange={setCalendarOpen}
+            open={monthPickerOpen}
+            onOpenChange={setMonthPickerOpen}
           >
             <PopoverTrigger asChild>
               <Button
                 type="button"
                 variant="outline"
-                className="w-[260px] justify-start text-left font-normal"
+                size="sm"
+                className="min-w-40 justify-center font-normal"
               >
                 <CalendarIcon className="mr-2 size-4" />
-                {formatDateLabel(selectedDateKey)}
-                {selectedDateKey === todayKey && (
-                  <span
-                    className="
-                      ml-2 rounded-sm bg-muted px-1.5 py-0.5 text-xs
-                      text-muted-foreground uppercase
-                    "
-                  >
-                    today
-                  </span>
-                )}
+                {isCurrentMonth
+                  ? "Last 30 days"
+                  : formatMonthLabel(viewMonth.year, viewMonth.month)}
               </Button>
             </PopoverTrigger>
             <PopoverContent
               className="w-auto p-0"
-              align="start"
+              align="end"
             >
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  if (date) {
-                    setSelectedDateKey(getDateKey(date));
-                    setCalendarOpen(false);
-                  }
-                }}
-                disabled={{
-                  after: new Date(),
+              <MonthYearPicker
+                viewMonth={viewMonth}
+                currentMonth={currentMonth}
+                earliestYear={EARLIEST_PICKER_YEAR}
+                onChange={(m) => {
+                  setViewMonth(m);
+                  setMonthPickerOpen(false);
                 }}
               />
             </PopoverContent>
           </Popover>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => setSelectedDateKey(todayKey)}
-            disabled={selectedDateKey === todayKey}
+            onClick={() => setViewMonth(m => shiftMonth(m, 1))}
+            disabled={
+              isCurrentMonth
+              || isAfterMonth(shiftMonth(viewMonth, 1), currentMonth)
+            }
+            aria-label="Next month"
           >
-            Jump to today
+            <ChevronRightIcon className="size-4" />
           </Button>
         </div>
-        <div className="flex flex-row flex-wrap items-center gap-2">
-          <DailyStatusCircle
-            status={selectedStatus}
-            size="md"
-          />
-          <DailyStatusButtons
-            currentStatus={selectedStatus}
-            disabled={mutation.isPending}
-            onChange={status => mutation.mutate({
-              dateKey: selectedDateKey,
-              status,
-            })}
-          />
-          {selectedStatus !== null && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={mutation.isPending}
-              onClick={() => mutation.mutate({
-                dateKey: selectedDateKey,
-                status: null,
-              })}
-              className="text-destructive"
-            >
-              <Trash2Icon className="size-4" />
-              Clear entry
-            </Button>
-          )}
-        </div>
       </div>
-
-      <div className="flex flex-col gap-3">
-        <div
-          className="flex flex-row flex-wrap items-center justify-between gap-2"
-        >
-          <h3 className="text-lg font-semibold">Logged entries</h3>
-          <div className="flex flex-row items-center gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMonth(m => shiftMonth(m, -1))}
-              aria-label="Previous month"
-            >
-              <ChevronLeftIcon className="size-4" />
-            </Button>
-            <Popover
-              open={monthPickerOpen}
-              onOpenChange={setMonthPickerOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-w-40 justify-center font-normal"
-                >
-                  <CalendarIcon className="mr-2 size-4" />
-                  {isCurrentMonth
-                    ? "Last 30 days"
-                    : formatMonthLabel(viewMonth.year, viewMonth.month)}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto p-0"
-                align="end"
+      {visibleDateKeys.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          <i>No days to show.</i>
+        </p>
+      )}
+      {visibleDateKeys.length > 0 && (
+        <ul className="flex flex-col divide-y rounded-md border">
+          {visibleDateKeys.map((dateKey) => {
+            const entry = completionsByDate.get(dateKey);
+            const status = entry?.status ?? null;
+            const note = entry?.note ?? null;
+            const hasStatusEntry = status !== null;
+            const isFuture = dateKey > todayKey;
+            return (
+              <li
+                key={dateKey}
+                className={cn(
+                  `
+                    group flex flex-row flex-wrap items-center justify-between
+                    gap-2 p-2
+                  `,
+                  isFuture && "opacity-60",
+                )}
               >
-                <Calendar
-                  mode="single"
-                  month={viewMonthDate}
-                  onMonthChange={(date) => {
-                    setViewMonth({
-                      year: date.getFullYear(),
-                      month: date.getMonth(),
-                    });
-                  }}
-                  selected={viewMonthDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setViewMonth({
-                        year: date.getFullYear(),
-                        month: date.getMonth(),
-                      });
-                      setMonthPickerOpen(false);
-                    }
-                  }}
-                  disabled={{
-                    after: new Date(),
-                  }}
-                  captionLayout="dropdown"
-                />
-              </PopoverContent>
-            </Popover>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMonth(m => shiftMonth(m, 1))}
-              disabled={
-                isCurrentMonth
-                || isAfterMonth(shiftMonth(viewMonth, 1), currentMonth)
-              }
-              aria-label="Next month"
-            >
-              <ChevronRightIcon className="size-4" />
-            </Button>
-          </div>
-        </div>
-        {visibleDateKeys.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            <i>No days to show.</i>
-          </p>
-        )}
-        {visibleDateKeys.length > 0 && (
-          <ul className="flex flex-col divide-y rounded-md border">
-            {visibleDateKeys.map((dateKey) => {
-              const status = completionsByDate.get(dateKey) ?? null;
-              const hasEntry = status !== null;
-              const isFuture = dateKey > todayKey;
-              return (
-                <li
-                  key={dateKey}
-                  className={cn(
-                    `
-                      flex flex-row flex-wrap items-center justify-between gap-2
-                      p-2
-                    `,
-                    dateKey === selectedDateKey && "bg-muted/40",
-                    isFuture && "opacity-60",
-                  )}
-                >
-                  <button
-                    type="button"
-                    className="
-                      flex flex-row items-center gap-2 text-left
-                      hover:underline
-                    "
-                    onClick={() => setSelectedDateKey(dateKey)}
-                    disabled={isFuture}
-                  >
-                    <DailyStatusCircle
-                      status={status}
-                      size="sm"
-                    />
-                    <span className="text-sm font-medium">
-                      {formatDateLabel(dateKey)}
+                <div className="flex min-w-0 flex-row items-center gap-3">
+                  <DailyStatusCircle
+                    status={status}
+                    size="lg"
+                  />
+                  <span className="text-sm font-medium">
+                    {formatDateLabel(dateKey)}
+                  </span>
+                  {dateKey === todayKey && (
+                    <span
+                      className="
+                        rounded-sm bg-muted px-1.5 py-0.5 text-xs
+                        text-muted-foreground uppercase
+                      "
+                    >
+                      today
                     </span>
-                    {dateKey === todayKey && (
-                      <span
-                        className="
-                          rounded-sm bg-muted px-1.5 py-0.5 text-xs
-                          text-muted-foreground uppercase
-                        "
-                      >
-                        today
-                      </span>
-                    )}
-                    {!hasEntry && !isFuture && (
-                      <span
-                        className="
-                          rounded-sm border border-dashed
-                          border-muted-foreground/40 px-1.5 py-0.5 text-xs
-                          text-muted-foreground uppercase
-                        "
-                      >
-                        Incomplete
-                      </span>
-                    )}
-                  </button>
-                  {!isFuture && (
-                    <div className="flex flex-row items-center gap-1">
-                      <DailyStatusButtons
-                        currentStatus={status}
-                        disabled={mutation.isPending}
-                        onChange={newStatus => mutation.mutate({
-                          dateKey,
-                          status: newStatus,
-                        })}
-                      />
-                      {hasEntry && (
+                  )}
+                  {readOnly && note && (
+                    <span
+                      className="truncate text-sm text-muted-foreground"
+                      title={note}
+                    >
+                      {note}
+                    </span>
+                  )}
+                </div>
+                {!readOnly && !isFuture && (
+                  <div className="flex flex-row items-center gap-1">
+                    <DailyStatusButtons
+                      currentStatus={status}
+                      disabled={mutation.isPending}
+                      onChange={newStatus => mutation.mutate({
+                        kind: "status",
+                        dateKey,
+                        status: newStatus,
+                      })}
+                      iconOnly
+                    />
+                    <NoteEditButton
+                      initialNote={note}
+                      disabled={mutation.isPending}
+                      onSave={newNote => mutation.mutate({
+                        kind: "note",
+                        dateKey,
+                        note: newNote,
+                      })}
+                    />
+                    {hasStatusEntry
+                      ? (
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
+                          size="icon-sm"
                           disabled={mutation.isPending}
                           onClick={() => mutation.mutate({
+                            kind: "status",
                             dateKey,
                             status: null,
                           })}
-                          className="text-destructive"
+                          className="
+                            text-destructive opacity-0
+                            group-focus-within:opacity-100
+                            group-hover:opacity-100
+                          "
                           title="Delete entry"
+                          aria-label="Delete entry"
                         >
                           <Trash2Icon className="size-4" />
                         </Button>
+                      )
+                      : (
+                        <div
+                          aria-hidden
+                          className="size-8"
+                        />
                       )}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

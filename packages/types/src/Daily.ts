@@ -2,7 +2,8 @@ export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceede
 
 export interface DailyCompletion {
   date: string;
-  status: DailyCompletionStatus;
+  status?: DailyCompletionStatus;
+  note?: string;
 }
 
 export interface Daily {
