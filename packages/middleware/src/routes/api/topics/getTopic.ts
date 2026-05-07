@@ -3,19 +3,12 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
 import { processCourses } from "@/utils/processCourses";
+import { idParamSchema } from "@/utils/schemas";
 
 const testSchema = {
   schema: {
-    description: "It's like looking into a mirror...",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    description: "Get a single topic by ID",
+    params: idParamSchema,
   },
 } as const;
 

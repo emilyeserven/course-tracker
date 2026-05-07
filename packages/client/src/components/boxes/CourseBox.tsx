@@ -1,6 +1,5 @@
 import type { Course } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import {
   CheckCheckIcon,
   DollarSignIcon,
@@ -9,6 +8,8 @@ import {
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
+import { Description } from "@/components/boxElements/Description";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
 import { TopicList } from "@/components/boxElements/TopicList";
 import {
@@ -68,16 +69,11 @@ export function CourseBox({
         </ContentBoxHeaderBar>
         <ContentBoxTitle>
           <h3 className="text-xl">
-            <Link
-              to="/courses/$id"
-              from="/courses"
-              params={{
-                id: id + "",
-              }}
-              className="hover:text-blue-600"
-            >
-              {name}
-            </Link>
+            <EntityLink
+              entity="courses"
+              id={id}
+            >{name}
+            </EntityLink>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
@@ -86,22 +82,20 @@ export function CourseBox({
           <h4 className="text-xs font-semibold uppercase">
             From
             {" "}
-            <Link
-              to="/providers/$id"
+            <EntityLink
+              entity="providers"
+              id={provider.id}
               from="/courses/$id"
-              params={{
-                id: provider.id + "",
-              }}
               className={`
                 text-blue-800
                 hover:text-blue-600
               `}
             >
               {provider?.name}
-            </Link>
+            </EntityLink>
           </h4>
         )}
-        <p>{description ? description : <i>No description provided.</i>}</p>
+        <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem

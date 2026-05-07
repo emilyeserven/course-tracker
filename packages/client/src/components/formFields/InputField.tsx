@@ -1,6 +1,6 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
-import { useFieldContext } from "@/utils/fieldContext";
+import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface InputFieldProps {
   label: string;
@@ -15,8 +15,9 @@ export function InputField({
   placeholder,
   fieldClassName = "h-11 md:text-xl",
 }: InputFieldProps) {
-  const field = useFieldContext<string>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const {
+    field, isInvalid,
+  } = useIsFieldInvalid<string>();
 
   return (
     <Field data-invalid={isInvalid}>

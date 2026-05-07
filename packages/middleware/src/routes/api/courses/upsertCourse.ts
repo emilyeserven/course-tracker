@@ -1,22 +1,20 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { courses, topicsToCourses } from "@/db/schema";
+import {
+  idParamSchema,
+  nullableBoolean,
+  nullableInteger,
+  nullableString,
+} from "@/utils/schemas";
+import { syncJunctionTable } from "@/utils/syncJunctionTable";
 import { v4 as uuidv4 } from "uuid";
 
 const upsertSchema = {
   schema: {
     description: "Create or update a course",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
     body: {
       type: "object",
       required: ["name"],
@@ -24,40 +22,22 @@ const upsertSchema = {
         name: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
-        url: {
-          type: ["string", "null"],
-        },
+        description: nullableString,
+        url: nullableString,
         status: {
           type: "string",
           enum: ["active", "inactive", "complete"],
         },
-        progressCurrent: {
-          type: ["integer", "null"],
-        },
-        progressTotal: {
-          type: ["integer", "null"],
-        },
-        cost: {
-          type: ["string", "null"],
-        },
+        progressCurrent: nullableInteger,
+        progressTotal: nullableInteger,
+        cost: nullableString,
         isCostFromPlatform: {
           type: "boolean",
         },
-        dateExpires: {
-          type: ["string", "null"],
-        },
-        isExpires: {
-          type: ["boolean", "null"],
-        },
-        topicId: {
-          type: ["string", "null"],
-        },
-        courseProviderId: {
-          type: ["string", "null"],
-        },
+        dateExpires: nullableString,
+        isExpires: nullableBoolean,
+        topicId: nullableString,
+        courseProviderId: nullableString,
       },
     },
   },
@@ -110,13 +90,17 @@ export default async function (server: FastifyInstance) {
           },
         });
 
-      await db.delete(topicsToCourses).where(eq(topicsToCourses.courseId, courseData.id));
-      if (body.topicId) {
-        await db.insert(topicsToCourses).values({
-          topicId: body.topicId,
-          courseId: courseData.id,
-        });
-      }
+      await syncJunctionTable(
+        topicsToCourses,
+        topicsToCourses.courseId,
+        courseData.id,
+        body.topicId
+          ? [{
+            topicId: body.topicId,
+            courseId: courseData.id,
+          }]
+          : [],
+      );
 
       return {
         status: "ok",

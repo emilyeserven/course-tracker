@@ -2,6 +2,11 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { courseProviders } from "@/db/schema";
+import {
+  nullableBoolean,
+  nullableInteger,
+  nullableString,
+} from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -14,31 +19,19 @@ const createSchema = {
         name: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
+        description: nullableString,
         url: {
           type: "string",
         },
-        cost: {
-          type: ["string", "null"],
-        },
-        isRecurring: {
-          type: ["boolean", "null"],
-        },
-        recurDate: {
-          type: ["string", "null"],
-        },
+        cost: nullableString,
+        isRecurring: nullableBoolean,
+        recurDate: nullableString,
         recurPeriodUnit: {
           type: ["string", "null"],
           enum: ["days", "months", "years", null],
         },
-        recurPeriod: {
-          type: ["integer", "null"],
-        },
-        isCourseFeesShared: {
-          type: ["boolean", "null"],
-        },
+        recurPeriod: nullableInteger,
+        isCourseFeesShared: nullableBoolean,
       },
     },
   },

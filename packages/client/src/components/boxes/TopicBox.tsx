@@ -1,11 +1,12 @@
 import type { TopicForTopicsPage } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import {
   BookIcon,
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
+import { Description } from "@/components/boxElements/Description";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -26,20 +27,16 @@ export function TopicBox({
         <ContentBoxHeaderBar />
         <ContentBoxTitle>
           <h3 className="text-2xl">
-            <Link
-              to="/topics/$id"
-              from="/topics"
-              params={{
-                id: id + "",
-              }}
-              className="hover:text-blue-600"
+            <EntityLink
+              entity="topics"
+              id={id}
             >{name}
-            </Link>
+            </EntityLink>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        <p>{description ? description : <i>No description provided.</i>}</p>
+        <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem

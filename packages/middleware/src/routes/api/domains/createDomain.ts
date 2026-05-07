@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { domains, topicsToDomains } from "@/db/schema";
+import { nullableBoolean, nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -14,12 +15,8 @@ const createSchema = {
         title: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
-        hasRadar: {
-          type: ["boolean", "null"],
-        },
+        description: nullableString,
+        hasRadar: nullableBoolean,
         topicIds: {
           type: "array",
           items: {

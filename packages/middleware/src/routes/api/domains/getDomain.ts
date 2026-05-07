@@ -1,19 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { idParamSchema } from "@/utils/schemas";
 
 const getDomainSchema = {
   schema: {
     description: "Get a single domain by ID",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
   },
 } as const;
 

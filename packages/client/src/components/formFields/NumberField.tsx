@@ -1,6 +1,6 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
-import { useFieldContext } from "@/utils/fieldContext";
+import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface NumberFieldProps {
   label: string;
@@ -17,8 +17,9 @@ export function NumberField({
   step,
   disabled,
 }: NumberFieldProps) {
-  const field = useFieldContext<number | null>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const {
+    field, isInvalid,
+  } = useIsFieldInvalid<number | null>();
 
   return (
     <Field data-invalid={isInvalid}>
