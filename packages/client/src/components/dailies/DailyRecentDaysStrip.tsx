@@ -1,22 +1,25 @@
+import type { DayLabelFormat } from "@/utils/dailyHelpers";
 import type { Daily } from "@emstack/types/src";
 
 import { DailyStatusCircle } from "./DailyStatusCircle";
 
 import { cn } from "@/lib/utils";
-import { getRecentDays } from "@/utils/dailyHelpers";
+import { getRecentDays, getTodayKey } from "@/utils/dailyHelpers";
 
 interface DailyRecentDaysStripProps {
   daily: Daily;
   count?: number;
   className?: string;
+  labelFormat?: DayLabelFormat;
 }
 
 export function DailyRecentDaysStrip({
   daily,
   count = 7,
   className,
+  labelFormat = "dow",
 }: DailyRecentDaysStripProps) {
-  const days = getRecentDays(daily, count);
+  const days = getRecentDays(daily, count, getTodayKey(), labelFormat);
 
   return (
     <div className={cn("flex flex-row gap-1.5", className)}>

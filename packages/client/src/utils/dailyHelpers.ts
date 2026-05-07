@@ -49,6 +49,8 @@ export function getCurrentChain(daily: Daily, todayKey: string = getTodayKey()):
 
 const SHORT_DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+export type DayLabelFormat = "dow" | "mmdd";
+
 export interface RecentDay {
   dateKey: string;
   dayLabel: string;
@@ -60,14 +62,18 @@ export function getRecentDays(
   daily: Daily,
   count = 7,
   todayKey: string = getTodayKey(),
+  labelFormat: DayLabelFormat = "dow",
 ): RecentDay[] {
   const days: RecentDay[] = [];
   for (let i = count - 1; i >= 0; i--) {
     const dateKey = shiftDateKey(todayKey, -i);
     const date = new Date(`${dateKey}T00:00:00Z`);
+    const dayLabel = labelFormat === "mmdd"
+      ? `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`
+      : SHORT_DAY_LABELS[date.getUTCDay()];
     days.push({
       dateKey,
-      dayLabel: SHORT_DAY_LABELS[date.getUTCDay()],
+      dayLabel,
       isToday: dateKey === todayKey,
       status: findStatusForDate(daily, dateKey),
     });

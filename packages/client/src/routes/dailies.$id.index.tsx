@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, FlameIcon } from "lucide-react";
+import { EditIcon, ExternalLink, FlameIcon } from "lucide-react";
 
 import {
   DailyCompletionsManager,
@@ -15,6 +15,16 @@ import {
   fetchSingleDaily,
   getCurrentChain,
 } from "@/utils";
+
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  }
+  catch {
+    return false;
+  }
+}
 
 export const Route = createFileRoute("/dailies/$id/")({
   component: SingleDaily,
@@ -109,7 +119,23 @@ function SingleDaily() {
           header="Location"
           condition={!!data.location}
         >
-          <p>{data.location}</p>
+          {data.location && isHttpUrl(data.location)
+            ? (
+              <a
+                href={data.location}
+                target="_blank"
+                rel="noreferrer"
+                className="self-start"
+              >
+                <Button>
+                  Open Location
+                  <ExternalLink />
+                </Button>
+              </a>
+            )
+            : (
+              <p>{data.location}</p>
+            )}
         </InfoArea>
         <InfoArea
           header="Provider"
