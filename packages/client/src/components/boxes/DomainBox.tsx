@@ -1,9 +1,10 @@
 import type { Domain } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import { BookIcon, RadarIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
+import { Description } from "@/components/boxElements/Description";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -26,21 +27,16 @@ export function DomainBox({
         <ContentBoxHeaderBar />
         <ContentBoxTitle>
           <h3 className="text-2xl">
-            <Link
-              to="/domains/$id"
-              from="/domains"
-              params={{
-                id: id + "",
-              }}
-              className="hover:text-blue-600"
-            >
-              {title}
-            </Link>
+            <EntityLink
+              entity="domains"
+              id={id}
+            >{title}
+            </EntityLink>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        <p>{description ? description : <i>No description provided.</i>}</p>
+        <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem

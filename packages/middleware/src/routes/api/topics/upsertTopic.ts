@@ -2,19 +2,12 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { topics } from "@/db/schema";
+import { idParamSchema, nullableString } from "@/utils/schemas";
 
 const upsertSchema = {
   schema: {
     description: "Update a topic",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
     body: {
       type: "object",
       required: ["name"],
@@ -22,12 +15,8 @@ const upsertSchema = {
         name: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
-        reason: {
-          type: ["string", "null"],
-        },
+        description: nullableString,
+        reason: nullableString,
       },
     },
   },

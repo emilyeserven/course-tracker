@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, ExternalLink, FlameIcon } from "lucide-react";
+import { EditIcon, ExternalLink, FlameIcon, LaughIcon } from "lucide-react";
 
 import {
   DailyCompletionsManager,
@@ -14,6 +14,7 @@ import {
   deleteSingleDaily,
   fetchSingleDaily,
   getCurrentChain,
+  getTotalCompletedDays,
   isHttpUrl,
 } from "@/utils";
 
@@ -73,9 +74,7 @@ function SingleDaily() {
     });
   }
 
-  const completionsCount = data.completions?.filter(
-    c => c.status && c.status !== "incomplete",
-  ).length ?? 0;
+  const total = getTotalCompletedDays(data);
   const chain = getCurrentChain(data);
 
   return (
@@ -158,10 +157,15 @@ function SingleDaily() {
               <strong>{chain}</strong>
               <span className="text-muted-foreground">day chain</span>
             </span>
-            <span>
-              <strong>{completionsCount}</strong>
-              {" "}
-              <span className="text-muted-foreground">completions logged</span>
+            <span className="inline-flex items-center gap-1">
+              <LaughIcon
+                size={16}
+                className={total > 0
+                  ? "text-emerald-600"
+                  : "text-muted-foreground"}
+              />
+              <strong>{total}</strong>
+              <span className="text-muted-foreground">total days</span>
             </span>
           </div>
         </InfoArea>

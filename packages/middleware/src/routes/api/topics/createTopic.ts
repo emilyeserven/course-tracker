@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { topics } from "@/db/schema";
+import { nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -14,12 +15,8 @@ const createSchema = {
         name: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
-        reason: {
-          type: ["string", "null"],
-        },
+        description: nullableString,
+        reason: nullableString,
       },
     },
   },

@@ -1,6 +1,6 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Textarea } from "@/components/forms/textarea";
-import { useFieldContext } from "@/utils/fieldContext";
+import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface TextareaFieldProps {
   label: string;
@@ -13,8 +13,9 @@ export function TextareaField({
   className = "text-2xl",
   placeholder,
 }: TextareaFieldProps) {
-  const field = useFieldContext<string>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const {
+    field, isInvalid,
+  } = useIsFieldInvalid<string>();
 
   return (
     <Field data-invalid={isInvalid}>

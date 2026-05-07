@@ -2,19 +2,17 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { courseProviders } from "@/db/schema";
+import {
+  idParamSchema,
+  nullableBoolean,
+  nullableInteger,
+  nullableString,
+} from "@/utils/schemas";
 
 const upsertSchema = {
   schema: {
     description: "Create or update a provider",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
     body: {
       type: "object",
       required: ["name", "url"],
@@ -22,31 +20,19 @@ const upsertSchema = {
         name: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
+        description: nullableString,
         url: {
           type: "string",
         },
-        cost: {
-          type: ["string", "null"],
-        },
-        isRecurring: {
-          type: ["boolean", "null"],
-        },
-        recurDate: {
-          type: ["string", "null"],
-        },
+        cost: nullableString,
+        isRecurring: nullableBoolean,
+        recurDate: nullableString,
         recurPeriodUnit: {
           type: ["string", "null"],
           enum: ["days", "months", "years", null],
         },
-        recurPeriod: {
-          type: ["integer", "null"],
-        },
-        isCourseFeesShared: {
-          type: ["boolean", "null"],
-        },
+        recurPeriod: nullableInteger,
+        isCourseFeesShared: nullableBoolean,
       },
     },
   },

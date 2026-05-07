@@ -1,9 +1,10 @@
 import type { CourseProvider } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import { BookIcon, DollarSignIcon, RefreshCwIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
+import { Description } from "@/components/boxElements/Description";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -27,21 +28,16 @@ export function ProviderBox({
         <ContentBoxHeaderBar />
         <ContentBoxTitle>
           <h3 className="text-2xl">
-            <Link
-              to="/providers/$id"
-              from="/providers"
-              params={{
-                id: id + "",
-              }}
-              className="hover:text-blue-600"
-            >
-              {name}
-            </Link>
+            <EntityLink
+              entity="providers"
+              id={id}
+            >{name}
+            </EntityLink>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        <p>{description ? description : <i>No description provided.</i>}</p>
+        <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem

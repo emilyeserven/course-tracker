@@ -1,19 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { idParamSchema } from "@/utils/schemas";
 
 const testSchema = {
   schema: {
-    description: "It's like looking into a mirror...",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    description: "Get a single provider by ID",
+    params: idParamSchema,
   },
 } as const;
 

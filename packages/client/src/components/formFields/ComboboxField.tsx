@@ -7,7 +7,7 @@ import {
   ComboboxList,
 } from "@/components/combobox";
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { useFieldContext } from "@/utils/fieldContext";
+import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface ComboboxFieldProps {
   label: string;
@@ -23,8 +23,9 @@ export function ComboboxField({
   placeholder,
   className = "text-2xl",
 }: ComboboxFieldProps) {
-  const field = useFieldContext<string>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const {
+    field, isInvalid,
+  } = useIsFieldInvalid<string>();
 
   const optionsMap = new Map(options.map(o => [o.value, o.label]));
 

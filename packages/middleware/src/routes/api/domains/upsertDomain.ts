@@ -2,20 +2,13 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { domains, topicsToDomains } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { idParamSchema, nullableBoolean, nullableString } from "@/utils/schemas";
+import { syncJunctionTable } from "@/utils/syncJunctionTable";
 
 const upsertSchema = {
   schema: {
     description: "Create or update a domain",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
     body: {
       type: "object",
       required: ["title"],
@@ -23,12 +16,8 @@ const upsertSchema = {
         title: {
           type: "string",
         },
-        description: {
-          type: ["string", "null"],
-        },
-        hasRadar: {
-          type: ["boolean", "null"],
-        },
+        description: nullableString,
+        hasRadar: nullableBoolean,
         topicIds: {
           type: "array",
           items: {
@@ -71,16 +60,15 @@ export default async function (server: FastifyInstance) {
           },
         });
 
-      await db.delete(topicsToDomains).where(eq(topicsToDomains.domainId, id));
-
-      if (body.topicIds && body.topicIds.length > 0) {
-        await db.insert(topicsToDomains).values(
-          body.topicIds.map(topicId => ({
-            topicId,
-            domainId: id,
-          })),
-        );
-      }
+      await syncJunctionTable(
+        topicsToDomains,
+        topicsToDomains.domainId,
+        id,
+        (body.topicIds ?? []).map(topicId => ({
+          topicId,
+          domainId: id,
+        })),
+      );
 
       return {
         status: "ok",
