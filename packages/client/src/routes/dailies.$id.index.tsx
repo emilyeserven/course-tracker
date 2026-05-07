@@ -169,7 +169,10 @@ function SingleDaily() {
           header="Day entries"
           condition={true}
         >
-          <DailyCompletionsManager daily={data} />
+          <DailyCompletionsManager
+            daily={data}
+            readOnly
+          />
         </InfoArea>
         <div>
           <DeleteButton onClick={handleDelete}>Delete Daily</DeleteButton>

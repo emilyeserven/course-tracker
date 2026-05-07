@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface DailyStatusCircleProps {
   status: DailyCompletionStatus | null;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   highlight?: boolean;
   title?: string;
   className?: string;
@@ -16,6 +16,7 @@ const SIZE_CLASSES: Record<NonNullable<DailyStatusCircleProps["size"]>, string> 
   sm: "size-6 [&_svg]:size-3",
   md: "size-8 [&_svg]:size-4",
   lg: "size-10 [&_svg]:size-5",
+  xl: "size-12 [&_svg]:size-6",
 };
 
 export function DailyStatusCircle({

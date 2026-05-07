@@ -9,6 +9,7 @@ import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailyLocationCell,
   DailyStatusCircle,
+  DailyStatusConnector,
   TodayStatusCell,
 } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -228,12 +229,22 @@ function Dailies() {
                             {chain}
                           </span>
                         </td>
-                        {days.map(day => (
+                        {days.map((day, i) => (
                           <td
                             key={day.dateKey}
-                            className="px-1 py-2 align-top"
+                            className="relative px-1 py-2 align-top"
                           >
-                            <div className="flex justify-center">
+                            {i > 0 && (
+                              <DailyStatusConnector
+                                left={days[i - 1].status}
+                                right={day.status}
+                                className="
+                                  absolute top-5 -left-1 z-0 w-3
+                                  -translate-y-1/2
+                                "
+                              />
+                            )}
+                            <div className="relative z-10 flex justify-center">
                               <DailyStatusCircle
                                 status={day.status}
                                 size="sm"
