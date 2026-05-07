@@ -47,6 +47,12 @@ export function getCurrentChain(daily: Daily, todayKey: string = getTodayKey()):
   return count;
 }
 
+export function getTotalCompletedDays(daily: Daily): number {
+  return daily.completions.filter(
+    c => c.status && c.status !== "incomplete",
+  ).length;
+}
+
 const SHORT_DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export type DayLabelFormat = "dow" | "mmdd";

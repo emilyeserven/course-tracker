@@ -2,7 +2,7 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FlameIcon, PlusIcon } from "lucide-react";
+import { FlameIcon, LaughIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -21,6 +21,7 @@ import {
   getCurrentChain,
   getRecentDays,
   getTodayKey,
+  getTotalCompletedDays,
   upsertDaily,
   withCompletion,
 } from "@/utils";
@@ -147,6 +148,7 @@ function Dailies() {
                     <th className="p-2 font-medium">Title</th>
                     <th className="p-2 font-medium">Description</th>
                     <th className="p-2 font-medium">Streak</th>
+                    <th className="p-2 font-medium">Total</th>
                     {dayHeaders.map(d => (
                       <th
                         key={d.dateKey}
@@ -166,6 +168,7 @@ function Dailies() {
                   {sortedDailies.map((daily) => {
                     const currentStatus = findStatusForDate(daily, todayKey);
                     const chain = getCurrentChain(daily, todayKey);
+                    const total = getTotalCompletedDays(daily);
                     const days = getRecentDays(
                       daily,
                       RECENT_DAYS_COUNT + 1,
@@ -227,6 +230,20 @@ function Dailies() {
                           >
                             <FlameIcon className="size-3.5" />
                             {chain}
+                          </span>
+                        </td>
+                        <td className="p-2 align-top">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 text-xs",
+                              total > 0
+                                ? "text-emerald-600"
+                                : "text-muted-foreground",
+                            )}
+                            title={`${total} total day${total === 1 ? "" : "s"} completed`}
+                          >
+                            <LaughIcon className="size-3.5" />
+                            {total}
                           </span>
                         </td>
                         {days.map((day, i) => {
