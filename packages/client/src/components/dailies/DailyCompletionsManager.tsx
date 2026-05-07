@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import { DailyStatusButtons } from "./DailyStatusButtons";
 import { DailyStatusCircle } from "./DailyStatusCircle";
+import { DailyStatusConnector } from "./DailyStatusConnector";
 import { MonthYearPicker } from "./MonthYearPicker";
 import { NoteEditButton } from "./NoteEditButton";
 
@@ -255,7 +256,7 @@ export function DailyCompletionsManager({
       )}
       {visibleDateKeys.length > 0 && (
         <ul className="flex flex-col divide-y rounded-md border">
-          {visibleDateKeys.map((dateKey) => {
+          {visibleDateKeys.map((dateKey, i) => {
             const entry = completionsByDate.get(dateKey);
             const status = entry?.status ?? null;
             const note = entry?.note ?? null;
@@ -263,6 +264,12 @@ export function DailyCompletionsManager({
             const isFuture = dateKey > todayKey;
             const isToday = dateKey === todayKey;
             const isEditable = !readOnly || isToday;
+            const nextDateKey = visibleDateKeys[i + 1];
+            const nextStatus = nextDateKey
+              ? completionsByDate.get(nextDateKey)?.status ?? null
+              : null;
+            const showVerticalConnector
+              = nextStatus !== null && nextStatus !== "incomplete";
             return (
               <li
                 key={dateKey}
@@ -275,10 +282,20 @@ export function DailyCompletionsManager({
                 )}
               >
                 <div className="flex min-w-0 flex-row items-center gap-3">
-                  <DailyStatusCircle
-                    status={status}
-                    size="lg"
-                  />
+                  <div className="relative flex flex-col items-center">
+                    <DailyStatusCircle
+                      status={status}
+                      size="lg"
+                    />
+                    {showVerticalConnector && (
+                      <DailyStatusConnector
+                        orientation="vertical"
+                        left={status}
+                        right={nextStatus}
+                        className="absolute top-full z-0 h-[18px] w-0.5"
+                      />
+                    )}
+                  </div>
                   <span className="text-sm font-medium">
                     {formatDateLabel(dateKey)}
                   </span>

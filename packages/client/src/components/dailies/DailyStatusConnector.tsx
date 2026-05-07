@@ -8,6 +8,7 @@ interface DailyStatusConnectorProps {
   left: DailyCompletionStatus | null;
   right: DailyCompletionStatus | null;
   className?: string;
+  orientation?: "horizontal" | "vertical";
 }
 
 type LinkedStatus = Exclude<DailyCompletionStatus, "incomplete">;
@@ -22,12 +23,16 @@ export function DailyStatusConnector({
   left,
   right,
   className,
+  orientation = "horizontal",
 }: DailyStatusConnectorProps) {
+  const isVertical = orientation === "vertical";
+  const baseClass = isVertical ? "h-3 w-0.5" : "h-0.5 w-3";
+
   if (!isLinked(left) || !isLinked(right)) {
     return (
       <div
         aria-hidden
-        className={cn("h-0.5 w-3", className)}
+        className={cn(baseClass, className)}
       />
     );
   }
@@ -38,9 +43,9 @@ export function DailyStatusConnector({
   return (
     <div
       aria-hidden
-      className={cn("h-0.5 w-3", className)}
+      className={cn(baseClass, className)}
       style={{
-        background: `linear-gradient(to right, ${leftColor}, ${rightColor})`,
+        background: `linear-gradient(${isVertical ? "to bottom" : "to right"}, ${leftColor}, ${rightColor})`,
       }}
     />
   );

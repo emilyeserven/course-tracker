@@ -229,30 +229,50 @@ function Dailies() {
                             {chain}
                           </span>
                         </td>
-                        {days.map((day, i) => (
-                          <td
-                            key={day.dateKey}
-                            className="relative px-1 py-2 align-top"
-                          >
-                            {i > 0 && (
-                              <DailyStatusConnector
-                                left={days[i - 1].status}
-                                right={day.status}
-                                className="
-                                  absolute top-5 -left-1 z-0 w-3
-                                  -translate-y-1/2
-                                "
-                              />
-                            )}
-                            <div className="relative z-10 flex justify-center">
-                              <DailyStatusCircle
-                                status={day.status}
-                                size="sm"
-                                title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                              />
-                            </div>
-                          </td>
-                        ))}
+                        {days.map((day, i) => {
+                          const isLast = i === days.length - 1;
+                          const linkToToday
+                            = isLast
+                              && day.status
+                              && day.status !== "incomplete"
+                              && currentStatus
+                              && currentStatus !== "incomplete";
+                          return (
+                            <td
+                              key={day.dateKey}
+                              className="relative px-1 py-2 align-top"
+                            >
+                              {i > 0 && (
+                                <DailyStatusConnector
+                                  left={days[i - 1].status}
+                                  right={day.status}
+                                  className="
+                                    absolute top-5 right-[calc(50%+12px)]
+                                    left-[calc(-50%+12px)] z-0 w-auto
+                                    -translate-y-1/2
+                                  "
+                                />
+                              )}
+                              {linkToToday && (
+                                <DailyStatusConnector
+                                  left={day.status}
+                                  right={currentStatus}
+                                  className="
+                                    absolute top-5 left-[calc(50%+12px)] z-0 w-3
+                                    -translate-y-1/2
+                                  "
+                                />
+                              )}
+                              <div className="relative z-10 flex justify-center">
+                                <DailyStatusCircle
+                                  status={day.status}
+                                  size="sm"
+                                  title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                                />
+                              </div>
+                            </td>
+                          );
+                        })}
                         <td className="p-2 align-top">
                           <TodayStatusCell
                             daily={daily}
