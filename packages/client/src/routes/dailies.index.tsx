@@ -5,13 +5,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { FlameIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { ContentBox, ContentBoxBody, ContentBoxFooter, ContentBoxHeader, ContentBoxHeaderBar, ContentBoxTitle } from "@/components/boxes/ContentBox";
-import { DailyRecentDaysStrip, DailyStatusButtons } from "@/components/dailies";
+import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DailyLocationCell,
+  DailyStatusCircle,
+  TodayStatusCell,
+} from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   fetchDailies,
   findStatusForDate,
   getCurrentChain,
+  getRecentDays,
   getTodayKey,
   upsertDaily,
   withCompletion,
@@ -22,6 +29,8 @@ export const Route = createFileRoute("/dailies/")({
   errorComponent: DailiesError,
   pendingComponent: DailiesPending,
 });
+
+const RECENT_DAYS_COUNT = 6;
 
 function DailiesPending() {
   return (
@@ -39,70 +48,27 @@ function DailiesError() {
   );
 }
 
+function formatMmDd(dateKey: string): string {
+  const d = new Date(`${dateKey}T00:00:00Z`);
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
 function Dailies() {
+  const queryClient = useQueryClient();
+  const todayKey = getTodayKey();
+
   const {
-    data,
+    data: dailies,
   } = useQuery({
     queryKey: ["dailies"],
     queryFn: () => fetchDailies(),
   });
 
-  return (
-    <div>
-      <PageHeader
-        pageTitle="Dailies"
-        pageSection=""
-      />
-      <div className="container">
-        <div className="card-grid">
-          {(!data || data.length === 0) && (
-            <div className="flex flex-col gap-6">
-              <i>No dailies yet!</i>
-            </div>
-          )}
-
-          {data
-            && data.length > 0
-            && data.map(daily => (
-              <DailyBox
-                daily={daily}
-                key={daily.id}
-              />
-            ))}
-
-          <Link
-            to="/dailies/$id/edit"
-            params={{
-              id: "new",
-            }}
-          >
-            <ContentBox
-              className="
-                h-full items-center justify-center border-dashed p-8
-                text-muted-foreground transition-colors
-                hover:border-solid hover:bg-accent hover:text-accent-foreground
-              "
-            >
-              <PlusIcon size={32} />
-              <span className="text-lg font-medium">Add New Daily</span>
-            </ContentBox>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DailyBox({
-  daily,
-}: { daily: Daily }) {
-  const queryClient = useQueryClient();
-  const todayKey = getTodayKey();
-  const chain = getCurrentChain(daily, todayKey);
-  const currentStatus = findStatusForDate(daily, todayKey);
-
   const mutation = useMutation({
-    mutationFn: (status: DailyCompletionStatus) => {
+    mutationFn: ({
+      daily, status,
+    }: { daily: Daily;
+      status: DailyCompletionStatus; }) => {
       const completions = withCompletion(daily, todayKey, status);
       return upsertDaily(daily.id, {
         name: daily.name,
@@ -122,59 +88,183 @@ function DailyBox({
     },
   });
 
+  const sortedDailies = dailies
+    ? [...dailies].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+      }))
+    : undefined;
+
+  const dayHeaders = sortedDailies && sortedDailies.length > 0
+    ? getRecentDays(
+      sortedDailies[0],
+      RECENT_DAYS_COUNT + 1,
+      todayKey,
+      "mmdd",
+    )
+      .slice(0, -1)
+      .map(d => ({
+        dateKey: d.dateKey,
+        label: formatMmDd(d.dateKey),
+        isToday: d.isToday,
+      }))
+    : [];
+
   return (
-    <ContentBox>
-      <ContentBoxHeader>
-        <ContentBoxHeaderBar />
-        <ContentBoxTitle>
-          <h3 className="text-2xl">
-            <Link
-              to="/dailies/$id"
-              from="/dailies"
-              params={{
-                id: daily.id,
-              }}
-              className="hover:text-blue-600"
-            >
-              {daily.name}
-            </Link>
-          </h3>
-        </ContentBoxTitle>
-      </ContentBoxHeader>
-      <ContentBoxBody>
-        <p>
-          {daily.description ? daily.description : <i>No description provided.</i>}
-        </p>
-        <DailyRecentDaysStrip daily={daily} />
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground uppercase">
-            Today&apos;s status
-          </span>
-          <DailyStatusButtons
-            currentStatus={currentStatus}
-            disabled={mutation.isPending}
-            onChange={status => mutation.mutate(status)}
-          />
+    <div>
+      <PageHeader
+        pageTitle="Dailies"
+        pageSection=""
+      />
+      <div className="container flex flex-col gap-4">
+        <div className="flex justify-end">
+          <Link
+            to="/dailies/$id/edit"
+            params={{
+              id: "new",
+            }}
+          >
+            <Button variant="outline">
+              <PlusIcon className="size-4" />
+              Add Daily
+            </Button>
+          </Link>
         </div>
-      </ContentBoxBody>
-      <ContentBoxFooter>
-        <span
-          className={
-            chain > 0
-              ? "inline-flex items-center gap-1 text-sm text-orange-600"
-              : "inline-flex items-center gap-1 text-sm text-muted-foreground"
-          }
-          title={chain > 0 ? `${chain}-day chain` : "No active chain"}
-        >
-          <FlameIcon size={16} />
-          {chain}
-        </span>
-        {daily.provider && (
-          <span className="text-sm text-muted-foreground">
-            {daily.provider.name}
-          </span>
+
+        {(!sortedDailies || sortedDailies.length === 0) && (
+          <p className="text-sm text-muted-foreground">
+            <i>No dailies yet!</i>
+          </p>
         )}
-      </ContentBoxFooter>
-    </ContentBox>
+
+        {sortedDailies && sortedDailies.length > 0 && (
+          <DashboardCard title="All Dailies">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="p-2 font-medium">Title</th>
+                    <th className="p-2 font-medium">Description</th>
+                    <th className="p-2 font-medium">Streak</th>
+                    {dayHeaders.map(d => (
+                      <th
+                        key={d.dateKey}
+                        className={cn(
+                          "px-1 py-2 text-center font-medium",
+                          d.isToday && "text-foreground",
+                        )}
+                      >
+                        {d.label}
+                      </th>
+                    ))}
+                    <th className="p-2 font-medium">Today&apos;s Status</th>
+                    <th className="p-2 font-medium">Location</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedDailies.map((daily) => {
+                    const currentStatus = findStatusForDate(daily, todayKey);
+                    const chain = getCurrentChain(daily, todayKey);
+                    const days = getRecentDays(
+                      daily,
+                      RECENT_DAYS_COUNT + 1,
+                      todayKey,
+                      "mmdd",
+                    ).slice(0, -1);
+                    return (
+                      <tr
+                        key={daily.id}
+                        className="
+                          group border-t
+                          hover:bg-muted/40
+                        "
+                      >
+                        <td className="p-2 align-top">
+                          <Link
+                            to="/dailies/$id"
+                            from="/dailies"
+                            params={{
+                              id: daily.id,
+                            }}
+                            className="
+                              font-medium
+                              hover:text-blue-600
+                            "
+                          >
+                            {daily.name}
+                          </Link>
+                        </td>
+                        <td className="max-w-xs p-2 align-top">
+                          {daily.description
+                            ? (
+                              <span
+                                className="block truncate text-muted-foreground"
+                                title={daily.description}
+                              >
+                                {daily.description}
+                              </span>
+                            )
+                            : (
+                              <span className="text-muted-foreground/60">
+                                <i>No description</i>
+                              </span>
+                            )}
+                        </td>
+                        <td className="p-2 align-top">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 text-xs",
+                              chain > 0
+                                ? "text-orange-600"
+                                : "text-muted-foreground",
+                            )}
+                            title={
+                              chain > 0
+                                ? `${chain}-day chain`
+                                : "No active chain"
+                            }
+                          >
+                            <FlameIcon className="size-3.5" />
+                            {chain}
+                          </span>
+                        </td>
+                        {days.map(day => (
+                          <td
+                            key={day.dateKey}
+                            className="px-1 py-2 align-top"
+                          >
+                            <div className="flex justify-center">
+                              <DailyStatusCircle
+                                status={day.status}
+                                size="sm"
+                                title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                              />
+                            </div>
+                          </td>
+                        ))}
+                        <td className="p-2 align-top">
+                          <TodayStatusCell
+                            daily={daily}
+                            currentStatus={currentStatus}
+                            disabled={mutation.isPending}
+                            onChange={status => mutation.mutate({
+                              daily,
+                              status,
+                            })}
+                          />
+                        </td>
+                        <td className="p-2 align-top">
+                          <DailyLocationCell location={daily.location} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </DashboardCard>
+        )}
+      </div>
+    </div>
   );
 }

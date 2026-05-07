@@ -1,25 +1,16 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
-import { useState } from "react";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ChevronRightIcon, FlameIcon, PencilIcon } from "lucide-react";
+import { FlameIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
-  DAILY_STATUS_OPTIONS,
+  DailyLocationCell,
   DailyStatusCircle,
-  getDailyStatusOption,
+  TodayStatusCell,
 } from "@/components/dailies";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   fetchDailies,
@@ -31,93 +22,11 @@ import {
   withCompletion,
 } from "@/utils";
 
-const RECENT_DAYS_COUNT = 7;
+const RECENT_DAYS_COUNT = 6;
 
 function formatMmDd(dateKey: string): string {
   const d = new Date(`${dateKey}T00:00:00Z`);
   return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
-}
-
-interface TodayStatusCellProps {
-  daily: Daily;
-  currentStatus: DailyCompletionStatus | null;
-  disabled: boolean;
-  onChange: (status: DailyCompletionStatus) => void;
-}
-
-function TodayStatusCell({
-  daily,
-  currentStatus,
-  disabled,
-  onChange,
-}: TodayStatusCellProps) {
-  const [editing, setEditing] = useState(false);
-  const showSelect = editing || currentStatus === null;
-  const option = currentStatus ? getDailyStatusOption(currentStatus) : null;
-
-  if (showSelect) {
-    return (
-      <Select
-        value={currentStatus ?? undefined}
-        disabled={disabled}
-        onValueChange={(value) => {
-          onChange(value as DailyCompletionStatus);
-          setEditing(false);
-        }}
-        open={editing || undefined}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditing(false);
-          }
-        }}
-      >
-        <SelectTrigger
-          size="sm"
-          aria-label={`Set today's status for ${daily.name}`}
-        >
-          <SelectValue placeholder="Select…" />
-        </SelectTrigger>
-        <SelectContent>
-          {DAILY_STATUS_OPTIONS.map(opt => (
-            <SelectItem
-              key={opt.value}
-              value={opt.value}
-            >
-              {opt.icon}
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    );
-  }
-
-  return (
-    <div className="flex flex-row items-center gap-1">
-      <span
-        className={cn(`
-          inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs
-          font-medium
-        `, option?.pillClass)}
-      >
-        {option?.icon}
-        {option?.label}
-      </span>
-      <button
-        type="button"
-        aria-label={`Edit today's status for ${daily.name}`}
-        className="
-          rounded-md p-1 text-muted-foreground
-          hover:bg-muted hover:text-foreground
-          disabled:cursor-not-allowed disabled:opacity-50
-        "
-        disabled={disabled}
-        onClick={() => setEditing(true)}
-      >
-        <PencilIcon className="size-3.5" />
-      </button>
-    </div>
-  );
 }
 
 export function DashboardDailies() {
@@ -163,7 +72,13 @@ export function DashboardDailies() {
     : undefined;
 
   const dayHeaders = sortedDailies && sortedDailies.length > 0
-    ? getRecentDays(sortedDailies[0], RECENT_DAYS_COUNT, todayKey, "mmdd")
+    ? getRecentDays(
+      sortedDailies[0],
+      RECENT_DAYS_COUNT + 1,
+      todayKey,
+      "mmdd",
+    )
+      .slice(0, -1)
       .map(d => ({
         dateKey: d.dateKey,
         label: formatMmDd(d.dateKey),
@@ -216,9 +131,7 @@ export function DashboardDailies() {
                   </th>
                 ))}
                 <th className="p-2 font-medium">Today&apos;s Status</th>
-                <th className="p-2">
-                  <span className="sr-only">View</span>
-                </th>
+                <th className="p-2 font-medium">Location</th>
               </tr>
             </thead>
             <tbody>
@@ -227,10 +140,10 @@ export function DashboardDailies() {
                 const chain = getCurrentChain(daily, todayKey);
                 const days = getRecentDays(
                   daily,
-                  RECENT_DAYS_COUNT,
+                  RECENT_DAYS_COUNT + 1,
                   todayKey,
                   "mmdd",
-                );
+                ).slice(0, -1);
                 return (
                   <tr
                     key={daily.id}
@@ -280,7 +193,6 @@ export function DashboardDailies() {
                           <DailyStatusCircle
                             status={day.status}
                             size="sm"
-                            highlight={day.isToday}
                             title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
                           />
                         </div>
@@ -297,23 +209,8 @@ export function DashboardDailies() {
                         })}
                       />
                     </td>
-                    <td className="p-2 text-right">
-                      <Link
-                        to="/dailies/$id"
-                        params={{
-                          id: daily.id,
-                        }}
-                        aria-label={`View ${daily.name}`}
-                        className="
-                          inline-flex rounded-md p-1 text-muted-foreground
-                          opacity-0
-                          group-hover:opacity-100
-                          hover:bg-muted hover:text-foreground
-                          focus-visible:opacity-100
-                        "
-                      >
-                        <ChevronRightIcon className="size-4" />
-                      </Link>
+                    <td className="p-2">
+                      <DailyLocationCell location={daily.location} />
                     </td>
                   </tr>
                 );

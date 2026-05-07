@@ -14,17 +14,8 @@ import {
   deleteSingleDaily,
   fetchSingleDaily,
   getCurrentChain,
+  isHttpUrl,
 } from "@/utils";
-
-function isHttpUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  }
-  catch {
-    return false;
-  }
-}
 
 export const Route = createFileRoute("/dailies/$id/")({
   component: SingleDaily,

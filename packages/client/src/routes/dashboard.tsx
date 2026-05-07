@@ -15,12 +15,16 @@ function Dashboard() {
       <PageHeader pageTitle="Dashboard" />
       <div
         className="
-          container grid grid-cols-1 gap-4
-          md:grid-cols-2
+          container flex flex-col gap-4
+          md:flex-row md:items-start
         "
       >
-        <DashboardDailies />
-        <DashboardCoursesInProgress />
+        <div className="md:shrink-0 md:basis-[60%]">
+          <DashboardDailies />
+        </div>
+        <div className="md:shrink-0 md:basis-[40%]">
+          <DashboardCoursesInProgress />
+        </div>
       </div>
     </div>
   );
