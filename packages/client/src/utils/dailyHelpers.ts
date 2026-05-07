@@ -27,7 +27,7 @@ export function findStatusForDate(
 export function getCurrentChain(daily: Daily, todayKey: string = getTodayKey()): number {
   const completedDates = new Set(
     daily.completions
-      .filter(c => c.status !== "incomplete")
+      .filter(c => c.status && c.status !== "incomplete")
       .map(c => c.date),
   );
 
@@ -87,7 +87,17 @@ export function withCompletion(
   status: DailyCompletionStatus | null,
 ): Daily["completions"] {
   const others = daily.completions.filter(c => c.date !== dateKey);
+  const existing = daily.completions.find(c => c.date === dateKey);
   if (status === null) {
+    if (existing?.note) {
+      return [
+        ...others,
+        {
+          date: dateKey,
+          note: existing.note,
+        },
+      ];
+    }
     return others;
   }
   return [
@@ -95,6 +105,45 @@ export function withCompletion(
     {
       date: dateKey,
       status,
+      ...(existing?.note
+        ? {
+          note: existing.note,
+        }
+        : {}),
+    },
+  ];
+}
+
+export function withCompletionNote(
+  daily: Daily,
+  dateKey: string,
+  note: string | null,
+): Daily["completions"] {
+  const others = daily.completions.filter(c => c.date !== dateKey);
+  const existing = daily.completions.find(c => c.date === dateKey);
+  const trimmed = note?.trim() ?? "";
+  if (!trimmed) {
+    if (existing?.status) {
+      return [
+        ...others,
+        {
+          date: dateKey,
+          status: existing.status,
+        },
+      ];
+    }
+    return others;
+  }
+  return [
+    ...others,
+    {
+      date: dateKey,
+      ...(existing?.status
+        ? {
+          status: existing.status,
+        }
+        : {}),
+      note: trimmed,
     },
   ];
 }

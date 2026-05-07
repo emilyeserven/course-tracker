@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const completionSchema = {
   type: "object",
-  required: ["date", "status"],
+  required: ["date"],
   properties: {
     date: {
       type: "string",
@@ -15,6 +15,9 @@ const completionSchema = {
     status: {
       type: "string",
       enum: ["incomplete", "touched", "goal", "exceeded"],
+    },
+    note: {
+      type: "string",
     },
   },
 } as const;

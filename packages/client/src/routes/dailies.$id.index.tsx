@@ -74,7 +74,7 @@ function SingleDaily() {
   }
 
   const completionsCount = data.completions?.filter(
-    c => c.status !== "incomplete",
+    c => c.status && c.status !== "incomplete",
   ).length ?? 0;
   const chain = getCurrentChain(data);
 

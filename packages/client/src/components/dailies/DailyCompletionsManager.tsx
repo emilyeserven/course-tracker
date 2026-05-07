@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { DailyStatusButtons } from "./DailyStatusButtons";
 import { DailyStatusCircle } from "./DailyStatusCircle";
 import { MonthYearPicker } from "./MonthYearPicker";
+import { NoteEditButton } from "./NoteEditButton";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
   shiftDateKey,
   upsertDaily,
   withCompletion,
+  withCompletionNote,
 } from "@/utils";
 
 interface DailyCompletionsManagerProps {
@@ -121,9 +123,16 @@ export function DailyCompletionsManager({
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
 
   const completionsByDate = useMemo(() => {
-    const map = new Map<string, DailyCompletionStatus>();
+    const map = new Map<
+      string,
+      { status: DailyCompletionStatus | null;
+        note: string | null; }
+    >();
     for (const c of daily.completions) {
-      map.set(c.date, c.status);
+      map.set(c.date, {
+        status: c.status ?? null,
+        note: c.note ?? null,
+      });
     }
     return map;
   }, [daily.completions]);
@@ -134,11 +143,22 @@ export function DailyCompletionsManager({
   );
 
   const mutation = useMutation({
-    mutationFn: ({
-      dateKey, status,
-    }: { dateKey: string;
-      status: DailyCompletionStatus | null; }) => {
-      const completions = withCompletion(daily, dateKey, status);
+    mutationFn: (
+      args:
+        | {
+          kind: "status";
+          dateKey: string;
+          status: DailyCompletionStatus | null;
+        }
+        | {
+          kind: "note";
+          dateKey: string;
+          note: string | null;
+        },
+    ) => {
+      const completions = args.kind === "status"
+        ? withCompletion(daily, args.dateKey, args.status)
+        : withCompletionNote(daily, args.dateKey, args.note);
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -236,8 +256,10 @@ export function DailyCompletionsManager({
       {visibleDateKeys.length > 0 && (
         <ul className="flex flex-col divide-y rounded-md border">
           {visibleDateKeys.map((dateKey) => {
-            const status = completionsByDate.get(dateKey) ?? null;
-            const hasEntry = status !== null;
+            const entry = completionsByDate.get(dateKey);
+            const status = entry?.status ?? null;
+            const note = entry?.note ?? null;
+            const hasStatusEntry = status !== null;
             const isFuture = dateKey > todayKey;
             return (
               <li
@@ -250,7 +272,7 @@ export function DailyCompletionsManager({
                   isFuture && "opacity-60",
                 )}
               >
-                <div className="flex flex-row items-center gap-3">
+                <div className="flex min-w-0 flex-row items-center gap-3">
                   <DailyStatusCircle
                     status={status}
                     size="lg"
@@ -268,6 +290,14 @@ export function DailyCompletionsManager({
                       today
                     </span>
                   )}
+                  {readOnly && note && (
+                    <span
+                      className="truncate text-sm text-muted-foreground"
+                      title={note}
+                    >
+                      {note}
+                    </span>
+                  )}
                 </div>
                 {!readOnly && !isFuture && (
                   <div className="flex flex-row items-center gap-1">
@@ -275,12 +305,22 @@ export function DailyCompletionsManager({
                       currentStatus={status}
                       disabled={mutation.isPending}
                       onChange={newStatus => mutation.mutate({
+                        kind: "status",
                         dateKey,
                         status: newStatus,
                       })}
                       iconOnly
                     />
-                    {hasEntry
+                    <NoteEditButton
+                      initialNote={note}
+                      disabled={mutation.isPending}
+                      onSave={newNote => mutation.mutate({
+                        kind: "note",
+                        dateKey,
+                        note: newNote,
+                      })}
+                    />
+                    {hasStatusEntry
                       ? (
                         <Button
                           type="button"
@@ -288,6 +328,7 @@ export function DailyCompletionsManager({
                           size="icon-sm"
                           disabled={mutation.isPending}
                           onClick={() => mutation.mutate({
+                            kind: "status",
                             dateKey,
                             status: null,
                           })}
