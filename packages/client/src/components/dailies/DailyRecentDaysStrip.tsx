@@ -18,6 +18,16 @@ interface DailyRecentDaysStripProps {
   showLabels?: boolean;
 }
 
+const CONNECTOR_TOP_BY_SIZE: Record<
+  NonNullable<DailyRecentDaysStripProps["size"]>,
+  string
+> = {
+  sm: "mt-[11px]",
+  md: "mt-[15px]",
+  lg: "mt-[19px]",
+  xl: "mt-[23px]",
+};
+
 export function DailyRecentDaysStrip({
   daily,
   count = 7,
@@ -29,14 +39,14 @@ export function DailyRecentDaysStrip({
   const days = getRecentDays(daily, count, getTodayKey(), labelFormat);
 
   return (
-    <div className={cn("flex flex-row items-end", className)}>
+    <div className={cn("flex flex-row items-start", className)}>
       {days.map((day, i) => (
         <Fragment key={day.dateKey}>
           {i > 0 && (
             <DailyStatusConnector
               left={days[i - 1].status}
               right={day.status}
-              className={showLabels ? "mb-3" : undefined}
+              className={CONNECTOR_TOP_BY_SIZE[size]}
             />
           )}
           <div className="flex flex-col items-center gap-0.5">

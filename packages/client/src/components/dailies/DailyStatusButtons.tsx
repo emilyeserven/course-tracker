@@ -39,7 +39,7 @@ export function DailyStatusButtons({
               className={cn(
                 isActive && opt.pillClass,
                 isActive && `
-                  border-2
+                  min-w-32 border-2
                   hover:opacity-80
                 `,
               )}

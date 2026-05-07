@@ -34,43 +34,46 @@ export function TodayStatusCell({
 
   if (showSelect) {
     return (
-      <Select
-        value={currentStatus ?? undefined}
-        disabled={disabled}
-        onValueChange={(value) => {
-          onChange(value as DailyCompletionStatus);
-          setEditing(false);
-        }}
-        open={editing || undefined}
-        onOpenChange={(open) => {
-          if (!open) {
+      <div className="flex w-36">
+        <Select
+          value={currentStatus ?? undefined}
+          disabled={disabled}
+          onValueChange={(value) => {
+            onChange(value as DailyCompletionStatus);
             setEditing(false);
-          }
-        }}
-      >
-        <SelectTrigger
-          size="sm"
-          aria-label={`Set today's status for ${daily.name}`}
+          }}
+          open={editing || undefined}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditing(false);
+            }
+          }}
         >
-          <SelectValue placeholder="Select…" />
-        </SelectTrigger>
-        <SelectContent>
-          {DAILY_STATUS_OPTIONS.map(opt => (
-            <SelectItem
-              key={opt.value}
-              value={opt.value}
-            >
-              {opt.icon}
-              {opt.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            size="sm"
+            aria-label={`Set today's status for ${daily.name}`}
+            className="w-full"
+          >
+            <SelectValue placeholder="Select…" />
+          </SelectTrigger>
+          <SelectContent>
+            {DAILY_STATUS_OPTIONS.map(opt => (
+              <SelectItem
+                key={opt.value}
+                value={opt.value}
+              >
+                {opt.icon}
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-row items-center gap-1">
+    <div className="flex w-36 flex-row items-center gap-1">
       <span
         className={cn(`
           inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs
