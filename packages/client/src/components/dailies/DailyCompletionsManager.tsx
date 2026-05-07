@@ -261,6 +261,8 @@ export function DailyCompletionsManager({
             const note = entry?.note ?? null;
             const hasStatusEntry = status !== null;
             const isFuture = dateKey > todayKey;
+            const isToday = dateKey === todayKey;
+            const isEditable = !readOnly || isToday;
             return (
               <li
                 key={dateKey}
@@ -280,17 +282,7 @@ export function DailyCompletionsManager({
                   <span className="text-sm font-medium">
                     {formatDateLabel(dateKey)}
                   </span>
-                  {dateKey === todayKey && (
-                    <span
-                      className="
-                        rounded-sm bg-muted px-1.5 py-0.5 text-xs
-                        text-muted-foreground uppercase
-                      "
-                    >
-                      today
-                    </span>
-                  )}
-                  {readOnly && note && (
+                  {!isEditable && note && (
                     <span
                       className="truncate text-sm text-muted-foreground"
                       title={note}
@@ -299,7 +291,7 @@ export function DailyCompletionsManager({
                     </span>
                   )}
                 </div>
-                {!readOnly && !isFuture && (
+                {isEditable && !isFuture && (
                   <div className="flex flex-row items-center gap-1">
                     <DailyStatusButtons
                       currentStatus={status}
