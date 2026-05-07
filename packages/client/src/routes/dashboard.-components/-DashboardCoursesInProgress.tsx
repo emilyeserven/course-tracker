@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { RadialProgress } from "@/components/ui/RadialProgress";
 import { fetchCourses } from "@/utils";
 
 export function DashboardCoursesInProgress() {
@@ -48,7 +51,7 @@ export function DashboardCoursesInProgress() {
               key={course.id}
               className="flex flex-col gap-1 py-2"
             >
-              <div className="flex flex-row items-center justify-between gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <Link
                   to="/courses/$id"
                   params={{
@@ -62,11 +65,34 @@ export function DashboardCoursesInProgress() {
                   {course.name}
                 </Link>
                 {course.progressTotal > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    {course.progressCurrent}
-                    {" / "}
-                    {course.progressTotal}
-                  </span>
+                  <div className="flex flex-row items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">
+                      {course.progressCurrent}
+                      {" / "}
+                      {course.progressTotal}
+                    </span>
+                    <RadialProgress
+                      current={course.progressCurrent}
+                      total={course.progressTotal}
+                      size={20}
+                    />
+                  </div>
+                )}
+                {!!course.url && (
+                  <a
+                    href={course.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ml-auto pl-6"
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                    >
+                      Go to Course
+                      <ExternalLink />
+                    </Button>
+                  </a>
                 )}
               </div>
               <ProgressBar
