@@ -1,6 +1,7 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { FlameIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,7 +56,20 @@ export function DashboardDailies() {
   });
 
   return (
-    <DashboardCard title="Dailies">
+    <DashboardCard
+      title="Dailies"
+      action={(
+        <Link
+          to="/dailies"
+          className="
+            text-sm text-primary underline-offset-2
+            hover:underline
+          "
+        >
+          View all
+        </Link>
+      )}
+    >
       {isPending && (
         <p className="text-sm text-muted-foreground">Loading dailies...</p>
       )}
@@ -80,7 +94,18 @@ export function DashboardDailies() {
                 <div
                   className="flex flex-row items-center justify-between gap-2"
                 >
-                  <span className="font-medium">{daily.name}</span>
+                  <Link
+                    to="/dailies/$id"
+                    params={{
+                      id: daily.id,
+                    }}
+                    className="
+                      font-medium
+                      hover:text-blue-600
+                    "
+                  >
+                    {daily.name}
+                  </Link>
                   <div className="flex flex-row items-center gap-2">
                     <span
                       className={cn("inline-flex items-center gap-1 text-xs", chain > 0
@@ -102,7 +127,10 @@ export function DashboardDailies() {
                     )}
                   </div>
                 </div>
-                <DailyRecentDaysStrip daily={daily} />
+                <DailyRecentDaysStrip
+                  daily={daily}
+                  labelFormat="mmdd"
+                />
                 <DailyStatusButtons
                   currentStatus={currentStatus}
                   disabled={mutation.isPending}
