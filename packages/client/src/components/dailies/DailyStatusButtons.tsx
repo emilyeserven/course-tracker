@@ -32,9 +32,6 @@ export function DailyStatusButtons({
             variant={isActive ? "default" : "outline"}
             disabled={disabled}
             onClick={() => onChange(opt.value)}
-            className={cn({
-              "ring-2 ring-ring": isActive,
-            })}
           >
             {opt.icon}
             {opt.label}
