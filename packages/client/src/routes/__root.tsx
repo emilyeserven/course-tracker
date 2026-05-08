@@ -5,9 +5,8 @@ import {
   createRootRoute,
   Link,
   Outlet,
-  useNavigate,
 } from "@tanstack/react-router";
-import { EraserIcon, MenuIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
+import { MenuIcon } from "lucide-react";
 
 import { NavDropdown } from "@/components/layout/NavDropdown";
 import { Toaster } from "@/components/sonner";
@@ -17,47 +16,16 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuItemInteractive,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme } from "@/hooks/useTheme.ts";
 import {
-  fetchClear,
   fetchCourses,
   fetchDomains,
   fetchProviders,
-  fetchSeed,
   fetchTopics,
 } from "@/utils";
 
 const RootComponent: React.FunctionComponent = () => {
-  const navigate = useNavigate();
-  const {
-    theme, setTheme,
-  } = useTheme();
-
-  const {
-    isFetching: isSeedFetching,
-    error: seedError,
-    refetch: seedRefetch,
-  } = useQuery({
-    enabled: false,
-    queryKey: ["seed"],
-    queryFn: () => fetchSeed(),
-  });
-
-  const {
-    isFetching: isClearFetching,
-    error: clearError,
-    refetch: clearRefetch,
-  } = useQuery({
-    enabled: false,
-    queryKey: ["clear"],
-    queryFn: () => fetchClear(),
-  });
-
   const {
     data: coursesData,
   } = useQuery({
@@ -97,27 +65,6 @@ const RootComponent: React.FunctionComponent = () => {
         && !topicsData?.length
         && !providersData?.length
         && !domainsData?.length);
-
-  async function handleClearLocal() {
-    const clearRefetchResult = await clearRefetch();
-
-    if (clearRefetchResult.status === "success") {
-      navigate({
-        to: "/courses",
-        reloadDocument: true,
-      });
-    }
-  }
-
-  async function handleClearSeedLocal() {
-    const seedRefetchResult = await seedRefetch();
-    if (seedRefetchResult.status === "success") {
-      navigate({
-        to: "/courses",
-        reloadDocument: true,
-      });
-    }
-  }
 
   const navLinkClass = `
     underline-offset-2
@@ -188,7 +135,12 @@ const RootComponent: React.FunctionComponent = () => {
             Tasks
           </Link>
         </div>
-        <div className="md:hidden">
+        <div
+          className={`
+            ml-auto flex flex-row gap-2
+            md:hidden
+          `}
+        >
           <DropdownMenu>
             <DropdownMenuTrigger asChild={true}>
               <Button
@@ -199,7 +151,7 @@ const RootComponent: React.FunctionComponent = () => {
                 <MenuIcon />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="end">
               <DropdownMenuGroup>
                 <DropdownMenuItem
                   asChild
@@ -251,62 +203,28 @@ const RootComponent: React.FunctionComponent = () => {
                 >
                   <Link to="/tasks">Tasks</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/settings">Settings</Link>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex flex-row gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild={true}>
-              <Button>Menu</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Data Tools</DropdownMenuLabel>
-              <DropdownMenuGroup>
-                <DropdownMenuItemInteractive
-                  onClick={() => handleClearLocal()}
-                  isLoading={isClearFetching}
-                  isError={clearError}
-                >
-                  <EraserIcon />
-                  Clear Data
-                </DropdownMenuItemInteractive>
-                <DropdownMenuItemInteractive
-                  onClick={() => handleClearSeedLocal()}
-                  isLoading={isSeedFetching}
-                  isError={seedError}
-                >
-                  <SproutIcon />
-                  Clear & Seed Data
-                </DropdownMenuItemInteractive>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Settings</DropdownMenuLabel>
-              <DropdownMenuGroup>
-                {theme === "dark"
-                  ? (
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setTheme("light");
-                      }}
-                    >
-                      <SunIcon />
-                      Set to Light Mode
-                    </DropdownMenuItem>
-                  )
-                  : (
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setTheme("dark");
-                      }}
-                    >
-                      <MoonIcon />
-                      Set to Dark Mode
-                    </DropdownMenuItem>
-                  )}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div
+          className={`
+            hidden flex-row gap-2
+            md:flex
+          `}
+        >
+          <Link
+            to="/settings"
+            className={navLinkClass}
+          >
+            Settings
+          </Link>
         </div>
       </div>
       <hr />
