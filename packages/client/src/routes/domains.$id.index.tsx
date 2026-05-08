@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, RadarIcon } from "lucide-react";
+import { CopyIcon, EditIcon, RadarIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { DomainLearningLog } from "@/components/domains/DomainLearningLog";
@@ -8,7 +9,11 @@ import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleDomain, fetchSingleDomain } from "@/utils";
+import {
+  deleteSingleDomain,
+  duplicateDomain,
+  fetchSingleDomain,
+} from "@/utils";
 
 export const Route = createFileRoute("/domains/$id/")({
   component: SingleDomain,
@@ -19,6 +24,7 @@ function SingleDomain() {
     id,
   } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     isPending, error, data,
@@ -34,6 +40,24 @@ function SingleDomain() {
     enabled: false,
     queryFn: () => deleteSingleDomain(id),
   });
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateDomain(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["domains"],
+      });
+      await navigate({
+        to: "/domains/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate domain. Please try again.");
+    }
+  }
 
   if (isPending) {
     return (
@@ -66,7 +90,7 @@ function SingleDomain() {
   return (
     <div>
       <PageHeader
-        pageTitle={data?.title}
+        pageTitle={data?.title || "(Untitled Domain)"}
         pageSection="domains"
       >
         <div className="flex flex-row gap-2">
@@ -84,6 +108,14 @@ function SingleDomain() {
               </Button>
             </Link>
           )}
+          <Button
+            variant="secondary"
+            onClick={handleDuplicate}
+          >
+            Duplicate
+            {" "}
+            <CopyIcon />
+          </Button>
           <Link
             to="/domains/$id/edit"
             params={{

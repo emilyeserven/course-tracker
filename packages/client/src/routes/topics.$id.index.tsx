@@ -108,6 +108,32 @@ function SingleTopic() {
         </InfoArea>
         <div>
           <InfoArea
+            header="Domains"
+            condition={!!data?.domains && data.domains.length > 0}
+          >
+            <ul className="ml-5 list-disc">
+              {data?.domains
+                && data.domains.map(domain => (
+                  <li key={domain.id}>
+                    <Link
+                      to="/domains/$id"
+                      params={{
+                        id: domain.id + "",
+                      }}
+                      className={`
+                        font-bold text-blue-800
+                        hover:text-blue-600
+                      `}
+                    >
+                      {domain.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </InfoArea>
+        </div>
+        <div>
+          <InfoArea
             header="Courses"
             condition={!!data?.courseCount && data.courseCount > 0}
           >

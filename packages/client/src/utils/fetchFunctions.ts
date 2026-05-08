@@ -359,6 +359,45 @@ export async function deleteSingleDaily(
   }).then(res => res.json());
 }
 
+export async function duplicateDomain(
+  id: string,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch(`/api/domains/${id}/duplicate`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to duplicate domain: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function duplicateCourse(
+  id: string,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch(`/api/courses/${id}/duplicate`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to duplicate course: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function duplicateDaily(
+  id: string,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch(`/api/dailies/${id}/duplicate`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to duplicate daily: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function fetchRadar(domainId: string): Promise<Radar> {
   const response = await fetch(`/api/domains/${domainId}/radar`);
   if (!response.ok) {

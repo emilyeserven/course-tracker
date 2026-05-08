@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { topics } from "@/db/schema";
+import { topics, topicsToDomains } from "@/db/schema";
 import { nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,9 +14,16 @@ const createSchema = {
       properties: {
         name: {
           type: "string",
+          minLength: 1,
         },
         description: nullableString,
         reason: nullableString,
+        domainIds: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
       },
     },
   },
@@ -38,6 +45,16 @@ export default async function (server: FastifyInstance) {
         description: body.description ?? null,
         reason: body.reason ?? null,
       });
+
+      const uniqueDomainIds = Array.from(new Set(body.domainIds ?? []));
+      if (uniqueDomainIds.length > 0) {
+        await db.insert(topicsToDomains).values(
+          uniqueDomainIds.map(domainId => ({
+            topicId: id,
+            domainId,
+          })),
+        );
+      }
 
       return {
         status: "ok",

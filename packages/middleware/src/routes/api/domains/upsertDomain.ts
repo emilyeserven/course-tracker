@@ -15,6 +15,7 @@ const upsertSchema = {
       properties: {
         title: {
           type: "string",
+          minLength: 1,
         },
         description: nullableString,
         hasRadar: nullableBoolean,
@@ -54,9 +55,17 @@ export default async function (server: FastifyInstance) {
       } = request.params;
       const body = request.body;
 
+      const title = body.title.trim();
+      if (!title) {
+        reply.status(400);
+        return {
+          error: "Title is required",
+        };
+      }
+
       const domainData = {
         id,
-        title: body.title,
+        title,
         description: body.description ?? null,
         hasRadar: body.hasRadar ?? null,
       };
