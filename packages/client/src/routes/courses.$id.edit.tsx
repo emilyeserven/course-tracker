@@ -1,6 +1,6 @@
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,16 +10,6 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
@@ -28,6 +18,7 @@ import {
   fetchTopics,
   formHasChanges,
   upsertCourse,
+  uuidv4,
 } from "@/utils";
 
 export const Route = createFileRoute("/courses/$id/edit")({
@@ -56,9 +47,6 @@ function SingleCourseEdit() {
   const queryClient = useQueryClient();
 
   const skipBlocker = useRef(false);
-  const [pendingActivation, setPendingActivation] = useState<{
-    courseId: string;
-  } | null>(null);
 
   const {
     data,
@@ -138,7 +126,7 @@ function SingleCourseEdit() {
       };
 
       try {
-        const courseId = isNew ? crypto.randomUUID() : id;
+        const courseId = isNew ? uuidv4() : id;
         const previousStatus = data?.status;
         await upsertCourse(courseId, courseData);
         if (!isNew) {
@@ -158,21 +146,20 @@ function SingleCourseEdit() {
         const becameActive
           = value.status === "active"
             && (isNew || previousStatus !== "active");
-        if (becameActive) {
-          setPendingActivation({
-            courseId,
-          });
-          return;
-        }
-
         await navigate({
           to: "/courses/$id",
           params: {
             id: courseId,
           },
+          search: becameActive
+            ? {
+              promptDaily: 1,
+            }
+            : {},
         });
       }
-      catch {
+      catch (err) {
+        console.error("Failed to save course:", err);
         toast.error(
           isNew
             ? "Failed to create course. Please try again."
@@ -356,54 +343,6 @@ function SingleCourseEdit() {
       <UnsavedChangesDialog
         shouldBlockFn={() => hasChanges && !skipBlocker.current}
       />
-      <AlertDialog open={pendingActivation !== null}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create a Daily for this course?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You marked this course as active. Want to create a Daily that
-              tracks your progress on it?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={async () => {
-                const courseId = pendingActivation?.courseId;
-                setPendingActivation(null);
-                if (courseId) {
-                  await navigate({
-                    to: "/courses/$id",
-                    params: {
-                      id: courseId,
-                    },
-                  });
-                }
-              }}
-            >
-              No thanks
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                const courseId = pendingActivation?.courseId;
-                setPendingActivation(null);
-                if (courseId) {
-                  await navigate({
-                    to: "/dailies/$id/edit",
-                    params: {
-                      id: "new",
-                    },
-                    search: {
-                      newCourseId: courseId,
-                    },
-                  });
-                }
-              }}
-            >
-              Create Daily
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -89,7 +89,10 @@ export async function upsertCourse(
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error(`Failed to update course: ${response.statusText}`);
+    const body = await response.text();
+    throw new Error(
+      `Failed to update course (${response.status} ${response.statusText}): ${body}`,
+    );
   }
   return await response.json();
 }

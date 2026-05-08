@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
@@ -5,6 +7,16 @@ import { TopicList } from "@/components/boxElements/TopicList";
 import { DailyRecentDaysStrip } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import {
   deleteSingleCourse,
@@ -14,15 +26,29 @@ import {
   makePercentageComplete,
 } from "@/utils";
 
+interface CourseSearch {
+  promptDaily?: 1;
+}
+
 export const Route = createFileRoute("/courses/$id/")({
   component: SingleCourse,
+  validateSearch: (search: Record<string, unknown>): CourseSearch => ({
+    promptDaily: search.promptDaily === 1 || search.promptDaily === "1"
+      ? 1
+      : undefined,
+  }),
 });
 
 function SingleCourse() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const navigate = useNavigate();
+
+  const [dailyPromptOpen, setDailyPromptOpen] = useState<boolean>(
+    search.promptDaily === 1,
+  );
 
   const {
     data,
@@ -189,6 +215,50 @@ function SingleCourse() {
       <div>
         <DeleteButton onClick={handleDelete}>Delete Course</DeleteButton>
       </div>
+      <AlertDialog open={dailyPromptOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create a Daily for this course?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You marked this course as active. Want to create a Daily that
+              tracks your progress on it?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={async () => {
+                setDailyPromptOpen(false);
+                await navigate({
+                  to: "/courses/$id",
+                  params: {
+                    id,
+                  },
+                  search: {},
+                  replace: true,
+                });
+              }}
+            >
+              No thanks
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setDailyPromptOpen(false);
+                await navigate({
+                  to: "/dailies/$id/edit",
+                  params: {
+                    id: "new",
+                  },
+                  search: {
+                    newCourseId: id,
+                  },
+                });
+              }}
+            >
+              Create Daily
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

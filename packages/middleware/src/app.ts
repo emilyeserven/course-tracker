@@ -28,7 +28,7 @@ const fastify = Fastify({
 }).withTypeProvider<JsonSchemaToTsProvider>();
 
 await fastify.register(fastifyCors, {
-  methods: ["GET", "HEAD", "DELETE", "POST"],
+  methods: ["GET", "HEAD", "DELETE", "POST", "PUT", "PATCH"],
 });
 
 fastify.register(fastifyEnv, makeEnvOptions(__dirname)).ready((err) => {
