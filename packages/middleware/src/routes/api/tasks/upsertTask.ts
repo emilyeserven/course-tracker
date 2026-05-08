@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, tasks } from "@/db/schema";
+import { resources, taskTodos, tasks } from "@/db/schema";
 import { idParamSchema, nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -31,6 +31,22 @@ const resourceSchema = {
   },
 } as const;
 
+const todoSchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    isComplete: {
+      type: "boolean",
+    },
+  },
+} as const;
+
 const upsertSchema = {
   schema: {
     description: "Update a task and its resources",
@@ -47,6 +63,10 @@ const upsertSchema = {
         resources: {
           type: "array",
           items: resourceSchema,
+        },
+        todos: {
+          type: "array",
+          items: todoSchema,
         },
       },
     },
@@ -97,6 +117,21 @@ export default async function (server: FastifyInstance) {
               timeNeeded: r.timeNeeded ?? null,
               interactivity: r.interactivity ?? null,
               usedYet: r.usedYet ?? false,
+              position: index,
+            })),
+          );
+        }
+      }
+
+      if (body.todos !== undefined) {
+        await db.delete(taskTodos).where(eq(taskTodos.taskId, id));
+        if (body.todos.length > 0) {
+          await db.insert(taskTodos).values(
+            body.todos.map((t, index) => ({
+              id: t.id || uuidv4(),
+              taskId: id,
+              name: t.name,
+              isComplete: t.isComplete ?? false,
               position: index,
             })),
           );

@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { resources, tasks } from "@/db/schema";
+import { resources, taskTodos, tasks } from "@/db/schema";
 import { nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -30,6 +30,22 @@ const resourceSchema = {
   },
 } as const;
 
+const todoSchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    isComplete: {
+      type: "boolean",
+    },
+  },
+} as const;
+
 const createSchema = {
   schema: {
     description: "Create a new task",
@@ -45,6 +61,10 @@ const createSchema = {
         resources: {
           type: "array",
           items: resourceSchema,
+        },
+        todos: {
+          type: "array",
+          items: todoSchema,
         },
       },
     },
@@ -80,6 +100,19 @@ export default async function (server: FastifyInstance) {
             timeNeeded: r.timeNeeded ?? null,
             interactivity: r.interactivity ?? null,
             usedYet: r.usedYet ?? false,
+            position: index,
+          })),
+        );
+      }
+
+      const incomingTodos = body.todos ?? [];
+      if (incomingTodos.length > 0) {
+        await db.insert(taskTodos).values(
+          incomingTodos.map((t, index) => ({
+            id: t.id || uuidv4(),
+            taskId: id,
+            name: t.name,
+            isComplete: t.isComplete ?? false,
             position: index,
           })),
         );

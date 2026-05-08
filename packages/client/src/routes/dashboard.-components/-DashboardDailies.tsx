@@ -2,15 +2,17 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { FlameIcon, LaughIcon } from "lucide-react";
+import { FlameIcon, LaughIcon, MessageSquareIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailyCourseIndicator,
   DailyLocationCell,
+  DailyProgressCell,
   DailyStatusCircle,
   DailyStatusConnector,
+  DailyTaskIndicator,
   TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
@@ -75,7 +77,7 @@ export function DashboardDailies() {
 
   const sortedDailies = dailies
     ? [...dailies]
-      .filter(d => d.status !== "complete")
+      .filter(d => d.status !== "complete" && d.status !== "paused")
       .sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
           sensitivity: "base",
@@ -139,6 +141,7 @@ export function DashboardDailies() {
             <thead>
               <tr className="text-left text-xs text-muted-foreground">
                 <th className="p-2 font-medium">Title</th>
+                <th className="p-2 font-medium">Progress</th>
                 <th className="p-2 font-medium">Streak</th>
                 <th className="p-2 font-medium">Total</th>
                 {dayHeaders.map(d => (
@@ -154,6 +157,7 @@ export function DashboardDailies() {
                 ))}
                 <th className="p-2 font-medium">Today&apos;s Status</th>
                 <th className="p-2 font-medium whitespace-nowrap">Location</th>
+                <th className="w-8 p-2" />
               </tr>
             </thead>
             <tbody>
@@ -190,7 +194,11 @@ export function DashboardDailies() {
                           {daily.name}
                         </Link>
                         <DailyCourseIndicator daily={daily} />
+                        <DailyTaskIndicator daily={daily} />
                       </span>
+                    </td>
+                    <td className="p-2">
+                      <DailyProgressCell daily={daily} />
                     </td>
                     <td className="p-2">
                       <span
@@ -281,6 +289,23 @@ export function DashboardDailies() {
                     </td>
                     <td className="p-2 whitespace-nowrap">
                       <DailyLocationCell location={daily.location} />
+                    </td>
+                    <td className="p-2">
+                      <Link
+                        to="/dailies/$id"
+                        params={{
+                          id: daily.id,
+                        }}
+                        aria-label={`View comments for ${daily.name}`}
+                        title="View daily comments"
+                        className="
+                          inline-flex items-center justify-center rounded-md p-1
+                          text-muted-foreground transition
+                          hover:bg-muted hover:text-foreground
+                        "
+                      >
+                        <MessageSquareIcon className="size-3.5" />
+                      </Link>
                     </td>
                   </tr>
                 );

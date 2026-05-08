@@ -14,7 +14,14 @@ export interface DailyCriteria {
   freeze?: string;
 }
 
-export type DailyStatus = "active" | "inactive" | "complete";
+export type DailyStatus = "active" | "inactive" | "complete" | "paused";
+
+export interface DailyTaskProgress {
+  todosTotal: number;
+  todosComplete: number;
+  resourcesTotal: number;
+  resourcesUsed: number;
+}
 
 export interface Daily {
   id: string;
@@ -28,6 +35,7 @@ export interface Daily {
   task?: {
     id: string;
     name: string;
+    progress?: DailyTaskProgress;
   } | null;
   provider?: {
     name: string;

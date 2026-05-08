@@ -225,7 +225,7 @@ function SingleCourseEdit() {
   }
 
   return (
-    <div className="container flex-col">
+    <div className="m-auto w-full max-w-[1200px] px-4">
       <h2 className="mb-6 text-2xl">{isNew ? "New Course" : "Edit Course"}</h2>
       <form
         onSubmit={(e) => {

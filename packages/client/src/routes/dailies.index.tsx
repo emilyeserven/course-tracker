@@ -2,7 +2,12 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FlameIcon, LaughIcon, PencilIcon, PlusIcon } from "lucide-react";
+import {
+  FlameIcon,
+  LaughIcon,
+  MessageSquareIcon,
+  PlusIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -10,8 +15,10 @@ import {
   DailiesLimitSetting,
   DailyCourseIndicator,
   DailyLocationCell,
+  DailyProgressCell,
   DailyStatusCircle,
   DailyStatusConnector,
+  DailyTaskIndicator,
   TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
@@ -108,8 +115,12 @@ function Dailies() {
       }))
     : undefined;
 
-  const activeDailies = sortedDailies?.filter(d => d.status !== "complete") ?? [];
-  const completedDailies = sortedDailies?.filter(d => d.status === "complete") ?? [];
+  const activeDailies = sortedDailies?.filter(
+    d => d.status !== "complete" && d.status !== "paused",
+  ) ?? [];
+  const pausedDailies = sortedDailies?.filter(d => d.status === "paused") ?? [];
+  const completedDailies = sortedDailies?.filter(d => d.status === "complete")
+    ?? [];
 
   const dayHeaders = activeDailies.length > 0
     ? getRecentDays(
@@ -172,6 +183,7 @@ function Dailies() {
                 <thead>
                   <tr className="text-left text-xs text-muted-foreground">
                     <th className="p-2 font-medium">Title</th>
+                    <th className="p-2 font-medium">Progress</th>
                     <th className="p-2 font-medium">Description</th>
                     <th className="p-2 font-medium">Streak</th>
                     <th className="p-2 font-medium">Total</th>
@@ -228,7 +240,11 @@ function Dailies() {
                               {daily.name}
                             </Link>
                             <DailyCourseIndicator daily={daily} />
+                            <DailyTaskIndicator daily={daily} />
                           </span>
+                        </td>
+                        <td className="p-2">
+                          <DailyProgressCell daily={daily} />
                         </td>
                         <td className="max-w-xs p-2">
                           {daily.description
@@ -342,23 +358,79 @@ function Dailies() {
                         </td>
                         <td className="p-2">
                           <Link
-                            to="/dailies/$id/edit"
+                            to="/dailies/$id"
                             params={{
                               id: daily.id,
                             }}
-                            aria-label={`Edit ${daily.name}`}
-                            title="Edit daily"
+                            aria-label={`View comments for ${daily.name}`}
+                            title="View daily comments"
                             className="
                               inline-flex items-center justify-center rounded-md
-                              p-1 text-muted-foreground opacity-0 transition
-                              group-hover:opacity-100
+                              p-1 text-muted-foreground transition
                               hover:bg-muted hover:text-foreground
-                              focus-visible:opacity-100
                             "
                           >
-                            <PencilIcon className="size-3.5" />
+                            <MessageSquareIcon className="size-3.5" />
                           </Link>
                         </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </DashboardCard>
+        )}
+
+        {pausedDailies.length > 0 && (
+          <DashboardCard title="Paused Dailies">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="p-2 font-medium">Name</th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Last Entry
+                    </th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Days Completed
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pausedDailies.map((daily) => {
+                    const lastEntry = getLastEntryDate(daily);
+                    const totalDays = getTotalCompletedDays(daily);
+                    return (
+                      <tr
+                        key={daily.id}
+                        className="border-t align-middle opacity-90"
+                      >
+                        <td className="p-2">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Link
+                              to="/dailies/$id"
+                              from="/dailies"
+                              params={{
+                                id: daily.id,
+                              }}
+                              className="
+                                font-medium
+                                hover:text-blue-600
+                              "
+                            >
+                              {daily.name}
+                            </Link>
+                            <DailyCourseIndicator daily={daily} />
+                            <DailyTaskIndicator daily={daily} />
+                          </span>
+                        </td>
+                        <td className="p-2 whitespace-nowrap">
+                          {lastEntry ?? (
+                            <span className="text-muted-foreground/70">—</span>
+                          )}
+                        </td>
+                        <td className="p-2 whitespace-nowrap">{totalDays}</td>
                       </tr>
                     );
                   })}
@@ -416,6 +488,7 @@ function Dailies() {
                               {daily.name}
                             </Link>
                             <DailyCourseIndicator daily={daily} />
+                            <DailyTaskIndicator daily={daily} />
                           </span>
                         </td>
                         <td className="p-2 whitespace-nowrap">

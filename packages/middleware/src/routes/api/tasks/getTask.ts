@@ -34,6 +34,7 @@ export default async function (server: FastifyInstance) {
             },
           },
           resources: true,
+          todos: true,
           daily: {
             columns: {
               id: true,
@@ -73,6 +74,16 @@ export default async function (server: FastifyInstance) {
             interactivity: r.interactivity,
             usedYet: r.usedYet,
             position: r.position,
+          })),
+        todos: (task.todos ?? [])
+          .slice()
+          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+          .map(t => ({
+            id: t.id,
+            taskId: t.taskId,
+            name: t.name,
+            isComplete: t.isComplete,
+            position: t.position,
           })),
         daily: task.daily
           ? {

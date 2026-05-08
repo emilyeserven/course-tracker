@@ -1,6 +1,7 @@
 import type { Daily } from "@emstack/types/src";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { GraduationCapIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,19 +47,25 @@ export function DailyCourseIndicator({
     return null;
   }
 
-  const tooltipText = course.progressTotal > 0
-    ? `${course.name} (${course.progressCurrent}/${course.progressTotal})`
-    : course.name;
-
   return (
     <span className="inline-flex items-center gap-1">
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex items-center text-muted-foreground">
+          <Link
+            to="/courses/$id"
+            params={{
+              id: course.id,
+            }}
+            aria-label={`Go to course ${course.name}`}
+            className="
+              inline-flex items-center text-muted-foreground
+              hover:text-foreground
+            "
+          >
             <GraduationCapIcon className="size-4" />
-          </span>
+          </Link>
         </TooltipTrigger>
-        <TooltipContent>{tooltipText}</TooltipContent>
+        <TooltipContent>{course.name}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>

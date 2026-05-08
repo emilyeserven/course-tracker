@@ -29,7 +29,7 @@ export const usersTable = pgTable("users", {
 });
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
-export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
+export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
 
@@ -117,6 +117,16 @@ export const resources = pgTable("resources", {
   position: integer(),
 });
 
+export const taskTodos = pgTable("task_todos", {
+  id: varchar().primaryKey(),
+  taskId: varchar("task_id").notNull(),
+  name: varchar({
+    length: 500,
+  }).notNull(),
+  isComplete: boolean("is_complete").default(false).notNull(),
+  position: integer(),
+});
+
 export const tasksRelations = relations(tasks, ({
   one, many,
 }) => ({
@@ -125,6 +135,7 @@ export const tasksRelations = relations(tasks, ({
     references: [topics.id],
   }),
   resources: many(resources),
+  todos: many(taskTodos),
   daily: one(dailies, {
     fields: [tasks.id],
     references: [dailies.taskId],
@@ -136,6 +147,15 @@ export const resourcesRelations = relations(resources, ({
 }) => ({
   task: one(tasks, {
     fields: [resources.taskId],
+    references: [tasks.id],
+  }),
+}));
+
+export const taskTodosRelations = relations(taskTodos, ({
+  one,
+}) => ({
+  task: one(tasks, {
+    fields: [taskTodos.taskId],
     references: [tasks.id],
   }),
 }));

@@ -52,11 +52,41 @@ export default async function (server: FastifyInstance) {
               id: true,
               name: true,
             },
+            with: {
+              resources: {
+                columns: {
+                  id: true,
+                  usedYet: true,
+                },
+              },
+              todos: {
+                columns: {
+                  id: true,
+                  isComplete: true,
+                },
+              },
+            },
           },
         },
       });
 
       if (daily) {
+        const taskRecord = daily.task;
+        const taskBlock = taskRecord
+          ? {
+            id: taskRecord.id,
+            name: taskRecord.name,
+            progress: {
+              todosTotal: taskRecord.todos?.length ?? 0,
+              todosComplete:
+                taskRecord.todos?.filter(t => t.isComplete).length ?? 0,
+              resourcesTotal: taskRecord.resources?.length ?? 0,
+              resourcesUsed:
+                taskRecord.resources?.filter(r => r.usedYet).length ?? 0,
+            },
+          }
+          : null;
+
         const result: Daily = {
           id: daily.id,
           name: daily.name,
@@ -66,12 +96,7 @@ export default async function (server: FastifyInstance) {
           status: daily.status ?? "active",
           criteria: (daily.criteria ?? {}) as DailyCriteria,
           taskId: daily.taskId ?? null,
-          task: daily.task
-            ? {
-              id: daily.task.id,
-              name: daily.task.name,
-            }
-            : null,
+          task: taskBlock,
           provider:
             daily.courseProvider?.name && daily.courseProvider?.id
               ? {

@@ -4,7 +4,7 @@ import { Daily } from "@/Daily";
 import { MinimalTopic } from "@/MinimalTopic";
 import { Topic } from "@/Topic";
 
-export type CourseStatus = "active" | "inactive" | "complete";
+export type CourseStatus = "active" | "inactive" | "complete" | "paused";
 
 export interface Course {
   id: string;

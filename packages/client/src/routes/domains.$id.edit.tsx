@@ -291,7 +291,7 @@ function SingleDomainEdit() {
           </Link>
         )}
       </PageHeader>
-      <div className="container flex-col">
+      <div className="m-auto w-full max-w-[1200px] px-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
