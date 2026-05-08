@@ -1,13 +1,22 @@
 import type { Task } from "@emstack/types/src";
 
+import { useMemo, useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckSquareIcon, PlusIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
-import { ContentBox } from "@/components/boxes/ContentBox";
+import { TaskBox } from "@/components/boxes/TaskBox";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchTasks } from "@/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { fetchTasks, fetchTopics } from "@/utils";
 
 export const Route = createFileRoute("/tasks/")({
   component: Tasks,
@@ -31,62 +40,10 @@ function TasksError() {
   );
 }
 
-function TaskBox({
-  task,
-}: { task: Task }) {
-  const totalResources = task.resources?.length ?? 0;
-  const usedResources
-    = task.resources?.filter(r => r.usedYet).length ?? 0;
-
-  return (
-    <Link
-      to="/tasks/$id"
-      params={{
-        id: task.id,
-      }}
-      className="block"
-    >
-      <ContentBox
-        className="
-          h-full transition-colors
-          hover:bg-accent
-        "
-      >
-        <div className="flex flex-col gap-2 p-4">
-          <h3 className="text-xl font-semibold">{task.name}</h3>
-          {task.topic && (
-            <span className="text-xs text-muted-foreground">
-              Topic:
-              {" "}
-              {task.topic.name}
-            </span>
-          )}
-          {task.description && (
-            <p className="line-clamp-3 text-sm text-muted-foreground">
-              {task.description}
-            </p>
-          )}
-          <div
-            className="
-              mt-2 flex flex-row items-center gap-2 text-xs
-              text-muted-foreground
-            "
-          >
-            <CheckSquareIcon className="size-4" />
-            <span>
-              {usedResources}
-              {" / "}
-              {totalResources}
-              {" resources used"}
-            </span>
-          </div>
-        </div>
-      </ContentBox>
-    </Link>
-  );
-}
-
 function Tasks() {
+  const [search, setSearch] = useState("");
+  const [filterTopic, setFilterTopic] = useState<string | undefined>();
+
   const {
     data,
   } = useQuery({
@@ -94,37 +51,133 @@ function Tasks() {
     queryFn: () => fetchTasks(),
   });
 
+  const {
+    data: topics,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+  });
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+
+    let result = data;
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(t =>
+        t.name.toLowerCase().includes(q)
+        || (t.description?.toLowerCase().includes(q) ?? false));
+    }
+
+    if (filterTopic === "none") {
+      result = result.filter(t => !t.topic);
+    }
+    else if (filterTopic) {
+      result = result.filter(t => t.topic?.id === filterTopic);
+    }
+
+    return result;
+  }, [data, search, filterTopic]);
+
+  const hasActiveFilters = !!filterTopic;
+
   return (
     <div>
       <PageHeader
         pageTitle="Tasks"
         pageSection=""
-      />
-      <div className="container">
-        <div className="mb-4 flex justify-end">
-          <Link
-            to="/tasks/$id/edit"
-            params={{
-              id: "new",
-            }}
-          >
-            <Button variant="outline">
-              <PlusIcon className="size-4" />
-              New Task
-            </Button>
-          </Link>
-        </div>
+      >
+        <Link
+          to="/tasks/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button variant="outline">
+            <PlusIcon className="size-4" />
+            New Task
+          </Button>
+        </Link>
+      </PageHeader>
+      <div className="container flex flex-col gap-4">
+        {data && data.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <SearchIcon
+                className="
+                  absolute top-1/2 left-2.5 size-4 -translate-y-1/2
+                  text-muted-foreground
+                "
+              />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="
+                  h-9 rounded-md border border-input bg-transparent pr-3 pl-8
+                  text-sm shadow-xs transition-[color,box-shadow] outline-none
+                  placeholder:text-muted-foreground
+                  focus-visible:border-ring focus-visible:ring-[3px]
+                  focus-visible:ring-ring/50
+                "
+              />
+            </div>
+            <Select
+              value={filterTopic ?? "all"}
+              onValueChange={v =>
+                setFilterTopic(v === "all" ? undefined : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Topic" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Topics</SelectItem>
+                <SelectItem value="none">No Topic</SelectItem>
+                {topics?.map(t => (
+                  <SelectItem
+                    key={t.id}
+                    value={t.id}
+                  >
+                    {t.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterTopic(undefined);
+                }}
+              >
+                <XIcon className="size-4" />
+                Clear filters
+              </Button>
+            )}
+          </div>
+        )}
+
         {(!data || data.length === 0) && (
           <p className="text-sm text-muted-foreground">
             <i>No tasks yet!</i>
           </p>
         )}
-        {data && data.length > 0 && (
+
+        {data && data.length > 0 && filtered.length === 0 && (
+          <div className="text-muted-foreground">
+            <i>No tasks match your filters.</i>
+          </div>
+        )}
+
+        {filtered.length > 0 && (
           <div className="card-grid">
-            {data.map(task => (
+            {filtered.map((task: Task) => (
               <TaskBox
                 key={task.id}
-                task={task}
+                {...task}
               />
             ))}
           </div>
