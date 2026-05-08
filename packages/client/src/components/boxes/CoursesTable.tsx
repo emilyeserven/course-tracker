@@ -1,6 +1,11 @@
 import type { CourseInCourses } from "@emstack/types/src";
 
-import { ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  CalendarCheckIcon,
+  ExternalLink,
+  ExternalLinkIcon,
+} from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
@@ -50,6 +55,7 @@ export function CoursesTable({
             <TableHead>Name</TableHead>
             <TableHead>Provider</TableHead>
             <TableHead>Topics</TableHead>
+            <TableHead>Daily</TableHead>
             <TableHead>Progress</TableHead>
             <TableHead>Cost</TableHead>
             <TableHead>Expires</TableHead>
@@ -97,6 +103,32 @@ export function CoursesTable({
                       topics={course.topics}
                       isPills={false}
                     />
+                  )
+                  : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+              </TableCell>
+              <TableCell>
+                {course.dailies && course.dailies.length > 0
+                  ? (
+                    <Link
+                      to="/dailies/$id"
+                      params={{
+                        id: course.dailies[0].id,
+                      }}
+                      title={`Open Daily: ${course.dailies[0].name}`}
+                      className={`
+                        inline-flex items-center gap-1 text-xs text-blue-700
+                        hover:text-blue-500
+                        dark:text-blue-300
+                      `}
+                    >
+                      <CalendarCheckIcon className="size-3.5" />
+                      <span className="max-w-32 truncate">
+                        {course.dailies[0].name}
+                      </span>
+                      <ExternalLinkIcon className="size-3" />
+                    </Link>
                   )
                   : (
                     <span className="text-muted-foreground">—</span>

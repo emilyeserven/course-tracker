@@ -1,11 +1,61 @@
+import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
 import { fetchCourses } from "@/utils";
+
+function ProgressIndicator({
+  current,
+  total,
+}: {
+  current: number;
+  total: number;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <PopoverTrigger
+        type="button"
+        aria-label={`Progress: ${current} of ${total}`}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        className="inline-flex items-center"
+      >
+        <RadialProgress
+          current={current}
+          total={total}
+          size={20}
+        />
+      </PopoverTrigger>
+      <PopoverContent
+        align="center"
+        side="top"
+        sideOffset={6}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        className="w-auto px-2 py-1 text-xs whitespace-nowrap"
+      >
+        {current}
+        {" / "}
+        {total}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export function DashboardCoursesInProgress() {
   const {
@@ -52,26 +102,10 @@ export function DashboardCoursesInProgress() {
             >
               {course.progressTotal > 0
                 ? (
-                  <span className="group relative inline-flex items-center">
-                    <RadialProgress
-                      current={course.progressCurrent}
-                      total={course.progressTotal}
-                      size={20}
-                    />
-                    <span
-                      className="
-                        pointer-events-none invisible absolute top-full left-1/2
-                        z-10 mt-1 -translate-x-1/2 rounded-sm bg-popover px-1.5
-                        py-0.5 text-xs whitespace-nowrap text-popover-foreground
-                        shadow-md
-                        group-hover:visible
-                      "
-                    >
-                      {course.progressCurrent}
-                      {" / "}
-                      {course.progressTotal}
-                    </span>
-                  </span>
+                  <ProgressIndicator
+                    current={course.progressCurrent}
+                    total={course.progressTotal}
+                  />
                 )
                 : <span className="size-5" />}
               <Link
