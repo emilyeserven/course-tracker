@@ -17,24 +17,34 @@ interface SuccessObj {
   status: string;
 }
 
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Request to ${url} failed (${response.status} ${response.statusText})`,
+    );
+  }
+  return await response.json();
+}
+
 export async function fetchTest(): Promise<Test> {
-  return await fetch("/api").then(res => res.json());
+  return fetchJson<Test>("/api");
 }
 
 export async function fetchDbTest(): Promise<DbTest[]> {
-  return await fetch("/api/dbTest").then(res => res.json());
+  return fetchJson<DbTest[]>("/api/dbTest");
 }
 
 export async function fetchTopics(): Promise<TopicForTopicsPage[]> {
-  return await fetch("/api/topics").then(res => res.json());
+  return fetchJson<TopicForTopicsPage[]>("/api/topics");
 }
 
 export async function fetchProviders(): Promise<CourseProvider[]> {
-  return await fetch("/api/providers").then(res => res.json());
+  return fetchJson<CourseProvider[]>("/api/providers");
 }
 
 export async function fetchCourses(): Promise<CourseInCourses[]> {
-  return await fetch("/api/courses").then(res => res.json());
+  return fetchJson<CourseInCourses[]>("/api/courses");
 }
 
 export async function deleteSingleCourse(id: string): Promise<Course> {
@@ -59,15 +69,15 @@ export async function deleteSingleTopic(id: string): Promise<Course> {
 }
 
 export async function fetchSingleCourse(id: string): Promise<Course> {
-  return await fetch(`/api/courses/${id}`).then(res => res.json());
+  return fetchJson<Course>(`/api/courses/${id}`);
 }
 
 export async function fetchSingleTopic(id: string): Promise<Topic> {
-  return await fetch(`/api/topics/${id}`).then(res => res.json());
+  return fetchJson<Topic>(`/api/topics/${id}`);
 }
 
 export async function fetchSingleProvider(id: string): Promise<CourseProvider> {
-  return await fetch(`/api/providers/${id}`).then(res => res.json());
+  return fetchJson<CourseProvider>(`/api/providers/${id}`);
 }
 
 export async function fetchSeed(): Promise<SuccessObj> {
@@ -196,11 +206,11 @@ export async function postOnboardForm(
 }
 
 export async function fetchDomains(): Promise<Domain[]> {
-  return await fetch("/api/domains").then(res => res.json());
+  return fetchJson<Domain[]>("/api/domains");
 }
 
 export async function fetchSingleDomain(id: string): Promise<Domain> {
-  return await fetch(`/api/domains/${id}`).then(res => res.json());
+  return fetchJson<Domain>(`/api/domains/${id}`);
 }
 
 export async function deleteSingleDomain(
@@ -310,11 +320,11 @@ export async function deleteDomainLearningLogEntry(
 }
 
 export async function fetchDailies(): Promise<Daily[]> {
-  return await fetch("/api/dailies").then(res => res.json());
+  return fetchJson<Daily[]>("/api/dailies");
 }
 
 export async function fetchSingleDaily(id: string): Promise<Daily> {
-  return await fetch(`/api/dailies/${id}`).then(res => res.json());
+  return fetchJson<Daily>(`/api/dailies/${id}`);
 }
 
 export async function createDaily(
@@ -361,11 +371,11 @@ export async function deleteSingleDaily(
 }
 
 export async function fetchTasks(): Promise<Task[]> {
-  return await fetch("/api/tasks").then(res => res.json());
+  return fetchJson<Task[]>("/api/tasks");
 }
 
 export async function fetchSingleTask(id: string): Promise<Task> {
-  return await fetch(`/api/tasks/${id}`).then(res => res.json());
+  return fetchJson<Task>(`/api/tasks/${id}`);
 }
 
 export async function createTask(
