@@ -2,7 +2,6 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import type { TopicForTopicsPage } from "@emstack/types/src";
-import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -31,10 +30,20 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          radarBlips: {
+            with: {
+              domain: {
+                columns: {
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      const processedData: TopicForTopicsPage[] = rawData.map((topic: TopicsFromServer) => {
+      const processedData: TopicForTopicsPage[] = rawData.map((topic) => {
         const courseCount = topic.topicsToCourses?.length ?? 0;
 
         const domainsById = new Map<string, { id: string;
@@ -44,6 +53,14 @@ export default async function (server: FastifyInstance) {
             domainsById.set(ttd.domain.id, {
               id: ttd.domain.id,
               title: ttd.domain.title,
+            });
+          }
+        }
+        for (const blip of topic.radarBlips ?? []) {
+          if (blip.domain?.id && blip.domain.title && !domainsById.has(blip.domain.id)) {
+            domainsById.set(blip.domain.id, {
+              id: blip.domain.id,
+              title: blip.domain.title,
             });
           }
         }
