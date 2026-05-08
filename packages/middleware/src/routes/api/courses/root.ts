@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
-import type { Course, CourseFromServer } from "@emstack/types/src";
+import type { Course, CourseFromServer, DailyCompletion } from "@emstack/types/src";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -26,11 +26,18 @@ export default async function (server: FastifyInstance) {
             },
           },
         },
+        dailies: {
+          columns: {
+            id: true,
+            name: true,
+            completions: true,
+          },
+        },
       },
     });
 
-    const processedData: Course[] = rawData.map((course: CourseFromServer) => {
-      const costData = processCost(course);
+    const processedData: Course[] = rawData.map((course) => {
+      const costData = processCost(course as unknown as CourseFromServer);
 
       const topics = processTopics(course.topicsToCourses);
 
@@ -52,6 +59,11 @@ export default async function (server: FastifyInstance) {
               id: course.courseProvider.id,
             }
             : undefined,
+        dailies: (course.dailies ?? []).map(d => ({
+          id: d.id,
+          name: d.name,
+          completions: (d.completions ?? []) as DailyCompletion[],
+        })),
       };
     });
 

@@ -24,5 +24,8 @@ export interface CourseInCourses {
     name: string;
     id: string;
   };
-
+  dailies?: {
+    id: string;
+    name: string;
+  }[];
 }

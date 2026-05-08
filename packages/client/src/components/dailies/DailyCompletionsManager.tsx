@@ -269,7 +269,7 @@ export function DailyCompletionsManager({
             const hasStatusEntry = status !== null;
             const isFuture = dateKey > realToday;
             const isToday = dateKey === realToday;
-            const isEditable = !effectiveReadOnly && (!readOnly || isToday);
+            const isEditable = isToday || !effectiveReadOnly;
             const hasActions = isEditable && !isFuture;
             const isExpanded = expandedDateKey === dateKey;
             const nextDateKey = visibleDateKeys[i + 1];
@@ -368,7 +368,12 @@ export function DailyCompletionsManager({
                       `
                         flex-row items-center gap-1
                         max-md:w-full max-md:justify-end
-                        md:flex
+                        md:pointer-events-none md:flex md:opacity-0
+                        md:transition-opacity
+                        md:group-focus-within:pointer-events-auto
+                        md:group-focus-within:opacity-100
+                        md:group-hover:pointer-events-auto
+                        md:group-hover:opacity-100
                       `,
                       isExpanded ? "flex" : "hidden",
                     )}
@@ -404,12 +409,7 @@ export function DailyCompletionsManager({
                             dateKey,
                             status: null,
                           })}
-                          className="
-                            text-destructive
-                            md:opacity-0
-                            md:group-focus-within:opacity-100
-                            md:group-hover:opacity-100
-                          "
+                          className="text-destructive"
                           title="Delete entry"
                           aria-label="Delete entry"
                         >

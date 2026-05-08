@@ -1,4 +1,4 @@
-import type { Course, CourseInCourses } from "@emstack/types/src";
+import type { CourseInCourses } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -329,7 +329,7 @@ function Courses() {
         {viewMode === "grid" && (
           <div className="card-grid">
             {filteredAndSorted.length > 0
-              && filteredAndSorted.map((course: Course) => {
+              && filteredAndSorted.map((course: CourseInCourses) => {
                 if (!course) {
                   return <></>;
                 }

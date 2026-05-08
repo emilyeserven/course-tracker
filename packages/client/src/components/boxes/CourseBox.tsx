@@ -1,9 +1,12 @@
-import type { Course } from "@emstack/types/src";
+import type { CourseInCourses } from "@emstack/types/src";
 
+import { Link } from "@tanstack/react-router";
 import {
+  CalendarCheckIcon,
   CheckCheckIcon,
   DollarSignIcon,
   ExternalLink,
+  ExternalLinkIcon,
   TimerIcon,
 } from "lucide-react";
 
@@ -35,13 +38,15 @@ export function CourseBox({
   progressCurrent = 0,
   progressTotal = 0,
   cost,
-}: Course) {
+  dailies,
+}: CourseInCourses) {
   const costValue
     = cost.cost != null
       ? cost.isCostFromPlatform
         ? `${Number(cost.cost) / cost.splitBy}*`
         : Number(cost.cost)
       : null;
+  const linkedDaily = dailies?.[0];
   return (
     <ContentBox>
       <ContentBoxHeader>
@@ -51,21 +56,41 @@ export function CourseBox({
             <TopicList topics={topics} />
           </div>
 
-          {url && (
-            <Button
-              variant="ghost"
-              size="icon-xs"
-            >
-              <a
-                href={url}
-                target="_blank"
-                className="cursor-pointer"
-                rel="noopener noreferrer"
+          <div className="flex flex-row items-center gap-2">
+            {linkedDaily && (
+              <Link
+                to="/dailies/$id"
+                params={{
+                  id: linkedDaily.id,
+                }}
+                title={`Open Daily: ${linkedDaily.name}`}
+                className={`
+                  inline-flex items-center gap-1 text-xs text-blue-700
+                  hover:text-blue-500
+                  dark:text-blue-300
+                `}
               >
-                <ExternalLink />
-              </a>
-            </Button>
-          )}
+                <CalendarCheckIcon className="size-3.5" />
+                <span className="max-w-32 truncate">{linkedDaily.name}</span>
+                <ExternalLinkIcon className="size-3" />
+              </Link>
+            )}
+            {url && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+              >
+                <a
+                  href={url}
+                  target="_blank"
+                  className="cursor-pointer"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink />
+                </a>
+              </Button>
+            )}
+          </div>
         </ContentBoxHeaderBar>
         <ContentBoxTitle>
           <h3 className="text-xl">
