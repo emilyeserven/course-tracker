@@ -1,6 +1,6 @@
-import { CourseStatus } from "@/Course";
-import { CourseProvider } from "@/CourseProvider";
-import { TopicsToCourses } from "@/TopicsToCourses";
+import type { CourseStatus } from "./Course";
+import type { CourseProvider } from "./CourseProvider";
+import type { TopicsToCourses } from "./TopicsToCourses";
 
 export interface CourseFromServer {
   id: string;

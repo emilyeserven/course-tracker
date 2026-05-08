@@ -3,49 +3,13 @@ import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { resources, taskTodos, tasks } from "@/db/schema";
-import { idParamSchema, nullableString } from "@/utils/schemas";
+import {
+  idParamSchema,
+  nullableString,
+  resourceSchema,
+  todoSchema,
+} from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
-
-const resourceLevel = {
-  type: ["string", "null"],
-  enum: ["low", "medium", "high", null],
-} as const;
-
-const resourceSchema = {
-  type: "object",
-  required: ["name"],
-  properties: {
-    id: {
-      type: "string",
-    },
-    name: {
-      type: "string",
-    },
-    url: nullableString,
-    easeOfStarting: resourceLevel,
-    timeNeeded: resourceLevel,
-    interactivity: resourceLevel,
-    usedYet: {
-      type: "boolean",
-    },
-  },
-} as const;
-
-const todoSchema = {
-  type: "object",
-  required: ["name"],
-  properties: {
-    id: {
-      type: "string",
-    },
-    name: {
-      type: "string",
-    },
-    isComplete: {
-      type: "boolean",
-    },
-  },
-} as const;
 
 const upsertSchema = {
   schema: {

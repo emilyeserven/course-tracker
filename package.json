@@ -31,6 +31,7 @@
     "dev": "docker compose up --wait db && pnpm --filter=@emstack/middleware run push:dev && concurrently -n \"models,server,ui\" -c \"yellow,blue,green\" \"pnpm --filter=@emstack/types --stream run dev\" \"pnpm --filter=@emstack/middleware --stream run dev\" \"pnpm --filter=@emstack/client --stream run dev\"",
     "lint": "eslint .",
     "lint:fix": "eslint .. --fix",
+    "typecheck": "pnpm --filter=@emstack/types build && pnpm -r --filter=@emstack/middleware --filter=@emstack/client run typecheck",
     "storybook": "pnpm --filter=@emstack/client run storybook",
     "studio": "pnpm --filter=@emstack/middleware run studio",
     "prepare": "husky"

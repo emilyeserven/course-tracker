@@ -21,6 +21,7 @@ import {
   TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/hooks/useSettings";
@@ -48,19 +49,11 @@ export const Route = createFileRoute("/dailies/")({
 const RECENT_DAYS_COUNT = 6;
 
 function DailiesPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your dailies...</h1>
-    </div>
-  );
+  return <EntityPending entity="dailies" />;
 }
 
 function DailiesError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your dailies.</h1>
-    </div>
-  );
+  return <EntityError entity="dailies" />;
 }
 
 function formatMmDd(dateKey: string): string {

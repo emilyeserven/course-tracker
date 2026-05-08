@@ -2,43 +2,14 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { dailies } from "@/db/schema";
+import {
+  completionSchema,
+  criteriaSchema,
+  nullableDailyStatusEnum,
+  nullableString,
+} from "@/utils/schemas";
 import type { DailyCompletion, DailyCriteria } from "@emstack/types/src";
 import { v4 as uuidv4 } from "uuid";
-
-const completionSchema = {
-  type: "object",
-  required: ["date"],
-  properties: {
-    date: {
-      type: "string",
-    },
-    status: {
-      type: "string",
-      enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
-    },
-    note: {
-      type: "string",
-    },
-  },
-} as const;
-
-const criteriaSchema = {
-  type: "object",
-  properties: {
-    incomplete: {
-      type: "string",
-    },
-    touched: {
-      type: "string",
-    },
-    goal: {
-      type: "string",
-    },
-    exceeded: {
-      type: "string",
-    },
-  },
-} as const;
 
 const createSchema = {
   schema: {
@@ -50,29 +21,16 @@ const createSchema = {
         name: {
           type: "string",
         },
-        location: {
-          type: ["string", "null"],
-        },
-        description: {
-          type: ["string", "null"],
-        },
+        location: nullableString,
+        description: nullableString,
         completions: {
           type: "array",
           items: completionSchema,
         },
-        courseProviderId: {
-          type: ["string", "null"],
-        },
-        courseId: {
-          type: ["string", "null"],
-        },
-        taskId: {
-          type: ["string", "null"],
-        },
-        status: {
-          type: ["string", "null"],
-          enum: ["active", "complete", "paused", null],
-        },
+        courseProviderId: nullableString,
+        courseId: nullableString,
+        taskId: nullableString,
+        status: nullableDailyStatusEnum,
         criteria: criteriaSchema,
       },
     },

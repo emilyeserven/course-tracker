@@ -368,12 +368,12 @@ export function DailyCompletionsManager({
                       `
                         flex-row items-center gap-1
                         max-md:w-full max-md:justify-end
-                        md:flex md:opacity-0 md:transition-opacity
-                        md:pointer-events-none
-                        md:group-hover:pointer-events-auto
-                        md:group-hover:opacity-100
+                        md:pointer-events-none md:flex md:opacity-0
+                        md:transition-opacity
                         md:group-focus-within:pointer-events-auto
                         md:group-focus-within:opacity-100
+                        md:group-hover:pointer-events-auto
+                        md:group-hover:opacity-100
                       `,
                       isExpanded ? "flex" : "hidden",
                     )}

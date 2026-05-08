@@ -1,4 +1,4 @@
-import { CourseFromServer } from "./CourseFromServer";
+import type { CourseFromServer } from "./CourseFromServer";
 
 export type RecurPeriodUnit = "days" | "months" | "years";
 

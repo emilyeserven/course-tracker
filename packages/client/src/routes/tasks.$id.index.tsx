@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLinkIcon } from "lucide-react";
 
 import { DailyRecentDaysStrip } from "@/components/dailies";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourcesTable } from "@/components/tasks/ResourcesTable";
@@ -15,19 +16,11 @@ export const Route = createFileRoute("/tasks/$id/")({
 });
 
 function TaskPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your task...</h1>
-    </div>
-  );
+  return <EntityPending entity="task" />;
 }
 
 function TaskError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading this task.</h1>
-    </div>
-  );
+  return <EntityError entity="task" />;
 }
 
 function SingleTask() {

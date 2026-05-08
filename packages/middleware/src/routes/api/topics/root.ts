@@ -37,7 +37,8 @@ export default async function (server: FastifyInstance) {
       const processedData: TopicForTopicsPage[] = rawData.map((topic: TopicsFromServer) => {
         const courseCount = topic.topicsToCourses?.length ?? 0;
 
-        const domainsById = new Map<string, { id: string; title: string }>();
+        const domainsById = new Map<string, { id: string;
+          title: string; }>();
         for (const ttd of topic.topicsToDomains ?? []) {
           if (ttd.domain?.id && ttd.domain.title && !domainsById.has(ttd.domain.id)) {
             domainsById.set(ttd.domain.id, {

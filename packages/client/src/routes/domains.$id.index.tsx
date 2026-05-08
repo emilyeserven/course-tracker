@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RadarChart } from "@/components/radar/RadarChart";
@@ -35,21 +36,11 @@ function SingleDomain() {
   });
 
   if (isPending) {
-    return (
-      <div className="p-4">
-        <h1 className="mb-4 text-3xl">Hold on, loading your domain...</h1>
-      </div>
-    );
+    return <EntityPending entity="domain" />;
   }
 
   if (error) {
-    return (
-      <div className="p-4">
-        <h1 className="mb-4 text-3xl">
-          There was an error loading this domain.
-        </h1>
-      </div>
-    );
+    return <EntityError entity="domain" />;
   }
 
   const excludedTopics = data?.excludedTopics ?? [];

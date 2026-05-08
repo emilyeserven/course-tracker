@@ -1,117 +1,89 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
-import { FastifyInstance } from "fastify";
-import { db } from "@/db";
 import { domainExcludedTopics, domains, topicsToDomains } from "@/db/schema";
-import { idParamSchema, nullableBoolean, nullableString } from "@/utils/schemas";
-import { syncJunctionTable } from "@/utils/syncJunctionTable";
+import { createUpsertHandler } from "@/utils/createUpsertHandler";
+import { nullableBoolean, nullableString } from "@/utils/schemas";
 
-const upsertSchema = {
-  schema: {
-    description: "Create or update a domain",
-    params: idParamSchema,
-    body: {
-      type: "object",
-      required: ["title"],
-      properties: {
-        title: {
+interface DomainBody {
+  title: string;
+  description?: string | null;
+  hasRadar?: boolean | null;
+  topicIds?: string[];
+  excludedTopics?: { topicId: string;
+    reason?: string | null; }[];
+}
+
+export default createUpsertHandler<DomainBody>({
+  description: "Create or update a domain",
+  table: domains,
+  bodySchema: {
+    type: "object",
+    required: ["title"],
+    properties: {
+      title: {
+        type: "string",
+        minLength: 1,
+      },
+      description: nullableString,
+      hasRadar: nullableBoolean,
+      topicIds: {
+        type: "array",
+        items: {
           type: "string",
-          minLength: 1,
         },
-        description: nullableString,
-        hasRadar: nullableBoolean,
-        topicIds: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        excludedTopics: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["topicId"],
-            properties: {
-              topicId: {
-                type: "string",
-              },
-              reason: nullableString,
+      },
+      excludedTopics: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["topicId"],
+          properties: {
+            topicId: {
+              type: "string",
             },
+            reason: nullableString,
           },
         },
       },
     },
   },
-} as const;
-
-export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
-
-  fastify.put(
-    "/:id",
-    upsertSchema,
-    async function (request, reply) {
-      const {
-        id,
-      } = request.params;
-      const body = request.body;
-
-      const title = body.title.trim();
-      if (!title) {
-        reply.status(400);
-        return {
-          error: "Title is required",
-        };
-      }
-
-      const domainData = {
-        id,
-        title,
-        description: body.description ?? null,
-        hasRadar: body.hasRadar ?? null,
-      };
-
-      await db
-        .insert(domains)
-        .values(domainData)
-        .onConflictDoUpdate({
-          target: domains.id,
-          set: {
-            title: domainData.title,
-            description: domainData.description,
-            hasRadar: domainData.hasRadar,
-          },
-        });
-
-      await syncJunctionTable(
-        topicsToDomains,
-        topicsToDomains.domainId,
-        id,
+  validate: (body) => {
+    if (!body.title.trim()) {
+      return "Title is required";
+    }
+    return null;
+  },
+  buildRow: (body, id) => ({
+    id,
+    title: body.title.trim(),
+    description: body.description ?? null,
+    hasRadar: body.hasRadar ?? null,
+  }),
+  updateableColumns: ["title", "description", "hasRadar"],
+  junctions: [
+    {
+      table: topicsToDomains,
+      foreignKey: topicsToDomains.domainId,
+      buildRows: (body, id) =>
         (body.topicIds ?? []).map(topicId => ({
           topicId,
           domainId: id,
         })),
-      );
-
-      const dedupedExclusions = new Map<string, string | null>();
-      for (const entry of body.excludedTopics ?? []) {
-        if (!dedupedExclusions.has(entry.topicId)) {
-          dedupedExclusions.set(entry.topicId, entry.reason ?? null);
+    },
+    {
+      table: domainExcludedTopics,
+      foreignKey: domainExcludedTopics.domainId,
+      buildRows: (body, id) => {
+        const dedup = new Map<string, string | null>();
+        for (const entry of body.excludedTopics ?? []) {
+          if (!dedup.has(entry.topicId)) {
+            dedup.set(entry.topicId, entry.reason ?? null);
+          }
         }
-      }
-      await syncJunctionTable(
-        domainExcludedTopics,
-        domainExcludedTopics.domainId,
-        id,
-        Array.from(dedupedExclusions.entries()).map(([topicId, reason]) => ({
+        return Array.from(dedup.entries()).map(([topicId, reason]) => ({
           topicId,
           domainId: id,
           reason,
-        })),
-      );
-
-      return {
-        status: "ok",
-      };
+        }));
+      },
     },
-  );
-}
+  ],
+});

@@ -1,4 +1,4 @@
-import type { Course, CourseInCourses } from "@emstack/types/src";
+import type { CourseInCourses } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -18,6 +18,7 @@ import {
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { CoursesTable } from "@/components/boxes/CoursesTable";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,29 +48,11 @@ export const Route = createFileRoute("/courses/")({
 });
 
 function CoursesPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-    </div>
-  );
+  return <EntityPending entity="courses" />;
 }
 
 function CoursesError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">
-        There was an error loading your courses.
-      </h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
+  return <EntityError entity="courses" />;
 }
 
 function getProgressPercent(course: CourseInCourses): number {
@@ -346,7 +329,7 @@ function Courses() {
         {viewMode === "grid" && (
           <div className="card-grid">
             {filteredAndSorted.length > 0
-              && filteredAndSorted.map((course: Course) => {
+              && filteredAndSorted.map((course: CourseInCourses) => {
                 if (!course) {
                   return <></>;
                 }

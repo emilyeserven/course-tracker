@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -10,30 +11,6 @@ import { fetchSingleTopic } from "@/utils";
 export const Route = createFileRoute("/topics/$id/")({
   component: SingleTopic,
 });
-
-function TopicPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your topics...</h1>
-    </div>
-  );
-}
-
-function TopicError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your topics.</h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
-}
 
 function SingleTopic() {
   const {
@@ -48,11 +25,11 @@ function SingleTopic() {
   });
 
   if (isPending) {
-    <TopicPending />;
+    return <EntityPending entity="topic" />;
   }
 
   if (error) {
-    <TopicError />;
+    return <EntityError entity="topic" />;
   }
 
   return (
