@@ -173,7 +173,8 @@ function SelectItem({
           [&_svg]:pointer-events-none [&_svg]:shrink-0
           [&_svg:not([class*='size-'])]:size-4
           [&_svg:not([class*='text-'])]:text-muted-foreground
-          *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2
+          *:[span]:last:flex *:[span]:last:flex-1 *:[span]:last:items-center
+          *:[span]:last:justify-between *:[span]:last:gap-2
         `,
         className,
       )}

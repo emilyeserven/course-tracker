@@ -2,7 +2,6 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useState } from "react";
 
-import { DailyCommentPopover } from "./DailyCommentPopover";
 import { getDailyStatusOption } from "./dailyStatusMeta";
 import { DailyStatusModal } from "./DailyStatusModal";
 
@@ -66,7 +65,6 @@ export function TodayStatusCell({
             )}
         </button>
       </div>
-      {currentStatus !== null && <DailyCommentPopover daily={daily} />}
       <DailyStatusModal
         daily={daily}
         currentStatus={currentStatus}

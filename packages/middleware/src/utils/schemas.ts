@@ -105,5 +105,6 @@ export const todoSchema = {
     isComplete: {
       type: "boolean",
     },
+    url: nullableString,
   },
 } as const;
