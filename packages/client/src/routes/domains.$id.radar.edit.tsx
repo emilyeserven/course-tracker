@@ -19,6 +19,7 @@ import { Textarea } from "@/components/forms/textarea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { BlipBulkAdd } from "@/components/radar/BlipBulkAdd";
 import { BlipLlmAssist } from "@/components/radar/BlipLlmAssist";
+import { BlipTable } from "@/components/radar/BlipTable";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -207,15 +208,40 @@ function RadarEdit() {
     return map;
   }, [topics]);
 
+  const topicById = useMemo(() => {
+    const map = new Map<string, { name: string;
+      description?: string | null; }>();
+    (topics ?? []).forEach((t) => {
+      map.set(t.id, {
+        name: t.name,
+        description: t.description,
+      });
+    });
+    return map;
+  }, [topics]);
+
+  const savedBlipsForTable = useMemo(() => {
+    return (data?.blips ?? []).filter(b => b.id);
+  }, [data]);
+
+  const newBlipDrafts = useMemo(() => {
+    return blips.filter(b => !b.id);
+  }, [blips]);
+
   const usedTopicIds = useMemo(() => {
     const set = new Set<string>();
-    blips.forEach((b) => {
+    savedBlipsForTable.forEach((b) => {
+      if (b.topicId) {
+        set.add(b.topicId);
+      }
+    });
+    newBlipDrafts.forEach((b) => {
       if (b.topicId) {
         set.add(b.topicId);
       }
     });
     return set;
-  }, [blips]);
+  }, [savedBlipsForTable, newBlipDrafts]);
 
   function addQuadrant() {
     setQuadrants((prev) => {
@@ -396,6 +422,43 @@ function RadarEdit() {
       setPendingBlipKey(null);
     }
     setBlips(prev => prev.filter(b => b.localKey !== blip.localKey));
+  }
+
+  async function handleTableSave(
+    blip: RadarBlip,
+    patch: { quadrantId: string;
+      ringId: string;
+      description: string | null; },
+  ) {
+    try {
+      await upsertRadarBlip(id, blip.id, {
+        topicId: blip.topicId,
+        quadrantId: patch.quadrantId,
+        ringId: patch.ringId,
+        description: patch.description,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["radar", id],
+      });
+      toast.success("Blip saved.");
+    }
+    catch {
+      toast.error("Failed to save blip.");
+      throw new Error("save failed");
+    }
+  }
+
+  async function handleTableRemove(blip: RadarBlip) {
+    try {
+      await deleteRadarBlip(id, blip.id);
+      await queryClient.invalidateQueries({
+        queryKey: ["radar", id],
+      });
+    }
+    catch {
+      toast.error("Failed to delete blip.");
+      throw new Error("delete failed");
+    }
   }
 
   async function handleBulkComplete() {
@@ -609,156 +672,202 @@ function RadarEdit() {
               Save your quadrants and rings before adding blips.
             </p>
           )}
-          <ul className="flex flex-col gap-4">
-            {blips.map(blip => (
-              <li
-                key={blip.localKey}
-                className="flex flex-col gap-2 rounded-sm border p-4"
-              >
-                <div
-                  className={`
-                    grid grid-cols-1 gap-2
-                    sm:grid-cols-2
-                  `}
-                >
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs uppercase">Topic</label>
-                    <Select
-                      value={blip.topicId}
-                      onValueChange={value =>
-                        setBlips(prev =>
-                          prev.map(b =>
-                            b.localKey === blip.localKey
-                              ? {
-                                ...b,
-                                topicId: value,
-                              }
-                              : b))}
+
+          {allConfigPersisted && (
+            <BlipTable
+              blips={savedBlipsForTable}
+              quadrants={persistedQuadrants}
+              rings={persistedRings}
+              topics={topics ?? []}
+              onSave={handleTableSave}
+              onRemove={handleTableRemove}
+            />
+          )}
+
+          {newBlipDrafts.length > 0 && (
+            <ul className="flex flex-col gap-4">
+              {newBlipDrafts.map((blip) => {
+                const pickedTopic = blip.topicId
+                  ? topicById.get(blip.topicId)
+                  : null;
+                return (
+                  <li
+                    key={blip.localKey}
+                    className="flex flex-col gap-3 rounded-sm border p-4"
+                  >
+                    <h3 className="text-lg font-semibold">Add Blip</h3>
+                    <div
+                      className={`
+                        grid grid-cols-1 gap-4
+                        md:grid-cols-2
+                      `}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose topic" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(topics ?? [])
-                          .filter(
-                            t =>
-                              t.id === blip.topicId || !usedTopicIds.has(t.id),
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs uppercase">Topic</label>
+                        <Select
+                          value={blip.topicId}
+                          onValueChange={value =>
+                            setBlips(prev =>
+                              prev.map(b =>
+                                b.localKey === blip.localKey
+                                  ? {
+                                    ...b,
+                                    topicId: value,
+                                  }
+                                  : b))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose topic" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(topics ?? [])
+                              .filter(
+                                t =>
+                                  t.id === blip.topicId
+                                  || !usedTopicIds.has(t.id),
+                              )
+                              .map(t => (
+                                <SelectItem
+                                  key={t.id}
+                                  value={t.id}
+                                >
+                                  {t.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        {pickedTopic
+                          ? (
+                            <div className="flex flex-col gap-1">
+                              <h4 className="text-base font-semibold">
+                                {pickedTopic.name}
+                              </h4>
+                              <p
+                                className={`
+                                  text-sm text-muted-foreground
+                                  ${pickedTopic.description?.trim()
+                              ? ""
+                              : "italic"}
+                                `}
+                              >
+                                {pickedTopic.description?.trim()
+                                  || "(no topic description)"}
+                              </p>
+                            </div>
                           )
-                          .map(t => (
-                            <SelectItem
-                              key={t.id}
-                              value={t.id}
-                            >
-                              {t.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    {blip.topicId && !topicNameById.has(blip.topicId) && (
-                      <span className="text-xs text-muted-foreground">
-                        (topic not in list)
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs uppercase">Quadrant</label>
-                    <Select
-                      value={blip.quadrantId}
-                      onValueChange={value =>
-                        setBlips(prev =>
-                          prev.map(b =>
-                            b.localKey === blip.localKey
-                              ? {
-                                ...b,
-                                quadrantId: value,
-                              }
-                              : b))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose quadrant" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {persistedQuadrants.map(q => (
-                          <SelectItem
-                            key={q.id}
-                            value={q.id}
+                          : blip.topicId && !topicNameById.has(blip.topicId)
+                            ? (
+                              <span
+                                className="text-xs text-muted-foreground"
+                              >
+                                (topic not in list)
+                              </span>
+                            )
+                            : null}
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs uppercase">Quadrant</label>
+                          <Select
+                            value={blip.quadrantId}
+                            onValueChange={value =>
+                              setBlips(prev =>
+                                prev.map(b =>
+                                  b.localKey === blip.localKey
+                                    ? {
+                                      ...b,
+                                      quadrantId: value,
+                                    }
+                                    : b))}
                           >
-                            {q.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs uppercase">Ring</label>
-                    <Select
-                      value={blip.ringId}
-                      onValueChange={value =>
-                        setBlips(prev =>
-                          prev.map(b =>
-                            b.localKey === blip.localKey
-                              ? {
-                                ...b,
-                                ringId: value,
-                              }
-                              : b))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose ring" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {persistedRings.map(r => (
-                          <SelectItem
-                            key={r.id}
-                            value={r.id}
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose quadrant" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {persistedQuadrants.map(q => (
+                                <SelectItem
+                                  key={q.id}
+                                  value={q.id}
+                                >
+                                  {q.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs uppercase">Ring</label>
+                          <Select
+                            value={blip.ringId}
+                            onValueChange={value =>
+                              setBlips(prev =>
+                                prev.map(b =>
+                                  b.localKey === blip.localKey
+                                    ? {
+                                      ...b,
+                                      ringId: value,
+                                    }
+                                    : b))}
                           >
-                            {r.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs uppercase">Description</label>
-                    <Textarea
-                      value={blip.description}
-                      onChange={e =>
-                        setBlips(prev =>
-                          prev.map(b =>
-                            b.localKey === blip.localKey
-                              ? {
-                                ...b,
-                                description: e.target.value,
-                              }
-                              : b))}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-row gap-2">
-                  <Button
-                    type="button"
-                    onClick={() => saveBlip(blip)}
-                    disabled={pendingBlipKey === blip.localKey}
-                  >
-                    {pendingBlipKey === blip.localKey && (
-                      <Loader2 className="animate-spin" />
-                    )}
-                    {blip.id ? "Update Blip" : "Save Blip"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => removeBlip(blip)}
-                    disabled={pendingBlipKey === blip.localKey}
-                  >
-                    <TrashIcon />
-                    {" "}
-                    Remove
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose ring" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {persistedRings.map(r => (
+                                <SelectItem
+                                  key={r.id}
+                                  value={r.id}
+                                >
+                                  {r.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs uppercase">Radar Note</label>
+                          <Textarea
+                            value={blip.description}
+                            onChange={e =>
+                              setBlips(prev =>
+                                prev.map(b =>
+                                  b.localKey === blip.localKey
+                                    ? {
+                                      ...b,
+                                      description: e.target.value,
+                                    }
+                                    : b))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => saveBlip(blip)}
+                        disabled={pendingBlipKey === blip.localKey}
+                      >
+                        {pendingBlipKey === blip.localKey && (
+                          <Loader2 className="animate-spin" />
+                        )}
+                        Save Blip
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => removeBlip(blip)}
+                        disabled={pendingBlipKey === blip.localKey}
+                      >
+                        <TrashIcon />
+                        {" "}
+                        Cancel
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
           <div className="flex flex-row flex-wrap gap-2">
             <Button
