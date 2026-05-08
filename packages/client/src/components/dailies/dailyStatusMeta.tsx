@@ -55,7 +55,7 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     label: "Freeze",
     icon: <SnowflakeIcon className="size-4" />,
     circleClass: "bg-sky-50/60 text-sky-500/70 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-400/60 dark:border-sky-900/40",
-    pillClass: "bg-sky-50/60 text-sky-500/70 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-400/60 dark:border-sky-900/40",
+    pillClass: "bg-sky-50/60 text-sky-700 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-300 dark:border-sky-900/40",
     borderColor: "#bae6fd",
   },
 ];
