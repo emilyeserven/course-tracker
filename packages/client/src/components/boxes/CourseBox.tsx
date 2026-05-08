@@ -6,7 +6,6 @@ import {
   CheckCheckIcon,
   DollarSignIcon,
   ExternalLink,
-  ExternalLinkIcon,
   TimerIcon,
 } from "lucide-react";
 
@@ -53,39 +52,38 @@ export function CourseBox({
         <ContentBoxHeaderBar>
           <div className="flex flex-row items-center gap-2">
             <StatusIndicator status={status} />
-            <TopicList topics={topics} />
           </div>
 
           <div className="flex flex-row items-center gap-2">
             {linkedDaily && (
-              <Link
-                to="/dailies/$id"
-                params={{
-                  id: linkedDaily.id,
-                }}
-                title={`Open Daily: ${linkedDaily.name}`}
-                className={`
-                  inline-flex items-center gap-1 text-xs text-blue-700
-                  hover:text-blue-500
-                  dark:text-blue-300
-                `}
-              >
-                <CalendarCheckIcon className="size-3.5" />
-                <span className="max-w-32 truncate">{linkedDaily.name}</span>
-                <ExternalLinkIcon className="size-3" />
-              </Link>
-            )}
-            {url && (
               <Button
                 variant="ghost"
                 size="icon-xs"
+                asChild
+                title={`Open Daily: ${linkedDaily.name}`}
+              >
+                <Link
+                  to="/dailies/$id"
+                  params={{
+                    id: linkedDaily.id,
+                  }}
+                >
+                  <CalendarCheckIcon />
+                </Link>
+              </Button>
+            )}
+            {url && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
               >
                 <a
                   href={url}
                   target="_blank"
-                  className="cursor-pointer"
                   rel="noopener noreferrer"
                 >
+                  Go
                   <ExternalLink />
                 </a>
               </Button>
@@ -120,6 +118,7 @@ export function CourseBox({
             </EntityLink>
           </h4>
         )}
+        <TopicList topics={topics} />
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
