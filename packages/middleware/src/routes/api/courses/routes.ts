@@ -5,6 +5,7 @@ import courseRoot from "./root";
 import getCourse from "./getCourse";
 import deleteCourse from "./deleteCourse";
 import upsertCourse from "./upsertCourse";
+import duplicateCourse from "./duplicateCourse";
 import incrementCourseProgress from "./incrementCourseProgress";
 
 export default async function (server: FastifyInstance) {
@@ -14,5 +15,6 @@ export default async function (server: FastifyInstance) {
   fastify.register(getCourse);
   fastify.register(deleteCourse);
   fastify.register(upsertCourse);
+  fastify.register(duplicateCourse);
   fastify.register(incrementCourseProgress);
 }

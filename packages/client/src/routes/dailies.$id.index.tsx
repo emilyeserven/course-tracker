@@ -1,6 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, ExternalLink, FlameIcon, LaughIcon } from "lucide-react";
+import {
+  CopyIcon,
+  EditIcon,
+  ExternalLink,
+  FlameIcon,
+  LaughIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 
 import {
   DailyCompletionsManager,
@@ -12,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import {
   deleteSingleDaily,
+  duplicateDaily,
   fetchSingleDaily,
   getCurrentChain,
   getTotalCompletedDays,
@@ -43,6 +51,7 @@ function SingleDaily() {
     id,
   } = Route.useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     isPending, error, data,
@@ -58,6 +67,24 @@ function SingleDaily() {
     enabled: false,
     queryFn: () => deleteSingleDaily(id),
   });
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateDaily(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["dailies"],
+      });
+      await navigate({
+        to: "/dailies/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate daily. Please try again.");
+    }
+  }
 
   if (isPending) {
     return <DailyPending />;
@@ -97,6 +124,14 @@ function SingleDaily() {
               </Button>
             </a>
           )}
+          <Button
+            variant="secondary"
+            onClick={handleDuplicate}
+          >
+            Duplicate
+            {" "}
+            <CopyIcon />
+          </Button>
           <Link
             to="/dailies/$id/edit"
             params={{

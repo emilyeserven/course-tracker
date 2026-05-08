@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createTopic,
+  fetchDomains,
   fetchSingleTopic,
   formHasChanges,
   upsertTopic,
@@ -26,6 +27,7 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(500),
   reason: z.string().max(500),
+  domainIds: z.array(z.string()),
 });
 
 function SingleTopicEdit() {
@@ -46,11 +48,30 @@ function SingleTopicEdit() {
     enabled: !isNew,
   });
 
+  const {
+    data: domainsData,
+  } = useQuery({
+    queryKey: ["domains"],
+    queryFn: () => fetchDomains(),
+  });
+
+  const domainOptions = useMemo(
+    () =>
+      (domainsData ?? [])
+        .filter(d => d.title)
+        .map(d => ({
+          value: d.id,
+          label: d.title,
+        })),
+    [domainsData],
+  );
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
       reason: data?.reason ?? "",
+      domainIds: data?.domains?.map(d => d.id) ?? [],
     }),
     [data],
   );
@@ -67,6 +88,7 @@ function SingleTopicEdit() {
         name: value.name,
         description: value.description || null,
         reason: value.reason || null,
+        domainIds: value.domainIds,
       };
 
       try {
@@ -85,6 +107,9 @@ function SingleTopicEdit() {
 
         await queryClient.invalidateQueries({
           queryKey: ["topics"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["domains"],
         });
         skipBlocker.current = true;
         await navigate({
@@ -157,6 +182,16 @@ function SingleTopicEdit() {
               <field.TextareaField
                 label="Reason"
                 placeholder="Why are you learning this?"
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name="domainIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Domains"
+                options={domainOptions}
+                placeholder="Search domains..."
               />
             )}
           </form.AppField>

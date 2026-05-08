@@ -14,6 +14,7 @@ const createSchema = {
       properties: {
         title: {
           type: "string",
+          minLength: 1,
         },
         description: nullableString,
         hasRadar: nullableBoolean,
@@ -49,30 +50,44 @@ export default async function (server: FastifyInstance) {
     createSchema,
     async function (request, reply) {
       const body = request.body;
+      const title = body.title.trim();
+      if (!title) {
+        reply.status(400);
+        return {
+          error: "Title is required",
+        };
+      }
       const id = uuidv4();
 
       await db.insert(domains).values({
         id,
-        title: body.title,
+        title,
         description: body.description ?? null,
         hasRadar: body.hasRadar ?? null,
       });
 
-      if (body.topicIds && body.topicIds.length > 0) {
+      const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));
+      if (uniqueTopicIds.length > 0) {
         await db.insert(topicsToDomains).values(
-          body.topicIds.map(topicId => ({
+          uniqueTopicIds.map(topicId => ({
             topicId,
             domainId: id,
           })),
         );
       }
 
-      if (body.excludedTopics && body.excludedTopics.length > 0) {
+      const dedupedExcluded = new Map<string, string | null>();
+      for (const entry of body.excludedTopics ?? []) {
+        if (!dedupedExcluded.has(entry.topicId)) {
+          dedupedExcluded.set(entry.topicId, entry.reason ?? null);
+        }
+      }
+      if (dedupedExcluded.size > 0) {
         await db.insert(domainExcludedTopics).values(
-          body.excludedTopics.map(entry => ({
-            topicId: entry.topicId,
+          Array.from(dedupedExcluded.entries()).map(([topicId, reason]) => ({
+            topicId,
             domainId: id,
-            reason: entry.reason ?? null,
+            reason,
           })),
         );
       }

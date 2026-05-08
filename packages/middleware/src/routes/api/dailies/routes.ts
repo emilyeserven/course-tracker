@@ -6,6 +6,7 @@ import getDaily from "./getDaily";
 import createDaily from "./createDaily";
 import upsertDaily from "./upsertDaily";
 import deleteDaily from "./deleteDaily";
+import duplicateDaily from "./duplicateDaily";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -15,4 +16,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(createDaily);
   fastify.register(upsertDaily);
   fastify.register(deleteDaily);
+  fastify.register(duplicateDaily);
 }

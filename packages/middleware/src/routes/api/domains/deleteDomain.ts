@@ -6,6 +6,9 @@ import {
   domainExcludedTopics,
   domainLearningLogEntries,
   domains,
+  radarBlips,
+  radarQuadrants,
+  radarRings,
   topicsToDomains,
 } from "@/db/schema";
 import { idParamSchema } from "@/utils/schemas";
@@ -25,6 +28,9 @@ export default async function (server: FastifyInstance) {
       id,
     } = request.params;
 
+    await db.delete(radarBlips).where(eq(radarBlips.domainId, id));
+    await db.delete(radarQuadrants).where(eq(radarQuadrants.domainId, id));
+    await db.delete(radarRings).where(eq(radarRings.domainId, id));
     await db
       .delete(topicsToDomains)
       .where(eq(topicsToDomains.domainId, id));
