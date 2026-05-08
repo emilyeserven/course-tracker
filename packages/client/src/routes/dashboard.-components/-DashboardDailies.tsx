@@ -256,8 +256,8 @@ export function DashboardDailies() {
                           left={currentStatus}
                           right={days[0].status}
                           className="
-                            absolute top-1/2 -right-2
-                            left-[calc(0.5rem+9rem)] z-0 w-auto -translate-y-1/2
+                            absolute top-1/2 -right-2 left-38 z-0 w-auto
+                            -translate-y-1/2
                           "
                         />
                       )}
