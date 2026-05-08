@@ -38,7 +38,19 @@ function Providers() {
       <PageHeader
         pageTitle="Providers"
         pageSection=""
-      />
+      >
+        <Link
+          to="/providers/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Provider
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (

@@ -152,7 +152,19 @@ function Courses() {
       <PageHeader
         pageTitle="Your Courses"
         pageSection=""
-      />
+      >
+        <Link
+          to="/courses/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Course
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container flex flex-col gap-4">
         <div>
           {data && data.length > 0 && (

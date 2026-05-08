@@ -1,4 +1,5 @@
 export { ComboboxField } from "./ComboboxField";
+export type { CreateConfig, CreateFieldConfig } from "./ComboboxCreatePanel";
 export { DatePickerField } from "./DatePickerField";
 export { InputField } from "./InputField";
 export { NumberField } from "./NumberField";

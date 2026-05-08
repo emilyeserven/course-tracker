@@ -38,7 +38,19 @@ function DomainsIndex() {
       <PageHeader
         pageTitle="Domains"
         pageSection=""
-      />
+      >
+        <Link
+          to="/domains/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Domain
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (

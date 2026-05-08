@@ -134,21 +134,20 @@ function Dailies() {
       <PageHeader
         pageTitle="Dailies"
         pageSection=""
-      />
+      >
+        <Link
+          to="/dailies/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Daily
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container flex flex-col gap-4">
-        <div className="flex justify-end">
-          <Link
-            to="/dailies/$id/edit"
-            params={{
-              id: "new",
-            }}
-          >
-            <Button variant="outline">
-              <PlusIcon className="size-4" />
-              Add Daily
-            </Button>
-          </Link>
-        </div>
 
         {(!sortedDailies || sortedDailies.length === 0) && (
           <p className="text-sm text-muted-foreground">

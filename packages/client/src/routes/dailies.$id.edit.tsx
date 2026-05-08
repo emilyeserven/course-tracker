@@ -43,6 +43,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
   createDaily,
+  createProvider,
   deleteSingleDaily,
   duplicateDaily,
   fetchCourses,
@@ -548,6 +549,31 @@ function SingleDailyEdit() {
                   label="Provider"
                   options={providerOptions}
                   placeholder="Search providers..."
+                  create={{
+                    itemLabel: "provider",
+                    fields: [
+                      {
+                        name: "name",
+                        label: "Name",
+                        required: true,
+                        isPrimary: true,
+                      },
+                      {
+                        name: "url",
+                        label: "URL",
+                        required: true,
+                        type: "url",
+                        placeholder: "https://...",
+                      },
+                    ],
+                    onCreate: async (values) => {
+                      const result = await createProvider(values);
+                      await queryClient.invalidateQueries({
+                        queryKey: ["providers"],
+                      });
+                      return result.id;
+                    },
+                  }}
                 />
               )}
             </form.AppField>
