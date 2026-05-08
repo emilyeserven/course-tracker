@@ -40,11 +40,23 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          tasks: {
+            with: {
+              daily: {
+                columns: {
+                  id: true,
+                },
+              },
+            },
+          },
         },
       });
 
       const processedData: TopicForTopicsPage[] = rawData.map((topic) => {
         const courseCount = topic.topicsToCourses?.length ?? 0;
+        const taskCount = topic.tasks?.length ?? 0;
+        const dailyCount
+          = topic.tasks?.filter(t => t.daily != null).length ?? 0;
 
         const domainsById = new Map<string, { id: string;
           title: string; }>();
@@ -71,6 +83,8 @@ export default async function (server: FastifyInstance) {
           description: topic.description,
           reason: topic.reason,
           courseCount: courseCount,
+          taskCount: taskCount,
+          dailyCount: dailyCount,
           domains: Array.from(domainsById.values()),
         };
       });
