@@ -1,7 +1,7 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createTopic,
   deleteSingleTopic,
@@ -38,16 +39,19 @@ function SingleTopicEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const skipBlocker = useRef(false);
 
   const {
     data,
-  } = useQuery({
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew,
     queryKey: ["topic", id],
     queryFn: () => fetchSingleTopic(id),
-    enabled: !isNew,
+    relatedQueryKeys: [["topics"], ["domains"]],
   });
 
   const {
@@ -102,18 +106,9 @@ function SingleTopicEdit() {
         else {
           await upsertTopic(id, topicData);
           topicId = id;
-          await queryClient.invalidateQueries({
-            queryKey: ["topic", id],
-          });
         }
-
-        await queryClient.invalidateQueries({
-          queryKey: ["topics"],
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ["domains"],
-        });
-        skipBlocker.current = true;
+        await invalidateRelated();
+        skipBlock();
         await navigate({
           to: "/topics/$id",
           params: {
@@ -137,21 +132,13 @@ function SingleTopicEdit() {
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
-  async function handleDelete() {
-    try {
-      await deleteSingleTopic(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["topics"],
-      });
-      skipBlocker.current = true;
-      await navigate({
-        to: "/topics",
-      });
-    }
-    catch {
-      toast.error("Failed to delete topic. Please try again.");
-    }
-  }
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSingleTopic,
+    entityLabel: "topic",
+    navigateToList: () => navigate({
+      to: "/topics",
+    }),
+  });
 
   return (
     <div>
@@ -250,7 +237,7 @@ function SingleTopicEdit() {
           </EditPageFooter>
         </form>
         <UnsavedChangesDialog
-          shouldBlockFn={() => hasChanges && !skipBlocker.current}
+          shouldBlockFn={shouldBlockFn(hasChanges)}
         />
       </div>
     </div>

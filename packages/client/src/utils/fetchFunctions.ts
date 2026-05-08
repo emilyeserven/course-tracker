@@ -17,6 +17,11 @@ interface SuccessObj {
   status: string;
 }
 
+interface CreateResponse {
+  status: string;
+  id: string;
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -27,6 +32,112 @@ async function fetchJson<T>(url: string): Promise<T> {
   return await response.json();
 }
 
+async function postJson<T>(
+  url: string,
+  data?: object,
+  errorLabel?: string,
+): Promise<T> {
+  const response = await fetch(url, {
+    method: "POST",
+    ...(data === undefined
+      ? {}
+      : {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }),
+  });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `${errorLabel ?? `POST ${url}`} failed (${response.status} ${response.statusText})${body ? `: ${body}` : ""}`,
+    );
+  }
+  return await response.json();
+}
+
+async function putJson<T>(
+  url: string,
+  data: object,
+  errorLabel?: string,
+): Promise<T> {
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `${errorLabel ?? `PUT ${url}`} failed (${response.status} ${response.statusText})${body ? `: ${body}` : ""}`,
+    );
+  }
+  return await response.json();
+}
+
+async function deleteJson<T>(url: string, errorLabel?: string): Promise<T> {
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(
+      `${errorLabel ?? `DELETE ${url}`} failed (${response.status} ${response.statusText})`,
+    );
+  }
+  return await response.json();
+}
+
+interface EntityClient<TEntity, TList> {
+  list: () => Promise<TList>;
+  get: (id: string) => Promise<TEntity>;
+  create: (data: Record<string, unknown>) => Promise<CreateResponse>;
+  upsert: (id: string, data: Record<string, unknown>) => Promise<SuccessObj>;
+  delete: (id: string) => Promise<SuccessObj>;
+  duplicate: (id: string) => Promise<CreateResponse>;
+}
+
+function createEntityClient<TEntity, TList = TEntity[]>(
+  endpoint: string,
+  label: string,
+): EntityClient<TEntity, TList> {
+  const base = `/api/${endpoint}`;
+  return {
+    list: () => fetchJson<TList>(base),
+    get: id => fetchJson<TEntity>(`${base}/${id}`),
+    create: data =>
+      postJson<CreateResponse>(base, data, `Failed to create ${label}`),
+    upsert: (id, data) =>
+      putJson<SuccessObj>(`${base}/${id}`, data, `Failed to update ${label}`),
+    delete: id =>
+      deleteJson<SuccessObj>(`${base}/${id}`, `Failed to delete ${label}`),
+    duplicate: id =>
+      postJson<CreateResponse>(
+        `${base}/${id}/duplicate`,
+        undefined,
+        `Failed to duplicate ${label}`,
+      ),
+  };
+}
+
+export const coursesApi = createEntityClient<Course, CourseInCourses[]>(
+  "courses",
+  "course",
+);
+export const topicsApi = createEntityClient<Topic, TopicForTopicsPage[]>(
+  "topics",
+  "topic",
+);
+export const providersApi = createEntityClient<CourseProvider>(
+  "providers",
+  "provider",
+);
+export const domainsApi = createEntityClient<Domain>("domains", "domain");
+export const dailiesApi = createEntityClient<Daily>("dailies", "daily");
+export const tasksApi = createEntityClient<Task>("tasks", "task");
+
 export async function fetchTest(): Promise<Test> {
   return fetchJson<Test>("/api");
 }
@@ -35,50 +146,43 @@ export async function fetchDbTest(): Promise<DbTest[]> {
   return fetchJson<DbTest[]>("/api/dbTest");
 }
 
-export async function fetchTopics(): Promise<TopicForTopicsPage[]> {
-  return fetchJson<TopicForTopicsPage[]>("/api/topics");
-}
+export const fetchTopics = topicsApi.list;
+export const fetchProviders = providersApi.list;
+export const fetchCourses = coursesApi.list;
+export const fetchDomains = domainsApi.list;
+export const fetchDailies = dailiesApi.list;
+export const fetchTasks = tasksApi.list;
 
-export async function fetchProviders(): Promise<CourseProvider[]> {
-  return fetchJson<CourseProvider[]>("/api/providers");
-}
+export const fetchSingleCourse = coursesApi.get;
+export const fetchSingleTopic = topicsApi.get;
+export const fetchSingleProvider = providersApi.get;
+export const fetchSingleDomain = domainsApi.get;
+export const fetchSingleDaily = dailiesApi.get;
+export const fetchSingleTask = tasksApi.get;
 
-export async function fetchCourses(): Promise<CourseInCourses[]> {
-  return fetchJson<CourseInCourses[]>("/api/courses");
-}
+export const upsertCourse = coursesApi.upsert;
+export const upsertTopic = topicsApi.upsert;
+export const upsertProvider = providersApi.upsert;
+export const upsertDomain = domainsApi.upsert;
+export const upsertDaily = dailiesApi.upsert;
+export const upsertTask = tasksApi.upsert;
 
-export async function deleteSingleCourse(id: string): Promise<Course> {
-  console.log("delete single course");
-  return await fetch(`/api/courses/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
+export const createTopic = topicsApi.create;
+export const createProvider = providersApi.create;
+export const createDomain = domainsApi.create;
+export const createDaily = dailiesApi.create;
+export const createTask = tasksApi.create;
 
-export async function deleteSinglePlatform(id: string): Promise<Course> {
-  console.log("delete single platform");
-  return await fetch(`/api/providers/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
+export const deleteSingleCourse = coursesApi.delete;
+export const deleteSingleTopic = topicsApi.delete;
+export const deleteSinglePlatform = providersApi.delete;
+export const deleteSingleDomain = domainsApi.delete;
+export const deleteSingleDaily = dailiesApi.delete;
+export const deleteSingleTask = tasksApi.delete;
 
-export async function deleteSingleTopic(id: string): Promise<Course> {
-  console.log("delete single topic");
-  return await fetch(`/api/topics/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
-
-export async function fetchSingleCourse(id: string): Promise<Course> {
-  return fetchJson<Course>(`/api/courses/${id}`);
-}
-
-export async function fetchSingleTopic(id: string): Promise<Topic> {
-  return fetchJson<Topic>(`/api/topics/${id}`);
-}
-
-export async function fetchSingleProvider(id: string): Promise<CourseProvider> {
-  return fetchJson<CourseProvider>(`/api/providers/${id}`);
-}
+export const duplicateCourse = coursesApi.duplicate;
+export const duplicateDomain = domainsApi.duplicate;
+export const duplicateDaily = dailiesApi.duplicate;
 
 export async function fetchSeed(): Promise<SuccessObj> {
   return await fetch("/api/seed").then(res => res.json());
@@ -86,26 +190,6 @@ export async function fetchSeed(): Promise<SuccessObj> {
 
 export async function fetchClear(): Promise<SuccessObj> {
   return await fetch("/api/clearData").then(res => res.json());
-}
-
-export async function upsertCourse(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<SuccessObj> {
-  const response = await fetch(`/api/courses/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Failed to update course (${response.status} ${response.statusText}): ${body}`,
-    );
-  }
-  return await response.json();
 }
 
 export async function incrementCourseProgress(
@@ -116,81 +200,11 @@ export async function incrementCourseProgress(
   progressCurrent: number;
   progressTotal: number;
 }> {
-  const response = await fetch(`/api/courses/${id}/incrementProgress`, {
-    method: "POST",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to increment course progress: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function createTopic(
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch("/api/topics", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create topic: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function upsertTopic(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<SuccessObj> {
-  const response = await fetch(`/api/topics/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update topic: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function createProvider(
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch("/api/providers", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create provider: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function upsertProvider(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<SuccessObj> {
-  const response = await fetch(`/api/providers/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update provider: ${response.statusText}`);
-  }
-  return await response.json();
+  return postJson(
+    `/api/courses/${id}/incrementProgress`,
+    undefined,
+    "Failed to increment course progress",
+  );
 }
 
 export async function postOnboardForm(
@@ -205,202 +219,8 @@ export async function postOnboardForm(
   }).then(res => res.json());
 }
 
-export async function fetchDomains(): Promise<Domain[]> {
-  return fetchJson<Domain[]>("/api/domains");
-}
-
-export async function fetchSingleDomain(id: string): Promise<Domain> {
-  return fetchJson<Domain>(`/api/domains/${id}`);
-}
-
-export async function deleteSingleDomain(
-  id: string,
-): Promise<{ status: string }> {
-  return await fetch(`/api/domains/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
-
-export async function createDomain(
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch("/api/domains", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create domain: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function upsertDomain(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<SuccessObj> {
-  const response = await fetch(`/api/domains/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update domain: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function fetchDailies(): Promise<Daily[]> {
-  return fetchJson<Daily[]>("/api/dailies");
-}
-
-export async function fetchSingleDaily(id: string): Promise<Daily> {
-  return fetchJson<Daily>(`/api/dailies/${id}`);
-}
-
-export async function createDaily(
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch("/api/dailies", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create daily: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function upsertDaily(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch(`/api/dailies/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update daily: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function deleteSingleDaily(
-  id: string,
-): Promise<{ status: string }> {
-  return await fetch(`/api/dailies/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
-
-export async function fetchTasks(): Promise<Task[]> {
-  return fetchJson<Task[]>("/api/tasks");
-}
-
-export async function fetchSingleTask(id: string): Promise<Task> {
-  return fetchJson<Task>(`/api/tasks/${id}`);
-}
-
-export async function createTask(
-  data: Record<string, unknown>,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch("/api/tasks", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create task: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function upsertTask(
-  id: string,
-  data: Record<string, unknown>,
-): Promise<SuccessObj> {
-  const response = await fetch(`/api/tasks/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update task: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function deleteSingleTask(
-  id: string,
-): Promise<SuccessObj> {
-  return await fetch(`/api/tasks/${id}`, {
-    method: "DELETE",
-  }).then(res => res.json());
-}
-
-export async function duplicateDomain(
-  id: string,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch(`/api/domains/${id}/duplicate`, {
-    method: "POST",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to duplicate domain: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function duplicateCourse(
-  id: string,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch(`/api/courses/${id}/duplicate`, {
-    method: "POST",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to duplicate course: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
-export async function duplicateDaily(
-  id: string,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch(`/api/dailies/${id}/duplicate`, {
-    method: "POST",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to duplicate daily: ${response.statusText}`);
-  }
-  return await response.json();
-}
-
 export async function fetchRadar(domainId: string): Promise<Radar> {
-  const response = await fetch(`/api/domains/${domainId}/radar`);
-  if (!response.ok) {
-    throw new Error(`Failed to load radar: ${response.statusText}`);
-  }
-  return await response.json();
+  return fetchJson<Radar>(`/api/domains/${domainId}/radar`);
 }
 
 interface RadarConfigPayload {
@@ -416,17 +236,11 @@ export async function upsertRadarConfig(
   domainId: string,
   data: RadarConfigPayload,
 ): Promise<SuccessObj> {
-  const response = await fetch(`/api/domains/${domainId}/radar`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to save radar config: ${response.statusText}`);
-  }
-  return await response.json();
+  return putJson(
+    `/api/domains/${domainId}/radar`,
+    data,
+    "Failed to save radar config",
+  );
 }
 
 interface BlipPayload {
@@ -439,19 +253,12 @@ interface BlipPayload {
 export async function createRadarBlip(
   domainId: string,
   data: BlipPayload,
-): Promise<{ status: string;
-  id: string; }> {
-  const response = await fetch(`/api/domains/${domainId}/radar/blips`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create blip: ${response.statusText}`);
-  }
-  return await response.json();
+): Promise<CreateResponse> {
+  return postJson(
+    `/api/domains/${domainId}/radar/blips`,
+    data,
+    "Failed to create blip",
+  );
 }
 
 export async function upsertRadarBlip(
@@ -459,36 +266,21 @@ export async function upsertRadarBlip(
   blipId: string,
   data: BlipPayload,
 ): Promise<SuccessObj> {
-  const response = await fetch(
+  return putJson(
     `/api/domains/${domainId}/radar/blips/${blipId}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    },
+    data,
+    "Failed to update blip",
   );
-  if (!response.ok) {
-    throw new Error(`Failed to update blip: ${response.statusText}`);
-  }
-  return await response.json();
 }
 
 export async function deleteRadarBlip(
   domainId: string,
   blipId: string,
 ): Promise<SuccessObj> {
-  const response = await fetch(
+  return deleteJson(
     `/api/domains/${domainId}/radar/blips/${blipId}`,
-    {
-      method: "DELETE",
-    },
+    "Failed to delete blip",
   );
-  if (!response.ok) {
-    throw new Error(`Failed to delete blip: ${response.statusText}`);
-  }
-  return await response.json();
 }
 
 export interface BulkBlipEntry {
@@ -506,18 +298,9 @@ export async function bulkCreateRadarBlips(
   count: number;
   ids: string[];
   skippedDuplicates?: number; }> {
-  const response = await fetch(
+  return postJson(
     `/api/domains/${domainId}/radar/blips/bulk`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    },
+    data,
+    "Failed to bulk-create blips",
   );
-  if (!response.ok) {
-    throw new Error(`Failed to bulk-create blips: ${response.statusText}`);
-  }
-  return await response.json();
 }

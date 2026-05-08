@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchSingleCourse } from "@/utils";
@@ -49,29 +50,11 @@ function SingleCourseLayout() {
   }
 
   if (isPending || !data) {
-    return (
-      <div className="p-4">
-        <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-      </div>
-    );
+    return <EntityPending entity="course" />;
   }
 
   if (error) {
-    return (
-      <div className="p-4">
-        <h1 className="mb-4 text-3xl">
-          There was an error loading your courses.
-        </h1>
-        <p>
-          Try to use the
-          {" "}
-          <Link to="/onboard">Onboarding Wizard</Link>
-          {" "}
-          again, or
-          load in properly formed course data.
-        </p>
-      </div>
-    );
+    return <EntityError entity="course" />;
   }
 
   return (

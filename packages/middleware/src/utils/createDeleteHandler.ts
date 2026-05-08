@@ -5,21 +5,23 @@ import { AnyPgColumn, PgTable } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { idParamSchema } from "./schemas";
 
+interface JunctionRef {
+  table: PgTable;
+  foreignKey: AnyPgColumn;
+}
+
 interface DeleteHandlerOptions {
   description: string;
   table: PgTable;
   idColumn: AnyPgColumn;
-  junction?: {
-    table: PgTable;
-    foreignKey: AnyPgColumn;
-  };
+  junctions?: JunctionRef[];
 }
 
 export function createDeleteHandler({
   description,
   table,
   idColumn,
-  junction,
+  junctions = [],
 }: DeleteHandlerOptions) {
   const schema = {
     schema: {
@@ -36,7 +38,7 @@ export function createDeleteHandler({
         id,
       } = request.params;
 
-      if (junction) {
+      for (const junction of junctions) {
         await db.delete(junction.table).where(eq(junction.foreignKey, id));
       }
       await db.delete(table).where(eq(idColumn, id));

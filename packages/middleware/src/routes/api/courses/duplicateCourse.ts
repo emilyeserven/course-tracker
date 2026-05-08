@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { courses, topicsToCourses } from "@/db/schema";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -33,10 +34,7 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!source) {
-        reply.status(404);
-        return {
-          error: "Course not found",
-        };
+        return sendNotFound(reply, "Course");
       }
 
       const newId = uuidv4();

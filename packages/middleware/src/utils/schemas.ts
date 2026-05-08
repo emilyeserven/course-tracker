@@ -19,3 +19,91 @@ export const nullableBoolean = {
 export const nullableInteger = {
   type: ["integer", "null"],
 } as const;
+
+export const courseStatusEnum = {
+  type: "string",
+  enum: ["active", "inactive", "complete"],
+} as const;
+
+export const nullableDailyStatusEnum = {
+  type: ["string", "null"],
+  enum: ["active", "complete", "paused", null],
+} as const;
+
+export const nullableResourceLevelEnum = {
+  type: ["string", "null"],
+  enum: ["low", "medium", "high", null],
+} as const;
+
+export const dailyCompletionStatusEnum = {
+  type: "string",
+  enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
+} as const;
+
+export const completionSchema = {
+  type: "object",
+  required: ["date"],
+  properties: {
+    date: {
+      type: "string",
+    },
+    status: dailyCompletionStatusEnum,
+    note: {
+      type: "string",
+    },
+  },
+} as const;
+
+export const criteriaSchema = {
+  type: "object",
+  properties: {
+    incomplete: {
+      type: "string",
+    },
+    touched: {
+      type: "string",
+    },
+    goal: {
+      type: "string",
+    },
+    exceeded: {
+      type: "string",
+    },
+  },
+} as const;
+
+export const resourceSchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    url: nullableString,
+    easeOfStarting: nullableResourceLevelEnum,
+    timeNeeded: nullableResourceLevelEnum,
+    interactivity: nullableResourceLevelEnum,
+    usedYet: {
+      type: "boolean",
+    },
+  },
+} as const;
+
+export const todoSchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    isComplete: {
+      type: "boolean",
+    },
+  },
+} as const;

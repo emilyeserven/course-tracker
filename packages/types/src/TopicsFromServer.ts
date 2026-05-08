@@ -1,5 +1,5 @@
-import { TopicsToCourses } from "@/TopicsToCourses";
-import { TopicsToDomains } from "@/TopicsToDomains";
+import type { TopicsToCourses } from "./TopicsToCourses";
+import type { TopicsToDomains } from "./TopicsToDomains";
 
 export interface TopicsFromServer {
   id: string;

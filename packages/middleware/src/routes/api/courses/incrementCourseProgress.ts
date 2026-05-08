@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { courses } from "@/db/schema";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 
 const incrementSchema = {
@@ -30,10 +31,7 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!course) {
-        return reply.status(404).send({
-          status: "error",
-          message: "Course not found",
-        });
+        return sendNotFound(reply, "Course");
       }
 
       const current = course.progressCurrent ?? 0;

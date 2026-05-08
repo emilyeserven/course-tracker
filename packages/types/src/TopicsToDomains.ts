@@ -1,5 +1,5 @@
-import { Domain } from "@/Domain";
-import { TopicsFromServer } from "@/TopicsFromServer";
+import type { Domain } from "./Domain";
+import type { TopicsFromServer } from "./TopicsFromServer";
 
 export interface TopicsToDomains {
   topicId: string;

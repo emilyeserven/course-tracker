@@ -43,8 +43,7 @@ export function TopicBox({
               <span
                 key={domain.id}
                 className="
-                  rounded-sm bg-gray-100 px-2 py-0.5 text-xs
-                  text-gray-700
+                  rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700
                 "
               >
                 {domain.title}

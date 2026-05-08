@@ -4,19 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { TopicList } from "@/components/boxElements/TopicList";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { DailyRecentDaysStrip } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   fetchSingleCourse,
   getCurrentChain,
@@ -195,50 +186,36 @@ function SingleCourse() {
           </InfoArea>
         </div>
       </InfoRow>
-      <AlertDialog open={dailyPromptOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create a Daily for this course?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You marked this course as active. Want to create a Daily that
-              tracks your progress on it?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={async () => {
-                setDailyPromptOpen(false);
-                await navigate({
-                  to: "/courses/$id",
-                  params: {
-                    id,
-                  },
-                  search: {},
-                  replace: true,
-                });
-              }}
-            >
-              No thanks
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                setDailyPromptOpen(false);
-                await navigate({
-                  to: "/dailies/$id/edit",
-                  params: {
-                    id: "new",
-                  },
-                  search: {
-                    newCourseId: id,
-                  },
-                });
-              }}
-            >
-              Create Daily
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={dailyPromptOpen}
+        title="Create a Daily for this course?"
+        description="You marked this course as active. Want to create a Daily that tracks your progress on it?"
+        cancelLabel="No thanks"
+        confirmLabel="Create Daily"
+        onCancel={async () => {
+          setDailyPromptOpen(false);
+          await navigate({
+            to: "/courses/$id",
+            params: {
+              id,
+            },
+            search: {},
+            replace: true,
+          });
+        }}
+        onConfirm={async () => {
+          setDailyPromptOpen(false);
+          await navigate({
+            to: "/dailies/$id/edit",
+            params: {
+              id: "new",
+            },
+            search: {
+              newCourseId: id,
+            },
+          });
+        }}
+      />
     </div>
   );
 }

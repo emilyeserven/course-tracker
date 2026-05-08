@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -12,30 +13,6 @@ import { fetchSingleProvider } from "@/utils";
 export const Route = createFileRoute("/providers/$id/")({
   component: SingleProviders,
 });
-
-function TopicPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your topics...</h1>
-    </div>
-  );
-}
-
-function TopicError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your topics.</h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
-}
 
 function SingleProviders() {
   const {
@@ -50,11 +27,11 @@ function SingleProviders() {
   });
 
   if (isPending) {
-    <TopicPending />;
+    return <EntityPending entity="provider" />;
   }
 
   if (error) {
-    <TopicError />;
+    return <EntityError entity="provider" />;
   }
 
   return (

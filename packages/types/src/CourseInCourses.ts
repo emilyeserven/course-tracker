@@ -1,4 +1,4 @@
-import { CourseStatus } from "./Course";
+import type { CourseStatus } from "./Course";
 
 export interface CourseInCourses {
   id: string;

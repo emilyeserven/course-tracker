@@ -5,8 +5,10 @@ export default createDeleteHandler({
   description: "Delete a course by ID",
   table: courses,
   idColumn: courses.id,
-  junction: {
-    table: topicsToCourses,
-    foreignKey: topicsToCourses.courseId,
-  },
+  junctions: [
+    {
+      table: topicsToCourses,
+      foreignKey: topicsToCourses.courseId,
+    },
+  ],
 });

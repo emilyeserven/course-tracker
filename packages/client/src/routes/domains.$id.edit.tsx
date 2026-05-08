@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createDomain,
   deleteSingleDomain,
@@ -59,16 +60,19 @@ function SingleDomainEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const skipBlocker = useRef(false);
 
   const {
     data,
-  } = useQuery({
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew,
     queryKey: ["domain", id],
     queryFn: () => fetchSingleDomain(id),
-    enabled: !isNew,
+    relatedQueryKeys: [["domains"]],
   });
 
   const {
@@ -161,15 +165,9 @@ function SingleDomainEdit() {
         else {
           await upsertDomain(id, domainData);
           domainId = id;
-          await queryClient.invalidateQueries({
-            queryKey: ["domain", id],
-          });
         }
-
-        await queryClient.invalidateQueries({
-          queryKey: ["domains"],
-        });
-        skipBlocker.current = true;
+        await invalidateRelated();
+        skipBlock();
         await navigate({
           to: "/domains/$id",
           params: {
@@ -235,29 +233,19 @@ function SingleDomainEdit() {
     [excludedRows],
   );
 
-  async function handleDelete() {
-    try {
-      await deleteSingleDomain(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["domains"],
-      });
-      skipBlocker.current = true;
-      await navigate({
-        to: "/domains",
-      });
-    }
-    catch {
-      toast.error("Failed to delete domain. Please try again.");
-    }
-  }
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSingleDomain,
+    entityLabel: "domain",
+    navigateToList: () => navigate({
+      to: "/domains",
+    }),
+  });
 
   async function handleDuplicate() {
     try {
       const result = await duplicateDomain(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["domains"],
-      });
-      skipBlocker.current = true;
+      await invalidateRelated();
+      skipBlock();
       await navigate({
         to: "/domains/$id",
         params: {
@@ -472,7 +460,7 @@ function SingleDomainEdit() {
           </EditPageFooter>
         </form>
         <UnsavedChangesDialog
-          shouldBlockFn={() => hasChanges && !skipBlocker.current}
+          shouldBlockFn={shouldBlockFn(hasChanges)}
         />
       </div>
     </div>

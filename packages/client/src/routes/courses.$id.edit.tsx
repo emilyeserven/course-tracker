@@ -1,9 +1,9 @@
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   deleteSingleCourse,
   duplicateCourse,
@@ -47,16 +48,19 @@ function SingleCourseEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const skipBlocker = useRef(false);
 
   const {
     data,
-  } = useQuery({
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew,
     queryKey: ["course", id],
     queryFn: () => fetchSingleCourse(id),
-    enabled: !isNew,
+    relatedQueryKeys: [["courses"], ["topics"]],
   });
 
   const {
@@ -132,19 +136,8 @@ function SingleCourseEdit() {
         const courseId = isNew ? uuidv4() : id;
         const previousStatus = data?.status;
         await upsertCourse(courseId, courseData);
-        if (!isNew) {
-          await queryClient.invalidateQueries({
-            queryKey: ["course", id],
-          });
-        }
-
-        await queryClient.invalidateQueries({
-          queryKey: ["courses"],
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ["topics"],
-        });
-        skipBlocker.current = true;
+        await invalidateRelated();
+        skipBlock();
 
         const becameActive
           = value.status === "active"
@@ -189,29 +182,19 @@ function SingleCourseEdit() {
     }
   }
 
-  async function handleDelete() {
-    try {
-      await deleteSingleCourse(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["courses"],
-      });
-      skipBlocker.current = true;
-      await navigate({
-        to: "/courses",
-      });
-    }
-    catch {
-      toast.error("Failed to delete course. Please try again.");
-    }
-  }
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSingleCourse,
+    entityLabel: "course",
+    navigateToList: () => navigate({
+      to: "/courses",
+    }),
+  });
 
   async function handleDuplicate() {
     try {
       const result = await duplicateCourse(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["courses"],
-      });
-      skipBlocker.current = true;
+      await invalidateRelated();
+      skipBlock();
       await navigate({
         to: "/courses/$id",
         params: {
@@ -385,7 +368,7 @@ function SingleCourseEdit() {
         </EditPageFooter>
       </form>
       <UnsavedChangesDialog
-        shouldBlockFn={() => hasChanges && !skipBlocker.current}
+        shouldBlockFn={shouldBlockFn(hasChanges)}
       />
     </div>
   );

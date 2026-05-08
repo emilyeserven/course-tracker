@@ -1,7 +1,6 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +11,7 @@ import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
   deleteSinglePlatform,
@@ -42,16 +42,19 @@ function SingleProviderEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const skipBlocker = useRef(false);
 
   const {
     data,
-  } = useQuery({
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew,
     queryKey: ["provider", id],
     queryFn: () => fetchSingleProvider(id),
-    enabled: !isNew,
+    relatedQueryKeys: [["providers"]],
   });
 
   const startingValues = useMemo(
@@ -101,15 +104,9 @@ function SingleProviderEdit() {
         else {
           await upsertProvider(id, providerData);
           providerId = id;
-          await queryClient.invalidateQueries({
-            queryKey: ["provider", id],
-          });
         }
-
-        await queryClient.invalidateQueries({
-          queryKey: ["providers"],
-        });
-        skipBlocker.current = true;
+        await invalidateRelated();
+        skipBlock();
         await navigate({
           to: "/providers/$id",
           params: {
@@ -138,21 +135,13 @@ function SingleProviderEdit() {
     state => state.values.isRecurring === "true",
   );
 
-  async function handleDelete() {
-    try {
-      await deleteSinglePlatform(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["providers"],
-      });
-      skipBlocker.current = true;
-      await navigate({
-        to: "/providers",
-      });
-    }
-    catch {
-      toast.error("Failed to delete provider. Please try again.");
-    }
-  }
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSinglePlatform,
+    entityLabel: "provider",
+    navigateToList: () => navigate({
+      to: "/providers",
+    }),
+  });
 
   return (
     <div>
@@ -324,7 +313,7 @@ function SingleProviderEdit() {
           </EditPageFooter>
         </form>
         <UnsavedChangesDialog
-          shouldBlockFn={() => hasChanges && !skipBlocker.current}
+          shouldBlockFn={shouldBlockFn(hasChanges)}
         />
       </div>
     </div>

@@ -6,43 +6,26 @@ import { ArrowRightIcon, PlusIcon } from "lucide-react";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { ProviderBox } from "@/components/boxes/ProviderBox";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchProviders } from "@/utils";
 
 export const Route = createFileRoute("/providers/")({
-  component: Topics,
-  errorComponent: TopicsError,
-  pendingComponent: TopicsPending,
+  component: Providers,
+  errorComponent: ProvidersError,
+  pendingComponent: ProvidersPending,
 });
 
-function TopicsPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-    </div>
-  );
+function ProvidersPending() {
+  return <EntityPending entity="providers" />;
 }
 
-function TopicsError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">
-        There was an error loading your courses.
-      </h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
+function ProvidersError() {
+  return <EntityError entity="providers" />;
 }
 
-function Topics() {
+function Providers() {
   const {
     data,
   } = useQuery({

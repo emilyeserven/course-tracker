@@ -13,6 +13,7 @@ import {
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { TopicBox } from "@/components/boxes/TopicBox";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,29 +34,11 @@ export const Route = createFileRoute("/topics/")({
 });
 
 function TopicsPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your courses...</h1>
-    </div>
-  );
+  return <EntityPending entity="topics" />;
 }
 
 function TopicsError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">
-        There was an error loading your courses.
-      </h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed course data.
-      </p>
-    </div>
-  );
+  return <EntityError entity="topics" />;
 }
 
 function sortTopics(

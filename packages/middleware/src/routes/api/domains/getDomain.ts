@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import type { Domain } from "@emstack/types/src";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 
 const getDomainSchema = {
@@ -82,10 +83,7 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!domain) {
-        reply.status(404);
-        return {
-          error: "Domain not found",
-        };
+        return sendNotFound(reply, "Domain");
       }
 
       const topicsById = new Map<string, {

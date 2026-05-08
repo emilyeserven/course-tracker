@@ -13,6 +13,7 @@ import {
   DailyRecentDaysStrip,
   DAILY_STATUS_OPTIONS,
 } from "@/components/dailies";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -28,19 +29,11 @@ export const Route = createFileRoute("/dailies/$id/")({
 });
 
 function DailyPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your daily...</h1>
-    </div>
-  );
+  return <EntityPending entity="daily" />;
 }
 
 function DailyError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading this daily.</h1>
-    </div>
-  );
+  return <EntityError entity="daily" />;
 }
 
 function SingleDaily() {

@@ -1,8 +1,7 @@
-import type { CostData } from "@/CostData";
-
-import { Daily } from "@/Daily";
-import { MinimalTopic } from "@/MinimalTopic";
-import { Topic } from "@/Topic";
+import type { CostData } from "./CostData";
+import type { Daily } from "./Daily";
+import type { MinimalTopic } from "./MinimalTopic";
+import type { Topic } from "./Topic";
 
 export type CourseStatus = "active" | "inactive" | "complete" | "paused";
 

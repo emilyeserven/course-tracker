@@ -6,6 +6,7 @@ import { ArrowRightIcon, PlusIcon } from "lucide-react";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { DomainBox } from "@/components/boxes/DomainBox";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchDomains } from "@/utils";
@@ -17,29 +18,11 @@ export const Route = createFileRoute("/domains/")({
 });
 
 function DomainsPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your domains...</h1>
-    </div>
-  );
+  return <EntityPending entity="domains" />;
 }
 
 function DomainsError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">
-        There was an error loading your domains.
-      </h1>
-      <p>
-        Try to use the
-        {" "}
-        <Link to="/onboard">Onboarding Wizard</Link>
-        {" "}
-        again, or
-        load in properly formed data.
-      </p>
-    </div>
-  );
+  return <EntityError entity="domains" />;
 }
 
 function DomainsIndex() {

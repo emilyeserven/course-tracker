@@ -7,6 +7,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { TaskBox } from "@/components/boxes/TaskBox";
+import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,19 +26,11 @@ export const Route = createFileRoute("/tasks/")({
 });
 
 function TasksPending() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">Hold on, loading your tasks...</h1>
-    </div>
-  );
+  return <EntityPending entity="tasks" />;
 }
 
 function TasksError() {
-  return (
-    <div className="p-4">
-      <h1 className="mb-4 text-3xl">There was an error loading your tasks.</h1>
-    </div>
-  );
+  return <EntityError entity="tasks" />;
 }
 
 function Tasks() {
