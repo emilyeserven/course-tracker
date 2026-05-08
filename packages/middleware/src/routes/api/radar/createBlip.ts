@@ -25,6 +25,7 @@ const createBlipSchema = {
           type: "string",
         },
         description: nullableString,
+        comment: nullableString,
         quadrantId: {
           type: "string",
         },
@@ -56,6 +57,7 @@ export default async function (server: FastifyInstance) {
         ringId: body.ringId,
         topicId: body.topicId,
         description: body.description ?? null,
+        comment: body.comment ?? null,
       });
 
       return {

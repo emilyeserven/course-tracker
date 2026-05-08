@@ -32,6 +32,7 @@ const bulkCreateBlipsSchema = {
               topicId: nullableString,
               newTopicName: nullableString,
               description: nullableString,
+              comment: nullableString,
               quadrantId: {
                 type: "string",
               },
@@ -104,6 +105,7 @@ export default async function (server: FastifyInstance) {
           ringId: entry.ringId,
           topicId,
           description: entry.description ?? null,
+          comment: entry.comment ?? null,
         });
         createdIds.push(blipId);
       }

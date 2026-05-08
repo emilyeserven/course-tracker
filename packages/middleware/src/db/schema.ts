@@ -236,6 +236,7 @@ export const radarBlips = pgTable("radar_blips", {
     .notNull()
     .references(() => topics.id),
   description: varchar(),
+  comment: varchar(),
 });
 
 export const radarQuadrantsRelations = relations(radarQuadrants, ({

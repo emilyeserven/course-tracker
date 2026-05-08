@@ -26,6 +26,7 @@ interface RadarChartProps {
   blips: RadarBlip[];
   size?: number;
   onBlipClick?: (blip: RadarBlip) => void;
+  onCommentChange?: (blipId: string, comment: string) => void;
 }
 
 interface PositionedBlip {
@@ -63,9 +64,19 @@ export function RadarChart({
   blips,
   size = 600,
   onBlipClick,
+  onCommentChange,
 }: RadarChartProps) {
   const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
-  const [comments, setComments] = useState<Record<string, string>>({});
+
+  const comments = useMemo(() => {
+    const map: Record<string, string> = {};
+    blips.forEach((b) => {
+      if (b.comment) {
+        map[b.id] = b.comment;
+      }
+    });
+    return map;
+  }, [blips]);
 
   const cx = size / 2;
   const cy = size / 2;
@@ -161,10 +172,7 @@ export function RadarChart({
   const angleStep = (Math.PI * 2) / quadrantCount;
 
   const handleSetComment = (blipId: string, value: string) => {
-    setComments(prev => ({
-      ...prev,
-      [blipId]: value,
-    }));
+    onCommentChange?.(blipId, value);
   };
 
   return (

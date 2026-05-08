@@ -27,6 +27,7 @@ const upsertBlipSchema = {
           type: "string",
         },
         description: nullableString,
+        comment: nullableString,
         quadrantId: {
           type: "string",
         },
@@ -50,6 +51,18 @@ export default async function (server: FastifyInstance) {
       } = request.params;
       const body = request.body;
 
+      const updateSet: Record<string, unknown> = {
+        quadrantId: body.quadrantId,
+        ringId: body.ringId,
+        topicId: body.topicId,
+        description: body.description ?? null,
+      };
+      // Only touch comment when the caller explicitly supplied one; otherwise
+      // preserve whatever is already saved so unrelated edits don't wipe it.
+      if (body.comment !== undefined) {
+        updateSet.comment = body.comment;
+      }
+
       await db
         .insert(radarBlips)
         .values({
@@ -59,15 +72,11 @@ export default async function (server: FastifyInstance) {
           ringId: body.ringId,
           topicId: body.topicId,
           description: body.description ?? null,
+          comment: body.comment ?? null,
         })
         .onConflictDoUpdate({
           target: radarBlips.id,
-          set: {
-            quadrantId: body.quadrantId,
-            ringId: body.ringId,
-            topicId: body.topicId,
-            description: body.description ?? null,
-          },
+          set: updateSet,
         });
 
       return {
