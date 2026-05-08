@@ -21,11 +21,31 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          topicsToDomains: {
+            with: {
+              domain: {
+                columns: {
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          },
         },
       });
 
       const processedData: TopicForTopicsPage[] = rawData.map((topic: TopicsFromServer) => {
         const courseCount = topic.topicsToCourses?.length ?? 0;
+
+        const domainsById = new Map<string, { id: string; title: string }>();
+        for (const ttd of topic.topicsToDomains ?? []) {
+          if (ttd.domain?.id && ttd.domain.title && !domainsById.has(ttd.domain.id)) {
+            domainsById.set(ttd.domain.id, {
+              id: ttd.domain.id,
+              title: ttd.domain.title,
+            });
+          }
+        }
 
         return {
           id: topic.id,
@@ -33,6 +53,7 @@ export default async function (server: FastifyInstance) {
           description: topic.description,
           reason: topic.reason,
           courseCount: courseCount,
+          domains: Array.from(domainsById.values()),
         };
       });
 

@@ -1,4 +1,5 @@
 import { TopicsToCourses } from "@/TopicsToCourses";
+import { TopicsToDomains } from "@/TopicsToDomains";
 
 export interface TopicsFromServer {
   id: string;
@@ -6,4 +7,5 @@ export interface TopicsFromServer {
   description?: string | null;
   reason?: string | null;
   topicsToCourses?: TopicsToCourses[] | null;
+  topicsToDomains?: TopicsToDomains[] | null;
 }
