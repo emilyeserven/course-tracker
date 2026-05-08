@@ -2,7 +2,7 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FlameIcon, LaughIcon, PlusIcon } from "lucide-react";
+import { FlameIcon, LaughIcon, PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -170,6 +170,7 @@ function Dailies() {
                     <th className="p-2 font-medium whitespace-nowrap">
                       Location
                     </th>
+                    <th className="w-8 p-2" />
                   </tr>
                 </thead>
                 <tbody>
@@ -318,6 +319,25 @@ function Dailies() {
                             location={daily.location}
                             taskId={daily.taskId ?? daily.task?.id ?? null}
                           />
+                        </td>
+                        <td className="p-2 align-top">
+                          <Link
+                            to="/dailies/$id/edit"
+                            params={{
+                              id: daily.id,
+                            }}
+                            aria-label={`Edit ${daily.name}`}
+                            title="Edit daily"
+                            className="
+                              inline-flex items-center justify-center rounded-md
+                              p-1 text-muted-foreground opacity-0 transition
+                              group-hover:opacity-100
+                              hover:bg-muted hover:text-foreground
+                              focus-visible:opacity-100
+                            "
+                          >
+                            <PencilIcon className="size-3.5" />
+                          </Link>
                         </td>
                       </tr>
                     );

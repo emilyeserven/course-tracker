@@ -3,11 +3,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EyeIcon, Loader2 } from "lucide-react";
+import { EyeIcon, Loader2, WandSparklesIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { DailyCompletionsManager } from "@/components/dailies";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+} from "@/components/combobox";
 import { useAppForm } from "@/components/formFields";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -95,15 +104,16 @@ function SingleDailyEdit() {
     label: p.name,
   }));
 
-  const courseOptions = (courses ?? []).map(c => ({
-    value: c.id,
-    label: c.name,
-  }));
-
-  const taskOptions = (tasks ?? []).map(t => ({
-    value: t.id,
-    label: t.name,
-  }));
+  const linkedLabelMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of courses ?? []) {
+      m.set(`course:${c.id}`, c.name);
+    }
+    for (const t of tasks ?? []) {
+      m.set(`task:${t.id}`, t.name);
+    }
+    return m;
+  }, [courses, tasks]);
 
   const startingValues = useMemo(
     () => ({
@@ -124,9 +134,7 @@ function SingleDailyEdit() {
     [data, isNew, search.newCourseId],
   );
 
-  const [informFromCourse, setInformFromCourse] = useState<boolean>(
-    !!(isNew && search.newCourseId),
-  );
+  const [hideLinkBox, setHideLinkBox] = useState(false);
 
   const form = useAppForm({
     defaultValues: startingValues,
@@ -211,11 +219,42 @@ function SingleDailyEdit() {
     [currentValues.courseId, courses],
   );
 
-  // When "Inform data from course" is checked, mirror the chosen course's
-  // name / url / provider into the daily fields. We rerun whenever either
-  // the toggle or the course changes.
+  const selectedTask = useMemo(
+    () =>
+      currentValues.taskId
+        ? (tasks ?? []).find(t => t.id === currentValues.taskId)
+        : undefined,
+    [currentValues.taskId, tasks],
+  );
+
+  const isLinked = !!(currentValues.courseId || currentValues.taskId);
+
+  const linkedValue = currentValues.courseId
+    ? `course:${currentValues.courseId}`
+    : currentValues.taskId
+      ? `task:${currentValues.taskId}`
+      : "";
+
+  const setLinkedValue = (val: string | null) => {
+    if (!val) {
+      form.setFieldValue("courseId", "");
+      form.setFieldValue("taskId", "");
+      return;
+    }
+    if (val.startsWith("course:")) {
+      form.setFieldValue("courseId", val.slice("course:".length));
+      form.setFieldValue("taskId", "");
+    }
+    else if (val.startsWith("task:")) {
+      form.setFieldValue("taskId", val.slice("task:".length));
+      form.setFieldValue("courseId", "");
+    }
+  };
+
+  // When a course is linked, mirror its name/url/provider into the daily
+  // fields so the (now-disabled) inputs stay in sync with the source.
   useEffect(() => {
-    if (!informFromCourse || !selectedCourse) {
+    if (!selectedCourse) {
       return;
     }
     if (currentValues.name !== selectedCourse.name) {
@@ -230,7 +269,6 @@ function SingleDailyEdit() {
       form.setFieldValue("courseProviderId", courseProviderId);
     }
   }, [
-    informFromCourse,
     selectedCourse,
     currentValues.name,
     currentValues.location,
@@ -238,13 +276,15 @@ function SingleDailyEdit() {
     form,
   ]);
 
-  // If the user clears the course while the toggle is on, turn it off so
-  // the disabled fields don't get stuck.
+  // When a task is linked, mirror its name into the daily name field.
   useEffect(() => {
-    if (informFromCourse && !currentValues.courseId) {
-      setInformFromCourse(false);
+    if (!selectedTask) {
+      return;
     }
-  }, [informFromCourse, currentValues.courseId]);
+    if (currentValues.name !== selectedTask.name) {
+      form.setFieldValue("name", selectedTask.name);
+    }
+  }, [selectedTask, currentValues.name, form]);
 
   return (
     <div>
@@ -275,33 +315,77 @@ function SingleDailyEdit() {
           }}
           className="flex max-w-2xl flex-col gap-8"
         >
-          <form.AppField name="courseId">
-            {field => (
-              <field.ComboboxField
-                label="Course"
-                options={courseOptions}
-                placeholder="Search courses..."
+          {!hideLinkBox && (
+            <div
+              className="
+                flex flex-row items-start justify-between gap-4 rounded-md
+                border bg-card p-4
+              "
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <h2 className="text-2xl">Link this Daily</h2>
+                <Combobox
+                  value={linkedValue || null}
+                  onValueChange={val => setLinkedValue(val ?? null)}
+                  itemToStringLabel={val => linkedLabelMap.get(val) ?? ""}
+                >
+                  <ComboboxInput
+                    placeholder="Search courses or tasks..."
+                    showClear
+                  />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(courses ?? []).length > 0 && (
+                        <ComboboxGroup>
+                          <ComboboxLabel>Courses</ComboboxLabel>
+                          {(courses ?? []).map(c => (
+                            <ComboboxItem
+                              key={`course:${c.id}`}
+                              value={`course:${c.id}`}
+                            >
+                              {c.name}
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxGroup>
+                      )}
+                      {(tasks ?? []).length > 0 && (
+                        <ComboboxGroup>
+                          <ComboboxLabel>Tasks</ComboboxLabel>
+                          {(tasks ?? []).map(t => (
+                            <ComboboxItem
+                              key={`task:${t.id}`}
+                              value={`task:${t.id}`}
+                            >
+                              {t.name}
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxGroup>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-fit"
+                  onClick={() => setHideLinkBox(true)}
+                >
+                  Hide This
+                </Button>
+              </div>
+              <WandSparklesIcon
+                className="size-8 shrink-0 text-muted-foreground"
+                aria-hidden="true"
               />
-            )}
-          </form.AppField>
-
-          {currentValues.courseId && (
-            <label className="flex flex-row items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={informFromCourse}
-                onChange={e => setInformFromCourse(e.target.checked)}
-                className="size-4"
-              />
-              <span>Inform data from course</span>
-            </label>
+            </div>
           )}
 
           <form.AppField name="name">
             {field => (
               <field.InputField
                 label="Daily Name"
-                disabled={informFromCourse}
+                disabled={isLinked}
               />
             )}
           </form.AppField>
@@ -311,7 +395,7 @@ function SingleDailyEdit() {
               <field.InputField
                 label="Location"
                 placeholder="e.g. Spanish app, gym, journal"
-                disabled={informFromCourse}
+                disabled={isLinked}
               />
             )}
           </form.AppField>
@@ -331,17 +415,7 @@ function SingleDailyEdit() {
                 label="Provider"
                 options={providerOptions}
                 placeholder="Search providers..."
-                disabled={informFromCourse}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="taskId">
-            {field => (
-              <field.ComboboxField
-                label="Linked Task"
-                options={taskOptions}
-                placeholder="Search tasks..."
+                disabled={isLinked}
               />
             )}
           </form.AppField>
@@ -438,15 +512,6 @@ function SingleDailyEdit() {
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}
         />
-        {!isNew && data && (
-          <div className="mt-12 flex max-w-2xl flex-col gap-4 border-t pt-8">
-            <h2 className="text-2xl">Completions</h2>
-            <p className="text-sm text-muted-foreground">
-              Pick a date below to retroactively set or change the status for that day.
-            </p>
-            <DailyCompletionsManager daily={data} />
-          </div>
-        )}
       </div>
     </div>
   );

@@ -46,8 +46,8 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     value: "exceeded",
     label: "Exceeded",
     icon: <SparklesIcon className="size-4" />,
-    circleClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
-    pillClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
+    circleClass: "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_8px_2px_rgba(139,92,246,0.5)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_8px_2px_rgba(167,139,250,0.55)]",
+    pillClass: "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_6px_1px_rgba(139,92,246,0.45)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_6px_1px_rgba(167,139,250,0.5)]",
     borderColor: "#8b5cf6",
   },
   {
