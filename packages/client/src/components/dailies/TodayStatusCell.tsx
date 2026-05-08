@@ -103,7 +103,7 @@ export function TodayStatusCell({
             </span>
           </div>
         )}
-      <DailyCommentPopover daily={daily} />
+      {currentStatus !== null && <DailyCommentPopover daily={daily} />}
     </div>
   );
 }
