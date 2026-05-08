@@ -747,6 +747,7 @@ function RadarEdit() {
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}
+              existingBlips={data?.blips ?? []}
               onComplete={handleBulkComplete}
             />
           )}

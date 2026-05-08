@@ -1,5 +1,10 @@
 import type { BulkBlipEntry } from "@/utils";
-import type { RadarQuadrant, RadarRing, TopicForTopicsPage } from "@emstack/types/src";
+import type {
+  RadarBlip,
+  RadarQuadrant,
+  RadarRing,
+  TopicForTopicsPage,
+} from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -9,8 +14,15 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/forms/textarea";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   bulkCreateRadarBlips,
-
+  upsertRadarBlip,
 } from "@/utils";
 
 interface BlipLlmAssistProps {
@@ -19,8 +31,11 @@ interface BlipLlmAssistProps {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   topics: TopicForTopicsPage[];
+  existingBlips: RadarBlip[];
   onComplete: () => void;
 }
+
+type Resolution = "create" | "overwrite" | "skip";
 
 interface LlmEntry {
   topic?: unknown;
@@ -38,8 +53,33 @@ interface ResolvedLlmEntry {
   ringInput: string;
   ringId: string | null;
   description: string | null;
-  isValid: boolean;
+  existingBlipId: string | null;
+  existingQuadrantId: string | null;
+  existingRingId: string | null;
+  existingDescription: string | null;
+  resolution: Resolution;
   problems: string[];
+}
+
+function computeProblems(entry: Pick<ResolvedLlmEntry,
+  "topicName" | "quadrantInput" | "quadrantId" | "ringInput" | "ringId">): string[] {
+  const problems: string[] = [];
+  if (!entry.topicName) {
+    problems.push("missing topic");
+  }
+  if (!entry.quadrantId) {
+    problems.push(
+      entry.quadrantInput
+        ? `unknown quadrant "${entry.quadrantInput}"`
+        : "missing quadrant",
+    );
+  }
+  if (!entry.ringId) {
+    problems.push(
+      entry.ringInput ? `unknown ring "${entry.ringInput}"` : "missing ring",
+    );
+  }
+  return problems;
 }
 
 function buildLlmPrompt(
@@ -79,6 +119,7 @@ export function BlipLlmAssist({
   quadrants,
   rings,
   topics,
+  existingBlips,
   onComplete,
 }: BlipLlmAssistProps) {
   const prompt = useMemo(
@@ -112,6 +153,26 @@ export function BlipLlmAssist({
     rings.forEach((r) => {
       map.set(r.name.toLowerCase(), r);
     });
+    return map;
+  }, [rings]);
+
+  const existingBlipByTopicId = useMemo(() => {
+    const map = new Map<string, RadarBlip>();
+    existingBlips.forEach((b) => {
+      map.set(b.topicId, b);
+    });
+    return map;
+  }, [existingBlips]);
+
+  const quadrantById = useMemo(() => {
+    const map = new Map<string, RadarQuadrant>();
+    quadrants.forEach(q => map.set(q.id, q));
+    return map;
+  }, [quadrants]);
+
+  const ringById = useMemo(() => {
+    const map = new Map<string, RadarRing>();
+    rings.forEach(r => map.set(r.id, r));
     return map;
   }, [rings]);
 
@@ -172,7 +233,6 @@ export function BlipLlmAssist({
 
     const entries = parsed as LlmEntry[];
     const out: ResolvedLlmEntry[] = entries.map((entry) => {
-      const problems: string[] = [];
       const topicName = typeof entry.topic === "string" ? entry.topic.trim() : "";
       const quadrantInput
         = typeof entry.quadrant === "string" ? entry.quadrant.trim() : "";
@@ -181,89 +241,142 @@ export function BlipLlmAssist({
         ? entry.description.trim() || null
         : null;
 
-      if (!topicName) {
-        problems.push("missing topic");
-      }
       const quadrantMatch = quadrantInput
         ? quadrantByLowerName.get(quadrantInput.toLowerCase())
         : undefined;
-      if (!quadrantMatch) {
-        problems.push(
-          quadrantInput
-            ? `unknown quadrant "${quadrantInput}"`
-            : "missing quadrant",
-        );
-      }
       const ringMatch = ringInput
         ? ringByLowerName.get(ringInput.toLowerCase())
         : undefined;
-      if (!ringMatch) {
-        problems.push(
-          ringInput ? `unknown ring "${ringInput}"` : "missing ring",
-        );
-      }
-
       const topicMatch = topicName
         ? topicByLowerName.get(topicName.toLowerCase())
         : undefined;
+      const existingBlip = topicMatch
+        ? existingBlipByTopicId.get(topicMatch.id) ?? null
+        : null;
 
-      return {
+      const partial = {
         topicName,
-        matchedTopicId: topicMatch?.id ?? null,
-        willCreateTopic: !!topicName && !topicMatch,
         quadrantInput,
         quadrantId: quadrantMatch?.id ?? null,
         ringInput,
         ringId: ringMatch?.id ?? null,
+      };
+
+      return {
+        ...partial,
+        matchedTopicId: topicMatch?.id ?? null,
+        willCreateTopic: !!topicName && !topicMatch,
         description,
-        isValid: problems.length === 0,
-        problems,
+        existingBlipId: existingBlip?.id ?? null,
+        existingQuadrantId: existingBlip?.quadrantId ?? null,
+        existingRingId: existingBlip?.ringId ?? null,
+        existingDescription: existingBlip?.description ?? null,
+        resolution: existingBlip ? "overwrite" : "create",
+        problems: computeProblems(partial),
       };
     });
     setResolved(out);
+  }
+
+  function updateEntry(idx: number, patch: Partial<ResolvedLlmEntry>) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map((entry, i) => {
+        if (i !== idx) {
+          return entry;
+        }
+        const next = {
+          ...entry,
+          ...patch,
+        };
+        return {
+          ...next,
+          problems: computeProblems(next),
+        };
+      });
+    });
   }
 
   async function handleConfirm() {
     if (!resolved) {
       return;
     }
-    const validEntries = resolved.filter(r => r.isValid);
-    if (validEntries.length === 0) {
-      toast.error("No valid entries to add.");
+    const actionable = resolved.filter(
+      r => r.resolution !== "skip" && r.problems.length === 0,
+    );
+    if (actionable.length === 0) {
+      toast.error("No actionable entries.");
       return;
     }
     setIsSubmitting(true);
     try {
-      const blips: BulkBlipEntry[] = validEntries
-        .filter(r => r.quadrantId !== null && r.ringId !== null)
-        .map(r => ({
+      const toOverwrite = actionable.filter(
+        r => r.resolution === "overwrite" && r.existingBlipId,
+      );
+      const toCreate = actionable.filter(r => r.resolution === "create");
+
+      let overwriteCount = 0;
+      for (const r of toOverwrite) {
+        await upsertRadarBlip(domainId, r.existingBlipId as string, {
+          topicId: r.matchedTopicId as string,
+          quadrantId: r.quadrantId as string,
+          ringId: r.ringId as string,
+          description: r.description,
+        });
+        overwriteCount += 1;
+      }
+
+      let createCount = 0;
+      if (toCreate.length > 0) {
+        const blips: BulkBlipEntry[] = toCreate.map(r => ({
           topicId: r.matchedTopicId,
           newTopicName: r.matchedTopicId ? null : r.topicName,
           quadrantId: r.quadrantId as string,
           ringId: r.ringId as string,
           description: r.description,
         }));
-      const result = await bulkCreateRadarBlips(domainId, {
-        blips,
-      });
-      toast.success(
-        `Added ${result.count} blip${result.count === 1 ? "" : "s"}.`,
-      );
+        const result = await bulkCreateRadarBlips(domainId, {
+          blips,
+        });
+        createCount = result.count;
+      }
+
+      const parts: string[] = [];
+      if (createCount > 0) {
+        parts.push(`added ${createCount}`);
+      }
+      if (overwriteCount > 0) {
+        parts.push(`updated ${overwriteCount}`);
+      }
+      toast.success(`Done — ${parts.join(", ")}.`);
       setJsonText("");
       setResolved(null);
       onComplete();
     }
     catch {
-      toast.error("Failed to add blips.");
+      toast.error("Failed to apply changes.");
     }
     finally {
       setIsSubmitting(false);
     }
   }
 
-  const newTopicCount = resolved?.filter(r => r.willCreateTopic && r.isValid).length ?? 0;
-  const validCount = resolved?.filter(r => r.isValid).length ?? 0;
-  const invalidCount = (resolved?.length ?? 0) - validCount;
+  const newTopicCount = resolved?.filter(
+    r => r.willCreateTopic && r.problems.length === 0 && r.resolution !== "skip",
+  ).length ?? 0;
+  const createCount = resolved?.filter(
+    r => r.resolution === "create" && r.problems.length === 0,
+  ).length ?? 0;
+  const overwriteCount = resolved?.filter(
+    r => r.resolution === "overwrite" && r.problems.length === 0,
+  ).length ?? 0;
+  const skipCount = resolved?.filter(r => r.resolution === "skip").length ?? 0;
+  const problemCount = resolved?.filter(
+    r => r.problems.length > 0 && r.resolution !== "skip",
+  ).length ?? 0;
+  const actionableCount = createCount + overwriteCount;
 
   return (
     <div className="flex flex-col gap-4 rounded-sm border p-4">
@@ -320,14 +433,22 @@ export function BlipLlmAssist({
         <div className="flex flex-col gap-2">
           <h4 className="text-sm font-semibold">3. Review</h4>
           <p className="text-sm text-muted-foreground">
-            {validCount}
+            {createCount}
             {" "}
-            valid ·
+            to add ·
             {" "}
-            {invalidCount}
+            {overwriteCount}
+            {" "}
+            to update ·
+            {" "}
+            {skipCount}
+            {" "}
+            to skip ·
+            {" "}
+            {problemCount}
             {" "}
             problem
-            {invalidCount === 1 ? "" : "s"}
+            {problemCount === 1 ? "" : "s"}
             {" "}
             ·
             {" "}
@@ -335,66 +456,225 @@ export function BlipLlmAssist({
             {" "}
             new topic
             {newTopicCount === 1 ? "" : "s"}
-            {" "}
-            to create
           </p>
-          <ul className="flex flex-col gap-1 text-sm">
-            {resolved.map((r, idx) => (
-              <li
-                key={idx}
-                className={`
-                  flex flex-row flex-wrap items-center gap-2 rounded-sm border
-                  px-2 py-1
-                  ${r.isValid ? "bg-white" : "border-red-200 bg-red-50"}
-                `}
-              >
-                <span className="font-medium">{r.topicName || "(no topic)"}</span>
-                <span className="text-xs text-muted-foreground">
-                  {r.quadrantInput || "?"}
-                  {" "}
-                  ·
-                  {r.ringInput || "?"}
-                </span>
-                {r.isValid && r.willCreateTopic && (
-                  <span
+          <ul className="flex flex-col gap-2 text-sm">
+            {resolved.map((r, idx) => {
+              const hasProblems = r.problems.length > 0;
+              const isSkipped = r.resolution === "skip";
+              const conflicts = r.existingBlipId !== null;
+              const existingQuadrantName = r.existingQuadrantId
+                ? quadrantById.get(r.existingQuadrantId)?.name ?? "?"
+                : null;
+              const existingRingName = r.existingRingId
+                ? ringById.get(r.existingRingId)?.name ?? "?"
+                : null;
+              return (
+                <li
+                  key={idx}
+                  className={`
+                    flex flex-col gap-2 rounded-sm border px-3 py-2
+                    ${isSkipped
+                      ? "border-muted bg-muted/30 opacity-70"
+                      : hasProblems
+                        ? "border-red-200 bg-red-50"
+                        : conflicts
+                          ? "border-amber-300 bg-amber-50"
+                          : "bg-white"}
+                  `}
+                >
+                  <div className="flex flex-row flex-wrap items-center gap-2">
+                    <span className="font-medium">{r.topicName || "(no topic)"}</span>
+                    {r.willCreateTopic && (
+                      <span
+                        className={`
+                          rounded-sm bg-emerald-100 px-1.5 py-0.5 text-xs
+                          text-emerald-800
+                        `}
+                      >
+                        New topic
+                      </span>
+                    )}
+                    {!r.willCreateTopic && r.matchedTopicId && (
+                      <span
+                        className={`
+                          rounded-sm bg-blue-100 px-1.5 py-0.5 text-xs
+                          text-blue-800
+                        `}
+                      >
+                        Existing topic
+                      </span>
+                    )}
+                    {conflicts && (
+                      <span
+                        className={`
+                          rounded-sm bg-amber-200 px-1.5 py-0.5 text-xs
+                          text-amber-900
+                        `}
+                      >
+                        Already on radar
+                      </span>
+                    )}
+                    {hasProblems && !isSkipped && (
+                      <span
+                        className={`
+                          rounded-sm bg-red-100 px-1.5 py-0.5 text-xs
+                          text-red-800
+                        `}
+                      >
+                        {r.problems.join("; ")}
+                      </span>
+                    )}
+                  </div>
+
+                  {conflicts && (
+                    <div className="text-xs text-muted-foreground">
+                      Currently:
+                      {" "}
+                      <span className="font-medium">
+                        {existingQuadrantName ?? "?"}
+                        {" · "}
+                        {existingRingName ?? "?"}
+                      </span>
+                      {r.existingDescription && (
+                        <>
+                          {" — "}
+                          <span className="italic">{r.existingDescription}</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  <div
                     className={`
-                      rounded-sm bg-emerald-100 px-1.5 py-0.5 text-xs
-                      text-emerald-800
+                      grid grid-cols-1 gap-2
+                      sm:grid-cols-3
                     `}
                   >
-                    New topic
-                  </span>
-                )}
-                {r.isValid && !r.willCreateTopic && (
-                  <span
-                    className={`
-                      rounded-sm bg-blue-100 px-1.5 py-0.5 text-xs text-blue-800
-                    `}
-                  >
-                    Existing topic
-                  </span>
-                )}
-                {!r.isValid && (
-                  <span
-                    className={`
-                      rounded-sm bg-red-100 px-1.5 py-0.5 text-xs text-red-800
-                    `}
-                  >
-                    {r.problems.join("; ")}
-                  </span>
-                )}
-              </li>
-            ))}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs uppercase text-muted-foreground">
+                        Quadrant
+                        {r.quadrantInput && (
+                          <>
+                            {" "}
+                            <span className="normal-case text-muted-foreground/70">
+                              (LLM:
+                              {" "}
+                              {r.quadrantInput}
+                              )
+                            </span>
+                          </>
+                        )}
+                      </label>
+                      <Select
+                        value={r.quadrantId ?? ""}
+                        onValueChange={value =>
+                          updateEntry(idx, {
+                            quadrantId: value || null,
+                          })}
+                        disabled={isSkipped}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pick a quadrant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quadrants.map(q => (
+                            <SelectItem
+                              key={q.id}
+                              value={q.id}
+                            >
+                              {q.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs uppercase text-muted-foreground">
+                        Ring
+                        {r.ringInput && (
+                          <>
+                            {" "}
+                            <span className="normal-case text-muted-foreground/70">
+                              (LLM:
+                              {" "}
+                              {r.ringInput}
+                              )
+                            </span>
+                          </>
+                        )}
+                      </label>
+                      <Select
+                        value={r.ringId ?? ""}
+                        onValueChange={value =>
+                          updateEntry(idx, {
+                            ringId: value || null,
+                          })}
+                        disabled={isSkipped}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pick a ring" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rings.map(rg => (
+                            <SelectItem
+                              key={rg.id}
+                              value={rg.id}
+                            >
+                              {rg.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs uppercase text-muted-foreground">
+                        Action
+                      </label>
+                      <Select
+                        value={r.resolution}
+                        onValueChange={value =>
+                          updateEntry(idx, {
+                            resolution: value as Resolution,
+                          })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {conflicts
+                            ? (
+                                <>
+                                  <SelectItem value="overwrite">
+                                    Overwrite existing
+                                  </SelectItem>
+                                  <SelectItem value="skip">
+                                    Skip (keep existing)
+                                  </SelectItem>
+                                </>
+                              )
+                            : (
+                                <>
+                                  <SelectItem value="create">Add</SelectItem>
+                                  <SelectItem value="skip">Skip</SelectItem>
+                                </>
+                              )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           <div className="flex flex-row gap-2">
             <Button
               type="button"
               onClick={handleConfirm}
-              disabled={isSubmitting || validCount === 0}
+              disabled={isSubmitting || actionableCount === 0}
             >
               {isSubmitting && <Loader2 className="animate-spin" />}
-              Confirm & add (
-              {validCount}
+              Apply (
+              {actionableCount}
               )
             </Button>
             <Button
