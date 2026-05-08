@@ -62,30 +62,36 @@ function SingleDaily() {
   const isComplete = data.status === "complete";
   const criteria = data.criteria ?? {};
   const criteriaLabels: { key: keyof typeof criteria;
-    label: string; }[] = [
+    label: string;
+    icon: React.ReactNode; }[] = [
     {
       key: "incomplete",
       label: DAILY_STATUS_OPTIONS.find(o => o.value === "incomplete")?.label
         ?? "Incomplete",
+      icon: DAILY_STATUS_OPTIONS.find(o => o.value === "incomplete")?.icon,
     },
     {
       key: "touched",
       label: DAILY_STATUS_OPTIONS.find(o => o.value === "touched")?.label
         ?? "Touched",
+      icon: DAILY_STATUS_OPTIONS.find(o => o.value === "touched")?.icon,
     },
     {
       key: "goal",
       label: "Completed",
+      icon: DAILY_STATUS_OPTIONS.find(o => o.value === "goal")?.icon,
     },
     {
       key: "exceeded",
       label: DAILY_STATUS_OPTIONS.find(o => o.value === "exceeded")?.label
         ?? "Exceeded",
+      icon: DAILY_STATUS_OPTIONS.find(o => o.value === "exceeded")?.icon,
     },
     {
       key: "freeze",
       label: DAILY_STATUS_OPTIONS.find(o => o.value === "freeze")?.label
         ?? "Freeze",
+      icon: DAILY_STATUS_OPTIONS.find(o => o.value === "freeze")?.icon,
     },
   ];
   const visibleCriteria = criteriaLabels.filter(c => !!criteria[c.key]);
@@ -216,10 +222,19 @@ function SingleDaily() {
                   key={c.key}
                   className="flex flex-col gap-0.5"
                 >
-                  <dt className="text-sm font-bold">{c.label}</dt>
+                  <dt
+                    className="
+                      flex flex-row items-center gap-1.5 text-sm font-bold
+                    "
+                  >
+                    <span className="inline-flex shrink-0 items-center">
+                      {c.icon}
+                    </span>
+                    <span>{c.label}</span>
+                  </dt>
                   <dd
                     className="
-                      text-sm whitespace-pre-wrap text-muted-foreground
+                      pl-6 text-sm whitespace-pre-wrap text-muted-foreground
                     "
                   >
                     {criteria[c.key]}

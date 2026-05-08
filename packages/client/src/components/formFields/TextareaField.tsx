@@ -7,6 +7,7 @@ interface TextareaFieldProps {
   className?: string;
   placeholder?: string;
   disabled?: boolean;
+  labelIcon?: React.ReactNode;
 }
 
 export function TextareaField({
@@ -14,6 +15,7 @@ export function TextareaField({
   className = "text-2xl",
   placeholder,
   disabled,
+  labelIcon,
 }: TextareaFieldProps) {
   const {
     field, isInvalid,
@@ -25,7 +27,12 @@ export function TextareaField({
         htmlFor={field.name}
         className={className}
       >
-        {label}
+        {labelIcon && (
+          <span className="inline-flex shrink-0 items-center">
+            {labelIcon}
+          </span>
+        )}
+        <span>{label}</span>
       </FieldLabel>
       <Textarea
         id={field.name}
