@@ -39,17 +39,22 @@ export function DailyRecentDaysStrip({
   const days = getRecentDays(daily, count, getTodayKey(), labelFormat);
 
   return (
-    <div className={cn("flex flex-row items-start", className)}>
+    <div
+      className={cn(
+        "flex flex-row items-start overflow-x-auto pb-1 [scrollbar-width:thin]",
+        className,
+      )}
+    >
       {days.map((day, i) => (
         <Fragment key={day.dateKey}>
           {i > 0 && (
             <DailyStatusConnector
               left={days[i - 1].status}
               right={day.status}
-              className={CONNECTOR_TOP_BY_SIZE[size]}
+              className={cn("w-6 shrink-0", CONNECTOR_TOP_BY_SIZE[size])}
             />
           )}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex shrink-0 flex-col items-center gap-0.5">
             <DailyStatusCircle
               status={day.status}
               size={size}
