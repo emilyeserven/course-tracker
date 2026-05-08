@@ -277,7 +277,7 @@ export function DailyCompletionsManager({
               ? completionsByDate.get(nextDateKey)?.status ?? null
               : null;
             const showVerticalConnector
-              = nextStatus !== null && nextStatus !== "incomplete";
+              = status !== null && nextStatus !== null;
             return (
               <li
                 key={dateKey}

@@ -535,8 +535,8 @@ function SingleDailyEdit() {
           <form.AppField name="description">
             {field => (
               <field.TextareaField
-                label="Description"
-                placeholder="What is this daily about?"
+                label="Reason"
+                placeholder="Why are you doing this daily?"
               />
             )}
           </form.AppField>

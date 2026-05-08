@@ -109,7 +109,7 @@ export function DailyStatusModal({
                     value={opt.value}
                     checked={isSelected}
                     onChange={() => setSelected(opt.value)}
-                    className="mt-1 size-4 shrink-0"
+                    className="sr-only"
                   />
                   <div className="flex flex-col gap-1">
                     <div
@@ -143,6 +143,18 @@ export function DailyStatusModal({
               );
             })}
           </fieldset>
+          {daily.description && (
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold">Reason</span>
+              <p
+                className="
+                  text-sm whitespace-pre-wrap text-muted-foreground
+                "
+              >
+                {daily.description}
+              </p>
+            </div>
+          )}
           <DialogFooter>
             <Button
               type="button"
