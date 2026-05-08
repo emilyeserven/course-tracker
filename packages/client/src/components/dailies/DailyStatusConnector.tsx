@@ -43,7 +43,10 @@ export function DailyStatusConnector({
         aria-hidden
         className={cn(
           baseClass,
-          "bg-neutral-400/15 dark:bg-neutral-500/20",
+          `
+            bg-neutral-400/15
+            dark:bg-neutral-500/20
+          `,
           className,
         )}
       />
