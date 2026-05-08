@@ -14,6 +14,7 @@ import {
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { TopicBox } from "@/components/boxes/TopicBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +105,18 @@ function Topics() {
 
   const hasActiveFilters = filterDomain;
 
+  const totalTopicCount = useMemo(
+    () => data?.filter(t => t.name !== "").length ?? 0,
+    [data],
+  );
+  const noDomainCount = useMemo(
+    () =>
+      data?.filter(
+        t => t.name !== "" && (!t.domains || t.domains.length === 0),
+      ).length ?? 0,
+    [data],
+  );
+
   return (
     <div>
       <PageHeader
@@ -149,14 +162,21 @@ function Topics() {
                     <SelectValue placeholder="Domain" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Domains</SelectItem>
-                    <SelectItem value="none">No Domain</SelectItem>
+                    <SelectItem value="all">
+                      <span>All Domains</span>
+                      <FilterOptionCount count={totalTopicCount} />
+                    </SelectItem>
+                    <SelectItem value="none">
+                      <span>No Domain</span>
+                      <FilterOptionCount count={noDomainCount} />
+                    </SelectItem>
                     {domains?.map(d => (
                       <SelectItem
                         key={d.id}
                         value={d.id}
                       >
-                        {d.title}
+                        <span>{d.title}</span>
+                        <FilterOptionCount count={d.topicCount ?? 0} />
                       </SelectItem>
                     ))}
                   </SelectContent>

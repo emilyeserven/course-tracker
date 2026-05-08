@@ -8,6 +8,7 @@ import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { TaskBox } from "@/components/boxes/TaskBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,6 +76,20 @@ function Tasks() {
 
   const hasActiveFilters = !!filterTopic;
 
+  const taskCountByTopic = useMemo(() => {
+    const counts = new Map<string, number>();
+    data?.forEach((t) => {
+      const id = t.topic?.id;
+      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+    });
+    return counts;
+  }, [data]);
+  const totalTaskCount = data?.length ?? 0;
+  const noTopicCount = useMemo(
+    () => data?.filter(t => !t.topic).length ?? 0,
+    [data],
+  );
+
   return (
     <div>
       <PageHeader
@@ -126,14 +141,23 @@ function Tasks() {
                 <SelectValue placeholder="Topic" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Topics</SelectItem>
-                <SelectItem value="none">No Topic</SelectItem>
+                <SelectItem value="all">
+                  <span>All Topics</span>
+                  <FilterOptionCount count={totalTaskCount} />
+                </SelectItem>
+                <SelectItem value="none">
+                  <span>No Topic</span>
+                  <FilterOptionCount count={noTopicCount} />
+                </SelectItem>
                 {topics?.map(t => (
                   <SelectItem
                     key={t.id}
                     value={t.id}
                   >
-                    {t.name}
+                    <span>{t.name}</span>
+                    <FilterOptionCount
+                      count={taskCountByTopic.get(t.id) ?? 0}
+                    />
                   </SelectItem>
                 ))}
               </SelectContent>
