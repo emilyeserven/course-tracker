@@ -368,7 +368,12 @@ export function DailyCompletionsManager({
                       `
                         flex-row items-center gap-1
                         max-md:w-full max-md:justify-end
-                        md:flex
+                        md:flex md:opacity-0 md:transition-opacity
+                        md:pointer-events-none
+                        md:group-hover:pointer-events-auto
+                        md:group-hover:opacity-100
+                        md:group-focus-within:pointer-events-auto
+                        md:group-focus-within:opacity-100
                       `,
                       isExpanded ? "flex" : "hidden",
                     )}
@@ -404,12 +409,7 @@ export function DailyCompletionsManager({
                             dateKey,
                             status: null,
                           })}
-                          className="
-                            text-destructive
-                            md:opacity-0
-                            md:group-focus-within:opacity-100
-                            md:group-hover:opacity-100
-                          "
+                          className="text-destructive"
                           title="Delete entry"
                           aria-label="Delete entry"
                         >
