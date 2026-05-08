@@ -199,7 +199,11 @@ export async function fetchDomains(): Promise<Domain[]> {
 }
 
 export async function fetchSingleDomain(id: string): Promise<Domain> {
-  return await fetch(`/api/domains/${id}`).then(res => res.json());
+  const res = await fetch(`/api/domains/${id}`);
+  if (!res.ok) {
+    throw new Error(`Failed to load domain: ${res.statusText}`);
+  }
+  return await res.json();
 }
 
 export async function deleteSingleDomain(
