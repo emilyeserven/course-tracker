@@ -123,6 +123,7 @@ function Dailies() {
       "mmdd",
     )
       .slice(0, -1)
+      .reverse()
       .map(d => ({
         dateKey: d.dateKey,
         label: formatMmDd(d.dateKey),
@@ -179,6 +180,8 @@ function Dailies() {
                     <th className="p-2 font-medium">Description</th>
                     <th className="p-2 font-medium">Streak</th>
                     <th className="p-2 font-medium">Total</th>
+                    <th className="p-2 font-medium">Comment</th>
+                    <th className="p-2 font-medium">Today&apos;s Status</th>
                     {dayHeaders.map(d => (
                       <th
                         key={d.dateKey}
@@ -190,8 +193,6 @@ function Dailies() {
                         {d.label}
                       </th>
                     ))}
-                    <th className="p-2 font-medium">Comment</th>
-                    <th className="p-2 font-medium">Today&apos;s Status</th>
                     <th className="p-2 font-medium whitespace-nowrap">
                       Location
                     </th>
@@ -207,7 +208,7 @@ function Dailies() {
                       RECENT_DAYS_COUNT + 1,
                       todayKey,
                       "mmdd",
-                    ).slice(0, -1);
+                    ).slice(0, -1).reverse();
                     return (
                       <tr
                         key={daily.id}
@@ -288,9 +289,33 @@ function Dailies() {
                             {total}
                           </span>
                         </td>
+                        <td className="p-2">
+                          {currentStatus !== null && (
+                            <DailyCommentPopover daily={daily} />
+                          )}
+                        </td>
+                        <td className="relative p-2">
+                          <TodayStatusCell
+                            daily={daily}
+                            currentStatus={currentStatus}
+                            disabled={mutation.isPending}
+                            onChange={status => mutation.mutate({
+                              daily,
+                              status,
+                            })}
+                          />
+                          {days.length > 0 && (
+                            <DailyStatusConnector
+                              left={currentStatus}
+                              right={days[0].status}
+                              className="
+                                absolute top-1/2 -right-2 left-38 z-0 w-auto
+                                -translate-y-1/2
+                              "
+                            />
+                          )}
+                        </td>
                         {days.map((day, i) => {
-                          const isLast = i === days.length - 1;
-                          const linkToToday = isLast;
                           return (
                             <td
                               key={day.dateKey}
@@ -307,17 +332,6 @@ function Dailies() {
                                   "
                                 />
                               )}
-                              {linkToToday && (
-                                <DailyStatusConnector
-                                  left={day.status}
-                                  right={currentStatus}
-                                  className="
-                                    absolute top-1/2 -right-2
-                                    left-[calc(50%+12px)] z-0 w-auto
-                                    -translate-y-1/2
-                                  "
-                                />
-                              )}
                               <div className="relative z-10 flex justify-center">
                                 <DailyStatusCircle
                                   status={day.status}
@@ -328,22 +342,6 @@ function Dailies() {
                             </td>
                           );
                         })}
-                        <td className="p-2">
-                          {currentStatus !== null && (
-                            <DailyCommentPopover daily={daily} />
-                          )}
-                        </td>
-                        <td className="p-2">
-                          <TodayStatusCell
-                            daily={daily}
-                            currentStatus={currentStatus}
-                            disabled={mutation.isPending}
-                            onChange={status => mutation.mutate({
-                              daily,
-                              status,
-                            })}
-                          />
-                        </td>
                         <td className="p-2 whitespace-nowrap">
                           <DailyLocationCell
                             location={daily.location}
