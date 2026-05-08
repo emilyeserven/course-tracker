@@ -8,6 +8,8 @@ import {
   ArrowDownAZIcon,
   ArrowRightIcon,
   ArrowUpAZIcon,
+  LayoutGridIcon,
+  ListIcon,
   PlusIcon,
   SearchIcon,
   XIcon,
@@ -15,6 +17,7 @@ import {
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
+import { CoursesTable } from "@/components/boxes/CoursesTable";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +30,15 @@ import {
 import { fetchCourses, fetchProviders, fetchTopics } from "@/utils";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
+type ViewMode = "grid" | "table";
+
+const VIEW_MODE_STORAGE_KEY = "courses:viewMode";
+
+function getInitialViewMode(): ViewMode {
+  if (typeof window === "undefined") return "grid";
+  const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+  return stored === "table" ? "table" : "grid";
+}
 
 export const Route = createFileRoute("/courses/")({
   component: Courses,
@@ -91,6 +103,14 @@ function Courses() {
   const [filterTopic, setFilterTopic] = useState<string | undefined>();
   const [sortBy, setSortBy] = useState<SortOption>("alpha");
   const [sortAsc, setSortAsc] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+
+  const updateViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+    }
+  };
 
   const {
     data,
@@ -267,65 +287,118 @@ function Courses() {
                       <ArrowUpAZIcon className="size-4" />
                     )}
                 </Button>
+                <div
+                  className="
+                    ml-2 flex items-center rounded-md border border-input
+                    bg-transparent
+                  "
+                  role="group"
+                  aria-label="View mode"
+                >
+                  <Button
+                    type="button"
+                    variant={viewMode === "grid" ? "secondary" : "ghost"}
+                    size="icon"
+                    aria-label="Grid view"
+                    aria-pressed={viewMode === "grid"}
+                    onClick={() => updateViewMode("grid")}
+                  >
+                    <LayoutGridIcon className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewMode === "table" ? "secondary" : "ghost"}
+                    size="icon"
+                    aria-label="Table view"
+                    aria-pressed={viewMode === "table"}
+                    onClick={() => updateViewMode("table")}
+                  >
+                    <ListIcon className="size-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
         </div>
-        <div className="card-grid">
-          {(!data || data.length === 0) && (
-            <div className="flex flex-col gap-6">
-              <i>No courses yet!</i>
+        {(!data || data.length === 0) && (
+          <div className="flex flex-col gap-6">
+            <i>No courses yet!</i>
 
-              <Link
-                to="/onboard"
-                className=""
+            <Link
+              to="/onboard"
+              className=""
+            >
+              <Button>
+                Go to onboarding
+                {" "}
+                <ArrowRightIcon />
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {data && data.length > 0 && filteredAndSorted.length === 0 && (
+          <div className="text-muted-foreground">
+            <i>No courses match your filters.</i>
+          </div>
+        )}
+
+        {viewMode === "grid" && (
+          <div className="card-grid">
+            {filteredAndSorted.length > 0
+              && filteredAndSorted.map((course: Course) => {
+                if (!course) {
+                  return <></>;
+                }
+                return (
+                  <CourseBox
+                    {...course}
+                    key={course.id}
+                  />
+                );
+              })}
+
+            <Link
+              to="/courses/$id/edit"
+              params={{
+                id: "new",
+              }}
+            >
+              <ContentBox
+                className="
+                  h-full items-center justify-center border-dashed p-8
+                  text-muted-foreground transition-colors
+                  hover:border-solid hover:bg-accent
+                  hover:text-accent-foreground
+                "
               >
-                <Button>
-                  Go to onboarding
-                  {" "}
-                  <ArrowRightIcon />
+                <PlusIcon size={32} />
+                <span className="text-lg font-medium">Add New Course</span>
+              </ContentBox>
+            </Link>
+          </div>
+        )}
+
+        {viewMode === "table" && (
+          <div className="flex flex-col gap-4">
+            {filteredAndSorted.length > 0 && (
+              <CoursesTable courses={filteredAndSorted} />
+            )}
+            <div>
+              <Link
+                to="/courses/$id/edit"
+                params={{
+                  id: "new",
+                }}
+              >
+                <Button variant="outline">
+                  <PlusIcon className="size-4" />
+                  Add New Course
                 </Button>
               </Link>
             </div>
-          )}
-
-          {filteredAndSorted.length > 0
-            && filteredAndSorted.map((course: Course) => {
-              if (!course) {
-                return <></>;
-              }
-              return (
-                <CourseBox
-                  {...course}
-                  key={course.id}
-                />
-              );
-            })}
-
-          {data && data.length > 0 && filteredAndSorted.length === 0 && (
-            <div className="text-muted-foreground">
-              <i>No courses match your filters.</i>
-            </div>
-          )}
-
-          <Link
-            to="/courses/$id/edit"
-            params={{
-              id: "new",
-            }}
-          >
-            <ContentBox
-              className="
-                h-full items-center justify-center border-dashed p-8
-                text-muted-foreground transition-colors
-                hover:border-solid hover:bg-accent hover:text-accent-foreground
-              "
-            >
-              <PlusIcon size={32} />
-              <span className="text-lg font-medium">Add New Course</span>
-            </ContentBox>
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
