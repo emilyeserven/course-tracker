@@ -89,7 +89,10 @@ export async function upsertCourse(
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error(`Failed to update course: ${response.statusText}`);
+    const body = await response.text();
+    throw new Error(
+      `Failed to update course (${response.status} ${response.statusText}): ${body}`,
+    );
   }
   return await response.json();
 }
@@ -327,7 +330,7 @@ export async function upsertRadarConfig(
 }
 
 interface BlipPayload {
-  name: string;
+  topicId: string;
   description?: string | null;
   quadrantId: string;
   ringId: string;
@@ -384,6 +387,36 @@ export async function deleteRadarBlip(
   );
   if (!response.ok) {
     throw new Error(`Failed to delete blip: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export interface BulkBlipEntry {
+  topicId?: string | null;
+  newTopicName?: string | null;
+  description?: string | null;
+  quadrantId: string;
+  ringId: string;
+}
+
+export async function bulkCreateRadarBlips(
+  domainId: string,
+  data: { blips: BulkBlipEntry[] },
+): Promise<{ status: string;
+  count: number;
+  ids: string[]; }> {
+  const response = await fetch(
+    `/api/domains/${domainId}/radar/blips/bulk`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to bulk-create blips: ${response.statusText}`);
   }
   return await response.json();
 }

@@ -18,6 +18,7 @@ import {
   fetchTopics,
   formHasChanges,
   upsertCourse,
+  uuidv4,
 } from "@/utils";
 
 export const Route = createFileRoute("/courses/$id/edit")({
@@ -125,7 +126,8 @@ function SingleCourseEdit() {
       };
 
       try {
-        const courseId = isNew ? crypto.randomUUID() : id;
+        const courseId = isNew ? uuidv4() : id;
+        const previousStatus = data?.status;
         await upsertCourse(courseId, courseData);
         if (!isNew) {
           await queryClient.invalidateQueries({
@@ -140,14 +142,24 @@ function SingleCourseEdit() {
           queryKey: ["topics"],
         });
         skipBlocker.current = true;
+
+        const becameActive
+          = value.status === "active"
+            && (isNew || previousStatus !== "active");
         await navigate({
           to: "/courses/$id",
           params: {
             id: courseId,
           },
+          search: becameActive
+            ? {
+              promptDaily: 1,
+            }
+            : {},
         });
       }
-      catch {
+      catch (err) {
+        console.error("Failed to save course:", err);
         toast.error(
           isNew
             ? "Failed to create course. Please try again."

@@ -6,12 +6,14 @@ interface TextareaFieldProps {
   label: string;
   className?: string;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export function TextareaField({
   label,
   className = "text-2xl",
   placeholder,
+  disabled,
 }: TextareaFieldProps) {
   const {
     field, isInvalid,
@@ -33,6 +35,7 @@ export function TextareaField({
         onChange={e => field.handleChange(e.target.value)}
         aria-invalid={isInvalid}
         placeholder={placeholder}
+        disabled={disabled}
       />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>

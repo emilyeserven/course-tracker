@@ -346,7 +346,7 @@ function RadarLegend({
                   >
                     {index}.
                   </span>
-                  <span className="font-medium">{blip.name}</span>
+                  <span className="font-medium">{blip.topicName}</span>
                   <span className="ml-1 text-xs text-muted-foreground">
                     (
                     {ringNameById[blip.ringId]}

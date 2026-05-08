@@ -21,9 +21,9 @@ const upsertBlipSchema = {
     },
     body: {
       type: "object",
-      required: ["name", "quadrantId", "ringId"],
+      required: ["topicId", "quadrantId", "ringId"],
       properties: {
-        name: {
+        topicId: {
           type: "string",
         },
         description: nullableString,
@@ -57,7 +57,7 @@ export default async function (server: FastifyInstance) {
           domainId,
           quadrantId: body.quadrantId,
           ringId: body.ringId,
-          name: body.name,
+          topicId: body.topicId,
           description: body.description ?? null,
         })
         .onConflictDoUpdate({
@@ -65,7 +65,7 @@ export default async function (server: FastifyInstance) {
           set: {
             quadrantId: body.quadrantId,
             ringId: body.ringId,
-            name: body.name,
+            topicId: body.topicId,
             description: body.description ?? null,
           },
         });

@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,8 +21,18 @@ import {
   upsertDaily,
 } from "@/utils";
 
+interface DailyEditSearch {
+  newCourseId?: string;
+}
+
 export const Route = createFileRoute("/dailies/$id/edit")({
   component: SingleDailyEdit,
+  validateSearch: (search: Record<string, unknown>): DailyEditSearch => ({
+    newCourseId:
+      typeof search.newCourseId === "string" && search.newCourseId
+        ? search.newCourseId
+        : undefined,
+  }),
 });
 
 const formSchema = z.object({
@@ -37,6 +47,7 @@ function SingleDailyEdit() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -81,9 +92,15 @@ function SingleDailyEdit() {
       location: data?.location ?? "",
       description: data?.description ?? "",
       courseProviderId: data?.provider?.id ?? "",
-      courseId: data?.course?.id ?? "",
+      courseId: data?.course?.id ?? (isNew && search.newCourseId
+        ? search.newCourseId
+        : ""),
     }),
-    [data],
+    [data, isNew, search.newCourseId],
+  );
+
+  const [informFromCourse, setInformFromCourse] = useState<boolean>(
+    !!(isNew && search.newCourseId),
   );
 
   const form = useAppForm({
@@ -144,6 +161,49 @@ function SingleDailyEdit() {
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
+  const selectedCourse = useMemo(
+    () =>
+      currentValues.courseId
+        ? (courses ?? []).find(c => c.id === currentValues.courseId)
+        : undefined,
+    [currentValues.courseId, courses],
+  );
+
+  // When "Inform data from course" is checked, mirror the chosen course's
+  // name / url / provider into the daily fields. We rerun whenever either
+  // the toggle or the course changes.
+  useEffect(() => {
+    if (!informFromCourse || !selectedCourse) {
+      return;
+    }
+    if (currentValues.name !== selectedCourse.name) {
+      form.setFieldValue("name", selectedCourse.name);
+    }
+    const courseLocation = selectedCourse.url ?? "";
+    if (currentValues.location !== courseLocation) {
+      form.setFieldValue("location", courseLocation);
+    }
+    const courseProviderId = selectedCourse.provider?.id ?? "";
+    if (currentValues.courseProviderId !== courseProviderId) {
+      form.setFieldValue("courseProviderId", courseProviderId);
+    }
+  }, [
+    informFromCourse,
+    selectedCourse,
+    currentValues.name,
+    currentValues.location,
+    currentValues.courseProviderId,
+    form,
+  ]);
+
+  // If the user clears the course while the toggle is on, turn it off so
+  // the disabled fields don't get stuck.
+  useEffect(() => {
+    if (informFromCourse && !currentValues.courseId) {
+      setInformFromCourse(false);
+    }
+  }, [informFromCourse, currentValues.courseId]);
+
   return (
     <div>
       <PageHeader
@@ -173,8 +233,35 @@ function SingleDailyEdit() {
           }}
           className="flex max-w-2xl flex-col gap-8"
         >
+          <form.AppField name="courseId">
+            {field => (
+              <field.ComboboxField
+                label="Course"
+                options={courseOptions}
+                placeholder="Search courses..."
+              />
+            )}
+          </form.AppField>
+
+          {currentValues.courseId && (
+            <label className="flex flex-row items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={informFromCourse}
+                onChange={e => setInformFromCourse(e.target.checked)}
+                className="size-4"
+              />
+              <span>Inform data from course</span>
+            </label>
+          )}
+
           <form.AppField name="name">
-            {field => <field.InputField label="Daily Name" />}
+            {field => (
+              <field.InputField
+                label="Daily Name"
+                disabled={informFromCourse}
+              />
+            )}
           </form.AppField>
 
           <form.AppField name="location">
@@ -182,6 +269,7 @@ function SingleDailyEdit() {
               <field.InputField
                 label="Location"
                 placeholder="e.g. Spanish app, gym, journal"
+                disabled={informFromCourse}
               />
             )}
           </form.AppField>
@@ -201,16 +289,7 @@ function SingleDailyEdit() {
                 label="Provider"
                 options={providerOptions}
                 placeholder="Search providers..."
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="courseId">
-            {field => (
-              <field.ComboboxField
-                label="Course"
-                options={courseOptions}
-                placeholder="Search courses..."
+                disabled={informFromCourse}
               />
             )}
           </form.AppField>

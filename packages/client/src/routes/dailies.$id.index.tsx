@@ -76,6 +76,7 @@ function SingleDaily() {
 
   const total = getTotalCompletedDays(data);
   const chain = getCurrentChain(data);
+  const locationIsUrl = !!data.location && isHttpUrl(data.location);
 
   return (
     <div>
@@ -84,6 +85,18 @@ function SingleDaily() {
         pageSection="dailies"
       >
         <div className="flex flex-row gap-2">
+          {locationIsUrl && data.location && (
+            <a
+              href={data.location}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>
+                Open Location
+                <ExternalLink />
+              </Button>
+            </a>
+          )}
           <Link
             to="/dailies/$id/edit"
             params={{
@@ -107,25 +120,9 @@ function SingleDaily() {
         </InfoArea>
         <InfoArea
           header="Location"
-          condition={!!data.location}
+          condition={!!data.location && !locationIsUrl}
         >
-          {data.location && isHttpUrl(data.location)
-            ? (
-              <a
-                href={data.location}
-                target="_blank"
-                rel="noreferrer"
-                className="self-start"
-              >
-                <Button>
-                  Open Location
-                  <ExternalLink />
-                </Button>
-              </a>
-            )
-            : (
-              <p>{data.location}</p>
-            )}
+          <p>{data.location}</p>
         </InfoArea>
         <InfoArea
           header="Provider"
@@ -140,6 +137,7 @@ function SingleDaily() {
           <DailyRecentDaysStrip
             daily={data}
             count={14}
+            labelFormat="mmdd"
           />
         </InfoArea>
         <InfoArea
