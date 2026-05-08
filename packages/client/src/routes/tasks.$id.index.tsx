@@ -6,6 +6,7 @@ import { DailyRecentDaysStrip } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourcesTable } from "@/components/tasks/ResourcesTable";
+import { TodosChecklist } from "@/components/tasks/TodosChecklist";
 import { Button } from "@/components/ui/button";
 import { fetchSingleTask } from "@/utils";
 
@@ -135,6 +136,12 @@ function SingleTask() {
           condition={!!data.description}
         >
           <p>{data.description}</p>
+        </InfoArea>
+        <InfoArea
+          header="ToDo's"
+          condition={true}
+        >
+          <TodosChecklist task={data} />
         </InfoArea>
         <InfoArea
           header="Resources"

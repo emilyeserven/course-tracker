@@ -88,11 +88,18 @@ function SingleTaskEdit() {
         usedYet: r.usedYet,
       }));
 
+      const existingTodos = (data?.todos ?? []).map(t => ({
+        id: t.id,
+        name: t.name,
+        isComplete: t.isComplete,
+      }));
+
       const taskData = {
         name: value.name,
         description: value.description || null,
         topicId: value.topicId || null,
         resources: existingResources,
+        todos: existingTodos,
       };
 
       try {
@@ -172,7 +179,7 @@ function SingleTaskEdit() {
           </Link>
         )}
       </PageHeader>
-      <div className="container flex-col">
+      <div className="m-auto w-full max-w-[1200px] px-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();

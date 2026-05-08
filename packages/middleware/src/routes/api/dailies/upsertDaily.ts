@@ -83,7 +83,7 @@ const upsertSchema = {
         },
         status: {
           type: ["string", "null"],
-          enum: ["active", "complete", null],
+          enum: ["active", "complete", "paused", null],
         },
         criteria: criteriaSchema,
       },

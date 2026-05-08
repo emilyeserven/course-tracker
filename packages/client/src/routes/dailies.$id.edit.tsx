@@ -3,7 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EyeIcon, Loader2, WandSparklesIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  EyeIcon,
+  Loader2,
+  WandSparklesIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -24,6 +30,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useSettings } from "@/hooks/useSettings";
+import { cn } from "@/lib/utils";
 import {
   createDaily,
   deleteSingleDaily,
@@ -58,7 +65,8 @@ const formSchema = z.object({
   courseProviderId: z.string(),
   courseId: z.string(),
   taskId: z.string(),
-  isComplete: z.boolean(),
+  status: z.enum(["active", "paused", "complete"]),
+  syncValues: z.boolean(),
   criteriaIncomplete: z.string().max(500),
   criteriaTouched: z.string().max(500),
   criteriaGoal: z.string().max(500),
@@ -118,7 +126,9 @@ function SingleDailyEdit() {
   });
 
   const activeDailiesCount
-    = existingDailies?.filter(d => d.status !== "complete").length ?? 0;
+    = existingDailies?.filter(
+      d => d.status !== "complete" && d.status !== "paused",
+    ).length ?? 0;
   const projectedActiveCount = activeDailiesCount + 1;
   const showLimitWarning
     = isNew && projectedActiveCount >= settings.maxActiveDailies;
@@ -139,6 +149,13 @@ function SingleDailyEdit() {
     return m;
   }, [courses, tasks]);
 
+  const initialLinked = !!(
+    data?.course?.id
+    || data?.taskId
+    || data?.task?.id
+    || (isNew && search.newCourseId)
+  );
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
@@ -149,17 +166,22 @@ function SingleDailyEdit() {
         ? search.newCourseId
         : ""),
       taskId: data?.taskId ?? data?.task?.id ?? "",
-      isComplete: data?.status === "complete",
+      status: (data?.status === "complete"
+        ? "complete"
+        : data?.status === "paused"
+          ? "paused"
+          : "active") as "active" | "paused" | "complete",
+      syncValues: initialLinked,
       criteriaIncomplete: data?.criteria?.incomplete ?? "",
       criteriaTouched: data?.criteria?.touched ?? "",
       criteriaGoal: data?.criteria?.goal ?? "",
       criteriaExceeded: data?.criteria?.exceeded ?? "",
       criteriaFreeze: data?.criteria?.freeze ?? "",
     }),
-    [data, isNew, search.newCourseId],
+    [data, isNew, search.newCourseId, initialLinked],
   );
 
-  const [hideLinkBox, setHideLinkBox] = useState(false);
+  const [linkBoxCollapsed, setLinkBoxCollapsed] = useState(false);
 
   const form = useAppForm({
     defaultValues: startingValues,
@@ -194,7 +216,7 @@ function SingleDailyEdit() {
         courseProviderId: value.courseProviderId || null,
         courseId: value.courseId || null,
         taskId: value.taskId || null,
-        status: value.isComplete ? "complete" : "active",
+        status: value.status,
         criteria,
       };
 
@@ -256,6 +278,7 @@ function SingleDailyEdit() {
   );
 
   const isLinked = !!(currentValues.courseId || currentValues.taskId);
+  const syncValues = currentValues.syncValues && isLinked;
 
   const linkedValue = currentValues.courseId
     ? `course:${currentValues.courseId}`
@@ -267,6 +290,7 @@ function SingleDailyEdit() {
     if (!val) {
       form.setFieldValue("courseId", "");
       form.setFieldValue("taskId", "");
+      form.setFieldValue("syncValues", false);
       return;
     }
     if (val.startsWith("course:")) {
@@ -279,10 +303,10 @@ function SingleDailyEdit() {
     }
   };
 
-  // When a course is linked, mirror its name/url/provider into the daily
-  // fields so the (now-disabled) inputs stay in sync with the source.
+  // When a course is linked AND sync is on, mirror its name/url/provider into
+  // the daily fields so the (hidden) inputs stay in sync with the source.
   useEffect(() => {
-    if (!selectedCourse) {
+    if (!syncValues || !selectedCourse) {
       return;
     }
     if (currentValues.name !== selectedCourse.name) {
@@ -297,6 +321,7 @@ function SingleDailyEdit() {
       form.setFieldValue("courseProviderId", courseProviderId);
     }
   }, [
+    syncValues,
     selectedCourse,
     currentValues.name,
     currentValues.location,
@@ -304,15 +329,15 @@ function SingleDailyEdit() {
     form,
   ]);
 
-  // When a task is linked, mirror its name into the daily name field.
+  // When a task is linked AND sync is on, mirror its name into the daily name.
   useEffect(() => {
-    if (!selectedTask) {
+    if (!syncValues || !selectedTask) {
       return;
     }
     if (currentValues.name !== selectedTask.name) {
       form.setFieldValue("name", selectedTask.name);
     }
-  }, [selectedTask, currentValues.name, form]);
+  }, [syncValues, selectedTask, currentValues.name, form]);
 
   async function handleDelete() {
     try {
@@ -376,7 +401,7 @@ function SingleDailyEdit() {
           </Link>
         )}
       </PageHeader>
-      <div className="container flex-col">
+      <div className="m-auto w-full max-w-[1200px] px-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -384,15 +409,34 @@ function SingleDailyEdit() {
           }}
           className="flex max-w-2xl flex-col gap-8"
         >
-          {!hideLinkBox && (
-            <div
-              className="
-                flex flex-row items-start justify-between gap-4 rounded-md
-                border bg-card p-4
-              "
-            >
-              <div className="flex min-w-0 flex-1 flex-col gap-3">
-                <h2 className="text-2xl">Link this Daily</h2>
+          <div
+            className="flex flex-col gap-3 rounded-md border bg-card p-4"
+          >
+            <div className="flex flex-row items-center justify-between gap-2">
+              <h2 className="text-2xl">Link this Daily</h2>
+              <div className="flex shrink-0 flex-row items-center gap-2">
+                <WandSparklesIcon
+                  className="size-6 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={linkBoxCollapsed ? "Expand" : "Collapse"}
+                  title={linkBoxCollapsed
+                    ? "Show link options"
+                    : "Hide link options"}
+                  onClick={() => setLinkBoxCollapsed(prev => !prev)}
+                >
+                  {linkBoxCollapsed
+                    ? <ChevronDownIcon className="size-4" />
+                    : <ChevronUpIcon className="size-4" />}
+                </Button>
+              </div>
+            </div>
+            {!linkBoxCollapsed && (
+              <div className="flex flex-col gap-3">
                 <Combobox
                   value={linkedValue || null}
                   onValueChange={val => setLinkedValue(val ?? null)}
@@ -434,40 +478,49 @@ function SingleDailyEdit() {
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-fit"
-                  onClick={() => setHideLinkBox(true)}
-                >
-                  Hide This
-                </Button>
+                <form.AppField name="syncValues">
+                  {field => (
+                    <label
+                      className="flex flex-row items-center gap-2 text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={field.state.value}
+                        onChange={e => field.handleChange(e.target.checked)}
+                        className="size-4"
+                        disabled={!isLinked}
+                      />
+                      <span>
+                        Sync Values
+                        {" "}
+                        <span className="text-muted-foreground">
+                          (mirror Title, Location, and Provider from the linked
+                          item)
+                        </span>
+                      </span>
+                    </label>
+                  )}
+                </form.AppField>
               </div>
-              <WandSparklesIcon
-                className="size-8 shrink-0 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </div>
+            )}
+          </div>
+
+          {!syncValues && (
+            <form.AppField name="name">
+              {field => <field.InputField label="Daily Name" />}
+            </form.AppField>
           )}
 
-          <form.AppField name="name">
-            {field => (
-              <field.InputField
-                label="Daily Name"
-                disabled={isLinked}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="location">
-            {field => (
-              <field.InputField
-                label="Location"
-                placeholder="e.g. Spanish app, gym, journal"
-                disabled={isLinked}
-              />
-            )}
-          </form.AppField>
+          {!syncValues && (
+            <form.AppField name="location">
+              {field => (
+                <field.InputField
+                  label="Location"
+                  placeholder="e.g. Spanish app, gym, journal"
+                />
+              )}
+            </form.AppField>
+          )}
 
           <form.AppField name="description">
             {field => (
@@ -478,29 +531,58 @@ function SingleDailyEdit() {
             )}
           </form.AppField>
 
-          <form.AppField name="courseProviderId">
-            {field => (
-              <field.ComboboxField
-                label="Provider"
-                options={providerOptions}
-                placeholder="Search providers..."
-                disabled={isLinked}
-              />
-            )}
-          </form.AppField>
+          {!syncValues && (
+            <form.AppField name="courseProviderId">
+              {field => (
+                <field.ComboboxField
+                  label="Provider"
+                  options={providerOptions}
+                  placeholder="Search providers..."
+                />
+              )}
+            </form.AppField>
+          )}
 
           {!isNew && (
-            <form.AppField name="isComplete">
+            <form.AppField name="status">
               {field => (
-                <label className="flex flex-row items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={field.state.value}
-                    onChange={e => field.handleChange(e.target.checked)}
-                    className="size-4"
-                  />
-                  <span>Mark as completed (locks log editing)</span>
-                </label>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-medium">Status</span>
+                  <div className="flex flex-row flex-wrap gap-2">
+                    {(["active", "paused", "complete"] as const).map(opt => (
+                      <label
+                        key={opt}
+                        className={cn(
+                          `
+                            inline-flex cursor-pointer items-center gap-2
+                            rounded-md border px-3 py-1.5 text-sm
+                          `,
+                          field.state.value === opt
+                            ? "border-primary bg-primary/10"
+                            : `
+                              border-input bg-background
+                              hover:bg-muted
+                            `,
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="dailyStatus"
+                          value={opt}
+                          checked={field.state.value === opt}
+                          onChange={() => field.handleChange(opt)}
+                          className="size-3.5"
+                        />
+                        <span className="capitalize">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {field.state.value === "complete" && (
+                    <p className="text-xs text-muted-foreground">
+                      Marking complete locks log editing.
+                    </p>
+                  )}
+                </div>
               )}
             </form.AppField>
           )}

@@ -28,42 +28,69 @@ export default async function (server: FastifyInstance) {
             id: true,
             name: true,
           },
+          with: {
+            resources: {
+              columns: {
+                id: true,
+                usedYet: true,
+              },
+            },
+            todos: {
+              columns: {
+                id: true,
+                isComplete: true,
+              },
+            },
+          },
         },
       },
     });
 
-    const processedData: Daily[] = rawData.map(daily => ({
-      id: daily.id,
-      name: daily.name,
-      location: daily.location,
-      description: daily.description,
-      completions: (daily.completions ?? []) as DailyCompletion[],
-      status: daily.status ?? "active",
-      criteria: (daily.criteria ?? {}) as DailyCriteria,
-      taskId: daily.taskId ?? null,
-      task: daily.task
+    const processedData: Daily[] = rawData.map((daily) => {
+      const taskRecord = daily.task;
+      const taskBlock = taskRecord
         ? {
-          id: daily.task.id,
-          name: daily.task.name,
+          id: taskRecord.id,
+          name: taskRecord.name,
+          progress: {
+            todosTotal: taskRecord.todos?.length ?? 0,
+            todosComplete:
+              taskRecord.todos?.filter(t => t.isComplete).length ?? 0,
+            resourcesTotal: taskRecord.resources?.length ?? 0,
+            resourcesUsed:
+              taskRecord.resources?.filter(r => r.usedYet).length ?? 0,
+          },
         }
-        : null,
-      provider:
-        daily.courseProvider?.name && daily.courseProvider?.id
-          ? {
-            name: daily.courseProvider.name,
-            id: daily.courseProvider.id,
-          }
-          : undefined,
-      course:
-        daily.course?.id && daily.course?.name
-          ? {
-            id: daily.course.id,
-            name: daily.course.name,
-            progressCurrent: daily.course.progressCurrent ?? 0,
-            progressTotal: daily.course.progressTotal ?? 0,
-          }
-          : undefined,
-    }));
+        : null;
+
+      return {
+        id: daily.id,
+        name: daily.name,
+        location: daily.location,
+        description: daily.description,
+        completions: (daily.completions ?? []) as DailyCompletion[],
+        status: daily.status ?? "active",
+        criteria: (daily.criteria ?? {}) as DailyCriteria,
+        taskId: daily.taskId ?? null,
+        task: taskBlock,
+        provider:
+          daily.courseProvider?.name && daily.courseProvider?.id
+            ? {
+              name: daily.courseProvider.name,
+              id: daily.courseProvider.id,
+            }
+            : undefined,
+        course:
+          daily.course?.id && daily.course?.name
+            ? {
+              id: daily.course.id,
+              name: daily.course.name,
+              progressCurrent: daily.course.progressCurrent ?? 0,
+              progressTotal: daily.course.progressTotal ?? 0,
+            }
+            : undefined,
+      };
+    });
 
     return processedData;
   });

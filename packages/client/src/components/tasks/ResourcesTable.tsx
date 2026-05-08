@@ -170,6 +170,11 @@ export function ResourcesTable({
           interactivity: r.interactivity ?? null,
           usedYet: r.usedYet,
         })),
+        todos: (task.todos ?? []).map(t => ({
+          id: t.id,
+          name: t.name,
+          isComplete: t.isComplete,
+        })),
       }),
     onSuccess: async () => {
       await Promise.all([
@@ -178,6 +183,9 @@ export function ResourcesTable({
         }),
         queryClient.invalidateQueries({
           queryKey: ["tasks"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["dailies"],
         }),
       ]);
     },
