@@ -1,6 +1,24 @@
 import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types/src";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { Link } from "@tanstack/react-router";
+import { ArrowRightIcon, PencilIcon } from "lucide-react";
+
+import { Input } from "@/components/forms/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/popover";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface RadarChartProps {
   quadrants: RadarQuadrant[];
@@ -47,6 +65,7 @@ export function RadarChart({
   onBlipClick,
 }: RadarChartProps) {
   const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, string>>({});
 
   const cx = size / 2;
   const cy = size / 2;
@@ -70,6 +89,14 @@ export function RadarChart({
     }
     return sortedRings.map((_ring, idx) => ((idx + 1) / ringCount) * maxRadius);
   }, [sortedRings, ringCount, maxRadius]);
+
+  const ringNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    sortedRings.forEach((r) => {
+      map[r.id] = r.name;
+    });
+    return map;
+  }, [sortedRings]);
 
   const positionedBlips = useMemo<PositionedBlip[]>(() => {
     if (quadrantCount === 0 || ringCount === 0) {
@@ -133,138 +160,206 @@ export function RadarChart({
 
   const angleStep = (Math.PI * 2) / quadrantCount;
 
+  const handleSetComment = (blipId: string, value: string) => {
+    setComments(prev => ({
+      ...prev,
+      [blipId]: value,
+    }));
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
-        width="100%"
-        style={{
-          maxWidth: size,
-        }}
-        role="img"
-        aria-label="Radar chart"
+    <TooltipProvider delayDuration={200}>
+      <div
+        className={`
+          flex flex-col gap-4
+          lg:flex-row lg:items-start lg:gap-6
+        `}
       >
-        {ringRadii.map((r, idx) => (
-          <circle
-            key={sortedRings[idx].id}
-            cx={cx}
-            cy={cy}
-            r={r}
-            fill="none"
-            stroke="#d1d5db"
-            strokeWidth={1}
-          />
-        ))}
-        {sortedQuadrants.map((q, idx) => {
-          const angle = -Math.PI / 2 + idx * angleStep;
-          const x2 = cx + maxRadius * Math.cos(angle);
-          const y2 = cy + maxRadius * Math.sin(angle);
-          return (
-            <line
-              key={q.id}
-              x1={cx}
-              y1={cy}
-              x2={x2}
-              y2={y2}
-              stroke="#9ca3af"
-              strokeWidth={1}
-            />
-          );
-        })}
-        {ringRadii.map((r, idx) => {
-          // Place ring labels along the top of each ring, slightly above the
-          // arc so they sit just outside the ring boundary going inward.
-          const labelY = cy - r + 12;
-          return (
-            <text
-              key={`label-${sortedRings[idx].id}`}
-              x={cx}
-              y={labelY}
-              textAnchor="middle"
-              fontSize={11}
-              fill="#6b7280"
-              fontWeight="500"
-            >
-              {sortedRings[idx].name}
-            </text>
-          );
-        })}
-        {sortedQuadrants.map((q, idx) => {
-          // Quadrant label sits along the bisecting angle just outside the
-          // outermost ring.
-          const angle = -Math.PI / 2 + (idx + 0.5) * angleStep;
-          const labelRadius = maxRadius + 8;
-          const x = cx + labelRadius * Math.cos(angle);
-          const y = cy + labelRadius * Math.sin(angle);
-          return (
-            <text
-              key={`q-label-${q.id}`}
-              x={x}
-              y={y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize={13}
-              fontWeight="600"
-              fill={QUADRANT_PALETTE[idx % QUADRANT_PALETTE.length]}
-            >
-              {q.name}
-            </text>
-          );
-        })}
-        {positionedBlips.map(({
-          blip, x, y, index,
-        }) => {
-          const quadrantIndex = sortedQuadrants.findIndex(
-            q => q.id === blip.quadrantId,
-          );
-          const color
-            = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
-          const isHovered = hoveredBlipId === blip.id;
-          return (
-            <g
-              key={blip.id}
-              onMouseEnter={() => setHoveredBlipId(blip.id)}
-              onMouseLeave={() => setHoveredBlipId(null)}
-              onClick={() => onBlipClick?.(blip)}
-              style={{
-                cursor: onBlipClick ? "pointer" : "default",
-              }}
-            >
+        <div className="flex-1">
+          <svg
+            viewBox={`0 0 ${size} ${size}`}
+            width="100%"
+            style={{
+              maxWidth: size,
+            }}
+            role="img"
+            aria-label="Radar chart"
+          >
+            {ringRadii.map((r, idx) => (
               <circle
-                cx={x}
-                cy={y}
-                r={isHovered ? 12 : 10}
-                fill={color}
-                stroke="white"
-                strokeWidth={2}
+                key={sortedRings[idx].id}
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill="none"
+                stroke="#d1d5db"
+                strokeWidth={1}
               />
-              <text
-                x={x}
-                y={y}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={10}
-                fontWeight="700"
-                fill="white"
-                style={{
-                  pointerEvents: "none",
-                }}
-              >
-                {index}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      <RadarLegend
-        quadrants={sortedQuadrants}
-        positionedBlips={positionedBlips}
-        rings={sortedRings}
-        onHover={setHoveredBlipId}
-        hoveredBlipId={hoveredBlipId}
-        onBlipClick={onBlipClick}
-      />
-    </div>
+            ))}
+            {sortedQuadrants.map((q, idx) => {
+              const angle = -Math.PI / 2 + idx * angleStep;
+              const x2 = cx + maxRadius * Math.cos(angle);
+              const y2 = cy + maxRadius * Math.sin(angle);
+              return (
+                <line
+                  key={q.id}
+                  x1={cx}
+                  y1={cy}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#9ca3af"
+                  strokeWidth={1}
+                />
+              );
+            })}
+            {ringRadii.map((r, idx) => {
+              const labelY = cy - r + 12;
+              return (
+                <text
+                  key={`label-${sortedRings[idx].id}`}
+                  x={cx}
+                  y={labelY}
+                  textAnchor="middle"
+                  fontSize={11}
+                  fill="#6b7280"
+                  fontWeight="500"
+                >
+                  {sortedRings[idx].name}
+                </text>
+              );
+            })}
+            {sortedQuadrants.map((q, idx) => {
+              const angle = -Math.PI / 2 + (idx + 0.5) * angleStep;
+              const labelRadius = maxRadius + 8;
+              const x = cx + labelRadius * Math.cos(angle);
+              const y = cy + labelRadius * Math.sin(angle);
+              return (
+                <text
+                  key={`q-label-${q.id}`}
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize={13}
+                  fontWeight="600"
+                  fill={QUADRANT_PALETTE[idx % QUADRANT_PALETTE.length]}
+                >
+                  {q.name}
+                </text>
+              );
+            })}
+            {positionedBlips.map(({
+              blip, x, y, index,
+            }) => {
+              const quadrantIndex = sortedQuadrants.findIndex(
+                q => q.id === blip.quadrantId,
+              );
+              const color
+                = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
+              const isHovered = hoveredBlipId === blip.id;
+              const comment = comments[blip.id];
+              return (
+                <Tooltip
+                  key={blip.id}
+                  open={isHovered || undefined}
+                >
+                  <TooltipTrigger asChild>
+                    <g
+                      onMouseEnter={() => setHoveredBlipId(blip.id)}
+                      onMouseLeave={() => setHoveredBlipId(null)}
+                      onFocus={() => setHoveredBlipId(blip.id)}
+                      onBlur={() => setHoveredBlipId(null)}
+                      onClick={() => onBlipClick?.(blip)}
+                      style={{
+                        cursor: onBlipClick ? "pointer" : "default",
+                      }}
+                      tabIndex={0}
+                    >
+                      {isHovered && (
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={16}
+                          fill="none"
+                          stroke={color}
+                          strokeWidth={2}
+                          strokeOpacity={0.5}
+                        />
+                      )}
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r={isHovered ? 12 : 10}
+                        fill={color}
+                        stroke="white"
+                        strokeWidth={2}
+                      />
+                      <text
+                        x={x}
+                        y={y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={10}
+                        fontWeight="700"
+                        fill="white"
+                        style={{
+                          pointerEvents: "none",
+                        }}
+                      >
+                        {index}
+                      </text>
+                    </g>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    className="max-w-xs"
+                  >
+                    <div className="flex flex-col gap-0.5 text-left">
+                      <div className="font-semibold">
+                        {index}
+                        .
+                        {" "}
+                        {blip.topicName}
+                      </div>
+                      <div className="text-[11px] opacity-80">
+                        {sortedQuadrants[quadrantIndex]?.name}
+                        {" · "}
+                        {ringNameById[blip.ringId]}
+                      </div>
+                      {blip.description && (
+                        <div className="text-[11px] opacity-90">
+                          {blip.description}
+                        </div>
+                      )}
+                      {comment && (
+                        <div
+                          className="
+                            mt-1 border-t border-white/20 pt-1 text-[11px]
+                            italic opacity-90
+                          "
+                        >
+                          {comment}
+                        </div>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </svg>
+        </div>
+        <RadarLegend
+          quadrants={sortedQuadrants}
+          positionedBlips={positionedBlips}
+          rings={sortedRings}
+          comments={comments}
+          onCommentChange={handleSetComment}
+          onHover={setHoveredBlipId}
+          hoveredBlipId={hoveredBlipId}
+          onBlipClick={onBlipClick}
+        />
+      </div>
+    </TooltipProvider>
   );
 }
 
@@ -272,6 +367,8 @@ interface RadarLegendProps {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   positionedBlips: PositionedBlip[];
+  comments: Record<string, string>;
+  onCommentChange: (blipId: string, value: string) => void;
   hoveredBlipId: string | null;
   onHover: (id: string | null) => void;
   onBlipClick?: (blip: RadarBlip) => void;
@@ -281,6 +378,8 @@ function RadarLegend({
   quadrants,
   rings,
   positionedBlips,
+  comments,
+  onCommentChange,
   hoveredBlipId,
   onHover,
   onBlipClick,
@@ -293,12 +392,36 @@ function RadarLegend({
     return map;
   }, [rings]);
 
+  const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Gently scroll the hovered list item into view inside the side panel.
+  useEffect(() => {
+    if (!hoveredBlipId) return;
+    const el = itemRefs.current.get(hoveredBlipId);
+    const container = containerRef.current;
+    if (!el || !container) return;
+    const elRect = el.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    if (
+      elRect.top < containerRect.top
+      || elRect.bottom > containerRect.bottom
+    ) {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [hoveredBlipId]);
+
   return (
     <div
+      ref={containerRef}
       className={`
         grid grid-cols-1 gap-4
         sm:grid-cols-2
-        lg:grid-cols-4
+        lg:grid lg:max-h-[600px] lg:w-80 lg:grid-cols-1 lg:overflow-y-auto
+        lg:pr-1
       `}
     >
       {quadrants.map((q, idx) => {
@@ -327,37 +450,188 @@ function RadarLegend({
             <ul className="flex flex-col gap-0.5">
               {items.map(({
                 blip, index,
-              }) => (
-                <li
-                  key={blip.id}
-                  onMouseEnter={() => onHover(blip.id)}
-                  onMouseLeave={() => onHover(null)}
-                  onClick={() => onBlipClick?.(blip)}
-                  className={`
-                    cursor-pointer rounded-sm px-1 py-0.5 text-sm
-                    ${hoveredBlipId === blip.id ? "bg-gray-200" : ""}
-                  `}
-                >
-                  <span
-                    className="mr-1 inline-block font-mono text-xs"
-                    style={{
-                      color,
+              }) => {
+                const isHovered = hoveredBlipId === blip.id;
+                const comment = comments[blip.id];
+                return (
+                  <li
+                    key={blip.id}
+                    ref={(el) => {
+                      if (el) {
+                        itemRefs.current.set(blip.id, el);
+                      }
+                      else {
+                        itemRefs.current.delete(blip.id);
+                      }
                     }}
+                    onMouseEnter={() => onHover(blip.id)}
+                    onMouseLeave={() => onHover(null)}
+                    className={cn(
+                      `
+                        group flex flex-col rounded-sm px-1 py-0.5 text-sm
+                        transition-colors
+                      `,
+                      isHovered && "bg-gray-200",
+                    )}
                   >
-                    {index}.
-                  </span>
-                  <span className="font-medium">{blip.topicName}</span>
-                  <span className="ml-1 text-xs text-muted-foreground">
-                    (
-                    {ringNameById[blip.ringId]}
-                    )
-                  </span>
-                </li>
-              ))}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onBlipClick?.(blip)}
+                        className={cn(
+                          "flex-1 cursor-pointer text-left",
+                          !onBlipClick && "cursor-default",
+                        )}
+                      >
+                        <span
+                          className="mr-1 inline-block font-mono text-xs"
+                          style={{
+                            color,
+                          }}
+                        >
+                          {index}
+                          .
+                        </span>
+                        <span className="font-medium">{blip.topicName}</span>
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          (
+                          {ringNameById[blip.ringId]}
+                          )
+                        </span>
+                      </button>
+                      <div
+                        className={cn(
+                          `
+                            flex items-center gap-0.5 opacity-0
+                            transition-opacity
+                            group-hover:opacity-100
+                            focus-within:opacity-100
+                          `,
+                        )}
+                      >
+                        <BlipCommentPopover
+                          value={comment ?? ""}
+                          onChange={value => onCommentChange(blip.id, value)}
+                        />
+                        <Link
+                          to="/topics/$id"
+                          params={{
+                            id: blip.topicId,
+                          }}
+                          aria-label={`Go to topic ${blip.topicName}`}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="size-6 p-0"
+                          >
+                            <ArrowRightIcon className="size-3.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                    {comment && (
+                      <p
+                        className={`
+                          mt-0.5 ml-4 text-xs text-muted-foreground italic
+                        `}
+                      >
+                        {comment}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         );
       })}
     </div>
+  );
+}
+
+interface BlipCommentPopoverProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function BlipCommentPopover({
+  value,
+  onChange,
+}: BlipCommentPopoverProps) {
+  const [draft, setDraft] = useState(value);
+  const [open, setOpen] = useState(false);
+
+  // Keep the draft in sync if the saved value changes from elsewhere while
+  // the popover is closed.
+  useEffect(() => {
+    if (!open) {
+      setDraft(value);
+    }
+  }, [value, open]);
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="size-6 p-0"
+          aria-label="Edit blip comment"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <PencilIcon className="size-3.5" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="left"
+        className="w-72"
+        onClick={e => e.stopPropagation()}
+      >
+        <form
+          className="flex flex-col gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onChange(draft.trim());
+            setOpen(false);
+          }}
+        >
+          <label className="text-xs font-medium">Blip comment</label>
+          <Input
+            autoFocus
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            placeholder="Add a note about this blip"
+          />
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDraft(value);
+                setOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+            >
+              Save
+            </Button>
+          </div>
+        </form>
+      </PopoverContent>
+    </Popover>
   );
 }
