@@ -1,19 +1,14 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CopyIcon, EditIcon, RadarIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { DomainLearningLog } from "@/components/domains/DomainLearningLog";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/ui/DeleteButton";
-import {
-  deleteSingleDomain,
-  duplicateDomain,
-  fetchSingleDomain,
-} from "@/utils";
+import { fetchRadar, fetchSingleDomain } from "@/utils";
 
 export const Route = createFileRoute("/domains/$id/")({
   component: SingleDomain,
@@ -23,8 +18,6 @@ function SingleDomain() {
   const {
     id,
   } = Route.useParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const {
     isPending, error, data,
@@ -34,30 +27,12 @@ function SingleDomain() {
   });
 
   const {
-    refetch: deleteDomain,
+    data: radarData,
   } = useQuery({
-    queryKey: ["domain", "delete", id],
-    enabled: false,
-    queryFn: () => deleteSingleDomain(id),
+    queryKey: ["radar", id],
+    queryFn: () => fetchRadar(id),
+    enabled: !!data?.hasRadar,
   });
-
-  async function handleDuplicate() {
-    try {
-      const result = await duplicateDomain(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["domains"],
-      });
-      await navigate({
-        to: "/domains/$id",
-        params: {
-          id: result.id,
-        },
-      });
-    }
-    catch {
-      toast.error("Failed to duplicate domain. Please try again.");
-    }
-  }
 
   if (isPending) {
     return (
@@ -77,15 +52,13 @@ function SingleDomain() {
     );
   }
 
-  async function handleDelete() {
-    await deleteDomain();
-    await navigate({
-      to: "/domains",
-    });
-  }
-
   const excludedTopics = data?.excludedTopics ?? [];
   const learningLog = data?.learningLog ?? [];
+  const radarReady
+    = !!data?.hasRadar
+      && !!radarData
+      && radarData.quadrants.length > 0
+      && radarData.rings.length > 0;
 
   return (
     <div>
@@ -108,14 +81,6 @@ function SingleDomain() {
               </Button>
             </Link>
           )}
-          <Button
-            variant="secondary"
-            onClick={handleDuplicate}
-          >
-            Duplicate
-            {" "}
-            <CopyIcon />
-          </Button>
           <Link
             to="/domains/$id/edit"
             params={{
@@ -140,6 +105,16 @@ function SingleDomain() {
         <InfoArea header="Has Radar?">
           <YesNoDisplay value={!!data?.hasRadar} />
         </InfoArea>
+        {radarReady && radarData && (
+          <InfoArea header="Radar Preview">
+            <RadarChart
+              quadrants={radarData.quadrants}
+              rings={radarData.rings}
+              blips={radarData.blips}
+              size={400}
+            />
+          </InfoArea>
+        )}
         <div>
           <InfoArea
             header="Topics"
@@ -211,9 +186,6 @@ function SingleDomain() {
             entries={learningLog}
           />
         )}
-        <div>
-          <DeleteButton onClick={handleDelete}>Delete Domain</DeleteButton>
-        </div>
       </div>
     </div>
   );

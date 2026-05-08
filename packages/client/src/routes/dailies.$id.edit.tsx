@@ -18,11 +18,14 @@ import {
   ComboboxList,
 } from "@/components/combobox";
 import { useAppForm } from "@/components/formFields";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createDaily,
+  deleteSingleDaily,
+  duplicateDaily,
   fetchCourses,
   fetchProviders,
   fetchSingleDaily,
@@ -286,6 +289,41 @@ function SingleDailyEdit() {
     }
   }, [selectedTask, currentValues.name, form]);
 
+  async function handleDelete() {
+    try {
+      await deleteSingleDaily(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["dailies"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/dailies",
+      });
+    }
+    catch {
+      toast.error("Failed to delete daily. Please try again.");
+    }
+  }
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateDaily(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["dailies"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/dailies/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate daily. Please try again.");
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -478,7 +516,13 @@ function SingleDailyEdit() {
             </form.AppField>
           </div>
 
-          <div className="flex flex-row gap-4">
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Daily"
+            onDuplicate={handleDuplicate}
+            duplicateLabel="Duplicate Daily"
+          >
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -507,7 +551,7 @@ function SingleDailyEdit() {
             >
               Cancel
             </Button>
-          </div>
+          </EditPageFooter>
         </form>
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}

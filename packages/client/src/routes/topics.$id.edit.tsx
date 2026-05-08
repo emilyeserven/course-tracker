@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createTopic,
+  deleteSingleTopic,
   fetchDomains,
   fetchSingleTopic,
   formHasChanges,
@@ -135,6 +137,22 @@ function SingleTopicEdit() {
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
+  async function handleDelete() {
+    try {
+      await deleteSingleTopic(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/topics",
+      });
+    }
+    catch {
+      toast.error("Failed to delete topic. Please try again.");
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -196,7 +214,11 @@ function SingleTopicEdit() {
             )}
           </form.AppField>
 
-          <div className="flex flex-row gap-4">
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Topic"
+          >
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -225,7 +247,7 @@ function SingleTopicEdit() {
             >
               Cancel
             </Button>
-          </div>
+          </EditPageFooter>
         </form>
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}

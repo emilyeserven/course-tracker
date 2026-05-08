@@ -12,6 +12,8 @@ export interface LearningLogEntry {
   dailyName?: string | null;
   courseId?: string | null;
   courseName?: string | null;
+  taskId?: string | null;
+  taskName?: string | null;
   status?: DailyCompletionStatus | null;
 }
 

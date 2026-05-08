@@ -10,12 +10,14 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourcesEditor } from "@/components/tasks/ResourcesEditor";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createTask,
+  deleteSingleTask,
   fetchSingleTask,
   fetchTopics,
   formHasChanges,
@@ -157,6 +159,22 @@ function SingleTaskEdit() {
     = JSON.stringify(resources) !== JSON.stringify(initialResources);
   const hasChanges = formHasFieldChanges || resourcesChanged;
 
+  async function handleDelete() {
+    try {
+      await deleteSingleTask(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/tasks",
+      });
+    }
+    catch {
+      toast.error("Failed to delete task. Please try again.");
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -220,7 +238,11 @@ function SingleTaskEdit() {
             />
           </div>
 
-          <div className="flex flex-row gap-4">
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Task"
+          >
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -249,7 +271,7 @@ function SingleTaskEdit() {
             >
               Cancel
             </Button>
-          </div>
+          </EditPageFooter>
         </form>
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}

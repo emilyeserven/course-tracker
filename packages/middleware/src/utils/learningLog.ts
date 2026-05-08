@@ -11,8 +11,10 @@ interface DailySource {
   id: string;
   name: string;
   completions: DailyCompletion[];
-  courseId: string;
-  courseName: string;
+  courseId?: string | null;
+  courseName?: string | null;
+  taskId?: string | null;
+  taskName?: string | null;
 }
 
 function dateString(value: string | Date | null): string {
@@ -79,8 +81,10 @@ export function buildDomainLearningLog(
         link: null,
         dailyId: daily.id,
         dailyName: daily.name,
-        courseId: daily.courseId,
-        courseName: daily.courseName,
+        courseId: daily.courseId ?? null,
+        courseName: daily.courseName ?? null,
+        taskId: daily.taskId ?? null,
+        taskName: daily.taskName ?? null,
         status: (completion.status ?? null) as DailyCompletionStatus | null,
       });
     }

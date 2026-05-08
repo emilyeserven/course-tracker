@@ -282,97 +282,103 @@ export function RadarChart({
                 </text>
               );
             })}
-            {positionedBlips.map(({
-              blip, x, y, index,
-            }) => {
-              const quadrantIndex = sortedQuadrants.findIndex(
-                q => q.id === blip.quadrantId,
-              );
-              const color
-                = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
-              const isActive = activeBlipId === blip.id;
-              const isSelected = selectedBlipId === blip.id;
-              return (
-                <Tooltip
-                  key={blip.id}
-                  open={isActive || undefined}
-                >
-                  <TooltipTrigger asChild>
-                    <g
-                      onMouseEnter={() => setHoveredBlipId(blip.id)}
-                      onMouseLeave={() => setHoveredBlipId(null)}
-                      onFocus={() => setHoveredBlipId(blip.id)}
-                      onBlur={() => setHoveredBlipId(null)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleBlipClick(blip);
-                      }}
-                      style={{
-                        cursor: "pointer",
-                      }}
-                      tabIndex={0}
-                    >
-                      {isActive && (
+            {[...positionedBlips]
+              .sort((a, b) => {
+                const aActive = activeBlipId === a.blip.id ? 1 : 0;
+                const bActive = activeBlipId === b.blip.id ? 1 : 0;
+                return aActive - bActive;
+              })
+              .map(({
+                blip, x, y, index,
+              }) => {
+                const quadrantIndex = sortedQuadrants.findIndex(
+                  q => q.id === blip.quadrantId,
+                );
+                const color
+                  = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
+                const isActive = activeBlipId === blip.id;
+                const isSelected = selectedBlipId === blip.id;
+                return (
+                  <Tooltip
+                    key={blip.id}
+                    open={isActive || undefined}
+                  >
+                    <TooltipTrigger asChild>
+                      <g
+                        onMouseEnter={() => setHoveredBlipId(blip.id)}
+                        onMouseLeave={() => setHoveredBlipId(null)}
+                        onFocus={() => setHoveredBlipId(blip.id)}
+                        onBlur={() => setHoveredBlipId(null)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBlipClick(blip);
+                        }}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        tabIndex={0}
+                      >
+                        {isActive && (
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r={16}
+                            fill="none"
+                            stroke={color}
+                            strokeWidth={isSelected ? 3 : 2}
+                            strokeOpacity={isSelected ? 0.8 : 0.5}
+                          />
+                        )}
                         <circle
                           cx={x}
                           cy={y}
-                          r={16}
-                          fill="none"
-                          stroke={color}
-                          strokeWidth={isSelected ? 3 : 2}
-                          strokeOpacity={isSelected ? 0.8 : 0.5}
+                          r={isActive ? 12 : 10}
+                          fill={color}
+                          stroke="white"
+                          strokeWidth={2}
                         />
-                      )}
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={isActive ? 12 : 10}
-                        fill={color}
-                        stroke="white"
-                        strokeWidth={2}
-                      />
-                      <text
-                        x={x}
-                        y={y}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fontSize={10}
-                        fontWeight="700"
-                        fill="white"
-                        style={{
-                          pointerEvents: "none",
-                        }}
-                      >
-                        {index}
-                      </text>
-                    </g>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    className="max-w-xs"
-                  >
-                    <div className="flex flex-col gap-0.5 text-left">
-                      <div className="font-semibold">
-                        {index}
-                        .
-                        {" "}
-                        {blip.topicName}
-                      </div>
-                      <div className="text-[11px] opacity-80">
-                        {sortedQuadrants[quadrantIndex]?.name}
-                        {" · "}
-                        {ringNameById[blip.ringId]}
-                      </div>
-                      {blip.description && (
-                        <div className="text-[11px] opacity-90">
-                          {blip.description}
+                        <text
+                          x={x}
+                          y={y}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={10}
+                          fontWeight="700"
+                          fill="white"
+                          style={{
+                            pointerEvents: "none",
+                          }}
+                        >
+                          {index}
+                        </text>
+                      </g>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="max-w-xs"
+                    >
+                      <div className="flex flex-col gap-0.5 text-left">
+                        <div className="font-semibold">
+                          {index}
+                          .
+                          {" "}
+                          {blip.topicName}
                         </div>
-                      )}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
+                        <div className="text-[11px] opacity-80">
+                          {sortedQuadrants[quadrantIndex]?.name}
+                          {" · "}
+                          {ringNameById[blip.ringId]}
+                        </div>
+                        {blip.description && (
+                          <div className="text-[11px] opacity-90">
+                            {blip.description}
+                          </div>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
           </svg>
         </div>
         <RadarLegend

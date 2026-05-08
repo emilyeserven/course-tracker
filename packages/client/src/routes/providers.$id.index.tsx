@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
@@ -7,8 +7,7 @@ import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSinglePlatform, fetchSingleProvider } from "@/utils";
+import { fetchSingleProvider } from "@/utils";
 
 export const Route = createFileRoute("/providers/$id/")({
   component: SingleProviders,
@@ -42,7 +41,6 @@ function SingleProviders() {
   const {
     id,
   } = Route.useParams();
-  const navigate = useNavigate();
 
   const {
     isPending, error, data,
@@ -51,27 +49,12 @@ function SingleProviders() {
     queryFn: () => fetchSingleProvider(id),
   });
 
-  const {
-    refetch: deletePlatform,
-  } = useQuery({
-    queryKey: ["provider", "delete", id],
-    enabled: false,
-    queryFn: () => deleteSinglePlatform(id),
-  });
-
   if (isPending) {
     <TopicPending />;
   }
 
   if (error) {
     <TopicError />;
-  }
-
-  async function handleDelete() {
-    await deletePlatform();
-    await navigate({
-      to: "/providers",
-    });
   }
 
   return (
@@ -167,9 +150,6 @@ function SingleProviders() {
                 ))}
             </ul>
           </InfoArea>
-        </div>
-        <div>
-          <DeleteButton onClick={handleDelete}>Delete Platform</DeleteButton>
         </div>
       </div>
     </div>

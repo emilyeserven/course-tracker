@@ -10,9 +10,12 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
+  deleteSingleCourse,
+  duplicateCourse,
   fetchProviders,
   fetchSingleCourse,
   fetchTopics,
@@ -186,6 +189,41 @@ function SingleCourseEdit() {
     }
   }
 
+  async function handleDelete() {
+    try {
+      await deleteSingleCourse(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/courses",
+      });
+    }
+    catch {
+      toast.error("Failed to delete course. Please try again.");
+    }
+  }
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateCourse(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/courses/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate course. Please try again.");
+    }
+  }
+
   return (
     <div className="container flex-col">
       <h2 className="mb-6 text-2xl">{isNew ? "New Course" : "Edit Course"}</h2>
@@ -309,7 +347,13 @@ function SingleCourseEdit() {
           {field => <field.DatePickerField label="Expiry Date" />}
         </form.AppField>
 
-        <div className="flex flex-row gap-4">
+        <EditPageFooter
+          isNew={isNew}
+          onDelete={handleDelete}
+          deleteLabel="Delete Course"
+          onDuplicate={handleDuplicate}
+          duplicateLabel="Duplicate Course"
+        >
           <Button
             type="submit"
             disabled={isSubmitting}
@@ -338,7 +382,7 @@ function SingleCourseEdit() {
           >
             Cancel
           </Button>
-        </div>
+        </EditPageFooter>
       </form>
       <UnsavedChangesDialog
         shouldBlockFn={() => hasChanges && !skipBlocker.current}

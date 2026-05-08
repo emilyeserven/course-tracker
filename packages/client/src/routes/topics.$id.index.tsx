@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleTopic, fetchSingleTopic } from "@/utils";
+import { fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({
   component: SingleTopic,
@@ -40,7 +39,6 @@ function SingleTopic() {
   const {
     id,
   } = Route.useParams();
-  const navigate = useNavigate();
 
   const {
     isPending, error, data,
@@ -49,27 +47,12 @@ function SingleTopic() {
     queryFn: () => fetchSingleTopic(id),
   });
 
-  const {
-    refetch: deleteTopic,
-  } = useQuery({
-    queryKey: ["topics", "delete", id],
-    enabled: false,
-    queryFn: () => deleteSingleTopic(id),
-  });
-
   if (isPending) {
     <TopicPending />;
   }
 
   if (error) {
     <TopicError />;
-  }
-
-  async function handleDelete() {
-    await deleteTopic();
-    await navigate({
-      to: "/topics",
-    });
   }
 
   return (
@@ -158,9 +141,6 @@ function SingleTopic() {
                 ))}
             </ul>
           </InfoArea>
-        </div>
-        <div>
-          <DeleteButton onClick={handleDelete}>Delete Topic</DeleteButton>
         </div>
       </div>
     </div>

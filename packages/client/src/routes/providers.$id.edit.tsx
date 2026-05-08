@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createProvider,
+  deleteSinglePlatform,
   fetchSingleProvider,
   formHasChanges,
   upsertProvider,
@@ -135,6 +137,22 @@ function SingleProviderEdit() {
     form.store,
     state => state.values.isRecurring === "true",
   );
+
+  async function handleDelete() {
+    try {
+      await deleteSinglePlatform(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["providers"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/providers",
+      });
+    }
+    catch {
+      toast.error("Failed to delete provider. Please try again.");
+    }
+  }
 
   return (
     <div>
@@ -270,7 +288,11 @@ function SingleProviderEdit() {
             </>
           )}
 
-          <div className="flex flex-row gap-4">
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Provider"
+          >
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -299,7 +321,7 @@ function SingleProviderEdit() {
             >
               Cancel
             </Button>
-          </div>
+          </EditPageFooter>
         </form>
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}
