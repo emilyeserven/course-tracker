@@ -35,7 +35,7 @@ interface BlipLlmAssistProps {
   onComplete: () => void;
 }
 
-type Resolution = "create" | "overwrite" | "skip";
+type Resolution = "create" | "overwrite" | "updateDescription" | "skip";
 
 interface LlmEntry {
   topic?: unknown;
@@ -86,10 +86,20 @@ function buildLlmPrompt(
   domainTitle: string,
   quadrants: RadarQuadrant[],
   rings: RadarRing[],
+  existingBlips: { topicName: string;
+    description?: string | null; }[],
 ): string {
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
   const ringList = rings.map(r => `- ${r.name}`).join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
+  const existingList = existingBlips.length > 0
+    ? existingBlips
+        .map((b) => {
+          const desc = b.description?.trim();
+          return desc ? `- ${b.topicName}: ${desc}` : `- ${b.topicName}`;
+        })
+        .join("\n")
+    : "- (none yet)";
   return `I'm placing topics on a tech-radar style chart for the "${domainLabel}" domain.
 
 The radar has these quadrants:
@@ -98,9 +108,11 @@ ${quadrantList || "- (none defined)"}
 And these rings (innermost first):
 ${ringList || "- (none defined)"}
 
+Topics already on the radar (with current descriptions, if any):
+${existingList}
+
 Please suggest topics relevant to the "${domainLabel}" domain and return ONLY a
-JSON array of entries, one per topic you suggest, using this exact shape (no
-other keys, no commentary):
+JSON array of entries, using this exact shape (no other keys, no commentary):
 
 [
   {
@@ -110,6 +122,10 @@ other keys, no commentary):
     "description": "Optional one-line note (or null)"
   }
 ]
+
+You may include topics already on the radar to suggest a better description or
+a different placement for them. The reviewer will choose whether to overwrite,
+update only the description, or skip each one.
 `;
 }
 
@@ -123,8 +139,17 @@ export function BlipLlmAssist({
   onComplete,
 }: BlipLlmAssistProps) {
   const prompt = useMemo(
-    () => buildLlmPrompt(domainTitle, quadrants, rings),
-    [domainTitle, quadrants, rings],
+    () =>
+      buildLlmPrompt(
+        domainTitle,
+        quadrants,
+        rings,
+        existingBlips.map(b => ({
+          topicName: b.topicName,
+          description: b.description,
+        })),
+      ),
+    [domainTitle, quadrants, rings, existingBlips],
   );
 
   const [jsonText, setJsonText] = useState("");
@@ -299,13 +324,21 @@ export function BlipLlmAssist({
     });
   }
 
+  function isActionable(r: ResolvedLlmEntry): boolean {
+    if (r.resolution === "skip") {
+      return false;
+    }
+    if (r.resolution === "updateDescription") {
+      return r.existingBlipId !== null;
+    }
+    return r.problems.length === 0;
+  }
+
   async function handleConfirm() {
     if (!resolved) {
       return;
     }
-    const actionable = resolved.filter(
-      r => r.resolution !== "skip" && r.problems.length === 0,
-    );
+    const actionable = resolved.filter(isActionable);
     if (actionable.length === 0) {
       toast.error("No actionable entries.");
       return;
@@ -314,6 +347,9 @@ export function BlipLlmAssist({
     try {
       const toOverwrite = actionable.filter(
         r => r.resolution === "overwrite" && r.existingBlipId,
+      );
+      const toUpdateDescription = actionable.filter(
+        r => r.resolution === "updateDescription" && r.existingBlipId,
       );
       const toCreate = actionable.filter(r => r.resolution === "create");
 
@@ -326,6 +362,17 @@ export function BlipLlmAssist({
           description: r.description,
         });
         overwriteCount += 1;
+      }
+
+      let descriptionUpdateCount = 0;
+      for (const r of toUpdateDescription) {
+        await upsertRadarBlip(domainId, r.existingBlipId as string, {
+          topicId: r.matchedTopicId as string,
+          quadrantId: r.existingQuadrantId as string,
+          ringId: r.existingRingId as string,
+          description: r.description,
+        });
+        descriptionUpdateCount += 1;
       }
 
       let createCount = 0;
@@ -350,6 +397,9 @@ export function BlipLlmAssist({
       if (overwriteCount > 0) {
         parts.push(`updated ${overwriteCount}`);
       }
+      if (descriptionUpdateCount > 0) {
+        parts.push(`described ${descriptionUpdateCount}`);
+      }
       toast.success(`Done — ${parts.join(", ")}.`);
       setJsonText("");
       setResolved(null);
@@ -372,11 +422,16 @@ export function BlipLlmAssist({
   const overwriteCount = resolved?.filter(
     r => r.resolution === "overwrite" && r.problems.length === 0,
   ).length ?? 0;
+  const descriptionUpdateCount = resolved?.filter(
+    r => r.resolution === "updateDescription" && r.existingBlipId,
+  ).length ?? 0;
   const skipCount = resolved?.filter(r => r.resolution === "skip").length ?? 0;
   const problemCount = resolved?.filter(
-    r => r.problems.length > 0 && r.resolution !== "skip",
+    r => r.problems.length > 0
+      && r.resolution !== "skip"
+      && r.resolution !== "updateDescription",
   ).length ?? 0;
-  const actionableCount = createCount + overwriteCount;
+  const actionableCount = createCount + overwriteCount + descriptionUpdateCount;
 
   return (
     <div className="flex flex-col gap-4 rounded-sm border p-4">
@@ -438,6 +493,13 @@ export function BlipLlmAssist({
             to add ·
             {" "}
             {overwriteCount}
+            {" "}
+            to overwrite ·
+            {" "}
+            {descriptionUpdateCount}
+            {" "}
+            description
+            {descriptionUpdateCount === 1 ? "" : "s"}
             {" "}
             to update ·
             {" "}
@@ -571,7 +633,7 @@ export function BlipLlmAssist({
                           updateEntry(idx, {
                             quadrantId: value || null,
                           })}
-                        disabled={isSkipped}
+                        disabled={isSkipped || r.resolution === "updateDescription"}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Pick a quadrant" />
@@ -609,7 +671,7 @@ export function BlipLlmAssist({
                           updateEntry(idx, {
                             ringId: value || null,
                           })}
-                        disabled={isSkipped}
+                        disabled={isSkipped || r.resolution === "updateDescription"}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Pick a ring" />
@@ -646,6 +708,9 @@ export function BlipLlmAssist({
                                 <>
                                   <SelectItem value="overwrite">
                                     Overwrite existing
+                                  </SelectItem>
+                                  <SelectItem value="updateDescription">
+                                    Update description only
                                   </SelectItem>
                                   <SelectItem value="skip">
                                     Skip (keep existing)

@@ -199,6 +199,16 @@ function RadarEdit() {
     return map;
   }, [topics]);
 
+  const usedTopicIds = useMemo(() => {
+    const set = new Set<string>();
+    blips.forEach((b) => {
+      if (b.topicId) {
+        set.add(b.topicId);
+      }
+    });
+    return set;
+  }, [blips]);
+
   function addQuadrant() {
     setQuadrants((prev) => {
       if (prev.length >= MAX_QUADRANTS) {
@@ -621,14 +631,19 @@ function RadarEdit() {
                         <SelectValue placeholder="Choose topic" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(topics ?? []).map(t => (
-                          <SelectItem
-                            key={t.id}
-                            value={t.id}
-                          >
-                            {t.name}
-                          </SelectItem>
-                        ))}
+                        {(topics ?? [])
+                          .filter(
+                            t =>
+                              t.id === blip.topicId || !usedTopicIds.has(t.id),
+                          )
+                          .map(t => (
+                            <SelectItem
+                              key={t.id}
+                              value={t.id}
+                            >
+                              {t.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     {blip.topicId && !topicNameById.has(blip.topicId) && (

@@ -26,19 +26,18 @@ function RadarView() {
     queryFn: () => fetchRadar(id),
   });
 
-  const commentMutation = useMutation({
+  const descriptionMutation = useMutation({
     mutationFn: ({
-      blipId, comment,
+      blipId, description,
     }: { blipId: string;
-      comment: string; }) => {
+      description: string; }) => {
       const blip = data?.blips.find(b => b.id === blipId);
       if (!blip) {
         return Promise.reject(new Error("Blip not found"));
       }
       return upsertRadarBlip(id, blipId, {
         topicId: blip.topicId,
-        description: blip.description ?? null,
-        comment: comment.trim() ? comment.trim() : null,
+        description: description.trim() ? description.trim() : null,
         quadrantId: blip.quadrantId,
         ringId: blip.ringId,
       });
@@ -49,7 +48,7 @@ function RadarView() {
       });
     },
     onError: () => {
-      toast.error("Failed to save comment.");
+      toast.error("Failed to save description.");
     },
   });
 
@@ -130,10 +129,10 @@ function RadarView() {
               quadrants={data.quadrants}
               rings={data.rings}
               blips={data.blips}
-              onCommentChange={(blipId, comment) =>
-                commentMutation.mutate({
+              onDescriptionChange={(blipId, description) =>
+                descriptionMutation.mutate({
                   blipId,
-                  comment,
+                  description,
                 })}
             />
           )}

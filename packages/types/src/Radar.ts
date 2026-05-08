@@ -20,7 +20,6 @@ export interface RadarBlip {
   topicId: string;
   topicName: string;
   description?: string | null;
-  comment?: string | null;
 }
 
 export interface Radar {

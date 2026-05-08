@@ -26,7 +26,7 @@ interface RadarChartProps {
   blips: RadarBlip[];
   size?: number;
   onBlipClick?: (blip: RadarBlip) => void;
-  onCommentChange?: (blipId: string, comment: string) => void;
+  onDescriptionChange?: (blipId: string, description: string) => void;
 }
 
 interface PositionedBlip {
@@ -64,19 +64,39 @@ export function RadarChart({
   blips,
   size = 600,
   onBlipClick,
-  onCommentChange,
+  onDescriptionChange,
 }: RadarChartProps) {
   const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
+  const [selectedBlipId, setSelectedBlipId] = useState<string | null>(null);
+  const containerWrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const comments = useMemo(() => {
-    const map: Record<string, string> = {};
-    blips.forEach((b) => {
-      if (b.comment) {
-        map[b.id] = b.comment;
+  // Click outside the chart/legend area to clear the sticky selection. Ignore
+  // clicks inside Radix portals (popovers, tooltips) so editing the
+  // description doesn't deselect the active blip.
+  useEffect(() => {
+    if (!selectedBlipId) {
+      return;
+    }
+    function handleDown(event: MouseEvent) {
+      const wrap = containerWrapperRef.current;
+      if (!wrap) return;
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (wrap.contains(target)) return;
+      if (
+        target.closest(
+          "[data-radix-popper-content-wrapper], [data-slot=\"popover-content\"], [data-slot=\"tooltip-content\"], [data-slot=\"select-content\"]",
+        )
+      ) {
+        return;
       }
-    });
-    return map;
-  }, [blips]);
+      setSelectedBlipId(null);
+    }
+    document.addEventListener("mousedown", handleDown);
+    return () => document.removeEventListener("mousedown", handleDown);
+  }, [selectedBlipId]);
+
+  const activeBlipId = selectedBlipId ?? hoveredBlipId;
 
   const cx = size / 2;
   const cy = size / 2;
@@ -171,13 +191,19 @@ export function RadarChart({
 
   const angleStep = (Math.PI * 2) / quadrantCount;
 
-  const handleSetComment = (blipId: string, value: string) => {
-    onCommentChange?.(blipId, value);
+  const handleSetDescription = (blipId: string, value: string) => {
+    onDescriptionChange?.(blipId, value);
+  };
+
+  const handleBlipClick = (blip: RadarBlip) => {
+    setSelectedBlipId(prev => (prev === blip.id ? null : blip.id));
+    onBlipClick?.(blip);
   };
 
   return (
     <TooltipProvider delayDuration={200}>
       <div
+        ref={containerWrapperRef}
         className={`
           flex flex-col gap-4
           lg:flex-row lg:items-start lg:gap-6
@@ -264,12 +290,12 @@ export function RadarChart({
               );
               const color
                 = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
-              const isHovered = hoveredBlipId === blip.id;
-              const comment = comments[blip.id];
+              const isActive = activeBlipId === blip.id;
+              const isSelected = selectedBlipId === blip.id;
               return (
                 <Tooltip
                   key={blip.id}
-                  open={isHovered || undefined}
+                  open={isActive || undefined}
                 >
                   <TooltipTrigger asChild>
                     <g
@@ -277,27 +303,30 @@ export function RadarChart({
                       onMouseLeave={() => setHoveredBlipId(null)}
                       onFocus={() => setHoveredBlipId(blip.id)}
                       onBlur={() => setHoveredBlipId(null)}
-                      onClick={() => onBlipClick?.(blip)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBlipClick(blip);
+                      }}
                       style={{
-                        cursor: onBlipClick ? "pointer" : "default",
+                        cursor: "pointer",
                       }}
                       tabIndex={0}
                     >
-                      {isHovered && (
+                      {isActive && (
                         <circle
                           cx={x}
                           cy={y}
                           r={16}
                           fill="none"
                           stroke={color}
-                          strokeWidth={2}
-                          strokeOpacity={0.5}
+                          strokeWidth={isSelected ? 3 : 2}
+                          strokeOpacity={isSelected ? 0.8 : 0.5}
                         />
                       )}
                       <circle
                         cx={x}
                         cy={y}
-                        r={isHovered ? 12 : 10}
+                        r={isActive ? 12 : 10}
                         fill={color}
                         stroke="white"
                         strokeWidth={2}
@@ -339,16 +368,6 @@ export function RadarChart({
                           {blip.description}
                         </div>
                       )}
-                      {comment && (
-                        <div
-                          className="
-                            mt-1 border-t border-white/20 pt-1 text-[11px]
-                            italic opacity-90
-                          "
-                        >
-                          {comment}
-                        </div>
-                      )}
                     </div>
                   </TooltipContent>
                 </Tooltip>
@@ -360,11 +379,11 @@ export function RadarChart({
           quadrants={sortedQuadrants}
           positionedBlips={positionedBlips}
           rings={sortedRings}
-          comments={comments}
-          onCommentChange={handleSetComment}
+          onDescriptionChange={handleSetDescription}
           onHover={setHoveredBlipId}
-          hoveredBlipId={hoveredBlipId}
-          onBlipClick={onBlipClick}
+          activeBlipId={activeBlipId}
+          selectedBlipId={selectedBlipId}
+          onBlipClick={handleBlipClick}
         />
       </div>
     </TooltipProvider>
@@ -375,20 +394,20 @@ interface RadarLegendProps {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   positionedBlips: PositionedBlip[];
-  comments: Record<string, string>;
-  onCommentChange: (blipId: string, value: string) => void;
-  hoveredBlipId: string | null;
+  onDescriptionChange: (blipId: string, value: string) => void;
+  activeBlipId: string | null;
+  selectedBlipId: string | null;
   onHover: (id: string | null) => void;
-  onBlipClick?: (blip: RadarBlip) => void;
+  onBlipClick: (blip: RadarBlip) => void;
 }
 
 function RadarLegend({
   quadrants,
   rings,
   positionedBlips,
-  comments,
-  onCommentChange,
-  hoveredBlipId,
+  onDescriptionChange,
+  activeBlipId,
+  selectedBlipId,
   onHover,
   onBlipClick,
 }: RadarLegendProps) {
@@ -403,10 +422,11 @@ function RadarLegend({
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Gently scroll the hovered list item into view inside the side panel.
+  // Gently scroll the hovered/selected list item into view inside the side
+  // panel.
   useEffect(() => {
-    if (!hoveredBlipId) return;
-    const el = itemRefs.current.get(hoveredBlipId);
+    if (!activeBlipId) return;
+    const el = itemRefs.current.get(activeBlipId);
     const container = containerRef.current;
     if (!el || !container) return;
     const elRect = el.getBoundingClientRect();
@@ -420,7 +440,7 @@ function RadarLegend({
         block: "nearest",
       });
     }
-  }, [hoveredBlipId]);
+  }, [activeBlipId]);
 
   return (
     <div
@@ -459,8 +479,9 @@ function RadarLegend({
               {items.map(({
                 blip, index,
               }) => {
-                const isHovered = hoveredBlipId === blip.id;
-                const comment = comments[blip.id];
+                const isActive = activeBlipId === blip.id;
+                const isSelected = selectedBlipId === blip.id;
+                const description = blip.description ?? "";
                 return (
                   <li
                     key={blip.id}
@@ -479,17 +500,18 @@ function RadarLegend({
                         group flex flex-col rounded-sm px-1 py-0.5 text-sm
                         transition-colors
                       `,
-                      isHovered && "bg-gray-200",
+                      isActive && "bg-gray-200",
+                      isSelected && "ring-1 ring-gray-400",
                     )}
                   >
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => onBlipClick?.(blip)}
-                        className={cn(
-                          "flex-1 cursor-pointer text-left",
-                          !onBlipClick && "cursor-default",
-                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onBlipClick(blip);
+                        }}
+                        className="flex-1 cursor-pointer text-left"
                       >
                         <span
                           className="mr-1 inline-block font-mono text-xs"
@@ -515,11 +537,12 @@ function RadarLegend({
                             group-hover:opacity-100
                             focus-within:opacity-100
                           `,
+                          isSelected && "opacity-100",
                         )}
                       >
-                        <BlipCommentPopover
-                          value={comment ?? ""}
-                          onChange={value => onCommentChange(blip.id, value)}
+                        <BlipDescriptionPopover
+                          value={description}
+                          onChange={value => onDescriptionChange(blip.id, value)}
                         />
                         <Link
                           to="/topics/$id"
@@ -539,13 +562,13 @@ function RadarLegend({
                         </Link>
                       </div>
                     </div>
-                    {comment && (
+                    {description && (
                       <p
                         className={`
                           mt-0.5 ml-4 text-xs text-muted-foreground italic
                         `}
                       >
-                        {comment}
+                        {description}
                       </p>
                     )}
                   </li>
@@ -559,15 +582,15 @@ function RadarLegend({
   );
 }
 
-interface BlipCommentPopoverProps {
+interface BlipDescriptionPopoverProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-function BlipCommentPopover({
+function BlipDescriptionPopover({
   value,
   onChange,
-}: BlipCommentPopoverProps) {
+}: BlipDescriptionPopoverProps) {
   const [draft, setDraft] = useState(value);
   const [open, setOpen] = useState(false);
 
@@ -590,7 +613,7 @@ function BlipCommentPopover({
           variant="ghost"
           size="sm"
           className="size-6 p-0"
-          aria-label="Edit blip comment"
+          aria-label="Edit blip description"
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -612,12 +635,12 @@ function BlipCommentPopover({
             setOpen(false);
           }}
         >
-          <label className="text-xs font-medium">Blip comment</label>
+          <label className="text-xs font-medium">Blip description</label>
           <Input
             autoFocus
             value={draft}
             onChange={e => setDraft(e.target.value)}
-            placeholder="Add a note about this blip"
+            placeholder="Add a description for this blip"
           />
           <div className="flex justify-end gap-2">
             <Button

@@ -151,9 +151,11 @@ export function BlipBulkAdd({
       const result = await bulkCreateRadarBlips(domainId, {
         blips,
       });
-      toast.success(
-        `Added ${result.count} blip${result.count === 1 ? "" : "s"}.`,
-      );
+      const skipped = result.skippedDuplicates ?? 0;
+      const message = skipped > 0
+        ? `Added ${result.count} blip${result.count === 1 ? "" : "s"}; skipped ${skipped} already on the radar.`
+        : `Added ${result.count} blip${result.count === 1 ? "" : "s"}.`;
+      toast.success(message);
       setRows([makeRow(defaultQuadrantId, defaultRingId)]);
       setStep("input");
       onComplete();
