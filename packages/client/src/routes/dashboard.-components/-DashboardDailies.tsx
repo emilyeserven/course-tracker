@@ -203,9 +203,11 @@ export function DashboardDailies() {
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 text-xs",
-                          chain > 0
-                            ? "text-orange-600"
-                            : "text-muted-foreground",
+                          currentStatus === "incomplete"
+                            ? "text-muted-foreground"
+                            : chain > 0
+                              ? "text-orange-600"
+                              : "text-muted-foreground",
                         )}
                         title={
                           chain > 0

@@ -1,4 +1,6 @@
+export { CRITERIA_PRESETS } from "./criteriaPresets";
 export { DailyCommentPopover } from "./DailyCommentPopover";
+export { DailyStatusModal } from "./DailyStatusModal";
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
 export { DailyCourseIndicator } from "./DailyCourseIndicator";
 export { DailyLocationCell } from "./DailyLocationCell";

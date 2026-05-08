@@ -23,11 +23,21 @@ import {
   ComboboxLabel,
   ComboboxList,
 } from "@/components/combobox";
-import { TooManyDailiesWarning } from "@/components/dailies";
+import {
+  CRITERIA_PRESETS,
+  DAILY_STATUS_OPTIONS,
+  TooManyDailiesWarning,
+} from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
@@ -588,18 +598,70 @@ function SingleDailyEdit() {
           )}
 
           <div className="flex flex-col gap-4 rounded-md border bg-card p-4">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-2xl">Status Criteria</h2>
-              <p className="text-sm text-muted-foreground">
-                Optional notes describing what each status means for this
-                daily.
-              </p>
+            <div
+              className="
+                flex flex-row flex-wrap items-start justify-between gap-2
+              "
+            >
+              <div className="flex flex-col gap-1">
+                <h2 className="text-2xl">Status Criteria</h2>
+                <p className="text-sm text-muted-foreground">
+                  Optional notes describing what each status means for this
+                  daily.
+                </p>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                  >
+                    <WandSparklesIcon className="size-4" />
+                    Quick Fill
+                    <ChevronDownIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {CRITERIA_PRESETS.map(preset => (
+                    <DropdownMenuItem
+                      key={preset.key}
+                      onSelect={() => {
+                        form.setFieldValue(
+                          "criteriaIncomplete",
+                          preset.values.incomplete,
+                        );
+                        form.setFieldValue(
+                          "criteriaTouched",
+                          preset.values.touched,
+                        );
+                        form.setFieldValue(
+                          "criteriaGoal",
+                          preset.values.goal,
+                        );
+                        form.setFieldValue(
+                          "criteriaExceeded",
+                          preset.values.exceeded,
+                        );
+                        form.setFieldValue(
+                          "criteriaFreeze",
+                          preset.values.freeze,
+                        );
+                      }}
+                    >
+                      {preset.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <form.AppField name="criteriaIncomplete">
               {field => (
                 <field.TextareaField
                   label="Incomplete"
                   placeholder="What does &quot;Incomplete&quot; mean here?"
+                  labelIcon={DAILY_STATUS_OPTIONS.find(o =>
+                    o.value === "incomplete")?.icon}
                 />
               )}
             </form.AppField>
@@ -608,6 +670,8 @@ function SingleDailyEdit() {
                 <field.TextareaField
                   label="Touched"
                   placeholder="What does &quot;Touched&quot; mean here?"
+                  labelIcon={DAILY_STATUS_OPTIONS.find(o =>
+                    o.value === "touched")?.icon}
                 />
               )}
             </form.AppField>
@@ -616,6 +680,8 @@ function SingleDailyEdit() {
                 <field.TextareaField
                   label="Completed (Goal)"
                   placeholder="What does &quot;Completed&quot; (goal) mean here?"
+                  labelIcon={DAILY_STATUS_OPTIONS.find(o =>
+                    o.value === "goal")?.icon}
                 />
               )}
             </form.AppField>
@@ -624,6 +690,8 @@ function SingleDailyEdit() {
                 <field.TextareaField
                   label="Exceeded"
                   placeholder="What does &quot;Exceeded&quot; mean here?"
+                  labelIcon={DAILY_STATUS_OPTIONS.find(o =>
+                    o.value === "exceeded")?.icon}
                 />
               )}
             </form.AppField>
@@ -632,6 +700,8 @@ function SingleDailyEdit() {
                 <field.TextareaField
                   label="Freeze"
                   placeholder="What does &quot;Freeze&quot; mean here?"
+                  labelIcon={DAILY_STATUS_OPTIONS.find(o =>
+                    o.value === "freeze")?.icon}
                 />
               )}
             </form.AppField>

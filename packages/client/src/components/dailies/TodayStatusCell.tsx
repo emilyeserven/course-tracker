@@ -2,18 +2,10 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useState } from "react";
 
-import { PencilIcon } from "lucide-react";
-
 import { DailyCommentPopover } from "./DailyCommentPopover";
-import { DAILY_STATUS_OPTIONS, getDailyStatusOption } from "./dailyStatusMeta";
+import { getDailyStatusOption } from "./dailyStatusMeta";
+import { DailyStatusModal } from "./DailyStatusModal";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface TodayStatusCellProps {
@@ -29,81 +21,60 @@ export function TodayStatusCell({
   disabled,
   onChange,
 }: TodayStatusCellProps) {
-  const [editing, setEditing] = useState(false);
-  const showSelect = editing || currentStatus === null;
+  const [modalOpen, setModalOpen] = useState(false);
   const option = currentStatus ? getDailyStatusOption(currentStatus) : null;
 
   return (
     <div className="flex flex-row items-center gap-1">
-      {showSelect
-        ? (
-          <div className="flex w-36">
-            <Select
-              value={currentStatus ?? undefined}
-              disabled={disabled}
-              onValueChange={(value) => {
-                onChange(value as DailyCompletionStatus);
-                setEditing(false);
-              }}
-              open={editing || undefined}
-              onOpenChange={(open) => {
-                if (!open) {
-                  setEditing(false);
-                }
-              }}
-            >
-              <SelectTrigger
-                size="sm"
-                aria-label={`Set today's status for ${daily.name}`}
-                className="w-full"
-              >
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                {DAILY_STATUS_OPTIONS.map(opt => (
-                  <SelectItem
-                    key={opt.value}
-                    value={opt.value}
-                  >
-                    {opt.icon}
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )
-        : (
-          <div className="flex w-36 flex-row items-center gap-1">
-            <span
-              className={cn(`
-                inline-flex items-center gap-1 rounded-full border-2 px-2 py-0.5
-                text-xs font-medium
-              `, option?.pillClass)}
-            >
-              {option?.icon}
-              {option?.label}
-            </span>
-            <span className="inline-flex w-7 justify-center">
-              <button
-                type="button"
-                aria-label={`Edit today's status for ${daily.name}`}
-                className="
-                  rounded-md p-1 text-muted-foreground opacity-0
-                  group-hover:opacity-100
-                  hover:bg-muted hover:text-foreground
-                  focus-visible:opacity-100
-                  disabled:cursor-not-allowed disabled:opacity-50
-                "
-                disabled={disabled}
-                onClick={() => setEditing(true)}
-              >
-                <PencilIcon className="size-3.5" />
-              </button>
-            </span>
-          </div>
-        )}
+      <div className="flex w-36 flex-row items-center gap-1">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setModalOpen(true)}
+          aria-label={currentStatus
+            ? `Change today's status for ${daily.name}`
+            : `Set today's status for ${daily.name}`}
+          className={cn(
+            `
+              inline-flex w-full items-center gap-1 rounded-full border-2 px-2
+              py-0.5 text-xs font-medium transition-colors
+              focus-visible:ring-2 focus-visible:ring-ring
+              focus-visible:outline-none
+              disabled:cursor-not-allowed disabled:opacity-50
+            `,
+            option
+              ? `
+                ${option.pillClass}
+                hover:opacity-80
+              `
+              : `
+                border-dashed border-muted-foreground/40 bg-background
+                text-muted-foreground
+                hover:bg-muted
+              `,
+          )}
+        >
+          {option
+            ? (
+              <>
+                {option.icon}
+                {option.label}
+              </>
+            )
+            : (
+              <span className="mx-auto">Select…</span>
+            )}
+        </button>
+      </div>
       {currentStatus !== null && <DailyCommentPopover daily={daily} />}
+      <DailyStatusModal
+        daily={daily}
+        currentStatus={currentStatus}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onChange={onChange}
+        disabled={disabled}
+      />
     </div>
   );
 }

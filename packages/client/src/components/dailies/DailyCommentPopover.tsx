@@ -1,13 +1,17 @@
 import type { Daily } from "@emstack/types/src";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Textarea } from "@/components/forms/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -32,6 +36,7 @@ export function DailyCommentPopover({
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(note);
+  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -40,6 +45,39 @@ export function DailyCommentPopover({
     setIsEditing(!hasNote);
     setDraft(note);
   }, [open, hasNote, note]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverCloseTimer.current) {
+        clearTimeout(hoverCloseTimer.current);
+      }
+    };
+  }, []);
+
+  const cancelHoverClose = () => {
+    if (hoverCloseTimer.current) {
+      clearTimeout(hoverCloseTimer.current);
+      hoverCloseTimer.current = null;
+    }
+  };
+
+  const handleHoverOpen = () => {
+    if (!hasNote || isEditing) {
+      return;
+    }
+    cancelHoverClose();
+    setOpen(true);
+  };
+
+  const handleHoverClose = () => {
+    if (isEditing) {
+      return;
+    }
+    cancelHoverClose();
+    hoverCloseTimer.current = setTimeout(() => {
+      setOpen(false);
+    }, 120);
+  };
 
   const mutation = useMutation({
     mutationFn: (nextNote: string | null) => {
@@ -80,9 +118,14 @@ export function DailyCommentPopover({
   return (
     <Popover
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(next) => {
+        if (!next) {
+          setIsEditing(false);
+        }
+        setOpen(next);
+      }}
     >
-      <PopoverTrigger asChild>
+      <PopoverAnchor asChild>
         <Button
           type="button"
           variant="ghost"
@@ -90,18 +133,39 @@ export function DailyCommentPopover({
           aria-label={hasNote
             ? `View comment for ${daily.name}`
             : `Add comment for ${daily.name}`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
           title={hasNote ? "View comment" : "Add comment"}
+          onClick={() => {
+            cancelHoverClose();
+            if (!hasNote) {
+              setIsEditing(true);
+            }
+            setOpen(true);
+          }}
+          onMouseEnter={handleHoverOpen}
+          onMouseLeave={handleHoverClose}
+          onFocus={handleHoverOpen}
+          onBlur={handleHoverClose}
           className={cn(
-            "text-muted-foreground",
-            hasNote && "text-foreground",
+            hasNote
+              ? "text-foreground"
+              : "text-muted-foreground/40",
           )}
         >
           <MessageSquareIcon className="size-3.5" />
         </Button>
-      </PopoverTrigger>
+      </PopoverAnchor>
       <PopoverContent
         className="w-80 p-3"
         align="end"
+        onMouseEnter={cancelHoverClose}
+        onMouseLeave={handleHoverClose}
+        onOpenAutoFocus={(e) => {
+          if (!isEditing) {
+            e.preventDefault();
+          }
+        }}
       >
         {hasNote && !isEditing
           ? (
