@@ -1,4 +1,4 @@
-export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded";
+export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
 export interface DailyCompletion {
   date: string;

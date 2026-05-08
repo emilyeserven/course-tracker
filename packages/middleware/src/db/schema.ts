@@ -1,7 +1,7 @@
 import { boolean, date, integer, jsonb, numeric, pgEnum, pgTable, primaryKey, unique, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded";
+export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
 export interface DailyCompletion {
   date: string;
@@ -23,7 +23,7 @@ export const usersTable = pgTable("users", {
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
-export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded"]);
+export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 
 export const topics = pgTable("topics", {
   id: varchar().primaryKey(),
