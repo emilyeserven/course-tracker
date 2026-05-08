@@ -1,0 +1,440 @@
+import type {
+  RadarBlip,
+  TopicForTopicsPage,
+} from "@emstack/types/src";
+
+import { useMemo, useState } from "react";
+
+import { Loader2, PencilIcon, TrashIcon, XIcon } from "lucide-react";
+import { toast } from "sonner";
+
+import { Input } from "@/components/forms/input";
+import { Textarea } from "@/components/forms/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface QuadrantInfo {
+  id: string;
+  name: string;
+}
+
+interface RingInfo {
+  id: string;
+  name: string;
+}
+
+interface BlipTableProps {
+  blips: RadarBlip[];
+  quadrants: QuadrantInfo[];
+  rings: RingInfo[];
+  topics: TopicForTopicsPage[];
+  onSave: (
+    blip: RadarBlip,
+    patch: { quadrantId: string;
+      ringId: string;
+      description: string | null; },
+  ) => Promise<void>;
+  onRemove: (blip: RadarBlip) => Promise<void>;
+}
+
+const ALL = "__all__";
+
+interface EditDraft {
+  quadrantId: string;
+  ringId: string;
+  description: string;
+}
+
+export function BlipTable({
+  blips,
+  quadrants,
+  rings,
+  topics,
+  onSave,
+  onRemove,
+}: BlipTableProps) {
+  const [search, setSearch] = useState("");
+  const [filterQuadrant, setFilterQuadrant] = useState<string>(ALL);
+  const [filterRing, setFilterRing] = useState<string>(ALL);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const quadrantById = useMemo(() => {
+    const map = new Map<string, QuadrantInfo>();
+    quadrants.forEach(q => map.set(q.id, q));
+    return map;
+  }, [quadrants]);
+
+  const ringById = useMemo(() => {
+    const map = new Map<string, RingInfo>();
+    rings.forEach(r => map.set(r.id, r));
+    return map;
+  }, [rings]);
+
+  const topicById = useMemo(() => {
+    const map = new Map<string, TopicForTopicsPage>();
+    topics.forEach(t => map.set(t.id, t));
+    return map;
+  }, [topics]);
+
+  const filteredBlips = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return blips.filter((b) => {
+      if (filterQuadrant !== ALL && b.quadrantId !== filterQuadrant) {
+        return false;
+      }
+      if (filterRing !== ALL && b.ringId !== filterRing) {
+        return false;
+      }
+      if (query) {
+        const topicName = b.topicName?.toLowerCase() ?? "";
+        const note = b.description?.toLowerCase() ?? "";
+        if (!topicName.includes(query) && !note.includes(query)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [blips, search, filterQuadrant, filterRing]);
+
+  function startEdit(blip: RadarBlip) {
+    setEditingId(blip.id);
+    setEditDraft({
+      quadrantId: blip.quadrantId,
+      ringId: blip.ringId,
+      description: blip.description ?? "",
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditDraft(null);
+  }
+
+  async function commitEdit(blip: RadarBlip) {
+    if (!editDraft) {
+      return;
+    }
+    if (!editDraft.quadrantId || !editDraft.ringId) {
+      toast.error("Pick a quadrant and ring.");
+      return;
+    }
+    setPendingId(blip.id);
+    try {
+      await onSave(blip, {
+        quadrantId: editDraft.quadrantId,
+        ringId: editDraft.ringId,
+        description: editDraft.description.trim() || null,
+      });
+      setEditingId(null);
+      setEditDraft(null);
+    }
+    finally {
+      setPendingId(null);
+    }
+  }
+
+  async function handleRemove(blip: RadarBlip) {
+    setPendingId(blip.id);
+    try {
+      await onRemove(blip);
+      if (editingId === blip.id) {
+        setEditingId(null);
+        setEditDraft(null);
+      }
+    }
+    finally {
+      setPendingId(null);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div
+        className={`
+          grid grid-cols-1 gap-2
+          sm:grid-cols-[1fr_auto_auto]
+        `}
+      >
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search topic or note"
+        />
+        <Select
+          value={filterQuadrant}
+          onValueChange={setFilterQuadrant}
+        >
+          <SelectTrigger className="min-w-40">
+            <SelectValue placeholder="Quadrant" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All Quadrants</SelectItem>
+            {quadrants.map(q => (
+              <SelectItem
+                key={q.id}
+                value={q.id}
+              >
+                {q.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={filterRing}
+          onValueChange={setFilterRing}
+        >
+          <SelectTrigger className="min-w-32">
+            <SelectValue placeholder="Ring" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All Rings</SelectItem>
+            {rings.map(r => (
+              <SelectItem
+                key={r.id}
+                value={r.id}
+              >
+                {r.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="rounded-sm border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Topic</TableHead>
+              <TableHead>Quadrant</TableHead>
+              <TableHead>Ring</TableHead>
+              <TableHead>Radar Note</TableHead>
+              <TableHead className="w-1 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredBlips.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground"
+                >
+                  {blips.length === 0
+                    ? "No blips yet."
+                    : "No blips match the current filters."}
+                </TableCell>
+              </TableRow>
+            )}
+            {filteredBlips.map((blip) => {
+              const isEditing = editingId === blip.id && editDraft !== null;
+              const isPending = pendingId === blip.id;
+              const topic = topicById.get(blip.topicId);
+              const topicDescription = topic?.description ?? null;
+              return isEditing
+                ? (
+                  <TableRow key={blip.id}>
+                    <TableCell colSpan={5}>
+                      <div
+                        className={`
+                          grid grid-cols-1 gap-4
+                          md:grid-cols-2
+                        `}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <span
+                            className="text-xs text-muted-foreground uppercase"
+                          >
+                            Topic
+                          </span>
+                          <h3 className="text-lg font-semibold">
+                            {blip.topicName}
+                          </h3>
+                          {topicDescription
+                            ? (
+                              <p className="text-sm text-muted-foreground">
+                                {topicDescription}
+                              </p>
+                            )
+                            : (
+                              <p
+                                className={`
+                                  text-sm text-muted-foreground italic
+                                `}
+                              >
+                                (no topic description)
+                              </p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs uppercase">
+                              Quadrant
+                            </label>
+                            <Select
+                              value={editDraft.quadrantId}
+                              onValueChange={value =>
+                                setEditDraft(prev =>
+                                  prev
+                                    ? {
+                                      ...prev,
+                                      quadrantId: value,
+                                    }
+                                    : prev)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose quadrant" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {quadrants.map(q => (
+                                  <SelectItem
+                                    key={q.id}
+                                    value={q.id}
+                                  >
+                                    {q.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs uppercase">Ring</label>
+                            <Select
+                              value={editDraft.ringId}
+                              onValueChange={value =>
+                                setEditDraft(prev =>
+                                  prev
+                                    ? {
+                                      ...prev,
+                                      ringId: value,
+                                    }
+                                    : prev)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose ring" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {rings.map(r => (
+                                  <SelectItem
+                                    key={r.id}
+                                    value={r.id}
+                                  >
+                                    {r.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs uppercase">
+                              Radar Note
+                            </label>
+                            <Textarea
+                              value={editDraft.description}
+                              onChange={e =>
+                                setEditDraft(prev =>
+                                  prev
+                                    ? {
+                                      ...prev,
+                                      description: e.target.value,
+                                    }
+                                    : prev)}
+                            />
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <Button
+                              type="button"
+                              onClick={() => commitEdit(blip)}
+                              disabled={isPending}
+                            >
+                              {isPending && (
+                                <Loader2 className="animate-spin" />
+                              )}
+                              Save
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={cancelEdit}
+                              disabled={isPending}
+                            >
+                              <XIcon />
+                              {" "}
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+                : (
+                  <TableRow key={blip.id}>
+                    <TableCell className="font-medium">
+                      {blip.topicName}
+                    </TableCell>
+                    <TableCell>
+                      {quadrantById.get(blip.quadrantId)?.name ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {ringById.get(blip.ringId)?.name ?? "—"}
+                    </TableCell>
+                    <TableCell
+                      className={`
+                        max-w-xs text-sm whitespace-pre-wrap
+                        text-muted-foreground
+                      `}
+                    >
+                      {blip.description?.trim() || "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-row justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEdit(blip)}
+                          disabled={isPending || editingId !== null}
+                        >
+                          <PencilIcon />
+                          {" "}
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemove(blip)}
+                          disabled={isPending || editingId !== null}
+                        >
+                          {isPending
+                            ? <Loader2 className="animate-spin" />
+                            : <TrashIcon />}
+                          {" "}
+                          Remove
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}

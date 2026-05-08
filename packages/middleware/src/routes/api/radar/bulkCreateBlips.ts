@@ -31,6 +31,7 @@ const bulkCreateBlipsSchema = {
             properties: {
               topicId: nullableString,
               newTopicName: nullableString,
+              newTopicDescription: nullableString,
               description: nullableString,
               quadrantId: {
                 type: "string",
@@ -89,9 +90,11 @@ export default async function (server: FastifyInstance) {
           }
           else {
             const newId = uuidv4();
+            const trimmedDescription = entry.newTopicDescription?.trim() || null;
             await db.insert(topics).values({
               id: newId,
               name: trimmed,
+              description: trimmedDescription,
             }).onConflictDoNothing();
             const refetched = await db.query.topics.findFirst({
               where: (t, {

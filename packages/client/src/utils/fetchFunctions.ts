@@ -286,6 +286,7 @@ export async function deleteRadarBlip(
 export interface BulkBlipEntry {
   topicId?: string | null;
   newTopicName?: string | null;
+  newTopicDescription?: string | null;
   description?: string | null;
   quadrantId: string;
   ringId: string;

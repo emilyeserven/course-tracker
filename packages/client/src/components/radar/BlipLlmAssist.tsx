@@ -47,6 +47,7 @@ interface LlmEntry {
   quadrant?: unknown;
   ring?: unknown;
   description?: unknown;
+  radarNote?: unknown;
 }
 
 interface ResolvedLlmEntry {
@@ -57,7 +58,8 @@ interface ResolvedLlmEntry {
   quadrantId: string | null;
   ringInput: string;
   ringId: string | null;
-  description: string | null;
+  topicDescription: string | null;
+  radarNote: string | null;
   existingBlipId: string | null;
   existingQuadrantId: string | null;
   existingRingId: string | null;
@@ -200,11 +202,11 @@ Topics already linked to this domain, with the courses I'm taking and current
 progress for each (use this to gauge what I've actually been investing time in):
 ${formatTopicsWithCourses(domainTopics)}
 
-Topics already on the radar (with current descriptions, if any):
+Topics already on the radar (with current radar notes, if any):
 ${existingList}
 
 Topics I have explicitly EXCLUDED from this radar — do NOT suggest these,
-even with a different description or placement. The reason for each is in
+even with a different note or placement. The reason for each is in
 parentheses; treat the reasons as binding context for what I don't want:
 ${formatExcludedTopics(excludedTopics)}
 
@@ -214,15 +216,20 @@ JSON array of entries, using this exact shape (no other keys, no commentary):
 [
   {
     "topic": "Topic name",
+    "description": "A short factual description of what the topic IS — used as the topic's description if the topic doesn't already exist. Null if you have nothing to add.",
+    "radarNote": "A short note explaining WHY this topic belongs on the radar in this quadrant/ring (e.g. why it's worth adopting, what to assess, why to hold). Null if no note.",
     "quadrant": "One of the quadrant names above (exact match)",
-    "ring": "One of the ring names above (exact match)",
-    "description": "Optional one-line note (or null)"
+    "ring": "One of the ring names above (exact match)"
   }
 ]
 
-You may include topics already on the radar to suggest a better description or
+The "description" describes the topic itself (it's only saved when the topic is
+new — for existing topics it's ignored). The "radarNote" is the reasoning for
+this specific radar placement and is always saved as the blip's note.
+
+You may include topics already on the radar to suggest a better radar note or
 a different placement for them. The reviewer will choose whether to overwrite,
-update only the description, or skip each one. Do not include any topic from
+update only the radar note, or skip each one. Do not include any topic from
 the excluded list above.
 `;
 }
@@ -384,8 +391,11 @@ export function BlipLlmAssist({
       const quadrantInput
         = typeof entry.quadrant === "string" ? entry.quadrant.trim() : "";
       const ringInput = typeof entry.ring === "string" ? entry.ring.trim() : "";
-      const description = typeof entry.description === "string"
+      const topicDescription = typeof entry.description === "string"
         ? entry.description.trim() || null
+        : null;
+      const radarNote = typeof entry.radarNote === "string"
+        ? entry.radarNote.trim() || null
         : null;
 
       const quadrantMatch = quadrantInput
@@ -414,7 +424,8 @@ export function BlipLlmAssist({
         ...partial,
         matchedTopicId: topicMatch?.id ?? null,
         willCreateTopic: !!topicName && !topicMatch,
-        description,
+        topicDescription,
+        radarNote,
         existingBlipId: existingBlip?.id ?? null,
         existingQuadrantId: existingBlip?.quadrantId ?? null,
         existingRingId: existingBlip?.ringId ?? null,
@@ -486,7 +497,7 @@ export function BlipLlmAssist({
           topicId: r.matchedTopicId as string,
           quadrantId: r.quadrantId as string,
           ringId: r.ringId as string,
-          description: r.description,
+          description: r.radarNote,
         });
         overwriteCount += 1;
       }
@@ -497,7 +508,7 @@ export function BlipLlmAssist({
           topicId: r.matchedTopicId as string,
           quadrantId: r.existingQuadrantId as string,
           ringId: r.existingRingId as string,
-          description: r.description,
+          description: r.radarNote,
         });
         descriptionUpdateCount += 1;
       }
@@ -507,9 +518,10 @@ export function BlipLlmAssist({
         const blips: BulkBlipEntry[] = toCreate.map(r => ({
           topicId: r.matchedTopicId,
           newTopicName: r.matchedTopicId ? null : r.topicName,
+          newTopicDescription: r.matchedTopicId ? null : r.topicDescription,
           quadrantId: r.quadrantId as string,
           ringId: r.ringId as string,
-          description: r.description,
+          description: r.radarNote,
         }));
         const result = await bulkCreateRadarBlips(domainId, {
           blips,
@@ -594,7 +606,7 @@ export function BlipLlmAssist({
         <Textarea
           value={jsonText}
           onChange={e => setJsonText(e.target.value)}
-          placeholder='[{ "topic": "...", "quadrant": "...", "ring": "..." }]'
+          placeholder='[{ "topic": "...", "description": "...", "radarNote": "...", "quadrant": "...", "ring": "..." }]'
           className="min-h-32 font-mono text-xs"
         />
         {parseError && (
@@ -625,7 +637,7 @@ export function BlipLlmAssist({
             {" "}
             {descriptionUpdateCount}
             {" "}
-            description
+            note
             {descriptionUpdateCount === 1 ? "" : "s"}
             {" "}
             to update ·
@@ -726,10 +738,28 @@ export function BlipLlmAssist({
                       </span>
                       {r.existingDescription && (
                         <>
-                          {" — "}
+                          {" — note: "}
                           <span className="italic">{r.existingDescription}</span>
                         </>
                       )}
+                    </div>
+                  )}
+
+                  {r.willCreateTopic && r.topicDescription && (
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-medium uppercase">
+                        Topic description (new):
+                      </span>
+                      {" "}
+                      <span className="italic">{r.topicDescription}</span>
+                    </div>
+                  )}
+
+                  {r.radarNote && (
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-medium uppercase">Radar note:</span>
+                      {" "}
+                      <span className="italic">{r.radarNote}</span>
                     </div>
                   )}
 
@@ -841,7 +871,7 @@ export function BlipLlmAssist({
                                   Overwrite existing
                                 </SelectItem>
                                 <SelectItem value="updateDescription">
-                                  Update description only
+                                  Update radar note only
                                 </SelectItem>
                                 <SelectItem value="skip">
                                   Skip (keep existing)
