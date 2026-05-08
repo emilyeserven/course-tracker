@@ -264,14 +264,14 @@ function Dailies() {
                           return (
                             <td
                               key={day.dateKey}
-                              className="relative px-1 py-2 align-top"
+                              className="relative px-1 py-2 align-middle"
                             >
                               {i > 0 && (
                                 <DailyStatusConnector
                                   left={days[i - 1].status}
                                   right={day.status}
                                   className="
-                                    absolute top-5 right-[calc(50%+12px)]
+                                    absolute top-1/2 right-[calc(50%+12px)]
                                     left-[calc(-50%+12px)] z-0 w-auto
                                     -translate-y-1/2
                                   "
@@ -282,7 +282,7 @@ function Dailies() {
                                   left={day.status}
                                   right={currentStatus}
                                   className="
-                                    absolute top-5 -right-2
+                                    absolute top-1/2 -right-2
                                     left-[calc(50%+12px)] z-0 w-auto
                                     -translate-y-1/2
                                   "

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarIcon,
+  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Trash2Icon,
@@ -122,6 +123,7 @@ export function DailyCompletionsManager({
 
   const [viewMonth, setViewMonth] = useState<ViewMonth>(currentMonth);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const [expandedDateKey, setExpandedDateKey] = useState<string | null>(null);
 
   const completionsByDate = useMemo(() => {
     const map = new Map<
@@ -264,6 +266,8 @@ export function DailyCompletionsManager({
             const isFuture = dateKey > todayKey;
             const isToday = dateKey === todayKey;
             const isEditable = !readOnly || isToday;
+            const hasActions = isEditable && !isFuture;
+            const isExpanded = expandedDateKey === dateKey;
             const nextDateKey = visibleDateKeys[i + 1];
             const nextStatus = nextDateKey
               ? completionsByDate.get(nextDateKey)?.status ?? null
@@ -281,8 +285,8 @@ export function DailyCompletionsManager({
                   isFuture && "opacity-60",
                 )}
               >
-                <div className="flex min-w-0 flex-row items-center gap-3">
-                  <div className="relative flex flex-col items-center">
+                <div className="flex min-w-0 flex-1 flex-row items-center gap-3">
+                  <div className="relative flex shrink-0 flex-col items-center">
                     <DailyStatusCircle
                       status={status}
                       size="lg"
@@ -292,24 +296,79 @@ export function DailyCompletionsManager({
                         orientation="vertical"
                         left={status}
                         right={nextStatus}
-                        className="absolute top-full z-0 h-[18px] w-0.5"
+                        className={cn(
+                          "absolute top-full z-0 h-[18px] w-0.5",
+                          isExpanded && "max-md:hidden",
+                        )}
                       />
                     )}
                   </div>
-                  <span className="text-sm font-medium">
+                  <span className="shrink-0 text-sm font-medium">
                     {formatDateLabel(dateKey)}
                   </span>
-                  {!isEditable && note && (
-                    <span
-                      className="truncate text-sm text-muted-foreground"
-                      title={note}
-                    >
-                      {note}
-                    </span>
+                  {note && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="
+                            min-w-0 truncate text-left text-sm
+                            text-muted-foreground
+                            hover:text-foreground
+                          "
+                          title={note}
+                        >
+                          {note}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-80 max-w-[90vw]"
+                        align="start"
+                      >
+                        <p
+                          className="text-sm/relaxed whitespace-pre-wrap"
+                        >
+                          {note}
+                        </p>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 </div>
-                {isEditable && !isFuture && (
-                  <div className="flex flex-row items-center gap-1">
+                {hasActions && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setExpandedDateKey(prev =>
+                      prev === dateKey ? null : dateKey)}
+                    className="
+                      shrink-0
+                      md:hidden
+                    "
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded
+                      ? "Hide actions"
+                      : "Show actions"}
+                  >
+                    <ChevronDownIcon
+                      className={cn(
+                        "size-4 transition-transform",
+                        isExpanded && "rotate-180",
+                      )}
+                    />
+                  </Button>
+                )}
+                {hasActions && (
+                  <div
+                    className={cn(
+                      `
+                        flex-row items-center gap-1
+                        max-md:w-full max-md:justify-end
+                        md:flex
+                      `,
+                      isExpanded ? "flex" : "hidden",
+                    )}
+                  >
                     <DailyStatusButtons
                       currentStatus={status}
                       disabled={mutation.isPending}
@@ -342,9 +401,10 @@ export function DailyCompletionsManager({
                             status: null,
                           })}
                           className="
-                            text-destructive opacity-0
-                            group-focus-within:opacity-100
-                            group-hover:opacity-100
+                            text-destructive
+                            md:opacity-0
+                            md:group-focus-within:opacity-100
+                            md:group-hover:opacity-100
                           "
                           title="Delete entry"
                           aria-label="Delete entry"
