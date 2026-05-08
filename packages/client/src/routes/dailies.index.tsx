@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailyCourseIndicator,
   DailyLocationCell,
   DailyStatusCircle,
   DailyStatusConnector,
@@ -78,6 +79,7 @@ function Dailies() {
         description: daily.description ?? null,
         completions,
         courseProviderId: daily.provider?.id ?? null,
+        courseId: daily.course?.id ?? null,
       });
     },
     onSuccess: async () => {
@@ -184,19 +186,22 @@ function Dailies() {
                         "
                       >
                         <td className="p-2 align-top">
-                          <Link
-                            to="/dailies/$id"
-                            from="/dailies"
-                            params={{
-                              id: daily.id,
-                            }}
-                            className="
-                              font-medium
-                              hover:text-blue-600
-                            "
-                          >
-                            {daily.name}
-                          </Link>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Link
+                              to="/dailies/$id"
+                              from="/dailies"
+                              params={{
+                                id: daily.id,
+                              }}
+                              className="
+                                font-medium
+                                hover:text-blue-600
+                              "
+                            >
+                              {daily.name}
+                            </Link>
+                            <DailyCourseIndicator daily={daily} />
+                          </span>
                         </td>
                         <td className="max-w-xs p-2 align-top">
                           {daily.description

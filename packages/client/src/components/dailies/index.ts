@@ -1,4 +1,5 @@
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
+export { DailyCourseIndicator } from "./DailyCourseIndicator";
 export { DailyLocationCell } from "./DailyLocationCell";
 export { DailyRecentDaysStrip } from "./DailyRecentDaysStrip";
 export { DailyStatusButtons } from "./DailyStatusButtons";

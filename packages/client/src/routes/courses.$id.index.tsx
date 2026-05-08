@@ -2,12 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { TopicList } from "@/components/boxElements/TopicList";
+import { DailyStatusCircle } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import {
   deleteSingleCourse,
   fetchSingleCourse,
+  findStatusForDate,
+  getCurrentChain,
+  getTodayKey,
+  getTotalCompletedDays,
   makePercentageComplete,
 } from "@/utils";
 
@@ -42,6 +47,8 @@ function SingleCourse() {
   );
 
   const topics = data?.topics ?? null;
+  const dailies = data?.dailies ?? [];
+  const todayKey = getTodayKey();
 
   async function handleDelete() {
     await deleteCourse();
@@ -139,6 +146,45 @@ function SingleCourse() {
           </InfoArea>
         </div>
       </InfoRow>
+      <InfoArea
+        header={`Daili${dailies.length === 1 ? "y" : "es"}`}
+        condition={dailies.length > 0}
+      >
+        <ul className="flex flex-col gap-2">
+          {dailies.map((daily) => {
+            const todayStatus = findStatusForDate(daily, todayKey);
+            const chain = getCurrentChain(daily, todayKey);
+            const total = getTotalCompletedDays(daily);
+            return (
+              <li
+                key={daily.id}
+                className="flex flex-row items-center gap-3"
+              >
+                <DailyStatusCircle
+                  status={todayStatus}
+                  size="sm"
+                  title={`Today: ${todayStatus ?? "no entry"}`}
+                />
+                <Link
+                  to="/dailies/$id"
+                  params={{
+                    id: daily.id,
+                  }}
+                  className={`
+                    font-medium
+                    hover:text-blue-600
+                  `}
+                >
+                  {daily.name}
+                </Link>
+                <span className="text-xs text-muted-foreground">
+                  {`${chain}-day chain · ${total} total`}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </InfoArea>
       <div>
         <DeleteButton onClick={handleDelete}>Delete Course</DeleteButton>
       </div>

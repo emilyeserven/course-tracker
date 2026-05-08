@@ -5,6 +5,7 @@ import courseRoot from "./root";
 import getCourse from "./getCourse";
 import deleteCourse from "./deleteCourse";
 import upsertCourse from "./upsertCourse";
+import incrementCourseProgress from "./incrementCourseProgress";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -13,4 +14,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(getCourse);
   fastify.register(deleteCourse);
   fastify.register(upsertCourse);
+  fastify.register(incrementCourseProgress);
 }

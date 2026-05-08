@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
 import { idParamSchema } from "@/utils/schemas";
-import type { Course, CourseFromServer } from "@emstack/types/src";
+import type { Course, CourseFromServer, DailyCompletion } from "@emstack/types/src";
 
 const testSchema = {
   schema: {
@@ -20,32 +20,40 @@ export default async function (server: FastifyInstance) {
     const {
       id,
     } = request.params;
-    const course: CourseFromServer | undefined
-      = await db.query.courses.findFirst({
-        where: (courses, {
-          eq,
-        }) => eq(courses.id, id),
-        with: {
-          courseProvider: {
-            with: {
-              courses: true,
-            },
+    const course = await db.query.courses.findFirst({
+      where: (courses, {
+        eq,
+      }) => eq(courses.id, id),
+      with: {
+        courseProvider: {
+          with: {
+            courses: true,
           },
-          topicsToCourses: {
-            with: {
-              topic: {
-                columns: {
-                  name: true,
-                  id: true,
-                },
+        },
+        topicsToCourses: {
+          with: {
+            topic: {
+              columns: {
+                name: true,
+                id: true,
               },
             },
           },
         },
-      });
+        dailies: {
+          columns: {
+            id: true,
+            name: true,
+            location: true,
+            description: true,
+            completions: true,
+          },
+        },
+      },
+    });
 
     if (course) {
-      const costData = processCost(course);
+      const costData = processCost(course as CourseFromServer);
 
       const topics = processTopics(course.topicsToCourses);
 
@@ -67,6 +75,13 @@ export default async function (server: FastifyInstance) {
               id: course.courseProvider.id,
             }
             : undefined,
+        dailies: (course.dailies ?? []).map(d => ({
+          id: d.id,
+          name: d.name,
+          location: d.location,
+          description: d.description,
+          completions: (d.completions ?? []) as DailyCompletion[],
+        })),
       };
 
       return rawData;

@@ -16,4 +16,10 @@ export interface Daily {
     name: string;
     id: string;
   };
+  course?: {
+    id: string;
+    name: string;
+    progressCurrent: number;
+    progressTotal: number;
+  };
 }
