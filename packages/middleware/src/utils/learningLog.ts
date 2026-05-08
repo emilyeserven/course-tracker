@@ -1,4 +1,4 @@
-import type { DailyCompletion, DailyCompletionStatus, LearningLogEntry } from "@emstack/types/src";
+import type { DailyCompletion, DailyCompletionStatus, DailyCriteria, LearningLogEntry } from "@emstack/types/src";
 
 interface ManualEntryRow {
   id: string;
@@ -11,6 +11,7 @@ interface DailySource {
   id: string;
   name: string;
   completions: DailyCompletion[];
+  criteria?: DailyCriteria | null;
   courseId?: string | null;
   courseName?: string | null;
   taskId?: string | null;
@@ -37,10 +38,25 @@ function isMeaningfulCompletion(c: DailyCompletion): boolean {
   return false;
 }
 
+function criteriaTextForStatus(
+  criteria: DailyCriteria | null | undefined,
+  status: DailyCompletionStatus | undefined,
+): string | null {
+  if (!criteria || !status) {
+    return null;
+  }
+  const text = criteria[status]?.trim();
+  return text ? text : null;
+}
+
 function describeCompletion(daily: DailySource, c: DailyCompletion): string {
   const note = c.note?.trim();
   if (note) {
     return `${daily.name} — ${note}`;
+  }
+  const criteriaText = criteriaTextForStatus(daily.criteria, c.status);
+  if (criteriaText) {
+    return `${daily.name} — ${criteriaText}`;
   }
   return daily.name;
 }
