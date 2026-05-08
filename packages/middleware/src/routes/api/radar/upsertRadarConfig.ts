@@ -24,6 +24,7 @@ const upsertConfigSchema = {
       properties: {
         quadrants: {
           type: "array",
+          maxItems: 4,
           items: {
             type: "object",
             required: ["name", "position"],
@@ -42,6 +43,7 @@ const upsertConfigSchema = {
         },
         rings: {
           type: "array",
+          maxItems: 4,
           items: {
             type: "object",
             required: ["name", "position"],

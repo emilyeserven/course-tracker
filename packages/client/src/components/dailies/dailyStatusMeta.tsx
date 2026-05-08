@@ -4,6 +4,7 @@ import {
   CircleCheckIcon,
   CircleDashedIcon,
   CircleSlashIcon,
+  SnowflakeIcon,
   SparklesIcon,
 } from "lucide-react";
 
@@ -48,6 +49,14 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     circleClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
     pillClass: "bg-violet-100 text-violet-800 border-violet-500 dark:bg-violet-900/40 dark:text-violet-200",
     borderColor: "#8b5cf6",
+  },
+  {
+    value: "freeze",
+    label: "Freeze",
+    icon: <SnowflakeIcon className="size-4" />,
+    circleClass: "bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-900/30 dark:text-sky-200",
+    pillClass: "bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-900/30 dark:text-sky-200",
+    borderColor: "#7dd3fc",
   },
 ];
 

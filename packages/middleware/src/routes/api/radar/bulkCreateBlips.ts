@@ -60,7 +60,18 @@ export default async function (server: FastifyInstance) {
         blips,
       } = request.body;
 
+      const existingForDomain = await db.query.radarBlips.findMany({
+        where: (b, {
+          eq,
+        }) => eq(b.domainId, domainId),
+        columns: {
+          topicId: true,
+        },
+      });
+      const usedTopicIds = new Set(existingForDomain.map(b => b.topicId));
+
       const createdIds: string[] = [];
+      let skippedDuplicates = 0;
       for (const entry of blips) {
         let topicId = entry.topicId ?? null;
         if (!topicId && entry.newTopicName) {
@@ -96,6 +107,11 @@ export default async function (server: FastifyInstance) {
             error: "Each blip must have either topicId or newTopicName.",
           };
         }
+        if (usedTopicIds.has(topicId)) {
+          skippedDuplicates += 1;
+          continue;
+        }
+        usedTopicIds.add(topicId);
         const blipId = uuidv4();
         await db.insert(radarBlips).values({
           id: blipId,
@@ -112,6 +128,7 @@ export default async function (server: FastifyInstance) {
         status: "ok",
         count: createdIds.length,
         ids: createdIds,
+        skippedDuplicates,
       };
     },
   );

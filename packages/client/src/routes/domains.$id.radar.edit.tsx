@@ -72,6 +72,9 @@ const DEFAULT_QUADRANTS = [
 
 const DEFAULT_RINGS = ["Adopt", "Trial", "Assess", "Hold"];
 
+const MAX_QUADRANTS = 4;
+const MAX_RINGS = 4;
+
 let localKeyCounter = 0;
 function nextLocalKey() {
   localKeyCounter += 1;
@@ -196,15 +199,30 @@ function RadarEdit() {
     return map;
   }, [topics]);
 
+  const usedTopicIds = useMemo(() => {
+    const set = new Set<string>();
+    blips.forEach((b) => {
+      if (b.topicId) {
+        set.add(b.topicId);
+      }
+    });
+    return set;
+  }, [blips]);
+
   function addQuadrant() {
-    setQuadrants(prev => [
-      ...prev,
-      {
-        name: "",
-        position: prev.length,
-        localKey: nextLocalKey(),
-      },
-    ]);
+    setQuadrants((prev) => {
+      if (prev.length >= MAX_QUADRANTS) {
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          name: "",
+          position: prev.length,
+          localKey: nextLocalKey(),
+        },
+      ];
+    });
   }
 
   function removeQuadrant(localKey: string) {
@@ -218,14 +236,19 @@ function RadarEdit() {
   }
 
   function addRing() {
-    setRings(prev => [
-      ...prev,
-      {
-        name: "",
-        position: prev.length,
-        localKey: nextLocalKey(),
-      },
-    ]);
+    setRings((prev) => {
+      if (prev.length >= MAX_RINGS) {
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          name: "",
+          position: prev.length,
+          localKey: nextLocalKey(),
+        },
+      ];
+    });
   }
 
   function removeRing(localKey: string) {
@@ -245,6 +268,14 @@ function RadarEdit() {
     }
     if (rings.some(r => !r.name.trim())) {
       toast.error("Every ring needs a name.");
+      return;
+    }
+    if (quadrants.length > MAX_QUADRANTS) {
+      toast.error(`At most ${MAX_QUADRANTS} quadrants are allowed.`);
+      return;
+    }
+    if (rings.length > MAX_RINGS) {
+      toast.error(`At most ${MAX_RINGS} rings are allowed.`);
       return;
     }
     setIsSavingConfig(true);
@@ -465,16 +496,26 @@ function RadarEdit() {
                 </li>
               ))}
             </ul>
-            <div>
+            <div className="flex flex-col gap-1">
               <Button
                 type="button"
                 variant="outline"
                 onClick={addQuadrant}
+                disabled={quadrants.length >= MAX_QUADRANTS}
               >
                 <PlusIcon />
                 {" "}
                 Add Quadrant
               </Button>
+              {quadrants.length >= MAX_QUADRANTS && (
+                <p className="text-xs text-muted-foreground">
+                  Maximum of
+                  {" "}
+                  {MAX_QUADRANTS}
+                  {" "}
+                  quadrants reached.
+                </p>
+              )}
             </div>
           </section>
 
@@ -518,16 +559,26 @@ function RadarEdit() {
                 </li>
               ))}
             </ul>
-            <div>
+            <div className="flex flex-col gap-1">
               <Button
                 type="button"
                 variant="outline"
                 onClick={addRing}
+                disabled={rings.length >= MAX_RINGS}
               >
                 <PlusIcon />
                 {" "}
                 Add Ring
               </Button>
+              {rings.length >= MAX_RINGS && (
+                <p className="text-xs text-muted-foreground">
+                  Maximum of
+                  {" "}
+                  {MAX_RINGS}
+                  {" "}
+                  rings reached.
+                </p>
+              )}
             </div>
           </section>
         </div>
@@ -580,14 +631,19 @@ function RadarEdit() {
                         <SelectValue placeholder="Choose topic" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(topics ?? []).map(t => (
-                          <SelectItem
-                            key={t.id}
-                            value={t.id}
-                          >
-                            {t.name}
-                          </SelectItem>
-                        ))}
+                        {(topics ?? [])
+                          .filter(
+                            t =>
+                              t.id === blip.topicId || !usedTopicIds.has(t.id),
+                          )
+                          .map(t => (
+                            <SelectItem
+                              key={t.id}
+                              value={t.id}
+                            >
+                              {t.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     {blip.topicId && !topicNameById.has(blip.topicId) && (
@@ -743,9 +799,11 @@ function RadarEdit() {
           {addMode === "llm" && allConfigPersisted && (
             <BlipLlmAssist
               domainId={id}
+              domainTitle={data?.domainTitle ?? ""}
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}
+              existingBlips={data?.blips ?? []}
               onComplete={handleBulkComplete}
             />
           )}

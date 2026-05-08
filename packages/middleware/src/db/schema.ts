@@ -1,7 +1,7 @@
-import { boolean, date, integer, jsonb, numeric, pgEnum, pgTable, primaryKey, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, jsonb, numeric, pgEnum, pgTable, primaryKey, unique, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded";
+export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
 export interface DailyCompletion {
   date: string;
@@ -23,7 +23,7 @@ export const usersTable = pgTable("users", {
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
-export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded"]);
+export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 
 export const topics = pgTable("topics", {
   id: varchar().primaryKey(),
@@ -221,22 +221,28 @@ export const radarRings = pgTable("radar_rings", {
   position: integer().notNull(),
 });
 
-export const radarBlips = pgTable("radar_blips", {
-  id: varchar().primaryKey(),
-  domainId: varchar("domain_id")
-    .notNull()
-    .references(() => domains.id),
-  quadrantId: varchar("quadrant_id")
-    .notNull()
-    .references(() => radarQuadrants.id),
-  ringId: varchar("ring_id")
-    .notNull()
-    .references(() => radarRings.id),
-  topicId: varchar("topic_id")
-    .notNull()
-    .references(() => topics.id),
-  description: varchar(),
-});
+export const radarBlips = pgTable(
+  "radar_blips",
+  {
+    id: varchar().primaryKey(),
+    domainId: varchar("domain_id")
+      .notNull()
+      .references(() => domains.id),
+    quadrantId: varchar("quadrant_id")
+      .notNull()
+      .references(() => radarQuadrants.id),
+    ringId: varchar("ring_id")
+      .notNull()
+      .references(() => radarRings.id),
+    topicId: varchar("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    description: varchar(),
+  },
+  t => [
+    unique("radar_blips_domain_topic_unique").on(t.domainId, t.topicId),
+  ],
+);
 
 export const radarQuadrantsRelations = relations(radarQuadrants, ({
   one, many,

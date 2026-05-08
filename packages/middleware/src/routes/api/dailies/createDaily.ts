@@ -14,7 +14,7 @@ const completionSchema = {
     },
     status: {
       type: "string",
-      enum: ["incomplete", "touched", "goal", "exceeded"],
+      enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
     },
     note: {
       type: "string",

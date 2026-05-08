@@ -404,7 +404,8 @@ export async function bulkCreateRadarBlips(
   data: { blips: BulkBlipEntry[] },
 ): Promise<{ status: string;
   count: number;
-  ids: string[]; }> {
+  ids: string[];
+  skippedDuplicates?: number; }> {
   const response = await fetch(
     `/api/domains/${domainId}/radar/blips/bulk`,
     {

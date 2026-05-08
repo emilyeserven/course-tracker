@@ -1,12 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, EditIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
-import { fetchRadar } from "@/utils";
+import { fetchRadar, upsertRadarBlip } from "@/utils";
 
 export const Route = createFileRoute("/domains/$id/radar/")({
   component: RadarView,
@@ -16,12 +17,39 @@ function RadarView() {
   const {
     id,
   } = Route.useParams();
+  const queryClient = useQueryClient();
 
   const {
     isPending, error, data,
   } = useQuery({
     queryKey: ["radar", id],
     queryFn: () => fetchRadar(id),
+  });
+
+  const descriptionMutation = useMutation({
+    mutationFn: ({
+      blipId, description,
+    }: { blipId: string;
+      description: string; }) => {
+      const blip = data?.blips.find(b => b.id === blipId);
+      if (!blip) {
+        return Promise.reject(new Error("Blip not found"));
+      }
+      return upsertRadarBlip(id, blipId, {
+        topicId: blip.topicId,
+        description: description.trim() ? description.trim() : null,
+        quadrantId: blip.quadrantId,
+        ringId: blip.ringId,
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["radar", id],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to save description.");
+    },
   });
 
   if (isPending) {
@@ -101,6 +129,11 @@ function RadarView() {
               quadrants={data.quadrants}
               rings={data.rings}
               blips={data.blips}
+              onDescriptionChange={(blipId, description) =>
+                descriptionMutation.mutate({
+                  blipId,
+                  description,
+                })}
             />
           )}
       </div>

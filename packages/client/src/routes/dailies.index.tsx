@@ -163,7 +163,9 @@ function Dailies() {
                       </th>
                     ))}
                     <th className="p-2 font-medium">Today&apos;s Status</th>
-                    <th className="p-2 font-medium">Location</th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Location
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -307,7 +309,7 @@ function Dailies() {
                             })}
                           />
                         </td>
-                        <td className="p-2 align-top">
+                        <td className="p-2 align-top whitespace-nowrap">
                           <DailyLocationCell location={daily.location} />
                         </td>
                       </tr>

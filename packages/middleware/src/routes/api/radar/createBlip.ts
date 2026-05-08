@@ -42,11 +42,24 @@ export default async function (server: FastifyInstance) {
   fastify.post(
     "/:domainId/radar/blips",
     createBlipSchema,
-    async function (request) {
+    async function (request, reply) {
       const {
         domainId,
       } = request.params;
       const body = request.body;
+
+      const duplicate = await db.query.radarBlips.findFirst({
+        where: (b, {
+          and, eq,
+        }) => and(eq(b.domainId, domainId), eq(b.topicId, body.topicId)),
+      });
+      if (duplicate) {
+        reply.status(409);
+        return {
+          error: "This topic is already on the radar.",
+        };
+      }
+
       const id = uuidv4();
 
       await db.insert(radarBlips).values({
