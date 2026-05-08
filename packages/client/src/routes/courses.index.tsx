@@ -19,6 +19,7 @@ import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { CoursesTable } from "@/components/boxes/CoursesTable";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -147,6 +148,16 @@ function Courses() {
 
   const hasActiveFilters = filterProvider || filterTopic;
 
+  const totalCourseCount = data?.length ?? 0;
+  const noProviderCount = useMemo(
+    () => data?.filter(c => !c.provider).length ?? 0,
+    [data],
+  );
+  const noTopicCount = useMemo(
+    () => data?.filter(c => !c.topics || c.topics.length === 0).length ?? 0,
+    [data],
+  );
+
   return (
     <div>
       <PageHeader
@@ -191,14 +202,21 @@ function Courses() {
                     <SelectValue placeholder="Provider" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Providers</SelectItem>
-                    <SelectItem value="none">No Provider</SelectItem>
+                    <SelectItem value="all">
+                      <span>All Providers</span>
+                      <FilterOptionCount count={totalCourseCount} />
+                    </SelectItem>
+                    <SelectItem value="none">
+                      <span>No Provider</span>
+                      <FilterOptionCount count={noProviderCount} />
+                    </SelectItem>
                     {providers?.map(p => (
                       <SelectItem
                         key={p.id}
                         value={p.id}
                       >
-                        {p.name}
+                        <span>{p.name}</span>
+                        <FilterOptionCount count={p.courseCount ?? 0} />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -213,14 +231,21 @@ function Courses() {
                     <SelectValue placeholder="Topic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Topics</SelectItem>
-                    <SelectItem value="none">No Topic</SelectItem>
+                    <SelectItem value="all">
+                      <span>All Topics</span>
+                      <FilterOptionCount count={totalCourseCount} />
+                    </SelectItem>
+                    <SelectItem value="none">
+                      <span>No Topic</span>
+                      <FilterOptionCount count={noTopicCount} />
+                    </SelectItem>
                     {topics?.map(t => (
                       <SelectItem
                         key={t.id}
                         value={t.id}
                       >
-                        {t.name}
+                        <span>{t.name}</span>
+                        <FilterOptionCount count={t.courseCount ?? 0} />
                       </SelectItem>
                     ))}
                   </SelectContent>
