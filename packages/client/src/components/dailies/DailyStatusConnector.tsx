@@ -40,6 +40,24 @@ export function DailyStatusConnector({
   const leftColor = getDailyStatusOption(left).borderColor;
   const rightColor = getDailyStatusOption(right).borderColor;
 
+  if (left === "freeze" || right === "freeze") {
+    const dashColor = left === "freeze" ? rightColor : leftColor;
+    return (
+      <div
+        aria-hidden
+        className={cn(
+          isVertical
+            ? "h-3 w-0 border-l-2 border-dashed"
+            : "h-0 w-3 border-t-2 border-dashed",
+          className,
+        )}
+        style={{
+          borderColor: dashColor,
+        }}
+      />
+    );
+  }
+
   return (
     <div
       aria-hidden
