@@ -158,7 +158,8 @@ interface BuildPromptArgs {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   existingBlips: { topicName: string;
-    description?: string | null; }[];
+    radarNote?: string | null;
+    topicDescription?: string | null; }[];
 }
 
 function buildLlmPrompt(args: BuildPromptArgs): string {
@@ -181,8 +182,16 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
   const existingList = existingBlips.length > 0
     ? existingBlips
       .map((b) => {
-        const desc = b.description?.trim();
-        return desc ? `- ${b.topicName}: ${desc}` : `- ${b.topicName}`;
+        const note = b.radarNote?.trim();
+        const topicDesc = b.topicDescription?.trim();
+        const lines = [`- ${b.topicName}`];
+        lines.push(
+          topicDesc
+            ? `  - general description: ${topicDesc}`
+            : `  - general description: (missing — supply one in your output if you keep this blip)`,
+        );
+        lines.push(`  - radar note: ${note || "(none)"}`);
+        return lines.join("\n");
       })
       .join("\n")
     : "- (none yet)";
@@ -199,10 +208,16 @@ And these rings (innermost first):
 ${ringList || "- (none defined)"}
 
 Topics already linked to this domain, with the courses I'm taking and current
-progress for each (use this to gauge what I've actually been investing time in):
+progress for each (use this to gauge what I've actually been investing time in).
+The course list under each topic is NOT exhaustive — I may have studied related
+material outside of what's listed, or just not added it to the system yet — so
+treat course progress as a signal, not the full picture:
 ${formatTopicsWithCourses(domainTopics)}
 
-Topics already on the radar (with current radar notes, if any):
+Topics already on the radar, with each topic's general description (if any)
+and its current radar note (if any). If the general description is marked
+missing for a topic you keep in your output, supply a description in the
+result so it gets filled in:
 ${existingList}
 
 Topics I have explicitly EXCLUDED from this radar — do NOT suggest these,
@@ -216,16 +231,17 @@ JSON array of entries, using this exact shape (no other keys, no commentary):
 [
   {
     "topic": "Topic name",
-    "description": "A short factual description of what the topic IS — used as the topic's description if the topic doesn't already exist. Null if you have nothing to add.",
-    "radarNote": "A short note explaining WHY this topic belongs on the radar in this quadrant/ring (e.g. why it's worth adopting, what to assess, why to hold). Null if no note.",
+    "description": "A short factual description of what the topic IS — saved as the topic's description if the topic is new, or if the topic exists but has no description yet (marked missing above). Null only when the topic already has a description and you have nothing to add.",
+    "radarNote": "A short note explaining WHY this topic belongs on the radar in this quadrant/ring. Keep high-level framing to a minimum; prefer specific, concrete references — which courses, projects, prior placements, or trade-offs drive the choice — over generic justifications. Null if no note.",
     "quadrant": "One of the quadrant names above (exact match)",
     "ring": "One of the ring names above (exact match)"
   }
 ]
 
-The "description" describes the topic itself (it's only saved when the topic is
-new — for existing topics it's ignored). The "radarNote" is the reasoning for
-this specific radar placement and is always saved as the blip's note.
+The "description" describes the topic itself (it's saved when the topic is
+new, or when an existing topic has no description yet — otherwise it's
+ignored). The "radarNote" is the reasoning for this specific radar placement
+and is always saved as the blip's note.
 
 You may include topics already on the radar to suggest a better radar note or
 a different placement for them. The reviewer will choose whether to overwrite,
@@ -247,8 +263,9 @@ export function BlipLlmAssist({
   onComplete,
 }: BlipLlmAssistProps) {
   const prompt = useMemo(
-    () =>
-      buildLlmPrompt({
+    () => {
+      const topicById = new Map(topics.map(t => [t.id, t]));
+      return buildLlmPrompt({
         domainTitle,
         domainDescription,
         domainTopics,
@@ -257,9 +274,11 @@ export function BlipLlmAssist({
         rings,
         existingBlips: existingBlips.map(b => ({
           topicName: b.topicName,
-          description: b.description,
+          radarNote: b.description,
+          topicDescription: topicById.get(b.topicId)?.description ?? null,
         })),
-      }),
+      });
+    },
     [
       domainTitle,
       domainDescription,
@@ -268,6 +287,7 @@ export function BlipLlmAssist({
       quadrants,
       rings,
       existingBlips,
+      topics,
     ],
   );
 
