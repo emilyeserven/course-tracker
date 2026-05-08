@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { DailyCompletion, Domain, LearningLogEntry } from "@emstack/types/src";
+import type { DailyCompletion, DailyCriteria, Domain, LearningLogEntry } from "@emstack/types/src";
 import { idParamSchema } from "@/utils/schemas";
 import { buildDomainLearningLog } from "@/utils/learningLog";
 
@@ -47,6 +47,7 @@ export default async function (server: FastifyInstance) {
                               id: true,
                               name: true,
                               completions: true,
+                              criteria: true,
                             },
                           },
                         },
@@ -64,6 +65,7 @@ export default async function (server: FastifyInstance) {
                           id: true,
                           name: true,
                           completions: true,
+                          criteria: true,
                         },
                       },
                     },
@@ -92,6 +94,7 @@ export default async function (server: FastifyInstance) {
                               id: true,
                               name: true,
                               completions: true,
+                              criteria: true,
                             },
                           },
                         },
@@ -109,6 +112,7 @@ export default async function (server: FastifyInstance) {
                           id: true,
                           name: true,
                           completions: true,
+                          criteria: true,
                         },
                       },
                     },
@@ -213,6 +217,7 @@ export default async function (server: FastifyInstance) {
         id: string;
         name: string;
         completions: DailyCompletion[];
+        criteria?: DailyCriteria | null;
         courseId?: string | null;
         courseName?: string | null;
         taskId?: string | null;
@@ -227,6 +232,7 @@ export default async function (server: FastifyInstance) {
             id: string;
             name: string;
             completions?: DailyCompletion[] | null;
+            criteria?: DailyCriteria | null;
           }[];
         } | null; }[];
         tasks?: {
@@ -236,6 +242,7 @@ export default async function (server: FastifyInstance) {
             id: string;
             name: string;
             completions?: DailyCompletion[] | null;
+            criteria?: DailyCriteria | null;
           } | null;
         }[];
       } | null | undefined) {
@@ -244,11 +251,19 @@ export default async function (server: FastifyInstance) {
           const course = ttc.course;
           if (!course) continue;
           for (const d of course.dailies ?? []) {
-            if (dailySourceMap.has(d.id)) continue;
+            const existing = dailySourceMap.get(d.id);
+            if (existing) {
+              if (!existing.courseId) {
+                existing.courseId = course.id;
+                existing.courseName = course.name;
+              }
+              continue;
+            }
             dailySourceMap.set(d.id, {
               id: d.id,
               name: d.name,
               completions: (d.completions ?? []) as DailyCompletion[],
+              criteria: (d.criteria ?? null) as DailyCriteria | null,
               courseId: course.id,
               courseName: course.name,
             });
@@ -257,11 +272,19 @@ export default async function (server: FastifyInstance) {
         for (const task of topic.tasks ?? []) {
           const d = task.daily;
           if (!d) continue;
-          if (dailySourceMap.has(d.id)) continue;
+          const existing = dailySourceMap.get(d.id);
+          if (existing) {
+            if (!existing.taskId) {
+              existing.taskId = task.id;
+              existing.taskName = task.name;
+            }
+            continue;
+          }
           dailySourceMap.set(d.id, {
             id: d.id,
             name: d.name,
             completions: (d.completions ?? []) as DailyCompletion[],
+            criteria: (d.criteria ?? null) as DailyCriteria | null,
             taskId: task.id,
             taskName: task.name,
           });
