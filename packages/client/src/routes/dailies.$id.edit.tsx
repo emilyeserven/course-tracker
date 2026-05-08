@@ -411,13 +411,13 @@ function SingleDailyEdit() {
           className="flex max-w-2xl flex-col gap-8"
         >
           <div
-            className="bg-card flex flex-col gap-3 rounded-md border p-4"
+            className="flex flex-col gap-3 rounded-md border bg-card p-4"
           >
             <div className="flex flex-row items-center justify-between gap-2">
               <h2 className="text-2xl">Link this Daily</h2>
               <div className="flex shrink-0 flex-row items-center gap-2">
                 <WandSparklesIcon
-                  className="text-muted-foreground size-6"
+                  className="size-6 text-muted-foreground"
                   aria-hidden="true"
                 />
                 <Button
@@ -604,7 +604,7 @@ function SingleDailyEdit() {
                     ))}
                   </div>
                   {field.state.value === "complete" && (
-                    <p className="text-muted-foreground text-xs">
+                    <p className="text-xs text-muted-foreground">
                       Marking complete locks log editing.
                     </p>
                   )}
@@ -613,10 +613,10 @@ function SingleDailyEdit() {
             </form.AppField>
           )}
 
-          <div className="bg-card flex flex-col gap-4 rounded-md border p-4">
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-2xl">Status Criteria</h2>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 Optional notes describing what each status means for this
                 daily.
               </p>

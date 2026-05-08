@@ -112,9 +112,9 @@ export function MultiComboboxField({
                 openCreate();
               }}
               className="
-                border-border
+                flex w-full items-center gap-2 border-b border-border p-2
+                text-left text-sm
                 hover:bg-accent hover:text-accent-foreground
-                flex w-full items-center gap-2 border-b p-2 text-left text-sm
               "
             >
               <PlusIcon className="size-4" />

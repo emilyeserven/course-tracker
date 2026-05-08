@@ -84,7 +84,7 @@ export function ComboboxCreatePanel({
   return (
     <div
       className="
-        border-border bg-muted/30 mt-2 flex flex-col gap-3 rounded-md border p-4
+        mt-2 flex flex-col gap-3 rounded-md border border-border bg-muted/30 p-4
       "
     >
       <div className="text-sm font-medium">

@@ -175,8 +175,8 @@ function Courses() {
                 <div className="relative">
                   <SearchIcon
                     className="
-                      text-muted-foreground absolute top-1/2 left-2.5 size-4
-                      -translate-y-1/2
+                      absolute top-1/2 left-2.5 size-4 -translate-y-1/2
+                      text-muted-foreground
                     "
                   />
                   <input
@@ -185,12 +185,12 @@ function Courses() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="
-                      border-input
+                      h-9 rounded-md border border-input bg-transparent pr-3
+                      pl-8 text-sm shadow-xs transition-[color,box-shadow]
+                      outline-none
                       placeholder:text-muted-foreground
-                      focus-visible:border-ring focus-visible:ring-ring/50
-                      h-9 rounded-md border bg-transparent pr-3 pl-8 text-sm
-                      shadow-xs transition-[color,box-shadow] outline-none
-                      focus-visible:ring-[3px]
+                      focus-visible:border-ring focus-visible:ring-[3px]
+                      focus-visible:ring-ring/50
                     "
                   />
                 </div>
@@ -254,7 +254,7 @@ function Courses() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-sm">Sort</span>
+                <span className="text-sm text-muted-foreground">Sort</span>
                 <Select
                   value={sortBy}
                   onValueChange={v => setSortBy(v as SortOption)}
@@ -284,7 +284,7 @@ function Courses() {
                 </Button>
                 <div
                   className="
-                    border-input ml-2 flex items-center rounded-md border
+                    ml-2 flex items-center rounded-md border border-input
                     bg-transparent
                   "
                   role="group"
@@ -361,11 +361,10 @@ function Courses() {
             >
               <ContentBox
                 className="
-                  text-muted-foreground
-                  hover:bg-accent hover:text-accent-foreground
                   h-full items-center justify-center border-dashed p-8
-                  transition-colors
-                  hover:border-solid
+                  text-muted-foreground transition-colors
+                  hover:border-solid hover:bg-accent
+                  hover:text-accent-foreground
                 "
               >
                 <PlusIcon size={32} />

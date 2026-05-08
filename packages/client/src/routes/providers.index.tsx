@@ -92,11 +92,9 @@ function Providers() {
           >
             <ContentBox
               className="
-                text-muted-foreground
-                hover:bg-accent hover:text-accent-foreground
                 h-full items-center justify-center border-dashed p-8
-                transition-colors
-                hover:border-solid
+                text-muted-foreground transition-colors
+                hover:border-solid hover:bg-accent hover:text-accent-foreground
               "
             >
               <PlusIcon size={32} />

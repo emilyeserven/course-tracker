@@ -150,7 +150,7 @@ function Dailies() {
       <div className="container flex flex-col gap-4">
 
         {(!sortedDailies || sortedDailies.length === 0) && (
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             <i>No dailies yet!</i>
           </p>
         )}
@@ -172,7 +172,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-muted-foreground text-left text-xs">
+                  <tr className="text-left text-xs text-muted-foreground">
                     <th className="p-2 font-medium">Title</th>
                     <th className="p-2 font-medium">Progress</th>
                     <th className="p-2 font-medium">Description</th>
@@ -210,9 +210,8 @@ function Dailies() {
                       <tr
                         key={daily.id}
                         className="
-                          group
+                          group border-t align-middle
                           hover:bg-muted/40
-                          border-t align-middle
                         "
                       >
                         <td className="p-2">
@@ -241,7 +240,7 @@ function Dailies() {
                           {daily.description
                             ? (
                               <span
-                                className="text-muted-foreground block truncate"
+                                className="block truncate text-muted-foreground"
                                 title={daily.description}
                               >
                                 {daily.description}
@@ -361,7 +360,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-muted-foreground text-left text-xs">
+                  <tr className="text-left text-xs text-muted-foreground">
                     <th className="p-2 font-medium">Name</th>
                     <th className="p-2 font-medium whitespace-nowrap">
                       Last Entry
@@ -419,7 +418,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-muted-foreground text-left text-xs">
+                  <tr className="text-left text-xs text-muted-foreground">
                     <th className="p-2 font-medium">Name</th>
                     <th className="p-2 font-medium whitespace-nowrap">
                       Last Entry
