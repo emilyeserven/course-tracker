@@ -7,7 +7,7 @@ export function FilterOptionCount({
 }: FilterOptionCountProps) {
   return (
     <span
-      className="text-muted-foreground ml-auto pl-3 text-xs tabular-nums"
+      className="ml-auto pl-3 text-xs text-muted-foreground tabular-nums"
     >
       {count}
     </span>
