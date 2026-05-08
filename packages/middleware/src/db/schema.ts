@@ -80,6 +80,7 @@ export const dailies = pgTable("dailies", {
   description: varchar(),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   courseProviderId: varchar("course_provider_id"),
+  courseId: varchar("course_id"),
 });
 
 export const courseProviderRelations = relations(courseProviders, ({
@@ -96,6 +97,10 @@ export const dailiesRelations = relations(dailies, ({
     fields: [dailies.courseProviderId],
     references: [courseProviders.id],
   }),
+  course: one(courses, {
+    fields: [dailies.courseId],
+    references: [courses.id],
+  }),
 }));
 
 export const coursesRelations = relations(courses, ({
@@ -106,6 +111,7 @@ export const coursesRelations = relations(courses, ({
     references: [courseProviders.id],
   }),
   topicsToCourses: many(topicsToCourses),
+  dailies: many(dailies),
 }));
 
 export const topicsRelations = relations(topics, ({

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createDaily,
+  fetchCourses,
   fetchProviders,
   fetchSingleDaily,
   formHasChanges,
@@ -29,6 +30,7 @@ const formSchema = z.object({
   location: z.string().max(255),
   description: z.string().max(500),
   courseProviderId: z.string(),
+  courseId: z.string(),
 });
 
 function SingleDailyEdit() {
@@ -56,9 +58,21 @@ function SingleDailyEdit() {
     queryFn: () => fetchProviders(),
   });
 
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchCourses(),
+  });
+
   const providerOptions = (providers ?? []).map(p => ({
     value: p.id,
     label: p.name,
+  }));
+
+  const courseOptions = (courses ?? []).map(c => ({
+    value: c.id,
+    label: c.name,
   }));
 
   const startingValues = useMemo(
@@ -67,6 +81,7 @@ function SingleDailyEdit() {
       location: data?.location ?? "",
       description: data?.description ?? "",
       courseProviderId: data?.provider?.id ?? "",
+      courseId: data?.course?.id ?? "",
     }),
     [data],
   );
@@ -85,6 +100,7 @@ function SingleDailyEdit() {
         description: value.description || null,
         completions: data?.completions ?? [],
         courseProviderId: value.courseProviderId || null,
+        courseId: value.courseId || null,
       };
 
       try {
@@ -185,6 +201,16 @@ function SingleDailyEdit() {
                 label="Provider"
                 options={providerOptions}
                 placeholder="Search providers..."
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name="courseId">
+            {field => (
+              <field.ComboboxField
+                label="Course"
+                options={courseOptions}
+                placeholder="Search courses..."
               />
             )}
           </form.AppField>

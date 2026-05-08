@@ -15,6 +15,14 @@ export default async function (server: FastifyInstance) {
             name: true,
           },
         },
+        course: {
+          columns: {
+            id: true,
+            name: true,
+            progressCurrent: true,
+            progressTotal: true,
+          },
+        },
       },
     });
 
@@ -29,6 +37,15 @@ export default async function (server: FastifyInstance) {
           ? {
             name: daily.courseProvider.name,
             id: daily.courseProvider.id,
+          }
+          : undefined,
+      course:
+        daily.course?.id && daily.course?.name
+          ? {
+            id: daily.course.id,
+            name: daily.course.name,
+            progressCurrent: daily.course.progressCurrent ?? 0,
+            progressTotal: daily.course.progressTotal ?? 0,
           }
           : undefined,
     }));

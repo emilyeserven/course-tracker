@@ -1,5 +1,6 @@
 import type { CostData } from "@/CostData";
 
+import { Daily } from "@/Daily";
 import { MinimalTopic } from "@/MinimalTopic";
 import { Topic } from "@/Topic";
 
@@ -20,4 +21,5 @@ export interface Course {
     name: string;
     id: string;
   };
+  dailies?: Daily[];
 }

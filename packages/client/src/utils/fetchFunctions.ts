@@ -93,6 +93,23 @@ export async function upsertCourse(
   return await response.json();
 }
 
+export async function incrementCourseProgress(
+  id: string,
+): Promise<{
+  status: string;
+  id: string;
+  progressCurrent: number;
+  progressTotal: number;
+}> {
+  const response = await fetch(`/api/courses/${id}/incrementProgress`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to increment course progress: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
 export async function createTopic(
   data: Record<string, unknown>,
 ): Promise<{ status: string;

@@ -30,7 +30,10 @@ export function NavDropdown({
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    closeTimeout.current = setTimeout(() => setOpen(false), 150);
+    if (closeTimeout.current) {
+      clearTimeout(closeTimeout.current);
+    }
+    closeTimeout.current = setTimeout(() => setOpen(false), 400);
   }, []);
 
   return (
@@ -73,6 +76,9 @@ export function NavDropdown({
       <DropdownMenuContent
         align="start"
         side="bottom"
+        sideOffset={0}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {children}
       </DropdownMenuContent>

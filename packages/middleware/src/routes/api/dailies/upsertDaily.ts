@@ -54,6 +54,9 @@ const upsertSchema = {
         courseProviderId: {
           type: ["string", "null"],
         },
+        courseId: {
+          type: ["string", "null"],
+        },
       },
     },
   },
@@ -78,6 +81,7 @@ export default async function (server: FastifyInstance) {
         description: body.description ?? null,
         completions: (body.completions ?? []) as DailyCompletion[],
         courseProviderId: body.courseProviderId ?? null,
+        courseId: body.courseId ?? null,
       };
 
       await db
@@ -91,6 +95,7 @@ export default async function (server: FastifyInstance) {
             description: dailyData.description,
             completions: dailyData.completions,
             courseProviderId: dailyData.courseProviderId,
+            courseId: dailyData.courseId,
           },
         });
 

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailyCourseIndicator,
   DailyLocationCell,
   DailyStatusCircle,
   DailyStatusConnector,
@@ -54,6 +55,7 @@ export function DashboardDailies() {
         description: daily.description ?? null,
         completions,
         courseProviderId: daily.provider?.id ?? null,
+        courseId: daily.course?.id ?? null,
       });
     },
     onSuccess: async () => {
@@ -157,18 +159,21 @@ export function DashboardDailies() {
                     "
                   >
                     <td className="p-2">
-                      <Link
-                        to="/dailies/$id"
-                        params={{
-                          id: daily.id,
-                        }}
-                        className="
-                          font-medium
-                          hover:text-blue-600
-                        "
-                      >
-                        {daily.name}
-                      </Link>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Link
+                          to="/dailies/$id"
+                          params={{
+                            id: daily.id,
+                          }}
+                          className="
+                            font-medium
+                            hover:text-blue-600
+                          "
+                        >
+                          {daily.name}
+                        </Link>
+                        <DailyCourseIndicator daily={daily} />
+                      </span>
                     </td>
                     <td className="p-2">
                       <span
