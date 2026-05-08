@@ -21,7 +21,13 @@ let middlewareChild = null;
 function pushSchema() {
   return new Promise((resolve, reject) => {
     console.log("[gateway] pushing database schema with drizzle-kit...");
-    const proc = spawn("pnpm", ["exec", "drizzle-kit", "push"], {
+    const drizzleKitBin = path.join(
+      MIDDLEWARE_DIR,
+      "node_modules",
+      ".bin",
+      "drizzle-kit",
+    );
+    const proc = spawn(drizzleKitBin, ["push"], {
       cwd: MIDDLEWARE_DIR,
       stdio: "inherit",
       env: process.env,
