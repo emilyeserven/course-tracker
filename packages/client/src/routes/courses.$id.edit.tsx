@@ -3,7 +3,7 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
+  createProvider,
+  createTopic,
   deleteSingleCourse,
   duplicateCourse,
   fetchProviders,
@@ -48,6 +50,7 @@ function SingleCourseEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     data,
@@ -240,6 +243,24 @@ function SingleCourseEdit() {
               label="Topic"
               options={topicOptions}
               placeholder="Search topics..."
+              create={{
+                itemLabel: "topic",
+                fields: [
+                  {
+                    name: "name",
+                    label: "Name",
+                    required: true,
+                    isPrimary: true,
+                  },
+                ],
+                onCreate: async (values) => {
+                  const result = await createTopic(values);
+                  await queryClient.invalidateQueries({
+                    queryKey: ["topics"],
+                  });
+                  return result.id;
+                },
+              }}
             />
           )}
         </form.AppField>
@@ -250,6 +271,31 @@ function SingleCourseEdit() {
               label="Provider"
               options={providerOptions}
               placeholder="Search providers..."
+              create={{
+                itemLabel: "provider",
+                fields: [
+                  {
+                    name: "name",
+                    label: "Name",
+                    required: true,
+                    isPrimary: true,
+                  },
+                  {
+                    name: "url",
+                    label: "URL",
+                    required: true,
+                    type: "url",
+                    placeholder: "https://...",
+                  },
+                ],
+                onCreate: async (values) => {
+                  const result = await createProvider(values);
+                  await queryClient.invalidateQueries({
+                    queryKey: ["providers"],
+                  });
+                  return result.id;
+                },
+              }}
             />
           )}
         </form.AppField>

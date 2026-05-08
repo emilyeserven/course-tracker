@@ -33,6 +33,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
   createDaily,
+  createProvider,
   deleteSingleDaily,
   duplicateDaily,
   fetchCourses,
@@ -410,13 +411,13 @@ function SingleDailyEdit() {
           className="flex max-w-2xl flex-col gap-8"
         >
           <div
-            className="flex flex-col gap-3 rounded-md border bg-card p-4"
+            className="bg-card flex flex-col gap-3 rounded-md border p-4"
           >
             <div className="flex flex-row items-center justify-between gap-2">
               <h2 className="text-2xl">Link this Daily</h2>
               <div className="flex shrink-0 flex-row items-center gap-2">
                 <WandSparklesIcon
-                  className="size-6 text-muted-foreground"
+                  className="text-muted-foreground size-6"
                   aria-hidden="true"
                 />
                 <Button
@@ -538,6 +539,31 @@ function SingleDailyEdit() {
                   label="Provider"
                   options={providerOptions}
                   placeholder="Search providers..."
+                  create={{
+                    itemLabel: "provider",
+                    fields: [
+                      {
+                        name: "name",
+                        label: "Name",
+                        required: true,
+                        isPrimary: true,
+                      },
+                      {
+                        name: "url",
+                        label: "URL",
+                        required: true,
+                        type: "url",
+                        placeholder: "https://...",
+                      },
+                    ],
+                    onCreate: async (values) => {
+                      const result = await createProvider(values);
+                      await queryClient.invalidateQueries({
+                        queryKey: ["providers"],
+                      });
+                      return result.id;
+                    },
+                  }}
                 />
               )}
             </form.AppField>
@@ -578,7 +604,7 @@ function SingleDailyEdit() {
                     ))}
                   </div>
                   {field.state.value === "complete" && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       Marking complete locks log editing.
                     </p>
                   )}
@@ -587,10 +613,10 @@ function SingleDailyEdit() {
             </form.AppField>
           )}
 
-          <div className="flex flex-col gap-4 rounded-md border bg-card p-4">
+          <div className="bg-card flex flex-col gap-4 rounded-md border p-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-2xl">Status Criteria</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Optional notes describing what each status means for this
                 daily.
               </p>

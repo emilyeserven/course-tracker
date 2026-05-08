@@ -152,7 +152,19 @@ function Courses() {
       <PageHeader
         pageTitle="Your Courses"
         pageSection=""
-      />
+      >
+        <Link
+          to="/courses/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Course
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container flex flex-col gap-4">
         <div>
           {data && data.length > 0 && (
@@ -163,8 +175,8 @@ function Courses() {
                 <div className="relative">
                   <SearchIcon
                     className="
-                      absolute top-1/2 left-2.5 size-4 -translate-y-1/2
-                      text-muted-foreground
+                      text-muted-foreground absolute top-1/2 left-2.5 size-4
+                      -translate-y-1/2
                     "
                   />
                   <input
@@ -173,12 +185,12 @@ function Courses() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="
-                      h-9 rounded-md border border-input bg-transparent pr-3
-                      pl-8 text-sm shadow-xs transition-[color,box-shadow]
-                      outline-none
+                      border-input
                       placeholder:text-muted-foreground
-                      focus-visible:border-ring focus-visible:ring-[3px]
-                      focus-visible:ring-ring/50
+                      focus-visible:border-ring focus-visible:ring-ring/50
+                      h-9 rounded-md border bg-transparent pr-3 pl-8 text-sm
+                      shadow-xs transition-[color,box-shadow] outline-none
+                      focus-visible:ring-[3px]
                     "
                   />
                 </div>
@@ -242,7 +254,7 @@ function Courses() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort</span>
+                <span className="text-muted-foreground text-sm">Sort</span>
                 <Select
                   value={sortBy}
                   onValueChange={v => setSortBy(v as SortOption)}
@@ -272,7 +284,7 @@ function Courses() {
                 </Button>
                 <div
                   className="
-                    ml-2 flex items-center rounded-md border border-input
+                    border-input ml-2 flex items-center rounded-md border
                     bg-transparent
                   "
                   role="group"
@@ -349,10 +361,11 @@ function Courses() {
             >
               <ContentBox
                 className="
+                  text-muted-foreground
+                  hover:bg-accent hover:text-accent-foreground
                   h-full items-center justify-center border-dashed p-8
-                  text-muted-foreground transition-colors
-                  hover:border-solid hover:bg-accent
-                  hover:text-accent-foreground
+                  transition-colors
+                  hover:border-solid
                 "
               >
                 <PlusIcon size={32} />

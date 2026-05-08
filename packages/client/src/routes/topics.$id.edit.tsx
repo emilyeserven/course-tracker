@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
+  createDomain,
   createTopic,
   deleteSingleTopic,
   fetchDomains,
@@ -39,6 +40,7 @@ function SingleTopicEdit() {
   } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     data,
@@ -197,6 +199,24 @@ function SingleTopicEdit() {
                 label="Domains"
                 options={domainOptions}
                 placeholder="Search domains..."
+                create={{
+                  itemLabel: "domain",
+                  fields: [
+                    {
+                      name: "title",
+                      label: "Title",
+                      required: true,
+                      isPrimary: true,
+                    },
+                  ],
+                  onCreate: async (values) => {
+                    const result = await createDomain(values);
+                    await queryClient.invalidateQueries({
+                      queryKey: ["domains"],
+                    });
+                    return result.id;
+                  },
+                }}
               />
             )}
           </form.AppField>

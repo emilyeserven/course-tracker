@@ -38,7 +38,19 @@ function DomainsIndex() {
       <PageHeader
         pageTitle="Domains"
         pageSection=""
-      />
+      >
+        <Link
+          to="/domains/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Domain
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (
@@ -82,9 +94,11 @@ function DomainsIndex() {
           >
             <ContentBox
               className="
+                text-muted-foreground
+                hover:bg-accent hover:text-accent-foreground
                 h-full items-center justify-center border-dashed p-8
-                text-muted-foreground transition-colors
-                hover:border-solid hover:bg-accent hover:text-accent-foreground
+                transition-colors
+                hover:border-solid
               "
             >
               <PlusIcon size={32} />

@@ -134,24 +134,23 @@ function Dailies() {
       <PageHeader
         pageTitle="Dailies"
         pageSection=""
-      />
+      >
+        <Link
+          to="/dailies/$id/edit"
+          params={{
+            id: "new",
+          }}
+        >
+          <Button>
+            <PlusIcon className="size-4" />
+            New Daily
+          </Button>
+        </Link>
+      </PageHeader>
       <div className="container flex flex-col gap-4">
-        <div className="flex justify-end">
-          <Link
-            to="/dailies/$id/edit"
-            params={{
-              id: "new",
-            }}
-          >
-            <Button variant="outline">
-              <PlusIcon className="size-4" />
-              Add Daily
-            </Button>
-          </Link>
-        </div>
 
         {(!sortedDailies || sortedDailies.length === 0) && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             <i>No dailies yet!</i>
           </p>
         )}
@@ -173,7 +172,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
+                  <tr className="text-muted-foreground text-left text-xs">
                     <th className="p-2 font-medium">Title</th>
                     <th className="p-2 font-medium">Progress</th>
                     <th className="p-2 font-medium">Description</th>
@@ -211,8 +210,9 @@ function Dailies() {
                       <tr
                         key={daily.id}
                         className="
-                          group border-t align-middle
+                          group
                           hover:bg-muted/40
+                          border-t align-middle
                         "
                       >
                         <td className="p-2">
@@ -241,7 +241,7 @@ function Dailies() {
                           {daily.description
                             ? (
                               <span
-                                className="block truncate text-muted-foreground"
+                                className="text-muted-foreground block truncate"
                                 title={daily.description}
                               >
                                 {daily.description}
@@ -361,7 +361,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
+                  <tr className="text-muted-foreground text-left text-xs">
                     <th className="p-2 font-medium">Name</th>
                     <th className="p-2 font-medium whitespace-nowrap">
                       Last Entry
@@ -419,7 +419,7 @@ function Dailies() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
+                  <tr className="text-muted-foreground text-left text-xs">
                     <th className="p-2 font-medium">Name</th>
                     <th className="p-2 font-medium whitespace-nowrap">
                       Last Entry
