@@ -235,7 +235,7 @@ function SingleDaily() {
         >
           <DailyCompletionsManager
             daily={data}
-            readOnly
+            readOnly={data.status !== "active"}
           />
         </InfoArea>
       </div>
