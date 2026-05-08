@@ -15,6 +15,7 @@ import {
 
 interface BlipLlmAssistProps {
   domainId: string;
+  domainTitle: string;
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   topics: TopicForTopicsPage[];
@@ -41,10 +42,15 @@ interface ResolvedLlmEntry {
   problems: string[];
 }
 
-function buildLlmPrompt(quadrants: RadarQuadrant[], rings: RadarRing[]): string {
+function buildLlmPrompt(
+  domainTitle: string,
+  quadrants: RadarQuadrant[],
+  rings: RadarRing[],
+): string {
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
   const ringList = rings.map(r => `- ${r.name}`).join("\n");
-  return `I'm placing topics on a tech-radar style chart.
+  const domainLabel = domainTitle.trim() || "(unnamed domain)";
+  return `I'm placing topics on a tech-radar style chart for the "${domainLabel}" domain.
 
 The radar has these quadrants:
 ${quadrantList || "- (none defined)"}
@@ -52,8 +58,9 @@ ${quadrantList || "- (none defined)"}
 And these rings (innermost first):
 ${ringList || "- (none defined)"}
 
-Please return ONLY a JSON array of entries, one per topic you suggest, using
-this exact shape (no other keys, no commentary):
+Please suggest topics relevant to the "${domainLabel}" domain and return ONLY a
+JSON array of entries, one per topic you suggest, using this exact shape (no
+other keys, no commentary):
 
 [
   {
@@ -68,14 +75,15 @@ this exact shape (no other keys, no commentary):
 
 export function BlipLlmAssist({
   domainId,
+  domainTitle,
   quadrants,
   rings,
   topics,
   onComplete,
 }: BlipLlmAssistProps) {
   const prompt = useMemo(
-    () => buildLlmPrompt(quadrants, rings),
-    [quadrants, rings],
+    () => buildLlmPrompt(domainTitle, quadrants, rings),
+    [domainTitle, quadrants, rings],
   );
 
   const [jsonText, setJsonText] = useState("");
@@ -108,12 +116,39 @@ export function BlipLlmAssist({
   }, [rings]);
 
   async function copyPrompt() {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(prompt);
+        toast.success("Prompt copied to clipboard.");
+        return;
+      }
+      catch {
+        // Fall through to the textarea fallback below.
+      }
+    }
+
     try {
-      await navigator.clipboard.writeText(prompt);
-      toast.success("Prompt copied to clipboard.");
+      const textarea = document.createElement("textarea");
+      textarea.value = prompt;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "0";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (ok) {
+        toast.success("Prompt copied to clipboard.");
+      }
+      else {
+        toast.error("Couldn't copy — please select and copy manually.");
+      }
     }
     catch {
-      toast.error("Couldn't access the clipboard.");
+      toast.error("Couldn't copy — please select and copy manually.");
     }
   }
 

@@ -743,6 +743,7 @@ function RadarEdit() {
           {addMode === "llm" && allConfigPersisted && (
             <BlipLlmAssist
               domainId={id}
+              domainTitle={data?.domainTitle ?? ""}
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}

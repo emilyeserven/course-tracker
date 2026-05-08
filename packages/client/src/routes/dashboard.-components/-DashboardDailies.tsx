@@ -136,7 +136,7 @@ export function DashboardDailies() {
                   </th>
                 ))}
                 <th className="p-2 font-medium">Today&apos;s Status</th>
-                <th className="p-2 font-medium">Location</th>
+                <th className="p-2 font-medium whitespace-nowrap">Location</th>
               </tr>
             </thead>
             <tbody>
@@ -262,7 +262,7 @@ export function DashboardDailies() {
                         })}
                       />
                     </td>
-                    <td className="p-2">
+                    <td className="p-2 whitespace-nowrap">
                       <DailyLocationCell location={daily.location} />
                     </td>
                   </tr>
