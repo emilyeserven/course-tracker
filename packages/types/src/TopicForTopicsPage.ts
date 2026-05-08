@@ -8,5 +8,7 @@ export interface TopicForTopicsPage {
   name: string;
   description?: string | null;
   courseCount?: number;
+  taskCount?: number;
+  dailyCount?: number;
   domains?: TopicForTopicsPageDomain[];
 }
