@@ -7,6 +7,7 @@ interface InputFieldProps {
   className?: string;
   fieldClassName?: string;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export function InputField({
@@ -14,6 +15,7 @@ export function InputField({
   className = "text-2xl",
   placeholder,
   fieldClassName = "h-11 md:text-xl",
+  disabled,
 }: InputFieldProps) {
   const {
     field, isInvalid,
@@ -36,6 +38,7 @@ export function InputField({
         aria-invalid={isInvalid}
         placeholder={placeholder}
         autoComplete="off"
+        disabled={disabled}
         className={fieldClassName}
       />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}

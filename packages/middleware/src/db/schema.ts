@@ -119,6 +119,7 @@ export const topicsRelations = relations(topics, ({
 }) => ({
   topicsToCourses: many(topicsToCourses),
   topicsToDomains: many(topicsToDomains),
+  radarBlips: many(radarBlips),
 }));
 
 export const domains = pgTable("domains", {
@@ -231,9 +232,9 @@ export const radarBlips = pgTable("radar_blips", {
   ringId: varchar("ring_id")
     .notNull()
     .references(() => radarRings.id),
-  name: varchar({
-    length: 255,
-  }).notNull(),
+  topicId: varchar("topic_id")
+    .notNull()
+    .references(() => topics.id),
   description: varchar(),
 });
 
@@ -271,5 +272,9 @@ export const radarBlipsRelations = relations(radarBlips, ({
   ring: one(radarRings, {
     fields: [radarBlips.ringId],
     references: [radarRings.id],
+  }),
+  topic: one(topics, {
+    fields: [radarBlips.topicId],
+    references: [topics.id],
   }),
 }));

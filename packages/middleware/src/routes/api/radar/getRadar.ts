@@ -36,7 +36,16 @@ export default async function (server: FastifyInstance) {
         with: {
           radarQuadrants: true,
           radarRings: true,
-          radarBlips: true,
+          radarBlips: {
+            with: {
+              topic: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -61,7 +70,8 @@ export default async function (server: FastifyInstance) {
           domainId: b.domainId,
           quadrantId: b.quadrantId,
           ringId: b.ringId,
-          name: b.name,
+          topicId: b.topicId,
+          topicName: b.topic?.name ?? "",
           description: b.description,
         })),
       };

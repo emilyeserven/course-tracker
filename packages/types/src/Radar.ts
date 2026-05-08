@@ -17,7 +17,8 @@ export interface RadarBlip {
   domainId: string;
   quadrantId: string;
   ringId: string;
-  name: string;
+  topicId: string;
+  topicName: string;
   description?: string | null;
 }
 

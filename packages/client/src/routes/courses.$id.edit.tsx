@@ -1,6 +1,6 @@
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,16 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
@@ -46,6 +56,9 @@ function SingleCourseEdit() {
   const queryClient = useQueryClient();
 
   const skipBlocker = useRef(false);
+  const [pendingActivation, setPendingActivation] = useState<{
+    courseId: string;
+  } | null>(null);
 
   const {
     data,
@@ -126,6 +139,7 @@ function SingleCourseEdit() {
 
       try {
         const courseId = isNew ? crypto.randomUUID() : id;
+        const previousStatus = data?.status;
         await upsertCourse(courseId, courseData);
         if (!isNew) {
           await queryClient.invalidateQueries({
@@ -140,6 +154,17 @@ function SingleCourseEdit() {
           queryKey: ["topics"],
         });
         skipBlocker.current = true;
+
+        const becameActive
+          = value.status === "active"
+            && (isNew || previousStatus !== "active");
+        if (becameActive) {
+          setPendingActivation({
+            courseId,
+          });
+          return;
+        }
+
         await navigate({
           to: "/courses/$id",
           params: {
@@ -331,6 +356,54 @@ function SingleCourseEdit() {
       <UnsavedChangesDialog
         shouldBlockFn={() => hasChanges && !skipBlocker.current}
       />
+      <AlertDialog open={pendingActivation !== null}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create a Daily for this course?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You marked this course as active. Want to create a Daily that
+              tracks your progress on it?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={async () => {
+                const courseId = pendingActivation?.courseId;
+                setPendingActivation(null);
+                if (courseId) {
+                  await navigate({
+                    to: "/courses/$id",
+                    params: {
+                      id: courseId,
+                    },
+                  });
+                }
+              }}
+            >
+              No thanks
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const courseId = pendingActivation?.courseId;
+                setPendingActivation(null);
+                if (courseId) {
+                  await navigate({
+                    to: "/dailies/$id/edit",
+                    params: {
+                      id: "new",
+                    },
+                    search: {
+                      newCourseId: courseId,
+                    },
+                  });
+                }
+              }}
+            >
+              Create Daily
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

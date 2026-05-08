@@ -15,6 +15,7 @@ interface ComboboxFieldProps {
     label: string; }[];
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function ComboboxField({
@@ -22,6 +23,7 @@ export function ComboboxField({
   options,
   placeholder,
   className = "text-2xl",
+  disabled,
 }: ComboboxFieldProps) {
   const {
     field, isInvalid,
@@ -41,6 +43,7 @@ export function ComboboxField({
           placeholder={placeholder}
           showClear
           onBlur={field.handleBlur}
+          disabled={disabled}
         />
         <ComboboxContent>
           <ComboboxEmpty>No items found.</ComboboxEmpty>
