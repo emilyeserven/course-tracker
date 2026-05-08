@@ -1,7 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { TopicsFromServer } from "@emstack/types/src/TopicsFromServer";
 import { processCourses } from "@/utils/processCourses";
 import { idParamSchema } from "@/utils/schemas";
 
@@ -22,10 +21,10 @@ export default async function (server: FastifyInstance) {
       const {
         id,
       } = request.params;
-      const topic: TopicsFromServer | undefined = await db.query.topics.findFirst({
-        where: (courses, {
+      const topic = await db.query.topics.findFirst({
+        where: (topics, {
           eq,
-        }) => (eq(courses.id, id)),
+        }) => (eq(topics.id, id)),
         with: {
           topicsToCourses: {
             with: {
@@ -37,12 +36,59 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          topicsToDomains: {
+            with: {
+              domain: {
+                columns: {
+                  id: true,
+                  title: true,
+                  hasRadar: true,
+                },
+              },
+            },
+          },
+          radarBlips: {
+            with: {
+              domain: {
+                columns: {
+                  id: true,
+                  title: true,
+                  hasRadar: true,
+                },
+              },
+            },
+          },
         },
       });
 
       if (topic) {
         const courseCount = topic.topicsToCourses?.length ?? 0;
         const courses = processCourses(topic.topicsToCourses);
+
+        const domainsById = new Map<string, {
+          id: string;
+          title: string;
+          hasRadar: boolean | null;
+        }>();
+        for (const ttd of topic.topicsToDomains ?? []) {
+          if (ttd.domain && !domainsById.has(ttd.domain.id)) {
+            domainsById.set(ttd.domain.id, {
+              id: ttd.domain.id,
+              title: ttd.domain.title,
+              hasRadar: ttd.domain.hasRadar ?? null,
+            });
+          }
+        }
+        for (const blip of topic.radarBlips ?? []) {
+          if (blip.domain && !domainsById.has(blip.domain.id)) {
+            domainsById.set(blip.domain.id, {
+              id: blip.domain.id,
+              title: blip.domain.title,
+              hasRadar: blip.domain.hasRadar ?? null,
+            });
+          }
+        }
+        const domains = Array.from(domainsById.values());
 
         return {
           id: topic.id,
@@ -51,6 +97,7 @@ export default async function (server: FastifyInstance) {
           reason: topic.reason,
           courseCount: courseCount,
           courses: courses,
+          domains,
         };
       }
     },

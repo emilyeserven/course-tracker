@@ -6,6 +6,7 @@ import getDomain from "./getDomain";
 import createDomain from "./createDomain";
 import upsertDomain from "./upsertDomain";
 import deleteDomain from "./deleteDomain";
+import duplicateDomain from "./duplicateDomain";
 import learningLogEntries from "./learningLogEntries";
 
 export default async function (server: FastifyInstance) {
@@ -16,5 +17,6 @@ export default async function (server: FastifyInstance) {
   fastify.register(createDomain);
   fastify.register(upsertDomain);
   fastify.register(deleteDomain);
+  fastify.register(duplicateDomain);
   fastify.register(learningLogEntries);
 }

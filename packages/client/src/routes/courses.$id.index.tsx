@@ -1,7 +1,9 @@
 import { useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { CopyIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { DailyRecentDaysStrip } from "@/components/dailies";
@@ -17,9 +19,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import {
   deleteSingleCourse,
+  duplicateCourse,
   fetchSingleCourse,
   getCurrentChain,
   getTotalCompletedDays,
@@ -45,6 +49,7 @@ function SingleCourse() {
   } = Route.useParams();
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [dailyPromptOpen, setDailyPromptOpen] = useState<boolean>(
     search.promptDaily === 1,
@@ -64,6 +69,24 @@ function SingleCourse() {
     enabled: false,
     queryFn: () => deleteSingleCourse(id),
   });
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateCourse(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+      await navigate({
+        to: "/courses/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate course. Please try again.");
+    }
+  }
 
   const percentComplete = makePercentageComplete(
     data?.progressCurrent,
@@ -212,7 +235,15 @@ function SingleCourse() {
           </InfoArea>
         </div>
       </InfoRow>
-      <div>
+      <div className="flex flex-row gap-2">
+        <Button
+          variant="secondary"
+          onClick={handleDuplicate}
+        >
+          Duplicate Course
+          {" "}
+          <CopyIcon />
+        </Button>
         <DeleteButton onClick={handleDelete}>Delete Course</DeleteButton>
       </div>
       <AlertDialog open={dailyPromptOpen}>

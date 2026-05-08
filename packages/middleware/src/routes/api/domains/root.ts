@@ -16,18 +16,29 @@ export default async function (server: FastifyInstance) {
               topicId: true,
             },
           },
+          radarBlips: {
+            columns: {
+              topicId: true,
+            },
+          },
         },
       });
 
       const processedData: Partial<Domain>[] = rawData.map((domain) => {
-        const topicCount = domain.topicsToDomains?.length ?? 0;
+        const topicIds = new Set<string>();
+        for (const ttd of domain.topicsToDomains ?? []) {
+          topicIds.add(ttd.topicId);
+        }
+        for (const blip of domain.radarBlips ?? []) {
+          topicIds.add(blip.topicId);
+        }
 
         return {
           id: domain.id,
           title: domain.title,
           description: domain.description,
           hasRadar: domain.hasRadar,
-          topicCount: topicCount,
+          topicCount: topicIds.size,
         };
       });
 
