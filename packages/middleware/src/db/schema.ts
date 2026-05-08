@@ -222,30 +222,7 @@ export const domainsRelations = relations(domains, ({
   radarRings: many(radarRings),
   radarBlips: many(radarBlips),
   excludedTopics: many(domainExcludedTopics),
-  learningLogEntries: many(domainLearningLogEntries),
 }));
-
-export const domainLearningLogEntries = pgTable("domain_learning_log_entries", {
-  id: varchar().primaryKey(),
-  domainId: varchar("domain_id")
-    .notNull()
-    .references(() => domains.id),
-  date: date().notNull(),
-  description: varchar().notNull(),
-  link: varchar(),
-});
-
-export const domainLearningLogEntriesRelations = relations(
-  domainLearningLogEntries,
-  ({
-    one,
-  }) => ({
-    domain: one(domains, {
-      fields: [domainLearningLogEntries.domainId],
-      references: [domains.id],
-    }),
-  }),
-);
 
 export const domainExcludedTopics = pgTable(
   "domain_excluded_topics",

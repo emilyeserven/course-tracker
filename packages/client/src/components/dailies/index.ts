@@ -1,3 +1,4 @@
+export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
 export { DailyCourseIndicator } from "./DailyCourseIndicator";
 export { DailyLocationCell } from "./DailyLocationCell";

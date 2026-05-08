@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
-import { DomainLearningLog } from "@/components/domains/DomainLearningLog";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RadarChart } from "@/components/radar/RadarChart";
@@ -54,7 +53,6 @@ function SingleDomain() {
   }
 
   const excludedTopics = data?.excludedTopics ?? [];
-  const learningLog = data?.learningLog ?? [];
   const radarReady
     = !!data?.hasRadar
       && !!radarData
@@ -192,12 +190,6 @@ function SingleDomain() {
             ))}
           </ul>
         </InfoArea>
-        {data && (
-          <DomainLearningLog
-            domainId={data.id}
-            entries={learningLog}
-          />
-        )}
       </div>
     </div>
   );

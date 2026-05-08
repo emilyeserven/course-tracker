@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   domainExcludedTopics,
-  domainLearningLogEntries,
   domains,
   radarBlips,
   radarQuadrants,
@@ -37,9 +36,6 @@ export default async function (server: FastifyInstance) {
     await db
       .delete(domainExcludedTopics)
       .where(eq(domainExcludedTopics.domainId, id));
-    await db
-      .delete(domainLearningLogEntries)
-      .where(eq(domainLearningLogEntries.domainId, id));
     await db.delete(domains).where(eq(domains.id, id));
 
     return {

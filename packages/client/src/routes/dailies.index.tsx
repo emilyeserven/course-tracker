@@ -5,7 +5,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   FlameIcon,
   LaughIcon,
-  MessageSquareIcon,
   PlusIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import { toast } from "sonner";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailiesLimitSetting,
+  DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
   DailyProgressCell,
@@ -357,21 +357,7 @@ function Dailies() {
                           />
                         </td>
                         <td className="p-2">
-                          <Link
-                            to="/dailies/$id"
-                            params={{
-                              id: daily.id,
-                            }}
-                            aria-label={`View comments for ${daily.name}`}
-                            title="View daily comments"
-                            className="
-                              inline-flex items-center justify-center rounded-md
-                              p-1 text-muted-foreground transition
-                              hover:bg-muted hover:text-foreground
-                            "
-                          >
-                            <MessageSquareIcon className="size-3.5" />
-                          </Link>
+                          <DailyCommentPopover daily={daily} />
                         </td>
                       </tr>
                     );
