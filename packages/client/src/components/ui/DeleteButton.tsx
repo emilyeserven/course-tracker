@@ -40,7 +40,7 @@ export function DeleteButton({
   }
   return (
     <Button
-      variant="secondary"
+      variant="destructive"
       onClick={() => setIsConfirming(true)}
     >
       {children}

@@ -1,17 +1,57 @@
-import type { Resource, Task } from "@emstack/types/src";
+import type { Resource, ResourceLevel, Task } from "@emstack/types/src";
+
+import { useMemo, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon } from "lucide-react";
+import {
+  ExternalLinkIcon,
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { ResourceEditModal } from "./ResourceEditModal";
 import { getResourceLevelClass, getResourceLevelLabel } from "./resourceMeta";
 
+import { Input } from "@/components/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { isHttpUrl, upsertTask } from "@/utils";
+import { uuidv4 } from "@/utils/uuid";
 
 interface ResourcesTableProps {
   task: Task;
 }
+
+const ANY_VALUE = "__any";
+const NONE_VALUE = "__none";
+
+const LEVEL_FILTER_OPTIONS = [
+  {
+    value: "low",
+    label: "Low",
+  },
+  {
+    value: "medium",
+    label: "Medium",
+  },
+  {
+    value: "high",
+    label: "High",
+  },
+  {
+    value: NONE_VALUE,
+    label: "None",
+  },
+] as const;
 
 function LevelBadge({
   level,
@@ -33,11 +73,87 @@ function LevelBadge({
   );
 }
 
+function levelMatches(
+  resource: ResourceLevel | null | undefined,
+  filter: string,
+) {
+  if (filter === ANY_VALUE) return true;
+  if (filter === NONE_VALUE) return resource == null;
+  return resource === filter;
+}
+
+function LevelFilter({
+  value,
+  onValueChange,
+  ariaLabel,
+}: {
+  value: string;
+  onValueChange: (next: string) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <Select
+      value={value}
+      onValueChange={onValueChange}
+    >
+      <SelectTrigger
+        size="sm"
+        aria-label={ariaLabel}
+        className="min-w-28"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ANY_VALUE}>Any</SelectItem>
+        {LEVEL_FILTER_OPTIONS.map(opt => (
+          <SelectItem
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export function ResourcesTable({
   task,
 }: ResourcesTableProps) {
   const queryClient = useQueryClient();
   const resources = task.resources ?? [];
+
+  const [search, setSearch] = useState("");
+  const [usedFilter, setUsedFilter] = useState<string>(ANY_VALUE);
+  const [easeFilter, setEaseFilter] = useState<string>(ANY_VALUE);
+  const [timeFilter, setTimeFilter] = useState<string>(ANY_VALUE);
+  const [interactivityFilter, setInteractivityFilter] = useState<string>(ANY_VALUE);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftNewResource, setDraftNewResource] = useState<Resource | null>(
+    null,
+  );
+
+  const editingResource = useMemo(
+    () => resources.find(r => r.id === editingId) ?? null,
+    [resources, editingId],
+  );
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return resources.filter((r) => {
+      if (term) {
+        const haystack = `${r.name} ${r.url ?? ""}`.toLowerCase();
+        if (!haystack.includes(term)) return false;
+      }
+      if (usedFilter === "used" && !r.usedYet) return false;
+      if (usedFilter === "not-used" && r.usedYet) return false;
+      if (!levelMatches(r.easeOfStarting, easeFilter)) return false;
+      if (!levelMatches(r.timeNeeded, timeFilter)) return false;
+      if (!levelMatches(r.interactivity, interactivityFilter)) return false;
+      return true;
+    });
+  }, [resources, search, usedFilter, easeFilter, timeFilter, interactivityFilter]);
 
   const mutation = useMutation({
     mutationFn: (next: Resource[]) =>
@@ -81,81 +197,337 @@ export function ResourcesTable({
     mutation.mutate(next);
   }
 
+  function handleSaveEdit(updated: Resource) {
+    const next = resources.map(r => (r.id === updated.id ? updated : r));
+    mutation.mutate(next, {
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ["task", task.id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["tasks"],
+          }),
+        ]);
+        setEditingId(null);
+      },
+    });
+  }
+
+  function handleSaveNew(created: Resource) {
+    const next = [...resources, created];
+    mutation.mutate(next, {
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ["task", task.id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["tasks"],
+          }),
+        ]);
+        setDraftNewResource(null);
+      },
+    });
+  }
+
+  function handleDelete(id: string) {
+    const next = resources.filter(r => r.id !== id);
+    mutation.mutate(next, {
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ["task", task.id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["tasks"],
+          }),
+        ]);
+        setEditingId(null);
+      },
+    });
+  }
+
+  function startCreate() {
+    setDraftNewResource({
+      id: uuidv4(),
+      taskId: task.id,
+      name: "",
+      url: "",
+      easeOfStarting: null,
+      timeNeeded: null,
+      interactivity: null,
+      usedYet: false,
+    });
+  }
+
   if (resources.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        <i>No resources yet. Add some when you edit this task.</i>
-      </p>
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          <i>No resources yet.</i>
+        </p>
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={startCreate}
+          >
+            <PlusIcon className="size-4" />
+            Add Resource
+          </Button>
+        </div>
+        <ResourceEditModal
+          open={!!draftNewResource}
+          resource={draftNewResource}
+          isNew
+          onOpenChange={(open) => {
+            if (!open) setDraftNewResource(null);
+          }}
+          onSave={handleSaveNew}
+          isSaving={mutation.isPending}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="text-left text-xs text-muted-foreground">
-            <th className="p-2 font-medium">Name</th>
-            <th className="p-2 font-medium whitespace-nowrap">Ease of Starting</th>
-            <th className="p-2 font-medium whitespace-nowrap">Time Needed</th>
-            <th className="p-2 font-medium">Interactivity</th>
-            <th className="p-2 font-medium whitespace-nowrap">Used yet?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {resources.map(r => (
-            <tr
-              key={r.id}
-              className="border-t"
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={startCreate}
+        >
+          <PlusIcon className="size-4" />
+          Add Resource
+        </Button>
+      </div>
+      <div
+        className="
+          flex flex-col flex-wrap gap-2
+          md:flex-row md:items-end
+        "
+      >
+        <div className="flex min-w-56 flex-1 flex-col gap-1">
+          <label
+            htmlFor="resource-search"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            Search
+          </label>
+          <div className="relative">
+            <SearchIcon
+              className="
+                absolute top-1/2 left-2 size-4 -translate-y-1/2
+                text-muted-foreground
+              "
+            />
+            <Input
+              id="resource-search"
+              type="search"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name or location"
+              className="pl-8"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Used
+          </label>
+          <Select
+            value={usedFilter}
+            onValueChange={setUsedFilter}
+          >
+            <SelectTrigger
+              size="sm"
+              aria-label="Filter by used"
+              className="min-w-32"
             >
-              <td className="p-2 align-top">
-                {r.url && isHttpUrl(r.url)
-                  ? (
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noreferrer"
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ANY_VALUE}>Any</SelectItem>
+              <SelectItem value="used">Used</SelectItem>
+              <SelectItem value="not-used">Not yet</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Ease
+          </label>
+          <LevelFilter
+            value={easeFilter}
+            onValueChange={setEaseFilter}
+            ariaLabel="Filter by ease of starting"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Time
+          </label>
+          <LevelFilter
+            value={timeFilter}
+            onValueChange={setTimeFilter}
+            ariaLabel="Filter by time needed"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted-foreground">
+            Interactivity
+          </label>
+          <LevelFilter
+            value={interactivityFilter}
+            onValueChange={setInteractivityFilter}
+            ariaLabel="Filter by interactivity"
+          />
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="text-left text-xs text-muted-foreground">
+              <th className="p-2 font-medium">Name</th>
+              <th className="p-2 font-medium whitespace-nowrap">
+                Ease of Starting
+              </th>
+              <th className="p-2 font-medium whitespace-nowrap">Time Needed</th>
+              <th className="p-2 font-medium">Interactivity</th>
+              <th className="p-2 font-medium whitespace-nowrap">Used yet?</th>
+              <th className="p-2 font-medium">Location</th>
+              <th className="w-10 p-2" />
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="p-4 text-center text-muted-foreground"
+                >
+                  <i>No resources match these filters.</i>
+                </td>
+              </tr>
+            )}
+            {filtered.map((r) => {
+              const locationIsUrl = !!r.url && isHttpUrl(r.url);
+              return (
+                <tr
+                  key={r.id}
+                  className="
+                    group border-t align-middle
+                    hover:bg-muted/40
+                  "
+                >
+                  <td className="p-2">
+                    <span className="font-medium">{r.name}</span>
+                  </td>
+                  <td className="p-2">
+                    <LevelBadge level={r.easeOfStarting} />
+                  </td>
+                  <td className="p-2">
+                    <LevelBadge level={r.timeNeeded} />
+                  </td>
+                  <td className="p-2">
+                    <LevelBadge level={r.interactivity} />
+                  </td>
+                  <td className="p-2">
+                    <label className="inline-flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={r.usedYet}
+                        disabled={mutation.isPending}
+                        onChange={e => handleToggleUsed(r.id, e.target.checked)}
+                        className="size-4"
+                        aria-label={`Mark ${r.name} as used`}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {r.usedYet ? "Used" : "Not yet"}
+                      </span>
+                    </label>
+                  </td>
+                  <td className="max-w-xs p-2">
+                    {r.url
+                      ? (locationIsUrl
+                        ? (
+                          <a
+                            href={r.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                            >
+                              Go
+                              <ExternalLinkIcon className="size-3.5" />
+                            </Button>
+                          </a>
+                        )
+                        : (
+                          <span
+                            className="block truncate text-xs"
+                            title={r.url}
+                          >
+                            {r.url}
+                          </span>
+                        ))
+                      : (
+                        <span className="text-muted-foreground/60">—</span>
+                      )}
+                  </td>
+                  <td className="p-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Edit ${r.name}`}
+                      title="Edit resource"
+                      onClick={() => setEditingId(r.id)}
                       className="
-                        inline-flex items-center gap-1 font-medium text-blue-700
-                        hover:text-blue-500
-                        dark:text-blue-300
+                        opacity-0 transition
+                        group-hover:opacity-100
+                        focus-visible:opacity-100
                       "
                     >
-                      {r.name}
-                      <ExternalLinkIcon className="size-3.5" />
-                    </a>
-                  )
-                  : (
-                    <span className="font-medium">{r.name}</span>
-                  )}
-              </td>
-              <td className="p-2 align-top">
-                <LevelBadge level={r.easeOfStarting} />
-              </td>
-              <td className="p-2 align-top">
-                <LevelBadge level={r.timeNeeded} />
-              </td>
-              <td className="p-2 align-top">
-                <LevelBadge level={r.interactivity} />
-              </td>
-              <td className="p-2 align-top">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={r.usedYet}
-                    disabled={mutation.isPending}
-                    onChange={e => handleToggleUsed(r.id, e.target.checked)}
-                    className="size-4"
-                    aria-label={`Mark ${r.name} as used`}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {r.usedYet ? "Used" : "Not yet"}
-                  </span>
-                </label>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                      <PencilIcon className="size-3.5" />
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <ResourceEditModal
+        open={!!editingResource}
+        resource={editingResource}
+        onOpenChange={(open) => {
+          if (!open) setEditingId(null);
+        }}
+        onSave={handleSaveEdit}
+        onDelete={
+          editingResource ? () => handleDelete(editingResource.id) : undefined
+        }
+        isSaving={mutation.isPending}
+      />
+      <ResourceEditModal
+        open={!!draftNewResource}
+        resource={draftNewResource}
+        isNew
+        onOpenChange={(open) => {
+          if (!open) setDraftNewResource(null);
+        }}
+        onSave={handleSaveNew}
+        isSaving={mutation.isPending}
+      />
     </div>
   );
 }

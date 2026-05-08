@@ -83,7 +83,7 @@ function SingleTask() {
       <div className="container flex flex-col gap-12">
         {dailyForStrip && linkedDaily && (
           <InfoArea
-            header={`Daily: ${linkedDaily.name}${linkedDaily.status === "complete" ? " (completed)" : ""}`}
+            header="Last 14 Days"
             condition={true}
           >
             <div className="flex flex-col gap-2">
@@ -103,7 +103,10 @@ function SingleTask() {
                   dark:text-blue-300
                 "
               >
-                Open Daily
+                Open Daily:
+                {" "}
+                {linkedDaily.name}
+                {linkedDaily.status === "complete" ? " (completed)" : ""}
                 <ExternalLinkIcon className="size-3.5" />
               </Link>
             </div>

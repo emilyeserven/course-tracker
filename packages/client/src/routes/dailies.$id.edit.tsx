@@ -17,16 +17,19 @@ import {
   ComboboxLabel,
   ComboboxList,
 } from "@/components/combobox";
+import { TooManyDailiesWarning } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useSettings } from "@/hooks/useSettings";
 import {
   createDaily,
   deleteSingleDaily,
   duplicateDaily,
   fetchCourses,
+  fetchDailies,
   fetchProviders,
   fetchSingleDaily,
   fetchTasks,
@@ -60,6 +63,7 @@ const formSchema = z.object({
   criteriaTouched: z.string().max(500),
   criteriaGoal: z.string().max(500),
   criteriaExceeded: z.string().max(500),
+  criteriaFreeze: z.string().max(500),
 });
 
 function SingleDailyEdit() {
@@ -70,6 +74,9 @@ function SingleDailyEdit() {
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    settings,
+  } = useSettings();
 
   const skipBlocker = useRef(false);
 
@@ -102,6 +109,20 @@ function SingleDailyEdit() {
     queryFn: () => fetchTasks(),
   });
 
+  const {
+    data: existingDailies,
+  } = useQuery({
+    queryKey: ["dailies"],
+    queryFn: () => fetchDailies(),
+    enabled: isNew,
+  });
+
+  const activeDailiesCount
+    = existingDailies?.filter(d => d.status !== "complete").length ?? 0;
+  const projectedActiveCount = activeDailiesCount + 1;
+  const showLimitWarning
+    = isNew && projectedActiveCount >= settings.maxActiveDailies;
+
   const providerOptions = (providers ?? []).map(p => ({
     value: p.id,
     label: p.name,
@@ -133,6 +154,7 @@ function SingleDailyEdit() {
       criteriaTouched: data?.criteria?.touched ?? "",
       criteriaGoal: data?.criteria?.goal ?? "",
       criteriaExceeded: data?.criteria?.exceeded ?? "",
+      criteriaFreeze: data?.criteria?.freeze ?? "",
     }),
     [data, isNew, search.newCourseId],
   );
@@ -159,6 +181,9 @@ function SingleDailyEdit() {
       }
       if (value.criteriaExceeded) {
         criteria.exceeded = value.criteriaExceeded;
+      }
+      if (value.criteriaFreeze) {
+        criteria.freeze = value.criteriaFreeze;
       }
 
       const dailyData = {
@@ -330,6 +355,12 @@ function SingleDailyEdit() {
         pageTitle={isNew ? "New Daily" : "Edit Daily"}
         pageSection="dailies"
       >
+        {showLimitWarning && (
+          <TooManyDailiesWarning
+            activeCount={projectedActiveCount}
+            limit={settings.maxActiveDailies}
+          />
+        )}
         {!isNew && (
           <Link
             to="/dailies/$id"
@@ -511,6 +542,14 @@ function SingleDailyEdit() {
                 <field.TextareaField
                   label="Exceeded"
                   placeholder="What does &quot;Exceeded&quot; mean here?"
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="criteriaFreeze">
+              {field => (
+                <field.TextareaField
+                  label="Freeze"
+                  placeholder="What does &quot;Freeze&quot; mean here?"
                 />
               )}
             </form.AppField>

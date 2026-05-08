@@ -12,7 +12,9 @@ import {
   DailyStatusCircle,
   DailyStatusConnector,
   TodayStatusCell,
+  TooManyDailiesWarning,
 } from "@/components/dailies";
+import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
   fetchDailies,
@@ -35,6 +37,9 @@ function formatMmDd(dateKey: string): string {
 export function DashboardDailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
+  const {
+    settings,
+  } = useSettings();
 
   const {
     data: dailies, isPending, error,
@@ -69,11 +74,14 @@ export function DashboardDailies() {
   });
 
   const sortedDailies = dailies
-    ? [...dailies].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      }))
+    ? [...dailies]
+      .filter(d => d.status !== "complete")
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, {
+          sensitivity: "base",
+        }))
     : undefined;
+  const activeCount = sortedDailies?.length ?? 0;
 
   const dayHeaders = sortedDailies && sortedDailies.length > 0
     ? getRecentDays(
@@ -92,7 +100,16 @@ export function DashboardDailies() {
 
   return (
     <DashboardCard
-      title="Dailies"
+      title={(
+        <span className="inline-flex items-center gap-2">
+          Dailies
+          <TooManyDailiesWarning
+            activeCount={activeCount}
+            limit={settings.maxActiveDailies}
+            size="sm"
+          />
+        </span>
+      )}
       action={(
         <Link
           to="/dailies"

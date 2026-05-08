@@ -27,6 +27,8 @@ interface RadarChartProps {
   size?: number;
   onBlipClick?: (blip: RadarBlip) => void;
   onDescriptionChange?: (blipId: string, description: string) => void;
+  showLegend?: boolean;
+  initialSelectedBlipId?: string | null;
 }
 
 interface PositionedBlip {
@@ -65,10 +67,20 @@ export function RadarChart({
   size = 600,
   onBlipClick,
   onDescriptionChange,
+  showLegend = true,
+  initialSelectedBlipId = null,
 }: RadarChartProps) {
   const [hoveredBlipId, setHoveredBlipId] = useState<string | null>(null);
-  const [selectedBlipId, setSelectedBlipId] = useState<string | null>(null);
+  const [selectedBlipId, setSelectedBlipId] = useState<string | null>(
+    initialSelectedBlipId,
+  );
   const containerWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (initialSelectedBlipId) {
+      setSelectedBlipId(initialSelectedBlipId);
+    }
+  }, [initialSelectedBlipId]);
 
   // Click outside the chart/legend area to clear the sticky selection. Ignore
   // clicks inside Radix portals (popovers, tooltips) so editing the
@@ -381,16 +393,18 @@ export function RadarChart({
               })}
           </svg>
         </div>
-        <RadarLegend
-          quadrants={sortedQuadrants}
-          positionedBlips={positionedBlips}
-          rings={sortedRings}
-          onDescriptionChange={handleSetDescription}
-          onHover={setHoveredBlipId}
-          activeBlipId={activeBlipId}
-          selectedBlipId={selectedBlipId}
-          onBlipClick={handleBlipClick}
-        />
+        {showLegend && (
+          <RadarLegend
+            quadrants={sortedQuadrants}
+            positionedBlips={positionedBlips}
+            rings={sortedRings}
+            onDescriptionChange={handleSetDescription}
+            onHover={setHoveredBlipId}
+            activeBlipId={activeBlipId}
+            selectedBlipId={selectedBlipId}
+            onBlipClick={handleBlipClick}
+          />
+        )}
       </div>
     </TooltipProvider>
   );

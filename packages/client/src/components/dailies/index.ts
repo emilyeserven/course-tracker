@@ -8,3 +8,5 @@ export { DailyStatusConnector } from "./DailyStatusConnector";
 export { NoteEditButton } from "./NoteEditButton";
 export { DAILY_STATUS_OPTIONS, getDailyStatusOption } from "./dailyStatusMeta";
 export { TodayStatusCell } from "./TodayStatusCell";
+export { TooManyDailiesWarning } from "./TooManyDailiesWarning";
+export { DailiesLimitSetting } from "./DailiesLimitSetting";

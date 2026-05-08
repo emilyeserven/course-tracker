@@ -89,6 +89,11 @@ function SingleDaily() {
       label: DAILY_STATUS_OPTIONS.find(o => o.value === "exceeded")?.label
         ?? "Exceeded",
     },
+    {
+      key: "freeze",
+      label: DAILY_STATUS_OPTIONS.find(o => o.value === "freeze")?.label
+        ?? "Freeze",
+    },
   ];
   const visibleCriteria = criteriaLabels.filter(c => !!criteria[c.key]);
 
@@ -112,7 +117,20 @@ function SingleDaily() {
               </Button>
             </Link>
           )}
-          {locationIsUrl && data.location && !data.task && (
+          {data.course && !data.task && (
+            <Link
+              to="/courses/$id"
+              params={{
+                id: data.course.id,
+              }}
+            >
+              <Button>
+                Go to Course
+                <ChevronRightIcon />
+              </Button>
+            </Link>
+          )}
+          {locationIsUrl && data.location && !data.task && !data.course && (
             <a
               href={data.location}
               target="_blank"

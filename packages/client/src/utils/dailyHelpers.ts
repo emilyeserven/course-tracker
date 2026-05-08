@@ -53,6 +53,61 @@ export function getTotalCompletedDays(daily: Daily): number {
   ).length;
 }
 
+export function getLongestStreak(daily: Daily): number {
+  const completedDates = daily.completions
+    .filter(c => c.status && c.status !== "incomplete")
+    .map(c => c.date)
+    .sort();
+
+  if (completedDates.length === 0) {
+    return 0;
+  }
+
+  let longest = 1;
+  let current = 1;
+  for (let i = 1; i < completedDates.length; i++) {
+    if (shiftDateKey(completedDates[i - 1], 1) === completedDates[i]) {
+      current += 1;
+      if (current > longest) longest = current;
+    }
+    else {
+      current = 1;
+    }
+  }
+  return longest;
+}
+
+export function getLastEntryDate(daily: Daily): string | null {
+  let latest: string | null = null;
+  for (const c of daily.completions) {
+    if (!latest || c.date > latest) {
+      latest = c.date;
+    }
+  }
+  return latest;
+}
+
+export function getFirstEntryDate(daily: Daily): string | null {
+  let earliest: string | null = null;
+  for (const c of daily.completions) {
+    if (!earliest || c.date < earliest) {
+      earliest = c.date;
+    }
+  }
+  return earliest;
+}
+
+export function getDaysBetweenFirstAndLastEntry(daily: Daily): number {
+  const first = getFirstEntryDate(daily);
+  const last = getLastEntryDate(daily);
+  if (!first || !last) {
+    return 0;
+  }
+  const firstMs = new Date(`${first}T00:00:00Z`).getTime();
+  const lastMs = new Date(`${last}T00:00:00Z`).getTime();
+  return Math.round((lastMs - firstMs) / (1000 * 60 * 60 * 24)) + 1;
+}
+
 export function getReferenceDateKey(
   daily: Daily,
   todayKey: string = getTodayKey(),

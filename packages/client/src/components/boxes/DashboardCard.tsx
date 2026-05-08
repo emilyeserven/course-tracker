@@ -2,7 +2,8 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-interface DashboardCardProps extends React.ComponentProps<"section"> {
+interface DashboardCardProps
+  extends Omit<React.ComponentProps<"section">, "title"> {
   title: React.ReactNode;
   action?: React.ReactNode;
 }

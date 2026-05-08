@@ -7,20 +7,25 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailiesLimitSetting,
   DailyCourseIndicator,
   DailyLocationCell,
-  DailyRecentDaysStrip,
   DailyStatusCircle,
   DailyStatusConnector,
   TodayStatusCell,
+  TooManyDailiesWarning,
 } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
   fetchDailies,
   findStatusForDate,
   getCurrentChain,
+  getDaysBetweenFirstAndLastEntry,
+  getLastEntryDate,
+  getLongestStreak,
   getRecentDays,
   getTodayKey,
   getTotalCompletedDays,
@@ -60,6 +65,9 @@ function formatMmDd(dateKey: string): string {
 function Dailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
+  const {
+    settings,
+  } = useSettings();
 
   const {
     data: dailies,
@@ -146,7 +154,19 @@ function Dailies() {
         )}
 
         {activeDailies.length > 0 && (
-          <DashboardCard title="Active Dailies">
+          <DashboardCard
+            title={(
+              <span className="inline-flex items-center gap-2">
+                Active Dailies
+                <TooManyDailiesWarning
+                  activeCount={activeDailies.length}
+                  limit={settings.maxActiveDailies}
+                  size="sm"
+                />
+              </span>
+            )}
+            action={<DailiesLimitSetting />}
+          >
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -188,11 +208,11 @@ function Dailies() {
                       <tr
                         key={daily.id}
                         className="
-                          group border-t
+                          group border-t align-middle
                           hover:bg-muted/40
                         "
                       >
-                        <td className="p-2 align-top">
+                        <td className="p-2">
                           <span className="inline-flex items-center gap-1.5">
                             <Link
                               to="/dailies/$id"
@@ -210,7 +230,7 @@ function Dailies() {
                             <DailyCourseIndicator daily={daily} />
                           </span>
                         </td>
-                        <td className="max-w-xs p-2 align-top">
+                        <td className="max-w-xs p-2">
                           {daily.description
                             ? (
                               <span
@@ -226,7 +246,7 @@ function Dailies() {
                               </span>
                             )}
                         </td>
-                        <td className="p-2 align-top">
+                        <td className="p-2">
                           <span
                             className={cn(
                               "inline-flex items-center gap-1 text-xs",
@@ -244,7 +264,7 @@ function Dailies() {
                             {chain}
                           </span>
                         </td>
-                        <td className="p-2 align-top">
+                        <td className="p-2">
                           <span
                             className={cn(
                               "inline-flex items-center gap-1 text-xs",
@@ -303,7 +323,7 @@ function Dailies() {
                             </td>
                           );
                         })}
-                        <td className="p-2 align-top">
+                        <td className="p-2">
                           <TodayStatusCell
                             daily={daily}
                             currentStatus={currentStatus}
@@ -314,13 +334,13 @@ function Dailies() {
                             })}
                           />
                         </td>
-                        <td className="p-2 align-top whitespace-nowrap">
+                        <td className="p-2 whitespace-nowrap">
                           <DailyLocationCell
                             location={daily.location}
                             taskId={daily.taskId ?? daily.task?.id ?? null}
                           />
                         </td>
-                        <td className="p-2 align-top">
+                        <td className="p-2">
                           <Link
                             to="/dailies/$id/edit"
                             params={{
@@ -350,54 +370,70 @@ function Dailies() {
 
         {completedDailies.length > 0 && (
           <DashboardCard title="Completed Dailies">
-            <ul className="flex flex-col divide-y">
-              {completedDailies.map(daily => (
-                <li
-                  key={daily.id}
-                  className="flex flex-col gap-1 py-2 opacity-80"
-                >
-                  <div
-                    className="
-                      flex flex-row flex-wrap items-center justify-between gap-2
-                    "
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <Link
-                        to="/dailies/$id"
-                        from="/dailies"
-                        params={{
-                          id: daily.id,
-                        }}
-                        className="
-                          font-medium
-                          hover:text-blue-600
-                        "
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="p-2 font-medium">Name</th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Last Entry
+                    </th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Longest Streak
+                    </th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Days Completed
+                    </th>
+                    <th className="p-2 font-medium whitespace-nowrap">
+                      Span (days)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {completedDailies.map((daily) => {
+                    const lastEntry = getLastEntryDate(daily);
+                    const longestStreak = getLongestStreak(daily);
+                    const totalDays = getTotalCompletedDays(daily);
+                    const spanDays = getDaysBetweenFirstAndLastEntry(daily);
+                    return (
+                      <tr
+                        key={daily.id}
+                        className="border-t align-middle opacity-90"
                       >
-                        {daily.name}
-                      </Link>
-                      <DailyCourseIndicator daily={daily} />
-                    </span>
-                    <span
-                      className="
-                        inline-flex items-center gap-1 text-xs
-                        text-muted-foreground
-                      "
-                      title={`${getTotalCompletedDays(daily)} total days completed`}
-                    >
-                      <LaughIcon className="size-3.5" />
-                      {getTotalCompletedDays(daily)}
-                    </span>
-                  </div>
-                  <DailyRecentDaysStrip
-                    daily={daily}
-                    count={RECENT_DAYS_COUNT + 1}
-                    labelFormat="mmdd"
-                    size="sm"
-                    showLabels={false}
-                  />
-                </li>
-              ))}
-            </ul>
+                        <td className="p-2">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Link
+                              to="/dailies/$id"
+                              from="/dailies"
+                              params={{
+                                id: daily.id,
+                              }}
+                              className="
+                                font-medium
+                                hover:text-blue-600
+                              "
+                            >
+                              {daily.name}
+                            </Link>
+                            <DailyCourseIndicator daily={daily} />
+                          </span>
+                        </td>
+                        <td className="p-2 whitespace-nowrap">
+                          {lastEntry ?? (
+                            <span className="text-muted-foreground/70">—</span>
+                          )}
+                        </td>
+                        <td className="p-2 whitespace-nowrap">
+                          {longestStreak}
+                        </td>
+                        <td className="p-2 whitespace-nowrap">{totalDays}</td>
+                        <td className="p-2 whitespace-nowrap">{spanDays}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </DashboardCard>
         )}
       </div>

@@ -1,6 +1,4 @@
-import type { DraftResource } from "@/components/tasks/ResourcesEditor";
-
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,7 +10,6 @@ import * as z from "zod";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ResourcesEditor } from "@/components/tasks/ResourcesEditor";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
@@ -73,26 +70,6 @@ function SingleTaskEdit() {
     [data],
   );
 
-  const initialResources = useMemo<DraftResource[]>(
-    () =>
-      (data?.resources ?? []).map(r => ({
-        id: r.id,
-        name: r.name,
-        url: r.url ?? "",
-        easeOfStarting: r.easeOfStarting ?? null,
-        timeNeeded: r.timeNeeded ?? null,
-        interactivity: r.interactivity ?? null,
-        usedYet: r.usedYet,
-      })),
-    [data],
-  );
-
-  const [resources, setResources] = useState<DraftResource[]>(initialResources);
-
-  useEffect(() => {
-    setResources(initialResources);
-  }, [initialResources]);
-
   const form = useAppForm({
     defaultValues: startingValues,
     validators: {
@@ -101,19 +78,21 @@ function SingleTaskEdit() {
     onSubmit: async ({
       value,
     }) => {
+      const existingResources = (data?.resources ?? []).map(r => ({
+        id: r.id,
+        name: r.name,
+        url: r.url ?? null,
+        easeOfStarting: r.easeOfStarting ?? null,
+        timeNeeded: r.timeNeeded ?? null,
+        interactivity: r.interactivity ?? null,
+        usedYet: r.usedYet,
+      }));
+
       const taskData = {
         name: value.name,
         description: value.description || null,
         topicId: value.topicId || null,
-        resources: resources.map(r => ({
-          id: r.id,
-          name: r.name,
-          url: r.url || null,
-          easeOfStarting: r.easeOfStarting ?? null,
-          timeNeeded: r.timeNeeded ?? null,
-          interactivity: r.interactivity ?? null,
-          usedYet: r.usedYet,
-        })),
+        resources: existingResources,
       };
 
       try {
@@ -154,10 +133,7 @@ function SingleTaskEdit() {
     ...state.values,
   }));
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
-  const formHasFieldChanges = formHasChanges(currentValues, startingValues);
-  const resourcesChanged
-    = JSON.stringify(resources) !== JSON.stringify(initialResources);
-  const hasChanges = formHasFieldChanges || resourcesChanged;
+  const hasChanges = formHasChanges(currentValues, startingValues);
 
   async function handleDelete() {
     try {
@@ -226,17 +202,6 @@ function SingleTaskEdit() {
               />
             )}
           </form.AppField>
-
-          <div className="flex flex-col gap-3">
-            <h2 className="text-2xl">Resources</h2>
-            <p className="text-sm text-muted-foreground">
-              Connect resources you might use to study this task.
-            </p>
-            <ResourcesEditor
-              resources={resources}
-              onChange={setResources}
-            />
-          </div>
 
           <EditPageFooter
             isNew={isNew}

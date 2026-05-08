@@ -11,6 +11,7 @@ export interface DailyCriteria {
   touched?: string;
   goal?: string;
   exceeded?: string;
+  freeze?: string;
 }
 
 export type DailyStatus = "active" | "inactive" | "complete";

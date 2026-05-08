@@ -37,6 +37,9 @@ const criteriaSchema = {
     exceeded: {
       type: "string",
     },
+    freeze: {
+      type: "string",
+    },
   },
 } as const;
 
