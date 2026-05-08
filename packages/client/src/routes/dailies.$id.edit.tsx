@@ -17,6 +17,7 @@ import {
   fetchCourses,
   fetchProviders,
   fetchSingleDaily,
+  fetchTasks,
   formHasChanges,
   upsertDaily,
 } from "@/utils";
@@ -41,6 +42,12 @@ const formSchema = z.object({
   description: z.string().max(500),
   courseProviderId: z.string(),
   courseId: z.string(),
+  taskId: z.string(),
+  isComplete: z.boolean(),
+  criteriaIncomplete: z.string().max(500),
+  criteriaTouched: z.string().max(500),
+  criteriaGoal: z.string().max(500),
+  criteriaExceeded: z.string().max(500),
 });
 
 function SingleDailyEdit() {
@@ -76,6 +83,13 @@ function SingleDailyEdit() {
     queryFn: () => fetchCourses(),
   });
 
+  const {
+    data: tasks,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+  });
+
   const providerOptions = (providers ?? []).map(p => ({
     value: p.id,
     label: p.name,
@@ -84,6 +98,11 @@ function SingleDailyEdit() {
   const courseOptions = (courses ?? []).map(c => ({
     value: c.id,
     label: c.name,
+  }));
+
+  const taskOptions = (tasks ?? []).map(t => ({
+    value: t.id,
+    label: t.name,
   }));
 
   const startingValues = useMemo(
@@ -95,6 +114,12 @@ function SingleDailyEdit() {
       courseId: data?.course?.id ?? (isNew && search.newCourseId
         ? search.newCourseId
         : ""),
+      taskId: data?.taskId ?? data?.task?.id ?? "",
+      isComplete: data?.status === "complete",
+      criteriaIncomplete: data?.criteria?.incomplete ?? "",
+      criteriaTouched: data?.criteria?.touched ?? "",
+      criteriaGoal: data?.criteria?.goal ?? "",
+      criteriaExceeded: data?.criteria?.exceeded ?? "",
     }),
     [data, isNew, search.newCourseId],
   );
@@ -111,6 +136,20 @@ function SingleDailyEdit() {
     onSubmit: async ({
       value,
     }) => {
+      const criteria: Record<string, string> = {};
+      if (value.criteriaIncomplete) {
+        criteria.incomplete = value.criteriaIncomplete;
+      }
+      if (value.criteriaTouched) {
+        criteria.touched = value.criteriaTouched;
+      }
+      if (value.criteriaGoal) {
+        criteria.goal = value.criteriaGoal;
+      }
+      if (value.criteriaExceeded) {
+        criteria.exceeded = value.criteriaExceeded;
+      }
+
       const dailyData = {
         name: value.name,
         location: value.location || null,
@@ -118,6 +157,9 @@ function SingleDailyEdit() {
         completions: data?.completions ?? [],
         courseProviderId: value.courseProviderId || null,
         courseId: value.courseId || null,
+        taskId: value.taskId || null,
+        status: value.isComplete ? "complete" : "active",
+        criteria,
       };
 
       try {
@@ -293,6 +335,74 @@ function SingleDailyEdit() {
               />
             )}
           </form.AppField>
+
+          <form.AppField name="taskId">
+            {field => (
+              <field.ComboboxField
+                label="Linked Task"
+                options={taskOptions}
+                placeholder="Search tasks..."
+              />
+            )}
+          </form.AppField>
+
+          {!isNew && (
+            <form.AppField name="isComplete">
+              {field => (
+                <label className="flex flex-row items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={field.state.value}
+                    onChange={e => field.handleChange(e.target.checked)}
+                    className="size-4"
+                  />
+                  <span>Mark as completed (locks log editing)</span>
+                </label>
+              )}
+            </form.AppField>
+          )}
+
+          <div className="flex flex-col gap-4 rounded-md border bg-card p-4">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl">Status Criteria</h2>
+              <p className="text-sm text-muted-foreground">
+                Optional notes describing what each status means for this
+                daily.
+              </p>
+            </div>
+            <form.AppField name="criteriaIncomplete">
+              {field => (
+                <field.TextareaField
+                  label="Incomplete"
+                  placeholder="What does &quot;Incomplete&quot; mean here?"
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="criteriaTouched">
+              {field => (
+                <field.TextareaField
+                  label="Touched"
+                  placeholder="What does &quot;Touched&quot; mean here?"
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="criteriaGoal">
+              {field => (
+                <field.TextareaField
+                  label="Completed (Goal)"
+                  placeholder="What does &quot;Completed&quot; (goal) mean here?"
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="criteriaExceeded">
+              {field => (
+                <field.TextareaField
+                  label="Exceeded"
+                  placeholder="What does &quot;Exceeded&quot; mean here?"
+                />
+              )}
+            </form.AppField>
+          </div>
 
           <div className="flex flex-row gap-4">
             <Button

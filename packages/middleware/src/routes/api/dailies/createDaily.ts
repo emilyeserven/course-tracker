@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { dailies } from "@/db/schema";
-import type { DailyCompletion } from "@emstack/types/src";
+import type { DailyCompletion, DailyCriteria } from "@emstack/types/src";
 import { v4 as uuidv4 } from "uuid";
 
 const completionSchema = {
@@ -17,6 +17,24 @@ const completionSchema = {
       enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
     },
     note: {
+      type: "string",
+    },
+  },
+} as const;
+
+const criteriaSchema = {
+  type: "object",
+  properties: {
+    incomplete: {
+      type: "string",
+    },
+    touched: {
+      type: "string",
+    },
+    goal: {
+      type: "string",
+    },
+    exceeded: {
       type: "string",
     },
   },
@@ -48,6 +66,14 @@ const createSchema = {
         courseId: {
           type: ["string", "null"],
         },
+        taskId: {
+          type: ["string", "null"],
+        },
+        status: {
+          type: ["string", "null"],
+          enum: ["active", "complete", null],
+        },
+        criteria: criteriaSchema,
       },
     },
   },
@@ -59,7 +85,7 @@ export default async function (server: FastifyInstance) {
   fastify.post(
     "/",
     createSchema,
-    async function (request, reply) {
+    async function (request) {
       const body = request.body;
       const id = uuidv4();
 
@@ -71,6 +97,9 @@ export default async function (server: FastifyInstance) {
         completions: (body.completions ?? []) as DailyCompletion[],
         courseProviderId: body.courseProviderId ?? null,
         courseId: body.courseId ?? null,
+        taskId: body.taskId || null,
+        status: body.status ?? "active",
+        criteria: (body.criteria ?? {}) as DailyCriteria,
       });
 
       return {

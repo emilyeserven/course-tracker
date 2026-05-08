@@ -7,7 +7,7 @@ import { DailyStatusCircle } from "./DailyStatusCircle";
 import { DailyStatusConnector } from "./DailyStatusConnector";
 
 import { cn } from "@/lib/utils";
-import { getRecentDays, getTodayKey } from "@/utils/dailyHelpers";
+import { getReferenceDateKey, getRecentDays } from "@/utils/dailyHelpers";
 
 interface DailyRecentDaysStripProps {
   daily: Daily;
@@ -36,7 +36,7 @@ export function DailyRecentDaysStrip({
   size = "lg",
   showLabels = true,
 }: DailyRecentDaysStripProps) {
-  const days = getRecentDays(daily, count, getTodayKey(), labelFormat);
+  const days = getRecentDays(daily, count, getReferenceDateKey(daily), labelFormat);
 
   return (
     <div

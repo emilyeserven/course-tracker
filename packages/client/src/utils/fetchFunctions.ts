@@ -8,6 +8,7 @@ import type {
   Domain,
   Daily,
   Radar,
+  Task,
 } from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
 import type { Topic } from "@emstack/types/src/Topic";
@@ -355,6 +356,56 @@ export async function deleteSingleDaily(
   id: string,
 ): Promise<{ status: string }> {
   return await fetch(`/api/dailies/${id}`, {
+    method: "DELETE",
+  }).then(res => res.json());
+}
+
+export async function fetchTasks(): Promise<Task[]> {
+  return await fetch("/api/tasks").then(res => res.json());
+}
+
+export async function fetchSingleTask(id: string): Promise<Task> {
+  return await fetch(`/api/tasks/${id}`).then(res => res.json());
+}
+
+export async function createTask(
+  data: Record<string, unknown>,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch("/api/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create task: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function upsertTask(
+  id: string,
+  data: Record<string, unknown>,
+): Promise<SuccessObj> {
+  const response = await fetch(`/api/tasks/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update task: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function deleteSingleTask(
+  id: string,
+): Promise<SuccessObj> {
+  return await fetch(`/api/tasks/${id}`, {
     method: "DELETE",
   }).then(res => res.json());
 }

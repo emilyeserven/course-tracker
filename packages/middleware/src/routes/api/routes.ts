@@ -13,6 +13,7 @@ import providers from "./providers/routes";
 import domains from "./domains/routes";
 import dailies from "./dailies/routes";
 import radar from "./radar/routes";
+import tasks from "./tasks/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -40,5 +41,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(dailies, {
     prefix: "/dailies",
+  });
+  fastify.register(tasks, {
+    prefix: "/tasks",
   });
 }

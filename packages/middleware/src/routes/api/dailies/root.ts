@@ -1,12 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { Daily, DailyCompletion } from "@emstack/types/src";
+import type { Daily, DailyCompletion, DailyCriteria } from "@emstack/types/src";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
-  fastify.get("/", async (request, reply) => {
+  fastify.get("/", async () => {
     const rawData = await db.query.dailies.findMany({
       with: {
         courseProvider: {
@@ -23,6 +23,12 @@ export default async function (server: FastifyInstance) {
             progressTotal: true,
           },
         },
+        task: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -32,6 +38,15 @@ export default async function (server: FastifyInstance) {
       location: daily.location,
       description: daily.description,
       completions: (daily.completions ?? []) as DailyCompletion[],
+      status: daily.status ?? "active",
+      criteria: (daily.criteria ?? {}) as DailyCriteria,
+      taskId: daily.taskId ?? null,
+      task: daily.task
+        ? {
+          id: daily.task.id,
+          name: daily.task.name,
+        }
+        : null,
       provider:
         daily.courseProvider?.name && daily.courseProvider?.id
           ? {

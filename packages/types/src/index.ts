@@ -16,3 +16,5 @@ export * from "./LearningLog";
 export * from "./TopicsToDomains";
 export * from "./Daily";
 export * from "./Radar";
+export * from "./Resource";
+export * from "./Task";

@@ -53,6 +53,22 @@ export function getTotalCompletedDays(daily: Daily): number {
   ).length;
 }
 
+export function getReferenceDateKey(
+  daily: Daily,
+  todayKey: string = getTodayKey(),
+): string {
+  if (daily.status !== "complete") {
+    return todayKey;
+  }
+  let latest: string | null = null;
+  for (const c of daily.completions) {
+    if (!latest || c.date > latest) {
+      latest = c.date;
+    }
+  }
+  return latest ?? todayKey;
+}
+
 const SHORT_DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export type DayLabelFormat = "dow" | "mmdd";
