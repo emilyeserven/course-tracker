@@ -31,6 +31,7 @@ import {
   createRadarBlip,
   deleteRadarBlip,
   fetchRadar,
+  fetchSingleDomain,
   fetchTopics,
   upsertRadarBlip,
   upsertRadarConfig,
@@ -153,6 +154,13 @@ function RadarEdit() {
   } = useQuery({
     queryKey: ["topics"],
     queryFn: () => fetchTopics(),
+  });
+
+  const {
+    data: domainDetail,
+  } = useQuery({
+    queryKey: ["domain", id],
+    queryFn: () => fetchSingleDomain(id),
   });
 
   const [quadrants, setQuadrants] = useState<QuadrantDraft[]>([]);
@@ -800,6 +808,10 @@ function RadarEdit() {
             <BlipLlmAssist
               domainId={id}
               domainTitle={data?.domainTitle ?? ""}
+              domainDescription={domainDetail?.description ?? null}
+              domainTopics={domainDetail?.topics ?? []}
+              excludedTopics={domainDetail?.excludedTopics ?? []}
+              learningLog={domainDetail?.learningLog ?? []}
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}
