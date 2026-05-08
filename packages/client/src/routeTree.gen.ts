@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as DomainsRouteImport } from './routes/domains'
@@ -54,6 +55,11 @@ const TopicsRoute = TopicsRouteImport.update({
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProvidersRoute = ProvidersRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/onboard': typeof OnboardRoute
+  '/settings': typeof SettingsRoute
   '/courses': typeof CoursesIndexRoute
   '/dailies': typeof DailiesIndexRoute
   '/domains': typeof DomainsIndexRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
   '/courses/$id': typeof CoursesIdRouteWithChildren
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/domains'
     | '/onboard'
     | '/providers'
+    | '/settings'
     | '/tasks'
     | '/topics'
     | '/courses/$id'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/onboard'
+    | '/settings'
     | '/courses'
     | '/dailies'
     | '/domains'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/domains'
     | '/onboard'
     | '/providers'
+    | '/settings'
     | '/tasks'
     | '/topics'
     | '/courses/$id'
@@ -441,6 +453,7 @@ export interface RootRouteChildren {
   DomainsRoute: typeof DomainsRouteWithChildren
   OnboardRoute: typeof OnboardRoute
   ProvidersRoute: typeof ProvidersRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
   TasksRoute: typeof TasksRouteWithChildren
   TopicsRoute: typeof TopicsRouteWithChildren
 }
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks'
       preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/providers': {
@@ -887,6 +907,7 @@ const rootRouteChildren: RootRouteChildren = {
   DomainsRoute: DomainsRouteWithChildren,
   OnboardRoute: OnboardRoute,
   ProvidersRoute: ProvidersRouteWithChildren,
+  SettingsRoute: SettingsRoute,
   TasksRoute: TasksRouteWithChildren,
   TopicsRoute: TopicsRouteWithChildren,
 }
