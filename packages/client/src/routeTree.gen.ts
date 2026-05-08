@@ -34,9 +34,12 @@ import { Route as DailiesIdIndexRouteImport } from './routes/dailies.$id.index'
 import { Route as CoursesIdIndexRouteImport } from './routes/courses.$id.index'
 import { Route as TopicsIdEditRouteImport } from './routes/topics.$id.edit'
 import { Route as ProvidersIdEditRouteImport } from './routes/providers.$id.edit'
+import { Route as DomainsIdRadarRouteImport } from './routes/domains.$id.radar'
 import { Route as DomainsIdEditRouteImport } from './routes/domains.$id.edit'
 import { Route as DailiesIdEditRouteImport } from './routes/dailies.$id.edit'
 import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
+import { Route as DomainsIdRadarIndexRouteImport } from './routes/domains.$id.radar.index'
+import { Route as DomainsIdRadarEditRouteImport } from './routes/domains.$id.radar.edit'
 
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
@@ -163,6 +166,11 @@ const ProvidersIdEditRoute = ProvidersIdEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => ProvidersIdRoute,
 } as any)
+const DomainsIdRadarRoute = DomainsIdRadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
+  getParentRoute: () => DomainsIdRoute,
+} as any)
 const DomainsIdEditRoute = DomainsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -177,6 +185,16 @@ const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => CoursesIdRoute,
+} as any)
+const DomainsIdRadarIndexRoute = DomainsIdRadarIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DomainsIdRadarRoute,
+} as any)
+const DomainsIdRadarEditRoute = DomainsIdRadarEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => DomainsIdRadarRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -201,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/dailies/$id/edit': typeof DailiesIdEditRoute
   '/domains/$id/edit': typeof DomainsIdEditRoute
+  '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
   '/providers/$id/edit': typeof ProvidersIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
@@ -208,6 +227,8 @@ export interface FileRoutesByFullPath {
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar/': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -228,6 +249,8 @@ export interface FileRoutesByTo {
   '/domains/$id': typeof DomainsIdIndexRoute
   '/providers/$id': typeof ProvidersIdIndexRoute
   '/topics/$id': typeof TopicsIdIndexRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -252,6 +275,7 @@ export interface FileRoutesById {
   '/courses/$id/edit': typeof CoursesIdEditRoute
   '/dailies/$id/edit': typeof DailiesIdEditRoute
   '/domains/$id/edit': typeof DomainsIdEditRoute
+  '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
   '/providers/$id/edit': typeof ProvidersIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
   '/courses/$id/': typeof CoursesIdIndexRoute
@@ -259,6 +283,8 @@ export interface FileRoutesById {
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar/': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -284,6 +310,7 @@ export interface FileRouteTypes {
     | '/courses/$id/edit'
     | '/dailies/$id/edit'
     | '/domains/$id/edit'
+    | '/domains/$id/radar'
     | '/providers/$id/edit'
     | '/topics/$id/edit'
     | '/courses/$id/'
@@ -291,6 +318,8 @@ export interface FileRouteTypes {
     | '/domains/$id/'
     | '/providers/$id/'
     | '/topics/$id/'
+    | '/domains/$id/radar/edit'
+    | '/domains/$id/radar/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,6 +340,8 @@ export interface FileRouteTypes {
     | '/domains/$id'
     | '/providers/$id'
     | '/topics/$id'
+    | '/domains/$id/radar/edit'
+    | '/domains/$id/radar'
   id:
     | '__root__'
     | '/'
@@ -334,6 +365,7 @@ export interface FileRouteTypes {
     | '/courses/$id/edit'
     | '/dailies/$id/edit'
     | '/domains/$id/edit'
+    | '/domains/$id/radar'
     | '/providers/$id/edit'
     | '/topics/$id/edit'
     | '/courses/$id/'
@@ -341,6 +373,8 @@ export interface FileRouteTypes {
     | '/domains/$id/'
     | '/providers/$id/'
     | '/topics/$id/'
+    | '/domains/$id/radar/edit'
+    | '/domains/$id/radar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -531,6 +565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersIdEditRouteImport
       parentRoute: typeof ProvidersIdRoute
     }
+    '/domains/$id/radar': {
+      id: '/domains/$id/radar'
+      path: '/radar'
+      fullPath: '/domains/$id/radar'
+      preLoaderRoute: typeof DomainsIdRadarRouteImport
+      parentRoute: typeof DomainsIdRoute
+    }
     '/domains/$id/edit': {
       id: '/domains/$id/edit'
       path: '/edit'
@@ -551,6 +592,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses/$id/edit'
       preLoaderRoute: typeof CoursesIdEditRouteImport
       parentRoute: typeof CoursesIdRoute
+    }
+    '/domains/$id/radar/': {
+      id: '/domains/$id/radar/'
+      path: '/'
+      fullPath: '/domains/$id/radar/'
+      preLoaderRoute: typeof DomainsIdRadarIndexRouteImport
+      parentRoute: typeof DomainsIdRadarRoute
+    }
+    '/domains/$id/radar/edit': {
+      id: '/domains/$id/radar/edit'
+      path: '/edit'
+      fullPath: '/domains/$id/radar/edit'
+      preLoaderRoute: typeof DomainsIdRadarEditRouteImport
+      parentRoute: typeof DomainsIdRadarRoute
     }
   }
 }
@@ -609,13 +664,29 @@ const DailiesRouteChildren: DailiesRouteChildren = {
 const DailiesRouteWithChildren =
   DailiesRoute._addFileChildren(DailiesRouteChildren)
 
+interface DomainsIdRadarRouteChildren {
+  DomainsIdRadarEditRoute: typeof DomainsIdRadarEditRoute
+  DomainsIdRadarIndexRoute: typeof DomainsIdRadarIndexRoute
+}
+
+const DomainsIdRadarRouteChildren: DomainsIdRadarRouteChildren = {
+  DomainsIdRadarEditRoute: DomainsIdRadarEditRoute,
+  DomainsIdRadarIndexRoute: DomainsIdRadarIndexRoute,
+}
+
+const DomainsIdRadarRouteWithChildren = DomainsIdRadarRoute._addFileChildren(
+  DomainsIdRadarRouteChildren,
+)
+
 interface DomainsIdRouteChildren {
   DomainsIdEditRoute: typeof DomainsIdEditRoute
+  DomainsIdRadarRoute: typeof DomainsIdRadarRouteWithChildren
   DomainsIdIndexRoute: typeof DomainsIdIndexRoute
 }
 
 const DomainsIdRouteChildren: DomainsIdRouteChildren = {
   DomainsIdEditRoute: DomainsIdEditRoute,
+  DomainsIdRadarRoute: DomainsIdRadarRouteWithChildren,
   DomainsIdIndexRoute: DomainsIdIndexRoute,
 }
 

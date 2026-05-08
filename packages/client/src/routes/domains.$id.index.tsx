@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
+import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -66,6 +66,20 @@ function SingleDomain() {
         pageSection="domains"
       >
         <div className="flex flex-row gap-2">
+          {data?.hasRadar && (
+            <Link
+              to="/domains/$id/radar"
+              params={{
+                id: data?.id + "",
+              }}
+            >
+              <Button>
+                View Radar
+                {" "}
+                <RadarIcon />
+              </Button>
+            </Link>
+          )}
           <Link
             to="/domains/$id/edit"
             params={{

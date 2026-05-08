@@ -7,6 +7,7 @@ import type {
   CourseProvider,
   Domain,
   Daily,
+  Radar,
 } from "@emstack/types/src/index.js";
 import type { OnboardData } from "@emstack/types/src/OnboardData";
 import type { Topic } from "@emstack/types/src/Topic";
@@ -272,4 +273,100 @@ export async function deleteSingleDaily(
   return await fetch(`/api/dailies/${id}`, {
     method: "DELETE",
   }).then(res => res.json());
+}
+
+export async function fetchRadar(domainId: string): Promise<Radar> {
+  const response = await fetch(`/api/domains/${domainId}/radar`);
+  if (!response.ok) {
+    throw new Error(`Failed to load radar: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+interface RadarConfigPayload {
+  quadrants: { id?: string;
+    name: string;
+    position: number; }[];
+  rings: { id?: string;
+    name: string;
+    position: number; }[];
+}
+
+export async function upsertRadarConfig(
+  domainId: string,
+  data: RadarConfigPayload,
+): Promise<SuccessObj> {
+  const response = await fetch(`/api/domains/${domainId}/radar`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to save radar config: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+interface BlipPayload {
+  name: string;
+  description?: string | null;
+  quadrantId: string;
+  ringId: string;
+}
+
+export async function createRadarBlip(
+  domainId: string,
+  data: BlipPayload,
+): Promise<{ status: string;
+  id: string; }> {
+  const response = await fetch(`/api/domains/${domainId}/radar/blips`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create blip: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function upsertRadarBlip(
+  domainId: string,
+  blipId: string,
+  data: BlipPayload,
+): Promise<SuccessObj> {
+  const response = await fetch(
+    `/api/domains/${domainId}/radar/blips/${blipId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to update blip: ${response.statusText}`);
+  }
+  return await response.json();
+}
+
+export async function deleteRadarBlip(
+  domainId: string,
+  blipId: string,
+): Promise<SuccessObj> {
+  const response = await fetch(
+    `/api/domains/${domainId}/radar/blips/${blipId}`,
+    {
+      method: "DELETE",
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to delete blip: ${response.statusText}`);
+  }
+  return await response.json();
 }
