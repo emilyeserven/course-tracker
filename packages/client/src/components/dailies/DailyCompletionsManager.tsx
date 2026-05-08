@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
+  getReferenceDateKey,
   getTodayKey,
   shiftDateKey,
   upsertDaily,
@@ -118,7 +119,10 @@ export function DailyCompletionsManager({
   readOnly = false,
 }: DailyCompletionsManagerProps) {
   const queryClient = useQueryClient();
-  const todayKey = getTodayKey();
+  const isComplete = daily.status === "complete";
+  const effectiveReadOnly = readOnly || isComplete;
+  const todayKey = getReferenceDateKey(daily);
+  const realToday = getTodayKey();
   const currentMonth = getMonthFromKey(todayKey);
 
   const [viewMonth, setViewMonth] = useState<ViewMonth>(currentMonth);
@@ -217,7 +221,7 @@ export function DailyCompletionsManager({
               >
                 <CalendarIcon className="mr-2 size-4" />
                 {isCurrentMonth
-                  ? "Last 30 days"
+                  ? (isComplete ? "Last 30 days (final)" : "Last 30 days")
                   : formatMonthLabel(viewMonth.year, viewMonth.month)}
               </Button>
             </PopoverTrigger>
@@ -263,9 +267,9 @@ export function DailyCompletionsManager({
             const status = entry?.status ?? null;
             const note = entry?.note ?? null;
             const hasStatusEntry = status !== null;
-            const isFuture = dateKey > todayKey;
-            const isToday = dateKey === todayKey;
-            const isEditable = !readOnly || isToday;
+            const isFuture = dateKey > realToday;
+            const isToday = dateKey === realToday;
+            const isEditable = !effectiveReadOnly && (!readOnly || isToday);
             const hasActions = isEditable && !isFuture;
             const isExpanded = expandedDateKey === dateKey;
             const nextDateKey = visibleDateKeys[i + 1];

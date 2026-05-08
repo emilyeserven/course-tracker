@@ -6,12 +6,28 @@ export interface DailyCompletion {
   note?: string;
 }
 
+export interface DailyCriteria {
+  incomplete?: string;
+  touched?: string;
+  goal?: string;
+  exceeded?: string;
+}
+
+export type DailyStatus = "active" | "inactive" | "complete";
+
 export interface Daily {
   id: string;
   name: string;
   location?: string | null;
   description?: string | null;
   completions: DailyCompletion[];
+  status?: DailyStatus | null;
+  criteria?: DailyCriteria | null;
+  taskId?: string | null;
+  task?: {
+    id: string;
+    name: string;
+  } | null;
   provider?: {
     name: string;
     id: string;

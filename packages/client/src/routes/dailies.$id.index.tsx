@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  ChevronRightIcon,
   CopyIcon,
   EditIcon,
   ExternalLink,
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 import {
   DailyCompletionsManager,
   DailyRecentDaysStrip,
+  DAILY_STATUS_OPTIONS,
 } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -104,6 +106,31 @@ function SingleDaily() {
   const total = getTotalCompletedDays(data);
   const chain = getCurrentChain(data);
   const locationIsUrl = !!data.location && isHttpUrl(data.location);
+  const isComplete = data.status === "complete";
+  const criteria = data.criteria ?? {};
+  const criteriaLabels: { key: keyof typeof criteria;
+    label: string; }[] = [
+    {
+      key: "incomplete",
+      label: DAILY_STATUS_OPTIONS.find(o => o.value === "incomplete")?.label
+        ?? "Incomplete",
+    },
+    {
+      key: "touched",
+      label: DAILY_STATUS_OPTIONS.find(o => o.value === "touched")?.label
+        ?? "Touched",
+    },
+    {
+      key: "goal",
+      label: "Completed",
+    },
+    {
+      key: "exceeded",
+      label: DAILY_STATUS_OPTIONS.find(o => o.value === "exceeded")?.label
+        ?? "Exceeded",
+    },
+  ];
+  const visibleCriteria = criteriaLabels.filter(c => !!criteria[c.key]);
 
   return (
     <div>
@@ -112,7 +139,20 @@ function SingleDaily() {
         pageSection="dailies"
       >
         <div className="flex flex-row gap-2">
-          {locationIsUrl && data.location && (
+          {data.task && (
+            <Link
+              to="/tasks/$id"
+              params={{
+                id: data.task.id,
+              }}
+            >
+              <Button>
+                Go to Task
+                <ChevronRightIcon />
+              </Button>
+            </Link>
+          )}
+          {locationIsUrl && data.location && !data.task && (
             <a
               href={data.location}
               target="_blank"
@@ -202,8 +242,32 @@ function SingleDaily() {
             </span>
           </div>
         </InfoArea>
+        {visibleCriteria.length > 0 && (
+          <InfoArea
+            header="Status Criteria"
+            condition={true}
+          >
+            <dl className="flex flex-col gap-2">
+              {visibleCriteria.map(c => (
+                <div
+                  key={c.key}
+                  className="flex flex-col gap-0.5"
+                >
+                  <dt className="text-sm font-bold">{c.label}</dt>
+                  <dd
+                    className="
+                      text-sm whitespace-pre-wrap text-muted-foreground
+                    "
+                  >
+                    {criteria[c.key]}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </InfoArea>
+        )}
         <InfoArea
-          header="Day entries"
+          header={isComplete ? "Day entries (completed)" : "Day entries"}
           condition={true}
         >
           <DailyCompletionsManager

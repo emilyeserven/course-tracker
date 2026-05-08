@@ -9,6 +9,7 @@ import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailyCourseIndicator,
   DailyLocationCell,
+  DailyRecentDaysStrip,
   DailyStatusCircle,
   DailyStatusConnector,
   TodayStatusCell,
@@ -99,9 +100,12 @@ function Dailies() {
       }))
     : undefined;
 
-  const dayHeaders = sortedDailies && sortedDailies.length > 0
+  const activeDailies = sortedDailies?.filter(d => d.status !== "complete") ?? [];
+  const completedDailies = sortedDailies?.filter(d => d.status === "complete") ?? [];
+
+  const dayHeaders = activeDailies.length > 0
     ? getRecentDays(
-      sortedDailies[0],
+      activeDailies[0],
       RECENT_DAYS_COUNT + 1,
       todayKey,
       "mmdd",
@@ -141,8 +145,8 @@ function Dailies() {
           </p>
         )}
 
-        {sortedDailies && sortedDailies.length > 0 && (
-          <DashboardCard title="All Dailies">
+        {activeDailies.length > 0 && (
+          <DashboardCard title="Active Dailies">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -169,7 +173,7 @@ function Dailies() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedDailies.map((daily) => {
+                  {activeDailies.map((daily) => {
                     const currentStatus = findStatusForDate(daily, todayKey);
                     const chain = getCurrentChain(daily, todayKey);
                     const total = getTotalCompletedDays(daily);
@@ -310,7 +314,10 @@ function Dailies() {
                           />
                         </td>
                         <td className="p-2 align-top whitespace-nowrap">
-                          <DailyLocationCell location={daily.location} />
+                          <DailyLocationCell
+                            location={daily.location}
+                            taskId={daily.taskId ?? daily.task?.id ?? null}
+                          />
                         </td>
                       </tr>
                     );
@@ -318,6 +325,59 @@ function Dailies() {
                 </tbody>
               </table>
             </div>
+          </DashboardCard>
+        )}
+
+        {completedDailies.length > 0 && (
+          <DashboardCard title="Completed Dailies">
+            <ul className="flex flex-col divide-y">
+              {completedDailies.map(daily => (
+                <li
+                  key={daily.id}
+                  className="flex flex-col gap-1 py-2 opacity-80"
+                >
+                  <div
+                    className="
+                      flex flex-row flex-wrap items-center justify-between gap-2
+                    "
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <Link
+                        to="/dailies/$id"
+                        from="/dailies"
+                        params={{
+                          id: daily.id,
+                        }}
+                        className="
+                          font-medium
+                          hover:text-blue-600
+                        "
+                      >
+                        {daily.name}
+                      </Link>
+                      <DailyCourseIndicator daily={daily} />
+                    </span>
+                    <span
+                      className="
+                        inline-flex items-center gap-1 text-xs
+                        text-muted-foreground
+                      "
+                      title={`${getTotalCompletedDays(daily)} total days completed`}
+                    >
+                      <LaughIcon className="size-3.5" />
+                      {getTotalCompletedDays(daily)}
+                    </span>
+                  </div>
+                  <DailyRecentDaysStrip
+                    daily={daily}
+                    count={RECENT_DAYS_COUNT + 1}
+                    labelFormat="mmdd"
+                    size="sm"
+                    showLabels={false}
+                  />
+                </li>
+              ))}
+            </ul>
           </DashboardCard>
         )}
       </div>

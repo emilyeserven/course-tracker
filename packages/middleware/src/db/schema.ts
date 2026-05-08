@@ -9,6 +9,13 @@ export interface DailyCompletion {
   note?: string;
 }
 
+export interface DailyCriteria {
+  incomplete?: string;
+  touched?: string;
+  goal?: string;
+  exceeded?: string;
+}
+
 export const usersTable = pgTable("users", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -24,6 +31,7 @@ export const usersTable = pgTable("users", {
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
+export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
 
 export const topics = pgTable("topics", {
   id: varchar().primaryKey(),
@@ -81,7 +89,56 @@ export const dailies = pgTable("dailies", {
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   courseProviderId: varchar("course_provider_id"),
   courseId: varchar("course_id"),
+  taskId: varchar("task_id").unique(),
+  status: statusEnum().default("active"),
+  criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });
+
+export const tasks = pgTable("tasks", {
+  id: varchar().primaryKey(),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  description: varchar(),
+  topicId: varchar("topic_id"),
+});
+
+export const resources = pgTable("resources", {
+  id: varchar().primaryKey(),
+  taskId: varchar("task_id").notNull(),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  url: varchar(),
+  easeOfStarting: resourceLevelEnum("ease_of_starting"),
+  timeNeeded: resourceLevelEnum("time_needed"),
+  interactivity: resourceLevelEnum(),
+  usedYet: boolean("used_yet").default(false).notNull(),
+  position: integer(),
+});
+
+export const tasksRelations = relations(tasks, ({
+  one, many,
+}) => ({
+  topic: one(topics, {
+    fields: [tasks.topicId],
+    references: [topics.id],
+  }),
+  resources: many(resources),
+  daily: one(dailies, {
+    fields: [tasks.id],
+    references: [dailies.taskId],
+  }),
+}));
+
+export const resourcesRelations = relations(resources, ({
+  one,
+}) => ({
+  task: one(tasks, {
+    fields: [resources.taskId],
+    references: [tasks.id],
+  }),
+}));
 
 export const courseProviderRelations = relations(courseProviders, ({
   many,
@@ -100,6 +157,10 @@ export const dailiesRelations = relations(dailies, ({
   course: one(courses, {
     fields: [dailies.courseId],
     references: [courses.id],
+  }),
+  task: one(tasks, {
+    fields: [dailies.taskId],
+    references: [tasks.id],
   }),
 }));
 
@@ -121,6 +182,7 @@ export const topicsRelations = relations(topics, ({
   topicsToDomains: many(topicsToDomains),
   radarBlips: many(radarBlips),
   domainExclusions: many(domainExcludedTopics),
+  tasks: many(tasks),
 }));
 
 export const domains = pgTable("domains", {
