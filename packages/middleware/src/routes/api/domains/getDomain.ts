@@ -53,6 +53,21 @@ export default async function (server: FastifyInstance) {
                       },
                     },
                   },
+                  tasks: {
+                    columns: {
+                      id: true,
+                      name: true,
+                    },
+                    with: {
+                      daily: {
+                        columns: {
+                          id: true,
+                          name: true,
+                          completions: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -79,6 +94,21 @@ export default async function (server: FastifyInstance) {
                               completions: true,
                             },
                           },
+                        },
+                      },
+                    },
+                  },
+                  tasks: {
+                    columns: {
+                      id: true,
+                      name: true,
+                    },
+                    with: {
+                      daily: {
+                        columns: {
+                          id: true,
+                          name: true,
+                          completions: true,
                         },
                       },
                     },
@@ -183,8 +213,10 @@ export default async function (server: FastifyInstance) {
         id: string;
         name: string;
         completions: DailyCompletion[];
-        courseId: string;
-        courseName: string;
+        courseId?: string | null;
+        courseName?: string | null;
+        taskId?: string | null;
+        taskName?: string | null;
       }>();
 
       function addDailiesFromTopic(topic: {
@@ -197,6 +229,15 @@ export default async function (server: FastifyInstance) {
             completions?: DailyCompletion[] | null;
           }[];
         } | null; }[];
+        tasks?: {
+          id: string;
+          name: string;
+          daily?: {
+            id: string;
+            name: string;
+            completions?: DailyCompletion[] | null;
+          } | null;
+        }[];
       } | null | undefined) {
         if (!topic) return;
         for (const ttc of topic.topicsToCourses ?? []) {
@@ -212,6 +253,18 @@ export default async function (server: FastifyInstance) {
               courseName: course.name,
             });
           }
+        }
+        for (const task of topic.tasks ?? []) {
+          const d = task.daily;
+          if (!d) continue;
+          if (dailySourceMap.has(d.id)) continue;
+          dailySourceMap.set(d.id, {
+            id: d.id,
+            name: d.name,
+            completions: (d.completions ?? []) as DailyCompletion[],
+            taskId: task.id,
+            taskName: task.name,
+          });
         }
       }
 

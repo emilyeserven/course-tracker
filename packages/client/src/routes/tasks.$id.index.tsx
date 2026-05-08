@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, ExternalLinkIcon } from "lucide-react";
 
 import { DailyRecentDaysStrip } from "@/components/dailies";
@@ -7,8 +7,7 @@ import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourcesTable } from "@/components/tasks/ResourcesTable";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/ui/DeleteButton";
-import { deleteSingleTask, fetchSingleTask } from "@/utils";
+import { fetchSingleTask } from "@/utils";
 
 export const Route = createFileRoute("/tasks/$id/")({
   component: SingleTask,
@@ -34,8 +33,6 @@ function SingleTask() {
   const {
     id,
   } = Route.useParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const {
     isPending, error, data,
@@ -50,16 +47,6 @@ function SingleTask() {
 
   if (error || !data) {
     return <TaskError />;
-  }
-
-  async function handleDelete() {
-    await deleteSingleTask(id);
-    await queryClient.invalidateQueries({
-      queryKey: ["tasks"],
-    });
-    await navigate({
-      to: "/tasks",
-    });
   }
 
   const linkedDaily = data.daily;
@@ -152,9 +139,6 @@ function SingleTask() {
         >
           <ResourcesTable task={data} />
         </InfoArea>
-        <div>
-          <DeleteButton onClick={handleDelete}>Delete Task</DeleteButton>
-        </div>
       </div>
     </div>
   );

@@ -198,9 +198,9 @@ export function DomainLearningLog({
         )}
       </div>
       <p className="text-sm text-muted-foreground">
-        Auto-imports activity from your dailies for courses or topics linked to
-        this domain. You can also add manual notes with a date, description,
-        and optional link.
+        Auto-imports activity from your dailies for courses, topics, or tasks
+        linked to this domain. You can also add manual notes with a date,
+        description, and optional link.
       </p>
 
       {draft && (
@@ -462,6 +462,22 @@ export function DomainLearningLog({
                                 Course:
                                 {" "}
                                 {entry.courseName}
+                              </Link>
+                            )}
+                            {entry.taskId && entry.taskName && (
+                              <Link
+                                to="/tasks/$id"
+                                params={{
+                                  id: entry.taskId,
+                                }}
+                                className={`
+                                  text-blue-700
+                                  hover:text-blue-500
+                                `}
+                              >
+                                Task:
+                                {" "}
+                                {entry.taskName}
                               </Link>
                             )}
                             {entry.dailyId && entry.dailyName && (

@@ -7,7 +7,7 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
-import { EraserIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
+import { EraserIcon, MenuIcon, MoonIcon, SproutIcon, SunIcon } from "lucide-react";
 
 import { NavDropdown } from "@/components/layout/NavDropdown";
 import { Toaster } from "@/components/sonner";
@@ -119,17 +119,24 @@ const RootComponent: React.FunctionComponent = () => {
     }
   }
 
+  const navLinkClass = `
+    underline-offset-2
+    hover:underline
+    [&.active]:font-bold
+  `;
+
   return (
     <>
       <div className="container items-center justify-between gap-2 py-2">
-        <div className="flex gap-4">
+        <div
+          className={`
+            hidden gap-4
+            md:flex
+          `}
+        >
           <Link
             to="/dashboard"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
+            className={navLinkClass}
           >
             Dashboard
           </Link>
@@ -137,11 +144,7 @@ const RootComponent: React.FunctionComponent = () => {
           {showOnboard && (
             <Link
               to="/onboard"
-              className={`
-                underline-offset-2
-                hover:underline
-                [&.active]:font-bold
-              `}
+              className={navLinkClass}
             >
               Onboard
             </Link>
@@ -173,25 +176,84 @@ const RootComponent: React.FunctionComponent = () => {
 
           <Link
             to="/dailies"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
+            className={navLinkClass}
           >
             Dailies
           </Link>
 
           <Link
             to="/tasks"
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
+            className={navLinkClass}
           >
             Tasks
           </Link>
+        </div>
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true}>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Open navigation menu"
+              >
+                <MenuIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                {showOnboard && (
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer"
+                  >
+                    <Link to="/onboard">Onboard</Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/courses">Courses</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/providers">Providers</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/topics">Topics</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/domains">Domains</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/dailies">Dailies</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link to="/tasks">Tasks</Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex flex-row gap-2">
           <DropdownMenu>

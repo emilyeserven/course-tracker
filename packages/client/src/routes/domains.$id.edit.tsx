@@ -9,6 +9,7 @@ import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import { Textarea } from "@/components/forms/textarea";
+import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,8 @@ import {
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createDomain,
+  deleteSingleDomain,
+  duplicateDomain,
   fetchSingleDomain,
   fetchTopics,
   formHasChanges,
@@ -232,6 +235,41 @@ function SingleDomainEdit() {
     [excludedRows],
   );
 
+  async function handleDelete() {
+    try {
+      await deleteSingleDomain(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["domains"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/domains",
+      });
+    }
+    catch {
+      toast.error("Failed to delete domain. Please try again.");
+    }
+  }
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateDomain(id);
+      await queryClient.invalidateQueries({
+        queryKey: ["domains"],
+      });
+      skipBlocker.current = true;
+      await navigate({
+        to: "/domains/$id",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate domain. Please try again.");
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -396,7 +434,13 @@ function SingleDomainEdit() {
             </div>
           </section>
 
-          <div className="flex flex-row gap-4">
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Domain"
+            onDuplicate={handleDuplicate}
+            duplicateLabel="Duplicate Domain"
+          >
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -425,7 +469,7 @@ function SingleDomainEdit() {
             >
               Cancel
             </Button>
-          </div>
+          </EditPageFooter>
         </form>
         <UnsavedChangesDialog
           shouldBlockFn={() => hasChanges && !skipBlocker.current}

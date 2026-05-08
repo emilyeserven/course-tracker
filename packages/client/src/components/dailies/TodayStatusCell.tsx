@@ -76,8 +76,8 @@ export function TodayStatusCell({
     <div className="flex w-36 flex-row items-center gap-1">
       <span
         className={cn(`
-          inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs
-          font-medium
+          inline-flex items-center gap-1 rounded-full border-2 px-2 py-0.5
+          text-xs font-medium
         `, option?.pillClass)}
       >
         {option?.icon}
