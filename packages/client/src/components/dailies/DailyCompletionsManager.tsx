@@ -269,7 +269,7 @@ export function DailyCompletionsManager({
             const hasStatusEntry = status !== null;
             const isFuture = dateKey > realToday;
             const isToday = dateKey === realToday;
-            const isEditable = !effectiveReadOnly && (!readOnly || isToday);
+            const isEditable = isToday || !effectiveReadOnly;
             const hasActions = isEditable && !isFuture;
             const isExpanded = expandedDateKey === dateKey;
             const nextDateKey = visibleDateKeys[i + 1];
