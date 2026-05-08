@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailiesLimitSetting,
-  DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
   DailyProgressCell,
@@ -202,7 +201,6 @@ function Dailies() {
                     <th className="p-2 font-medium whitespace-nowrap">
                       Location
                     </th>
-                    <th className="w-8 p-2" />
                   </tr>
                 </thead>
                 <tbody>
@@ -355,9 +353,6 @@ function Dailies() {
                             location={daily.location}
                             taskId={daily.taskId ?? daily.task?.id ?? null}
                           />
-                        </td>
-                        <td className="p-2">
-                          <DailyCommentPopover daily={daily} />
                         </td>
                       </tr>
                     );

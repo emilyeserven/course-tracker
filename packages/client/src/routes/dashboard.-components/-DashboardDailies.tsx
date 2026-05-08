@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
-  DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
   DailyProgressCell,
@@ -158,7 +157,6 @@ export function DashboardDailies() {
                 ))}
                 <th className="p-2 font-medium">Today&apos;s Status</th>
                 <th className="p-2 font-medium whitespace-nowrap">Location</th>
-                <th className="w-8 p-2" />
               </tr>
             </thead>
             <tbody>
@@ -290,9 +288,6 @@ export function DashboardDailies() {
                     </td>
                     <td className="p-2 whitespace-nowrap">
                       <DailyLocationCell location={daily.location} />
-                    </td>
-                    <td className="p-2">
-                      <DailyCommentPopover daily={daily} />
                     </td>
                   </tr>
                 );
