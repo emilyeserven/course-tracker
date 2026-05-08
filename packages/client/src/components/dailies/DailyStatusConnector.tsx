@@ -39,31 +39,21 @@ export function DailyStatusConnector({
 
   const leftColor = getDailyStatusOption(left).borderColor;
   const rightColor = getDailyStatusOption(right).borderColor;
-
-  if (left === "freeze" || right === "freeze") {
-    const dashColor = left === "freeze" ? rightColor : leftColor;
-    return (
-      <div
-        aria-hidden
-        className={cn(
-          isVertical
-            ? "h-3 w-0 border-l-2 border-dashed"
-            : "h-0 w-3 border-t-2 border-dashed",
-          className,
-        )}
-        style={{
-          borderColor: dashColor,
-        }}
-      />
-    );
-  }
+  const direction = isVertical ? "to bottom" : "to right";
+  const isFreezeConnector = left === "freeze" || right === "freeze";
+  const dashMask
+    = `repeating-linear-gradient(${direction}, black 0 2px, transparent 2px 3px)`;
 
   return (
     <div
       aria-hidden
       className={cn(baseClass, className)}
       style={{
-        background: `linear-gradient(${isVertical ? "to bottom" : "to right"}, ${leftColor}, ${rightColor})`,
+        background: `linear-gradient(${direction}, ${leftColor}, ${rightColor})`,
+        ...(isFreezeConnector && {
+          WebkitMaskImage: dashMask,
+          maskImage: dashMask,
+        }),
       }}
     />
   );
