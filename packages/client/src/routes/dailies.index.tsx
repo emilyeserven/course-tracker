@@ -275,7 +275,8 @@ function Dailies() {
                                   left={day.status}
                                   right={currentStatus}
                                   className="
-                                    absolute top-5 left-[calc(50%+12px)] z-0 w-3
+                                    absolute top-5 -right-2
+                                    left-[calc(50%+12px)] z-0 w-auto
                                     -translate-y-1/2
                                   "
                                 />

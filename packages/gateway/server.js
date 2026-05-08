@@ -16,6 +16,29 @@ const MIDDLEWARE_DIR = path.resolve(__dirname, "../middleware");
 
 let middlewareChild = null;
 
+// --- Schema push ---
+
+function pushSchema() {
+  return new Promise((resolve, reject) => {
+    console.log("[gateway] pushing database schema with drizzle-kit...");
+    const proc = spawn("pnpm", ["exec", "drizzle-kit", "push"], {
+      cwd: MIDDLEWARE_DIR,
+      stdio: "inherit",
+      env: process.env,
+    });
+    proc.on("error", reject);
+    proc.on("exit", (code) => {
+      if (code === 0) {
+        console.log("[gateway] schema push complete");
+        resolve();
+      }
+      else {
+        reject(new Error(`drizzle-kit push exited with code ${code}`));
+      }
+    });
+  });
+}
+
 // --- Child process management ---
 
 function startMiddleware() {
@@ -125,6 +148,8 @@ process.on("SIGINT", shutdown);
 // --- Start ---
 
 async function main() {
+  await pushSchema();
+
   startMiddleware();
 
   await waitForService("middleware (fastify)", MIDDLEWARE_PORT);
