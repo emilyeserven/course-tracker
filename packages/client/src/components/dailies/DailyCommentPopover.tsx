@@ -10,11 +10,7 @@ import { Textarea } from "@/components/forms/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  getTodayKey,
-  upsertDaily,
-  withCompletionNote,
-} from "@/utils";
+import { upsertDaily } from "@/utils";
 
 interface DailyCommentPopoverProps {
   daily: Daily;
@@ -23,32 +19,29 @@ interface DailyCommentPopoverProps {
 export function DailyCommentPopover({
   daily,
 }: DailyCommentPopoverProps) {
-  const todayKey = getTodayKey();
   const queryClient = useQueryClient();
-  const note
-    = daily.completions.find(c => c.date === todayKey)?.note?.trim() || "";
-  const hasNote = note.length > 0;
+  const description = daily.description?.trim() || "";
+  const hasDescription = description.length > 0;
 
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(note);
+  const [draft, setDraft] = useState(description);
 
   useEffect(() => {
     if (!open) {
       return;
     }
-    setIsEditing(!hasNote);
-    setDraft(note);
-  }, [open, hasNote, note]);
+    setIsEditing(!hasDescription);
+    setDraft(description);
+  }, [open, hasDescription, description]);
 
   const mutation = useMutation({
-    mutationFn: (nextNote: string | null) => {
-      const completions = withCompletionNote(daily, todayKey, nextNote);
+    mutationFn: (nextDescription: string | null) => {
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
-        description: daily.description ?? null,
-        completions,
+        description: nextDescription,
+        completions: daily.completions,
         courseProviderId: daily.provider?.id ?? null,
         courseId: daily.course?.id ?? null,
         taskId: daily.taskId ?? daily.task?.id ?? null,
@@ -68,7 +61,7 @@ export function DailyCommentPopover({
       setOpen(false);
     },
     onError: () => {
-      toast.error("Failed to save comment.");
+      toast.error("Failed to save description.");
     },
   });
 
@@ -87,13 +80,13 @@ export function DailyCommentPopover({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={hasNote
-            ? `View comment for ${daily.name}`
-            : `Add comment for ${daily.name}`}
-          title={hasNote ? "View comment" : "Add comment"}
+          aria-label={hasDescription
+            ? `View description for ${daily.name}`
+            : `Add description for ${daily.name}`}
+          title={hasDescription ? "View description" : "Add description"}
           className={cn(
             "text-muted-foreground",
-            hasNote && "text-foreground",
+            hasDescription && "text-foreground",
           )}
         >
           <MessageSquareIcon className="size-3.5" />
@@ -103,17 +96,17 @@ export function DailyCommentPopover({
         className="w-80 p-3"
         align="end"
       >
-        {hasNote && !isEditing
+        {hasDescription && !isEditing
           ? (
             <div className="flex flex-col gap-2">
-              <p className="text-sm whitespace-pre-wrap">{note}</p>
+              <p className="text-sm whitespace-pre-wrap">{description}</p>
               <div className="flex justify-end">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setDraft(note);
+                    setDraft(description);
                     setIsEditing(true);
                   }}
                 >
@@ -131,19 +124,19 @@ export function DailyCommentPopover({
               <Textarea
                 value={draft}
                 onChange={e => setDraft(e.target.value)}
-                placeholder="Add a comment..."
+                placeholder="Add a description..."
                 autoFocus
                 maxLength={500}
                 className="min-h-20"
               />
               <div className="flex justify-end gap-2">
-                {hasNote && (
+                {hasDescription && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setDraft(note);
+                      setDraft(description);
                       setIsEditing(false);
                     }}
                     disabled={mutation.isPending}
