@@ -83,6 +83,7 @@ export default async function (server: FastifyInstance) {
             taskId: t.taskId,
             name: t.name,
             isComplete: t.isComplete,
+            url: t.url ?? null,
             position: t.position,
           })),
         daily: task.daily

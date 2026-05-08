@@ -36,7 +36,9 @@ export function DailyRecentDaysStrip({
   size = "lg",
   showLabels = true,
 }: DailyRecentDaysStripProps) {
-  const days = getRecentDays(daily, count, getReferenceDateKey(daily), labelFormat);
+  const days = getRecentDays(daily, count, getReferenceDateKey(daily), labelFormat)
+    .slice()
+    .reverse();
 
   return (
     <div

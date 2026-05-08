@@ -28,7 +28,7 @@ export function DailyStatusConnector({
   const isVertical = orientation === "vertical";
   const baseClass = isVertical ? "h-3 w-0.5" : "h-0.5 w-3";
 
-  if (left === null || right === null) {
+  if (left === null && right === null) {
     return (
       <div
         aria-hidden
@@ -43,7 +43,10 @@ export function DailyStatusConnector({
         aria-hidden
         className={cn(
           baseClass,
-          "bg-neutral-400/15 dark:bg-neutral-500/20",
+          `
+            bg-neutral-400/15
+            dark:bg-neutral-500/20
+          `,
           className,
         )}
       />

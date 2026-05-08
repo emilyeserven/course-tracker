@@ -124,6 +124,7 @@ export const taskTodos = pgTable("task_todos", {
     length: 500,
   }).notNull(),
   isComplete: boolean("is_complete").default(false).notNull(),
+  url: varchar(),
   position: integer(),
 });
 

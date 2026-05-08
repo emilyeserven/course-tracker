@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
   DailyProgressCell,
@@ -155,6 +156,7 @@ export function DashboardDailies() {
                     {d.label}
                   </th>
                 ))}
+                <th className="p-2 font-medium">Comment</th>
                 <th className="p-2 font-medium">Today&apos;s Status</th>
                 <th className="p-2 font-medium whitespace-nowrap">Location</th>
               </tr>
@@ -235,12 +237,7 @@ export function DashboardDailies() {
                     </td>
                     {days.map((day, i) => {
                       const isLast = i === days.length - 1;
-                      const linkToToday
-                        = isLast
-                          && day.status
-                          && day.status !== "incomplete"
-                          && currentStatus
-                          && currentStatus !== "incomplete";
+                      const linkToToday = isLast;
                       return (
                         <td
                           key={day.dateKey}
@@ -277,6 +274,11 @@ export function DashboardDailies() {
                         </td>
                       );
                     })}
+                    <td className="p-2">
+                      {currentStatus !== null && (
+                        <DailyCommentPopover daily={daily} />
+                      )}
+                    </td>
                     <td className="p-2">
                       <TodayStatusCell
                         daily={daily}
