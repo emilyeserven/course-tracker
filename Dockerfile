@@ -63,6 +63,7 @@ COPY --from=build /app/packages/types/dist/ ./packages/types/dist/
 COPY --from=build /app/packages/types/src/ ./packages/types/src/
 COPY --from=build /app/packages/middleware/dist/ ./packages/middleware/dist/
 COPY --from=build /app/packages/middleware/src/ ./packages/middleware/src/
+COPY --from=build /app/packages/middleware/drizzle.config.ts ./packages/middleware/drizzle.config.ts
 COPY --from=build /app/packages/client/dist/ ./packages/client/dist/
 COPY --from=build /app/packages/gateway/server.js ./packages/gateway/server.js
 
