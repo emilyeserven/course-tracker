@@ -10,6 +10,7 @@
     "@neondatabase/serverless": "1.0.2",
     "dotenv": "17.2.3",
     "dotenv-cli": "11.0.0",
+    "drizzle-kit": "0.31.10",
     "drizzle-orm": "0.45.2",
     "fastify": "5.8.5",
     "pg": "8.16.3",
@@ -20,7 +21,6 @@
     "@fastify/type-provider-json-schema-to-ts": "5.0.0",
     "@types/node": "24.10.1",
     "@types/pg": "8.15.6",
-    "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
     "globals": "17.4.0",
     "nodemon": "3.1.14",
@@ -42,6 +42,7 @@
     "push:prod": "dotenv -e .env.production -- drizzle-kit push",
     "push:dev": "dotenv -e .env -- drizzle-kit push",
     "push": "pnpm run push:prod && pnpm run push:dev",
+    "db:push": "drizzle-kit push",
     "studio": "pnpm drizzle-kit studio"
   },
   "type": "module"

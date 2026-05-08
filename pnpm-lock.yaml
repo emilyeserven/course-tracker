@@ -273,6 +273,9 @@ importers:
       dotenv-cli:
         specifier: 11.0.0
         version: 11.0.0
+      drizzle-kit:
+        specifier: 0.31.10
+        version: 0.31.10
       drizzle-orm:
         specifier: 0.45.2
         version: 0.45.2(@neondatabase/serverless@1.0.2)(@types/pg@8.15.6)(pg@8.16.3)
@@ -298,9 +301,6 @@ importers:
       '@types/pg':
         specifier: 8.15.6
         version: 8.15.6
-      drizzle-kit:
-        specifier: 0.31.10
-        version: 0.31.10
       eslint:
         specifier: 9.39.4
         version: 9.39.4(jiti@2.6.1)
