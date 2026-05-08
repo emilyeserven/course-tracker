@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router";
 import {
   CheckSquareIcon,
   CalendarCheckIcon,
-  ExternalLinkIcon,
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
@@ -18,6 +17,7 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
+import { Button } from "@/components/ui/button";
 
 export function TaskBox({
   id,
@@ -55,22 +55,21 @@ export function TaskBox({
               )}
           </div>
           {daily && (
-            <Link
-              to="/dailies/$id"
-              params={{
-                id: daily.id,
-              }}
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              asChild
               title={`Open Daily: ${daily.name}`}
-              className={`
-                inline-flex items-center gap-1 text-xs text-blue-700
-                hover:text-blue-500
-                dark:text-blue-300
-              `}
             >
-              <CalendarCheckIcon className="size-3.5" />
-              <span className="max-w-32 truncate">{daily.name}</span>
-              <ExternalLinkIcon className="size-3" />
-            </Link>
+              <Link
+                to="/dailies/$id"
+                params={{
+                  id: daily.id,
+                }}
+              >
+                <CalendarCheckIcon />
+              </Link>
+            </Button>
           )}
         </ContentBoxHeaderBar>
         <ContentBoxTitle>
