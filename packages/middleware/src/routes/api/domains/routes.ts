@@ -7,7 +7,6 @@ import createDomain from "./createDomain";
 import upsertDomain from "./upsertDomain";
 import deleteDomain from "./deleteDomain";
 import duplicateDomain from "./duplicateDomain";
-import learningLogEntries from "./learningLogEntries";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -18,5 +17,4 @@ export default async function (server: FastifyInstance) {
   fastify.register(upsertDomain);
   fastify.register(deleteDomain);
   fastify.register(duplicateDomain);
-  fastify.register(learningLogEntries);
 }

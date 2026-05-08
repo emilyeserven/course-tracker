@@ -2,7 +2,6 @@ import type { BulkBlipEntry } from "@/utils";
 import type {
   DomainExcludedTopic,
   DomainTopic,
-  LearningLogEntry,
   RadarBlip,
   RadarQuadrant,
   RadarRing,
@@ -34,7 +33,6 @@ interface BlipLlmAssistProps {
   domainDescription?: string | null;
   domainTopics?: DomainTopic[];
   excludedTopics?: DomainExcludedTopic[];
-  learningLog?: LearningLogEntry[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   topics: TopicForTopicsPage[];
@@ -150,28 +148,11 @@ function formatExcludedTopics(excluded: DomainExcludedTopic[]): string {
     .join("\n");
 }
 
-const MAX_LEARNING_LOG_ENTRIES = 20;
-
-function formatLearningLog(entries: LearningLogEntry[]): string {
-  if (!entries || entries.length === 0) {
-    return "- (no learning log entries yet)";
-  }
-  return entries
-    .slice(0, MAX_LEARNING_LOG_ENTRIES)
-    .map((entry) => {
-      const tag = entry.source === "manual" ? "manual" : "daily";
-      const courseSuffix = entry.courseName ? ` [${entry.courseName}]` : "";
-      return `- ${entry.date} (${tag}): ${entry.description}${courseSuffix}`;
-    })
-    .join("\n");
-}
-
 interface BuildPromptArgs {
   domainTitle: string;
   domainDescription?: string | null;
   domainTopics: DomainTopic[];
   excludedTopics: DomainExcludedTopic[];
-  learningLog: LearningLogEntry[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   existingBlips: { topicName: string;
@@ -184,7 +165,6 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
     domainDescription,
     domainTopics,
     excludedTopics,
-    learningLog,
     quadrants,
     rings,
     existingBlips,
@@ -220,10 +200,6 @@ Topics already linked to this domain, with the courses I'm taking and current
 progress for each (use this to gauge what I've actually been investing time in):
 ${formatTopicsWithCourses(domainTopics)}
 
-Recent learning-log activity for this domain (manual notes plus auto-imported
-daily completions, most recent first):
-${formatLearningLog(learningLog)}
-
 Topics already on the radar (with current descriptions, if any):
 ${existingList}
 
@@ -257,7 +233,6 @@ export function BlipLlmAssist({
   domainDescription = null,
   domainTopics = [],
   excludedTopics = [],
-  learningLog = [],
   quadrants,
   rings,
   topics,
@@ -271,7 +246,6 @@ export function BlipLlmAssist({
         domainDescription,
         domainTopics,
         excludedTopics,
-        learningLog,
         quadrants,
         rings,
         existingBlips: existingBlips.map(b => ({
@@ -284,7 +258,6 @@ export function BlipLlmAssist({
       domainDescription,
       domainTopics,
       excludedTopics,
-      learningLog,
       quadrants,
       rings,
       existingBlips,

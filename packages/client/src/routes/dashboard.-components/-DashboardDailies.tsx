@@ -2,11 +2,12 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { FlameIcon, LaughIcon, MessageSquareIcon } from "lucide-react";
+import { FlameIcon, LaughIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
   DailyProgressCell,
@@ -291,21 +292,7 @@ export function DashboardDailies() {
                       <DailyLocationCell location={daily.location} />
                     </td>
                     <td className="p-2">
-                      <Link
-                        to="/dailies/$id"
-                        params={{
-                          id: daily.id,
-                        }}
-                        aria-label={`View comments for ${daily.name}`}
-                        title="View daily comments"
-                        className="
-                          inline-flex items-center justify-center rounded-md p-1
-                          text-muted-foreground transition
-                          hover:bg-muted hover:text-foreground
-                        "
-                      >
-                        <MessageSquareIcon className="size-3.5" />
-                      </Link>
+                      <DailyCommentPopover daily={daily} />
                     </td>
                   </tr>
                 );

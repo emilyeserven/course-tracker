@@ -1,9 +1,8 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { DailyCompletion, DailyCriteria, Domain, LearningLogEntry } from "@emstack/types/src";
+import type { Domain } from "@emstack/types/src";
 import { idParamSchema } from "@/utils/schemas";
-import { buildDomainLearningLog } from "@/utils/learningLog";
 
 const getDomainSchema = {
   schema: {
@@ -41,32 +40,6 @@ export default async function (server: FastifyInstance) {
                           progressTotal: true,
                           status: true,
                         },
-                        with: {
-                          dailies: {
-                            columns: {
-                              id: true,
-                              name: true,
-                              completions: true,
-                              criteria: true,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                  tasks: {
-                    columns: {
-                      id: true,
-                      name: true,
-                    },
-                    with: {
-                      daily: {
-                        columns: {
-                          id: true,
-                          name: true,
-                          completions: true,
-                          criteria: true,
-                        },
                       },
                     },
                   },
@@ -88,32 +61,6 @@ export default async function (server: FastifyInstance) {
                           progressTotal: true,
                           status: true,
                         },
-                        with: {
-                          dailies: {
-                            columns: {
-                              id: true,
-                              name: true,
-                              completions: true,
-                              criteria: true,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                  tasks: {
-                    columns: {
-                      id: true,
-                      name: true,
-                    },
-                    with: {
-                      daily: {
-                        columns: {
-                          id: true,
-                          name: true,
-                          completions: true,
-                          criteria: true,
-                        },
                       },
                     },
                   },
@@ -131,7 +78,6 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
-          learningLogEntries: true,
         },
       });
 
@@ -213,98 +159,6 @@ export default async function (server: FastifyInstance) {
         })
         .filter((row): row is NonNullable<typeof row> => Boolean(row));
 
-      const dailySourceMap = new Map<string, {
-        id: string;
-        name: string;
-        completions: DailyCompletion[];
-        criteria?: DailyCriteria | null;
-        courseId?: string | null;
-        courseName?: string | null;
-        taskId?: string | null;
-        taskName?: string | null;
-      }>();
-
-      function addDailiesFromTopic(topic: {
-        topicsToCourses?: { course: {
-          id: string;
-          name: string;
-          dailies?: {
-            id: string;
-            name: string;
-            completions?: DailyCompletion[] | null;
-            criteria?: DailyCriteria | null;
-          }[];
-        } | null; }[];
-        tasks?: {
-          id: string;
-          name: string;
-          daily?: {
-            id: string;
-            name: string;
-            completions?: DailyCompletion[] | null;
-            criteria?: DailyCriteria | null;
-          } | null;
-        }[];
-      } | null | undefined) {
-        if (!topic) return;
-        for (const ttc of topic.topicsToCourses ?? []) {
-          const course = ttc.course;
-          if (!course) continue;
-          for (const d of course.dailies ?? []) {
-            const existing = dailySourceMap.get(d.id);
-            if (existing) {
-              if (!existing.courseId) {
-                existing.courseId = course.id;
-                existing.courseName = course.name;
-              }
-              continue;
-            }
-            dailySourceMap.set(d.id, {
-              id: d.id,
-              name: d.name,
-              completions: (d.completions ?? []) as DailyCompletion[],
-              criteria: (d.criteria ?? null) as DailyCriteria | null,
-              courseId: course.id,
-              courseName: course.name,
-            });
-          }
-        }
-        for (const task of topic.tasks ?? []) {
-          const d = task.daily;
-          if (!d) continue;
-          const existing = dailySourceMap.get(d.id);
-          if (existing) {
-            if (!existing.taskId) {
-              existing.taskId = task.id;
-              existing.taskName = task.name;
-            }
-            continue;
-          }
-          dailySourceMap.set(d.id, {
-            id: d.id,
-            name: d.name,
-            completions: (d.completions ?? []) as DailyCompletion[],
-            criteria: (d.criteria ?? null) as DailyCriteria | null,
-            taskId: task.id,
-            taskName: task.name,
-          });
-        }
-      }
-
-      for (const ttd of domain.topicsToDomains) {
-        addDailiesFromTopic(ttd.topic);
-      }
-      for (const blip of domain.radarBlips ?? []) {
-        addDailiesFromTopic(blip.topic);
-      }
-
-      const dailySource = Array.from(dailySourceMap.values());
-
-      const learningLog: LearningLogEntry[] = buildDomainLearningLog(
-        domain.learningLogEntries ?? [],
-        dailySource,
-      );
-
       const result: Domain = {
         id: domain.id,
         title: domain.title,
@@ -313,7 +167,6 @@ export default async function (server: FastifyInstance) {
         topicCount: topics.length,
         topics,
         excludedTopics,
-        learningLog,
       };
 
       return result;

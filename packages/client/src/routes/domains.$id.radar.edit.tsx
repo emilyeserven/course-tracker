@@ -811,7 +811,6 @@ function RadarEdit() {
               domainDescription={domainDetail?.description ?? null}
               domainTopics={domainDetail?.topics ?? []}
               excludedTopics={domainDetail?.excludedTopics ?? []}
-              learningLog={domainDetail?.learningLog ?? []}
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}
