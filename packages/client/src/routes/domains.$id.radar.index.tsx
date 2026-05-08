@@ -9,14 +9,25 @@ import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, upsertRadarBlip } from "@/utils";
 
+interface RadarSearch {
+  blipId?: string;
+}
+
 export const Route = createFileRoute("/domains/$id/radar/")({
   component: RadarView,
+  validateSearch: (search: Record<string, unknown>): RadarSearch => ({
+    blipId:
+      typeof search.blipId === "string" && search.blipId
+        ? search.blipId
+        : undefined,
+  }),
 });
 
 function RadarView() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const queryClient = useQueryClient();
 
   const {
@@ -129,6 +140,7 @@ function RadarView() {
               quadrants={data.quadrants}
               rings={data.rings}
               blips={data.blips}
+              initialSelectedBlipId={search.blipId ?? null}
               onDescriptionChange={(blipId, description) =>
                 descriptionMutation.mutate({
                   blipId,

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
@@ -18,6 +18,7 @@ function SingleDomain() {
   const {
     id,
   } = Route.useParams();
+  const navigate = useNavigate();
 
   const {
     isPending, error, data,
@@ -112,6 +113,17 @@ function SingleDomain() {
               rings={radarData.rings}
               blips={radarData.blips}
               size={400}
+              showLegend={false}
+              onBlipClick={blip =>
+                navigate({
+                  to: "/domains/$id/radar",
+                  params: {
+                    id,
+                  },
+                  search: {
+                    blipId: blip.id,
+                  },
+                })}
             />
           </InfoArea>
         )}

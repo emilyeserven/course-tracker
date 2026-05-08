@@ -44,7 +44,12 @@ export function DashboardTopics() {
         </p>
       )}
       {sorted.length > 0 && (
-        <ul className="flex flex-col divide-y">
+        <ul
+          className="
+            flex max-h-80 flex-col divide-y overflow-y-auto
+            [scrollbar-width:thin]
+          "
+        >
           {sorted.map(topic => (
             <li
               key={topic.id}

@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import { routeTree } from "./routeTree.gen.ts";
 
+import { SettingsProvider } from "@/context/SettingsProvider.tsx";
 import { ThemeProvider } from "@/context/ThemeProvider.tsx";
 
 const router = createRouter({
@@ -32,10 +33,12 @@ if (!rootElement.innerHTML) {
           defaultTheme="light"
           storageKey="vite-ui-theme"
         >
-          <RouterProvider
-            router={router}
-            context={queryClient}
-          />
+          <SettingsProvider>
+            <RouterProvider
+              router={router}
+              context={queryClient}
+            />
+          </SettingsProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,
