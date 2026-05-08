@@ -1,5 +1,8 @@
 import type { BulkBlipEntry } from "@/utils";
 import type {
+  DomainExcludedTopic,
+  DomainTopic,
+  LearningLogEntry,
   RadarBlip,
   RadarQuadrant,
   RadarRing,
@@ -28,6 +31,10 @@ import {
 interface BlipLlmAssistProps {
   domainId: string;
   domainTitle: string;
+  domainDescription?: string | null;
+  domainTopics?: DomainTopic[];
+  excludedTopics?: DomainExcludedTopic[];
+  learningLog?: LearningLogEntry[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   topics: TopicForTopicsPage[];
@@ -61,11 +68,17 @@ interface ResolvedLlmEntry {
   problems: string[];
 }
 
-function computeProblems(entry: Pick<ResolvedLlmEntry,
-  "topicName" | "quadrantInput" | "quadrantId" | "ringInput" | "ringId">): string[] {
+function computeProblems(
+  entry: Pick<ResolvedLlmEntry,
+    "topicName" | "quadrantInput" | "quadrantId" | "ringInput" | "ringId">,
+  excludedNames?: Set<string>,
+): string[] {
   const problems: string[] = [];
   if (!entry.topicName) {
     problems.push("missing topic");
+  }
+  else if (excludedNames?.has(entry.topicName.toLowerCase())) {
+    problems.push("topic is excluded from this radar");
   }
   if (!entry.quadrantId) {
     problems.push(
@@ -82,25 +95,120 @@ function computeProblems(entry: Pick<ResolvedLlmEntry,
   return problems;
 }
 
-function buildLlmPrompt(
-  domainTitle: string,
-  quadrants: RadarQuadrant[],
-  rings: RadarRing[],
+function describeProgress(course: {
+  progressCurrent?: number | null;
+  progressTotal?: number | null;
+  status?: string | null;
+}): string {
+  const parts: string[] = [];
+  const current = course.progressCurrent ?? 0;
+  const total = course.progressTotal ?? 0;
+  if (total > 0) {
+    const pct = Math.round((current / total) * 100);
+    parts.push(`${current}/${total} (${pct}%)`);
+  }
+  else if (current > 0) {
+    parts.push(`${current} done`);
+  }
+  if (course.status) {
+    parts.push(course.status);
+  }
+  return parts.length > 0 ? ` — ${parts.join(", ")}` : "";
+}
+
+function formatTopicsWithCourses(domainTopics: DomainTopic[]): string {
+  if (!domainTopics || domainTopics.length === 0) {
+    return "- (no topics linked to this domain yet)";
+  }
+  return domainTopics
+    .map((topic) => {
+      const lines: string[] = [];
+      lines.push(`- ${topic.name}`);
+      const courses = topic.courses ?? [];
+      if (courses.length === 0) {
+        lines.push("  - (no courses)");
+      }
+      else {
+        for (const course of courses) {
+          lines.push(`  - ${course.name}${describeProgress(course)}`);
+        }
+      }
+      return lines.join("\n");
+    })
+    .join("\n");
+}
+
+function formatExcludedTopics(excluded: DomainExcludedTopic[]): string {
+  if (!excluded || excluded.length === 0) {
+    return "- (none)";
+  }
+  return excluded
+    .map((row) => {
+      const reason = row.reason?.trim();
+      return reason ? `- ${row.name} — ${reason}` : `- ${row.name}`;
+    })
+    .join("\n");
+}
+
+const MAX_LEARNING_LOG_ENTRIES = 20;
+
+function formatLearningLog(entries: LearningLogEntry[]): string {
+  if (!entries || entries.length === 0) {
+    return "- (no learning log entries yet)";
+  }
+  return entries
+    .slice(0, MAX_LEARNING_LOG_ENTRIES)
+    .map((entry) => {
+      const tag = entry.source === "manual" ? "manual" : "daily";
+      const courseSuffix = entry.courseName ? ` [${entry.courseName}]` : "";
+      return `- ${entry.date} (${tag}): ${entry.description}${courseSuffix}`;
+    })
+    .join("\n");
+}
+
+interface BuildPromptArgs {
+  domainTitle: string;
+  domainDescription?: string | null;
+  domainTopics: DomainTopic[];
+  excludedTopics: DomainExcludedTopic[];
+  learningLog: LearningLogEntry[];
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
   existingBlips: { topicName: string;
-    description?: string | null; }[],
-): string {
+    description?: string | null; }[];
+}
+
+function buildLlmPrompt(args: BuildPromptArgs): string {
+  const {
+    domainTitle,
+    domainDescription,
+    domainTopics,
+    excludedTopics,
+    learningLog,
+    quadrants,
+    rings,
+    existingBlips,
+  } = args;
+
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
   const ringList = rings.map(r => `- ${r.name}`).join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
+  const descriptionBlock = domainDescription?.trim()
+    ? domainDescription.trim()
+    : "(no description provided)";
   const existingList = existingBlips.length > 0
     ? existingBlips
-        .map((b) => {
-          const desc = b.description?.trim();
-          return desc ? `- ${b.topicName}: ${desc}` : `- ${b.topicName}`;
-        })
-        .join("\n")
+      .map((b) => {
+        const desc = b.description?.trim();
+        return desc ? `- ${b.topicName}: ${desc}` : `- ${b.topicName}`;
+      })
+      .join("\n")
     : "- (none yet)";
+
   return `I'm placing topics on a tech-radar style chart for the "${domainLabel}" domain.
+
+Domain description:
+${descriptionBlock}
 
 The radar has these quadrants:
 ${quadrantList || "- (none defined)"}
@@ -108,8 +216,21 @@ ${quadrantList || "- (none defined)"}
 And these rings (innermost first):
 ${ringList || "- (none defined)"}
 
+Topics already linked to this domain, with the courses I'm taking and current
+progress for each (use this to gauge what I've actually been investing time in):
+${formatTopicsWithCourses(domainTopics)}
+
+Recent learning-log activity for this domain (manual notes plus auto-imported
+daily completions, most recent first):
+${formatLearningLog(learningLog)}
+
 Topics already on the radar (with current descriptions, if any):
 ${existingList}
+
+Topics I have explicitly EXCLUDED from this radar — do NOT suggest these,
+even with a different description or placement. The reason for each is in
+parentheses; treat the reasons as binding context for what I don't want:
+${formatExcludedTopics(excludedTopics)}
 
 Please suggest topics relevant to the "${domainLabel}" domain and return ONLY a
 JSON array of entries, using this exact shape (no other keys, no commentary):
@@ -125,13 +246,18 @@ JSON array of entries, using this exact shape (no other keys, no commentary):
 
 You may include topics already on the radar to suggest a better description or
 a different placement for them. The reviewer will choose whether to overwrite,
-update only the description, or skip each one.
+update only the description, or skip each one. Do not include any topic from
+the excluded list above.
 `;
 }
 
 export function BlipLlmAssist({
   domainId,
   domainTitle,
+  domainDescription = null,
+  domainTopics = [],
+  excludedTopics = [],
+  learningLog = [],
   quadrants,
   rings,
   topics,
@@ -140,16 +266,29 @@ export function BlipLlmAssist({
 }: BlipLlmAssistProps) {
   const prompt = useMemo(
     () =>
-      buildLlmPrompt(
+      buildLlmPrompt({
         domainTitle,
+        domainDescription,
+        domainTopics,
+        excludedTopics,
+        learningLog,
         quadrants,
         rings,
-        existingBlips.map(b => ({
+        existingBlips: existingBlips.map(b => ({
           topicName: b.topicName,
           description: b.description,
         })),
-      ),
-    [domainTitle, quadrants, rings, existingBlips],
+      }),
+    [
+      domainTitle,
+      domainDescription,
+      domainTopics,
+      excludedTopics,
+      learningLog,
+      quadrants,
+      rings,
+      existingBlips,
+    ],
   );
 
   const [jsonText, setJsonText] = useState("");
@@ -200,6 +339,16 @@ export function BlipLlmAssist({
     rings.forEach(r => map.set(r.id, r));
     return map;
   }, [rings]);
+
+  const excludedNamesLower = useMemo(() => {
+    const set = new Set<string>();
+    excludedTopics.forEach((t) => {
+      if (t.name) {
+        set.add(t.name.toLowerCase());
+      }
+    });
+    return set;
+  }, [excludedTopics]);
 
   async function copyPrompt() {
     if (navigator.clipboard?.writeText) {
@@ -287,6 +436,7 @@ export function BlipLlmAssist({
         ringId: ringMatch?.id ?? null,
       };
 
+      const isExcluded = excludedNamesLower.has(topicName.toLowerCase());
       return {
         ...partial,
         matchedTopicId: topicMatch?.id ?? null,
@@ -296,8 +446,12 @@ export function BlipLlmAssist({
         existingQuadrantId: existingBlip?.quadrantId ?? null,
         existingRingId: existingBlip?.ringId ?? null,
         existingDescription: existingBlip?.description ?? null,
-        resolution: existingBlip ? "overwrite" : "create",
-        problems: computeProblems(partial),
+        resolution: isExcluded
+          ? "skip"
+          : existingBlip
+            ? "overwrite"
+            : "create",
+        problems: computeProblems(partial, excludedNamesLower),
       };
     });
     setResolved(out);
@@ -318,7 +472,7 @@ export function BlipLlmAssist({
         };
         return {
           ...next,
-          problems: computeProblems(next),
+          problems: computeProblems(next, excludedNamesLower),
         };
       });
     });
@@ -536,12 +690,12 @@ export function BlipLlmAssist({
                   className={`
                     flex flex-col gap-2 rounded-sm border px-3 py-2
                     ${isSkipped
-                      ? "border-muted bg-muted/30 opacity-70"
-                      : hasProblems
-                        ? "border-red-200 bg-red-50"
-                        : conflicts
-                          ? "border-amber-300 bg-amber-50"
-                          : "bg-white"}
+                  ? "border-muted bg-muted/30 opacity-70"
+                  : hasProblems
+                    ? "border-red-200 bg-red-50"
+                    : conflicts
+                      ? "border-amber-300 bg-amber-50"
+                      : "bg-white"}
                   `}
                 >
                   <div className="flex flex-row flex-wrap items-center gap-2">
@@ -613,12 +767,14 @@ export function BlipLlmAssist({
                     `}
                   >
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs uppercase text-muted-foreground">
+                      <label className="text-xs text-muted-foreground uppercase">
                         Quadrant
                         {r.quadrantInput && (
                           <>
                             {" "}
-                            <span className="normal-case text-muted-foreground/70">
+                            <span
+                              className="text-muted-foreground/70 normal-case"
+                            >
                               (LLM:
                               {" "}
                               {r.quadrantInput}
@@ -651,12 +807,14 @@ export function BlipLlmAssist({
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs uppercase text-muted-foreground">
+                      <label className="text-xs text-muted-foreground uppercase">
                         Ring
                         {r.ringInput && (
                           <>
                             {" "}
-                            <span className="normal-case text-muted-foreground/70">
+                            <span
+                              className="text-muted-foreground/70 normal-case"
+                            >
                               (LLM:
                               {" "}
                               {r.ringInput}
@@ -689,7 +847,7 @@ export function BlipLlmAssist({
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs uppercase text-muted-foreground">
+                      <label className="text-xs text-muted-foreground uppercase">
                         Action
                       </label>
                       <Select
@@ -705,24 +863,24 @@ export function BlipLlmAssist({
                         <SelectContent>
                           {conflicts
                             ? (
-                                <>
-                                  <SelectItem value="overwrite">
-                                    Overwrite existing
-                                  </SelectItem>
-                                  <SelectItem value="updateDescription">
-                                    Update description only
-                                  </SelectItem>
-                                  <SelectItem value="skip">
-                                    Skip (keep existing)
-                                  </SelectItem>
-                                </>
-                              )
+                              <>
+                                <SelectItem value="overwrite">
+                                  Overwrite existing
+                                </SelectItem>
+                                <SelectItem value="updateDescription">
+                                  Update description only
+                                </SelectItem>
+                                <SelectItem value="skip">
+                                  Skip (keep existing)
+                                </SelectItem>
+                              </>
+                            )
                             : (
-                                <>
-                                  <SelectItem value="create">Add</SelectItem>
-                                  <SelectItem value="skip">Skip</SelectItem>
-                                </>
-                              )}
+                              <>
+                                <SelectItem value="create">Add</SelectItem>
+                                <SelectItem value="skip">Skip</SelectItem>
+                              </>
+                            )}
                         </SelectContent>
                       </Select>
                     </div>

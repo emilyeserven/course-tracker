@@ -120,6 +120,7 @@ export const topicsRelations = relations(topics, ({
   topicsToCourses: many(topicsToCourses),
   topicsToDomains: many(topicsToDomains),
   radarBlips: many(radarBlips),
+  domainExclusions: many(domainExcludedTopics),
 }));
 
 export const domains = pgTable("domains", {
@@ -138,7 +139,65 @@ export const domainsRelations = relations(domains, ({
   radarQuadrants: many(radarQuadrants),
   radarRings: many(radarRings),
   radarBlips: many(radarBlips),
+  excludedTopics: many(domainExcludedTopics),
+  learningLogEntries: many(domainLearningLogEntries),
 }));
+
+export const domainLearningLogEntries = pgTable("domain_learning_log_entries", {
+  id: varchar().primaryKey(),
+  domainId: varchar("domain_id")
+    .notNull()
+    .references(() => domains.id),
+  date: date().notNull(),
+  description: varchar().notNull(),
+  link: varchar(),
+});
+
+export const domainLearningLogEntriesRelations = relations(
+  domainLearningLogEntries,
+  ({
+    one,
+  }) => ({
+    domain: one(domains, {
+      fields: [domainLearningLogEntries.domainId],
+      references: [domains.id],
+    }),
+  }),
+);
+
+export const domainExcludedTopics = pgTable(
+  "domain_excluded_topics",
+  {
+    topicId: varchar("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    domainId: varchar("domain_id")
+      .notNull()
+      .references(() => domains.id),
+    reason: varchar(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.topicId, t.domainId],
+    }),
+  ],
+);
+
+export const domainExcludedTopicsRelations = relations(
+  domainExcludedTopics,
+  ({
+    one,
+  }) => ({
+    topic: one(topics, {
+      fields: [domainExcludedTopics.topicId],
+      references: [topics.id],
+    }),
+    domain: one(domains, {
+      fields: [domainExcludedTopics.domainId],
+      references: [domains.id],
+    }),
+  }),
+);
 
 export const topicsToDomains = pgTable(
   "topics_to_domains",

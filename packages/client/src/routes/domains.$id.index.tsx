@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
+import { DomainLearningLog } from "@/components/domains/DomainLearningLog";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,9 @@ function SingleDomain() {
       to: "/domains",
     });
   }
+
+  const excludedTopics = data?.excludedTopics ?? [];
+  const learningLog = data?.learningLog ?? [];
 
   return (
     <div>
@@ -125,11 +129,56 @@ function SingleDomain() {
                     >
                       {topic.name}
                     </Link>
+                    {topic.courses && topic.courses.length > 0 && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        (
+                        {topic.courses.length}
+                        {" course"}
+                        {topic.courses.length === 1 ? "" : "s"}
+                        )
+                      </span>
+                    )}
                   </li>
                 ))}
             </ul>
           </InfoArea>
         </div>
+        <InfoArea
+          header="Topics excluded from Radar"
+          condition={excludedTopics.length > 0}
+        >
+          <ul className="ml-5 flex list-disc flex-col gap-1">
+            {excludedTopics.map(topic => (
+              <li key={topic.id}>
+                <Link
+                  to="/topics/$id"
+                  params={{
+                    id: topic.id,
+                  }}
+                  className={`
+                    font-bold text-blue-800
+                    hover:text-blue-600
+                  `}
+                >
+                  {topic.name}
+                </Link>
+                {topic.reason && (
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    —
+                    {" "}
+                    {topic.reason}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </InfoArea>
+        {data && (
+          <DomainLearningLog
+            domainId={data.id}
+            entries={learningLog}
+          />
+        )}
         <div>
           <DeleteButton onClick={handleDelete}>Delete Domain</DeleteButton>
         </div>
