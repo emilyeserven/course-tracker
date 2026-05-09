@@ -3,9 +3,11 @@ import type {
   InteractionDifficulty,
   InteractionProgress,
   InteractionUnderstanding,
+  Module,
+  ModuleGroup,
 } from "@emstack/types/src";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
@@ -18,6 +20,8 @@ import {
   createInteraction,
   deleteSingleInteraction,
   fetchInteractions,
+  fetchModuleGroups,
+  fetchModules,
   upsertInteraction,
 } from "@/utils/fetchFunctions";
 
@@ -32,6 +36,8 @@ interface Draft {
   note: string;
   difficulty: InteractionDifficulty | "";
   understanding: InteractionUnderstanding | "";
+  moduleGroupId: string;
+  moduleId: string;
 }
 
 const NEW_ID = "__new__";
@@ -68,6 +74,8 @@ function emptyDraft(): Draft {
     note: "",
     difficulty: "",
     understanding: "",
+    moduleGroupId: "",
+    moduleId: "",
   };
 }
 
@@ -79,6 +87,8 @@ function fromInteraction(i: Interaction): Draft {
     note: i.note ?? "",
     difficulty: i.difficulty ?? "",
     understanding: i.understanding ?? "",
+    moduleGroupId: i.moduleGroupId ?? "",
+    moduleId: i.moduleId ?? "",
   };
 }
 
@@ -104,8 +114,28 @@ export function CourseInteractionsLog({
     queryFn: () => fetchInteractions(),
   });
 
+  const moduleGroupsQuery = useQuery({
+    queryKey: ["course-module-groups", courseId],
+    queryFn: () => fetchModuleGroups(),
+  });
+
+  const modulesQuery = useQuery({
+    queryKey: ["course-modules", courseId],
+    queryFn: () => fetchModules(),
+  });
+
   const allInteractions = interactionsQuery.data ?? [];
   const interactions = allInteractions.filter(i => i.courseId === courseId);
+
+  const moduleGroups = useMemo(
+    () =>
+      (moduleGroupsQuery.data ?? []).filter(g => g.courseId === courseId),
+    [moduleGroupsQuery.data, courseId],
+  );
+  const modules = useMemo(
+    () => (modulesQuery.data ?? []).filter(m => m.courseId === courseId),
+    [modulesQuery.data, courseId],
+  );
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -120,8 +150,8 @@ export function CourseInteractionsLog({
     mutationFn: (d: Draft) =>
       upsertInteraction(d.id, {
         courseId,
-        moduleGroupId: null,
-        moduleId: null,
+        moduleGroupId: d.moduleGroupId || null,
+        moduleId: d.moduleId || null,
         date: d.date,
         progress: d.progress,
         note: d.note || null,
@@ -140,8 +170,8 @@ export function CourseInteractionsLog({
     mutationFn: (d: Draft) =>
       createInteraction({
         courseId,
-        moduleGroupId: null,
-        moduleId: null,
+        moduleGroupId: d.moduleGroupId || null,
+        moduleId: d.moduleId || null,
         date: d.date,
         progress: d.progress,
         note: d.note || null,
@@ -197,6 +227,8 @@ export function CourseInteractionsLog({
       {creating && (
         <InteractionEditCard
           draft={emptyDraft()}
+          moduleGroups={moduleGroups}
+          modules={modules}
           isNew
           isSaving={createMutation.isPending}
           onSave={d => createMutation.mutate(d)}
@@ -212,6 +244,8 @@ export function CourseInteractionsLog({
                 <InteractionEditCard
                   key={i.id}
                   draft={fromInteraction(i)}
+                  moduleGroups={moduleGroups}
+                  modules={modules}
                   isSaving={
                     upsertMutation.isPending || deleteMutation.isPending
                   }
@@ -221,6 +255,12 @@ export function CourseInteractionsLog({
                 />
               );
             }
+            const targetGroup = i.moduleGroupId
+              ? moduleGroups.find(g => g.id === i.moduleGroupId)
+              : null;
+            const targetModule = i.moduleId
+              ? modules.find(m => m.id === i.moduleId)
+              : null;
             return (
               <li
                 key={i.id}
@@ -240,6 +280,32 @@ export function CourseInteractionsLog({
                     >
                       {PROGRESS_LABEL[i.progress]}
                     </span>
+                    {targetGroup && (
+                      <span
+                        className="
+                          inline-flex items-center rounded-full border
+                          border-blue-200 bg-blue-50 px-2 py-0.5 text-xs
+                          text-blue-900
+                        "
+                      >
+                        group:
+                        {" "}
+                        {targetGroup.name}
+                      </span>
+                    )}
+                    {targetModule && (
+                      <span
+                        className="
+                          inline-flex items-center rounded-full border
+                          border-blue-200 bg-blue-50 px-2 py-0.5 text-xs
+                          text-blue-900
+                        "
+                      >
+                        module:
+                        {" "}
+                        {targetModule.name}
+                      </span>
+                    )}
                     {i.difficulty && (
                       <span
                         className="
@@ -289,6 +355,8 @@ export function CourseInteractionsLog({
 
 function InteractionEditCard({
   draft: initial,
+  moduleGroups,
+  modules,
   isNew = false,
   isSaving = false,
   onSave,
@@ -296,6 +364,8 @@ function InteractionEditCard({
   onDelete,
 }: {
   draft: Draft;
+  moduleGroups: ModuleGroup[];
+  modules: Module[];
   isNew?: boolean;
   isSaving?: boolean;
   onSave: (d: Draft) => void;
@@ -309,6 +379,7 @@ function InteractionEditCard({
       ...patch,
     }));
   }
+  const hasSubTargets = moduleGroups.length > 0 || modules.length > 0;
   return (
     <form
       onSubmit={(e) => {
@@ -361,6 +432,73 @@ function InteractionEditCard({
           </select>
         </div>
       </div>
+      {hasSubTargets && (
+        <div
+          className="
+            grid grid-cols-1 gap-3
+            md:grid-cols-2
+          "
+        >
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Module Group (optional)
+            </label>
+            <select
+              value={draft.moduleGroupId}
+              onChange={(e) => {
+                const next = e.target.value;
+                update({
+                  moduleGroupId: next,
+                  ...(next ? { moduleId: "" } : {}),
+                });
+              }}
+              className="
+                flex h-9 w-full rounded-md border bg-background px-3 py-1
+                text-sm
+              "
+            >
+              <option value="">— Whole course —</option>
+              {moduleGroups.map(g => (
+                <option
+                  key={g.id}
+                  value={g.id}
+                >
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Specific Module (optional)
+            </label>
+            <select
+              value={draft.moduleId}
+              onChange={(e) => {
+                const next = e.target.value;
+                update({
+                  moduleId: next,
+                  ...(next ? { moduleGroupId: "" } : {}),
+                });
+              }}
+              className="
+                flex h-9 w-full rounded-md border bg-background px-3 py-1
+                text-sm
+              "
+            >
+              <option value="">— None —</option>
+              {modules.map(m => (
+                <option
+                  key={m.id}
+                  value={m.id}
+                >
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
       <div
         className="
           grid grid-cols-1 gap-3

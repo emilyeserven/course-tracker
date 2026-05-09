@@ -10,10 +10,10 @@ import * as z from "zod";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
-import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import {
   createDomain,
   createTopic,
