@@ -108,17 +108,14 @@ export function DashboardUnderutilizedProviders() {
       )}
       {rows.length > 0 && (
         <div
-          className="
-            max-h-80 w-full overflow-auto
-            [scrollbar-width:thin]
-          "
+          className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
         >
           <Table className="w-auto min-w-full">
             <TableHeader>
               <TableRow>
                 <TableHead className="whitespace-nowrap">Provider</TableHead>
                 <TableHead className="text-right whitespace-nowrap">
-                  Amortization
+                  Cost per Unit
                 </TableHead>
                 <TableHead className="text-right whitespace-nowrap">
                   Inactive
@@ -133,7 +130,9 @@ export function DashboardUnderutilizedProviders() {
             </TableHeader>
             <TableBody>
               {rows.map(
-                ({ provider, amortization, inactiveCount, completeCount }) => (
+                ({
+                  provider, amortization, inactiveCount, completeCount,
+                }) => (
                   <TableRow key={provider.id}>
                     <TableCell className="font-medium whitespace-nowrap">
                       <Link
@@ -165,7 +164,11 @@ export function DashboardUnderutilizedProviders() {
                       {completeCount}
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
-                      <Button variant="outline" size="sm" asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
                         <a
                           href={provider.url}
                           target="_blank"

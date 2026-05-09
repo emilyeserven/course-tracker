@@ -171,7 +171,7 @@ function SingleCourse() {
             <p>{data?.cost.cost}</p>
           </InfoArea>
           <InfoArea
-            header="Amortization"
+            header="Cost per Unit"
             condition={!!percentComplete}
           >
             <p>
