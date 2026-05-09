@@ -6,7 +6,7 @@ import {
   Link,
   Outlet,
 } from "@tanstack/react-router";
-import { MenuIcon } from "lucide-react";
+import { HomeIcon, MenuIcon } from "lucide-react";
 
 import { NavDropdown } from "@/components/layout/NavDropdown";
 import { Toaster } from "@/components/sonner";
@@ -133,6 +133,26 @@ const RootComponent: React.FunctionComponent = () => {
             className={navLinkClass}
           >
             Tasks
+          </Link>
+        </div>
+        <div
+          className={`
+            flex flex-row items-center gap-2
+            md:hidden
+          `}
+        >
+          <Link
+            to="/dashboard"
+            aria-label="Dashboard home"
+            className="
+              inline-flex size-9 items-center justify-center rounded-md border
+              bg-background
+              hover:bg-accent
+              focus-visible:ring-2 focus-visible:ring-ring
+              focus-visible:outline-none
+            "
+          >
+            <HomeIcon className="size-4" />
           </Link>
         </div>
         <div

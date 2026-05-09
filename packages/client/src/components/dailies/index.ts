@@ -1,4 +1,6 @@
 export { CRITERIA_PRESETS } from "./criteriaPresets";
+export { DailiesActiveListView } from "./DailiesActiveListView";
+export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
 export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyStatusModal } from "./DailyStatusModal";
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
