@@ -166,11 +166,13 @@ function Topics() {
                       <span>All Domains</span>
                       <FilterOptionCount count={totalTopicCount} />
                     </SelectItem>
-                    <SelectItem value="none">
-                      <span>No Domain</span>
-                      <FilterOptionCount count={noDomainCount} />
-                    </SelectItem>
-                    {domains?.map(d => (
+                    {noDomainCount > 0 && (
+                      <SelectItem value="none">
+                        <span>No Domain</span>
+                        <FilterOptionCount count={noDomainCount} />
+                      </SelectItem>
+                    )}
+                    {domains?.filter(d => (d.topicCount ?? 0) > 0).map(d => (
                       <SelectItem
                         key={d.id}
                         value={d.id}
