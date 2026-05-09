@@ -1,5 +1,5 @@
-import type { ResourceStatus } from "./Resource";
 import type { CourseProvider } from "./CourseProvider";
+import type { ResourceStatus } from "./Resource";
 import type { TopicsToResources } from "./TopicsToResources";
 
 export interface ResourceFromServer {

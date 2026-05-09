@@ -56,8 +56,12 @@ type SortDir = "asc" | "desc";
 export function DashboardDailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
-  const { settings } = useSettings();
-  const { mode, setMode } = useDailiesViewMode();
+  const {
+    settings,
+  } = useSettings();
+  const {
+    mode, setMode,
+  } = useDailiesViewMode();
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -81,17 +85,17 @@ export function DashboardDailies() {
       note?: string | null;
     }) => {
       const withStatus = withCompletion(daily, todayKey, status);
-      const completions =
-        note === undefined
+      const completions
+        = note === undefined
           ? withStatus
           : withCompletionNote(
-              {
-                ...daily,
-                completions: withStatus,
-              },
-              todayKey,
-              note,
-            );
+            {
+              ...daily,
+              completions: withStatus,
+            },
+            todayKey,
+            note,
+          );
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -112,27 +116,28 @@ export function DashboardDailies() {
   });
 
   const filtered = dailies
-    ? dailies.filter((d) => d.status !== "complete" && d.status !== "paused")
+    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
     : undefined;
 
   const sortedDailies = filtered
     ? [...filtered].sort((a, b) => {
-        if (sortKey === "progress") {
-          const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
-          if (diff !== 0) return sortDir === "asc" ? diff : -diff;
-        }
-        const cmp = a.name.localeCompare(b.name, undefined, {
-          sensitivity: "base",
-        });
-        return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
-      })
+      if (sortKey === "progress") {
+        const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
+        if (diff !== 0) return sortDir === "asc" ? diff : -diff;
+      }
+      const cmp = a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+      });
+      return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
+    })
     : undefined;
   const activeCount = sortedDailies?.length ?? 0;
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
-      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    }
+    else {
       setSortKey(key);
       setSortDir(key === "progress" ? "desc" : "asc");
     }
@@ -142,23 +147,25 @@ export function DashboardDailies() {
     if (sortKey !== key) {
       return <ArrowUpDownIcon className="size-3 opacity-40" />;
     }
-    return sortDir === "asc" ? (
-      <ArrowUpIcon className="size-3" />
-    ) : (
-      <ArrowDownIcon className="size-3" />
-    );
+    return sortDir === "asc"
+      ? (
+        <ArrowUpIcon className="size-3" />
+      )
+      : (
+        <ArrowDownIcon className="size-3" />
+      );
   }
 
-  const dayHeaders =
-    sortedDailies && sortedDailies.length > 0
+  const dayHeaders
+    = sortedDailies && sortedDailies.length > 0
       ? getRecentDays(sortedDailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
-          .slice(0, -1)
-          .reverse()
-          .map((d) => ({
-            dateKey: d.dateKey,
-            label: formatMmDd(d.dateKey),
-            isToday: d.isToday,
-          }))
+        .slice(0, -1)
+        .reverse()
+        .map(d => ({
+          dateKey: d.dateKey,
+          label: formatMmDd(d.dateKey),
+          isToday: d.isToday,
+        }))
       : [];
 
   return (
@@ -175,7 +182,10 @@ export function DashboardDailies() {
       }
       action={
         <>
-          <DailiesViewModeToggle mode={mode} onChange={setMode} />
+          <DailiesViewModeToggle
+            mode={mode}
+            onChange={setMode}
+          />
           <Link
             to="/dailies"
             className="
@@ -210,8 +220,7 @@ export function DashboardDailies() {
               daily,
               status,
               note,
-            })
-          }
+            })}
         />
       )}
       {sortedDailies && sortedDailies.length > 0 && mode === "table" && (
@@ -254,7 +263,7 @@ export function DashboardDailies() {
                 <th className="p-2 font-medium whitespace-nowrap">
                   Today&apos;s Status
                 </th>
-                {dayHeaders.map((d) => (
+                {dayHeaders.map(d => (
                   <th
                     key={d.dateKey}
                     className={cn(
@@ -316,8 +325,8 @@ export function DashboardDailies() {
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 text-xs",
-                          currentStatus === null ||
-                            currentStatus === "incomplete"
+                          currentStatus === null
+                          || currentStatus === "incomplete"
                             ? "text-muted-foreground"
                             : chain > 0
                               ? "text-orange-600"
@@ -355,12 +364,11 @@ export function DashboardDailies() {
                         daily={daily}
                         currentStatus={currentStatus}
                         disabled={mutation.isPending}
-                        onChange={(status) =>
+                        onChange={status =>
                           mutation.mutate({
                             daily,
                             status,
-                          })
-                        }
+                          })}
                       />
                     </td>
                     {days.map((day, i) => {
