@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { RadarIcon } from "lucide-react";
+import { ArrowRight, RadarIcon } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { Button } from "@/components/ui/button";
 import { fetchDomains } from "@/utils";
 
 export function DashboardRadars() {
@@ -27,7 +28,7 @@ export function DashboardRadars() {
         <Link
           to="/domains"
           className="
-            text-sm text-primary underline-offset-2
+            text-primary text-sm underline-offset-2
             hover:underline
           "
         >
@@ -36,13 +37,13 @@ export function DashboardRadars() {
       )}
     >
       {isPending && (
-        <p className="text-sm text-muted-foreground">Loading radars...</p>
+        <p className="text-muted-foreground text-sm">Loading radars...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load radars.</p>
+        <p className="text-destructive text-sm">Failed to load radars.</p>
       )}
       {domains && withRadars.length === 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           <i>No radars yet.</i>
         </p>
       )}
@@ -63,20 +64,36 @@ export function DashboardRadars() {
                   hover:text-blue-600
                 "
               >
-                <RadarIcon className="size-4 text-muted-foreground" />
+                <RadarIcon className="text-muted-foreground size-4" />
                 {domain.title}
               </Link>
-              <span
-                className="
-                  ml-auto inline-flex items-center gap-1 text-xs
-                  text-muted-foreground
-                "
-                title={`${domain.topicCount ?? 0} topic${
-                  domain.topicCount === 1 ? "" : "s"
-                }`}
-              >
-                {domain.topicCount ?? 0}
-              </span>
+              <div className="ml-auto flex items-center gap-2">
+                <span
+                  className="
+                    text-muted-foreground inline-flex items-center gap-1 text-xs
+                  "
+                  title={`${domain.topicCount ?? 0} topic${
+                    domain.topicCount === 1 ? "" : "s"
+                  }`}
+                >
+                  {domain.topicCount ?? 0}
+                </span>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                >
+                  <Link
+                    to="/domains/$id/radar"
+                    params={{
+                      id: domain.id,
+                    }}
+                  >
+                    Go
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
