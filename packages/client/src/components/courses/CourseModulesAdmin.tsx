@@ -946,17 +946,13 @@ function GroupEditCard({
       </div>
       {!hasEnumeratedModules && (
         <fieldset
-          className="
-            flex flex-col gap-2 rounded-md border border-border/60 p-2
-          "
+          className="flex flex-col gap-2 rounded-md border border-border/60 p-2"
         >
           <legend className="px-1 text-xs font-medium text-muted-foreground">
             Direct counts (no enumerated modules)
           </legend>
           <div
-            className="
-              grid grid-cols-2 gap-2
-            "
+            className="grid grid-cols-2 gap-2"
           >
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-muted-foreground">
