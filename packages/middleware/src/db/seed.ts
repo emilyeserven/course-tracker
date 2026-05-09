@@ -1,6 +1,7 @@
 import {
   courseProviders,
   courses,
+  dailyCriteriaTemplates,
   domains,
   topics,
   topicsToCourses,
@@ -295,6 +296,30 @@ export async function seed() {
         name: "Name",
         email: "name@email.com",
         age: 30,
+      },
+    ])
+    .onConflictDoNothing();
+
+  await db
+    .insert(dailyCriteriaTemplates)
+    .values([
+      {
+        id: "8c3f1a52-1c2c-4c84-9e7f-0b1a4b1c0d11",
+        label: "Book Rules",
+        incomplete: "Book was not touched",
+        touched: "At least a paragraph was read",
+        goal: "A chapter was read",
+        exceeded: "More than 1 chapter was read, or a lab was completed",
+        freeze: "A different book was read",
+      },
+      {
+        id: "8c3f1a52-1c2c-4c84-9e7f-0b1a4b1c0d22",
+        label: "Daily Drill Rules",
+        incomplete: "Did not do reviews",
+        touched: "Did 1 round of reviews, or at least 5 questions",
+        goal: "Did assigned reviews",
+        exceeded: "Did at least 1 round of reviews more than assigned",
+        freeze: "Did work in the same area",
       },
     ])
     .onConflictDoNothing();

@@ -24,7 +24,6 @@ import {
   ComboboxList,
 } from "@/components/combobox";
 import {
-  CRITERIA_PRESETS,
   DAILY_STATUS_OPTIONS,
   TooManyDailiesWarning,
 } from "@/components/dailies";
@@ -48,6 +47,7 @@ import {
   duplicateDaily,
   fetchCourses,
   fetchDailies,
+  fetchDailyCriteriaTemplates,
   fetchProviders,
   fetchSingleDaily,
   fetchTasks,
@@ -134,6 +134,13 @@ function SingleDailyEdit() {
     queryKey: ["dailies"],
     queryFn: () => fetchDailies(),
     enabled: isNew,
+  });
+
+  const {
+    data: criteriaTemplates,
+  } = useQuery({
+    queryKey: ["dailyCriteriaTemplates"],
+    queryFn: () => fetchDailyCriteriaTemplates(),
   });
 
   const activeDailiesCount
@@ -649,35 +656,41 @@ function SingleDailyEdit() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {CRITERIA_PRESETS.map(preset => (
-                    <DropdownMenuItem
-                      key={preset.key}
-                      onSelect={() => {
-                        form.setFieldValue(
-                          "criteriaIncomplete",
-                          preset.values.incomplete,
-                        );
-                        form.setFieldValue(
-                          "criteriaTouched",
-                          preset.values.touched,
-                        );
-                        form.setFieldValue(
-                          "criteriaGoal",
-                          preset.values.goal,
-                        );
-                        form.setFieldValue(
-                          "criteriaExceeded",
-                          preset.values.exceeded,
-                        );
-                        form.setFieldValue(
-                          "criteriaFreeze",
-                          preset.values.freeze,
-                        );
-                      }}
-                    >
-                      {preset.label}
-                    </DropdownMenuItem>
-                  ))}
+                  {(criteriaTemplates ?? []).length === 0
+                    ? (
+                      <DropdownMenuItem disabled>
+                        No templates — add one in Settings
+                      </DropdownMenuItem>
+                    )
+                    : (criteriaTemplates ?? []).map(template => (
+                      <DropdownMenuItem
+                        key={template.id}
+                        onSelect={() => {
+                          form.setFieldValue(
+                            "criteriaIncomplete",
+                            template.incomplete,
+                          );
+                          form.setFieldValue(
+                            "criteriaTouched",
+                            template.touched,
+                          );
+                          form.setFieldValue(
+                            "criteriaGoal",
+                            template.goal,
+                          );
+                          form.setFieldValue(
+                            "criteriaExceeded",
+                            template.exceeded,
+                          );
+                          form.setFieldValue(
+                            "criteriaFreeze",
+                            template.freeze,
+                          );
+                        }}
+                      >
+                        {template.label}
+                      </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
