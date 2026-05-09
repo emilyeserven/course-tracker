@@ -5,15 +5,21 @@ import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLinkIcon,
+  Loader2,
   PencilIcon,
   PlusIcon,
   SearchIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ResourceEditModal } from "./ResourceEditModal";
-import { getResourceLevelClass, getResourceLevelLabel } from "./resourceMeta";
+import {
+  getResourceLevelClass,
+  getResourceLevelLabel,
+  RESOURCE_LEVEL_OPTIONS,
+} from "./resourceMeta";
 import { TagChip } from "./TagChip";
+import { TagsInput } from "./TagsInput";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +40,7 @@ interface ResourcesTableProps {
 
 const ANY_VALUE = "__any";
 const NONE_VALUE = "__none";
+const COLUMN_COUNT = 8;
 
 const LEVEL_FILTER_OPTIONS = [
   {
@@ -116,6 +123,238 @@ function LevelFilter({
         ))}
       </SelectContent>
     </Select>
+  );
+}
+
+function LevelSelect({
+  value,
+  onValueChange,
+  ariaLabel,
+}: {
+  value: ResourceLevel | null | undefined;
+  onValueChange: (next: ResourceLevel | null) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <Select
+      value={value ?? NONE_VALUE}
+      onValueChange={(v) => {
+        onValueChange(v === NONE_VALUE ? null : (v as ResourceLevel));
+      }}
+    >
+      <SelectTrigger
+        aria-label={ariaLabel}
+        className="w-full"
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={NONE_VALUE}>—</SelectItem>
+        {RESOURCE_LEVEL_OPTIONS.map(opt => (
+          <SelectItem
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function EditingRow({
+  resource,
+  tagSuggestions,
+  isNew = false,
+  isSaving = false,
+  onSave,
+  onCancel,
+  onDelete,
+}: {
+  resource: Resource;
+  tagSuggestions: string[];
+  isNew?: boolean;
+  isSaving?: boolean;
+  onSave: (next: Resource) => void;
+  onCancel: () => void;
+  onDelete?: () => void;
+}) {
+  const [draft, setDraft] = useState<Resource>(resource);
+
+  function update(patch: Partial<Resource>) {
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    onSave(draft);
+  }
+
+  return (
+    <tr className="border-t bg-muted/30 align-top">
+      <td
+        colSpan={COLUMN_COUNT}
+        className="p-3"
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3"
+        >
+          <div
+            className="
+              grid grid-cols-1 gap-3
+              md:grid-cols-2
+            "
+          >
+            <div className="flex flex-col gap-1">
+              <label
+                className="text-xs font-medium text-muted-foreground"
+                htmlFor="resource-name"
+              >
+                Name
+              </label>
+              <Input
+                id="resource-name"
+                type="text"
+                value={draft.name}
+                onChange={e => update({
+                  name: e.target.value,
+                })}
+                required
+                placeholder="Resource name"
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label
+                className="text-xs font-medium text-muted-foreground"
+                htmlFor="resource-url"
+              >
+                Location (optional)
+              </label>
+              <Input
+                id="resource-url"
+                type="text"
+                value={draft.url ?? ""}
+                onChange={e => update({
+                  url: e.target.value,
+                })}
+                placeholder="A URL or location description"
+              />
+            </div>
+          </div>
+          <div
+            className="
+              grid grid-cols-1 gap-3
+              md:grid-cols-3
+            "
+          >
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Ease of Starting
+              </label>
+              <LevelSelect
+                value={draft.easeOfStarting}
+                onValueChange={v => update({
+                  easeOfStarting: v,
+                })}
+                ariaLabel="Ease of starting"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Time Needed
+              </label>
+              <LevelSelect
+                value={draft.timeNeeded}
+                onValueChange={v => update({
+                  timeNeeded: v,
+                })}
+                ariaLabel="Time needed"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Interactivity
+              </label>
+              <LevelSelect
+                value={draft.interactivity}
+                onValueChange={v => update({
+                  interactivity: v,
+                })}
+                ariaLabel="Interactivity"
+              />
+            </div>
+          </div>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={draft.usedYet}
+              onChange={e => update({
+                usedYet: e.target.checked,
+              })}
+              className="size-4"
+            />
+            <span>Used yet?</span>
+          </label>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Tags
+            </label>
+            <TagsInput
+              value={draft.tags ?? []}
+              onChange={tags => update({
+                tags,
+              })}
+              suggestions={tagSuggestions}
+              placeholder={tagSuggestions.length > 0
+                ? "Pick or type a tag..."
+                : "Type a tag..."}
+              groupByPrefix
+            />
+          </div>
+          <div
+            className="
+              flex flex-row flex-wrap items-center justify-between gap-2
+            "
+          >
+            <div className="flex flex-row gap-2">
+              <Button
+                type="submit"
+                disabled={isSaving}
+              >
+                {isSaving && <Loader2 className="animate-spin" />}
+                Save
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+            </div>
+            {onDelete && !isNew && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={onDelete}
+                disabled={isSaving}
+              >
+                <Trash2Icon className="size-4" />
+                Remove
+              </Button>
+            )}
+          </div>
+        </form>
+      </td>
+    </tr>
   );
 }
 
@@ -261,6 +500,7 @@ export function ResourcesTable({
   }
 
   function startCreate() {
+    setEditingId(null);
     setDraftNewResource({
       id: uuidv4(),
       taskId: task.id,
@@ -274,9 +514,15 @@ export function ResourcesTable({
     });
   }
 
-  const tagSuggestions = task.taskType?.tags ?? [];
+  function startEdit(resourceId: string) {
+    setDraftNewResource(null);
+    setEditingId(resourceId);
+  }
 
-  if (resources.length === 0) {
+  const tagSuggestions = task.taskType?.tags ?? [];
+  const isAnyEditing = !!editingResource || !!draftNewResource;
+
+  if (resources.length === 0 && !draftNewResource) {
     return (
       <div className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
@@ -292,17 +538,6 @@ export function ResourcesTable({
             Add Resource
           </Button>
         </div>
-        <ResourceEditModal
-          open={!!draftNewResource}
-          resource={draftNewResource}
-          tagSuggestions={tagSuggestions}
-          isNew
-          onOpenChange={(open) => {
-            if (!open) setDraftNewResource(null);
-          }}
-          onSave={handleSaveNew}
-          isSaving={mutation.isPending}
-        />
       </div>
     );
   }
@@ -315,6 +550,7 @@ export function ResourcesTable({
           variant="outline"
           size="sm"
           onClick={startCreate}
+          disabled={isAnyEditing}
         >
           <PlusIcon className="size-4" />
           Add Resource
@@ -421,10 +657,21 @@ export function ResourcesTable({
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
+            {draftNewResource && (
+              <EditingRow
+                key={draftNewResource.id}
+                resource={draftNewResource}
+                tagSuggestions={tagSuggestions}
+                isNew
+                isSaving={mutation.isPending}
+                onSave={handleSaveNew}
+                onCancel={() => setDraftNewResource(null)}
+              />
+            )}
+            {filtered.length === 0 && !draftNewResource && (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={COLUMN_COUNT}
                   className="p-4 text-center text-muted-foreground"
                 >
                   <i>No resources match these filters.</i>
@@ -432,6 +679,19 @@ export function ResourcesTable({
               </tr>
             )}
             {filtered.map((r) => {
+              if (r.id === editingId && editingResource) {
+                return (
+                  <EditingRow
+                    key={r.id}
+                    resource={editingResource}
+                    tagSuggestions={tagSuggestions}
+                    isSaving={mutation.isPending}
+                    onSave={handleSaveEdit}
+                    onCancel={() => setEditingId(null)}
+                    onDelete={() => handleDelete(r.id)}
+                  />
+                );
+              }
               const locationIsUrl = !!r.url && isHttpUrl(r.url);
               return (
                 <tr
@@ -458,7 +718,7 @@ export function ResourcesTable({
                       <input
                         type="checkbox"
                         checked={r.usedYet}
-                        disabled={mutation.isPending}
+                        disabled={mutation.isPending || isAnyEditing}
                         onChange={e => handleToggleUsed(r.id, e.target.checked)}
                         className="size-4"
                         aria-label={`Mark ${r.name} as used`}
@@ -522,7 +782,8 @@ export function ResourcesTable({
                       size="icon-sm"
                       aria-label={`Edit ${r.name}`}
                       title="Edit resource"
-                      onClick={() => setEditingId(r.id)}
+                      onClick={() => startEdit(r.id)}
+                      disabled={isAnyEditing}
                       className="
                         opacity-0 transition
                         group-hover:opacity-100
@@ -538,31 +799,6 @@ export function ResourcesTable({
           </tbody>
         </table>
       </div>
-
-      <ResourceEditModal
-        open={!!editingResource}
-        resource={editingResource}
-        tagSuggestions={tagSuggestions}
-        onOpenChange={(open) => {
-          if (!open) setEditingId(null);
-        }}
-        onSave={handleSaveEdit}
-        onDelete={
-          editingResource ? () => handleDelete(editingResource.id) : undefined
-        }
-        isSaving={mutation.isPending}
-      />
-      <ResourceEditModal
-        open={!!draftNewResource}
-        resource={draftNewResource}
-        tagSuggestions={tagSuggestions}
-        isNew
-        onOpenChange={(open) => {
-          if (!open) setDraftNewResource(null);
-        }}
-        onSave={handleSaveNew}
-        isSaving={mutation.isPending}
-      />
     </div>
   );
 }
