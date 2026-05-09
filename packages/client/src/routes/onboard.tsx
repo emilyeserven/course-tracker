@@ -91,7 +91,7 @@ function Onboard() {
       await postOnboardForm(cleanedValue);
 
       await navigate({
-        to: "/courses",
+        to: "/resources",
       });
     },
   });

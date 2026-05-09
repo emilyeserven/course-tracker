@@ -99,7 +99,7 @@ const RootComponent: React.FunctionComponent = () => {
 
           <NavDropdown
             label="Resources"
-            to="/courses"
+            to="/resources"
           >
             <DropdownMenuItem
               asChild
@@ -191,7 +191,7 @@ const RootComponent: React.FunctionComponent = () => {
                   asChild
                   className="cursor-pointer"
                 >
-                  <Link to="/courses">Resources</Link>
+                  <Link to="/resources">Resources</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   pageTitle?: string;
-  pageSection?: "" | "courses" | "topics" | "providers" | "domains" | "dailies" | "tasks";
+  pageSection?: "" | "resources" | "topics" | "providers" | "domains" | "dailies" | "tasks";
   children?: React.ReactNode;
   progressCurrent?: number;
   progressTotal?: number;
@@ -33,9 +33,9 @@ export function PageHeader({
         <div className="flex w-full flex-col items-start gap-1">
           {pageSection && (
             <div className="flex flex-row gap-3">
-              {pageSection === "courses" && (
+              {pageSection === "resources" && (
                 <Link
-                  to="/courses"
+                  to="/resources"
                   className="text-sm uppercase"
                 >
                   Resources

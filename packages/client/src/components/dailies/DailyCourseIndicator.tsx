@@ -56,7 +56,7 @@ export function DailyCourseIndicator({
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
-            to="/courses/$id"
+            to="/resources/$id"
             params={{
               id: course.id,
             }}

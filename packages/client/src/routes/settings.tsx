@@ -218,7 +218,7 @@ function Settings() {
 
     if (clearRefetchResult.status === "success") {
       navigate({
-        to: "/courses",
+        to: "/resources",
         reloadDocument: true,
       });
     }
@@ -228,7 +228,7 @@ function Settings() {
     const seedRefetchResult = await seedRefetch();
     if (seedRefetchResult.status === "success") {
       navigate({
-        to: "/courses",
+        to: "/resources",
         reloadDocument: true,
       });
     }

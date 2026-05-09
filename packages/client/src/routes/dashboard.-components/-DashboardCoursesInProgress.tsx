@@ -87,7 +87,7 @@ export function DashboardCoursesInProgress() {
       title="Resources in Progress"
       action={(
         <Link
-          to="/courses"
+          to="/resources"
           className="
             text-sm text-primary underline-offset-2
             hover:underline
@@ -124,7 +124,7 @@ export function DashboardCoursesInProgress() {
                 )
                 : <span className="size-5" />}
               <Link
-                to="/courses/$id"
+                to="/resources/$id"
                 params={{
                   id: course.id,
                 }}

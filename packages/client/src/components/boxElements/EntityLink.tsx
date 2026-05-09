@@ -2,17 +2,17 @@ import type { ReactNode } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-type EntityKind = "courses" | "topics" | "providers" | "domains";
+type EntityKind = "resources" | "topics" | "providers" | "domains";
 
 const FROM_BY_KIND: Record<EntityKind, string> = {
-  courses: "/courses",
+  resources: "/resources",
   topics: "/topics",
   providers: "/providers",
   domains: "/domains",
 };
 
 const TO_BY_KIND: Record<EntityKind, string> = {
-  courses: "/courses/$id",
+  resources: "/resources/$id",
   topics: "/topics/$id",
   providers: "/providers/$id",
   domains: "/domains/$id",

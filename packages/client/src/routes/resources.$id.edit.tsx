@@ -27,8 +27,8 @@ import {
   uuidv4,
 } from "@/utils";
 
-export const Route = createFileRoute("/courses/$id/edit")({
-  component: SingleCourseEdit,
+export const Route = createFileRoute("/resources/$id/edit")({
+  component: SingleResourceEdit,
 });
 
 const formSchema = z.object({
@@ -45,7 +45,7 @@ const formSchema = z.object({
   modulesAreExhaustive: z.boolean(),
 });
 
-function SingleCourseEdit() {
+function SingleResourceEdit() {
   const {
     id,
   } = Route.useParams();
@@ -149,7 +149,7 @@ function SingleCourseEdit() {
           = value.status === "active"
             && (isNew || previousStatus !== "active");
         await navigate({
-          to: "/courses/$id",
+          to: "/resources/$id",
           params: {
             id: courseId,
           },
@@ -190,9 +190,9 @@ function SingleCourseEdit() {
 
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleCourse,
-    entityLabel: "course",
+    entityLabel: "resource",
     navigateToList: () => navigate({
-      to: "/courses",
+      to: "/resources",
     }),
   });
 
@@ -202,7 +202,7 @@ function SingleCourseEdit() {
       await invalidateRelated();
       skipBlock();
       await navigate({
-        to: "/courses/$id",
+        to: "/resources/$id",
         params: {
           id: result.id,
         },
@@ -421,12 +421,12 @@ function SingleCourseEdit() {
             onClick={() => {
               if (isNew) {
                 navigate({
-                  to: "/courses",
+                  to: "/resources",
                 });
               }
               else {
                 navigate({
-                  to: "/courses/$id",
+                  to: "/resources/$id",
                   params: {
                     id,
                   },

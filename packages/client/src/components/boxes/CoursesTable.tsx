@@ -70,7 +70,7 @@ export function CoursesTable({
               </TableCell>
               <TableCell className="font-medium whitespace-nowrap">
                 <EntityLink
-                  entity="courses"
+                  entity="resources"
                   id={course.id}
                   className="hover:text-blue-600"
                 >
@@ -83,7 +83,7 @@ export function CoursesTable({
                     <EntityLink
                       entity="providers"
                       id={course.provider.id}
-                      from="/courses"
+                      from="/resources"
                       className="
                         text-blue-800
                         hover:text-blue-600

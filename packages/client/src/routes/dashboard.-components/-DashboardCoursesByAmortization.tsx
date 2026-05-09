@@ -316,7 +316,7 @@ export function DashboardCoursesByAmortization() {
       title="Cost per Unit"
       action={
         <Link
-          to="/courses"
+          to="/resources"
           className="
             text-sm text-primary underline-offset-2
             hover:underline
@@ -493,7 +493,7 @@ export function DashboardCoursesByAmortization() {
                   <TableRow key={course.id}>
                     <TableCell className="font-medium whitespace-nowrap">
                       <Link
-                        to="/courses/$id"
+                        to="/resources/$id"
                         params={{
                           id: course.id,
                         }}

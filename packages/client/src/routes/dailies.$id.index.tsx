@@ -118,7 +118,7 @@ function SingleDaily() {
           )}
           {data.course && !data.task && (
             <Link
-              to="/courses/$id"
+              to="/resources/$id"
               params={{
                 id: data.course.id,
               }}

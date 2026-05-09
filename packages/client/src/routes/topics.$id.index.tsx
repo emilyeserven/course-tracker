@@ -102,7 +102,7 @@ function SingleTopic() {
                 && data.courses.map(course => (
                   <li key={course.id}>
                     <Link
-                      to="/courses/$id"
+                      to="/resources/$id"
                       from="/topics/$id"
                       params={{
                         id: course.id + "",

@@ -21,7 +21,7 @@ interface CourseSearch {
   promptDaily?: 1;
 }
 
-export const Route = createFileRoute("/courses/$id/")({
+export const Route = createFileRoute("/resources/$id/")({
   component: SingleCourse,
   validateSearch: (search: Record<string, unknown>): CourseSearch => ({
     promptDaily: search.promptDaily === 1 || search.promptDaily === "1"
@@ -115,7 +115,7 @@ function SingleCourse() {
           {data?.provider && data.provider.name && (
             <Link
               to="/providers/$id"
-              from="/courses/$id"
+              from="/resources/$id"
               params={{
                 id: data.provider.id + "",
               }}
@@ -202,7 +202,7 @@ function SingleCourse() {
         onCancel={async () => {
           setDailyPromptOpen(false);
           await navigate({
-            to: "/courses/$id",
+            to: "/resources/$id",
             params: {
               id,
             },

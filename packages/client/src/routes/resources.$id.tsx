@@ -12,18 +12,18 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchSingleCourse } from "@/utils";
 
-export const Route = createFileRoute("/courses/$id")({
-  component: SingleCourseLayout,
+export const Route = createFileRoute("/resources/$id")({
+  component: SingleResourceLayout,
 });
 
-function SingleCourseLayout() {
+function SingleResourceLayout() {
   const {
     id,
   } = Route.useParams();
   const isNew = id === "new";
   const matchRoute = useMatchRoute();
   const isEditing = !!matchRoute({
-    to: "/courses/$id/edit",
+    to: "/resources/$id/edit",
     params: {
       id,
     },
@@ -42,7 +42,7 @@ function SingleCourseLayout() {
       <div>
         <PageHeader
           pageTitle="New Resource"
-          pageSection="courses"
+          pageSection="resources"
         />
         <Outlet />
       </div>
@@ -61,7 +61,7 @@ function SingleCourseLayout() {
     <div>
       <PageHeader
         pageTitle={data.name}
-        pageSection="courses"
+        pageSection="resources"
         progressCurrent={data.progressCurrent ?? 0}
         progressTotal={data.progressTotal ?? 0}
         status={data.status}
@@ -82,7 +82,7 @@ function SingleCourseLayout() {
           {isEditing
             ? (
               <Link
-                to="/courses/$id"
+                to="/resources/$id"
                 params={{
                   id: data.id + "",
                 }}
@@ -96,7 +96,7 @@ function SingleCourseLayout() {
             )
             : (
               <Link
-                to="/courses/$id/edit"
+                to="/resources/$id/edit"
                 params={{
                   id: data.id + "",
                 }}

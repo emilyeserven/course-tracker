@@ -42,7 +42,7 @@ function getInitialViewMode(): ViewMode {
   return stored === "table" ? "table" : "grid";
 }
 
-export const Route = createFileRoute("/courses/")({
+export const Route = createFileRoute("/resources/")({
   component: Courses,
   errorComponent: CoursesError,
   pendingComponent: CoursesPending,
@@ -165,7 +165,7 @@ function Courses() {
         pageSection=""
       >
         <Link
-          to="/courses/$id/edit"
+          to="/resources/$id/edit"
           params={{
             id: "new",
           }}
@@ -346,7 +346,7 @@ function Courses() {
         </div>
         {(!data || data.length === 0) && (
           <div className="flex flex-col gap-6">
-            <i>No courses yet!</i>
+            <i>No resources yet!</i>
 
             <Link
               to="/onboard"
@@ -363,7 +363,7 @@ function Courses() {
 
         {data && data.length > 0 && filteredAndSorted.length === 0 && (
           <div className="text-muted-foreground">
-            <i>No courses match your filters.</i>
+            <i>No resources match your filters.</i>
           </div>
         )}
 
@@ -383,7 +383,7 @@ function Courses() {
               })}
 
             <Link
-              to="/courses/$id/edit"
+              to="/resources/$id/edit"
               params={{
                 id: "new",
               }}
@@ -410,7 +410,7 @@ function Courses() {
             )}
             <div>
               <Link
-                to="/courses/$id/edit"
+                to="/resources/$id/edit"
                 params={{
                   id: "new",
                 }}
