@@ -101,6 +101,12 @@ export const moduleGroups = pgTable("module_groups", {
   // but there's no UI to set it. Add a reorder UI for module groups (and
   // ungrouped modules at the same top level).
   position: integer(),
+  // Direct counts. Used when the group has no enumerated modules — lets
+  // the user track progress as just "X of Y done" without listing each
+  // module. When the group has enumerated modules, these are ignored
+  // and counts derive from those modules.
+  totalCount: integer("total_count"),
+  completedCount: integer("completed_count"),
 });
 
 export const modules = pgTable("modules", {

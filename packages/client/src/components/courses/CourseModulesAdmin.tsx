@@ -50,6 +50,8 @@ interface GroupDraft {
   name: string;
   description: string;
   url: string;
+  totalCount: string;
+  completedCount: string;
 }
 
 type DurationMode = "minutes" | "bucket";
@@ -72,6 +74,19 @@ function emptyGroupDraft(): GroupDraft {
     name: "",
     description: "",
     url: "",
+    totalCount: "",
+    completedCount: "",
+  };
+}
+
+function groupToDraft(g: ModuleGroup): GroupDraft {
+  return {
+    id: g.id,
+    name: g.name,
+    description: g.description ?? "",
+    url: g.url ?? "",
+    totalCount: g.totalCount != null ? String(g.totalCount) : "",
+    completedCount: g.completedCount != null ? String(g.completedCount) : "",
   };
 }
 
@@ -166,8 +181,28 @@ export function CourseModulesAdmin({
     return map;
   }, [allModules]);
 
-  const completedCount = allModules.filter(m => m.isComplete).length;
-  const totalCount = allModules.length;
+  // Aggregate progress: sum enumerated modules + groups-with-counts (only
+  // groups that have NO enumerated modules contribute their direct counts;
+  // when a group has enumerated modules, those modules are already counted).
+  const groupsWithoutModulesCounts = useMemo(() => {
+    let total = 0;
+    let completed = 0;
+    for (const g of groups) {
+      const hasEnumerated = (modulesByGroup.get(g.id)?.length ?? 0) > 0;
+      if (hasEnumerated) continue;
+      total += g.totalCount ?? 0;
+      completed += g.completedCount ?? 0;
+    }
+    return {
+      total,
+      completed,
+    };
+  }, [groups, modulesByGroup]);
+
+  const completedCount
+    = allModules.filter(m => m.isComplete).length
+      + groupsWithoutModulesCounts.completed;
+  const totalCount = allModules.length + groupsWithoutModulesCounts.total;
 
   function invalidateAll() {
     queryClient.invalidateQueries({
@@ -195,6 +230,13 @@ export function CourseModulesAdmin({
       || editingModuleId !== null
       || creatingModuleIn !== null;
 
+  function parseCount(s: string): number | null {
+    if (!s) return null;
+    const n = Number(s);
+    if (!Number.isFinite(n) || n < 0) return null;
+    return Math.floor(n);
+  }
+
   // Group mutations
   const createGroupMutation = useMutation({
     mutationFn: (draft: GroupDraft) =>
@@ -203,6 +245,8 @@ export function CourseModulesAdmin({
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
+        totalCount: parseCount(draft.totalCount),
+        completedCount: parseCount(draft.completedCount),
       }),
     onSuccess: () => {
       invalidateAll();
@@ -219,6 +263,8 @@ export function CourseModulesAdmin({
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
+        totalCount: parseCount(draft.totalCount),
+        completedCount: parseCount(draft.completedCount),
       }),
     onSuccess: () => {
       invalidateAll();
@@ -374,6 +420,8 @@ export function CourseModulesAdmin({
           name: a.name,
           description: a.description ?? null,
           url: a.url ?? null,
+          totalCount: a.totalCount ?? null,
+          completedCount: a.completedCount ?? null,
           position: aPosition,
         }),
         upsertModuleGroup(b.id, {
@@ -381,6 +429,8 @@ export function CourseModulesAdmin({
           name: b.name,
           description: b.description ?? null,
           url: b.url ?? null,
+          totalCount: b.totalCount ?? null,
+          completedCount: b.completedCount ?? null,
           position: bPosition,
         }),
       ]),
@@ -468,6 +518,7 @@ export function CourseModulesAdmin({
       {creatingGroup && (
         <GroupEditCard
           draft={emptyGroupDraft()}
+          hasEnumeratedModules={false}
           isNew
           isSaving={createGroupMutation.isPending}
           onSave={d => createGroupMutation.mutate(d)}
@@ -547,12 +598,8 @@ export function CourseModulesAdmin({
           return (
             <GroupEditCard
               key={g.id}
-              draft={{
-                id: g.id,
-                name: g.name,
-                description: g.description ?? "",
-                url: g.url ?? "",
-              }}
+              draft={groupToDraft(g)}
+              hasEnumeratedModules={groupModules.length > 0}
               isSaving={
                 upsertGroupMutation.isPending || deleteGroupMutation.isPending
               }
@@ -699,9 +746,21 @@ export function CourseModulesAdmin({
                     ))}
               </ul>
             )}
-            {groupModules.length === 0 && !isCreatingHere && (
+            {groupModules.length === 0 && !isCreatingHere
+              && (g.totalCount != null || g.completedCount != null)
+              && (
+                <p className="text-xs text-muted-foreground">
+                  {g.completedCount ?? 0}
+                  {" / "}
+                  {g.totalCount ?? 0}
+                  {" complete"}
+                </p>
+              )}
+            {groupModules.length === 0 && !isCreatingHere
+              && g.totalCount == null && g.completedCount == null && (
               <p className="text-xs text-muted-foreground">
-                No modules in this group yet.
+                No modules in this group yet — add modules, or edit the group
+                to track totals directly.
               </p>
             )}
           </div>
@@ -817,6 +876,7 @@ function ModuleDisplayRow({
 
 function GroupEditCard({
   draft: initial,
+  hasEnumeratedModules,
   isNew = false,
   isSaving = false,
   onSave,
@@ -824,6 +884,7 @@ function GroupEditCard({
   onDelete,
 }: {
   draft: GroupDraft;
+  hasEnumeratedModules: boolean;
   isNew?: boolean;
   isSaving?: boolean;
   onSave: (d: GroupDraft) => void;
@@ -883,6 +944,59 @@ function GroupEditCard({
           })}
         />
       </div>
+      {!hasEnumeratedModules && (
+        <fieldset
+          className="
+            flex flex-col gap-2 rounded-md border border-border/60 p-2
+          "
+        >
+          <legend className="px-1 text-xs font-medium text-muted-foreground">
+            Direct counts (no enumerated modules)
+          </legend>
+          <div
+            className="
+              grid grid-cols-2 gap-2
+            "
+          >
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Completed
+              </label>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={draft.completedCount}
+                onChange={e => update({
+                  completedCount: e.target.value,
+                })}
+                placeholder="0"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Total
+              </label>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={draft.totalCount}
+                onChange={e => update({
+                  totalCount: e.target.value,
+                })}
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </fieldset>
+      )}
+      {hasEnumeratedModules && (
+        <p className="text-xs text-muted-foreground">
+          This group has enumerated modules; counts are derived from them.
+          Remove all modules to switch to direct counts.
+        </p>
+      )}
       <div
         className="flex flex-row flex-wrap items-center justify-between gap-2"
       >

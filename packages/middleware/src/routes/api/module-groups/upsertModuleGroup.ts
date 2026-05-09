@@ -8,6 +8,8 @@ interface ModuleGroupBody {
   description?: string | null;
   url?: string | null;
   position?: number | null;
+  totalCount?: number | null;
+  completedCount?: number | null;
 }
 
 const updateableColumns = [
@@ -16,6 +18,8 @@ const updateableColumns = [
   "description",
   "url",
   "position",
+  "totalCount",
+  "completedCount",
 ] as const;
 
 export default createUpsertHandler<ModuleGroupBody>({
@@ -36,6 +40,8 @@ export default createUpsertHandler<ModuleGroupBody>({
       description: nullableString,
       url: nullableString,
       position: nullableInteger,
+      totalCount: nullableInteger,
+      completedCount: nullableInteger,
     },
   },
   buildRow: (body, id) => ({
@@ -45,6 +51,8 @@ export default createUpsertHandler<ModuleGroupBody>({
     description: body.description ?? null,
     url: body.url ?? null,
     position: body.position ?? null,
+    totalCount: body.totalCount ?? null,
+    completedCount: body.completedCount ?? null,
   }),
   updateableColumns,
 });

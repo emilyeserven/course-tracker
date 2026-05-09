@@ -37,6 +37,8 @@ const createSchema = {
         description: nullableString,
         url: nullableString,
         position: nullableInteger,
+        totalCount: nullableInteger,
+        completedCount: nullableInteger,
       },
     },
   },
@@ -80,6 +82,8 @@ export default async function (server: FastifyInstance) {
       description: body.description ?? null,
       url: body.url ?? null,
       position: body.position ?? null,
+      totalCount: body.totalCount ?? null,
+      completedCount: body.completedCount ?? null,
     });
 
     return {
