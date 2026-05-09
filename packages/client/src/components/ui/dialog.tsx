@@ -58,9 +58,22 @@ function DialogOverlay({
   );
 }
 
+const PORTALED_POPUP_SELECTOR = [
+  "[data-slot=\"combobox-content\"]",
+  "[data-slot=\"select-content\"]",
+  "[data-slot=\"popover-content\"]",
+].join(",");
+
+function isInsidePortaledPopup(target: EventTarget | null) {
+  if (!(target instanceof Element)) return false;
+  return !!target.closest(PORTALED_POPUP_SELECTOR);
+}
+
 function DialogContent({
   className,
   children,
+  onPointerDownOutside,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
@@ -81,6 +94,18 @@ function DialogContent({
           `,
           className,
         )}
+        onPointerDownOutside={(e) => {
+          if (isInsidePortaledPopup(e.target)) {
+            e.preventDefault();
+          }
+          onPointerDownOutside?.(e);
+        }}
+        onInteractOutside={(e) => {
+          if (isInsidePortaledPopup(e.target)) {
+            e.preventDefault();
+          }
+          onInteractOutside?.(e);
+        }}
         {...props}
       >
         {children}

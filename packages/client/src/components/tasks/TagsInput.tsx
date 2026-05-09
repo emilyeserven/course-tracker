@@ -87,6 +87,7 @@ export function TagsInput({
         })}
       value={value}
       onValueChange={(next: string[]) => onChange(next)}
+      inputValue={inputValue}
       onInputValueChange={(val: string) => setInputValue(val)}
       itemToStringLabel={(val: string) => val}
     >
@@ -102,9 +103,11 @@ export function TagsInput({
         <ComboboxChipsInput
           placeholder={placeholder}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && trimmed.length > 0 && !hasMatch) {
+            if (e.key === "Enter" && trimmed.length > 0) {
               e.preventDefault();
-              commitNewTag(trimmed);
+              if (!hasMatch) {
+                commitNewTag(trimmed);
+              }
             }
           }}
         />
