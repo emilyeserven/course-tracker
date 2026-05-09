@@ -48,6 +48,7 @@ import {
   getTotalCompletedDays,
   upsertDaily,
   withCompletion,
+  withCompletionNote,
 } from "@/utils";
 
 export const Route = createFileRoute("/dailies/")({
@@ -114,10 +115,21 @@ function Dailies() {
 
   const mutation = useMutation({
     mutationFn: ({
-      daily, status,
+      daily, status, note,
     }: { daily: Daily;
-      status: DailyCompletionStatus; }) => {
-      const completions = withCompletion(daily, todayKey, status);
+      status: DailyCompletionStatus;
+      note?: string | null; }) => {
+      const withStatus = withCompletion(daily, todayKey, status);
+      const completions = note === undefined
+        ? withStatus
+        : withCompletionNote(
+          {
+            ...daily,
+            completions: withStatus,
+          },
+          todayKey,
+          note,
+        );
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -230,9 +242,10 @@ function Dailies() {
                 todayKey={todayKey}
                 mutationPending={mutation.isPending}
                 recentDaysCount={RECENT_DAYS_COUNT}
-                onChangeStatus={(daily, status) => mutation.mutate({
+                onChangeStatus={(daily, status, note) => mutation.mutate({
                   daily,
                   status,
+                  note,
                 })}
               />
             )}
