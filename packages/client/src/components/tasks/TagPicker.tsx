@@ -32,7 +32,8 @@ export function TagPicker({
   const anchor = useComboboxAnchor();
   const [inputValue, setInputValue] = useState("");
 
-  const tagsById = new Map<string, { id: string; name: string }>();
+  const tagsById = new Map<string, { id: string;
+    name: string; }>();
   for (const group of tagGroups) {
     for (const tag of group.tags ?? []) {
       tagsById.set(tag.id, tag);
