@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
-import { Textarea } from "@/components/forms/textarea";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

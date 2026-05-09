@@ -1,5 +1,5 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { Textarea } from "@/components/forms/textarea";
+import { Textarea } from "@/components/textarea";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface TextareaFieldProps {

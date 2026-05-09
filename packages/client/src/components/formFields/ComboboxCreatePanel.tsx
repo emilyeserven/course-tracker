@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Loader2 } from "lucide-react";
 
-import { Input } from "@/components/forms/input";
+import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 

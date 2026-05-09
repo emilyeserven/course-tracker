@@ -1,6 +1,4 @@
 import type {
-  Test,
-  DbTest,
   Course,
   CourseInCourses,
   TopicForTopicsPage,
@@ -162,14 +160,6 @@ export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplat
   "criteria template",
 );
 
-export async function fetchTest(): Promise<Test> {
-  return fetchJson<Test>("/api");
-}
-
-export async function fetchDbTest(): Promise<DbTest[]> {
-  return fetchJson<DbTest[]>("/api/dbTest");
-}
-
 export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
 export const fetchCourses = coursesApi.list;
@@ -185,7 +175,6 @@ export const fetchSingleProvider = providersApi.get;
 export const fetchSingleDomain = domainsApi.get;
 export const fetchSingleDaily = dailiesApi.get;
 export const fetchSingleTask = tasksApi.get;
-export const fetchSingleTaskType = taskTypesApi.get;
 
 export const upsertCourse = coursesApi.upsert;
 export const upsertTopic = topicsApi.upsert;

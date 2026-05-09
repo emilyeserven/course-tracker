@@ -100,17 +100,18 @@ If you change `packages/middleware/src/db/schema.ts`, run `pnpm --filter=@emstac
 ### Frontend
 - File-based routing with TanStack Router (routes in `packages/client/src/routes/`)
 - Auto-generated route tree (`routeTree.gen.ts` — do not edit manually)
-- Components organized by purpose: `layout/`, `ui/`, `boxes/`, `boxElements/`, `forms/`, `formFields/`, `utils/`
+- Components organized by purpose: `ui/` (shadcn-style primitives), `layout/`, `boxes/`, `boxElements/`, `dailies/`, `radar/`, `tasks/`, `forms/` (field composition primitives + `CourseFields`), `formFields/` (TanStack Form-aware field components), plus shared primitives at the root (`button`, `calendar`, `combobox`, `input`, `input-group`, `popover`, `radio-group`, `textarea`, `sonner`, etc.)
 - shadcn/ui components live in `components/ui/` — add new ones via shadcn CLI
 - Path alias: `@` → `packages/client/src`
 - Theme support via ThemeProvider context (dark/light mode)
-- **Forms:** Uses TanStack Form's `createFormHook` API. The `useAppForm` hook (`hooks/useAppForm.ts`) provides context-based field components (`InputField`, `TextareaField`, `NumberField`, `RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField`) via `form.AppField`. Field components live in `components/formFields/` and access form state via `useFieldContext()` from `utils/fieldContext.ts`. To add a new reusable field: create the component, register it in `useAppForm.ts`.
+- **Forms:** Uses TanStack Form's `createFormHook` API. The `useAppForm` hook (re-exported from `components/formFields/index.ts`, defined in `hooks/useAppForm.ts`) registers context-based field components (`InputField`, `TextareaField`, `NumberField`, `RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField`) accessed via `form.AppField` — do not import the field components directly. They live in `components/formFields/` and access form state via `useFieldContext()` from `utils/fieldContext.ts`. To add a new reusable field: create the component, register it in `useAppForm.ts`.
 - **Edit-page boilerplate** (skip-blocker, query invalidation, navigation, delete handler) lives in `hooks/useEditFormPage.ts`. New edit routes should reuse it.
 - **Loading / error placeholders** for routes use `<EntityPending entity="..."/>` and `<EntityError entity="..."/>` from `components/EntityStates.tsx`.
+- **Fetch layer:** `utils/fetchFunctions.ts` builds typed entity clients with `createEntityClient(endpoint, label)` (CRUD + duplicate). Each entity gets a `<name>Api` object and named function re-exports (`upsertCourse`, `fetchSingleCourse`, etc.). Reuse the helper rather than hand-rolling `fetch` calls.
 
 ### Backend
 - Fastify plugin pattern with nested route modules under `src/routes/api/`
-- **Resources:** `courses`, `topics`, `providers`, `domains`, `dailies`, `tasks`, plus `domains/$id/radar` sub-resource (quadrants, rings, blips)
+- **Resources:** `courses`, `topics`, `providers`, `domains`, `dailies`, `tasks`, `task-types`, `daily-criteria-templates`, plus `domains/$id/radar` sub-resource (quadrants, rings, blips)
 - Each resource folder follows the convention: `routes.ts` (registers handlers), `root.ts` (collection-level GET/POST), per-operation handler files (`getX.ts`, `upsertX.ts`, `deleteX.ts`, `duplicateX.ts`, etc.)
 - Drizzle ORM schema in `src/db/schema.ts`
 - JSON Schema type provider (`@fastify/type-provider-json-schema-to-ts`) for type-safe route handlers

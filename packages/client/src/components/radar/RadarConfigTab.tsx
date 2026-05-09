@@ -1,6 +1,6 @@
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
-import { Input } from "@/components/forms/input";
+import { Input } from "@/components/input";
 import {
   QuadrantsIllustration,
   RingsIllustration,
