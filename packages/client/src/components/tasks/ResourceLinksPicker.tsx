@@ -2,17 +2,20 @@ import type { Module, ModuleGroup } from "@emstack/types/src";
 
 import { useMemo } from "react";
 
-import { XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 export interface ResourceLinkInput {
+  // Stable per-row key. Existing rows keep their server-assigned id;
+  // new rows get a local key so React reconciles correctly.
+  key: string;
   resourceId: string;
   moduleGroupId: string | null;
   moduleId: string | null;
 }
 
-interface CourseSummary {
+interface ResourceSummary {
   id: string;
   name: string;
 }
@@ -20,86 +23,24 @@ interface CourseSummary {
 interface ResourceLinksPickerProps {
   value: ResourceLinkInput[];
   onChange: (next: ResourceLinkInput[]) => void;
-  courses: CourseSummary[];
+  courses: ResourceSummary[];
   moduleGroups: ModuleGroup[];
   modules: Module[];
 }
 
-interface LinkOption {
-  key: string;
-  label: string;
-  resourceId: string;
-  moduleGroupId: string | null;
-  moduleId: string | null;
+let localKeyCounter = 0;
+function nextLocalKey() {
+  localKeyCounter += 1;
+  return `local-${localKeyCounter}`;
 }
 
-function buildOptions(
-  courses: CourseSummary[],
-  groups: ModuleGroup[],
-  modules: Module[],
-): LinkOption[] {
-  const opts: LinkOption[] = [];
-  for (const c of courses) {
-    opts.push({
-      key: `c:${c.id}`,
-      label: c.name,
-      resourceId: c.id,
-      moduleGroupId: null,
-      moduleId: null,
-    });
-    const courseGroups = groups.filter(g => g.resourceId === c.id);
-    for (const g of courseGroups) {
-      opts.push({
-        key: `g:${g.id}`,
-        label: `${c.name} → ${g.name}`,
-        resourceId: c.id,
-        moduleGroupId: g.id,
-        moduleId: null,
-      });
-    }
-    const courseModules = modules.filter(m => m.resourceId === c.id);
-    for (const m of courseModules) {
-      const parentGroup = m.moduleGroupId
-        ? groups.find(g => g.id === m.moduleGroupId)
-        : null;
-      const label = parentGroup
-        ? `${c.name} → ${parentGroup.name} → ${m.name}`
-        : `${c.name} → ${m.name}`;
-      opts.push({
-        key: `m:${m.id}`,
-        label,
-        resourceId: c.id,
-        moduleGroupId: null,
-        moduleId: m.id,
-      });
-    }
-  }
-  return opts;
-}
-
-function labelForLink(
-  link: ResourceLinkInput,
-  courses: CourseSummary[],
-  groups: ModuleGroup[],
-  modules: Module[],
-): string {
-  const course = courses.find(c => c.id === link.resourceId);
-  const courseName = course?.name ?? "(unknown resource)";
-  if (link.moduleId) {
-    const m = modules.find(mm => mm.id === link.moduleId);
-    const parentGroup = m?.moduleGroupId
-      ? groups.find(g => g.id === m.moduleGroupId)
-      : null;
-    if (parentGroup) {
-      return `${courseName} → ${parentGroup.name} → ${m?.name ?? "(unknown module)"}`;
-    }
-    return `${courseName} → ${m?.name ?? "(unknown module)"}`;
-  }
-  if (link.moduleGroupId) {
-    const g = groups.find(gg => gg.id === link.moduleGroupId);
-    return `${courseName} → ${g?.name ?? "(unknown group)"}`;
-  }
-  return courseName;
+function newResourceLinkRow(): ResourceLinkInput {
+  return {
+    key: nextLocalKey(),
+    resourceId: "",
+    moduleGroupId: null,
+    moduleId: null,
+  };
 }
 
 export function ResourceLinksPicker({
@@ -109,98 +50,178 @@ export function ResourceLinksPicker({
   moduleGroups,
   modules,
 }: ResourceLinksPickerProps) {
-  const allOptions = useMemo(
-    () => buildOptions(courses, moduleGroups, modules),
-    [courses, moduleGroups, modules],
+  const courseOptions = useMemo(
+    () => [...courses].sort((a, b) => a.name.localeCompare(b.name)),
+    [courses],
   );
 
-  const linkedCourseIds = new Set(value.map(v => v.resourceId));
-
-  // Hide options for courses already linked: PK is (taskId, resourceId), one
-  // link per course. To change a course's sub-target, remove and re-add.
-  const availableOptions = allOptions.filter(
-    opt => !linkedCourseIds.has(opt.resourceId),
-  );
-
-  function handleAdd(key: string) {
-    if (!key) return;
-    const opt = allOptions.find(o => o.key === key);
-    if (!opt) return;
-    onChange([
-      ...value,
-      {
-        resourceId: opt.resourceId,
-        moduleGroupId: opt.moduleGroupId,
-        moduleId: opt.moduleId,
-      },
-    ]);
+  function update(index: number, patch: Partial<ResourceLinkInput>) {
+    const next = value.slice();
+    next[index] = {
+      ...next[index],
+      ...patch,
+    };
+    onChange(next);
   }
 
-  function handleRemove(resourceId: string) {
-    onChange(value.filter(v => v.resourceId !== resourceId));
+  function remove(index: number) {
+    onChange(value.filter((_, i) => i !== index));
+  }
+
+  function addRow() {
+    onChange([...value, newResourceLinkRow()]);
   }
 
   return (
     <div className="flex flex-col gap-2">
       {value.length === 0 && (
-        <p className="text-xs text-muted-foreground">
-          No resource links. Pick a course or sub-target below to add one.
+        <p className="text-muted-foreground text-xs">
+          No resource links yet.
         </p>
       )}
       {value.length > 0 && (
-        <ul className="flex flex-col divide-y rounded-md border bg-background">
-          {value.map(link => (
-            <li
-              key={link.resourceId}
-              className="flex items-center justify-between gap-2 px-3 py-2"
-            >
-              <span className="text-sm">
-                {labelForLink(link, courses, moduleGroups, modules)}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => handleRemove(link.resourceId)}
-                aria-label="Remove link"
+        <ul className="flex flex-col gap-2">
+          {value.map((row, index) => {
+            const groupsForResource = row.resourceId
+              ? moduleGroups.filter(g => g.resourceId === row.resourceId)
+              : [];
+            // Modules to show in the dropdown:
+            //   - if a moduleGroup is selected, show only modules in that group
+            //   - else show all modules for the selected resource (any group / ungrouped)
+            //   - else (no resource selected), show none
+            const modulesForRow = !row.resourceId
+              ? []
+              : row.moduleGroupId
+                ? modules.filter(
+                  m =>
+                    m.resourceId === row.resourceId
+                    && m.moduleGroupId === row.moduleGroupId,
+                )
+                : modules.filter(m => m.resourceId === row.resourceId);
+            return (
+              <li
+                key={row.key}
+                className="
+                  bg-background grid grid-cols-[1fr_1fr_1fr_auto] items-center
+                  gap-2 rounded-md border px-2 py-1.5
+                "
               >
-                <XIcon className="size-3.5" />
-              </Button>
-            </li>
-          ))}
+                <select
+                  aria-label="Resource"
+                  value={row.resourceId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    update(index, {
+                      resourceId: nextId,
+                      // Clear sub-targets if the resource changed
+                      moduleGroupId: nextId === row.resourceId
+                        ? row.moduleGroupId
+                        : null,
+                      moduleId: nextId === row.resourceId ? row.moduleId : null,
+                    });
+                  }}
+                  className="
+                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                  "
+                >
+                  <option value="">— Select a resource —</option>
+                  {courseOptions.map(c => (
+                    <option
+                      key={c.id}
+                      value={c.id}
+                    >
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  aria-label="Module Group"
+                  value={row.moduleGroupId ?? ""}
+                  onChange={(e) => {
+                    const nextGroupId = e.target.value || null;
+                    update(index, {
+                      moduleGroupId: nextGroupId,
+                      // If the currently selected module isn't in this new
+                      // group, clear it.
+                      moduleId: row.moduleId
+                        && nextGroupId
+                        && !modules.some(
+                          m =>
+                            m.id === row.moduleId
+                            && m.moduleGroupId === nextGroupId,
+                        )
+                        ? null
+                        : row.moduleId,
+                    });
+                  }}
+                  disabled={!row.resourceId || groupsForResource.length === 0}
+                  className="
+                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                    disabled:cursor-not-allowed disabled:opacity-50
+                  "
+                >
+                  <option value="">— Any group —</option>
+                  {groupsForResource.map(g => (
+                    <option
+                      key={g.id}
+                      value={g.id}
+                    >
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  aria-label="Module"
+                  value={row.moduleId ?? ""}
+                  onChange={e =>
+                    update(index, {
+                      moduleId: e.target.value || null,
+                    })}
+                  disabled={!row.resourceId || modulesForRow.length === 0}
+                  className="
+                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                    disabled:cursor-not-allowed disabled:opacity-50
+                  "
+                >
+                  <option value="">— Any module —</option>
+                  {modulesForRow.map(m => (
+                    <option
+                      key={m.id}
+                      value={m.id}
+                    >
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => remove(index)}
+                  aria-label="Remove link"
+                >
+                  <XIcon className="size-3.5" />
+                </Button>
+              </li>
+            );
+          })}
         </ul>
       )}
-      <select
-        value=""
-        onChange={(e) => {
-          handleAdd(e.target.value);
-          e.target.value = "";
-        }}
-        className="
-          flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
-          shadow-sm transition-colors
-          focus-visible:ring-1 focus-visible:ring-ring
-          focus-visible:outline-none
-          disabled:cursor-not-allowed disabled:opacity-50
-        "
-        disabled={availableOptions.length === 0}
-      >
-        <option value="">
-          {availableOptions.length === 0
-            ? courses.length === 0
-              ? "No resources available"
-              : "All resources already linked"
-            : "Add a resource link..."}
-        </option>
-        {availableOptions.map(opt => (
-          <option
-            key={opt.key}
-            value={opt.key}
-          >
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addRow}
+          disabled={courses.length === 0}
+        >
+          <PlusIcon className="size-3.5" />
+          Add Resource Link
+        </Button>
+      </div>
     </div>
   );
 }

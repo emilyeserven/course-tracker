@@ -49,6 +49,7 @@ const formSchema = z.object({
   tagIds: z.array(z.string()),
   resourceLinks: z.array(
     z.object({
+      key: z.string(),
       resourceId: z.string(),
       moduleGroupId: z.string().nullable(),
       moduleId: z.string().nullable(),
@@ -140,7 +141,8 @@ function SingleTaskEdit() {
       topicId: data?.topicId ?? (isNew ? search.topicId ?? "" : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
-      resourceLinks: (data?.resourceLinks ?? []).map(l => ({
+      resourceLinks: (data?.resourceLinks ?? []).map((l, i) => ({
+        key: l.id ?? `existing-${i}`,
         resourceId: l.resourceId,
         moduleGroupId: l.moduleGroupId ?? null,
         moduleId: l.moduleId ?? null,
@@ -181,7 +183,15 @@ function SingleTaskEdit() {
         topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
         tagIds: value.tagIds,
-        resourceLinks: value.resourceLinks,
+        // Drop blank rows (no Resource selected). Strip the local `key`
+        // since the server only cares about the link tuple.
+        resourceLinks: value.resourceLinks
+          .filter(l => l.resourceId)
+          .map(l => ({
+            resourceId: l.resourceId,
+            moduleGroupId: l.moduleGroupId,
+            moduleId: l.moduleId,
+          })),
         resources: existingResources,
         todos: existingTodos,
       };
@@ -309,7 +319,7 @@ function SingleTaskEdit() {
           <form.Field name="resourceLinks">
             {field => (
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-muted-foreground text-xs font-medium">
                   Resource Links
                 </span>
                 <ResourceLinksPicker
