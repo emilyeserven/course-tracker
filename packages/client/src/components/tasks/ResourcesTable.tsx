@@ -19,6 +19,7 @@ import {
   RESOURCE_LEVEL_OPTIONS,
 } from "./resourceMeta";
 import { TagChip } from "./TagChip";
+import { TagsFilter } from "./TagsFilter";
 import { TagsInput } from "./TagsInput";
 
 import { Input } from "@/components/input";
@@ -369,6 +370,7 @@ export function ResourcesTable({
   const [easeFilter, setEaseFilter] = useState<string>(ANY_VALUE);
   const [timeFilter, setTimeFilter] = useState<string>(ANY_VALUE);
   const [interactivityFilter, setInteractivityFilter] = useState<string>(ANY_VALUE);
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftNewResource, setDraftNewResource] = useState<Resource | null>(
     null,
@@ -391,9 +393,13 @@ export function ResourcesTable({
       if (!levelMatches(r.easeOfStarting, easeFilter)) return false;
       if (!levelMatches(r.timeNeeded, timeFilter)) return false;
       if (!levelMatches(r.interactivity, interactivityFilter)) return false;
+      if (tagFilter.length > 0) {
+        const resourceTags = r.tags ?? [];
+        if (!tagFilter.every(t => resourceTags.includes(t))) return false;
+      }
       return true;
     });
-  }, [resources, search, usedFilter, easeFilter, timeFilter, interactivityFilter]);
+  }, [resources, search, usedFilter, easeFilter, timeFilter, interactivityFilter, tagFilter]);
 
   const mutation = useMutation({
     mutationFn: (next: Resource[]) =>
@@ -520,6 +526,13 @@ export function ResourcesTable({
   }
 
   const tagSuggestions = task.taskType?.tags ?? [];
+  const tagFilterOptions = useMemo(() => {
+    const set = new Set<string>(tagSuggestions);
+    for (const r of resources) {
+      for (const t of r.tags ?? []) set.add(t);
+    }
+    return Array.from(set);
+  }, [resources, tagSuggestions]);
   const isAnyEditing = !!editingResource || !!draftNewResource;
 
   if (resources.length === 0 && !draftNewResource) {
@@ -556,88 +569,110 @@ export function ResourcesTable({
           Add Resource
         </Button>
       </div>
-      <div
-        className="
-          flex flex-col flex-wrap gap-2
-          md:flex-row md:items-end
-        "
-      >
-        <div className="flex min-w-56 flex-1 flex-col gap-1">
-          <label
-            htmlFor="resource-search"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            Search
-          </label>
-          <div className="relative">
-            <SearchIcon
-              className="
-                absolute top-1/2 left-2 size-4 -translate-y-1/2
-                text-muted-foreground
-              "
-            />
-            <Input
-              id="resource-search"
-              type="search"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search by name or location"
-              className="pl-8"
+      <div className="flex flex-col gap-3 rounded-md border bg-muted/20 p-3">
+        <div
+          className="
+            flex flex-col flex-wrap gap-2
+            md:flex-row md:items-end
+          "
+        >
+          <div className="flex min-w-56 flex-1 flex-col gap-1">
+            <label
+              htmlFor="resource-search"
+              className="text-xs font-medium text-muted-foreground"
+            >
+              Search
+            </label>
+            <div className="relative">
+              <SearchIcon
+                className="
+                  absolute top-1/2 left-2 size-4 -translate-y-1/2
+                  text-muted-foreground
+                "
+              />
+              <Input
+                id="resource-search"
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search by name or location"
+                className="pl-8"
+              />
+            </div>
+          </div>
+          <div className="flex min-w-56 flex-1 flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Tags
+            </label>
+            <TagsFilter
+              value={tagFilter}
+              onChange={setTagFilter}
+              options={tagFilterOptions}
             />
           </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Used
-          </label>
-          <Select
-            value={usedFilter}
-            onValueChange={setUsedFilter}
-          >
-            <SelectTrigger
-              size="sm"
-              aria-label="Filter by used"
-              className="min-w-32"
+        <fieldset
+          className="
+            flex flex-col flex-wrap gap-2 rounded-md border border-border/60 p-2
+            md:flex-row md:items-end
+          "
+        >
+          <legend className="px-1 text-xs font-medium text-muted-foreground">
+            Properties
+          </legend>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Used
+            </label>
+            <Select
+              value={usedFilter}
+              onValueChange={setUsedFilter}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY_VALUE}>Any</SelectItem>
-              <SelectItem value="used">Used</SelectItem>
-              <SelectItem value="not-used">Not yet</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Ease
-          </label>
-          <LevelFilter
-            value={easeFilter}
-            onValueChange={setEaseFilter}
-            ariaLabel="Filter by ease of starting"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Time
-          </label>
-          <LevelFilter
-            value={timeFilter}
-            onValueChange={setTimeFilter}
-            ariaLabel="Filter by time needed"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Interactivity
-          </label>
-          <LevelFilter
-            value={interactivityFilter}
-            onValueChange={setInteractivityFilter}
-            ariaLabel="Filter by interactivity"
-          />
-        </div>
+              <SelectTrigger
+                size="sm"
+                aria-label="Filter by used"
+                className="min-w-32"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY_VALUE}>Any</SelectItem>
+                <SelectItem value="used">Used</SelectItem>
+                <SelectItem value="not-used">Not yet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Ease
+            </label>
+            <LevelFilter
+              value={easeFilter}
+              onValueChange={setEaseFilter}
+              ariaLabel="Filter by ease of starting"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Time
+            </label>
+            <LevelFilter
+              value={timeFilter}
+              onValueChange={setTimeFilter}
+              ariaLabel="Filter by time needed"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Interactivity
+            </label>
+            <LevelFilter
+              value={interactivityFilter}
+              onValueChange={setInteractivityFilter}
+              ariaLabel="Filter by interactivity"
+            />
+          </div>
+        </fieldset>
       </div>
 
       <div className="overflow-x-auto">
