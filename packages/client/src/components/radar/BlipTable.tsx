@@ -3,7 +3,7 @@ import type {
   TopicForTopicsPage,
 } from "@emstack/types/src";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -71,6 +71,11 @@ interface RingInfo {
 type SortKey = "topic" | "slice" | "ring" | "items";
 type SortDir = "asc" | "desc";
 
+interface BulkPatch {
+  quadrantId?: string;
+  ringId?: string;
+}
+
 interface BlipTableProps {
   blips: RadarBlip[];
   quadrants: QuadrantInfo[];
@@ -83,10 +88,12 @@ interface BlipTableProps {
       description: string | null; },
   ) => Promise<void>;
   onRemove: (blip: RadarBlip) => Promise<void>;
+  onBulkSave: (ids: string[], patch: BulkPatch) => Promise<void>;
 }
 
 const ALL = "__all__";
 const UNASSIGNED = "__unassigned__";
+const NO_CHANGE = "__no_change__";
 
 interface EditDraft {
   quadrantId: string;
@@ -101,6 +108,7 @@ export function BlipTable({
   topics,
   onSave,
   onRemove,
+  onBulkSave,
 }: BlipTableProps) {
   const [search, setSearch] = useState("");
   const [filterQuadrant, setFilterQuadrant] = useState<string>(ALL);
@@ -111,6 +119,10 @@ export function BlipTable({
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [showItemsColumn, setShowItemsColumn] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkQuadrantId, setBulkQuadrantId] = useState<string>(NO_CHANGE);
+  const [bulkRingId, setBulkRingId] = useState<string>(NO_CHANGE);
+  const [bulkPending, setBulkPending] = useState(false);
 
   function toggleSort(key: SortKey) {
     if (sortKey !== key) {
@@ -245,6 +257,60 @@ export function BlipTable({
     topicById,
   ]);
 
+  // Drop selections that are no longer visible (after filter changes or
+  // server-side deletion).
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === 0) return prev;
+      const visible = new Set(filteredBlips.map(b => b.id));
+      let changed = false;
+      const next = new Set<string>();
+      prev.forEach((id) => {
+        if (visible.has(id)) {
+          next.add(id);
+        }
+        else {
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [filteredBlips]);
+
+  const allVisibleSelected
+    = filteredBlips.length > 0
+      && filteredBlips.every(b => selectedIds.has(b.id));
+  const someVisibleSelected
+    = !allVisibleSelected && filteredBlips.some(b => selectedIds.has(b.id));
+
+  function toggleSelected(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAllVisible() {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) {
+        const next = new Set(prev);
+        filteredBlips.forEach(b => next.delete(b.id));
+        return next;
+      }
+      const next = new Set(prev);
+      filteredBlips.forEach(b => next.add(b.id));
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setBulkQuadrantId(NO_CHANGE);
+    setBulkRingId(NO_CHANGE);
+  }
+
   function sortIcon(key: SortKey) {
     if (sortKey !== key) {
       return <ChevronsUpDownIcon className="size-3 opacity-50" />;
@@ -299,11 +365,40 @@ export function BlipTable({
         setEditingId(null);
         setEditDraft(null);
       }
+      setSelectedIds((prev) => {
+        if (!prev.has(blip.id)) return prev;
+        const next = new Set(prev);
+        next.delete(blip.id);
+        return next;
+      });
     }
     finally {
       setPendingId(null);
     }
   }
+
+  async function applyBulk() {
+    if (selectedIds.size === 0) return;
+    if (bulkQuadrantId === NO_CHANGE && bulkRingId === NO_CHANGE) {
+      toast.error("Pick a slice or ring to apply.");
+      return;
+    }
+    const patch: BulkPatch = {};
+    if (bulkQuadrantId !== NO_CHANGE) patch.quadrantId = bulkQuadrantId;
+    if (bulkRingId !== NO_CHANGE) patch.ringId = bulkRingId;
+    setBulkPending(true);
+    try {
+      await onBulkSave(Array.from(selectedIds), patch);
+      setBulkQuadrantId(NO_CHANGE);
+      setBulkRingId(NO_CHANGE);
+      setSelectedIds(new Set());
+    }
+    finally {
+      setBulkPending(false);
+    }
+  }
+
+  const colCount = (showItemsColumn ? 6 : 5) + 1;
 
   return (
     <div className="flex flex-col gap-3">
@@ -392,10 +487,98 @@ export function BlipTable({
         </label>
       </div>
 
+      {selectedIds.size > 0 && (
+        <div
+          className={`
+            flex flex-row flex-wrap items-center gap-2 rounded-sm border
+            border-primary/40 bg-primary/5 p-2
+          `}
+        >
+          <span className="text-sm font-medium">
+            {selectedIds.size}
+            {" "}
+            selected
+          </span>
+          <Select
+            value={bulkQuadrantId}
+            onValueChange={setBulkQuadrantId}
+          >
+            <SelectTrigger className="min-w-40">
+              <SelectValue placeholder="Slice" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_CHANGE}>(don&apos;t change slice)</SelectItem>
+              {quadrants.map(q => (
+                <SelectItem
+                  key={q.id}
+                  value={q.id}
+                >
+                  {q.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={bulkRingId}
+            onValueChange={setBulkRingId}
+          >
+            <SelectTrigger className="min-w-32">
+              <SelectValue placeholder="Ring" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_CHANGE}>(don&apos;t change ring)</SelectItem>
+              {rings.map(r => (
+                <SelectItem
+                  key={r.id}
+                  value={r.id}
+                >
+                  {r.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            size="sm"
+            onClick={applyBulk}
+            disabled={
+              bulkPending
+              || (bulkQuadrantId === NO_CHANGE && bulkRingId === NO_CHANGE)
+            }
+          >
+            {bulkPending && <Loader2 className="animate-spin" />}
+            Apply to
+            {" "}
+            {selectedIds.size}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={clearSelection}
+            disabled={bulkPending}
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+
       <div className="rounded-sm border">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-1">
+                <input
+                  type="checkbox"
+                  aria-label="Select all visible"
+                  checked={allVisibleSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someVisibleSelected;
+                  }}
+                  onChange={toggleSelectAllVisible}
+                  disabled={filteredBlips.length === 0}
+                />
+              </TableHead>
               <TableHead>
                 <button
                   type="button"
@@ -458,7 +641,7 @@ export function BlipTable({
             {filteredBlips.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={showItemsColumn ? 6 : 5}
+                  colSpan={colCount}
                   className="text-center text-muted-foreground"
                 >
                   {blips.length === 0
@@ -470,12 +653,13 @@ export function BlipTable({
             {filteredBlips.map((blip) => {
               const isEditing = editingId === blip.id && editDraft !== null;
               const isPending = pendingId === blip.id;
+              const isSelected = selectedIds.has(blip.id);
               const topic = topicById.get(blip.topicId);
               const topicDescription = topic?.description ?? null;
               return isEditing
                 ? (
                   <TableRow key={blip.id}>
-                    <TableCell colSpan={showItemsColumn ? 6 : 5}>
+                    <TableCell colSpan={colCount}>
                       <div
                         className={`
                           grid grid-cols-1 gap-4
@@ -610,7 +794,19 @@ export function BlipTable({
                   </TableRow>
                 )
                 : (
-                  <TableRow key={blip.id}>
+                  <TableRow
+                    key={blip.id}
+                    className="group"
+                    data-state={isSelected ? "selected" : undefined}
+                  >
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${blip.topicName}`}
+                        checked={isSelected}
+                        onChange={() => toggleSelected(blip.id)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">
                       {blip.topicName}
                     </TableCell>
@@ -706,94 +902,111 @@ export function BlipTable({
                       </TableCell>
                     )}
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            disabled={isPending || editingId !== null}
-                            aria-label="More actions"
-                          >
-                            {isPending
-                              ? <Loader2 className="animate-spin" />
-                              : <MoreHorizontalIcon />}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => startEdit(blip)}>
-                            <PencilIcon />
-                            {" "}
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRemove(blip)}>
-                            <TrashIcon />
-                            {" "}
-                            Remove
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel className="text-xs">
-                            Quick Create
-                          </DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to="/dailies/$id/edit"
-                              params={{
-                                id: "new",
-                              }}
-                              search={{
-                                topicId: blip.topicId,
-                              }}
+                      <div
+                        className={`
+                          flex flex-row items-center justify-end gap-1 opacity-0
+                          transition-opacity
+                          group-focus-within:opacity-100
+                          group-hover:opacity-100
+                        `}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={isPending || editingId !== null}
+                          aria-label="Edit blip"
+                          onClick={() => startEdit(blip)}
+                        >
+                          <PencilIcon />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              disabled={isPending || editingId !== null}
+                              aria-label="More actions"
                             >
-                              <SunIcon />
-                              {" "}
-                              Daily Item
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to="/tasks/$id/edit"
-                              params={{
-                                id: "new",
-                              }}
-                              search={{
-                                topicId: blip.topicId,
-                              }}
+                              {isPending
+                                ? <Loader2 className="animate-spin" />
+                                : <MoreHorizontalIcon />}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel className="text-xs">
+                              Quick Create
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to="/dailies/$id/edit"
+                                params={{
+                                  id: "new",
+                                }}
+                                search={{
+                                  topicId: blip.topicId,
+                                }}
+                              >
+                                <SunIcon />
+                                {" "}
+                                Daily Item
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to="/tasks/$id/edit"
+                                params={{
+                                  id: "new",
+                                }}
+                                search={{
+                                  topicId: blip.topicId,
+                                }}
+                              >
+                                <ListChecksIcon />
+                                {" "}
+                                Task
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to="/courses/$id/edit"
+                                params={{
+                                  id: "new",
+                                }}
+                                search={{
+                                  topicId: blip.topicId,
+                                }}
+                              >
+                                <BookOpenIcon />
+                                {" "}
+                                Course
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <Link
+                                to="/topics/$id"
+                                params={{
+                                  id: blip.topicId,
+                                }}
+                              >
+                                <PlusIcon />
+                                {" "}
+                                View Topic
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => handleRemove(blip)}
                             >
-                              <ListChecksIcon />
+                              <TrashIcon />
                               {" "}
-                              Task
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to="/courses/$id/edit"
-                              params={{
-                                id: "new",
-                              }}
-                              search={{
-                                topicId: blip.topicId,
-                              }}
-                            >
-                              <BookOpenIcon />
-                              {" "}
-                              Course
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to="/topics/$id"
-                              params={{
-                                id: blip.topicId,
-                              }}
-                            >
-                              <PlusIcon />
-                              {" "}
-                              View Topic
-                            </Link>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
