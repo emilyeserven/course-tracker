@@ -145,21 +145,25 @@ function Tasks() {
                   <span>All Topics</span>
                   <FilterOptionCount count={totalTaskCount} />
                 </SelectItem>
-                <SelectItem value="none">
-                  <span>No Topic</span>
-                  <FilterOptionCount count={noTopicCount} />
-                </SelectItem>
-                {topics?.map(t => (
-                  <SelectItem
-                    key={t.id}
-                    value={t.id}
-                  >
-                    <span>{t.name}</span>
-                    <FilterOptionCount
-                      count={taskCountByTopic.get(t.id) ?? 0}
-                    />
+                {noTopicCount > 0 && (
+                  <SelectItem value="none">
+                    <span>No Topic</span>
+                    <FilterOptionCount count={noTopicCount} />
                   </SelectItem>
-                ))}
+                )}
+                {topics
+                  ?.filter(t => (taskCountByTopic.get(t.id) ?? 0) > 0)
+                  .map(t => (
+                    <SelectItem
+                      key={t.id}
+                      value={t.id}
+                    >
+                      <span>{t.name}</span>
+                      <FilterOptionCount
+                        count={taskCountByTopic.get(t.id) ?? 0}
+                      />
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {hasActiveFilters && (

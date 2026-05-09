@@ -218,11 +218,13 @@ function Courses() {
                       <span>All Providers</span>
                       <FilterOptionCount count={totalCourseCount} />
                     </SelectItem>
-                    <SelectItem value="none">
-                      <span>No Provider</span>
-                      <FilterOptionCount count={noProviderCount} />
-                    </SelectItem>
-                    {providers?.map(p => (
+                    {noProviderCount > 0 && (
+                      <SelectItem value="none">
+                        <span>No Provider</span>
+                        <FilterOptionCount count={noProviderCount} />
+                      </SelectItem>
+                    )}
+                    {providers?.filter(p => (p.courseCount ?? 0) > 0).map(p => (
                       <SelectItem
                         key={p.id}
                         value={p.id}
@@ -247,11 +249,13 @@ function Courses() {
                       <span>All Topics</span>
                       <FilterOptionCount count={totalCourseCount} />
                     </SelectItem>
-                    <SelectItem value="none">
-                      <span>No Topic</span>
-                      <FilterOptionCount count={noTopicCount} />
-                    </SelectItem>
-                    {topics?.map(t => (
+                    {noTopicCount > 0 && (
+                      <SelectItem value="none">
+                        <span>No Topic</span>
+                        <FilterOptionCount count={noTopicCount} />
+                      </SelectItem>
+                    )}
+                    {topics?.filter(t => (t.courseCount ?? 0) > 0).map(t => (
                       <SelectItem
                         key={t.id}
                         value={t.id}
