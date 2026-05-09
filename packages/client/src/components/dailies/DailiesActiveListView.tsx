@@ -152,94 +152,58 @@ export function DailiesActiveListView({
               />
             </div>
 
-            <div
-              className="
-                flex flex-col items-start gap-0
-                lg:flex-row lg:items-start lg:gap-1
-              "
-            >
-              <div
-                className="
-                  flex shrink-0 flex-row items-center gap-1.5
-                  lg:items-start lg:gap-1
-                "
-              >
-                <div className="flex flex-col items-center gap-0.5">
+            <div className="flex flex-row items-start gap-1.5">
+              <div className="flex flex-col items-start">
+                <div className="w-40">
                   <TodayStatusCell
                     daily={daily}
                     currentStatus={currentStatus}
                     disabled={mutationPending}
                     onChange={status => onChangeStatus(daily, status)}
                   />
-                  <span
-                    className="
-                      hidden text-[0.65rem] leading-none font-semibold
-                      text-foreground
-                      lg:inline-block
-                    "
-                  >
-                    Today
-                  </span>
                 </div>
-                {currentStatus !== null && (
-                  <div className="lg:mt-1">
-                    <DailyCommentPopover
-                      daily={daily}
-                      buttonClassName="
-                        size-9 [&_svg]:size-4
-                        lg:size-8 lg:[&_svg]:size-3.5
-                      "
-                    />
-                  </div>
-                )}
-              </div>
-              <DailyStatusConnector
-                orientation="vertical"
-                left={currentStatus}
-                right={mostRecentPast?.status ?? null}
-                className="
-                  ml-3 h-3 shrink-0
-                  lg:hidden
-                "
-              />
-              <DailyStatusConnector
-                orientation="horizontal"
-                left={currentStatus}
-                right={mostRecentPast?.status ?? null}
-                className="
-                  hidden
-                  lg:mt-[11px] lg:block lg:w-2.5 lg:shrink-0
-                "
-              />
-              <div className="flex flex-row items-start gap-1">
-                {recentDays.map((day, i) => (
-                  <Fragment key={day.dateKey}>
-                    {i > 0 && (
-                      <DailyStatusConnector
-                        left={recentDays[i - 1].status}
-                        right={day.status}
-                        className="mt-[11px] w-2.5 shrink-0"
-                      />
-                    )}
-                    <div
-                      className="flex shrink-0 flex-col items-center gap-0.5"
-                    >
-                      <DailyStatusCircle
-                        status={day.status}
-                        size="sm"
-                        title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                      />
-                      <span
-                        className="
-                          text-[0.65rem] leading-none text-muted-foreground
-                        "
+                <DailyStatusConnector
+                  orientation="vertical"
+                  left={currentStatus}
+                  right={mostRecentPast?.status ?? null}
+                  className="ml-[11px] h-3 shrink-0"
+                />
+                <div className="flex flex-row items-start">
+                  {recentDays.map((day, i) => (
+                    <Fragment key={day.dateKey}>
+                      {i > 0 && (
+                        <DailyStatusConnector
+                          left={recentDays[i - 1].status}
+                          right={day.status}
+                          className="mt-[11px] w-2.5 shrink-0"
+                        />
+                      )}
+                      <div
+                        className="flex shrink-0 flex-col items-center gap-0.5"
                       >
-                        {day.dayLabel}
-                      </span>
-                    </div>
-                  </Fragment>
-                ))}
+                        <DailyStatusCircle
+                          status={day.status}
+                          size="sm"
+                          title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                        />
+                        <span
+                          className="
+                            text-[0.65rem] leading-none text-muted-foreground
+                          "
+                        >
+                          {day.dayLabel}
+                        </span>
+                      </div>
+                    </Fragment>
+                  ))}
+                </div>
               </div>
+              {currentStatus !== null && (
+                <DailyCommentPopover
+                  daily={daily}
+                  buttonClassName="size-8 [&_svg]:size-3.5"
+                />
+              )}
             </div>
           </li>
         );
