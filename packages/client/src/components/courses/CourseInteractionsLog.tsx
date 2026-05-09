@@ -449,7 +449,11 @@ function InteractionEditCard({
                 const next = e.target.value;
                 update({
                   moduleGroupId: next,
-                  ...(next ? { moduleId: "" } : {}),
+                  ...(next
+                    ? {
+                      moduleId: "",
+                    }
+                    : {}),
                 });
               }}
               className="
@@ -478,7 +482,11 @@ function InteractionEditCard({
                 const next = e.target.value;
                 update({
                   moduleId: next,
-                  ...(next ? { moduleGroupId: "" } : {}),
+                  ...(next
+                    ? {
+                      moduleGroupId: "",
+                    }
+                    : {}),
                 });
               }}
               className="

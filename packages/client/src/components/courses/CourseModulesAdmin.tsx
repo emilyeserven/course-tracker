@@ -1,9 +1,11 @@
-import type { Module } from "@emstack/types/src";
+import type { Module, ModuleGroup } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   ExternalLinkIcon,
   Loader2,
   PencilIcon,
@@ -26,16 +28,6 @@ import {
   upsertModule,
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
-
-// TODO(modules-ordering-followup): add a reorder UI here.
-// Both `moduleGroups.position` and `modules.position` columns exist and
-// list/get queries already sort by position ASC, so the back-end is ready.
-// What's missing is a UX to set the order:
-//   - reorder Module Groups + ungrouped Modules at the top level
-//   - reorder Modules within a single Group
-// Likely shape: drag handles on rows, or up/down buttons. On reorder, PUT
-// each affected row's `position` (or batch via a dedicated reorder endpoint
-// if drift becomes a problem).
 interface Props {
   courseId: string;
   modulesAreExhaustive?: boolean;
@@ -270,6 +262,108 @@ export function CourseModulesAdmin({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Reorder helpers — swap a pair of items by setting explicit positions
+  // matching their target indices in the sorted list. Other items keep
+  // their existing positions; nulls sort last.
+  const reorderModulesMutation = useMutation({
+    mutationFn: ({
+      a,
+      aPosition,
+      b,
+      bPosition,
+    }: {
+      a: Module;
+      aPosition: number;
+      b: Module;
+      bPosition: number;
+    }) =>
+      Promise.all([
+        upsertModule(a.id, {
+          courseId: a.courseId,
+          moduleGroupId: a.moduleGroupId ?? null,
+          name: a.name,
+          description: a.description ?? null,
+          url: a.url ?? null,
+          minutesLength: a.minutesLength ?? null,
+          isComplete: a.isComplete,
+          position: aPosition,
+        }),
+        upsertModule(b.id, {
+          courseId: b.courseId,
+          moduleGroupId: b.moduleGroupId ?? null,
+          name: b.name,
+          description: b.description ?? null,
+          url: b.url ?? null,
+          minutesLength: b.minutesLength ?? null,
+          isComplete: b.isComplete,
+          position: bPosition,
+        }),
+      ]),
+    onSuccess: () => invalidateAll(),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reorderGroupsMutation = useMutation({
+    mutationFn: ({
+      a,
+      aPosition,
+      b,
+      bPosition,
+    }: {
+      a: ModuleGroup;
+      aPosition: number;
+      b: ModuleGroup;
+      bPosition: number;
+    }) =>
+      Promise.all([
+        upsertModuleGroup(a.id, {
+          courseId: a.courseId,
+          name: a.name,
+          description: a.description ?? null,
+          url: a.url ?? null,
+          position: aPosition,
+        }),
+        upsertModuleGroup(b.id, {
+          courseId: b.courseId,
+          name: b.name,
+          description: b.description ?? null,
+          url: b.url ?? null,
+          position: bPosition,
+        }),
+      ]),
+    onSuccess: () => invalidateAll(),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function moveModule(
+    list: Module[],
+    index: number,
+    direction: "up" | "down",
+  ) {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    reorderModulesMutation.mutate({
+      a: list[index],
+      aPosition: targetIndex,
+      b: list[targetIndex],
+      bPosition: index,
+    });
+  }
+
+  function moveGroup(index: number, direction: "up" | "down") {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= groups.length) return;
+    reorderGroupsMutation.mutate({
+      a: groups[index],
+      aPosition: targetIndex,
+      b: groups[targetIndex],
+      bPosition: index,
+    });
+  }
+
+  const isReordering
+    = reorderModulesMutation.isPending || reorderGroupsMutation.isPending;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -349,7 +443,7 @@ export function CourseModulesAdmin({
             />
           )}
           <ul className="flex flex-col divide-y rounded-sm border">
-            {ungroupedModules.map(m =>
+            {ungroupedModules.map((m, index) =>
               m.id === editingModuleId
                 ? (
                   <ModuleEditCard
@@ -381,6 +475,12 @@ export function CourseModulesAdmin({
                     key={m.id}
                     module={m}
                     isAnyEditing={isAnyEditing}
+                    isReordering={isReordering}
+                    canMoveUp={index > 0}
+                    canMoveDown={index < ungroupedModules.length - 1}
+                    onMoveUp={() => moveModule(ungroupedModules, index, "up")}
+                    onMoveDown={() =>
+                      moveModule(ungroupedModules, index, "down")}
                     onToggleComplete={() => toggleCompleteMutation.mutate(m)}
                     onEdit={() => setEditingModuleId(m.id)}
                     isToggling={toggleCompleteMutation.isPending}
@@ -391,7 +491,7 @@ export function CourseModulesAdmin({
       )}
 
       {/* Module Groups */}
-      {groups.map((g) => {
+      {groups.map((g, gIndex) => {
         const groupModules = modulesByGroup.get(g.id) ?? [];
         const isEditing = editingGroupId === g.id;
         const isCreatingHere = creatingModuleIn === g.id;
@@ -449,7 +549,35 @@ export function CourseModulesAdmin({
                   </span>
                 )}
               </div>
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => moveGroup(gIndex, "up")}
+                    disabled={
+                      isAnyEditing || isReordering || gIndex === 0
+                    }
+                    aria-label="Move group up"
+                    title="Move group up"
+                  >
+                    <ChevronUpIcon className="size-3.5" />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => moveGroup(gIndex, "down")}
+                    disabled={
+                      isAnyEditing
+                      || isReordering
+                      || gIndex === groups.length - 1
+                    }
+                    aria-label="Move group down"
+                    title="Move group down"
+                  >
+                    <ChevronDownIcon className="size-3.5" />
+                  </Button>
+                </div>
                 <Button
                   size="sm"
                   variant="outline"
@@ -485,7 +613,7 @@ export function CourseModulesAdmin({
             )}
             {groupModules.length > 0 && (
               <ul className="flex flex-col divide-y rounded-sm border">
-                {groupModules.map(m =>
+                {groupModules.map((m, mIndex) =>
                   m.id === editingModuleId
                     ? (
                       <ModuleEditCard
@@ -517,6 +645,12 @@ export function CourseModulesAdmin({
                         key={m.id}
                         module={m}
                         isAnyEditing={isAnyEditing}
+                        isReordering={isReordering}
+                        canMoveUp={mIndex > 0}
+                        canMoveDown={mIndex < groupModules.length - 1}
+                        onMoveUp={() => moveModule(groupModules, mIndex, "up")}
+                        onMoveDown={() =>
+                          moveModule(groupModules, mIndex, "down")}
                         onToggleComplete={() => toggleCompleteMutation.mutate(m)}
                         onEdit={() => setEditingModuleId(m.id)}
                         isToggling={toggleCompleteMutation.isPending}
@@ -547,12 +681,22 @@ export function CourseModulesAdmin({
 function ModuleDisplayRow({
   module: m,
   isAnyEditing,
+  isReordering,
+  canMoveUp,
+  canMoveDown,
+  onMoveUp,
+  onMoveDown,
   onToggleComplete,
   onEdit,
   isToggling,
 }: {
   module: Module;
   isAnyEditing: boolean;
+  isReordering: boolean;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onToggleComplete: () => void;
   onEdit: () => void;
   isToggling: boolean;
@@ -597,14 +741,36 @@ function ModuleDisplayRow({
           </span>
         )}
       </label>
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={onEdit}
-        disabled={isAnyEditing}
-      >
-        <PencilIcon className="size-3.5" />
-      </Button>
+      <div className="flex items-center gap-0.5">
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          onClick={onMoveUp}
+          disabled={isAnyEditing || isReordering || !canMoveUp}
+          aria-label="Move up"
+          title="Move up"
+        >
+          <ChevronUpIcon className="size-3.5" />
+        </Button>
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          onClick={onMoveDown}
+          disabled={isAnyEditing || isReordering || !canMoveDown}
+          aria-label="Move down"
+          title="Move down"
+        >
+          <ChevronDownIcon className="size-3.5" />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onEdit}
+          disabled={isAnyEditing}
+        >
+          <PencilIcon className="size-3.5" />
+        </Button>
+      </div>
     </li>
   );
 }
