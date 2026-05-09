@@ -27,6 +27,15 @@ import {
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
 
+// TODO(modules-ordering-followup): add a reorder UI here.
+// Both `moduleGroups.position` and `modules.position` columns exist and
+// list/get queries already sort by position ASC, so the back-end is ready.
+// What's missing is a UX to set the order:
+//   - reorder Module Groups + ungrouped Modules at the top level
+//   - reorder Modules within a single Group
+// Likely shape: drag handles on rows, or up/down buttons. On reorder, PUT
+// each affected row's `position` (or batch via a dedicated reorder endpoint
+// if drift becomes a problem).
 interface Props {
   courseId: string;
   modulesAreExhaustive?: boolean;

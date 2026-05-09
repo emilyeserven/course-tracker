@@ -94,6 +94,9 @@ export const moduleGroups = pgTable("module_groups", {
   }).notNull(),
   description: varchar(),
   url: varchar(),
+  // TODO(modules-ordering-followup): position is queried in ASC order today
+  // but there's no UI to set it. Add a reorder UI for module groups (and
+  // ungrouped modules at the same top level).
   position: integer(),
 });
 
@@ -111,6 +114,9 @@ export const modules = pgTable("modules", {
   url: varchar(),
   minutesLength: integer("minutes_length"),
   isComplete: boolean("is_complete").default(false).notNull(),
+  // TODO(modules-ordering-followup): position is queried in ASC order today
+  // but there's no UI to set it. Add a reorder UI for modules within a group
+  // (and ungrouped modules) — drag-handle or up/down buttons.
   position: integer(),
 });
 
