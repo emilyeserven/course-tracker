@@ -1,4 +1,12 @@
-import type { TaskResource, TaskResourceLevel, Tag, TagGroup, Task } from "@emstack/types/src";
+import type {
+  Module,
+  ModuleGroup,
+  Tag,
+  TagGroup,
+  Task,
+  TaskResource,
+  TaskResourceLevel,
+} from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -31,7 +39,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { fetchTagGroups, isHttpUrl, upsertTask } from "@/utils";
+import {
+  fetchModuleGroups,
+  fetchModules,
+  fetchResources,
+  fetchTagGroups,
+  isHttpUrl,
+  upsertTask,
+} from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
 interface ResourcesTableProps {
@@ -179,9 +194,17 @@ function lookupTagsByIds(ids: string[], tagGroups: TagGroup[]): Tag[] {
     .filter((t): t is Tag => t !== undefined);
 }
 
+interface LinkOptionResource {
+  id: string;
+  name: string;
+}
+
 function EditingRow({
   resource,
   tagGroups,
+  resourceOptions,
+  allModuleGroups,
+  allModules,
   isNew = false,
   isSaving = false,
   onSave,
@@ -190,6 +213,9 @@ function EditingRow({
 }: {
   resource: TaskResource;
   tagGroups: TagGroup[];
+  resourceOptions: LinkOptionResource[];
+  allModuleGroups: ModuleGroup[];
+  allModules: Module[];
   isNew?: boolean;
   isSaving?: boolean;
   onSave: (next: TaskResource) => void;
@@ -209,6 +235,19 @@ function EditingRow({
     e.preventDefault();
     onSave(draft);
   }
+
+  const groupsForResource = draft.resourceId
+    ? allModuleGroups.filter(g => g.resourceId === draft.resourceId)
+    : [];
+  const modulesForRow = !draft.resourceId
+    ? []
+    : draft.moduleGroupId
+      ? allModules.filter(
+        m =>
+          m.resourceId === draft.resourceId
+          && m.moduleGroupId === draft.moduleGroupId,
+      )
+      : allModules.filter(m => m.resourceId === draft.resourceId);
 
   return (
     <tr className="border-t bg-muted/30 align-top">
@@ -263,6 +302,109 @@ function EditingRow({
               />
             </div>
           </div>
+          <fieldset
+            className="
+              flex flex-col gap-2 rounded-md border border-border/60 p-2
+            "
+          >
+            <legend className="px-1 text-xs font-medium text-muted-foreground">
+              Resource Link (optional)
+            </legend>
+            <div
+              className="
+                grid grid-cols-1 gap-2
+                md:grid-cols-3
+              "
+            >
+              <select
+                aria-label="Resource"
+                value={draft.resourceId ?? ""}
+                onChange={(e) => {
+                  const nextId = e.target.value || null;
+                  update({
+                    resourceId: nextId,
+                    // Reset sub-targets when the resource changes / clears
+                    moduleGroupId: nextId === draft.resourceId
+                      ? draft.moduleGroupId
+                      : null,
+                    moduleId: nextId === draft.resourceId
+                      ? draft.moduleId
+                      : null,
+                  });
+                }}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                "
+              >
+                <option value="">— No link —</option>
+                {resourceOptions.map(c => (
+                  <option
+                    key={c.id}
+                    value={c.id}
+                  >
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Module Group"
+                value={draft.moduleGroupId ?? ""}
+                onChange={(e) => {
+                  const nextGroupId = e.target.value || null;
+                  update({
+                    moduleGroupId: nextGroupId,
+                    // Clear module if it no longer belongs to the selected group
+                    moduleId: draft.moduleId
+                      && nextGroupId
+                      && !allModules.some(
+                        m =>
+                          m.id === draft.moduleId
+                          && m.moduleGroupId === nextGroupId,
+                      )
+                      ? null
+                      : draft.moduleId,
+                  });
+                }}
+                disabled={!draft.resourceId || groupsForResource.length === 0}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
+              >
+                <option value="">— Any group —</option>
+                {groupsForResource.map(g => (
+                  <option
+                    key={g.id}
+                    value={g.id}
+                  >
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Module"
+                value={draft.moduleId ?? ""}
+                onChange={e => update({
+                  moduleId: e.target.value || null,
+                })}
+                disabled={!draft.resourceId || modulesForRow.length === 0}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
+              >
+                <option value="">— Any module —</option>
+                {modulesForRow.map(m => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                  >
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </fieldset>
           <div
             className="
               grid grid-cols-1 gap-3
@@ -387,6 +529,35 @@ export function ResourcesTable({
   });
   const tagGroups = tagGroupsData ?? [];
 
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+  });
+  const {
+    data: allModuleGroups,
+  } = useQuery({
+    queryKey: ["module-groups-all"],
+    queryFn: () => fetchModuleGroups(),
+  });
+  const {
+    data: allModules,
+  } = useQuery({
+    queryKey: ["modules-all"],
+    queryFn: () => fetchModules(),
+  });
+  const resourceOptions = useMemo(
+    () =>
+      [...(courses ?? [])]
+        .map(c => ({
+          id: c.id,
+          name: c.name,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [courses],
+  );
+
   const [search, setSearch] = useState("");
   const [usedFilter, setUsedFilter] = useState<string>(ANY_VALUE);
   const [easeFilter, setEaseFilter] = useState<string>(ANY_VALUE);
@@ -439,6 +610,9 @@ export function ResourcesTable({
           interactivity: r.interactivity ?? null,
           usedYet: r.usedYet,
           tagIds: (r.tags ?? []).map(t => t.id),
+          resourceId: r.resourceId ?? null,
+          moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+          moduleId: r.resourceId ? r.moduleId ?? null : null,
         })),
         todos: (task.todos ?? []).map(t => ({
           id: t.id,
@@ -538,6 +712,9 @@ export function ResourcesTable({
       timeNeeded: null,
       interactivity: null,
       usedYet: false,
+      resourceId: null,
+      moduleGroupId: null,
+      moduleId: null,
       tags: [],
     });
   }
@@ -712,6 +889,9 @@ export function ResourcesTable({
                 key={draftNewResource.id}
                 resource={draftNewResource}
                 tagGroups={tagGroups}
+                resourceOptions={resourceOptions}
+                allModuleGroups={allModuleGroups ?? []}
+                allModules={allModules ?? []}
                 isNew
                 isSaving={mutation.isPending}
                 onSave={handleSaveNew}
@@ -735,6 +915,9 @@ export function ResourcesTable({
                     key={r.id}
                     resource={editingResource}
                     tagGroups={tagGroups}
+                    resourceOptions={resourceOptions}
+                    allModuleGroups={allModuleGroups ?? []}
+                    allModules={allModules ?? []}
                     isSaving={mutation.isPending}
                     onSave={handleSaveEdit}
                     onCancel={() => setEditingId(null)}
@@ -752,7 +935,32 @@ export function ResourcesTable({
                   "
                 >
                   <td className="p-2">
-                    <span className="font-medium">{r.name}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">{r.name}</span>
+                      {r.resource && (
+                        <span
+                          className="
+                            inline-flex w-fit items-center gap-1 rounded-full
+                            border border-blue-200 bg-blue-50 px-2 py-0.5
+                            text-xs text-blue-900
+                          "
+                          title={[
+                            r.resource.name,
+                            r.moduleGroup?.name,
+                            r.module?.name,
+                          ].filter(Boolean).join(" → ")}
+                        >
+                          <span>↗</span>
+                          <span>
+                            {[
+                              r.resource.name,
+                              r.moduleGroup?.name,
+                              r.module?.name,
+                            ].filter(Boolean).join(" → ")}
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-2">
                     <LevelBadge level={r.easeOfStarting} />

@@ -124,6 +124,13 @@ export const resourceSchema = {
       type: "boolean",
     },
     tagIds: tagIdsArraySchema,
+    // Optional link to a top-level Resource. resourceId can be null while
+    // moduleGroupId / moduleId stay null too — the row is a freeform task
+    // resource. If resourceId is set, moduleGroupId / moduleId narrow the
+    // sub-target.
+    resourceId: nullableString,
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
   },
 } as const;
 

@@ -10,15 +10,11 @@ import * as z from "zod";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createTask,
   deleteSingleTask,
-  fetchResources,
-  fetchModuleGroups,
-  fetchModules,
   fetchSingleTask,
   fetchTagGroups,
   fetchTaskTypes,
@@ -47,14 +43,6 @@ const formSchema = z.object({
   topicId: z.string(),
   taskTypeId: z.string(),
   tagIds: z.array(z.string()),
-  resourceLinks: z.array(
-    z.object({
-      key: z.string(),
-      resourceId: z.string(),
-      moduleGroupId: z.string().nullable(),
-      moduleId: z.string().nullable(),
-    }),
-  ),
 });
 
 function SingleTaskEdit() {
@@ -97,27 +85,6 @@ function SingleTaskEdit() {
     queryFn: () => fetchTagGroups(),
   });
 
-  const {
-    data: courses,
-  } = useQuery({
-    queryKey: ["courses"],
-    queryFn: () => fetchResources(),
-  });
-
-  const {
-    data: allModuleGroups,
-  } = useQuery({
-    queryKey: ["module-groups-all"],
-    queryFn: () => fetchModuleGroups(),
-  });
-
-  const {
-    data: allModules,
-  } = useQuery({
-    queryKey: ["modules-all"],
-    queryFn: () => fetchModules(),
-  });
-
   const topicOptions = (topics ?? []).map(t => ({
     value: t.id,
     label: t.name,
@@ -141,12 +108,6 @@ function SingleTaskEdit() {
       topicId: data?.topicId ?? (isNew ? search.topicId ?? "" : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
-      resourceLinks: (data?.resourceLinks ?? []).map((l, i) => ({
-        key: l.id ?? `existing-${i}`,
-        resourceId: l.resourceId,
-        moduleGroupId: l.moduleGroupId ?? null,
-        moduleId: l.moduleId ?? null,
-      })),
     }),
     [data, isNew, search.topicId],
   );
@@ -168,6 +129,9 @@ function SingleTaskEdit() {
         interactivity: r.interactivity ?? null,
         usedYet: r.usedYet,
         tagIds: (r.tags ?? []).map(t => t.id),
+        resourceId: r.resourceId ?? null,
+        moduleGroupId: r.moduleGroupId ?? null,
+        moduleId: r.moduleId ?? null,
       }));
 
       const existingTodos = (data?.todos ?? []).map(t => ({
@@ -183,15 +147,6 @@ function SingleTaskEdit() {
         topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
         tagIds: value.tagIds,
-        // Drop blank rows (no Resource selected). Strip the local `key`
-        // since the server only cares about the link tuple.
-        resourceLinks: value.resourceLinks
-          .filter(l => l.resourceId)
-          .map(l => ({
-            resourceId: l.resourceId,
-            moduleGroupId: l.moduleGroupId,
-            moduleId: l.moduleId,
-          })),
         resources: existingResources,
         todos: existingTodos,
       };
@@ -315,26 +270,6 @@ function SingleTaskEdit() {
               />
             )}
           </form.AppField>
-
-          <form.Field name="resourceLinks">
-            {field => (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Resource Links
-                </span>
-                <ResourceLinksPicker
-                  value={field.state.value}
-                  onChange={next => field.handleChange(next)}
-                  courses={(courses ?? []).map(c => ({
-                    id: c.id,
-                    name: c.name,
-                  }))}
-                  moduleGroups={allModuleGroups ?? []}
-                  modules={allModules ?? []}
-                />
-              </div>
-            )}
-          </form.Field>
 
           <form.AppField name="description">
             {field => (

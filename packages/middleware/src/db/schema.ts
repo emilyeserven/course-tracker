@@ -243,6 +243,18 @@ export const taskResources = pgTable("task_resources", {
   interactivity: resourceLevelEnum(),
   usedYet: boolean("used_yet").default(false).notNull(),
   position: integer(),
+  // Optional link to a top-level Resource, narrowed to a module group or
+  // single module. Both null = the link targets the whole resource; all
+  // three null = no link (legacy / freeform task resource).
+  resourceId: varchar("resource_id").references(() => resources.id, {
+    onDelete: "set null",
+  }),
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+    onDelete: "set null",
+  }),
+  moduleId: varchar("module_id").references(() => modules.id, {
+    onDelete: "set null",
+  }),
   // TODO(tag-reform-followup): drop this varchar[] column in favor of the
   // taskResourcesToTags junction once the taskResources UI is migrated.
   tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
@@ -435,6 +447,18 @@ export const taskResourcesRelations = relations(taskResources, ({
   task: one(tasks, {
     fields: [taskResources.taskId],
     references: [tasks.id],
+  }),
+  resource: one(resources, {
+    fields: [taskResources.resourceId],
+    references: [resources.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [taskResources.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [taskResources.moduleId],
+    references: [modules.id],
   }),
   taskResourcesToTags: many(taskResourcesToTags),
 }));

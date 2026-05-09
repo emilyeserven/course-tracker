@@ -155,6 +155,9 @@ export default async function (server: FastifyInstance) {
             interactivity: r.interactivity ?? null,
             usedYet: r.usedYet ?? false,
             position: index,
+            resourceId: r.resourceId ?? null,
+            moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+            moduleId: r.resourceId ? r.moduleId ?? null : null,
           }));
           await db.insert(taskResources).values(resourceRows);
 
