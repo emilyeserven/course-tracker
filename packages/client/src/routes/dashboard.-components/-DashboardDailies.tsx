@@ -167,10 +167,10 @@ export function DashboardDailies() {
             <thead>
               <tr className="text-left text-xs text-muted-foreground">
                 <th className="p-2 font-medium">Title</th>
-                <th className="p-2 font-medium">Progress</th>
+                <th className="p-2 font-medium" />
                 <th className="p-2 font-medium">Streak</th>
                 <th className="p-2 font-medium">Total</th>
-                <th className="p-2 font-medium">Comment</th>
+                <th className="p-2 font-medium" />
                 <th className="p-2 font-medium">Today&apos;s Status</th>
                 {dayHeaders.map(d => (
                   <th
