@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { DailyCriteriaTemplateEditModal } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { TagChip } from "@/components/tasks/TagChip";
-import { TaskTypeEditModal } from "@/components/TaskTypeEditModal";
+import { TaskTypeEditRow } from "@/components/TaskTypeEditRow";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme.ts";
 import {
@@ -237,6 +237,7 @@ function Settings() {
   const editingTaskType = editingId
     ? taskTypes.find(t => t.id === editingId) ?? null
     : null;
+  const isAnyTaskTypeEditing = editingId !== null || creatingNew;
 
   const criteriaTemplates = criteriaTemplatesQuery.data ?? [];
   const editingCriteriaTemplate = editingTemplateId
@@ -275,6 +276,7 @@ function Settings() {
             <Button
               variant="outline"
               onClick={() => setCreatingNew(true)}
+              disabled={isAnyTaskTypeEditing}
             >
               <PlusIcon />
               New Task Type
@@ -282,7 +284,7 @@ function Settings() {
           </div>
           {taskTypesQuery.isPending
             ? <p className="text-sm text-muted-foreground">Loading...</p>
-            : taskTypes.length === 0
+            : taskTypes.length === 0 && !creatingNew
               ? (
                 <p className="text-sm text-muted-foreground">
                   No task types yet. Create one to start tagging resources.
@@ -290,55 +292,73 @@ function Settings() {
               )
               : (
                 <ul className="flex flex-col divide-y rounded-md border">
-                  {taskTypes.map(t => (
-                    <li
-                      key={t.id}
-                      className="
-                        flex flex-wrap items-center justify-between gap-2 p-3
-                      "
-                    >
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium">{t.name}</span>
-                        {t.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {t.tags.slice(0, 4).map(tag => (
-                              <TagChip
-                                key={tag}
-                                tag={tag}
-                              />
-                            ))}
-                            {t.tags.length > 4 && (
-                              <span className="text-xs text-muted-foreground">
-                                +
-                                {t.tags.length - 4}
-                                {" "}
-                                more
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingId(t.id)}
-                        >
-                          <PencilIcon className="size-4" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteMutation.mutate(t.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2Icon className="size-4" />
-                          Delete
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
+                  {creatingNew && (
+                    <TaskTypeEditRow
+                      taskType={makeEmptyTaskType()}
+                      isNew
+                      isSaving={createMutation.isPending}
+                      onSave={t => createMutation.mutate(t)}
+                      onCancel={() => setCreatingNew(false)}
+                    />
+                  )}
+                  {taskTypes.map((t) => {
+                    if (t.id === editingId && editingTaskType) {
+                      return (
+                        <TaskTypeEditRow
+                          key={t.id}
+                          taskType={editingTaskType}
+                          isSaving={upsertMutation.isPending
+                            || deleteMutation.isPending}
+                          onSave={next => upsertMutation.mutate(next)}
+                          onCancel={() => setEditingId(null)}
+                          onDelete={() => deleteMutation.mutate(t.id)}
+                        />
+                      );
+                    }
+                    return (
+                      <li
+                        key={t.id}
+                        className="
+                          flex flex-wrap items-center justify-between gap-2 p-3
+                        "
+                      >
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{t.name}</span>
+                          {t.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {t.tags.slice(0, 4).map(tag => (
+                                <TagChip
+                                  key={tag}
+                                  tag={tag}
+                                />
+                              ))}
+                              {t.tags.length > 4 && (
+                                <span
+                                  className="text-xs text-muted-foreground"
+                                >
+                                  +
+                                  {t.tags.length - 4}
+                                  {" "}
+                                  more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingId(t.id)}
+                            disabled={isAnyTaskTypeEditing}
+                          >
+                            <PencilIcon className="size-4" />
+                            Edit
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
         </section>
@@ -444,30 +464,6 @@ function Settings() {
           </div>
         </section>
       </div>
-
-      <TaskTypeEditModal
-        open={editingId !== null}
-        taskType={editingTaskType}
-        onOpenChange={(open) => {
-          if (!open) setEditingId(null);
-        }}
-        onSave={t => upsertMutation.mutate(t)}
-        onDelete={editingTaskType
-          ? () => deleteMutation.mutate(editingTaskType.id)
-          : undefined}
-        isSaving={upsertMutation.isPending || deleteMutation.isPending}
-      />
-
-      <TaskTypeEditModal
-        open={creatingNew}
-        taskType={creatingNew ? makeEmptyTaskType() : null}
-        isNew
-        onOpenChange={(open) => {
-          if (!open) setCreatingNew(false);
-        }}
-        onSave={t => createMutation.mutate(t)}
-        isSaving={createMutation.isPending}
-      />
 
       <DailyCriteriaTemplateEditModal
         open={editingTemplateId !== null}
