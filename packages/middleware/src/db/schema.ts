@@ -59,6 +59,10 @@ export const courseProviders = pgTable("courseProviders", {
   isCourseFeesShared: boolean(),
 });
 
+// NOTE(resource-rename-followup): the `courses` table plays the role of the
+// future top-level Resource entity. Modules and Module Groups attach via
+// course_id. When the rename lands, course_id columns become resource_id and
+// the Module/ModuleGroup types' `courseId` field becomes `resourceId`.
 export const courses = pgTable("courses", {
   id: varchar().primaryKey(),
   name: varchar({}).notNull(),
@@ -75,6 +79,39 @@ export const courses = pgTable("courses", {
   status: statusEnum().default("active"),
   minutesLength: integer(),
   courseProviderId: varchar("course_provider_id"),
+  // When true, completion is computed from finished modules rather than from
+  // progressCurrent/progressTotal.
+  modulesAreExhaustive: boolean("modules_are_exhaustive").default(false).notNull(),
+});
+
+export const moduleGroups = pgTable("module_groups", {
+  id: varchar().primaryKey(),
+  courseId: varchar("course_id")
+    .notNull()
+    .references(() => courses.id),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  description: varchar(),
+  url: varchar(),
+  position: integer(),
+});
+
+export const modules = pgTable("modules", {
+  id: varchar().primaryKey(),
+  courseId: varchar("course_id")
+    .notNull()
+    .references(() => courses.id),
+  // Modules can attach directly to a course (no group) or to a module group.
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  description: varchar(),
+  url: varchar(),
+  minutesLength: integer("minutes_length"),
+  isComplete: boolean("is_complete").default(false).notNull(),
+  position: integer(),
 });
 
 export const dailies = pgTable("dailies", {
@@ -378,7 +415,32 @@ export const coursesRelations = relations(courses, ({
     references: [courseProviders.id],
   }),
   topicsToCourses: many(topicsToCourses),
+  moduleGroups: many(moduleGroups),
+  modules: many(modules),
   dailies: many(dailies),
+}));
+
+export const moduleGroupsRelations = relations(moduleGroups, ({
+  one, many,
+}) => ({
+  course: one(courses, {
+    fields: [moduleGroups.courseId],
+    references: [courses.id],
+  }),
+  modules: many(modules),
+}));
+
+export const modulesRelations = relations(modules, ({
+  one,
+}) => ({
+  course: one(courses, {
+    fields: [modules.courseId],
+    references: [courses.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [modules.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
 }));
 
 export const topicsRelations = relations(topics, ({
