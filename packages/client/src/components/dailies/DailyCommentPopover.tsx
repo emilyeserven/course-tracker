@@ -22,10 +22,12 @@ import {
 
 interface DailyCommentPopoverProps {
   daily: Daily;
+  buttonClassName?: string;
 }
 
 export function DailyCommentPopover({
   daily,
+  buttonClassName,
 }: DailyCommentPopoverProps) {
   const todayKey = getTodayKey();
   const queryClient = useQueryClient();
@@ -151,6 +153,7 @@ export function DailyCommentPopover({
             hasNote
               ? "text-foreground"
               : "text-muted-foreground/40",
+            buttonClassName,
           )}
         >
           <MessageSquareIcon className="size-3.5" />
