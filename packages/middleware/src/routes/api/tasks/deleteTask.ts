@@ -1,4 +1,4 @@
-import { resources, taskTodos, tasks } from "@/db/schema";
+import { resources, taskTodos, tasks, tasksToTags } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
 export default createDeleteHandler({
@@ -6,6 +6,10 @@ export default createDeleteHandler({
   table: tasks,
   idColumn: tasks.id,
   junctions: [
+    {
+      table: tasksToTags,
+      foreignKey: tasksToTags.taskId,
+    },
     {
       table: resources,
       foreignKey: resources.taskId,

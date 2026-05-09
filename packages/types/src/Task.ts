@@ -1,5 +1,6 @@
 import type { DailyCompletion, DailyStatus } from "./Daily";
 import type { Resource } from "./Resource";
+import type { Tag } from "./Tag";
 import type { TaskTodo } from "./TaskTodo";
 
 export interface TaskLinkedDaily {
@@ -20,6 +21,7 @@ export interface Task {
   taskType?: { id: string;
     name: string;
     tags: string[]; } | null;
+  tags?: Tag[];
   resources?: Resource[];
   todos?: TaskTodo[];
   daily?: TaskLinkedDaily | null;

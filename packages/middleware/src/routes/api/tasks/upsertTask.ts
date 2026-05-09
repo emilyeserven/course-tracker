@@ -2,11 +2,12 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, taskTodos, taskTypes, tasks } from "@/db/schema";
+import { resources, taskTodos, taskTypes, tasks, tasksToTags } from "@/db/schema";
 import {
   idParamSchema,
   nullableString,
   resourceSchema,
+  tagIdsArraySchema,
   todoSchema,
 } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
@@ -25,6 +26,7 @@ const upsertSchema = {
         description: nullableString,
         topicId: nullableString,
         taskTypeId: nullableString,
+        tagIds: tagIdsArraySchema,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -70,6 +72,20 @@ export default async function (server: FastifyInstance) {
             taskTypeId: taskData.taskTypeId,
           },
         });
+
+      if (body.tagIds !== undefined) {
+        await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
+        const uniqueTagIds = Array.from(new Set(body.tagIds));
+        if (uniqueTagIds.length > 0) {
+          await db.insert(tasksToTags).values(
+            uniqueTagIds.map((tagId, index) => ({
+              taskId: id,
+              tagId,
+              position: index,
+            })),
+          );
+        }
+      }
 
       if (body.resources !== undefined) {
         await db.delete(resources).where(eq(resources.taskId, id));

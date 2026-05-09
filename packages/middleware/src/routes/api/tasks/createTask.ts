@@ -1,8 +1,13 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { resources, taskTodos, tasks } from "@/db/schema";
-import { nullableString, resourceSchema, todoSchema } from "@/utils/schemas";
+import { resources, taskTodos, tasks, tasksToTags } from "@/db/schema";
+import {
+  nullableString,
+  resourceSchema,
+  tagIdsArraySchema,
+  todoSchema,
+} from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -18,6 +23,7 @@ const createSchema = {
         description: nullableString,
         topicId: nullableString,
         taskTypeId: nullableString,
+        tagIds: tagIdsArraySchema,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -48,6 +54,17 @@ export default async function (server: FastifyInstance) {
         topicId: body.topicId || null,
         taskTypeId: body.taskTypeId || null,
       });
+
+      const uniqueTagIds = Array.from(new Set(body.tagIds ?? []));
+      if (uniqueTagIds.length > 0) {
+        await db.insert(tasksToTags).values(
+          uniqueTagIds.map((tagId, index) => ({
+            taskId: id,
+            tagId,
+            position: index,
+          })),
+        );
+      }
 
       const incoming = body.resources ?? [];
       if (incoming.length > 0) {

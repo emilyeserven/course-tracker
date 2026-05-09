@@ -80,6 +80,14 @@ export const tagsArraySchema = {
   default: [],
 } as const;
 
+export const tagIdsArraySchema = {
+  type: "array",
+  items: {
+    type: "string",
+  },
+  default: [],
+} as const;
+
 export const resourceSchema = {
   type: "object",
   required: ["name"],

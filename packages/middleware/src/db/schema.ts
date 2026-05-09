@@ -305,6 +305,7 @@ export const tasksRelations = relations(tasks, ({
     fields: [tasks.taskTypeId],
     references: [taskTypes.id],
   }),
+  tasksToTags: many(tasksToTags),
   resources: many(resources),
   todos: many(taskTodos),
   daily: one(dailies, {
@@ -320,12 +321,13 @@ export const taskTypesRelations = relations(taskTypes, ({
 }));
 
 export const resourcesRelations = relations(resources, ({
-  one,
+  one, many,
 }) => ({
   task: one(tasks, {
     fields: [resources.taskId],
     references: [tasks.id],
   }),
+  resourcesToTags: many(resourcesToTags),
 }));
 
 export const taskTodosRelations = relations(taskTodos, ({
@@ -379,6 +381,7 @@ export const topicsRelations = relations(topics, ({
   radarBlips: many(radarBlips),
   domainExclusions: many(domainExcludedTopics),
   domainWithinScope: many(domainWithinScopeTopics),
+  topicsToTags: many(topicsToTags),
   tasks: many(tasks),
 }));
 

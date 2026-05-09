@@ -73,7 +73,9 @@ export function TagGroupsAdmin() {
   });
 
   function invalidateGroups() {
-    queryClient.invalidateQueries({ queryKey: ["tagGroups"] });
+    queryClient.invalidateQueries({
+      queryKey: ["tagGroups"],
+    });
   }
 
   const upsertGroupMutation = useMutation({
@@ -240,7 +242,10 @@ export function TagGroupsAdmin() {
                         : null
                     }
                     onStartEditTag={tagId =>
-                      setTagEditState({ groupId: g.id, tagId })}
+                      setTagEditState({
+                        groupId: g.id,
+                        tagId,
+                      })}
                     onCancelEditTag={() => setTagEditState(null)}
                     onUpsertTag={d => upsertTagMutation.mutate(d)}
                     onDeleteTag={tagId => deleteTagMutation.mutate(tagId)}
@@ -280,7 +285,10 @@ function GroupEditRow({
   const [draft, setDraft] = useState<TagGroupDraft>(initial);
 
   function update(patch: Partial<TagGroupDraft>) {
-    setDraft(prev => ({ ...prev, ...patch }));
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
   }
 
   return (
@@ -303,7 +311,9 @@ function GroupEditRow({
             id="tag-group-name"
             type="text"
             value={draft.name}
-            onChange={e => update({ name: e.target.value })}
+            onChange={e => update({
+              name: e.target.value,
+            })}
             required
             placeholder="e.g. skills, format"
             autoFocus
@@ -319,7 +329,9 @@ function GroupEditRow({
           <Textarea
             id="tag-group-description"
             value={draft.description}
-            onChange={e => update({ description: e.target.value })}
+            onChange={e => update({
+              description: e.target.value,
+            })}
             placeholder="What this group is for"
           />
         </div>
@@ -336,13 +348,20 @@ function GroupEditRow({
             id="tag-group-color"
             type="text"
             value={draft.color}
-            onChange={e => update({ color: e.target.value })}
+            onChange={e => update({
+              color: e.target.value,
+            })}
             placeholder="e.g. blue, #34d"
           />
         </div>
-        <div className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <div
+          className="flex flex-row flex-wrap items-center justify-between gap-2"
+        >
           <div className="flex flex-row gap-2">
-            <Button type="submit" disabled={isSaving}>
+            <Button
+              type="submit"
+              disabled={isSaving}
+            >
               {isSaving && <Loader2 className="animate-spin" />}
               Save
             </Button>
@@ -440,7 +459,7 @@ function GroupDisplayRow({
           </Button>
         </div>
       </div>
-      <ul className="flex flex-col divide-y rounded border bg-background">
+      <ul className="flex flex-col divide-y rounded-sm border bg-background">
         {creatingTag && (
           <TagEditRow
             draft={makeEmptyTagDraft(group.id)}
@@ -531,7 +550,10 @@ function TagEditRow({
   const [draft, setDraft] = useState<TagDraft>(initial);
 
   function update(patch: Partial<TagDraft>) {
-    setDraft(prev => ({ ...prev, ...patch }));
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
   }
 
   return (
@@ -554,7 +576,9 @@ function TagEditRow({
             id="tag-name"
             type="text"
             value={draft.name}
-            onChange={e => update({ name: e.target.value })}
+            onChange={e => update({
+              name: e.target.value,
+            })}
             required
             placeholder="e.g. skills:listening"
             autoFocus
@@ -573,13 +597,21 @@ function TagEditRow({
             id="tag-color"
             type="text"
             value={draft.color}
-            onChange={e => update({ color: e.target.value })}
+            onChange={e => update({
+              color: e.target.value,
+            })}
             placeholder="e.g. blue, #34d"
           />
         </div>
-        <div className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <div
+          className="flex flex-row flex-wrap items-center justify-between gap-2"
+        >
           <div className="flex flex-row gap-2">
-            <Button size="sm" type="submit" disabled={isSaving}>
+            <Button
+              size="sm"
+              type="submit"
+              disabled={isSaving}
+            >
               {isSaving && <Loader2 className="animate-spin" />}
               Save
             </Button>

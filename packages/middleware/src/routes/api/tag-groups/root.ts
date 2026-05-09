@@ -31,10 +31,14 @@ export default async function (server: FastifyInstance) {
     const rows = await db.query.tagGroups.findMany({
       with: {
         tags: {
-          orderBy: (t, { asc }) => [asc(t.position), asc(t.name)],
+          orderBy: (t, {
+            asc,
+          }) => [asc(t.position), asc(t.name)],
         },
       },
-      orderBy: (g, { asc }) => [asc(g.position), asc(g.name)],
+      orderBy: (g, {
+        asc,
+      }) => [asc(g.position), asc(g.name)],
     });
     return rows;
   });

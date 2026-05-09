@@ -40,6 +40,12 @@ export default async function (server: FastifyInstance) {
               tags: true,
             },
           },
+          tasksToTags: {
+            with: {
+              tag: true,
+            },
+            orderBy: (j, { asc }) => asc(j.position),
+          },
           resources: true,
           todos: true,
           daily: {
@@ -76,6 +82,7 @@ export default async function (server: FastifyInstance) {
             tags: task.taskType.tags ?? [],
           }
           : null,
+        tags: (task.tasksToTags ?? []).map(j => j.tag),
         resources: (task.resources ?? [])
           .slice()
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))

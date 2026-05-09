@@ -17,8 +17,8 @@ import { toast } from "sonner";
 
 import { DailyCriteriaTemplateEditModal } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { TagChip } from "@/components/tasks/TagChip";
 import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
+import { TagChip } from "@/components/tasks/TagChip";
 import { TaskTypeEditRow } from "@/components/TaskTypeEditRow";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme.ts";

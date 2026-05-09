@@ -32,7 +32,9 @@ export default async function (server: FastifyInstance) {
 
   fastify.get("/", async () => {
     const rows = await db.query.tags.findMany({
-      orderBy: (t, { asc }) => [asc(t.position), asc(t.name)],
+      orderBy: (t, {
+        asc,
+      }) => [asc(t.position), asc(t.name)],
     });
     return rows;
   });

@@ -17,10 +17,16 @@ export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.delete("/:id", schema, async function (request, reply) {
-    const { id } = request.params;
+    const {
+      id,
+    } = request.params;
 
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+    const [{
+      count,
+    }] = await db
+      .select({
+        count: sql<number>`count(*)::int`,
+      })
       .from(tags)
       .where(eq(tags.groupId, id));
 
@@ -32,6 +38,8 @@ export default async function (server: FastifyInstance) {
     }
 
     await db.delete(tagGroups).where(eq(tagGroups.id, id));
-    return { status: "ok" };
+    return {
+      status: "ok",
+    };
   });
 }
