@@ -78,20 +78,15 @@ type SortDir = "asc" | "desc";
 function Dailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
-  const {
-    settings,
-  } = useSettings();
-  const {
-    mode, setMode,
-  } = useDailiesViewMode();
+  const { settings } = useSettings();
+  const { mode, setMode } = useDailiesViewMode();
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
       setSortKey(key);
       setSortDir(key === "progress" ? "desc" : "asc");
     }
@@ -101,35 +96,40 @@ function Dailies() {
     if (sortKey !== key) {
       return <ArrowUpDownIcon className="size-3 opacity-40" />;
     }
-    return sortDir === "asc"
-      ? <ArrowUpIcon className="size-3" />
-      : <ArrowDownIcon className="size-3" />;
+    return sortDir === "asc" ? (
+      <ArrowUpIcon className="size-3" />
+    ) : (
+      <ArrowDownIcon className="size-3" />
+    );
   }
 
-  const {
-    data: dailies,
-  } = useQuery({
+  const { data: dailies } = useQuery({
     queryKey: ["dailies"],
     queryFn: () => fetchDailies(),
   });
 
   const mutation = useMutation({
     mutationFn: ({
-      daily, status, note,
-    }: { daily: Daily;
+      daily,
+      status,
+      note,
+    }: {
+      daily: Daily;
       status: DailyCompletionStatus;
-      note?: string | null; }) => {
+      note?: string | null;
+    }) => {
       const withStatus = withCompletion(daily, todayKey, status);
-      const completions = note === undefined
-        ? withStatus
-        : withCompletionNote(
-          {
-            ...daily,
-            completions: withStatus,
-          },
-          todayKey,
-          note,
-        );
+      const completions =
+        note === undefined
+          ? withStatus
+          : withCompletionNote(
+              {
+                ...daily,
+                completions: withStatus,
+              },
+              todayKey,
+              note,
+            );
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -151,49 +151,47 @@ function Dailies() {
 
   const baseSorted = dailies
     ? [...dailies].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      }))
+        a.name.localeCompare(b.name, undefined, {
+          sensitivity: "base",
+        }),
+      )
     : undefined;
 
-  const activeDailies = (baseSorted?.filter(
-    d => d.status !== "complete" && d.status !== "paused",
-  ) ?? []).slice().sort((a, b) => {
-    if (sortKey === "progress") {
-      const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
-      if (diff !== 0) return sortDir === "asc" ? diff : -diff;
-    }
-    const cmp = a.name.localeCompare(b.name, undefined, {
-      sensitivity: "base",
+  const activeDailies = (
+    baseSorted?.filter(
+      (d) => d.status !== "complete" && d.status !== "paused",
+    ) ?? []
+  )
+    .slice()
+    .sort((a, b) => {
+      if (sortKey === "progress") {
+        const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
+        if (diff !== 0) return sortDir === "asc" ? diff : -diff;
+      }
+      const cmp = a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+      });
+      return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
     });
-    return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
-  });
-  const pausedDailies = baseSorted?.filter(d => d.status === "paused") ?? [];
-  const completedDailies = baseSorted?.filter(d => d.status === "complete")
-    ?? [];
+  const pausedDailies = baseSorted?.filter((d) => d.status === "paused") ?? [];
+  const completedDailies =
+    baseSorted?.filter((d) => d.status === "complete") ?? [];
 
-  const dayHeaders = activeDailies.length > 0
-    ? getRecentDays(
-      activeDailies[0],
-      RECENT_DAYS_COUNT + 1,
-      todayKey,
-      "mmdd",
-    )
-      .slice(0, -1)
-      .reverse()
-      .map(d => ({
-        dateKey: d.dateKey,
-        label: formatMmDd(d.dateKey),
-        isToday: d.isToday,
-      }))
-    : [];
+  const dayHeaders =
+    activeDailies.length > 0
+      ? getRecentDays(activeDailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
+          .slice(0, -1)
+          .reverse()
+          .map((d) => ({
+            dateKey: d.dateKey,
+            label: formatMmDd(d.dateKey),
+            isToday: d.isToday,
+          }))
+      : [];
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Dailies"
-        pageSection=""
-      >
+      <PageHeader pageTitle="Dailies" pageSection="">
         <Link
           to="/dailies/$id/edit"
           params={{
@@ -207,7 +205,6 @@ function Dailies() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-4">
-
         {(!baseSorted || baseSorted.length === 0) && (
           <p className="text-sm text-muted-foreground">
             <i>No dailies yet!</i>
@@ -216,7 +213,7 @@ function Dailies() {
 
         {activeDailies.length > 0 && (
           <DashboardCard
-            title={(
+            title={
               <span className="inline-flex items-center gap-2">
                 Active Dailies
                 <TooManyDailiesWarning
@@ -225,16 +222,13 @@ function Dailies() {
                   size="sm"
                 />
               </span>
-            )}
-            action={(
+            }
+            action={
               <>
-                <DailiesViewModeToggle
-                  mode={mode}
-                  onChange={setMode}
-                />
+                <DailiesViewModeToggle mode={mode} onChange={setMode} />
                 <DailiesLimitSetting />
               </>
-            )}
+            }
           >
             {mode === "list" && (
               <DailiesActiveListView
@@ -242,11 +236,13 @@ function Dailies() {
                 todayKey={todayKey}
                 mutationPending={mutation.isPending}
                 recentDaysCount={RECENT_DAYS_COUNT}
-                onChangeStatus={(daily, status, note) => mutation.mutate({
-                  daily,
-                  status,
-                  note,
-                })}
+                onChangeStatus={(daily, status, note) =>
+                  mutation.mutate({
+                    daily,
+                    status,
+                    note,
+                  })
+                }
               />
             )}
             {mode === "table" && (
@@ -282,17 +278,21 @@ function Dailies() {
                           {sortIndicator("name")}
                         </button>
                       </th>
-                      <th className="p-2 font-medium whitespace-nowrap">Type</th>
+                      <th className="p-2 font-medium whitespace-nowrap">
+                        Type
+                      </th>
                       <th className="max-w-xs p-2 font-medium">Description</th>
-                      <th className="p-2 font-medium whitespace-nowrap">Streak</th>
-                      <th className="p-2 font-medium whitespace-nowrap">Total</th>
+                      <th className="p-2 font-medium whitespace-nowrap">
+                        Streak
+                      </th>
+                      <th className="p-2 font-medium whitespace-nowrap">
+                        Total
+                      </th>
                       <th className="p-2 font-medium" />
-                      <th
-                        className="w-36 p-2 font-medium whitespace-nowrap"
-                      >
+                      <th className="w-36 p-2 font-medium whitespace-nowrap">
                         Today&apos;s Status
                       </th>
-                      {dayHeaders.map(d => (
+                      {dayHeaders.map((d) => (
                         <th
                           key={d.dateKey}
                           className={cn(
@@ -318,7 +318,9 @@ function Dailies() {
                         RECENT_DAYS_COUNT + 1,
                         todayKey,
                         "mmdd",
-                      ).slice(0, -1).reverse();
+                      )
+                        .slice(0, -1)
+                        .reverse();
                       return (
                         <tr
                           key={daily.id}
@@ -352,28 +354,27 @@ function Dailies() {
                             </span>
                           </td>
                           <td className="max-w-xs p-2">
-                            {daily.description
-                              ? (
-                                <span
-                                  className="
+                            {daily.description ? (
+                              <span
+                                className="
                                     block truncate text-muted-foreground
                                   "
-                                  title={daily.description}
-                                >
-                                  {daily.description}
-                                </span>
-                              )
-                              : (
-                                <span className="text-muted-foreground/60">
-                                  <i>No description</i>
-                                </span>
-                              )}
+                                title={daily.description}
+                              >
+                                {daily.description}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground/60">
+                                <i>No description</i>
+                              </span>
+                            )}
                           </td>
                           <td className="p-2">
                             <span
                               className={cn(
                                 "inline-flex items-center gap-1 text-xs",
-                                currentStatus === "incomplete"
+                                currentStatus === null ||
+                                  currentStatus === "incomplete"
                                   ? "text-muted-foreground"
                                   : chain > 0
                                     ? "text-orange-600"
@@ -413,10 +414,12 @@ function Dailies() {
                               daily={daily}
                               currentStatus={currentStatus}
                               disabled={mutation.isPending}
-                              onChange={status => mutation.mutate({
-                                daily,
-                                status,
-                              })}
+                              onChange={(status) =>
+                                mutation.mutate({
+                                  daily,
+                                  status,
+                                })
+                              }
                             />
                           </td>
                           {days.map((day, i) => {
@@ -431,7 +434,7 @@ function Dailies() {
                                     right={day.status}
                                     className="
                                       absolute top-1/2 right-[calc(50%+12px)]
-                                      -left-2 z-0 -translate-y-1/2
+                                      -left-2 z-0 w-auto -translate-y-1/2
                                     "
                                   />
                                 )}
@@ -446,9 +449,7 @@ function Dailies() {
                                     "
                                   />
                                 )}
-                                <div
-                                  className="relative z-10 flex justify-center"
-                                >
+                                <div className="relative z-10 flex justify-center">
                                   <DailyStatusCircle
                                     status={day.status}
                                     size="sm"

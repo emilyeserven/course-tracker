@@ -54,15 +54,18 @@ function buildRows(courses: CourseInCourses[] | undefined): AmortizationRow[] {
   if (!courses) return [];
   return courses.map((course) => {
     const rawCost = parseCost(course.cost?.cost);
-    const splitBy
-      = course.cost?.splitBy && course.cost.splitBy > 0 ? course.cost.splitBy : 1;
+    const splitBy =
+      course.cost?.splitBy && course.cost.splitBy > 0 ? course.cost.splitBy : 1;
     const effectiveCost = rawCost / splitBy;
     const progressCurrent = course.progressCurrent ?? 0;
     const progressTotal = course.progressTotal ?? 0;
-    const progressFraction
-      = progressTotal > 0 ? progressCurrent / progressTotal : 0;
-    const amortization
-      = progressCurrent > 0 ? effectiveCost / progressCurrent : null;
+    const progressFraction =
+      progressTotal > 0 ? progressCurrent / progressTotal : 0;
+    const percentComplete =
+      progressTotal > 0
+        ? Number(((progressCurrent / progressTotal) * 100).toFixed(2))
+        : 0;
+    const amortization = percentComplete > 0 ? rawCost / percentComplete : null;
     return {
       course,
       effectiveCost,
@@ -115,7 +118,9 @@ function compareRows(
 
 export function DashboardCoursesByAmortization() {
   const {
-    data: courses, isPending, error,
+    data: courses,
+    isPending,
+    error,
   } = useQuery({
     queryKey: ["courses"],
     queryFn: () => fetchCourses(),
@@ -132,34 +137,36 @@ export function DashboardCoursesByAmortization() {
       setSortDir(key === "name" || key === "provider" ? "asc" : "desc");
       return;
     }
-    setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
   }
 
   function sortIcon(key: SortKey) {
     if (sortKey !== key) {
       return <ChevronsUpDownIcon className="size-3 opacity-50" />;
     }
-    return sortDir === "asc"
-      ? <ChevronUpIcon className="size-3" />
-      : <ChevronDownIcon className="size-3" />;
+    return sortDir === "asc" ? (
+      <ChevronUpIcon className="size-3" />
+    ) : (
+      <ChevronDownIcon className="size-3" />
+    );
   }
 
   const rows = useMemo(() => {
     const all = buildRows(courses);
-    const filtered = showUnstarted ? all : all.filter(r => !r.isUnstarted);
+    const filtered = showUnstarted ? all : all.filter((r) => !r.isUnstarted);
     return filtered.slice().sort((a, b) => compareRows(a, b, sortKey, sortDir));
   }, [courses, showUnstarted, sortKey, sortDir]);
 
   return (
     <DashboardCard
       title="Courses by Amortization"
-      action={(
+      action={
         <div className="flex items-center gap-3">
           <button
             type="button"
             role="switch"
             aria-checked={showUnstarted}
-            onClick={() => setShowUnstarted(prev => !prev)}
+            onClick={() => setShowUnstarted((prev) => !prev)}
             className="
               text-muted-foreground
               hover:text-foreground
@@ -197,7 +204,7 @@ export function DashboardCoursesByAmortization() {
             View all
           </Link>
         </div>
-      )}
+      }
     >
       {isPending && (
         <p className="text-muted-foreground text-sm">Loading courses...</p>
@@ -213,7 +220,7 @@ export function DashboardCoursesByAmortization() {
       {rows.length > 0 && (
         <div
           className="
-            max-h-80 w-full overflow-auto rounded-md border
+            max-h-80 w-full overflow-auto
             [scrollbar-width:thin]
           "
         >
@@ -285,33 +292,35 @@ export function DashboardCoursesByAmortization() {
                     {sortIcon("amortization")}
                   </button>
                 </TableHead>
-                <TableHead className="text-right whitespace-nowrap">Go</TableHead>
+                <TableHead className="text-right whitespace-nowrap">
+                  Go
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({
-                course,
-                effectiveCost,
-                progressCurrent,
-                progressTotal,
-                amortization,
-                isUnstarted,
-              }) => (
-                <TableRow key={course.id}>
-                  <TableCell className="font-medium whitespace-nowrap">
-                    <Link
-                      to="/courses/$id"
-                      params={{
-                        id: course.id,
-                      }}
-                      className="hover:text-blue-600"
-                    >
-                      {course.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {course.provider
-                      ? (
+              {rows.map(
+                ({
+                  course,
+                  effectiveCost,
+                  progressCurrent,
+                  progressTotal,
+                  amortization,
+                  isUnstarted,
+                }) => (
+                  <TableRow key={course.id}>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      <Link
+                        to="/courses/$id"
+                        params={{
+                          id: course.id,
+                        }}
+                        className="hover:text-blue-600"
+                      >
+                        {course.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {course.provider ? (
                         <Link
                           to="/providers/$id"
                           params={{
@@ -324,44 +333,38 @@ export function DashboardCoursesByAmortization() {
                         >
                           {course.provider.name}
                         </Link>
-                      )
-                      : <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {formatCurrency(effectiveCost)}
-                  </TableCell>
-                  <TableCell
-                    className="text-right whitespace-nowrap"
-                    title={
-                      progressTotal > 0
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {formatCurrency(effectiveCost)}
+                    </TableCell>
+                    <TableCell
+                      className="text-right whitespace-nowrap"
+                      title={
+                        progressTotal > 0
+                          ? `${progressCurrent} / ${progressTotal}`
+                          : undefined
+                      }
+                    >
+                      {progressTotal > 0
                         ? `${progressCurrent} / ${progressTotal}`
-                        : undefined
-                    }
-                  >
-                    {progressTotal > 0
-                      ? `${progressCurrent} / ${progressTotal}`
-                      : progressCurrent}
-                  </TableCell>
-                  <TableCell
-                    className="text-right whitespace-nowrap"
-                    title={
-                      isUnstarted
-                        ? "Unstarted — no progress yet"
-                        : undefined
-                    }
-                  >
-                    {amortization === null
-                      ? "—"
-                      : formatCurrency(amortization)}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {course.url
-                      ? (
-                        <Button
-                          asChild
-                          size="sm"
-                          variant="outline"
-                        >
+                        : progressCurrent}
+                    </TableCell>
+                    <TableCell
+                      className="text-right whitespace-nowrap"
+                      title={
+                        isUnstarted ? "Unstarted — no progress yet" : undefined
+                      }
+                    >
+                      {amortization === null
+                        ? "—"
+                        : formatCurrency(amortization)}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {course.url ? (
+                        <Button asChild size="sm" variant="outline">
                           <a
                             href={course.url}
                             target="_blank"
@@ -371,13 +374,13 @@ export function DashboardCoursesByAmortization() {
                             <ExternalLink />
                           </a>
                         </Button>
-                      )
-                      : (
+                      ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                  </TableRow>
+                ),
+              )}
             </TableBody>
           </Table>
         </div>
