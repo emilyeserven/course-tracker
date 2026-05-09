@@ -18,6 +18,8 @@ const createSchema = {
         },
         description: nullableString,
         hasRadar: nullableBoolean,
+        withinScopeDescription: nullableString,
+        outOfScopeDescription: nullableString,
         topicIds: {
           type: "array",
           items: {
@@ -64,6 +66,8 @@ export default async function (server: FastifyInstance) {
         title,
         description: body.description ?? null,
         hasRadar: body.hasRadar ?? null,
+        withinScopeDescription: body.withinScopeDescription ?? null,
+        outOfScopeDescription: body.outOfScopeDescription ?? null,
       });
 
       const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));

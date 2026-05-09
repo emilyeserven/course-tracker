@@ -45,6 +45,10 @@ interface BlipLlmAssistProps {
   domainDescription?: string | null;
   domainTopics?: DomainTopic[];
   excludedTopics?: DomainExcludedTopic[];
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
+  withinScopeTopicNames?: string[];
+  outOfScopeTopicNames?: string[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   topics: TopicForTopicsPage[];
@@ -219,11 +223,22 @@ interface BuildPromptArgs {
   domainDescription?: string | null;
   domainTopics: DomainTopic[];
   excludedTopics: DomainExcludedTopic[];
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
+  withinScopeTopicNames?: string[];
+  outOfScopeTopicNames?: string[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   existingBlips: { topicName: string;
     radarNote?: string | null;
     topicDescription?: string | null; }[];
+}
+
+function formatTopicNameList(names: string[] | undefined): string {
+  if (!names || names.length === 0) {
+    return "- (none)";
+  }
+  return names.map(n => `- ${n}`).join("\n");
 }
 
 function buildLlmPrompt(args: BuildPromptArgs): string {
@@ -232,6 +247,10 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
     domainDescription,
     domainTopics,
     excludedTopics,
+    withinScopeDescription,
+    outOfScopeDescription,
+    withinScopeTopicNames,
+    outOfScopeTopicNames,
     quadrants,
     rings,
     existingBlips,
@@ -260,10 +279,29 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
       .join("\n")
     : "- (none yet)";
 
+  const withinScopeBlock = withinScopeDescription?.trim()
+    ? withinScopeDescription.trim()
+    : "(no within-scope description provided)";
+  const outOfScopeBlock = outOfScopeDescription?.trim()
+    ? outOfScopeDescription.trim()
+    : "(no out-of-scope description provided)";
+
   return `I'm placing topics on a tech-radar style chart for the "${domainLabel}" domain.
 
 Domain description:
 ${descriptionBlock}
+
+Within-scope description (lean toward topics like these):
+${withinScopeBlock}
+
+Within-scope topics (representative examples of what fits this radar):
+${formatTopicNameList(withinScopeTopicNames)}
+
+Out-of-scope description (lean away from topics like these):
+${outOfScopeBlock}
+
+Out-of-scope topics (representative examples of what does NOT fit):
+${formatTopicNameList(outOfScopeTopicNames)}
 
 The radar has these quadrants:
 ${quadrantList || "- (none defined)"}
@@ -364,6 +402,10 @@ export function BlipLlmAssist({
   domainDescription = null,
   domainTopics = [],
   excludedTopics = [],
+  withinScopeDescription = null,
+  outOfScopeDescription = null,
+  withinScopeTopicNames = [],
+  outOfScopeTopicNames = [],
   quadrants,
   rings,
   topics,
@@ -378,6 +420,10 @@ export function BlipLlmAssist({
         domainDescription,
         domainTopics,
         excludedTopics,
+        withinScopeDescription,
+        outOfScopeDescription,
+        withinScopeTopicNames,
+        outOfScopeTopicNames,
         quadrants,
         rings,
         existingBlips: existingBlips.map(b => ({
@@ -392,6 +438,10 @@ export function BlipLlmAssist({
       domainDescription,
       domainTopics,
       excludedTopics,
+      withinScopeDescription,
+      outOfScopeDescription,
+      withinScopeTopicNames,
+      outOfScopeTopicNames,
       quadrants,
       rings,
       existingBlips,
@@ -879,7 +929,7 @@ export function BlipLlmAssist({
         </div>
         <pre
           className={`
-            max-h-60 overflow-auto rounded-sm bg-muted p-3 text-xs
+            bg-muted max-h-60 overflow-auto rounded-sm p-3 text-xs
             whitespace-pre-wrap
           `}
         >
@@ -896,7 +946,7 @@ export function BlipLlmAssist({
           className="min-h-32 font-mono text-xs"
         />
         {parseError && (
-          <p className="text-sm text-destructive">{parseError}</p>
+          <p className="text-destructive text-sm">{parseError}</p>
         )}
         <div>
           <Button
@@ -912,7 +962,7 @@ export function BlipLlmAssist({
       {resolved && (
         <div className="flex flex-col gap-2">
           <h4 className="text-sm font-semibold">3. Review</h4>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {counts.create}
             {" "}
             to add ·
@@ -1162,7 +1212,7 @@ function ReviewRow({
             )}
           </div>
           {hasProblems && !isSkipped && (
-            <span className="text-[11px] text-destructive">
+            <span className="text-destructive text-[11px]">
               {r.problems.join("; ")}
             </span>
           )}
@@ -1185,7 +1235,7 @@ function ReviewRow({
 
       <TableCell className="align-top">
         {isRemove
-          ? <span className="text-xs text-muted-foreground">—</span>
+          ? <span className="text-muted-foreground text-xs">—</span>
           : (
             <PlacementCell
               existingName={existingQuadrantName}
@@ -1203,7 +1253,7 @@ function ReviewRow({
 
       <TableCell className="align-top">
         {isRemove
-          ? <span className="text-xs text-muted-foreground">—</span>
+          ? <span className="text-muted-foreground text-xs">—</span>
           : (
             <PlacementCell
               existingName={existingRingName}
