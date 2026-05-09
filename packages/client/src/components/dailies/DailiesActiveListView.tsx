@@ -5,15 +5,6 @@ import { Fragment } from "react";
 import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { DailyCommentPopover } from "./DailyCommentPopover";
-import { DailyCourseIndicator } from "./DailyCourseIndicator";
-import { DailyLocationCell } from "./DailyLocationCell";
-import { DailyProgressCell } from "./DailyProgressCell";
-import { DailyStatusCircle } from "./DailyStatusCircle";
-import { DailyStatusConnector } from "./DailyStatusConnector";
-import { DailyTaskIndicator } from "./DailyTaskIndicator";
-import { TodayStatusCell } from "./TodayStatusCell";
-
 import { cn } from "@/lib/utils";
 import {
   findStatusForDate,
@@ -22,6 +13,15 @@ import {
   getReferenceDateKey,
   getTotalCompletedDays,
 } from "@/utils";
+
+import { DailyCommentPopover } from "./DailyCommentPopover";
+import { DailyCourseIndicator } from "./DailyCourseIndicator";
+import { DailyLocationCell } from "./DailyLocationCell";
+import { DailyProgressCell } from "./DailyProgressCell";
+import { DailyStatusCircle } from "./DailyStatusCircle";
+import { DailyStatusConnector } from "./DailyStatusConnector";
+import { DailyTaskIndicator } from "./DailyTaskIndicator";
+import { TodayStatusCell } from "./TodayStatusCell";
 
 interface DailiesActiveListViewProps {
   dailies: Daily[];
@@ -62,7 +62,8 @@ export function DailiesActiveListView({
             key={daily.id}
             className="
               flex flex-col gap-2 border-b py-3
-              lg:border-b lg:even:border-l lg:even:pl-6
+              lg:border-b
+              lg:even:border-l lg:even:pl-6
             "
           >
             <div
@@ -91,7 +92,7 @@ export function DailiesActiveListView({
                   </span>
                   {daily.description && (
                     <span
-                      className="line-clamp-2 text-xs text-muted-foreground"
+                      className="text-muted-foreground line-clamp-2 text-xs"
                       title={daily.description}
                     >
                       {daily.description}
@@ -146,7 +147,7 @@ export function DailiesActiveListView({
                   />
                   <span
                     className="
-                      text-[0.65rem] leading-none font-semibold text-foreground
+                      text-foreground text-[0.65rem] leading-none font-semibold
                     "
                   >
                     Today
@@ -182,7 +183,7 @@ export function DailiesActiveListView({
                     />
                     <span
                       className="
-                        text-[0.65rem] leading-none text-muted-foreground
+                        text-muted-foreground text-[0.65rem] leading-none
                       "
                     >
                       {day.dayLabel}
