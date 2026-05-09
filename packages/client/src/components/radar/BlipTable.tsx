@@ -679,21 +679,24 @@ export function BlipTable({
                         {topic
                           ? (
                             <div className="flex flex-row flex-wrap gap-2">
-                              <span title="Courses">
-                                C:
-                                {" "}
-                                {topic.courseCount ?? 0}
-                              </span>
-                              <span title="Tasks">
-                                T:
-                                {" "}
-                                {topic.taskCount ?? 0}
-                              </span>
-                              <span title="Dailies">
-                                D:
-                                {" "}
-                                {topic.dailyCount ?? 0}
-                              </span>
+                              <TopicItemLink
+                                label="C"
+                                title="Courses"
+                                count={topic.courseCount ?? 0}
+                                topicId={blip.topicId}
+                              />
+                              <TopicItemLink
+                                label="T"
+                                title="Tasks"
+                                count={topic.taskCount ?? 0}
+                                topicId={blip.topicId}
+                              />
+                              <TopicItemLink
+                                label="D"
+                                title="Dailies"
+                                count={topic.dailyCount ?? 0}
+                                topicId={blip.topicId}
+                              />
                             </div>
                           )
                           : "—"}
@@ -796,5 +799,51 @@ export function BlipTable({
         </Table>
       </div>
     </div>
+  );
+}
+
+interface TopicItemLinkProps {
+  label: string;
+  title: string;
+  count: number;
+  topicId: string;
+}
+
+function TopicItemLink({
+  label,
+  title,
+  count,
+  topicId,
+}: TopicItemLinkProps) {
+  if (count === 0) {
+    return (
+      <span
+        title={title}
+        className="text-muted-foreground/60"
+      >
+        {label}
+        :
+        {" "}
+        0
+      </span>
+    );
+  }
+  return (
+    <Link
+      to="/topics/$id"
+      params={{
+        id: topicId,
+      }}
+      title={title}
+      className={`
+        font-medium text-blue-700
+        hover:text-blue-500 hover:underline
+      `}
+    >
+      {label}
+      :
+      {" "}
+      {count}
+    </Link>
   );
 }

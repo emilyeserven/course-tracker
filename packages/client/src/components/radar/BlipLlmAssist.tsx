@@ -233,7 +233,10 @@ interface BuildPromptArgs {
   rings: RadarRing[];
   existingBlips: { topicName: string;
     radarNote?: string | null;
-    topicDescription?: string | null; }[];
+    topicDescription?: string | null;
+    currentSliceName?: string | null;
+    currentRingName?: string | null;
+    isAdopted?: boolean; }[];
 }
 
 interface BuildCleanupPromptArgs {
@@ -273,17 +276,32 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
   } = args;
 
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings.map(r => `- ${r.name}`).join("\n");
+  const ringList = rings
+    .filter(r => !r.isAdopted)
+    .map(r => `- ${r.name}`)
+    .join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
     : "(no description provided)";
+  const hasAnyAdopted = existingBlips.some(b => b.isAdopted);
   const existingList = existingBlips.length > 0
     ? existingBlips
       .map((b) => {
         const note = b.radarNote?.trim();
         const topicDesc = b.topicDescription?.trim();
-        const lines = [`- ${b.topicName}`];
+        const lines = [
+          b.isAdopted
+            ? `- ${b.topicName} [ADOPTED — leave on the side panel; do not move into a slice/ring]`
+            : `- ${b.topicName}`,
+        ];
+        if (!b.isAdopted) {
+          const slice = b.currentSliceName?.trim();
+          const ring = b.currentRingName?.trim();
+          lines.push(
+            `  - current placement: ${slice || "(no slice)"} / ${ring || "(no ring)"}`,
+          );
+        }
         lines.push(
           topicDesc
             ? `  - general description: ${topicDesc}`
@@ -294,6 +312,14 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
       })
       .join("\n")
     : "- (none yet)";
+  const adoptedClause = hasAnyAdopted
+    ? `\nSome existing blips are marked [ADOPTED]. Those live in a separate
+"Adopted" side panel — they are intentionally OUT of the slice/ring layout.
+Do not propose moving them into a slice/ring or removing them just because
+they look mis-placed. Only suggest changes to adopted blips if you have a
+specific reason (e.g., the topic now belongs in active rotation again);
+in that case use action "update" and supply a slice + ring.`
+    : "";
 
   const withinScopeBlock = withinScopeDescription?.trim()
     ? withinScopeDescription.trim()
@@ -334,11 +360,12 @@ material outside of what's listed, or just not added it to the system yet — so
 treat course progress as a signal, not the full picture:
 ${formatTopicsWithCourses(domainTopics)}
 
-Topics already on the radar, with each topic's general description (if any)
-and its current radar note (if any). If the general description is marked
-missing for a topic you keep in your output, supply a description in the
-result so it gets filled in:
+Topics already on the radar, with each topic's general description (if any),
+current placement, and its current radar note (if any). If the general
+description is marked missing for a topic you keep in your output, supply a
+description in the result so it gets filled in:
 ${existingList}
+${adoptedClause}
 
 Topics I have explicitly EXCLUDED from this radar — do NOT suggest these,
 even with a different note or placement. The reason for each is in
@@ -394,7 +421,10 @@ function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
   } = args;
 
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings.map(r => `- ${r.name}`).join("\n");
+  const ringList = rings
+    .filter(r => !r.isAdopted)
+    .map(r => `- ${r.name}`)
+    .join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
@@ -527,7 +557,11 @@ export function BlipLlmAssist({
       const ringById = new Map(rings.map(r => [r.id, r]));
       if (mode === "cleanup") {
         const unassignedBlips = existingBlips
-          .filter(b => !b.quadrantId || !b.ringId)
+          .filter((b) => {
+            const ring = b.ringId ? ringById.get(b.ringId) : null;
+            if (ring?.isAdopted) return false;
+            return !b.quadrantId || !b.ringId;
+          })
           .map(b => ({
             topicName: b.topicName,
             quadrantName: b.quadrantId
@@ -558,11 +592,18 @@ export function BlipLlmAssist({
         outOfScopeTopicNames,
         quadrants,
         rings,
-        existingBlips: existingBlips.map(b => ({
-          topicName: b.topicName,
-          radarNote: b.description,
-          topicDescription: topicById.get(b.topicId)?.description ?? null,
-        })),
+        existingBlips: existingBlips.map((b) => {
+          const ring = b.ringId ? ringById.get(b.ringId) : null;
+          const quadrant = b.quadrantId ? quadrantById.get(b.quadrantId) : null;
+          return {
+            topicName: b.topicName,
+            radarNote: b.description,
+            topicDescription: topicById.get(b.topicId)?.description ?? null,
+            currentSliceName: quadrant?.name ?? null,
+            currentRingName: ring?.name ?? null,
+            isAdopted: ring?.isAdopted ?? false,
+          };
+        }),
       });
     },
     [
@@ -582,10 +623,14 @@ export function BlipLlmAssist({
     ],
   );
 
-  const unassignedCount = useMemo(
-    () => existingBlips.filter(b => !b.quadrantId || !b.ringId).length,
-    [existingBlips],
-  );
+  const unassignedCount = useMemo(() => {
+    const ringByIdMap = new Map(rings.map(r => [r.id, r]));
+    return existingBlips.filter((b) => {
+      const ring = b.ringId ? ringByIdMap.get(b.ringId) : null;
+      if (ring?.isAdopted) return false;
+      return !b.quadrantId || !b.ringId;
+    }).length;
+  }, [existingBlips, rings]);
 
   const [jsonText, setJsonText] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);
