@@ -1,9 +1,9 @@
 import type { DailyCompletionStatus } from "@emstack/types/src";
 
-import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
 interface DailyStatusButtonsProps {
   currentStatus: DailyCompletionStatus | null;

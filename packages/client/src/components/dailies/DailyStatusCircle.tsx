@@ -1,8 +1,8 @@
 import type { DailyCompletionStatus } from "@emstack/types/src";
 
-import { getDailyStatusOption } from "./dailyStatusMeta";
-
 import { cn } from "@/lib/utils";
+
+import { getDailyStatusOption } from "./dailyStatusMeta";
 
 interface DailyStatusCircleProps {
   status: DailyCompletionStatus | null;
@@ -37,10 +37,10 @@ export function DailyStatusCircle({
         option
           ? option.circleClass
           : `
-            border-dashed border-muted-foreground/40 bg-transparent
-            text-muted-foreground/60
+            border-muted-foreground/40 text-muted-foreground/60 border-dashed
+            bg-transparent
           `,
-        highlight && "ring-2 ring-ring ring-offset-1 ring-offset-background",
+        highlight && "ring-ring ring-offset-background ring-2 ring-offset-1",
         className,
       )}
     >

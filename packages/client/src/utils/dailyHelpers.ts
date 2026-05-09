@@ -158,6 +158,29 @@ export function getRecentDays(
   return days;
 }
 
+export function getDailyProgressPercent(daily: Daily): number {
+  const course = daily.course;
+  if (course) {
+    const total = course.progressTotal ?? 0;
+    const current = course.progressCurrent ?? 0;
+    return total > 0 ? current / total : 0;
+  }
+  const taskProgress = daily.task?.progress;
+  if (taskProgress) {
+    const total = taskProgress.todosTotal + taskProgress.resourcesTotal;
+    const done = taskProgress.todosComplete + taskProgress.resourcesUsed;
+    return total > 0 ? done / total : 0;
+  }
+  return 0;
+}
+
+export function hasDailyProgressTracking(daily: Daily): boolean {
+  if (daily.course) {
+    return true;
+  }
+  return Boolean(daily.task?.progress);
+}
+
 export function withCompletion(
   daily: Daily,
   dateKey: string,

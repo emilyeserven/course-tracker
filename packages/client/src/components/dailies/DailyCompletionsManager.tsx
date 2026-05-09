@@ -13,12 +13,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DailyStatusButtons } from "./DailyStatusButtons";
-import { DailyStatusCircle } from "./DailyStatusCircle";
-import { DailyStatusConnector } from "./DailyStatusConnector";
-import { MonthYearPicker } from "./MonthYearPicker";
-import { NoteEditButton } from "./NoteEditButton";
-
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +24,12 @@ import {
   withCompletion,
   withCompletionNote,
 } from "@/utils";
+
+import { DailyStatusButtons } from "./DailyStatusButtons";
+import { DailyStatusCircle } from "./DailyStatusCircle";
+import { DailyStatusConnector } from "./DailyStatusConnector";
+import { MonthYearPicker } from "./MonthYearPicker";
+import { NoteEditButton } from "./NoteEditButton";
 
 interface DailyCompletionsManagerProps {
   daily: Daily;
@@ -256,7 +256,7 @@ export function DailyCompletionsManager({
         </div>
       </div>
       {visibleDateKeys.length === 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           <i>No days to show.</i>
         </p>
       )}
@@ -316,9 +316,9 @@ export function DailyCompletionsManager({
                         <button
                           type="button"
                           className="
-                            min-w-0 truncate text-left text-sm
                             text-muted-foreground
                             hover:text-foreground
+                            min-w-0 truncate text-left text-sm
                           "
                           title={note}
                         >

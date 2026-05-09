@@ -47,6 +47,10 @@ export function DailyCourseIndicator({
     return null;
   }
 
+  const titlesMatch = course.name.trim().toLowerCase()
+    === daily.name.trim().toLowerCase();
+  const tooltip = titlesMatch ? "Go to Course" : course.name;
+
   return (
     <span className="inline-flex items-center gap-1">
       <Tooltip>
@@ -58,14 +62,15 @@ export function DailyCourseIndicator({
             }}
             aria-label={`Go to course ${course.name}`}
             className="
-              inline-flex items-center text-muted-foreground
+              text-muted-foreground
               hover:text-foreground
+              inline-flex items-center
             "
           >
             <GraduationCapIcon className="size-4" />
           </Link>
         </TooltipTrigger>
-        <TooltipContent>{course.name}</TooltipContent>
+        <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -75,10 +80,11 @@ export function DailyCourseIndicator({
             onClick={() => mutation.mutate(course.id)}
             aria-label={`Progress ${course.name} by 1`}
             className="
-              invisible inline-flex size-5 items-center justify-center
-              rounded-sm text-muted-foreground
-              group-hover:visible
+              text-muted-foreground
               hover:bg-accent hover:text-accent-foreground
+              invisible inline-flex size-5 items-center justify-center
+              rounded-sm
+              group-hover:visible
               disabled:opacity-50
             "
           >

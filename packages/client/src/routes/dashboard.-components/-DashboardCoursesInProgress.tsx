@@ -12,7 +12,7 @@ import {
 } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
-import { fetchCourses } from "@/utils";
+import { fetchCourses, fetchDailies } from "@/utils";
 
 function ProgressIndicator({
   current,
@@ -64,8 +64,23 @@ export function DashboardCoursesInProgress() {
     queryKey: ["courses"],
     queryFn: () => fetchCourses(),
   });
+  const {
+    data: dailies,
+  } = useQuery({
+    queryKey: ["dailies"],
+    queryFn: () => fetchDailies(),
+  });
 
-  const inProgress = (courses ?? []).filter(c => c.status === "active");
+  const courseIdsWithActiveDaily = new Set(
+    (dailies ?? [])
+      .filter(d => d.status !== "complete" && d.status !== "paused")
+      .map(d => d.course?.id)
+      .filter((id): id is string => Boolean(id)),
+  );
+
+  const inProgress = (courses ?? []).filter(
+    c => c.status === "active" && !courseIdsWithActiveDaily.has(c.id),
+  );
 
   return (
     <DashboardCard
@@ -74,7 +89,7 @@ export function DashboardCoursesInProgress() {
         <Link
           to="/courses"
           className="
-            text-sm text-primary underline-offset-2
+            text-primary text-sm underline-offset-2
             hover:underline
           "
         >
@@ -83,13 +98,13 @@ export function DashboardCoursesInProgress() {
       )}
     >
       {isPending && (
-        <p className="text-sm text-muted-foreground">Loading courses...</p>
+        <p className="text-muted-foreground text-sm">Loading courses...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load courses.</p>
+        <p className="text-destructive text-sm">Failed to load courses.</p>
       )}
       {courses && inProgress.length === 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           <i>No courses in progress.</i>
         </p>
       )}

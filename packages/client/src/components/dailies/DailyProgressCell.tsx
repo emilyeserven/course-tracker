@@ -10,6 +10,11 @@ import {
   PopoverContent,
 } from "@/components/popover";
 import { RadialProgress } from "@/components/ui/RadialProgress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DailyProgressCellProps {
   daily: Daily;
@@ -65,10 +70,10 @@ function HoverProgressPopover({
         <button
           type="button"
           className="
-            inline-flex items-center justify-center rounded-sm
             hover:bg-muted
-            focus-visible:ring-2 focus-visible:ring-ring
-            focus-visible:outline-none
+            focus-visible:ring-ring
+            inline-flex items-center justify-center rounded-sm
+            focus-visible:ring-2 focus-visible:outline-none
           "
           aria-label={ariaLabel}
           aria-haspopup="dialog"
@@ -182,11 +187,13 @@ export function DailyProgressCell({
   }
 
   return (
-    <span
-      className="inline-flex text-muted-foreground"
-      title="No linked progress"
-    >
-      <InfinityIcon className="size-5" />
-    </span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="text-muted-foreground inline-flex">
+          <InfinityIcon className="size-5" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>Daily Drills</TooltipContent>
+    </Tooltip>
   );
 }

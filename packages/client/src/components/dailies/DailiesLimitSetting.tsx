@@ -64,7 +64,7 @@ export function DailiesLimitSetting() {
           >
             Active dailies limit
           </label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Show a warning when you have this many active dailies or more.
           </p>
           <Input

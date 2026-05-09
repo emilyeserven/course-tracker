@@ -2,8 +2,6 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useEffect, useState } from "react";
 
-import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+
+import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
 const CRITERIA_KEY_BY_STATUS: Record<DailyCompletionStatus, keyof NonNullable<Daily["criteria"]>> = {
   incomplete: "incomplete",
@@ -67,15 +67,33 @@ export function DailyStatusModal({
     >
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>{daily.name}</DialogTitle>
-          <DialogDescription>
-            Select today&apos;s status. Each option lists what it means for this
-            daily.
-          </DialogDescription>
+          <DialogTitle>
+            {daily.name}
+            : Change Today&apos;s Status
+          </DialogTitle>
+          {daily.description
+            ? (
+              <DialogDescription>
+                Great job! Remember, every day of progress brings you closer to
+                achieving the reason you&apos;re working on this:
+                {" "}
+                <span className="text-foreground whitespace-pre-wrap">
+                  {daily.description}
+                </span>
+              </DialogDescription>
+            )
+            : (
+              <DialogDescription className="sr-only">
+                Change today&apos;s status for
+                {" "}
+                {daily.name}
+                .
+              </DialogDescription>
+            )}
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 pt-2"
         >
           <fieldset className="flex flex-col gap-2">
             <legend className="sr-only">Today&apos;s status</legend>
@@ -134,7 +152,7 @@ export function DailyStatusModal({
                         </p>
                       )
                       : (
-                        <p className="text-xs text-muted-foreground/70 italic">
+                        <p className="text-muted-foreground/70 text-xs italic">
                           No criteria set for this status.
                         </p>
                       )}
@@ -143,18 +161,6 @@ export function DailyStatusModal({
               );
             })}
           </fieldset>
-          {daily.description && (
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold">Reason</span>
-              <p
-                className="
-                  text-sm whitespace-pre-wrap text-muted-foreground
-                "
-              >
-                {daily.description}
-              </p>
-            </div>
-          )}
           <DialogFooter>
             <Button
               type="button"
