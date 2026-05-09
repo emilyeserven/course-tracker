@@ -2,8 +2,8 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import {
-  resources,
-  resourcesToTags,
+  taskResources,
+  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToCourses,
@@ -114,7 +114,7 @@ export default async function (server: FastifyInstance) {
           usedYet: r.usedYet ?? false,
           position: index,
         }));
-        await db.insert(resources).values(resourceRows);
+        await db.insert(taskResources).values(resourceRows);
 
         const tagJunctionRows: {
           resourceId: string;
@@ -133,7 +133,7 @@ export default async function (server: FastifyInstance) {
           });
         });
         if (tagJunctionRows.length > 0) {
-          await db.insert(resourcesToTags).values(tagJunctionRows);
+          await db.insert(taskResourcesToTags).values(tagJunctionRows);
         }
       }
 

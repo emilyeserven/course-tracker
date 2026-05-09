@@ -123,12 +123,12 @@ export const modules = pgTable("modules", {
   position: integer(),
 });
 
-// Replaces resources.usedYet with a richer log. An interaction targets a
+// Replaces taskResources.usedYet with a richer log. An interaction targets a
 // course (= future Resource) and optionally narrows to a module group or
 // a single module. At most one of moduleGroupId / moduleId is set; both
 // null = the interaction is at the whole-course level.
 //
-// Note: the column is named courseId today; when the courses → resources
+// Note: the column is named courseId today; when the courses → taskResources
 // rename lands, this becomes resourceId.
 export const interactions = pgTable("interactions", {
   id: varchar().primaryKey(),
@@ -225,7 +225,7 @@ export const tasks = pgTable("tasks", {
   taskTypeId: varchar("task_type_id"),
 });
 
-export const resources = pgTable("resources", {
+export const taskResources = pgTable("task_resources", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id").notNull(),
   name: varchar({
@@ -238,7 +238,7 @@ export const resources = pgTable("resources", {
   usedYet: boolean("used_yet").default(false).notNull(),
   position: integer(),
   // TODO(tag-reform-followup): drop this varchar[] column in favor of the
-  // resourcesToTags junction once the resources UI is migrated.
+  // taskResourcesToTags junction once the taskResources UI is migrated.
   tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
 });
 
@@ -303,12 +303,12 @@ export const tasksToTags = pgTable(
   ],
 );
 
-export const resourcesToTags = pgTable(
+export const taskResourcesToTags = pgTable(
   "resources_to_tags",
   {
     resourceId: varchar("resource_id")
       .notNull()
-      .references(() => resources.id),
+      .references(() => taskResources.id),
     tagId: varchar("tag_id")
       .notNull()
       .references(() => tags.id),
@@ -353,7 +353,7 @@ export const tagsRelations = relations(tags, ({
     references: [tagGroups.id],
   }),
   tasksToTags: many(tasksToTags),
-  resourcesToTags: many(resourcesToTags),
+  taskResourcesToTags: many(taskResourcesToTags),
   topicsToTags: many(topicsToTags),
 }));
 
@@ -370,15 +370,15 @@ export const tasksToTagsRelations = relations(tasksToTags, ({
   }),
 }));
 
-export const resourcesToTagsRelations = relations(resourcesToTags, ({
+export const taskResourcesToTagsRelations = relations(taskResourcesToTags, ({
   one,
 }) => ({
-  resource: one(resources, {
-    fields: [resourcesToTags.resourceId],
-    references: [resources.id],
+  resource: one(taskResources, {
+    fields: [taskResourcesToTags.resourceId],
+    references: [taskResources.id],
   }),
   tag: one(tags, {
-    fields: [resourcesToTags.tagId],
+    fields: [taskResourcesToTags.tagId],
     references: [tags.id],
   }),
 }));
@@ -409,7 +409,7 @@ export const tasksRelations = relations(tasks, ({
   }),
   tasksToTags: many(tasksToTags),
   tasksToCourses: many(tasksToCourses),
-  resources: many(resources),
+  resources: many(taskResources),
   todos: many(taskTodos),
   daily: one(dailies, {
     fields: [tasks.id],
@@ -423,14 +423,14 @@ export const taskTypesRelations = relations(taskTypes, ({
   tasks: many(tasks),
 }));
 
-export const resourcesRelations = relations(resources, ({
+export const taskResourcesRelations = relations(taskResources, ({
   one, many,
 }) => ({
   task: one(tasks, {
-    fields: [resources.taskId],
+    fields: [taskResources.taskId],
     references: [tasks.id],
   }),
-  resourcesToTags: many(resourcesToTags),
+  taskResourcesToTags: many(taskResourcesToTags),
 }));
 
 export const taskTodosRelations = relations(taskTodos, ({

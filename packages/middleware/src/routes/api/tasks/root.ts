@@ -57,7 +57,7 @@ export default async function (server: FastifyInstance) {
         },
         resources: {
           with: {
-            resourcesToTags: {
+            taskResourcesToTags: {
               with: {
                 tag: true,
               },
@@ -136,7 +136,7 @@ export default async function (server: FastifyInstance) {
           interactivity: r.interactivity,
           usedYet: r.usedYet,
           position: r.position,
-          tags: (r.resourcesToTags ?? []).map(j => j.tag),
+          tags: (r.taskResourcesToTags ?? []).map(j => j.tag),
         })),
       todos: (task.todos ?? [])
         .slice()

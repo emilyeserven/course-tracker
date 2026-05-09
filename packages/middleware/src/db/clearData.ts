@@ -8,7 +8,7 @@ import {
   moduleGroups,
   modules,
   radarBlips,
-  resourcesToTags,
+  taskResourcesToTags,
   tagGroups,
   tags,
   tasksToCourses,
@@ -21,7 +21,7 @@ import { db } from "@/db/index";
 
 export async function clearData() {
   await db.delete(interactions);
-  await db.delete(resourcesToTags);
+  await db.delete(taskResourcesToTags);
   await db.delete(tasksToTags);
   await db.delete(tasksToCourses);
   await db.delete(topicsToTags);

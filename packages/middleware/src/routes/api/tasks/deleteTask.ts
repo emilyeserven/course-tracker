@@ -3,8 +3,8 @@ import { FastifyInstance } from "fastify";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  resources,
-  resourcesToTags,
+  taskResources,
+  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToCourses,
@@ -27,27 +27,27 @@ export default async function (server: FastifyInstance) {
       id,
     } = request.params;
 
-    const taskResources = await db
+    const existingTaskResources = await db
       .select({
-        id: resources.id,
+        id: taskResources.id,
       })
-      .from(resources)
-      .where(eq(resources.taskId, id));
+      .from(taskResources)
+      .where(eq(taskResources.taskId, id));
 
-    if (taskResources.length > 0) {
+    if (existingTaskResources.length > 0) {
       await db
-        .delete(resourcesToTags)
+        .delete(taskResourcesToTags)
         .where(
           inArray(
-            resourcesToTags.resourceId,
-            taskResources.map(r => r.id),
+            taskResourcesToTags.resourceId,
+            existingTaskResources.map(r => r.id),
           ),
         );
     }
 
     await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
     await db.delete(tasksToCourses).where(eq(tasksToCourses.taskId, id));
-    await db.delete(resources).where(eq(resources.taskId, id));
+    await db.delete(taskResources).where(eq(taskResources.taskId, id));
     await db.delete(taskTodos).where(eq(taskTodos.taskId, id));
     await db.delete(tasks).where(eq(tasks.id, id));
 

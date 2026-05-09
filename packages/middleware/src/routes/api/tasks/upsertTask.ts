@@ -3,8 +3,8 @@ import { FastifyInstance } from "fastify";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  resources,
-  resourcesToTags,
+  taskResources,
+  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToCourses,
@@ -127,17 +127,17 @@ export default async function (server: FastifyInstance) {
         const existingResourceIds = (
           await db
             .select({
-              id: resources.id,
+              id: taskResources.id,
             })
-            .from(resources)
-            .where(eq(resources.taskId, id))
+            .from(taskResources)
+            .where(eq(taskResources.taskId, id))
         ).map(r => r.id);
         if (existingResourceIds.length > 0) {
           await db
-            .delete(resourcesToTags)
-            .where(inArray(resourcesToTags.resourceId, existingResourceIds));
+            .delete(taskResourcesToTags)
+            .where(inArray(taskResourcesToTags.resourceId, existingResourceIds));
         }
-        await db.delete(resources).where(eq(resources.taskId, id));
+        await db.delete(taskResources).where(eq(taskResources.taskId, id));
 
         if (body.resources.length > 0) {
           const resourceRows = body.resources.map((r, index) => ({
@@ -151,7 +151,7 @@ export default async function (server: FastifyInstance) {
             usedYet: r.usedYet ?? false,
             position: index,
           }));
-          await db.insert(resources).values(resourceRows);
+          await db.insert(taskResources).values(resourceRows);
 
           const tagJunctionRows: {
             resourceId: string;
@@ -170,7 +170,7 @@ export default async function (server: FastifyInstance) {
             });
           });
           if (tagJunctionRows.length > 0) {
-            await db.insert(resourcesToTags).values(tagJunctionRows);
+            await db.insert(taskResourcesToTags).values(tagJunctionRows);
           }
         }
       }
