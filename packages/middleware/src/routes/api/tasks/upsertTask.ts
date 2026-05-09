@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, taskTodos, tasks } from "@/db/schema";
+import { resources, taskTodos, taskTypes, tasks } from "@/db/schema";
 import {
   idParamSchema,
   nullableString,
@@ -88,6 +88,37 @@ export default async function (server: FastifyInstance) {
               tags: r.tags ?? [],
             })),
           );
+        }
+
+        if (taskData.taskTypeId) {
+          const incomingResourceTags = Array.from(
+            new Set(body.resources.flatMap(r => r.tags ?? [])),
+          );
+          if (incomingResourceTags.length > 0) {
+            const taskType = await db.query.taskTypes.findFirst({
+              where: (t, {
+                eq: eqOp,
+              }) => eqOp(t.id, taskData.taskTypeId!),
+              columns: {
+                tags: true,
+              },
+            });
+            if (taskType) {
+              const existing = taskType.tags ?? [];
+              const merged = [...existing];
+              for (const tag of incomingResourceTags) {
+                if (!merged.includes(tag)) merged.push(tag);
+              }
+              if (merged.length > existing.length) {
+                await db
+                  .update(taskTypes)
+                  .set({
+                    tags: merged,
+                  })
+                  .where(eq(taskTypes.id, taskData.taskTypeId));
+              }
+            }
+          }
         }
       }
 
