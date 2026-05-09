@@ -1,4 +1,4 @@
-import type { Resource, ResourceLevel, Tag, TagGroup, Task } from "@emstack/types/src";
+import type { TaskResource, TaskResourceLevel, Tag, TagGroup, Task } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -64,7 +64,7 @@ const LEVEL_FILTER_OPTIONS = [
 function LevelBadge({
   level,
 }: {
-  level: Resource["easeOfStarting"];
+  level: TaskResource["easeOfStarting"];
 }) {
   return (
     <span
@@ -82,7 +82,7 @@ function LevelBadge({
 }
 
 function levelMatches(
-  resource: ResourceLevel | null | undefined,
+  resource: TaskResourceLevel | null | undefined,
   filter: string,
 ) {
   if (filter === ANY_VALUE) return true;
@@ -131,15 +131,15 @@ function LevelSelect({
   onValueChange,
   ariaLabel,
 }: {
-  value: ResourceLevel | null | undefined;
-  onValueChange: (next: ResourceLevel | null) => void;
+  value: TaskResourceLevel | null | undefined;
+  onValueChange: (next: TaskResourceLevel | null) => void;
   ariaLabel: string;
 }) {
   return (
     <Select
       value={value ?? NONE_VALUE}
       onValueChange={(v) => {
-        onValueChange(v === NONE_VALUE ? null : (v as ResourceLevel));
+        onValueChange(v === NONE_VALUE ? null : (v as TaskResourceLevel));
       }}
     >
       <SelectTrigger
@@ -163,7 +163,7 @@ function LevelSelect({
   );
 }
 
-function tagIdsFromResource(resource: Resource) {
+function tagIdsFromResource(resource: TaskResource) {
   return resource.tags.map(t => t.id);
 }
 
@@ -188,17 +188,17 @@ function EditingRow({
   onCancel,
   onDelete,
 }: {
-  resource: Resource;
+  resource: TaskResource;
   tagGroups: TagGroup[];
   isNew?: boolean;
   isSaving?: boolean;
-  onSave: (next: Resource) => void;
+  onSave: (next: TaskResource) => void;
   onCancel: () => void;
   onDelete?: () => void;
 }) {
-  const [draft, setDraft] = useState<Resource>(resource);
+  const [draft, setDraft] = useState<TaskResource>(resource);
 
-  function update(patch: Partial<Resource>) {
+  function update(patch: Partial<TaskResource>) {
     setDraft(prev => ({
       ...prev,
       ...patch,
@@ -394,7 +394,7 @@ export function ResourcesTable({
   const [interactivityFilter, setInteractivityFilter] = useState<string>(ANY_VALUE);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draftNewResource, setDraftNewResource] = useState<Resource | null>(
+  const [draftNewResource, setDraftNewResource] = useState<TaskResource | null>(
     null,
   );
 
@@ -424,7 +424,7 @@ export function ResourcesTable({
   }, [resources, search, usedFilter, easeFilter, timeFilter, interactivityFilter, tagFilter]);
 
   const mutation = useMutation({
-    mutationFn: (next: Resource[]) =>
+    mutationFn: (next: TaskResource[]) =>
       upsertTask(task.id, {
         name: task.name,
         description: task.description ?? null,
@@ -476,7 +476,7 @@ export function ResourcesTable({
     mutation.mutate(next);
   }
 
-  function handleSaveEdit(updated: Resource) {
+  function handleSaveEdit(updated: TaskResource) {
     const next = resources.map(r => (r.id === updated.id ? updated : r));
     mutation.mutate(next, {
       onSuccess: async () => {
@@ -493,7 +493,7 @@ export function ResourcesTable({
     });
   }
 
-  function handleSaveNew(created: Resource) {
+  function handleSaveNew(created: TaskResource) {
     const next = [...resources, created];
     mutation.mutate(next, {
       onSuccess: async () => {
