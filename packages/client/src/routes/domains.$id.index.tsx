@@ -95,14 +95,14 @@ function SingleDomain() {
             header="About"
             condition={!!data?.description}
           >
-            <div className="bg-card rounded-md border p-4">
+            <div className="rounded-md border bg-card p-4">
               <p>{data?.description}</p>
             </div>
           </InfoArea>
           {radarReady && radarData && (
             <InfoArea header="Radar">
               <div
-                className="bg-card flex justify-center rounded-md border p-4"
+                className="flex justify-center rounded-md border bg-card p-4"
               >
                 <RadarChart
                   quadrants={radarData.quadrants}
@@ -147,7 +147,7 @@ function SingleDomain() {
                       {topic.name}
                     </Link>
                     {topic.courses && topic.courses.length > 0 && (
-                      <span className="text-muted-foreground ml-2 text-xs">
+                      <span className="ml-2 text-xs text-muted-foreground">
                         (
                         {topic.courses.length}
                         {" course"}
@@ -180,7 +180,7 @@ function SingleDomain() {
                   {topic.name}
                 </Link>
                 {topic.reason && (
-                  <span className="text-muted-foreground ml-2 text-sm">
+                  <span className="ml-2 text-sm text-muted-foreground">
                     —
                     {" "}
                     {topic.reason}

@@ -929,7 +929,7 @@ export function BlipLlmAssist({
         </div>
         <pre
           className={`
-            bg-muted max-h-60 overflow-auto rounded-sm p-3 text-xs
+            max-h-60 overflow-auto rounded-sm bg-muted p-3 text-xs
             whitespace-pre-wrap
           `}
         >
@@ -946,7 +946,7 @@ export function BlipLlmAssist({
           className="min-h-32 font-mono text-xs"
         />
         {parseError && (
-          <p className="text-destructive text-sm">{parseError}</p>
+          <p className="text-sm text-destructive">{parseError}</p>
         )}
         <div>
           <Button
@@ -962,7 +962,7 @@ export function BlipLlmAssist({
       {resolved && (
         <div className="flex flex-col gap-2">
           <h4 className="text-sm font-semibold">3. Review</h4>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             {counts.create}
             {" "}
             to add ·
@@ -1212,7 +1212,7 @@ function ReviewRow({
             )}
           </div>
           {hasProblems && !isSkipped && (
-            <span className="text-destructive text-[11px]">
+            <span className="text-[11px] text-destructive">
               {r.problems.join("; ")}
             </span>
           )}
@@ -1235,7 +1235,7 @@ function ReviewRow({
 
       <TableCell className="align-top">
         {isRemove
-          ? <span className="text-muted-foreground text-xs">—</span>
+          ? <span className="text-xs text-muted-foreground">—</span>
           : (
             <PlacementCell
               existingName={existingQuadrantName}
@@ -1253,7 +1253,7 @@ function ReviewRow({
 
       <TableCell className="align-top">
         {isRemove
-          ? <span className="text-muted-foreground text-xs">—</span>
+          ? <span className="text-xs text-muted-foreground">—</span>
           : (
             <PlacementCell
               existingName={existingRingName}

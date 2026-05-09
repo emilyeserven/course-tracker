@@ -116,7 +116,7 @@ export function RingsIllustration({
           cx={cx}
           cy={cy}
           r={rad}
-          className="stroke-muted-foreground/40 fill-none"
+          className="fill-none stroke-muted-foreground/40"
           strokeWidth={1}
         />
       ))}

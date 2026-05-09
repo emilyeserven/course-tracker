@@ -572,7 +572,7 @@ function RadarEdit() {
         >
           <section className="flex flex-col gap-4">
             <h2 className="text-2xl">Quadrants</h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               Quadrants are the categories on your radar.
             </p>
             <div className="flex justify-center">
@@ -584,7 +584,7 @@ function RadarEdit() {
                   key={q.localKey}
                   className="flex flex-row items-center gap-2"
                 >
-                  <span className="text-muted-foreground w-6 text-sm">
+                  <span className="w-6 text-sm text-muted-foreground">
                     {idx + 1}
                     .
                   </span>
@@ -608,7 +608,7 @@ function RadarEdit() {
 
           <section className="flex flex-col gap-4">
             <h2 className="text-2xl">Rings</h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               Rings represent levels of adoption.
             </p>
             <div className="flex justify-center">
@@ -620,7 +620,7 @@ function RadarEdit() {
                   key={r.localKey}
                   className="flex flex-row items-center gap-2"
                 >
-                  <span className="text-muted-foreground w-6 text-sm">
+                  <span className="w-6 text-sm text-muted-foreground">
                     {idx + 1}
                     .
                   </span>
@@ -686,7 +686,7 @@ function RadarEdit() {
             <div className="flex flex-col gap-3 rounded-md border p-4">
               <div className="flex flex-col gap-1">
                 <h3 className="text-xl font-semibold">Within Scope</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   Used to nudge the LLM toward topics that fit this
                   radar&apos;s focus.
                 </p>
@@ -718,7 +718,7 @@ function RadarEdit() {
             <div className="flex flex-col gap-3 rounded-md border p-4">
               <div className="flex flex-col gap-1">
                 <h3 className="text-xl font-semibold">Out of Scope</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   Used to nudge the LLM away from topics that don&apos;t fit
                   this radar.
                 </p>
@@ -838,7 +838,7 @@ function RadarEdit() {
                               </h4>
                               <p
                                 className={`
-                                  text-muted-foreground text-sm
+                                  text-sm text-muted-foreground
                                   ${pickedTopic.description?.trim()
                               ? ""
                               : "italic"}
@@ -852,7 +852,7 @@ function RadarEdit() {
                           : blip.topicId && !topicNameById.has(blip.topicId)
                             ? (
                               <span
-                                className="text-muted-foreground text-xs"
+                                className="text-xs text-muted-foreground"
                               >
                                 (topic not in list)
                               </span>
