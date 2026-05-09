@@ -26,7 +26,7 @@ import {
 } from "@/utils/fetchFunctions";
 
 interface Props {
-  courseId: string;
+  resourceId: string;
 }
 
 interface Draft {
@@ -105,36 +105,36 @@ const PROGRESS_COLOR: Record<InteractionProgress, string> = {
 };
 
 export function CourseInteractionsLog({
-  courseId,
+  resourceId,
 }: Props) {
   const queryClient = useQueryClient();
 
   const interactionsQuery = useQuery({
-    queryKey: ["course-interactions", courseId],
+    queryKey: ["course-interactions", resourceId],
     queryFn: () => fetchInteractions(),
   });
 
   const moduleGroupsQuery = useQuery({
-    queryKey: ["course-module-groups", courseId],
+    queryKey: ["course-module-groups", resourceId],
     queryFn: () => fetchModuleGroups(),
   });
 
   const modulesQuery = useQuery({
-    queryKey: ["course-modules", courseId],
+    queryKey: ["course-modules", resourceId],
     queryFn: () => fetchModules(),
   });
 
   const allInteractions = interactionsQuery.data ?? [];
-  const interactions = allInteractions.filter(i => i.courseId === courseId);
+  const interactions = allInteractions.filter(i => i.resourceId === resourceId);
 
   const moduleGroups = useMemo(
     () =>
-      (moduleGroupsQuery.data ?? []).filter(g => g.courseId === courseId),
-    [moduleGroupsQuery.data, courseId],
+      (moduleGroupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
+    [moduleGroupsQuery.data, resourceId],
   );
   const modules = useMemo(
-    () => (modulesQuery.data ?? []).filter(m => m.courseId === courseId),
-    [modulesQuery.data, courseId],
+    () => (modulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
+    [modulesQuery.data, resourceId],
   );
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -142,14 +142,14 @@ export function CourseInteractionsLog({
 
   function invalidate() {
     queryClient.invalidateQueries({
-      queryKey: ["course-interactions", courseId],
+      queryKey: ["course-interactions", resourceId],
     });
   }
 
   const upsertMutation = useMutation({
     mutationFn: (d: Draft) =>
       upsertInteraction(d.id, {
-        courseId,
+        resourceId,
         moduleGroupId: d.moduleGroupId || null,
         moduleId: d.moduleId || null,
         date: d.date,
@@ -169,7 +169,7 @@ export function CourseInteractionsLog({
   const createMutation = useMutation({
     mutationFn: (d: Draft) =>
       createInteraction({
-        courseId,
+        resourceId,
         moduleGroupId: d.moduleGroupId || null,
         moduleId: d.moduleId || null,
         date: d.date,

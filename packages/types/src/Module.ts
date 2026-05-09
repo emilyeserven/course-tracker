@@ -1,6 +1,6 @@
 export interface Module {
   id: string;
-  courseId: string;
+  resourceId: string;
   moduleGroupId?: string | null;
   name: string;
   description?: string | null;

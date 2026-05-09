@@ -102,7 +102,7 @@ export function DashboardDailies() {
         description: daily.description ?? null,
         completions,
         courseProviderId: daily.provider?.id ?? null,
-        courseId: daily.resource?.id ?? null,
+        resourceId: daily.resource?.id ?? null,
       });
     },
     onSuccess: async () => {

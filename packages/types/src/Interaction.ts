@@ -9,12 +9,12 @@ export type InteractionUnderstanding
     | "proficient"
     | "mastered";
 
-// A logged touch on a course (= future Resource), optionally narrowed to a
-// module group or a single module. At most one of moduleGroupId / moduleId
-// is set; both null = the interaction is at the whole-course level.
+// A logged touch on a Resource, optionally narrowed to a module group or a
+// single module. At most one of moduleGroupId / moduleId is set; both null
+// = the interaction is at the whole-resource level.
 export interface Interaction {
   id: string;
-  courseId: string;
+  resourceId: string;
   moduleGroupId?: string | null;
   moduleId?: string | null;
   date: string; // ISO yyyy-mm-dd

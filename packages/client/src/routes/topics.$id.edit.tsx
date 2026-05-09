@@ -40,7 +40,7 @@ const formSchema = z.object({
   tagIds: z.array(z.string()),
   resourceLinks: z.array(
     z.object({
-      courseId: z.string(),
+      resourceId: z.string(),
       moduleGroupId: z.string().nullable(),
       moduleId: z.string().nullable(),
     }),
@@ -133,7 +133,7 @@ function SingleTopicEdit() {
       domainIds: data?.domains?.map(d => d.id) ?? [],
       tagIds: (data?.tags ?? []).map(t => t.id),
       resourceLinks: (data?.resourceLinks ?? []).map(l => ({
-        courseId: l.resourceId,
+        resourceId: l.resourceId,
         moduleGroupId: l.moduleGroupId ?? null,
         moduleId: l.moduleId ?? null,
       })),

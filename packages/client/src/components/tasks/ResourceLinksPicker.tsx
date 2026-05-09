@@ -7,7 +7,7 @@ import { XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface ResourceLinkInput {
-  courseId: string;
+  resourceId: string;
   moduleGroupId: string | null;
   moduleId: string | null;
 }
@@ -28,7 +28,7 @@ interface ResourceLinksPickerProps {
 interface LinkOption {
   key: string;
   label: string;
-  courseId: string;
+  resourceId: string;
   moduleGroupId: string | null;
   moduleId: string | null;
 }
@@ -43,21 +43,21 @@ function buildOptions(
     opts.push({
       key: `c:${c.id}`,
       label: c.name,
-      courseId: c.id,
+      resourceId: c.id,
       moduleGroupId: null,
       moduleId: null,
     });
-    const courseGroups = groups.filter(g => g.courseId === c.id);
+    const courseGroups = groups.filter(g => g.resourceId === c.id);
     for (const g of courseGroups) {
       opts.push({
         key: `g:${g.id}`,
         label: `${c.name} → ${g.name}`,
-        courseId: c.id,
+        resourceId: c.id,
         moduleGroupId: g.id,
         moduleId: null,
       });
     }
-    const courseModules = modules.filter(m => m.courseId === c.id);
+    const courseModules = modules.filter(m => m.resourceId === c.id);
     for (const m of courseModules) {
       const parentGroup = m.moduleGroupId
         ? groups.find(g => g.id === m.moduleGroupId)
@@ -68,7 +68,7 @@ function buildOptions(
       opts.push({
         key: `m:${m.id}`,
         label,
-        courseId: c.id,
+        resourceId: c.id,
         moduleGroupId: null,
         moduleId: m.id,
       });
@@ -83,7 +83,7 @@ function labelForLink(
   groups: ModuleGroup[],
   modules: Module[],
 ): string {
-  const course = courses.find(c => c.id === link.courseId);
+  const course = courses.find(c => c.id === link.resourceId);
   const courseName = course?.name ?? "(unknown resource)";
   if (link.moduleId) {
     const m = modules.find(mm => mm.id === link.moduleId);
@@ -114,12 +114,12 @@ export function ResourceLinksPicker({
     [courses, moduleGroups, modules],
   );
 
-  const linkedCourseIds = new Set(value.map(v => v.courseId));
+  const linkedCourseIds = new Set(value.map(v => v.resourceId));
 
-  // Hide options for courses already linked: PK is (taskId, courseId), one
+  // Hide options for courses already linked: PK is (taskId, resourceId), one
   // link per course. To change a course's sub-target, remove and re-add.
   const availableOptions = allOptions.filter(
-    opt => !linkedCourseIds.has(opt.courseId),
+    opt => !linkedCourseIds.has(opt.resourceId),
   );
 
   function handleAdd(key: string) {
@@ -129,15 +129,15 @@ export function ResourceLinksPicker({
     onChange([
       ...value,
       {
-        courseId: opt.courseId,
+        resourceId: opt.resourceId,
         moduleGroupId: opt.moduleGroupId,
         moduleId: opt.moduleId,
       },
     ]);
   }
 
-  function handleRemove(courseId: string) {
-    onChange(value.filter(v => v.courseId !== courseId));
+  function handleRemove(resourceId: string) {
+    onChange(value.filter(v => v.resourceId !== resourceId));
   }
 
   return (
@@ -151,7 +151,7 @@ export function ResourceLinksPicker({
         <ul className="flex flex-col divide-y rounded-md border bg-background">
           {value.map(link => (
             <li
-              key={link.courseId}
+              key={link.resourceId}
               className="flex items-center justify-between gap-2 px-3 py-2"
             >
               <span className="text-sm">
@@ -161,7 +161,7 @@ export function ResourceLinksPicker({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => handleRemove(link.courseId)}
+                onClick={() => handleRemove(link.resourceId)}
                 aria-label="Remove link"
               >
                 <XIcon className="size-3.5" />

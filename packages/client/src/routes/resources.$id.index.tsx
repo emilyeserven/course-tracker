@@ -162,10 +162,10 @@ function SingleCourse() {
         )}
       </InfoRow>
       <CourseModulesAdmin
-        courseId={id}
+        resourceId={id}
         modulesAreExhaustive={data?.modulesAreExhaustive}
       />
-      <CourseInteractionsLog courseId={id} />
+      <CourseInteractionsLog resourceId={id} />
       <InfoRow
         condition={data?.cost?.cost != null}
         header="Money Things"

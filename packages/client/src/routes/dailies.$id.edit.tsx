@@ -76,7 +76,7 @@ const formSchema = z.object({
   location: z.string().max(255),
   description: z.string().max(500),
   courseProviderId: z.string(),
-  courseId: z.string(),
+  resourceId: z.string(),
   moduleGroupId: z.string(),
   moduleId: z.string(),
   taskId: z.string(),
@@ -198,7 +198,7 @@ function SingleDailyEdit() {
       location: data?.location ?? "",
       description: data?.description ?? "",
       courseProviderId: data?.provider?.id ?? "",
-      courseId: data?.resource?.id ?? (isNew && search.newCourseId
+      resourceId: data?.resource?.id ?? (isNew && search.newCourseId
         ? search.newCourseId
         : ""),
       moduleGroupId: data?.moduleGroupId ?? "",
@@ -252,9 +252,9 @@ function SingleDailyEdit() {
         description: value.description || null,
         completions: data?.completions ?? [],
         courseProviderId: value.courseProviderId || null,
-        courseId: value.courseId || null,
-        moduleGroupId: value.courseId ? value.moduleGroupId || null : null,
-        moduleId: value.courseId ? value.moduleId || null : null,
+        resourceId: value.resourceId || null,
+        moduleGroupId: value.resourceId ? value.moduleGroupId || null : null,
+        moduleId: value.resourceId ? value.moduleId || null : null,
         taskId: value.taskId || null,
         status: value.status,
         criteria,
@@ -303,10 +303,10 @@ function SingleDailyEdit() {
 
   const selectedCourse = useMemo(
     () =>
-      currentValues.courseId
-        ? (courses ?? []).find(c => c.id === currentValues.courseId)
+      currentValues.resourceId
+        ? (courses ?? []).find(c => c.id === currentValues.resourceId)
         : undefined,
-    [currentValues.courseId, courses],
+    [currentValues.resourceId, courses],
   );
 
   const selectedTask = useMemo(
@@ -317,18 +317,18 @@ function SingleDailyEdit() {
     [currentValues.taskId, tasks],
   );
 
-  const isLinked = !!(currentValues.courseId || currentValues.taskId);
+  const isLinked = !!(currentValues.resourceId || currentValues.taskId);
   const syncValues = currentValues.syncValues && isLinked;
 
-  const linkedValue = currentValues.courseId
-    ? `course:${currentValues.courseId}`
+  const linkedValue = currentValues.resourceId
+    ? `course:${currentValues.resourceId}`
     : currentValues.taskId
       ? `task:${currentValues.taskId}`
       : "";
 
   const setLinkedValue = (val: string | null) => {
     if (!val) {
-      form.setFieldValue("courseId", "");
+      form.setFieldValue("resourceId", "");
       form.setFieldValue("moduleGroupId", "");
       form.setFieldValue("moduleId", "");
       form.setFieldValue("taskId", "");
@@ -336,17 +336,17 @@ function SingleDailyEdit() {
       return;
     }
     if (val.startsWith("course:")) {
-      const newCourseId = val.slice("course:".length);
-      if (newCourseId !== currentValues.courseId) {
+      const newResourceId = val.slice("course:".length);
+      if (newResourceId !== currentValues.resourceId) {
         form.setFieldValue("moduleGroupId", "");
         form.setFieldValue("moduleId", "");
       }
-      form.setFieldValue("courseId", newCourseId);
+      form.setFieldValue("resourceId", newResourceId);
       form.setFieldValue("taskId", "");
     }
     else if (val.startsWith("task:")) {
       form.setFieldValue("taskId", val.slice("task:".length));
-      form.setFieldValue("courseId", "");
+      form.setFieldValue("resourceId", "");
       form.setFieldValue("moduleGroupId", "");
       form.setFieldValue("moduleId", "");
     }
@@ -354,22 +354,22 @@ function SingleDailyEdit() {
 
   const courseModuleGroups = useMemo(
     () =>
-      currentValues.courseId
+      currentValues.resourceId
         ? (allModuleGroups ?? []).filter(
-          g => g.courseId === currentValues.courseId,
+          g => g.resourceId === currentValues.resourceId,
         )
         : [],
-    [allModuleGroups, currentValues.courseId],
+    [allModuleGroups, currentValues.resourceId],
   );
 
   const courseModules = useMemo(
     () =>
-      currentValues.courseId
+      currentValues.resourceId
         ? (allModules ?? []).filter(
-          m => m.courseId === currentValues.courseId,
+          m => m.resourceId === currentValues.resourceId,
         )
         : [],
-    [allModules, currentValues.courseId],
+    [allModules, currentValues.resourceId],
   );
 
   // When a course is linked AND sync is on, mirror its name/url/provider into
@@ -547,7 +547,7 @@ function SingleDailyEdit() {
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
-                {currentValues.courseId
+                {currentValues.resourceId
                   && (courseModuleGroups.length > 0 || courseModules.length > 0) && (
                   <div
                     className="

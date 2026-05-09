@@ -2,7 +2,7 @@ import type { Module } from "./Module";
 
 export interface ModuleGroup {
   id: string;
-  courseId: string;
+  resourceId: string;
   name: string;
   description?: string | null;
   url?: string | null;

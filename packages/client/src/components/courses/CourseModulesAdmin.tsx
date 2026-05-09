@@ -30,7 +30,7 @@ import {
 } from "@/utils/fetchFunctions";
 
 interface Props {
-  courseId: string;
+  resourceId: string;
   modulesAreExhaustive?: boolean;
 }
 
@@ -71,27 +71,27 @@ function emptyModuleDraft(): ModuleDraft {
 }
 
 export function CourseModulesAdmin({
-  courseId,
+  resourceId,
   modulesAreExhaustive,
 }: Props) {
   const queryClient = useQueryClient();
 
   const groupsQuery = useQuery({
-    queryKey: ["course-module-groups", courseId],
+    queryKey: ["course-module-groups", resourceId],
     queryFn: () => fetchModuleGroups(),
   });
   const allModulesQuery = useQuery({
-    queryKey: ["course-modules", courseId],
+    queryKey: ["course-modules", resourceId],
     queryFn: () => fetchModules(),
   });
 
   const groups = useMemo(
-    () => (groupsQuery.data ?? []).filter(g => g.courseId === courseId),
-    [groupsQuery.data, courseId],
+    () => (groupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
+    [groupsQuery.data, resourceId],
   );
   const allModules = useMemo(
-    () => (allModulesQuery.data ?? []).filter(m => m.courseId === courseId),
-    [allModulesQuery.data, courseId],
+    () => (allModulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
+    [allModulesQuery.data, resourceId],
   );
 
   const ungroupedModules = useMemo(
@@ -115,13 +115,13 @@ export function CourseModulesAdmin({
 
   function invalidateAll() {
     queryClient.invalidateQueries({
-      queryKey: ["course-module-groups", courseId],
+      queryKey: ["course-module-groups", resourceId],
     });
     queryClient.invalidateQueries({
-      queryKey: ["course-modules", courseId],
+      queryKey: ["course-modules", resourceId],
     });
     queryClient.invalidateQueries({
-      queryKey: ["course", courseId],
+      queryKey: ["course", resourceId],
     });
   }
 
@@ -143,7 +143,7 @@ export function CourseModulesAdmin({
   const createGroupMutation = useMutation({
     mutationFn: (draft: GroupDraft) =>
       createModuleGroup({
-        courseId,
+        resourceId,
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
@@ -159,7 +159,7 @@ export function CourseModulesAdmin({
   const upsertGroupMutation = useMutation({
     mutationFn: (draft: GroupDraft) =>
       upsertModuleGroup(draft.id, {
-        courseId,
+        resourceId,
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
@@ -192,7 +192,7 @@ export function CourseModulesAdmin({
       groupId: string | null;
     }) =>
       createModule({
-        courseId,
+        resourceId,
         moduleGroupId: groupId,
         name: draft.name,
         description: draft.description || null,
@@ -220,7 +220,7 @@ export function CourseModulesAdmin({
       isComplete: boolean;
     }) =>
       upsertModule(draft.id, {
-        courseId,
+        resourceId,
         moduleGroupId: groupId,
         name: draft.name,
         description: draft.description || null,
@@ -241,7 +241,7 @@ export function CourseModulesAdmin({
   const toggleCompleteMutation = useMutation({
     mutationFn: (m: Module) =>
       upsertModule(m.id, {
-        courseId,
+        resourceId,
         moduleGroupId: m.moduleGroupId ?? null,
         name: m.name,
         description: m.description ?? null,
@@ -280,7 +280,7 @@ export function CourseModulesAdmin({
     }) =>
       Promise.all([
         upsertModule(a.id, {
-          courseId: a.courseId,
+          resourceId: a.resourceId,
           moduleGroupId: a.moduleGroupId ?? null,
           name: a.name,
           description: a.description ?? null,
@@ -290,7 +290,7 @@ export function CourseModulesAdmin({
           position: aPosition,
         }),
         upsertModule(b.id, {
-          courseId: b.courseId,
+          resourceId: b.resourceId,
           moduleGroupId: b.moduleGroupId ?? null,
           name: b.name,
           description: b.description ?? null,
@@ -318,14 +318,14 @@ export function CourseModulesAdmin({
     }) =>
       Promise.all([
         upsertModuleGroup(a.id, {
-          courseId: a.courseId,
+          resourceId: a.resourceId,
           name: a.name,
           description: a.description ?? null,
           url: a.url ?? null,
           position: aPosition,
         }),
         upsertModuleGroup(b.id, {
-          courseId: b.courseId,
+          resourceId: b.resourceId,
           name: b.name,
           description: b.description ?? null,
           url: b.url ?? null,
