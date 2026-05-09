@@ -131,7 +131,7 @@ export function BlipTable({
       return;
     }
     if (!editDraft.quadrantId || !editDraft.ringId) {
-      toast.error("Pick a quadrant and ring.");
+      toast.error("Pick a slice and ring.");
       return;
     }
     setPendingId(blip.id);
@@ -181,10 +181,10 @@ export function BlipTable({
           onValueChange={setFilterQuadrant}
         >
           <SelectTrigger className="min-w-40">
-            <SelectValue placeholder="Quadrant" />
+            <SelectValue placeholder="Slice" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All Quadrants</SelectItem>
+            <SelectItem value={ALL}>All Slices</SelectItem>
             {quadrants.map(q => (
               <SelectItem
                 key={q.id}
@@ -221,7 +221,7 @@ export function BlipTable({
           <TableHeader>
             <TableRow>
               <TableHead>Topic</TableHead>
-              <TableHead>Quadrant</TableHead>
+              <TableHead>Slice</TableHead>
               <TableHead>Ring</TableHead>
               <TableHead>Radar Note</TableHead>
               <TableHead className="w-1 text-right">Actions</TableHead>
@@ -283,7 +283,7 @@ export function BlipTable({
                         <div className="flex flex-col gap-3">
                           <div className="flex flex-col gap-1">
                             <label className="text-xs uppercase">
-                              Quadrant
+                              Slice
                             </label>
                             <Select
                               value={editDraft.quadrantId}
@@ -297,7 +297,7 @@ export function BlipTable({
                                     : prev)}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Choose quadrant" />
+                                <SelectValue placeholder="Choose slice" />
                               </SelectTrigger>
                               <SelectContent>
                                 {quadrants.map(q => (

@@ -79,6 +79,17 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          withinScopeTopics: {
+            with: {
+              topic: {
+                columns: {
+                  id: true,
+                  name: true,
+                  description: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -157,6 +168,19 @@ export default async function (server: FastifyInstance) {
         })
         .filter((row): row is NonNullable<typeof row> => Boolean(row));
 
+      const withinScopeTopics = (domain.withinScopeTopics ?? [])
+        .map((row) => {
+          if (!row.topic) {
+            return null;
+          }
+          return {
+            id: row.topic.id,
+            name: row.topic.name,
+            description: row.topic.description ?? null,
+          };
+        })
+        .filter((row): row is NonNullable<typeof row> => Boolean(row));
+
       const result: Domain = {
         id: domain.id,
         title: domain.title,
@@ -167,6 +191,7 @@ export default async function (server: FastifyInstance) {
         topicCount: topics.length,
         topics,
         excludedTopics,
+        withinScopeTopics,
       };
 
       return result;

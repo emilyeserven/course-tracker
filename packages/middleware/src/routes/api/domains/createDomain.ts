@@ -1,7 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { domainExcludedTopics, domains, topicsToDomains } from "@/db/schema";
+import {
+  domainExcludedTopics,
+  domains,
+  domainWithinScopeTopics,
+  topicsToDomains,
+} from "@/db/schema";
 import { nullableBoolean, nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -37,6 +42,12 @@ const createSchema = {
               },
               reason: nullableString,
             },
+          },
+        },
+        withinScopeTopicIds: {
+          type: "array",
+          items: {
+            type: "string",
           },
         },
       },
@@ -92,6 +103,18 @@ export default async function (server: FastifyInstance) {
             topicId,
             domainId: id,
             reason,
+          })),
+        );
+      }
+
+      const uniqueWithinScopeTopicIds = Array.from(
+        new Set(body.withinScopeTopicIds ?? []),
+      );
+      if (uniqueWithinScopeTopicIds.length > 0) {
+        await db.insert(domainWithinScopeTopics).values(
+          uniqueWithinScopeTopicIds.map(topicId => ({
+            topicId,
+            domainId: id,
           })),
         );
       }

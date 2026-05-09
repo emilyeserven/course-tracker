@@ -1,6 +1,7 @@
 import {
   domainExcludedTopics,
   domains,
+  domainWithinScopeTopics,
   radarBlips,
   radarQuadrants,
   radarRings,
@@ -32,6 +33,10 @@ export default createDeleteHandler({
     {
       table: domainExcludedTopics,
       foreignKey: domainExcludedTopics.domainId,
+    },
+    {
+      table: domainWithinScopeTopics,
+      foreignKey: domainWithinScopeTopics.domainId,
     },
   ],
 });

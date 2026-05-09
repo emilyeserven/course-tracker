@@ -121,7 +121,7 @@ function RadarView() {
             <InfoArea header="Get Started">
               <div className="flex flex-col gap-4 py-4">
                 <p>
-                  This radar has not been configured yet. Define quadrants and
+                  This radar has not been configured yet. Define slices and
                   rings before adding blips.
                 </p>
                 <Link

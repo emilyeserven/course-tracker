@@ -220,7 +220,9 @@ function RadarEdit() {
     }
     setWithinScopeDescription(domainDetail.withinScopeDescription ?? "");
     setOutOfScopeDescription(domainDetail.outOfScopeDescription ?? "");
-    setWithinScopeTopicIds((domainDetail.topics ?? []).map(t => t.id));
+    setWithinScopeTopicIds(
+      (domainDetail.withinScopeTopics ?? []).map(t => t.id),
+    );
     setOutOfScopeTopicIds((domainDetail.excludedTopics ?? []).map(t => t.id));
     setDetailsHydrated(true);
   }, [domainDetail, detailsHydrated]);
@@ -307,8 +309,18 @@ function RadarEdit() {
   }
 
   async function saveConfig() {
-    if (quadrants.some(q => !q.name.trim())) {
-      toast.error("Every quadrant needs a name.");
+    const filledQuadrants = quadrants.filter((q, idx) => {
+      if (q.name.trim()) {
+        return true;
+      }
+      return idx < QUADRANT_COUNT - 1;
+    });
+    if (filledQuadrants.some(q => !q.name.trim())) {
+      toast.error("Every slice needs a name (only the 5th may be empty).");
+      return;
+    }
+    if (filledQuadrants.length === 0) {
+      toast.error("Add at least one slice.");
       return;
     }
     if (rings.some(r => !r.name.trim())) {
@@ -322,10 +334,10 @@ function RadarEdit() {
     setIsSavingConfig(true);
     try {
       await upsertRadarConfig(id, {
-        quadrants: quadrants.map(q => ({
+        quadrants: filledQuadrants.map((q, idx) => ({
           id: q.id,
           name: q.name.trim(),
-          position: q.position,
+          position: idx,
         })),
         rings: rings.map(r => ({
           id: r.id,
@@ -359,7 +371,7 @@ function RadarEdit() {
         hasRadar: domainDetail.hasRadar ?? null,
         withinScopeDescription: withinScopeDescription.trim() || null,
         outOfScopeDescription: outOfScopeDescription.trim() || null,
-        topicIds: withinScopeTopicIds,
+        withinScopeTopicIds,
         excludedTopics: outOfScopeTopicIds.map((topicId) => {
           const existing = (domainDetail.excludedTopics ?? []).find(
             t => t.id === topicId,
@@ -386,11 +398,11 @@ function RadarEdit() {
 
   function addBlipDraft() {
     if (quadrants.length === 0 || rings.length === 0) {
-      toast.error("Add at least one quadrant and ring first.");
+      toast.error("Add at least one slice and ring first.");
       return;
     }
     if (!allConfigPersisted) {
-      toast.error("Save your quadrants and rings before adding blips.");
+      toast.error("Save your slices and rings before adding blips.");
       return;
     }
     setBlips(prev => [
@@ -411,7 +423,7 @@ function RadarEdit() {
       return;
     }
     if (!blip.quadrantId || !blip.ringId) {
-      toast.error("Pick a quadrant and ring.");
+      toast.error("Pick a slice and ring.");
       return;
     }
     setPendingBlipKey(blip.localKey);
@@ -571,38 +583,48 @@ function RadarEdit() {
           `}
         >
           <section className="flex flex-col gap-4">
-            <h2 className="text-2xl">Quadrants</h2>
+            <h2 className="text-2xl">Slices</h2>
             <p className="text-sm text-muted-foreground">
-              Quadrants are the categories on your radar.
+              Slices are the categories on your radar. The 5th is optional —
+              leave it blank for a 4-slice radar.
             </p>
             <div className="flex justify-center">
               <QuadrantsIllustration names={quadrants.map(q => q.name)} />
             </div>
             <ul className="flex flex-col gap-2">
-              {quadrants.map((q, idx) => (
-                <li
-                  key={q.localKey}
-                  className="flex flex-row items-center gap-2"
-                >
-                  <span className="w-6 text-sm text-muted-foreground">
-                    {idx + 1}
-                    .
-                  </span>
-                  <Input
-                    value={q.name}
-                    onChange={e =>
-                      setQuadrants(prev =>
-                        prev.map(item =>
-                          item.localKey === q.localKey
-                            ? {
-                              ...item,
-                              name: e.target.value,
-                            }
-                            : item))}
-                    placeholder="Quadrant name"
-                  />
-                </li>
-              ))}
+              {quadrants.map((q, idx) => {
+                const isOptional = idx === QUADRANT_COUNT - 1;
+                const isInactive = isOptional && !q.name.trim();
+                return (
+                  <li
+                    key={q.localKey}
+                    className={`
+                      flex flex-row items-center gap-2
+                      ${isInactive ? "opacity-60" : ""}
+                    `}
+                  >
+                    <span className="w-6 text-sm text-muted-foreground">
+                      {idx + 1}
+                      .
+                    </span>
+                    <Input
+                      value={q.name}
+                      onChange={e =>
+                        setQuadrants(prev =>
+                          prev.map(item =>
+                            item.localKey === q.localKey
+                              ? {
+                                ...item,
+                                name: e.target.value,
+                              }
+                              : item))}
+                      placeholder={
+                        isOptional ? "Slice name (optional)" : "Slice name"
+                      }
+                    />
+                  </li>
+                );
+              })}
             </ul>
           </section>
 
@@ -763,7 +785,7 @@ function RadarEdit() {
           <h2 className="text-2xl">Blips</h2>
           {!allConfigPersisted && (
             <p className="text-sm text-amber-700">
-              Save your quadrants and rings before adding blips.
+              Save your slices and rings before adding blips.
             </p>
           )}
 
@@ -861,7 +883,7 @@ function RadarEdit() {
                       </div>
                       <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-1">
-                          <label className="text-xs uppercase">Quadrant</label>
+                          <label className="text-xs uppercase">Slice</label>
                           <Select
                             value={blip.quadrantId}
                             onValueChange={value =>
@@ -875,7 +897,7 @@ function RadarEdit() {
                                     : b))}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose quadrant" />
+                              <SelectValue placeholder="Choose slice" />
                             </SelectTrigger>
                             <SelectContent>
                               {persistedQuadrants.map(q => (

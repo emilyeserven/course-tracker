@@ -151,8 +151,8 @@ function computeProblems(
   if (!entry.quadrantId) {
     problems.push(
       entry.quadrantInput
-        ? `unknown quadrant "${entry.quadrantInput}"`
-        : "missing quadrant",
+        ? `unknown slice "${entry.quadrantInput}"`
+        : "missing slice",
     );
   }
   if (!entry.ringId) {
@@ -1069,7 +1069,7 @@ function ReviewTable({
         <TableRow>
           <TableHead className="min-w-32">Topic</TableHead>
           <TableHead className="min-w-56">Description</TableHead>
-          <TableHead className="min-w-32">Quadrant</TableHead>
+          <TableHead className="min-w-32">Slice</TableHead>
           <TableHead className="min-w-32">Ring</TableHead>
           <TableHead className="min-w-56">Radar Note</TableHead>
           <TableHead className="w-24">Edit</TableHead>
