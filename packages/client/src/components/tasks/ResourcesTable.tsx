@@ -1,8 +1,8 @@
-import type { Resource, ResourceLevel, Task } from "@emstack/types/src";
+import type { Resource, ResourceLevel, Tag, TagGroup, Task } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLinkIcon,
   Loader2,
@@ -19,8 +19,7 @@ import {
   RESOURCE_LEVEL_OPTIONS,
 } from "./resourceMeta";
 import { TagChip } from "./TagChip";
-import { TagsFilter } from "./TagsFilter";
-import { TagsInput } from "./TagsInput";
+import { TagPicker } from "./TagPicker";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { isHttpUrl, upsertTask } from "@/utils";
+import { fetchTagGroups, isHttpUrl, upsertTask } from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
 interface ResourcesTableProps {
@@ -164,9 +163,25 @@ function LevelSelect({
   );
 }
 
+function tagIdsFromResource(resource: Resource) {
+  return resource.tags.map(t => t.id);
+}
+
+function lookupTagsByIds(ids: string[], tagGroups: TagGroup[]): Tag[] {
+  const byId = new Map<string, Tag>();
+  for (const group of tagGroups) {
+    for (const tag of group.tags ?? []) {
+      byId.set(tag.id, tag);
+    }
+  }
+  return ids
+    .map(id => byId.get(id))
+    .filter((t): t is Tag => t !== undefined);
+}
+
 function EditingRow({
   resource,
-  tagSuggestions,
+  tagGroups,
   isNew = false,
   isSaving = false,
   onSave,
@@ -174,7 +189,7 @@ function EditingRow({
   onDelete,
 }: {
   resource: Resource;
-  tagSuggestions: string[];
+  tagGroups: TagGroup[];
   isNew?: boolean;
   isSaving?: boolean;
   onSave: (next: Resource) => void;
@@ -306,16 +321,15 @@ function EditingRow({
             <label className="text-xs font-medium text-muted-foreground">
               Tags
             </label>
-            <TagsInput
-              value={draft.tags ?? []}
-              onChange={tags => update({
-                tags,
+            <TagPicker
+              value={tagIdsFromResource(draft)}
+              onChange={ids => update({
+                tags: lookupTagsByIds(ids, tagGroups),
               })}
-              suggestions={tagSuggestions}
-              placeholder={tagSuggestions.length > 0
-                ? "Pick or type a tag..."
-                : "Type a tag..."}
-              groupByPrefix
+              tagGroups={tagGroups}
+              placeholder={tagGroups.length > 0
+                ? "Pick tags..."
+                : "No tags configured. Add some on the Settings page."}
             />
           </div>
           <div
@@ -365,6 +379,14 @@ export function ResourcesTable({
   const queryClient = useQueryClient();
   const resources = task.resources ?? [];
 
+  const {
+    data: tagGroupsData,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+  const tagGroups = tagGroupsData ?? [];
+
   const [search, setSearch] = useState("");
   const [usedFilter, setUsedFilter] = useState<string>(ANY_VALUE);
   const [easeFilter, setEaseFilter] = useState<string>(ANY_VALUE);
@@ -394,8 +416,8 @@ export function ResourcesTable({
       if (!levelMatches(r.timeNeeded, timeFilter)) return false;
       if (!levelMatches(r.interactivity, interactivityFilter)) return false;
       if (tagFilter.length > 0) {
-        const resourceTags = r.tags ?? [];
-        if (!tagFilter.every(t => resourceTags.includes(t))) return false;
+        const resourceTagIds = new Set((r.tags ?? []).map(t => t.id));
+        if (!tagFilter.every(id => resourceTagIds.has(id))) return false;
       }
       return true;
     });
@@ -416,7 +438,7 @@ export function ResourcesTable({
           timeNeeded: r.timeNeeded ?? null,
           interactivity: r.interactivity ?? null,
           usedYet: r.usedYet,
-          tags: r.tags ?? [],
+          tagIds: (r.tags ?? []).map(t => t.id),
         })),
         todos: (task.todos ?? []).map(t => ({
           id: t.id,
@@ -525,14 +547,6 @@ export function ResourcesTable({
     setEditingId(resourceId);
   }
 
-  const tagSuggestions = task.taskType?.tags ?? [];
-  const tagFilterOptions = useMemo(() => {
-    const set = new Set<string>(tagSuggestions);
-    for (const r of resources) {
-      for (const t of r.tags ?? []) set.add(t);
-    }
-    return Array.from(set);
-  }, [resources, tagSuggestions]);
   const isAnyEditing = !!editingResource || !!draftNewResource;
 
   if (resources.length === 0 && !draftNewResource) {
@@ -604,10 +618,11 @@ export function ResourcesTable({
             <label className="text-xs font-medium text-muted-foreground">
               Tags
             </label>
-            <TagsFilter
+            <TagPicker
               value={tagFilter}
               onChange={setTagFilter}
-              options={tagFilterOptions}
+              tagGroups={tagGroups}
+              placeholder="Filter by tag..."
             />
           </div>
         </div>
@@ -696,7 +711,7 @@ export function ResourcesTable({
               <EditingRow
                 key={draftNewResource.id}
                 resource={draftNewResource}
-                tagSuggestions={tagSuggestions}
+                tagGroups={tagGroups}
                 isNew
                 isSaving={mutation.isPending}
                 onSave={handleSaveNew}
@@ -719,7 +734,7 @@ export function ResourcesTable({
                   <EditingRow
                     key={r.id}
                     resource={editingResource}
-                    tagSuggestions={tagSuggestions}
+                    tagGroups={tagGroups}
                     isSaving={mutation.isPending}
                     onSave={handleSaveEdit}
                     onCancel={() => setEditingId(null)}
@@ -769,8 +784,8 @@ export function ResourcesTable({
                         <div className="flex flex-wrap gap-1">
                           {r.tags.map(tag => (
                             <TagChip
-                              key={tag}
-                              tag={tag}
+                              key={tag.id}
+                              tag={tag.name}
                             />
                           ))}
                         </div>

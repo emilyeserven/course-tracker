@@ -117,7 +117,7 @@ function SingleTaskEdit() {
         timeNeeded: r.timeNeeded ?? null,
         interactivity: r.interactivity ?? null,
         usedYet: r.usedYet,
-        tags: r.tags ?? [],
+        tagIds: (r.tags ?? []).map(t => t.id),
       }));
 
       const existingTodos = (data?.todos ?? []).map(t => ({

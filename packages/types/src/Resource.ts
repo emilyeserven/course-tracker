@@ -1,3 +1,5 @@
+import type { Tag } from "./Tag";
+
 export type ResourceLevel = "low" | "medium" | "high";
 
 export interface Resource {
@@ -10,8 +12,5 @@ export interface Resource {
   interactivity?: ResourceLevel | null;
   usedYet: boolean;
   position?: number | null;
-  // TODO(tag-reform-followup): replace this varchar[] tag list with a
-  // resolved Tag[] (via the resourcesToTags junction) once the resources UI
-  // is migrated to the new tag system.
-  tags: string[];
+  tags: Tag[];
 }
