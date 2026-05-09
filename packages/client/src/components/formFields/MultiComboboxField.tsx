@@ -12,7 +12,9 @@ import {
   ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
+  ComboboxGroup,
   ComboboxItem,
+  ComboboxLabel,
   ComboboxList,
   useComboboxAnchor,
 } from "@/components/combobox";
@@ -28,6 +30,41 @@ interface MultiComboboxFieldProps {
   placeholder?: string;
   className?: string;
   create?: CreateConfig;
+  /**
+   * When true, options whose value matches `group:value` are partitioned by
+   * the substring before the first `:` and rendered under a group header.
+   * Options without a colon fall under an "Other" group rendered last.
+   */
+  groupByPrefix?: boolean;
+}
+
+function partitionOptions(options: { value: string;
+  label: string; }[]) {
+  const groups = new Map<string, { value: string;
+    label: string; }[]>();
+  const otherKey = "Other";
+  for (const opt of options) {
+    const idx = opt.value.indexOf(":");
+    const groupName = idx > 0 ? opt.value.slice(0, idx) : otherKey;
+    const bucket = groups.get(groupName);
+    if (bucket) {
+      bucket.push(opt);
+    }
+    else {
+      groups.set(groupName, [opt]);
+    }
+  }
+  const others = groups.get(otherKey);
+  if (others) {
+    groups.delete(otherKey);
+    groups.set(otherKey, others);
+  }
+  return groups;
+}
+
+function stripGroup(label: string) {
+  const idx = label.indexOf(":");
+  return idx > 0 ? label.slice(idx + 1) : label;
 }
 
 export function MultiComboboxField({
@@ -36,6 +73,7 @@ export function MultiComboboxField({
   placeholder,
   className = "text-2xl",
   create,
+  groupByPrefix = false,
 }: MultiComboboxFieldProps) {
   const {
     field, isInvalid,
@@ -83,7 +121,11 @@ export function MultiComboboxField({
       <FieldLabel className={className}>{label}</FieldLabel>
       <Combobox
         multiple
-        items={options.map(o => o.value)}
+        {...(groupByPrefix
+          ? {}
+          : {
+            items: options.map(o => o.value),
+          })}
         value={field.state.value || []}
         onValueChange={val => field.handleChange(val)}
         onInputValueChange={val => setInputValue(val)}
@@ -156,14 +198,30 @@ export function MultiComboboxField({
               )}
           </ComboboxEmpty>
           <ComboboxList>
-            {(value: string) => (
-              <ComboboxItem
-                key={value}
-                value={value}
-              >
-                {optionsMap.get(value) ?? value}
-              </ComboboxItem>
-            )}
+            {groupByPrefix
+              ? Array.from(partitionOptions(options).entries()).map(
+                ([groupName, groupOptions]) => (
+                  <ComboboxGroup key={groupName}>
+                    <ComboboxLabel>{groupName}</ComboboxLabel>
+                    {groupOptions.map(o => (
+                      <ComboboxItem
+                        key={o.value}
+                        value={o.value}
+                      >
+                        {stripGroup(o.label)}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxGroup>
+                ),
+              )
+              : (value: string) => (
+                <ComboboxItem
+                  key={value}
+                  value={value}
+                >
+                  {optionsMap.get(value) ?? value}
+                </ComboboxItem>
+              )}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>

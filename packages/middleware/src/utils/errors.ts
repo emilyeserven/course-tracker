@@ -13,3 +13,10 @@ export function sendBadRequest(reply: FastifyReply, message: string) {
     message,
   });
 }
+
+export function sendConflict(reply: FastifyReply, message: string) {
+  return reply.status(409).send({
+    status: "error",
+    message,
+  });
+}

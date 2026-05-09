@@ -17,6 +17,7 @@ const createSchema = {
         },
         description: nullableString,
         topicId: nullableString,
+        taskTypeId: nullableString,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -45,6 +46,7 @@ export default async function (server: FastifyInstance) {
         name: body.name,
         description: body.description ?? null,
         topicId: body.topicId || null,
+        taskTypeId: body.taskTypeId || null,
       });
 
       const incoming = body.resources ?? [];
@@ -60,6 +62,7 @@ export default async function (server: FastifyInstance) {
             interactivity: r.interactivity ?? null,
             usedYet: r.usedYet ?? false,
             position: index,
+            tags: r.tags ?? [],
           })),
         );
       }

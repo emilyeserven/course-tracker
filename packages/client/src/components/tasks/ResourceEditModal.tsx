@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Loader2, Trash2Icon } from "lucide-react";
 
 import { RESOURCE_LEVEL_OPTIONS } from "./resourceMeta";
+import { TagsInput } from "./TagsInput";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ import {
 interface ResourceEditModalProps {
   open: boolean;
   resource: Resource | null;
+  /** Tags suggested in the dropdown (typically from the parent task's task type). */
+  tagSuggestions?: string[];
   isNew?: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (next: Resource) => void;
@@ -75,6 +78,7 @@ function LevelSelect({
 export function ResourceEditModal({
   open,
   resource,
+  tagSuggestions = [],
   isNew = false,
   onOpenChange,
   onSave,
@@ -210,6 +214,22 @@ export function ResourceEditModal({
             />
             <span>Used yet?</span>
           </label>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Tags
+            </label>
+            <TagsInput
+              value={draft.tags ?? []}
+              onChange={tags => update({
+                tags,
+              })}
+              suggestions={tagSuggestions}
+              placeholder={tagSuggestions.length > 0
+                ? "Pick or type a tag..."
+                : "Type a tag..."}
+              groupByPrefix
+            />
+          </div>
           <DialogFooter className="sm:justify-between">
             {onDelete && !isNew
               ? (

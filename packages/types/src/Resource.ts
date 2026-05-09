@@ -10,4 +10,5 @@ export interface Resource {
   interactivity?: ResourceLevel | null;
   usedYet: boolean;
   position?: number | null;
+  tags: string[];
 }

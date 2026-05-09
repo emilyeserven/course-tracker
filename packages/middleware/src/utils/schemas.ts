@@ -72,6 +72,14 @@ export const criteriaSchema = {
   },
 } as const;
 
+export const tagsArraySchema = {
+  type: "array",
+  items: {
+    type: "string",
+  },
+  default: [],
+} as const;
+
 export const resourceSchema = {
   type: "object",
   required: ["name"],
@@ -89,6 +97,7 @@ export const resourceSchema = {
     usedYet: {
       type: "boolean",
     },
+    tags: tagsArraySchema,
   },
 } as const;
 
