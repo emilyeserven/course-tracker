@@ -1,4 +1,5 @@
 import type { Course } from "./Course";
+import type { Tag } from "./Tag";
 
 export interface TopicDomain {
   id: string;
@@ -13,4 +14,5 @@ export interface Topic {
   courseCount?: number;
   courses?: Course[];
   domains?: TopicDomain[];
+  tags?: Tag[];
 }

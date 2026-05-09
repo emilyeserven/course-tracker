@@ -1,8 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { topics } from "@/db/schema";
-import { idParamSchema, nullableString } from "@/utils/schemas";
+import { topics, topicsToTags } from "@/db/schema";
+import { idParamSchema, nullableString, tagIdsArraySchema } from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 
 const upsertSchema = {
@@ -25,6 +26,7 @@ const upsertSchema = {
             type: "string",
           },
         },
+        tagIds: tagIdsArraySchema,
       },
     },
   },
@@ -66,6 +68,20 @@ export default async function (server: FastifyInstance) {
           id,
           Array.from(new Set(body.domainIds)),
         );
+      }
+
+      if (body.tagIds !== undefined) {
+        await db.delete(topicsToTags).where(eq(topicsToTags.topicId, id));
+        const uniqueTagIds = Array.from(new Set(body.tagIds));
+        if (uniqueTagIds.length > 0) {
+          await db.insert(topicsToTags).values(
+            uniqueTagIds.map((tagId, index) => ({
+              topicId: id,
+              tagId,
+              position: index,
+            })),
+          );
+        }
       }
 
       return {

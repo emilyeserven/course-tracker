@@ -88,8 +88,7 @@ function SingleTaskEdit() {
     (group.tags ?? []).map(tag => ({
       value: tag.id,
       label: tag.name,
-    })),
-  );
+    })));
 
   const startingValues = useMemo(
     () => ({

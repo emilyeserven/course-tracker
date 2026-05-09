@@ -19,6 +19,7 @@ import {
   deleteSingleTopic,
   fetchDomains,
   fetchSingleTopic,
+  fetchTagGroups,
   formHasChanges,
   upsertTopic,
 } from "@/utils";
@@ -32,6 +33,7 @@ const formSchema = z.object({
   description: z.string().max(500),
   reason: z.string().max(500),
   domainIds: z.array(z.string()),
+  tagIds: z.array(z.string()),
 });
 
 function SingleTopicEdit() {
@@ -63,6 +65,13 @@ function SingleTopicEdit() {
     queryFn: () => fetchDomains(),
   });
 
+  const {
+    data: tagGroups,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+
   const domainOptions = useMemo(
     () =>
       (domainsData ?? [])
@@ -74,12 +83,24 @@ function SingleTopicEdit() {
     [domainsData],
   );
 
+  const tagOptions = useMemo(
+    () =>
+      (tagGroups ?? []).flatMap(group =>
+        (group.tags ?? []).map(tag => ({
+          value: tag.id,
+          label: tag.name,
+        })),
+      ),
+    [tagGroups],
+  );
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
       reason: data?.reason ?? "",
       domainIds: data?.domains?.map(d => d.id) ?? [],
+      tagIds: (data?.tags ?? []).map(t => t.id),
     }),
     [data],
   );
@@ -97,6 +118,7 @@ function SingleTopicEdit() {
         description: value.description || null,
         reason: value.reason || null,
         domainIds: value.domainIds,
+        tagIds: value.tagIds,
       };
 
       try {
@@ -217,6 +239,17 @@ function SingleTopicEdit() {
                     return result.id;
                   },
                 }}
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name="tagIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Tags"
+                options={tagOptions}
+                placeholder="Pick tags..."
+                groupByPrefix
               />
             )}
           </form.AppField>

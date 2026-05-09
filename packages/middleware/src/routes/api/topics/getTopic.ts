@@ -46,6 +46,12 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          topicsToTags: {
+            with: {
+              tag: true,
+            },
+            orderBy: (j, { asc }) => asc(j.position),
+          },
         },
       });
 
@@ -66,6 +72,7 @@ export default async function (server: FastifyInstance) {
           }
         }
         const domains = Array.from(domainsById.values());
+        const tags = (topic.topicsToTags ?? []).map(j => j.tag);
 
         return {
           id: topic.id,
@@ -75,6 +82,7 @@ export default async function (server: FastifyInstance) {
           courseCount: courseCount,
           courses: courses,
           domains,
+          tags,
         };
       }
     },
