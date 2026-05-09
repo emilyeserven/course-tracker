@@ -18,7 +18,7 @@ services:
   db-push:
     build:
       context: ./
-      dockerfile: ./packages/middleware/Dockerfile
+      dockerfile: Dockerfile
       target: db-push
     container_name: coursetracker-db-push
     restart: "no"
