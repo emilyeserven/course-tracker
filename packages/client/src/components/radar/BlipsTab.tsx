@@ -23,6 +23,7 @@ interface PersistedRing {
   id: string;
   name: string;
   position: number;
+  isAdopted?: boolean;
 }
 
 interface BlipDraft {
@@ -60,6 +61,11 @@ interface BlipsTabProps {
       description: string | null; },
   ) => Promise<void>;
   onTableRemove: (blip: RadarBlip) => Promise<void>;
+  onTableBulkSave: (
+    ids: string[],
+    patch: { quadrantId?: string;
+      ringId?: string; },
+  ) => Promise<void>;
 }
 
 export function BlipsTab({
@@ -82,6 +88,7 @@ export function BlipsTab({
   onRemoveBlip,
   onTableSave,
   onTableRemove,
+  onTableBulkSave,
 }: BlipsTabProps) {
   return (
     <section className="flex flex-col gap-4">
@@ -111,6 +118,7 @@ export function BlipsTab({
           topics={topics}
           onSave={onTableSave}
           onRemove={onTableRemove}
+          onBulkSave={onTableBulkSave}
         />
       )}
 

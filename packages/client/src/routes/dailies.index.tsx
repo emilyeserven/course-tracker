@@ -1,6 +1,6 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -36,7 +36,9 @@ import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
+  fetchResources,
   fetchDailies,
+  fetchTasks,
   findStatusForDate,
   getCurrentChain,
   getDailyProgressPercent,
@@ -51,10 +53,20 @@ import {
   withCompletionNote,
 } from "@/utils";
 
+interface DailiesSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/dailies/")({
   component: Dailies,
   errorComponent: DailiesError,
   pendingComponent: DailiesPending,
+  validateSearch: (search: Record<string, unknown>): DailiesSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 const RECENT_DAYS_COUNT = 6;
@@ -77,6 +89,8 @@ type SortDir = "asc" | "desc";
 
 function Dailies() {
   const queryClient = useQueryClient();
+  const urlSearch = Route.useSearch();
+  const filterTopicId = urlSearch.topicId;
   const todayKey = getTodayKey();
   const {
     settings,
@@ -116,6 +130,57 @@ function Dailies() {
     queryKey: ["dailies"],
     queryFn: () => fetchDailies(),
   });
+
+  const {
+    data: tasks,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+    enabled: !!filterTopicId,
+  });
+
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+    enabled: !!filterTopicId,
+  });
+
+  const topicMatchedTaskIds = useMemo(() => {
+    if (!filterTopicId || !tasks) return null;
+    const set = new Set<string>();
+    tasks.forEach((t) => {
+      if (t.topicId === filterTopicId) set.add(t.id);
+    });
+    return set;
+  }, [filterTopicId, tasks]);
+
+  const topicMatchedCourseIds = useMemo(() => {
+    if (!filterTopicId || !courses) return null;
+    const set = new Set<string>();
+    courses.forEach((c) => {
+      if (c.topics?.some(t => t.id === filterTopicId)) set.add(c.id);
+    });
+    return set;
+  }, [filterTopicId, courses]);
+
+  const topicFilteredDailies = useMemo(() => {
+    if (!dailies) return undefined;
+    if (!filterTopicId) return dailies;
+    if (!topicMatchedTaskIds || !topicMatchedCourseIds) return undefined;
+    return dailies.filter((d) => {
+      const taskHit = d.taskId
+        ? topicMatchedTaskIds.has(d.taskId)
+        : d.task?.id
+          ? topicMatchedTaskIds.has(d.task.id)
+          : false;
+      const courseHit = d.resource?.id
+        ? topicMatchedCourseIds.has(d.resource.id)
+        : false;
+      return taskHit || courseHit;
+    });
+  }, [dailies, filterTopicId, topicMatchedTaskIds, topicMatchedCourseIds]);
 
   const mutation = useMutation({
     mutationFn: ({
@@ -158,8 +223,8 @@ function Dailies() {
     },
   });
 
-  const baseSorted = dailies
-    ? [...dailies].sort((a, b) =>
+  const baseSorted = topicFilteredDailies
+    ? [...topicFilteredDailies].sort((a, b) =>
       a.name.localeCompare(b.name, undefined, {
         sensitivity: "base",
       }))

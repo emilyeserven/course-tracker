@@ -5,6 +5,7 @@ import fastifySwaggerUi from "@fastify/swagger-ui";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import Fastify from "fastify";
 
+import { runMigrations, seedIfEmpty } from "./db/startup";
 import routes from "./routes/routes";
 import { makeEnvOptions } from "./services/env";
 import swaggerOptions from "./services/swaggerOptions";
@@ -56,6 +57,16 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+(async () => {
+  try {
+    await runMigrations();
+    await seedIfEmpty();
+  }
+  catch (err) {
+    console.error("Startup migrations/seed failed:", err);
+  }
+})();
 
 start();
 

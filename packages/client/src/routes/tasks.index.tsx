@@ -20,10 +20,20 @@ import {
 } from "@/components/ui/select";
 import { fetchTasks, fetchTopics } from "@/utils";
 
+interface TasksSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/tasks/")({
   component: Tasks,
   errorComponent: TasksError,
   pendingComponent: TasksPending,
+  validateSearch: (search: Record<string, unknown>): TasksSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 function TasksPending() {
@@ -35,8 +45,11 @@ function TasksError() {
 }
 
 function Tasks() {
+  const urlSearch = Route.useSearch();
   const [search, setSearch] = useState("");
-  const [filterTopic, setFilterTopic] = useState<string | undefined>();
+  const [filterTopic, setFilterTopic] = useState<string | undefined>(
+    urlSearch.topicId,
+  );
 
   const {
     data,

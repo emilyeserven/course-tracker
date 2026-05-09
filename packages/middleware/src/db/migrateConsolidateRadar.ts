@@ -15,11 +15,27 @@ type ConstraintRow = { constraint_name: string } & Record<string, unknown>;
 //   - drops the `topics_to_domains` junction; backfills its rows as blips
 //     with NULL quadrant/ring
 //   - drops the now-empty `radar_quadrants` and `radar_rings` tables
-//
-// Detection: the `domains.has_radar` column existing means we have not run
-// yet. After the migration finishes the column is gone, so subsequent
-// startups short-circuit.
 export async function migrateConsolidateRadar() {
+  // Skip on a fresh DB where drizzle-kit push hasn't created tables yet.
+  const domainsTableExists = await db.execute<ExistsRow>(sql`
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.tables
+      WHERE table_name = 'domains'
+    ) AS exists
+  `);
+  if (!domainsTableExists.rows[0]?.exists) {
+    return;
+  }
+
+  // Always ensure radar_config exists — drizzle-kit push in a non-TTY
+  // container can drop has_radar without adding radar_config, leaving the DB
+  // in a state where the has_radar guard below would skip the column add.
+  await db.execute(sql`
+    ALTER TABLE domains
+    ADD COLUMN IF NOT EXISTS radar_config JSONB NOT NULL
+    DEFAULT '{"quadrants":[],"rings":[]}'::jsonb
+  `);
+
   const hasRadarColumn = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
@@ -31,12 +47,6 @@ export async function migrateConsolidateRadar() {
   }
 
   await db.transaction(async (tx) => {
-    await tx.execute(sql`
-      ALTER TABLE domains
-      ADD COLUMN IF NOT EXISTS radar_config JSONB NOT NULL
-      DEFAULT '{"quadrants":[],"rings":[]}'::jsonb
-    `);
-
     const quadrantsTableExists = await tx.execute<ExistsRow>(sql`
       SELECT EXISTS (
         SELECT 1 FROM information_schema.tables

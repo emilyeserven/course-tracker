@@ -5,6 +5,7 @@ import courseRoot from "./root";
 import getTopic from "./getTopic";
 import createTopic from "./createTopic";
 import deleteTopic from "./deleteTopic";
+import bulkDeleteTopics from "./bulkDeleteTopics";
 import upsertTopic from "./upsertTopic";
 
 export default async function (server: FastifyInstance) {
@@ -14,5 +15,6 @@ export default async function (server: FastifyInstance) {
   fastify.register(getTopic);
   fastify.register(createTopic);
   fastify.register(deleteTopic);
+  fastify.register(bulkDeleteTopics);
   fastify.register(upsertTopic);
 }

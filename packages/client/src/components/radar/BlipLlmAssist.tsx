@@ -69,6 +69,11 @@ function stripCodeFence(input: string): string {
   return fenceMatch ? fenceMatch[1].trim() : trimmed;
 }
 
+function isNoChangeSentinel(value: string): boolean {
+  const v = value.trim().toLowerCase();
+  return v === "no change" || v === "no-change" || v === "nochange";
+}
+
 interface LlmEntry {
   topic?: unknown;
   quadrant?: unknown;
@@ -115,6 +120,8 @@ interface ResolvedLlmEntry {
   deleteTopicOnRemove: boolean;
   editing: boolean;
   editDraft: EditDraft | null;
+
+  selected: boolean;
 
   problems: string[];
 }
@@ -218,6 +225,8 @@ function formatExcludedTopics(excluded: DomainExcludedTopic[]): string {
     .join("\n");
 }
 
+type PromptMode = "setup" | "cleanup";
+
 interface BuildPromptArgs {
   domainTitle: string;
   domainDescription?: string | null;
@@ -230,6 +239,22 @@ interface BuildPromptArgs {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   existingBlips: { topicName: string;
+    radarNote?: string | null;
+    topicDescription?: string | null;
+    currentSliceName?: string | null;
+    currentRingName?: string | null; }[];
+}
+
+interface BuildCleanupPromptArgs {
+  domainTitle: string;
+  domainDescription?: string | null;
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
+  unassignedBlips: { topicName: string;
+    quadrantName: string | null;
+    ringName: string | null;
     radarNote?: string | null;
     topicDescription?: string | null; }[];
 }
@@ -256,8 +281,14 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
     existingBlips,
   } = args;
 
+  const adoptedRing = rings.find(r => r.isAdopted);
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings.map(r => `- ${r.name}`).join("\n");
+  const ringList = rings.map((r) => {
+    if (r.isAdopted) {
+      return `- ${r.name} (use for foundational topics that are fully established and no longer being actively evaluated; a slice is still meaningful for grouping)`;
+    }
+    return `- ${r.name}`;
+  }).join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
@@ -267,7 +298,12 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
       .map((b) => {
         const note = b.radarNote?.trim();
         const topicDesc = b.topicDescription?.trim();
+        const slice = b.currentSliceName?.trim();
+        const ring = b.currentRingName?.trim();
         const lines = [`- ${b.topicName}`];
+        lines.push(
+          `  - current placement: ${slice || "(no slice)"} / ${ring || "(no ring)"}`,
+        );
         lines.push(
           topicDesc
             ? `  - general description: ${topicDesc}`
@@ -278,6 +314,13 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
       })
       .join("\n")
     : "- (none yet)";
+  const adoptedClause = adoptedRing
+    ? `\nThe "${adoptedRing.name}" ring is for topics that are fully established
+and no longer under active evaluation — graduated from the trial/assess flow.
+You may suggest moving topics into or out of "${adoptedRing.name}" when that
+matches the topic's maturity. A slice is still meaningful for "${adoptedRing.name}"
+topics (it groups them by category), so include both quadrant and ring.`
+    : "";
 
   const withinScopeBlock = withinScopeDescription?.trim()
     ? withinScopeDescription.trim()
@@ -318,11 +361,12 @@ material outside of what's listed, or just not added it to the system yet — so
 treat course progress as a signal, not the full picture:
 ${formatTopicsWithCourses(domainTopics)}
 
-Topics already on the radar, with each topic's general description (if any)
-and its current radar note (if any). If the general description is marked
-missing for a topic you keep in your output, supply a description in the
-result so it gets filled in:
+Topics already on the radar, with each topic's general description (if any),
+current placement, and its current radar note (if any). If the general
+description is marked missing for a topic you keep in your output, supply a
+description in the result so it gets filled in:
 ${existingList}
+${adoptedClause}
 
 Topics I have explicitly EXCLUDED from this radar — do NOT suggest these,
 even with a different note or placement. The reason for each is in
@@ -336,8 +380,8 @@ JSON array of entries, using this exact shape (no other keys, no commentary):
   {
     "topic": "Topic name",
     "action": "add | update | remove (optional — see below)",
-    "description": "A short factual description of what the topic IS — saved as the topic's description if the topic is new, or if the topic exists but has no description yet (marked missing above). Null only when the topic already has a description and you have nothing to add.",
-    "radarNote": "A short note explaining WHY this topic belongs on the radar in this slice/ring. Keep high-level framing to a minimum; prefer specific, concrete references — which courses, projects, prior placements, or trade-offs drive the choice — over generic justifications. Null if no note.",
+    "description": "A short factual description of what the topic IS — saved as the topic's description if the topic is new, or if the topic exists but has no description yet (marked missing above). For an existing topic that already has a description, use the literal string \\"no change\\" to keep its current description as-is. Use null ONLY when you explicitly want to ERASE the existing description (this will wipe it out — do not use null just to mean \\"nothing to add\\").",
+    "radarNote": "A short note explaining WHY this topic belongs on the radar in this slice/ring. Keep high-level framing to a minimum; prefer specific, concrete references — which courses, projects, prior placements, or trade-offs drive the choice — over generic justifications. For an existing blip whose current note is fine, use the literal string \\"no change\\" to keep it as-is. Use null ONLY to ERASE the existing note (or to leave a brand-new blip without a note).",
     "quadrant": "One of the slice names above (exact match) — null/omit if action is remove (JSON key stays \\"quadrant\\" for compatibility)",
     "ring": "One of the ring names above (exact match) — null/omit if action is remove"
   }
@@ -363,6 +407,108 @@ You may include topics already on the radar to suggest a better radar note,
 a different placement, or removal. The reviewer will choose whether to
 overwrite, update only, remove, or skip each one. Do not include any topic
 from the excluded list above.
+`;
+}
+
+function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
+  const {
+    domainTitle,
+    domainDescription,
+    withinScopeDescription,
+    outOfScopeDescription,
+    quadrants,
+    rings,
+    unassignedBlips,
+  } = args;
+
+  const adoptedRing = rings.find(r => r.isAdopted);
+  const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
+  const ringList = rings.map((r) => {
+    if (r.isAdopted) {
+      return `- ${r.name} (use for foundational topics that are fully established and no longer being actively evaluated; a slice is still meaningful for grouping)`;
+    }
+    return `- ${r.name}`;
+  }).join("\n");
+  const domainLabel = domainTitle.trim() || "(unnamed domain)";
+  const descriptionBlock = domainDescription?.trim()
+    ? domainDescription.trim()
+    : "(no description provided)";
+  const withinScopeBlock = withinScopeDescription?.trim()
+    ? withinScopeDescription.trim()
+    : "(no within-scope description provided)";
+  const outOfScopeBlock = outOfScopeDescription?.trim()
+    ? outOfScopeDescription.trim()
+    : "(no out-of-scope description provided)";
+
+  const blipList = unassignedBlips.length > 0
+    ? unassignedBlips
+      .map((b) => {
+        const lines = [`- ${b.topicName}`];
+        const desc = b.topicDescription?.trim();
+        const note = b.radarNote?.trim();
+        if (desc) {
+          lines.push(`  - description: ${desc}`);
+        }
+        if (note) {
+          lines.push(`  - radar note: ${note}`);
+        }
+        const status: string[] = [];
+        if (!b.quadrantName) status.push("missing slice");
+        if (!b.ringName) status.push("missing ring");
+        if (b.quadrantName) status.push(`current slice: ${b.quadrantName}`);
+        if (b.ringName) status.push(`current ring: ${b.ringName}`);
+        lines.push(`  - status: ${status.join(", ")}`);
+        return lines.join("\n");
+      })
+      .join("\n")
+    : "- (none — all blips already have slice and ring assigned)";
+  const adoptedClause = adoptedRing
+    ? `\nNote: "${adoptedRing.name}" is a valid ring for foundational topics that
+are fully established. A blip already in "${adoptedRing.name}" but missing a
+slice should keep its ring and just have the slice filled in.`
+    : "";
+
+  return `I'm cleaning up the "${domainLabel}" tech radar — assigning slices and
+rings to blips that are missing one or both. Use the existing topic
+description, radar note (if any), and current placement to decide where
+each belongs.
+
+Domain description:
+${descriptionBlock}
+
+Within-scope description:
+${withinScopeBlock}
+
+Out-of-scope description:
+${outOfScopeBlock}
+
+The radar has these slices:
+${quadrantList || "- (none defined)"}
+
+And these rings (innermost first):
+${ringList || "- (none defined)"}
+${adoptedClause}
+
+Blips that need a slice and/or ring assigned:
+${blipList}
+
+Please return ONLY a JSON array of entries assigning a slice and ring to
+each blip above, using this exact shape (no other keys, no commentary):
+
+[
+  {
+    "topic": "Topic name (must match exactly from the list above)",
+    "action": "update",
+    "radarNote": "Updated note explaining the placement. Use the literal string \\"no change\\" to keep the existing note as-is. Use null ONLY to ERASE the existing note (this will wipe it out).",
+    "quadrant": "One of the slice names above (exact match)",
+    "ring": "One of the ring names above (exact match)"
+  }
+]
+
+Only include the topics from the list above. The "action" field must be
+"update" so I overwrite their slice/ring placement. If a blip already has a
+slice OR ring set (but not both), still include both in your response —
+preserve the existing one unless you have a specific reason to change it.
 `;
 }
 
@@ -414,9 +560,35 @@ export function BlipLlmAssist({
   existingBlips,
   onComplete,
 }: BlipLlmAssistProps) {
+  const [mode, setMode] = useState<PromptMode>("setup");
+
   const prompt = useMemo(
     () => {
       const topicById = new Map(topics.map(t => [t.id, t]));
+      const quadrantById = new Map(quadrants.map(q => [q.id, q]));
+      const ringById = new Map(rings.map(r => [r.id, r]));
+      if (mode === "cleanup") {
+        const unassignedBlips = existingBlips
+          .filter(b => !b.quadrantId || !b.ringId)
+          .map(b => ({
+            topicName: b.topicName,
+            quadrantName: b.quadrantId
+              ? quadrantById.get(b.quadrantId)?.name ?? null
+              : null,
+            ringName: b.ringId ? ringById.get(b.ringId)?.name ?? null : null,
+            radarNote: b.description,
+            topicDescription: topicById.get(b.topicId)?.description ?? null,
+          }));
+        return buildCleanupPrompt({
+          domainTitle,
+          domainDescription,
+          withinScopeDescription,
+          outOfScopeDescription,
+          quadrants,
+          rings,
+          unassignedBlips,
+        });
+      }
       return buildLlmPrompt({
         domainTitle,
         domainDescription,
@@ -428,14 +600,21 @@ export function BlipLlmAssist({
         outOfScopeTopicNames,
         quadrants,
         rings,
-        existingBlips: existingBlips.map(b => ({
-          topicName: b.topicName,
-          radarNote: b.description,
-          topicDescription: topicById.get(b.topicId)?.description ?? null,
-        })),
+        existingBlips: existingBlips.map((b) => {
+          const ring = b.ringId ? ringById.get(b.ringId) : null;
+          const quadrant = b.quadrantId ? quadrantById.get(b.quadrantId) : null;
+          return {
+            topicName: b.topicName,
+            radarNote: b.description,
+            topicDescription: topicById.get(b.topicId)?.description ?? null,
+            currentSliceName: quadrant?.name ?? null,
+            currentRingName: ring?.name ?? null,
+          };
+        }),
       });
     },
     [
+      mode,
       domainTitle,
       domainDescription,
       domainTopics,
@@ -449,6 +628,11 @@ export function BlipLlmAssist({
       existingBlips,
       topics,
     ],
+  );
+
+  const unassignedCount = useMemo(
+    () => existingBlips.filter(b => !b.quadrantId || !b.ringId).length,
+    [existingBlips],
   );
 
   const [jsonText, setJsonText] = useState("");
@@ -597,12 +781,6 @@ export function BlipLlmAssist({
       const quadrantInput
         = typeof entry.quadrant === "string" ? entry.quadrant.trim() : "";
       const ringInput = typeof entry.ring === "string" ? entry.ring.trim() : "";
-      const llmDescription = typeof entry.description === "string"
-        ? entry.description.trim() || null
-        : null;
-      const llmRadarNote = typeof entry.radarNote === "string"
-        ? entry.radarNote.trim() || null
-        : null;
       const llmAction = typeof entry.action === "string"
         ? entry.action.trim().toLowerCase() || null
         : null;
@@ -618,6 +796,19 @@ export function BlipLlmAssist({
         : undefined;
       const existingBlip = topicMatch
         ? existingBlipByTopicId.get(topicMatch.id) ?? null
+        : null;
+
+      // "no change" sentinel preserves the existing value. null in JSON
+      // explicitly erases. Anything else is the new value.
+      const llmDescription = typeof entry.description === "string"
+        ? (isNoChangeSentinel(entry.description)
+          ? topicMatch?.description ?? null
+          : entry.description.trim() || null)
+        : null;
+      const llmRadarNote = typeof entry.radarNote === "string"
+        ? (isNoChangeSentinel(entry.radarNote)
+          ? existingBlip?.description ?? null
+          : entry.radarNote.trim() || null)
         : null;
 
       const isExcluded = excludedNamesLower.has(topicName.toLowerCase());
@@ -659,6 +850,7 @@ export function BlipLlmAssist({
         deleteTopicOnRemove: false,
         editing: false,
         editDraft: null,
+        selected: false,
         problems: computeProblems(partial, excludedNamesLower),
       };
     });
@@ -761,6 +953,158 @@ export function BlipLlmAssist({
           },
         };
       });
+    });
+  }
+
+  function setRowSelected(idx: number, selected: boolean) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map((entry, i) =>
+        i === idx
+          ? {
+            ...entry,
+            selected,
+          }
+          : entry);
+    });
+  }
+
+  function setAllSelected(selected: boolean) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map(entry => ({
+        ...entry,
+        selected,
+      }));
+    });
+  }
+
+  function bulkSetQuadrant(quadrantId: string) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      const match = quadrants.find(q => q.id === quadrantId);
+      if (!match) {
+        return prev;
+      }
+      return prev.map((entry) => {
+        if (!entry.selected) {
+          return entry;
+        }
+        if (entry.resolution === "skip" || entry.resolution === "removeBlip") {
+          return entry;
+        }
+        const next: ResolvedLlmEntry = {
+          ...entry,
+          quadrantId: match.id,
+          quadrantInput: match.name,
+        };
+        return {
+          ...next,
+          problems: computeProblems(next, excludedNamesLower),
+        };
+      });
+    });
+  }
+
+  function bulkSetRing(ringId: string) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      const match = rings.find(r => r.id === ringId);
+      if (!match) {
+        return prev;
+      }
+      return prev.map((entry) => {
+        if (!entry.selected) {
+          return entry;
+        }
+        if (entry.resolution === "skip" || entry.resolution === "removeBlip") {
+          return entry;
+        }
+        const next: ResolvedLlmEntry = {
+          ...entry,
+          ringId: match.id,
+          ringInput: match.name,
+        };
+        return {
+          ...next,
+          problems: computeProblems(next, excludedNamesLower),
+        };
+      });
+    });
+  }
+
+  function bulkSetResolution(resolution: Resolution) {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map((entry) => {
+        if (!entry.selected) {
+          return entry;
+        }
+        const conflicts = entry.existingBlipId !== null;
+        // Skip is always valid; others depend on whether the row already has
+        // an existing blip.
+        if (resolution !== "skip") {
+          if (resolution === "create" && conflicts) {
+            return entry;
+          }
+          if (
+            (resolution === "overwriteAll"
+              || resolution === "updateBlip"
+              || resolution === "removeBlip")
+            && !conflicts
+          ) {
+            return entry;
+          }
+        }
+        const next: ResolvedLlmEntry = {
+          ...entry,
+          resolution,
+        };
+        return {
+          ...next,
+          problems: computeProblems(next, excludedNamesLower),
+        };
+      });
+    });
+  }
+
+  function bulkClearDescriptions() {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map(entry =>
+        entry.selected
+          ? {
+            ...entry,
+            description: null,
+          }
+          : entry);
+    });
+  }
+
+  function bulkClearRadarNotes() {
+    setResolved((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return prev.map(entry =>
+        entry.selected
+          ? {
+            ...entry,
+            radarNote: null,
+          }
+          : entry);
     });
   }
 
@@ -914,6 +1258,34 @@ export function BlipLlmAssist({
     <div className="flex flex-col gap-4 rounded-sm border p-4">
       {!resolved && (
         <>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Prompt mode</span>
+            <div className="flex flex-row flex-wrap gap-4">
+              <label className="flex flex-row items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="llm-prompt-mode"
+                  value="setup"
+                  checked={mode === "setup"}
+                  onChange={() => setMode("setup")}
+                />
+                Setup / Update — propose new and updated blips
+              </label>
+              <label className="flex flex-row items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="llm-prompt-mode"
+                  value="cleanup"
+                  checked={mode === "cleanup"}
+                  onChange={() => setMode("cleanup")}
+                  disabled={unassignedCount === 0}
+                />
+                Clean up — assign slice/ring to unassigned blips (
+                {unassignedCount}
+                )
+              </label>
+            </div>
+          </div>
           <div
             className={`
               grid grid-cols-1 gap-4
@@ -1005,6 +1377,17 @@ export function BlipLlmAssist({
             {counts.newTopic === 1 ? "" : "s"}
           </p>
 
+          <BulkEditBar
+            resolved={resolved}
+            quadrants={quadrants}
+            rings={rings}
+            onBulkQuadrant={bulkSetQuadrant}
+            onBulkRing={bulkSetRing}
+            onBulkResolution={bulkSetResolution}
+            onClearDescriptions={bulkClearDescriptions}
+            onClearRadarNotes={bulkClearRadarNotes}
+          />
+
           <ReviewTable
             resolved={resolved}
             quadrants={quadrants}
@@ -1017,6 +1400,8 @@ export function BlipLlmAssist({
             commitEdit={commitEdit}
             cancelEdit={cancelEdit}
             updateDraft={updateDraft}
+            setRowSelected={setRowSelected}
+            setAllSelected={setAllSelected}
           />
 
           <div className="flex flex-row gap-2">
@@ -1057,6 +1442,8 @@ interface ReviewTableProps {
   commitEdit: (idx: number) => void;
   cancelEdit: (idx: number) => void;
   updateDraft: (idx: number, patch: Partial<EditDraft>) => void;
+  setRowSelected: (idx: number, selected: boolean) => void;
+  setAllSelected: (selected: boolean) => void;
 }
 
 function ReviewTable({
@@ -1071,11 +1458,28 @@ function ReviewTable({
   commitEdit,
   cancelEdit,
   updateDraft,
+  setRowSelected,
+  setAllSelected,
 }: ReviewTableProps) {
+  const allSelected = resolved.length > 0 && resolved.every(r => r.selected);
+  const someSelected = resolved.some(r => r.selected);
   return (
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead className="w-8">
+            <input
+              type="checkbox"
+              aria-label={allSelected ? "Deselect all" : "Select all"}
+              checked={allSelected}
+              ref={(el) => {
+                if (el) {
+                  el.indeterminate = !allSelected && someSelected;
+                }
+              }}
+              onChange={e => setAllSelected(e.target.checked)}
+            />
+          </TableHead>
           <TableHead className="min-w-32">Topic</TableHead>
           <TableHead className="min-w-56">Description</TableHead>
           <TableHead className="min-w-32">Slice</TableHead>
@@ -1101,6 +1505,7 @@ function ReviewTable({
             commitEdit={commitEdit}
             cancelEdit={cancelEdit}
             updateDraft={updateDraft}
+            setRowSelected={setRowSelected}
           />
         ))}
       </TableBody>
@@ -1121,6 +1526,7 @@ interface ReviewRowProps {
   commitEdit: (idx: number) => void;
   cancelEdit: (idx: number) => void;
   updateDraft: (idx: number, patch: Partial<EditDraft>) => void;
+  setRowSelected: (idx: number, selected: boolean) => void;
 }
 
 function ReviewRow({
@@ -1136,6 +1542,7 @@ function ReviewRow({
   commitEdit,
   cancelEdit,
   updateDraft,
+  setRowSelected,
 }: ReviewRowProps) {
   const isSkipped = r.resolution === "skip";
   const isRemove = r.resolution === "removeBlip";
@@ -1186,6 +1593,14 @@ function ReviewRow({
 
   return (
     <TableRow className={rowTone}>
+      <TableCell className="align-top">
+        <input
+          type="checkbox"
+          aria-label={r.selected ? "Deselect row" : "Select row"}
+          checked={r.selected}
+          onChange={e => setRowSelected(idx, e.target.checked)}
+        />
+      </TableCell>
       <TableCell className="align-top">
         <div className="flex flex-col gap-1">
           <span className="font-medium">{r.topicName || "(no topic)"}</span>
@@ -1505,6 +1920,190 @@ function PlacementCell({
           </SelectContent>
         </Select>
       )}
+    </div>
+  );
+}
+
+interface BulkEditBarProps {
+  resolved: ResolvedLlmEntry[];
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
+  onBulkQuadrant: (quadrantId: string) => void;
+  onBulkRing: (ringId: string) => void;
+  onBulkResolution: (resolution: Resolution) => void;
+  onClearDescriptions: () => void;
+  onClearRadarNotes: () => void;
+}
+
+function BulkEditBar({
+  resolved,
+  quadrants,
+  rings,
+  onBulkQuadrant,
+  onBulkRing,
+  onBulkResolution,
+  onClearDescriptions,
+  onClearRadarNotes,
+}: BulkEditBarProps) {
+  const [pendingQuadrant, setPendingQuadrant] = useState<string>("");
+  const [pendingRing, setPendingRing] = useState<string>("");
+  const [pendingResolution, setPendingResolution] = useState<string>("");
+
+  const selectedCount = resolved.filter(r => r.selected).length;
+  const anySelected = selectedCount > 0;
+
+  function applyQuadrant() {
+    if (!pendingQuadrant) {
+      return;
+    }
+    onBulkQuadrant(pendingQuadrant);
+    setPendingQuadrant("");
+  }
+
+  function applyRing() {
+    if (!pendingRing) {
+      return;
+    }
+    onBulkRing(pendingRing);
+    setPendingRing("");
+  }
+
+  function applyResolution() {
+    if (!pendingResolution) {
+      return;
+    }
+    onBulkResolution(pendingResolution as Resolution);
+    setPendingResolution("");
+  }
+
+  return (
+    <div
+      className="flex flex-col gap-2 rounded-sm border bg-muted/30 p-2 text-sm"
+    >
+      <span className="font-medium">
+        Bulk edit (
+        {selectedCount}
+        {" "}
+        selected)
+      </span>
+      <div className="flex flex-row flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Slice</span>
+          <div className="flex flex-row gap-1">
+            <Select
+              value={pendingQuadrant}
+              onValueChange={setPendingQuadrant}
+            >
+              <SelectTrigger className="h-8 w-40">
+                <SelectValue placeholder="Pick slice" />
+              </SelectTrigger>
+              <SelectContent>
+                {quadrants.map(q => (
+                  <SelectItem
+                    key={q.id}
+                    value={q.id}
+                  >
+                    {q.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={applyQuadrant}
+              disabled={!anySelected || !pendingQuadrant}
+            >
+              Apply
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Ring</span>
+          <div className="flex flex-row gap-1">
+            <Select
+              value={pendingRing}
+              onValueChange={setPendingRing}
+            >
+              <SelectTrigger className="h-8 w-40">
+                <SelectValue placeholder="Pick ring" />
+              </SelectTrigger>
+              <SelectContent>
+                {rings.map(r => (
+                  <SelectItem
+                    key={r.id}
+                    value={r.id}
+                  >
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={applyRing}
+              disabled={!anySelected || !pendingRing}
+            >
+              Apply
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Action</span>
+          <div className="flex flex-row gap-1">
+            <Select
+              value={pendingResolution}
+              onValueChange={setPendingResolution}
+            >
+              <SelectTrigger className="h-8 w-44">
+                <SelectValue placeholder="Pick action" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="create">Add Blip</SelectItem>
+                <SelectItem value="overwriteAll">Overwrite All</SelectItem>
+                <SelectItem value="updateBlip">Update Blip</SelectItem>
+                <SelectItem value="removeBlip">Remove Blip</SelectItem>
+                <SelectItem value="skip">Skip</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={applyResolution}
+              disabled={!anySelected || !pendingResolution}
+            >
+              Apply
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-row gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClearDescriptions}
+            disabled={!anySelected}
+          >
+            Clear descriptions
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClearRadarNotes}
+            disabled={!anySelected}
+          >
+            Clear radar notes
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

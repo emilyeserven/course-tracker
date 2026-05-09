@@ -27,8 +27,18 @@ import {
   uuidv4,
 } from "@/utils";
 
+interface ResourceEditSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/resources/$id/edit")({
   component: SingleResourceEdit,
+  validateSearch: (search: Record<string, unknown>): ResourceEditSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 const formSchema = z.object({
@@ -49,6 +59,7 @@ function SingleResourceEdit() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -101,11 +112,14 @@ function SingleResourceEdit() {
       progressTotal: data?.progressTotal ?? null,
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-      topicId: (Array.isArray(data?.topics) && data.topics[0]?.id) || "",
+      topicId:
+        (Array.isArray(data?.topics) && data.topics[0]?.id)
+        || (isNew ? search.topicId ?? "" : "")
+        || "",
       courseProviderId: data?.provider?.id ?? "",
       modulesAreExhaustive: data?.modulesAreExhaustive ?? false,
     }),
-    [data],
+    [data, isNew, search.topicId],
   );
 
   const form = useAppForm({

@@ -27,8 +27,18 @@ import {
   upsertTask,
 } from "@/utils";
 
+interface TaskEditSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: SingleTaskEdit,
+  validateSearch: (search: Record<string, unknown>): TaskEditSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 const formSchema = z.object({
@@ -50,6 +60,7 @@ function SingleTaskEdit() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -126,7 +137,7 @@ function SingleTaskEdit() {
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
-      topicId: data?.topicId ?? "",
+      topicId: data?.topicId ?? (isNew ? search.topicId ?? "" : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
       resourceLinks: (data?.resourceLinks ?? []).map(l => ({
@@ -135,7 +146,7 @@ function SingleTaskEdit() {
         moduleId: l.moduleId ?? null,
       })),
     }),
-    [data],
+    [data, isNew, search.topicId],
   );
 
   const form = useAppForm({

@@ -19,6 +19,7 @@ export interface RingDraft {
   name: string;
   position: number;
   localKey: string;
+  isAdopted?: boolean;
 }
 
 interface RadarConfigTabProps {
@@ -27,10 +28,12 @@ interface RadarConfigTabProps {
   quadrantCount: number;
   maxRings: number;
   isSaving: boolean;
+  hasAdoptedSection: boolean;
   onChangeQuadrant: (localKey: string, name: string) => void;
   onChangeRing: (localKey: string, name: string) => void;
   onAddRing: () => void;
   onRemoveRing: (localKey: string) => void;
+  onToggleAdoptedSection: (enabled: boolean) => void;
   onSave: () => void;
 }
 
@@ -40,12 +43,15 @@ export function RadarConfigTab({
   quadrantCount,
   maxRings,
   isSaving,
+  hasAdoptedSection,
   onChangeQuadrant,
   onChangeRing,
   onAddRing,
   onRemoveRing,
+  onToggleAdoptedSection,
   onSave,
 }: RadarConfigTabProps) {
+  const nonAdoptedCount = rings.filter(r => !r.isAdopted).length;
   return (
     <div className="flex flex-col gap-8">
       <div
@@ -98,13 +104,18 @@ export function RadarConfigTab({
             Rings represent levels of adoption.
           </p>
           <div className="flex justify-center">
-            <RingsIllustration names={rings.map(r => r.name)} />
+            <RingsIllustration
+              names={rings.filter(r => !r.isAdopted).map(r => r.name)}
+            />
           </div>
           <ul className="flex flex-col gap-2">
             {rings.map((r, idx) => (
               <li
                 key={r.localKey}
-                className="flex flex-row items-center gap-2"
+                className={`
+                  flex flex-row items-center gap-2
+                  ${r.isAdopted ? "opacity-80" : ""}
+                `}
               >
                 <span className="w-6 text-sm text-muted-foreground">
                   {idx + 1}
@@ -113,31 +124,55 @@ export function RadarConfigTab({
                 <Input
                   value={r.name}
                   onChange={e => onChangeRing(r.localKey, e.target.value)}
-                  placeholder="Ring name"
+                  placeholder={r.isAdopted ? "Adopted section name" : "Ring name"}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onRemoveRing(r.localKey)}
-                  aria-label="Remove ring"
-                >
-                  <TrashIcon />
-                </Button>
+                {r.isAdopted
+                  ? (
+                    <span
+                      className={`
+                        rounded-sm bg-amber-100 px-1.5 py-0.5 text-[10px]
+                        text-amber-900
+                      `}
+                      title="Hidden from radar chart, listed on the side"
+                    >
+                      Side panel
+                    </span>
+                  )
+                  : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onRemoveRing(r.localKey)}
+                      aria-label="Remove ring"
+                    >
+                      <TrashIcon />
+                    </Button>
+                  )}
               </li>
             ))}
           </ul>
-          <div>
+          <div className="flex flex-row items-center gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={onAddRing}
-              disabled={rings.length >= maxRings}
+              disabled={nonAdoptedCount >= maxRings}
             >
               <PlusIcon />
               {" "}
               Add Ring
             </Button>
+            <label
+              className="flex flex-row items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={hasAdoptedSection}
+                onChange={e => onToggleAdoptedSection(e.target.checked)}
+              />
+              Have Adopted Section
+            </label>
           </div>
         </section>
       </div>

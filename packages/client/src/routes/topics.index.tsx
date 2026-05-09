@@ -1,8 +1,8 @@
 import type { TopicForTopicsPage } from "@emstack/types/src";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRightIcon,
@@ -10,12 +10,15 @@ import {
   ListIcon,
   PlusIcon,
   SearchIcon,
+  Trash2Icon,
   XIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { TopicBox } from "@/components/boxes/TopicBox";
 import { TopicsTable } from "@/components/boxes/TopicsTable";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -27,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchDomains, fetchTopics } from "@/utils";
+import { bulkDeleteTopics, fetchDomains, fetchTopics } from "@/utils";
 
 type SortOption = "alpha-asc" | "alpha-desc" | "resources";
 type ViewMode = "grid" | "table";
@@ -75,6 +78,10 @@ function Topics() {
   const [filterDomain, setFilterDomain] = useState<string | undefined>();
   const [sortBy, setSortBy] = useState<SortOption>("alpha-asc");
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
 
   const updateViewMode = (mode: ViewMode) => {
     setViewMode(mode);
@@ -122,6 +129,74 @@ function Topics() {
 
     return sortTopics(result, sortBy);
   }, [data, search, filterDomain, sortBy]);
+
+  const filteredIds = useMemo(
+    () => filteredAndSorted.map(t => t.id),
+    [filteredAndSorted],
+  );
+
+  useEffect(() => {
+    if (viewMode !== "table" && selectedIds.size > 0) {
+      setSelectedIds(new Set());
+    }
+  }, [viewMode, selectedIds]);
+
+  useEffect(() => {
+    if (selectedIds.size === 0) return;
+    const visible = new Set(filteredIds);
+    let changed = false;
+    const next = new Set<string>();
+    selectedIds.forEach((id) => {
+      if (visible.has(id)) {
+        next.add(id);
+      }
+      else {
+        changed = true;
+      }
+    });
+    if (changed) setSelectedIds(next);
+  }, [filteredIds, selectedIds]);
+
+  const handleToggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleToggleAll = (selectAll: boolean) => {
+    setSelectedIds(selectAll ? new Set(filteredIds) : new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setIsDeleting(true);
+    try {
+      await bulkDeleteTopics(ids);
+      await queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["domains"],
+      });
+      setSelectedIds(new Set());
+      setConfirmOpen(false);
+      toast.success(
+        ids.length === 1
+          ? "1 topic deleted."
+          : `${ids.length} topics deleted.`,
+      );
+    }
+    catch {
+      toast.error("Failed to delete topics. Please try again.");
+    }
+    finally {
+      setIsDeleting(false);
+    }
+  };
 
   const hasActiveFilters = filterDomain;
 
@@ -327,7 +402,48 @@ function Topics() {
         {viewMode === "table" && (
           <div className="flex flex-col gap-4">
             {filteredAndSorted.length > 0 && (
-              <TopicsTable topics={filteredAndSorted} />
+              <>
+                <div
+                  className="
+                    flex min-h-9 flex-wrap items-center justify-between gap-2
+                  "
+                >
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size > 0
+                      ? `${selectedIds.size} selected`
+                      : ""}
+                  </span>
+                  {selectedIds.size > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedIds(new Set())}
+                      >
+                        Clear selection
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setConfirmOpen(true)}
+                      >
+                        <Trash2Icon className="size-4" />
+                        Delete
+                        {" "}
+                        {selectedIds.size}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <TopicsTable
+                  topics={filteredAndSorted}
+                  selection={{
+                    selectedIds,
+                    onToggleSelected: handleToggleSelected,
+                    onToggleAll: handleToggleAll,
+                  }}
+                />
+              </>
             )}
             <div>
               <Link
@@ -345,6 +461,21 @@ function Topics() {
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        title={
+          selectedIds.size === 1
+            ? "Delete 1 topic?"
+            : `Delete ${selectedIds.size} topics?`
+        }
+        description="This will remove the selected topics and any links to courses, domains, and radar blips. This cannot be undone."
+        confirmLabel={isDeleting ? "Deleting..." : "Delete"}
+        cancelLabel="Cancel"
+        onConfirm={handleBulkDelete}
+        onCancel={() => {
+          if (!isDeleting) setConfirmOpen(false);
+        }}
+      />
     </div>
   );
 }

@@ -42,10 +42,20 @@ function getInitialViewMode(): ViewMode {
   return stored === "table" ? "table" : "grid";
 }
 
+interface ResourcesSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/resources/")({
   component: Courses,
   errorComponent: CoursesError,
   pendingComponent: CoursesPending,
+  validateSearch: (search: Record<string, unknown>): ResourcesSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 function CoursesPending() {
@@ -82,9 +92,12 @@ function sortCourses(
 }
 
 function Courses() {
+  const urlSearch = Route.useSearch();
   const [search, setSearch] = useState("");
   const [filterProvider, setFilterProvider] = useState<string | undefined>();
-  const [filterTopic, setFilterTopic] = useState<string | undefined>();
+  const [filterTopic, setFilterTopic] = useState<string | undefined>(
+    urlSearch.topicId,
+  );
   const [sortBy, setSortBy] = useState<SortOption>("alpha");
   const [sortAsc, setSortAsc] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
