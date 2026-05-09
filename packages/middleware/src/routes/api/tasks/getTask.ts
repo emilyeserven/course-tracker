@@ -122,6 +122,7 @@ export default async function (server: FastifyInstance) {
           : null,
         tags: (task.tasksToTags ?? []).map(j => j.tag),
         resourceLinks: (task.tasksToResources ?? []).map(j => ({
+          id: j.id,
           resourceId: j.resourceId,
           resource: j.resource
             ? {

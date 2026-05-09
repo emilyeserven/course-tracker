@@ -187,6 +187,7 @@ export async function seed() {
       .insert(topicsToResources)
       .values([
         {
+          id: uuidv4(),
           resourceId: courseReact[0].id,
           topicId: topicReact[0].id,
         },
@@ -198,6 +199,7 @@ export async function seed() {
       .insert(topicsToResources)
       .values([
         {
+          id: uuidv4(),
           resourceId: courseReact[0].id,
           topicId: topicTypescript[0].id,
         },
@@ -209,6 +211,7 @@ export async function seed() {
       .insert(topicsToResources)
       .values([
         {
+          id: uuidv4(),
           resourceId: courseTypescript[0].id,
           topicId: topicTypescript[0].id,
         },
@@ -220,6 +223,7 @@ export async function seed() {
       .insert(topicsToResources)
       .values([
         {
+          id: uuidv4(),
           resourceId: courseNpmPackage[0].id,
           topicId: topicTypescript[0].id,
         },
@@ -231,6 +235,7 @@ export async function seed() {
       .insert(topicsToResources)
       .values([
         {
+          id: uuidv4(),
           resourceId: courseAkiko[0].id,
           topicId: topicJapanese[0].id,
         },

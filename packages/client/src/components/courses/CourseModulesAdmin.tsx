@@ -5,15 +5,14 @@ import type {
   ParsedModuleLength,
 } from "@emstack/types/src";
 
+import { useMemo, useState } from "react";
+
 import {
   formatModuleLength,
   MODULE_DURATION_BUCKETS,
   MODULE_DURATION_LABELS,
   parseModuleLength,
 } from "@emstack/types/src";
-
-import { useMemo, useState } from "react";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDownIcon,

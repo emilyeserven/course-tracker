@@ -10,6 +10,7 @@ import {
   tagIdsArraySchema,
 } from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
+import { v4 as uuidv4 } from "uuid";
 
 const upsertSchema = {
   schema: {
@@ -94,17 +95,22 @@ export default async function (server: FastifyInstance) {
         await db
           .delete(topicsToResources)
           .where(eq(topicsToResources.topicId, id));
+        // Dedupe by the full (resourceId, moduleGroupId, moduleId) tuple so
+        // a topic can hold multiple sub-target rows per resource.
         const seen = new Set<string>();
         const rows: {
+          id: string;
           topicId: string;
           resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
         }[] = [];
         for (const link of body.resourceLinks) {
-          if (seen.has(link.resourceId)) continue;
-          seen.add(link.resourceId);
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
           rows.push({
+            id: uuidv4(),
             topicId: id,
             resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,

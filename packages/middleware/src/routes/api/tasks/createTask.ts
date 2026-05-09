@@ -79,6 +79,7 @@ export default async function (server: FastifyInstance) {
       if (incomingLinks.length > 0) {
         const seen = new Set<string>();
         const linkRows: {
+          id: string;
           taskId: string;
           resourceId: string;
           moduleGroupId: string | null;
@@ -86,9 +87,11 @@ export default async function (server: FastifyInstance) {
           position: number;
         }[] = [];
         incomingLinks.forEach((link, index) => {
-          if (seen.has(link.resourceId)) return;
-          seen.add(link.resourceId);
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) return;
+          seen.add(key);
           linkRows.push({
+            id: uuidv4(),
             taskId: id,
             resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,

@@ -55,6 +55,7 @@ export default async function (server: FastifyInstance) {
       });
 
       const topicLinks = (source.topicsToResources ?? []).map(t => ({
+        id: uuidv4(),
         topicId: t.topicId,
         resourceId: newId,
       }));

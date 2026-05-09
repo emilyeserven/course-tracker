@@ -98,9 +98,12 @@ export default async function (server: FastifyInstance) {
 
       if (body.resourceLinks !== undefined) {
         await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
-        // Dedupe by resourceId — PK is (taskId, resourceId), one link per pair.
+        // Dedupe by the full (resourceId, moduleGroupId, moduleId) tuple so
+        // a task can hold multiple rows per resource (e.g. whole-resource +
+        // a specific module) without duplicates.
         const seen = new Set<string>();
         const rows: {
+          id: string;
           taskId: string;
           resourceId: string;
           moduleGroupId: string | null;
@@ -108,9 +111,11 @@ export default async function (server: FastifyInstance) {
           position: number;
         }[] = [];
         body.resourceLinks.forEach((link, index) => {
-          if (seen.has(link.resourceId)) return;
-          seen.add(link.resourceId);
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) return;
+          seen.add(key);
           rows.push({
+            id: uuidv4(),
             taskId: id,
             resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,

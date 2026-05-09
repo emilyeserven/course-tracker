@@ -89,8 +89,9 @@ export default async function (server: FastifyInstance) {
         const tags = (topic.topicsToTags ?? []).map(j => j.tag);
 
         const resourceLinks = (topic.topicsToResources ?? []).map(j => ({
+          id: j.id,
           resourceId: j.resourceId,
-          course: j.resource
+          resource: j.resource
             ? {
               id: j.resource.id,
               name: j.resource.name,

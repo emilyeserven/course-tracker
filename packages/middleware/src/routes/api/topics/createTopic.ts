@@ -73,15 +73,18 @@ export default async function (server: FastifyInstance) {
       if (incomingLinks.length > 0) {
         const seen = new Set<string>();
         const linkRows: {
+          id: string;
           topicId: string;
           resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
         }[] = [];
         for (const link of incomingLinks) {
-          if (seen.has(link.resourceId)) continue;
-          seen.add(link.resourceId);
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
           linkRows.push({
+            id: uuidv4(),
             topicId: id,
             resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,

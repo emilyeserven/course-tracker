@@ -105,6 +105,7 @@ export default async function (server: FastifyInstance) {
 
             if (courseTopic) {
               await db.insert(topicsToResources).values([{
+                id: uuidv4(),
                 resourceId: course.id,
                 topicId: courseTopic.id,
               }]).onConflictDoNothing();

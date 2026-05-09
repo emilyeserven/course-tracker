@@ -39,18 +39,26 @@ export function isModuleDurationBucket(
 }
 
 export type ParsedModuleLength
-  = | { kind: "minutes"; minutes: number }
-    | { kind: "bucket"; bucket: ModuleDurationBucket }
-    | null;
+  = | { kind: "minutes";
+    minutes: number; }
+    | { kind: "bucket";
+      bucket: ModuleDurationBucket; }
+      | null;
 
 export function parseModuleLength(length: string | null | undefined): ParsedModuleLength {
   if (!length) return null;
   if (isModuleDurationBucket(length)) {
-    return { kind: "bucket", bucket: length };
+    return {
+      kind: "bucket",
+      bucket: length,
+    };
   }
   const n = Number(length);
   if (Number.isFinite(n) && n >= 0 && Number.isInteger(n)) {
-    return { kind: "minutes", minutes: n };
+    return {
+      kind: "minutes",
+      minutes: n,
+    };
   }
   return null;
 }

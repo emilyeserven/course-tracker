@@ -633,30 +633,25 @@ export const domainWithinScopeTopicsRelations = relations(
   }),
 );
 
-export const topicsToResources = pgTable(
-  "topics_to_courses",
-  {
-    topicId: varchar("topic_id")
-      .notNull()
-      .references(() => topics.id),
-    resourceId: varchar("resource_id")
-      .notNull()
-      .references(() => resources.id),
-    // Optional sub-target within the linked course. At most one of these
-    // should be set (TODO: CHECK constraint). Both null = whole course.
-    moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
-      onDelete: "set null",
-    }),
-    moduleId: varchar("module_id").references(() => modules.id, {
-      onDelete: "set null",
-    }),
-  },
-  t => [
-    primaryKey({
-      columns: [t.topicId, t.resourceId],
-    }),
-  ],
-);
+// A topic can hold multiple links per Resource (e.g. whole-resource + a
+// specific module). At most one of moduleGroupId / moduleId is set per row.
+// The runtime migration on startup converts the legacy composite PK to a
+// uuid `id` PK so multi-row links are allowed.
+export const topicsToResources = pgTable("topics_to_courses", {
+  id: varchar().primaryKey(),
+  topicId: varchar("topic_id")
+    .notNull()
+    .references(() => topics.id),
+  resourceId: varchar("resource_id")
+    .notNull()
+    .references(() => resources.id),
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+    onDelete: "set null",
+  }),
+  moduleId: varchar("module_id").references(() => modules.id, {
+    onDelete: "set null",
+  }),
+});
 export const topicsToResourcesRelation = relations(topicsToResources, ({
   one,
 }) => ({
@@ -678,31 +673,28 @@ export const topicsToResourcesRelation = relations(topicsToResources, ({
   }),
 }));
 
-// New junction so tasks can reference resources (the future "Resources").
-// Optionally narrowed to a module group or single module within that course.
-export const tasksToResources = pgTable(
-  "tasks_to_courses",
-  {
-    taskId: varchar("task_id")
-      .notNull()
-      .references(() => tasks.id),
-    resourceId: varchar("resource_id")
-      .notNull()
-      .references(() => resources.id),
-    moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
-      onDelete: "set null",
-    }),
-    moduleId: varchar("module_id").references(() => modules.id, {
-      onDelete: "set null",
-    }),
-    position: integer(),
-  },
-  t => [
-    primaryKey({
-      columns: [t.taskId, t.resourceId],
-    }),
-  ],
-);
+// New junction so tasks can reference resources. Optionally narrowed to a
+// module group or single module within that resource. A task can hold
+// multiple rows per resource (e.g. whole-resource + a specific module);
+// uniqueness is enforced on the (taskId, resourceId, moduleGroupId, moduleId)
+// tuple via a runtime migration on startup, since drizzle-kit can't easily
+// express partial-unique on nullable columns.
+export const tasksToResources = pgTable("tasks_to_courses", {
+  id: varchar().primaryKey(),
+  taskId: varchar("task_id")
+    .notNull()
+    .references(() => tasks.id),
+  resourceId: varchar("resource_id")
+    .notNull()
+    .references(() => resources.id),
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+    onDelete: "set null",
+  }),
+  moduleId: varchar("module_id").references(() => modules.id, {
+    onDelete: "set null",
+  }),
+  position: integer(),
+});
 
 export const tasksToResourcesRelations = relations(tasksToResources, ({
   one,

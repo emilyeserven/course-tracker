@@ -3,6 +3,7 @@ import { resources } from "@/db/schema";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
+import { migrateTasksToResources } from "./migrateTasksToResources.ts";
 import { seed } from "./seed.ts";
 
 export async function runMigrations() {
@@ -27,6 +28,14 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to backfill module length:", err);
+    throw err;
+  }
+
+  try {
+    await migrateTasksToResources();
+  }
+  catch (err) {
+    console.error("Failed to migrate tasks_to_courses to uuid PK:", err);
     throw err;
   }
 }
