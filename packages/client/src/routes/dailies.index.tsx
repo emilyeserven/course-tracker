@@ -250,12 +250,12 @@ function Dailies() {
                             hover:text-foreground
                           "
                           aria-label="Sort by progress"
+                          title="Sort by progress"
                         >
-                          Progress
                           {sortIndicator("progress")}
                         </button>
                       </th>
-                      <th className="w-full p-2 font-medium">
+                      <th className="p-2 font-medium">
                         <button
                           type="button"
                           onClick={() => toggleSort("name")}
@@ -269,13 +269,13 @@ function Dailies() {
                           {sortIndicator("name")}
                         </button>
                       </th>
-                      <th className="p-2 font-medium">Type</th>
+                      <th className="p-2 font-medium whitespace-nowrap">Type</th>
                       <th className="max-w-xs p-2 font-medium">Description</th>
-                      <th className="p-2 font-medium">Streak</th>
-                      <th className="p-2 font-medium">Total</th>
+                      <th className="p-2 font-medium whitespace-nowrap">Streak</th>
+                      <th className="p-2 font-medium whitespace-nowrap">Total</th>
                       <th className="p-2 font-medium" />
                       <th
-                        className="p-2 font-medium whitespace-nowrap"
+                        className="w-36 p-2 font-medium whitespace-nowrap"
                       >
                         Today&apos;s Status
                       </th>
@@ -395,7 +395,7 @@ function Dailies() {
                               <DailyCommentPopover daily={daily} />
                             )}
                           </td>
-                          <td className="p-2">
+                          <td className="w-36 p-2">
                             <TodayStatusCell
                               daily={daily}
                               currentStatus={currentStatus}

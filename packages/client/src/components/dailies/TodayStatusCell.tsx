@@ -24,7 +24,7 @@ export function TodayStatusCell({
   const option = currentStatus ? getDailyStatusOption(currentStatus) : null;
 
   return (
-    <div className="flex flex-row items-center gap-1">
+    <div className="flex w-full flex-row items-center gap-1">
       <button
         type="button"
         disabled={disabled}
@@ -34,8 +34,9 @@ export function TodayStatusCell({
           : `Set today's status for ${daily.name}`}
         className={cn(
           `
-            inline-flex cursor-pointer items-center gap-1 rounded-full border-2
-            px-2 py-0.5 text-xs font-medium transition-colors
+            flex w-full cursor-pointer items-center justify-center gap-1
+            rounded-full border-2 px-2 py-0.5 text-xs font-medium
+            transition-colors
             focus-visible:ring-2 focus-visible:ring-ring
             focus-visible:outline-none
             disabled:cursor-not-allowed disabled:opacity-50
