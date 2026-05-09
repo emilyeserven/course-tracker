@@ -12,6 +12,11 @@ import {
 } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -27,14 +32,8 @@ import { fetchCourses, fetchProviders } from "@/utils";
 
 type ViewMode = "courses" | "providers";
 
-type CourseSortKey = "name" | "provider" | "cost" | "progress" | "costPerUnit";
-type ProviderSortKey
-  = | "name"
-    | "courseCount"
-    | "completedUnits"
-    | "totalUnits"
-    | "cost"
-    | "costPerUnit";
+type CourseSortKey = "name" | "costPerUnit";
+type ProviderSortKey = "name" | "costPerUnit";
 type SortDir = "asc" | "desc";
 
 interface CourseRow {
@@ -145,18 +144,6 @@ function compareCourseRows(
       av = a.course.name.toLowerCase();
       bv = b.course.name.toLowerCase();
       break;
-    case "provider":
-      av = (a.course.provider?.name ?? "").toLowerCase();
-      bv = (b.course.provider?.name ?? "").toLowerCase();
-      break;
-    case "cost":
-      av = a.effectiveCost;
-      bv = b.effectiveCost;
-      break;
-    case "progress":
-      av = a.progressFraction;
-      bv = b.progressFraction;
-      break;
     case "costPerUnit":
     default:
       // Treat unstarted (null) as the highest cost-per-unit.
@@ -182,22 +169,6 @@ function compareProviderRows(
     case "name":
       av = a.provider.name.toLowerCase();
       bv = b.provider.name.toLowerCase();
-      break;
-    case "courseCount":
-      av = a.courseCount;
-      bv = b.courseCount;
-      break;
-    case "completedUnits":
-      av = a.completedUnits;
-      bv = b.completedUnits;
-      break;
-    case "totalUnits":
-      av = a.totalUnits;
-      bv = b.totalUnits;
-      break;
-    case "cost":
-      av = a.cost;
-      bv = b.cost;
       break;
     case "costPerUnit":
     default:
@@ -241,7 +212,7 @@ export function DashboardCoursesByAmortization() {
   function toggleCourseSort(key: CourseSortKey) {
     if (courseSortKey !== key) {
       setCourseSortKey(key);
-      setCourseSortDir(key === "name" || key === "provider" ? "asc" : "desc");
+      setCourseSortDir(key === "name" ? "asc" : "desc");
       return;
     }
     setCourseSortDir(prev => (prev === "asc" ? "desc" : "asc"));
@@ -423,45 +394,6 @@ export function DashboardCoursesByAmortization() {
                     {courseSortIcon("name")}
                   </button>
                 </TableHead>
-                <TableHead className="whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleCourseSort("provider")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Provider
-                    {courseSortIcon("provider")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleCourseSort("cost")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Cost
-                    {courseSortIcon("cost")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleCourseSort("progress")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Progress
-                    {courseSortIcon("progress")}
-                  </button>
-                </TableHead>
                 <TableHead className="text-right whitespace-nowrap">
                   <button
                     type="button"
@@ -475,8 +407,11 @@ export function DashboardCoursesByAmortization() {
                     {courseSortIcon("costPerUnit")}
                   </button>
                 </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  Go
+                <TableHead
+                  className="text-right whitespace-nowrap"
+                  aria-label="Go"
+                >
+                  <span className="sr-only">Go</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -502,50 +437,50 @@ export function DashboardCoursesByAmortization() {
                         {course.name}
                       </Link>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {course.provider
-                        ? (
-                          <Link
-                            to="/providers/$id"
-                            params={{
-                              id: course.provider.id,
-                            }}
-                            className="
-                              text-muted-foreground
-                              hover:text-blue-600
-                            "
-                          >
-                            {course.provider.name}
-                          </Link>
-                        )
-                        : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                    </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
-                      {formatCurrency(effectiveCost)}
-                    </TableCell>
-                    <TableCell
-                      className="text-right whitespace-nowrap"
-                      title={
-                        progressTotal > 0
-                          ? `${progressCurrent} / ${progressTotal}`
-                          : undefined
-                      }
-                    >
-                      {progressTotal > 0
-                        ? `${progressCurrent} / ${progressTotal}`
-                        : progressCurrent}
-                    </TableCell>
-                    <TableCell
-                      className="text-right whitespace-nowrap"
-                      title={
-                        isUnstarted ? "Unstarted — no progress yet" : undefined
-                      }
-                    >
-                      {costPerUnit === null
-                        ? "—"
-                        : formatCurrency(costPerUnit)}
+                      <Popover>
+                        <PopoverTrigger
+                          className={cn(
+                            `
+                              cursor-pointer underline-offset-2
+                              hover:underline
+                            `,
+                            isUnstarted && "text-muted-foreground",
+                          )}
+                        >
+                          {costPerUnit === null
+                            ? "—"
+                            : formatCurrency(costPerUnit)}
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="end"
+                          className="w-56"
+                        >
+                          <dl
+                            className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm"
+                          >
+                            <dt className="text-muted-foreground">Cost</dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {formatCurrency(effectiveCost)}
+                            </dd>
+                            <dt className="text-muted-foreground">Progress</dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {progressTotal > 0
+                                ? `${progressCurrent} / ${progressTotal}`
+                                : progressCurrent}
+                            </dd>
+                            {isUnstarted && (
+                              <dd
+                                className="
+                                  col-span-2 text-xs text-muted-foreground
+                                "
+                              >
+                                Unstarted — no progress yet
+                              </dd>
+                            )}
+                          </dl>
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
                       {course.url
@@ -599,58 +534,6 @@ export function DashboardCoursesByAmortization() {
                 <TableHead className="text-right whitespace-nowrap">
                   <button
                     type="button"
-                    onClick={() => toggleProviderSort("courseCount")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Courses
-                    {providerSortIcon("courseCount")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleProviderSort("completedUnits")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Completed Units
-                    {providerSortIcon("completedUnits")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleProviderSort("totalUnits")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Total Units
-                    {providerSortIcon("totalUnits")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleProviderSort("cost")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Cost
-                    {providerSortIcon("cost")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
                     onClick={() => toggleProviderSort("costPerUnit")}
                     className="
                       inline-flex items-center gap-1
@@ -686,28 +569,59 @@ export function DashboardCoursesByAmortization() {
                       </Link>
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
-                      {courseCount}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {completedUnits}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {totalUnits}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {formatCurrency(cost)}
-                    </TableCell>
-                    <TableCell
-                      className="text-right whitespace-nowrap"
-                      title={
-                        costPerUnit === null
-                          ? "No course progress yet"
-                          : undefined
-                      }
-                    >
-                      {costPerUnit === null
-                        ? "—"
-                        : formatCurrency(costPerUnit)}
+                      <Popover>
+                        <PopoverTrigger
+                          className={cn(
+                            `
+                              cursor-pointer underline-offset-2
+                              hover:underline
+                            `,
+                            costPerUnit === null && "text-muted-foreground",
+                          )}
+                        >
+                          {costPerUnit === null
+                            ? "—"
+                            : formatCurrency(costPerUnit)}
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="end"
+                          className="w-56"
+                        >
+                          <dl
+                            className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm"
+                          >
+                            <dt className="text-muted-foreground">Courses</dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {courseCount}
+                            </dd>
+                            <dt className="text-muted-foreground">
+                              Completed Units
+                            </dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {completedUnits}
+                            </dd>
+                            <dt className="text-muted-foreground">
+                              Total Units
+                            </dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {totalUnits}
+                            </dd>
+                            <dt className="text-muted-foreground">Cost</dt>
+                            <dd className="text-right font-medium tabular-nums">
+                              {formatCurrency(cost)}
+                            </dd>
+                            {costPerUnit === null && (
+                              <dd
+                                className="
+                                  col-span-2 text-xs text-muted-foreground
+                                "
+                              >
+                                No course progress yet
+                              </dd>
+                            )}
+                          </dl>
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                   </TableRow>
                 ),

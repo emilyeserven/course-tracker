@@ -37,18 +37,20 @@ export function TopicBox({
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        {domains && domains.length > 0 && (
+        {domains && domains.filter(d => d.id !== undefined).length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1">
-            {domains.map(domain => (
-              <span
-                key={domain.id}
-                className="
-                  rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700
-                "
-              >
-                {domain.title}
-              </span>
-            ))}
+            {domains
+              .filter(domain => domain.id !== undefined)
+              .map(domain => (
+                <span
+                  key={domain.id}
+                  className="
+                    rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700
+                  "
+                >
+                  {domain.title}
+                </span>
+              ))}
           </div>
         )}
         <Description description={description} />
