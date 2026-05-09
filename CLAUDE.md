@@ -38,6 +38,8 @@ pnpm lint             # Lint all files (ESLint flat config)
 pnpm lint:fix         # Auto-fix lint issues
 pnpm storybook        # Run Storybook on port 6006
 pnpm studio           # Drizzle ORM database GUI
+pnpm push:dev         # Push DB schema to dev (drizzle-kit push)
+pnpm push:prod        # Push DB schema to prod (drizzle-kit push)
 ```
 
 ### Package-specific commands

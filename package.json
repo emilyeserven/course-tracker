@@ -34,6 +34,8 @@
     "typecheck": "pnpm --filter=@emstack/types build && pnpm -r --filter=@emstack/middleware --filter=@emstack/client run typecheck",
     "storybook": "pnpm --filter=@emstack/client run storybook",
     "studio": "pnpm --filter=@emstack/middleware run studio",
+    "push:dev": "pnpm --filter=@emstack/middleware run push:dev",
+    "push:prod": "pnpm --filter=@emstack/middleware run push:prod",
     "prepare": "husky"
   },
   "lint-staged": {
