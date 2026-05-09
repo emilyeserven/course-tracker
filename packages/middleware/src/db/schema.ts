@@ -132,6 +132,11 @@ export const dailies = pgTable("dailies", {
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   courseProviderId: varchar("course_provider_id"),
   courseId: varchar("course_id"),
+  // Optional sub-target within the linked course. At most one of these
+  // should be set (TODO: enforce via CHECK constraint when Drizzle support
+  // lands). Both null = the daily targets the whole course.
+  moduleGroupId: varchar("module_group_id"),
+  moduleId: varchar("module_id"),
   taskId: varchar("task_id").unique(),
   status: statusEnum().default("active"),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
@@ -356,6 +361,7 @@ export const tasksRelations = relations(tasks, ({
     references: [taskTypes.id],
   }),
   tasksToTags: many(tasksToTags),
+  tasksToCourses: many(tasksToCourses),
   resources: many(resources),
   todos: many(taskTodos),
   daily: one(dailies, {
@@ -407,6 +413,14 @@ export const dailiesRelations = relations(dailies, ({
     fields: [dailies.courseId],
     references: [courses.id],
   }),
+  moduleGroup: one(moduleGroups, {
+    fields: [dailies.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [dailies.moduleId],
+    references: [modules.id],
+  }),
   task: one(tasks, {
     fields: [dailies.taskId],
     references: [tasks.id],
@@ -421,6 +435,7 @@ export const coursesRelations = relations(courses, ({
     references: [courseProviders.id],
   }),
   topicsToCourses: many(topicsToCourses),
+  tasksToCourses: many(tasksToCourses),
   moduleGroups: many(moduleGroups),
   modules: many(modules),
   dailies: many(dailies),
@@ -569,6 +584,14 @@ export const topicsToCourses = pgTable(
     courseId: varchar("course_id")
       .notNull()
       .references(() => courses.id),
+    // Optional sub-target within the linked course. At most one of these
+    // should be set (TODO: CHECK constraint). Both null = whole course.
+    moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+      onDelete: "set null",
+    }),
+    moduleId: varchar("module_id").references(() => modules.id, {
+      onDelete: "set null",
+    }),
   },
   t => [
     primaryKey({
@@ -586,6 +609,61 @@ export const topicsToCoursesRelation = relations(topicsToCourses, ({
   course: one(courses, {
     fields: [topicsToCourses.courseId],
     references: [courses.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [topicsToCourses.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [topicsToCourses.moduleId],
+    references: [modules.id],
+  }),
+}));
+
+// New junction so tasks can reference courses (the future "Resources").
+// Optionally narrowed to a module group or single module within that course.
+export const tasksToCourses = pgTable(
+  "tasks_to_courses",
+  {
+    taskId: varchar("task_id")
+      .notNull()
+      .references(() => tasks.id),
+    courseId: varchar("course_id")
+      .notNull()
+      .references(() => courses.id),
+    moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+      onDelete: "set null",
+    }),
+    moduleId: varchar("module_id").references(() => modules.id, {
+      onDelete: "set null",
+    }),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.taskId, t.courseId],
+    }),
+  ],
+);
+
+export const tasksToCoursesRelations = relations(tasksToCourses, ({
+  one,
+}) => ({
+  task: one(tasks, {
+    fields: [tasksToCourses.taskId],
+    references: [tasks.id],
+  }),
+  course: one(courses, {
+    fields: [tasksToCourses.courseId],
+    references: [courses.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [tasksToCourses.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [tasksToCourses.moduleId],
+    references: [modules.id],
   }),
 }));
 

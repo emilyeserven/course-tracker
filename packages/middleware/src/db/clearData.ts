@@ -10,6 +10,7 @@ import {
   resourcesToTags,
   tagGroups,
   tags,
+  tasksToCourses,
   tasksToTags,
   topics,
   topicsToCourses,
@@ -20,6 +21,7 @@ import { db } from "@/db/index";
 export async function clearData() {
   await db.delete(resourcesToTags);
   await db.delete(tasksToTags);
+  await db.delete(tasksToCourses);
   await db.delete(topicsToTags);
   await db.delete(tags);
   await db.delete(tagGroups);

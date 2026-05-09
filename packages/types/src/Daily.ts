@@ -47,4 +47,8 @@ export interface Daily {
     progressCurrent: number;
     progressTotal: number;
   };
+  // Optional sub-target within the linked course. At most one of these
+  // is set; both null = the daily targets the whole course.
+  moduleGroupId?: string | null;
+  moduleId?: string | null;
 }

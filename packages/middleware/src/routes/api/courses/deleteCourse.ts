@@ -1,4 +1,10 @@
-import { courses, moduleGroups, modules, topicsToCourses } from "@/db/schema";
+import {
+  courses,
+  moduleGroups,
+  modules,
+  tasksToCourses,
+  topicsToCourses,
+} from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
 export default createDeleteHandler({
@@ -9,6 +15,10 @@ export default createDeleteHandler({
     {
       table: topicsToCourses,
       foreignKey: topicsToCourses.courseId,
+    },
+    {
+      table: tasksToCourses,
+      foreignKey: tasksToCourses.courseId,
     },
     // Modules reference moduleGroups, so delete modules first (junctions run
     // in order). Both modules and moduleGroups reference courses.

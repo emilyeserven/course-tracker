@@ -2,7 +2,14 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, resourcesToTags, taskTodos, tasks, tasksToTags } from "@/db/schema";
+import {
+  resources,
+  resourcesToTags,
+  taskTodos,
+  tasks,
+  tasksToCourses,
+  tasksToTags,
+} from "@/db/schema";
 import { idParamSchema } from "@/utils/schemas";
 
 const schema = {
@@ -39,6 +46,7 @@ export default async function (server: FastifyInstance) {
     }
 
     await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
+    await db.delete(tasksToCourses).where(eq(tasksToCourses.taskId, id));
     await db.delete(resources).where(eq(resources.taskId, id));
     await db.delete(taskTodos).where(eq(taskTodos.taskId, id));
     await db.delete(tasks).where(eq(tasks.id, id));
