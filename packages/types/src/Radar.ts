@@ -1,22 +1,17 @@
-export interface RadarQuadrant {
+export interface RadarConfigEntry {
   id: string;
-  domainId: string;
   name: string;
   position: number;
 }
 
-export interface RadarRing {
-  id: string;
-  domainId: string;
-  name: string;
-  position: number;
-}
+export type RadarQuadrant = RadarConfigEntry;
+export type RadarRing = RadarConfigEntry;
 
 export interface RadarBlip {
   id: string;
   domainId: string;
-  quadrantId: string;
-  ringId: string;
+  quadrantId: string | null;
+  ringId: string | null;
   topicId: string;
   topicName: string;
   description?: string | null;

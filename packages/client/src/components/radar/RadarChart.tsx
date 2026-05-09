@@ -379,7 +379,7 @@ export function RadarChart({
                         <div className="text-[11px] opacity-80">
                           {sortedQuadrants[quadrantIndex]?.name}
                           {" · "}
-                          {ringNameById[blip.ringId]}
+                          {ringNameById[blip.ringId ?? ""]}
                         </div>
                         {blip.description && (
                           <div className="text-[11px] opacity-90">
@@ -545,7 +545,7 @@ function RadarLegend({
                         <span className="font-medium">{blip.topicName}</span>
                         <span className="ml-1 text-xs text-muted-foreground">
                           (
-                          {ringNameById[blip.ringId]}
+                          {ringNameById[blip.ringId ?? ""]}
                           )
                         </span>
                       </button>

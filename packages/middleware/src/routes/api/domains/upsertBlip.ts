@@ -21,18 +21,14 @@ const upsertBlipSchema = {
     },
     body: {
       type: "object",
-      required: ["topicId", "quadrantId", "ringId"],
+      required: ["topicId"],
       properties: {
         topicId: {
           type: "string",
         },
         description: nullableString,
-        quadrantId: {
-          type: "string",
-        },
-        ringId: {
-          type: "string",
-        },
+        quadrantId: nullableString,
+        ringId: nullableString,
       },
     },
   },
@@ -55,16 +51,16 @@ export default async function (server: FastifyInstance) {
         .values({
           id: blipId,
           domainId,
-          quadrantId: body.quadrantId,
-          ringId: body.ringId,
+          quadrantId: body.quadrantId ?? null,
+          ringId: body.ringId ?? null,
           topicId: body.topicId,
           description: body.description ?? null,
         })
         .onConflictDoUpdate({
           target: radarBlips.id,
           set: {
-            quadrantId: body.quadrantId,
-            ringId: body.ringId,
+            quadrantId: body.quadrantId ?? null,
+            ringId: body.ringId ?? null,
             topicId: body.topicId,
             description: body.description ?? null,
           },

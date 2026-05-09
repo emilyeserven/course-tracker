@@ -26,12 +26,16 @@ function SingleDomain() {
     queryFn: () => fetchSingleDomain(id),
   });
 
+  const radarConfigured
+    = (data?.radarConfig?.quadrants?.length ?? 0) > 0
+      && (data?.radarConfig?.rings?.length ?? 0) > 0;
+
   const {
     data: radarData,
   } = useQuery({
     queryKey: ["radar", id],
     queryFn: () => fetchRadar(id),
-    enabled: !!data?.hasRadar,
+    enabled: radarConfigured,
   });
 
   if (isPending) {
@@ -43,18 +47,18 @@ function SingleDomain() {
   }
 
   const excludedTopics = data?.excludedTopics ?? [];
-  const radarReady
-    = !!data?.hasRadar
-      && !!radarData
-      && radarData.quadrants.length > 0
-      && radarData.rings.length > 0;
+  const radarReady = radarConfigured && !!radarData;
 
-  const blipTopicIds = new Set(
-    (radarData?.blips ?? []).map(blip => blip.topicId),
+  const placedBlipTopicIds = new Set(
+    (radarData?.blips ?? [])
+      .filter(blip => blip.quadrantId && blip.ringId)
+      .map(blip => blip.topicId),
   );
   const allTopics = data?.topics ?? [];
-  const topicsNotOnRadar = allTopics.filter(t => !blipTopicIds.has(t.id));
-  const topicsOnRadar = allTopics.filter(t => blipTopicIds.has(t.id));
+  const topicsNotOnRadar = allTopics.filter(
+    t => !placedBlipTopicIds.has(t.id),
+  );
+  const topicsOnRadar = allTopics.filter(t => placedBlipTopicIds.has(t.id));
 
   return (
     <div>
@@ -63,7 +67,7 @@ function SingleDomain() {
         pageSection="domains"
       >
         <div className="flex flex-row gap-2">
-          {data?.hasRadar && (
+          {radarConfigured && (
             <Link
               to="/domains/$id/radar"
               params={{

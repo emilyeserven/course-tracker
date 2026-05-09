@@ -5,8 +5,9 @@ import {
   domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
-  topicsToDomains,
+  radarBlips,
 } from "@/db/schema";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
@@ -33,17 +34,14 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => eq(d.id, id),
         with: {
-          topicsToDomains: true,
+          radarBlips: true,
           excludedTopics: true,
           withinScopeTopics: true,
         },
       });
 
       if (!source) {
-        reply.status(404);
-        return {
-          error: "Domain not found",
-        };
+        return sendNotFound(reply, "Domain");
       }
 
       const newId = uuidv4();
@@ -51,17 +49,21 @@ export default async function (server: FastifyInstance) {
         id: newId,
         title: `${source.title} (Copy)`,
         description: source.description ?? null,
-        hasRadar: source.hasRadar ?? null,
+        radarConfig: source.radarConfig,
         withinScopeDescription: source.withinScopeDescription ?? null,
         outOfScopeDescription: source.outOfScopeDescription ?? null,
       });
 
-      const topicLinks = (source.topicsToDomains ?? []).map(t => ({
-        topicId: t.topicId,
+      const blipCopies = (source.radarBlips ?? []).map(b => ({
+        id: uuidv4(),
         domainId: newId,
+        topicId: b.topicId,
+        quadrantId: b.quadrantId,
+        ringId: b.ringId,
+        description: b.description ?? null,
       }));
-      if (topicLinks.length > 0) {
-        await db.insert(topicsToDomains).values(topicLinks);
+      if (blipCopies.length > 0) {
+        await db.insert(radarBlips).values(blipCopies);
       }
 
       const exclusions = (source.excludedTopics ?? []).map(e => ({

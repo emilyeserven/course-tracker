@@ -233,12 +233,22 @@ export const topicsRelations = relations(topics, ({
   many,
 }) => ({
   topicsToCourses: many(topicsToCourses),
-  topicsToDomains: many(topicsToDomains),
   radarBlips: many(radarBlips),
   domainExclusions: many(domainExcludedTopics),
   domainWithinScope: many(domainWithinScopeTopics),
   tasks: many(tasks),
 }));
+
+export interface RadarConfigEntry {
+  id: string;
+  name: string;
+  position: number;
+}
+
+export interface RadarConfig {
+  quadrants: RadarConfigEntry[];
+  rings: RadarConfigEntry[];
+}
 
 export const domains = pgTable("domains", {
   id: varchar().primaryKey(),
@@ -246,7 +256,10 @@ export const domains = pgTable("domains", {
     length: 255,
   }).notNull(),
   description: varchar(),
-  hasRadar: boolean(),
+  radarConfig: jsonb("radar_config").$type<RadarConfig>().notNull().default({
+    quadrants: [],
+    rings: [],
+  }),
   withinScopeDescription: varchar("within_scope_description"),
   outOfScopeDescription: varchar("out_of_scope_description"),
 });
@@ -254,9 +267,6 @@ export const domains = pgTable("domains", {
 export const domainsRelations = relations(domains, ({
   many,
 }) => ({
-  topicsToDomains: many(topicsToDomains),
-  radarQuadrants: many(radarQuadrants),
-  radarRings: many(radarRings),
   radarBlips: many(radarBlips),
   excludedTopics: many(domainExcludedTopics),
   withinScopeTopics: many(domainWithinScopeTopics),
@@ -329,36 +339,6 @@ export const domainWithinScopeTopicsRelations = relations(
   }),
 );
 
-export const topicsToDomains = pgTable(
-  "topics_to_domains",
-  {
-    topicId: varchar("topic_id")
-      .notNull()
-      .references(() => topics.id),
-    domainId: varchar("domain_id")
-      .notNull()
-      .references(() => domains.id),
-  },
-  t => [
-    primaryKey({
-      columns: [t.topicId, t.domainId],
-    }),
-  ],
-);
-
-export const topicsToDomainsRelation = relations(topicsToDomains, ({
-  one,
-}) => ({
-  topic: one(topics, {
-    fields: [topicsToDomains.topicId],
-    references: [topics.id],
-  }),
-  domain: one(domains, {
-    fields: [topicsToDomains.domainId],
-    references: [domains.id],
-  }),
-}));
-
 export const topicsToCourses = pgTable(
   "topics_to_courses",
   {
@@ -388,28 +368,6 @@ export const topicsToCoursesRelation = relations(topicsToCourses, ({
   }),
 }));
 
-export const radarQuadrants = pgTable("radar_quadrants", {
-  id: varchar().primaryKey(),
-  domainId: varchar("domain_id")
-    .notNull()
-    .references(() => domains.id),
-  name: varchar({
-    length: 255,
-  }).notNull(),
-  position: integer().notNull(),
-});
-
-export const radarRings = pgTable("radar_rings", {
-  id: varchar().primaryKey(),
-  domainId: varchar("domain_id")
-    .notNull()
-    .references(() => domains.id),
-  name: varchar({
-    length: 255,
-  }).notNull(),
-  position: integer().notNull(),
-});
-
 export const radarBlips = pgTable(
   "radar_blips",
   {
@@ -417,12 +375,8 @@ export const radarBlips = pgTable(
     domainId: varchar("domain_id")
       .notNull()
       .references(() => domains.id),
-    quadrantId: varchar("quadrant_id")
-      .notNull()
-      .references(() => radarQuadrants.id),
-    ringId: varchar("ring_id")
-      .notNull()
-      .references(() => radarRings.id),
+    quadrantId: varchar("quadrant_id"),
+    ringId: varchar("ring_id"),
     topicId: varchar("topic_id")
       .notNull()
       .references(() => topics.id),
@@ -433,40 +387,12 @@ export const radarBlips = pgTable(
   ],
 );
 
-export const radarQuadrantsRelations = relations(radarQuadrants, ({
-  one, many,
-}) => ({
-  domain: one(domains, {
-    fields: [radarQuadrants.domainId],
-    references: [domains.id],
-  }),
-  blips: many(radarBlips),
-}));
-
-export const radarRingsRelations = relations(radarRings, ({
-  one, many,
-}) => ({
-  domain: one(domains, {
-    fields: [radarRings.domainId],
-    references: [domains.id],
-  }),
-  blips: many(radarBlips),
-}));
-
 export const radarBlipsRelations = relations(radarBlips, ({
   one,
 }) => ({
   domain: one(domains, {
     fields: [radarBlips.domainId],
     references: [domains.id],
-  }),
-  quadrant: one(radarQuadrants, {
-    fields: [radarBlips.quadrantId],
-    references: [radarQuadrants.id],
-  }),
-  ring: one(radarRings, {
-    fields: [radarBlips.ringId],
-    references: [radarRings.id],
   }),
   topic: one(topics, {
     fields: [radarBlips.topicId],

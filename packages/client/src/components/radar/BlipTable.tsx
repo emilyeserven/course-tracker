@@ -125,7 +125,9 @@ export function BlipTable({
   const sliceCounts = useMemo(() => {
     const counts = new Map<string, number>();
     blips.forEach((b) => {
-      counts.set(b.quadrantId, (counts.get(b.quadrantId) ?? 0) + 1);
+      if (b.quadrantId) {
+        counts.set(b.quadrantId, (counts.get(b.quadrantId) ?? 0) + 1);
+      }
     });
     return counts;
   }, [blips]);
@@ -133,7 +135,9 @@ export function BlipTable({
   const ringCounts = useMemo(() => {
     const counts = new Map<string, number>();
     blips.forEach((b) => {
-      counts.set(b.ringId, (counts.get(b.ringId) ?? 0) + 1);
+      if (b.ringId) {
+        counts.set(b.ringId, (counts.get(b.ringId) ?? 0) + 1);
+      }
     });
     return counts;
   }, [blips]);
@@ -165,12 +169,12 @@ export function BlipTable({
         bv = (b.topicName ?? "").toLowerCase();
       }
       else if (sortKey === "slice") {
-        av = quadrantById.get(a.quadrantId)?.position ?? Number.MAX_SAFE_INTEGER;
-        bv = quadrantById.get(b.quadrantId)?.position ?? Number.MAX_SAFE_INTEGER;
+        av = quadrantById.get(a.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
+        bv = quadrantById.get(b.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
       }
       else {
-        av = ringById.get(a.ringId)?.position ?? Number.MAX_SAFE_INTEGER;
-        bv = ringById.get(b.ringId)?.position ?? Number.MAX_SAFE_INTEGER;
+        av = ringById.get(a.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
+        bv = ringById.get(b.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
       }
       if (av < bv) {
         return -1 * dir;
@@ -204,8 +208,8 @@ export function BlipTable({
   function startEdit(blip: RadarBlip) {
     setEditingId(blip.id);
     setEditDraft({
-      quadrantId: blip.quadrantId,
-      ringId: blip.ringId,
+      quadrantId: blip.quadrantId ?? quadrants[0]?.id ?? "",
+      ringId: blip.ringId ?? rings[0]?.id ?? "",
       description: blip.description ?? "",
     });
   }
@@ -528,7 +532,9 @@ export function BlipTable({
                     </TableCell>
                     <TableCell>
                       {(() => {
-                        const q = quadrantById.get(blip.quadrantId);
+                        const q = blip.quadrantId
+                          ? quadrantById.get(blip.quadrantId)
+                          : undefined;
                         if (!q) {
                           return "—";
                         }
@@ -546,7 +552,9 @@ export function BlipTable({
                     </TableCell>
                     <TableCell>
                       {(() => {
-                        const r = ringById.get(blip.ringId);
+                        const r = blip.ringId
+                          ? ringById.get(blip.ringId)
+                          : undefined;
                         if (!r) {
                           return "—";
                         }

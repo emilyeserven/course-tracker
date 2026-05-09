@@ -1,11 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { sendNotFound } from "@/utils/errors";
 import type { Radar } from "@emstack/types/src";
 
 const getRadarSchema = {
   schema: {
-    description: "Get the radar (quadrants, rings, blips) for a domain",
+    description: "Get the radar (config + blips) for a domain",
     params: {
       type: "object",
       properties: {
@@ -34,8 +35,6 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => eq(domains.id, domainId),
         with: {
-          radarQuadrants: true,
-          radarRings: true,
           radarBlips: {
             with: {
               topic: {
@@ -50,19 +49,16 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!domain) {
-        reply.status(404);
-        return {
-          error: "Domain not found",
-        };
+        return sendNotFound(reply, "Domain");
       }
 
       const radar: Radar = {
         domainId: domain.id,
         domainTitle: domain.title,
-        quadrants: [...(domain.radarQuadrants ?? [])].sort(
+        quadrants: [...(domain.radarConfig.quadrants ?? [])].sort(
           (a, b) => a.position - b.position,
         ),
-        rings: [...(domain.radarRings ?? [])].sort(
+        rings: [...(domain.radarConfig.rings ?? [])].sort(
           (a, b) => a.position - b.position,
         ),
         blips: (domain.radarBlips ?? []).map(b => ({

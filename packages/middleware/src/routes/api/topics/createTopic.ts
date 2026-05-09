@@ -1,8 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { topics, topicsToDomains } from "@/db/schema";
+import { topics } from "@/db/schema";
 import { nullableString } from "@/utils/schemas";
+import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -35,7 +36,7 @@ export default async function (server: FastifyInstance) {
   fastify.post(
     "/",
     createSchema,
-    async function (request, reply) {
+    async function (request) {
       const body = request.body;
       const id = uuidv4();
 
@@ -48,12 +49,7 @@ export default async function (server: FastifyInstance) {
 
       const uniqueDomainIds = Array.from(new Set(body.domainIds ?? []));
       if (uniqueDomainIds.length > 0) {
-        await db.insert(topicsToDomains).values(
-          uniqueDomainIds.map(domainId => ({
-            topicId: id,
-            domainId,
-          })),
-        );
+        await syncDomainMembershipByTopic(id, uniqueDomainIds);
       }
 
       return {

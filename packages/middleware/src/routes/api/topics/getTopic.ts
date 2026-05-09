@@ -17,7 +17,7 @@ export default async function (server: FastifyInstance) {
   fastify.get(
     "/:id",
     testSchema,
-    async function (request, reply) {
+    async function (request) {
       const {
         id,
       } = request.params;
@@ -36,24 +36,12 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
-          topicsToDomains: {
-            with: {
-              domain: {
-                columns: {
-                  id: true,
-                  title: true,
-                  hasRadar: true,
-                },
-              },
-            },
-          },
           radarBlips: {
             with: {
               domain: {
                 columns: {
                   id: true,
                   title: true,
-                  hasRadar: true,
                 },
               },
             },
@@ -68,23 +56,12 @@ export default async function (server: FastifyInstance) {
         const domainsById = new Map<string, {
           id: string;
           title: string;
-          hasRadar: boolean | null;
         }>();
-        for (const ttd of topic.topicsToDomains ?? []) {
-          if (ttd.domain && !domainsById.has(ttd.domain.id)) {
-            domainsById.set(ttd.domain.id, {
-              id: ttd.domain.id,
-              title: ttd.domain.title,
-              hasRadar: ttd.domain.hasRadar ?? null,
-            });
-          }
-        }
         for (const blip of topic.radarBlips ?? []) {
           if (blip.domain && !domainsById.has(blip.domain.id)) {
             domainsById.set(blip.domain.id, {
               id: blip.domain.id,
               title: blip.domain.title,
-              hasRadar: blip.domain.hasRadar ?? null,
             });
           }
         }

@@ -3,9 +3,6 @@ import {
   domains,
   domainWithinScopeTopics,
   radarBlips,
-  radarQuadrants,
-  radarRings,
-  topicsToDomains,
 } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
@@ -17,18 +14,6 @@ export default createDeleteHandler({
     {
       table: radarBlips,
       foreignKey: radarBlips.domainId,
-    },
-    {
-      table: radarQuadrants,
-      foreignKey: radarQuadrants.domainId,
-    },
-    {
-      table: radarRings,
-      foreignKey: radarRings.domainId,
-    },
-    {
-      table: topicsToDomains,
-      foreignKey: topicsToDomains.domainId,
     },
     {
       table: domainExcludedTopics,

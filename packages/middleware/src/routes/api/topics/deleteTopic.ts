@@ -4,7 +4,6 @@ import {
   radarBlips,
   topics,
   topicsToCourses,
-  topicsToDomains,
 } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
@@ -20,10 +19,6 @@ export default createDeleteHandler({
     {
       table: topicsToCourses,
       foreignKey: topicsToCourses.topicId,
-    },
-    {
-      table: topicsToDomains,
-      foreignKey: topicsToDomains.topicId,
     },
     {
       table: domainExcludedTopics,

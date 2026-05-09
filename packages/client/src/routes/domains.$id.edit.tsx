@@ -1,284 +1,121 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EyeIcon, Loader2, PlusIcon, TrashIcon } from "lucide-react";
+import { EyeIcon, Loader2, RadarIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { BlipsTabContainer } from "./domains.$id.edit.-components/-BlipsTab";
+import { ConfigTab } from "./domains.$id.edit.-components/-ConfigTab";
+import { DetailsTab } from "./domains.$id.edit.-components/-DetailsTab";
+import { LlmTabContainer } from "./domains.$id.edit.-components/-LlmTab";
+import { ScopeTab } from "./domains.$id.edit.-components/-ScopeTab";
+
 import { useAppForm } from "@/components/formFields";
-import { Textarea } from "@/components/forms/textarea";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createDomain,
   deleteSingleDomain,
   duplicateDomain,
+  fetchRadar,
   fetchSingleDomain,
   fetchTopics,
-  formHasChanges,
-  upsertDomain,
 } from "@/utils";
+
+const TAB_VALUES = ["details", "scope", "config", "blips", "llm"] as const;
+type EditTab = (typeof TAB_VALUES)[number];
+
+interface EditSearch {
+  tab?: EditTab;
+}
 
 export const Route = createFileRoute("/domains/$id/edit")({
   component: SingleDomainEdit,
+  validateSearch: (search: Record<string, unknown>): EditSearch => {
+    const value = search.tab;
+    if (typeof value === "string" && (TAB_VALUES as readonly string[]).includes(value)) {
+      return {
+        tab: value as EditTab,
+      };
+    }
+    return {};
+  },
 });
 
-const formSchema = z.object({
+const newDomainSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   description: z.string().max(1000),
-  hasRadar: z.string(),
-  topicIds: z.array(z.string()),
 });
-
-interface ExcludedTopicRow {
-  topicId: string;
-  reason: string;
-  localKey: string;
-}
-
-let exclusionKeyCounter = 0;
-function nextExclusionKey() {
-  exclusionKeyCounter += 1;
-  return `exclusion-${exclusionKeyCounter}`;
-}
 
 function SingleDomainEdit() {
   const {
     id,
   } = Route.useParams();
   const isNew = id === "new";
+
+  if (isNew) {
+    return <NewDomain />;
+  }
+  return <ExistingDomainEdit id={id} />;
+}
+
+function NewDomain() {
   const navigate = useNavigate();
-
-  const {
-    data,
-    skipBlock,
-    invalidateRelated,
-    shouldBlockFn,
-    makeDeleteHandler,
-  } = useEditFormPage({
-    id,
-    isNew,
-    queryKey: ["domain", id],
-    queryFn: () => fetchSingleDomain(id),
-    relatedQueryKeys: [["domains"]],
-  });
-
-  const {
-    data: topicsData,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
-
-  const topicOptions = useMemo(
-    () =>
-      (topicsData ?? []).map(t => ({
-        value: t.id,
-        label: t.name,
-      })),
-    [topicsData],
-  );
-
-  const startingValues = useMemo(
-    () => ({
-      title: data?.title ?? "",
-      description: data?.description ?? "",
-      hasRadar: data?.hasRadar ? "true" : "false",
-      topicIds: data?.topics?.map(t => t.id) ?? [],
-    }),
-    [data],
-  );
-
-  const startingExcluded = useMemo<ExcludedTopicRow[]>(
-    () =>
-      (data?.excludedTopics ?? []).map(et => ({
-        topicId: et.id,
-        reason: et.reason ?? "",
-        localKey: nextExclusionKey(),
-      })),
-    [data],
-  );
-
-  const [excludedRows, setExcludedRows] = useState<ExcludedTopicRow[]>([]);
-  const excludedHydrated = useRef(false);
-
-  useEffect(() => {
-    if (excludedHydrated.current) {
-      return;
-    }
-    if (isNew || data) {
-      setExcludedRows(startingExcluded);
-      excludedHydrated.current = true;
-    }
-  }, [data, isNew, startingExcluded]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const form = useAppForm({
-    defaultValues: startingValues,
+    defaultValues: {
+      title: "",
+      description: "",
+    },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: newDomainSchema,
     },
     onSubmit: async ({
       value,
     }) => {
-      const cleanedExcluded = excludedRows
-        .filter(r => r.topicId)
-        .map(r => ({
-          topicId: r.topicId,
-          reason: r.reason.trim() || null,
-        }));
-
-      const seen = new Set<string>();
-      const dedupedExcluded = cleanedExcluded.filter((r) => {
-        if (seen.has(r.topicId)) {
-          return false;
-        }
-        seen.add(r.topicId);
-        return true;
-      });
-
-      const domainData = {
-        title: value.title,
-        description: value.description || null,
-        hasRadar: value.hasRadar === "true",
-        topicIds: value.topicIds,
-        excludedTopics: dedupedExcluded,
-      };
-
+      setIsSaving(true);
       try {
-        let domainId: string;
-        if (isNew) {
-          const result = await createDomain(domainData);
-          domainId = result.id;
-        }
-        else {
-          await upsertDomain(id, domainData);
-          domainId = id;
-        }
-        await invalidateRelated();
-        skipBlock();
+        const result = await createDomain({
+          title: value.title,
+          description: value.description || null,
+        });
         await navigate({
-          to: "/domains/$id",
+          to: "/domains/$id/edit",
           params: {
-            id: domainId,
+            id: result.id,
           },
         });
       }
       catch {
-        toast.error(
-          isNew
-            ? "Failed to create domain. Please try again."
-            : "Failed to save domain. Please try again.",
-        );
+        toast.error("Failed to create domain. Please try again.");
+      }
+      finally {
+        setIsSaving(false);
       }
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
-  const formHasFieldChanges = formHasChanges(currentValues, startingValues);
-  const exclusionsHaveChanges = useMemo(() => {
-    if (excludedRows.length !== startingExcluded.length) {
-      return true;
-    }
-    const startingMap = new Map(
-      startingExcluded.map(r => [r.topicId, r.reason]),
-    );
-    return excludedRows.some(r =>
-      !startingMap.has(r.topicId) || startingMap.get(r.topicId) !== r.reason);
-  }, [excludedRows, startingExcluded]);
-  const hasChanges = formHasFieldChanges || exclusionsHaveChanges;
-
-  function addExclusion() {
-    setExcludedRows(prev => [
-      ...prev,
-      {
-        topicId: "",
-        reason: "",
-        localKey: nextExclusionKey(),
-      },
-    ]);
-  }
-
-  function removeExclusion(localKey: string) {
-    setExcludedRows(prev => prev.filter(r => r.localKey !== localKey));
-  }
-
-  function updateExclusion(localKey: string, patch: Partial<ExcludedTopicRow>) {
-    setExcludedRows(prev =>
-      prev.map(r =>
-        r.localKey === localKey
-          ? {
-            ...r,
-            ...patch,
-          }
-          : r));
-  }
-
-  const usedExclusionTopicIds = useMemo(
-    () => new Set(excludedRows.map(r => r.topicId).filter(Boolean)),
-    [excludedRows],
-  );
-
-  const handleDelete = makeDeleteHandler({
-    deleteFn: deleteSingleDomain,
-    entityLabel: "domain",
-    navigateToList: () => navigate({
-      to: "/domains",
-    }),
-  });
-
-  async function handleDuplicate() {
-    try {
-      const result = await duplicateDomain(id);
-      await invalidateRelated();
-      skipBlock();
-      await navigate({
-        to: "/domains/$id",
-        params: {
-          id: result.id,
-        },
-      });
-    }
-    catch {
-      toast.error("Failed to duplicate domain. Please try again.");
-    }
-  }
 
   return (
     <div>
       <PageHeader
-        pageTitle={isNew ? "New Domain" : "Edit Domain"}
+        pageTitle="New Domain"
         pageSection="domains"
-      >
-        {!isNew && (
-          <Link
-            to="/domains/$id"
-            params={{
-              id,
-            }}
-          >
-            <Button variant="secondary">
-              View Domain
-              {" "}
-              <EyeIcon />
-            </Button>
-          </Link>
-        )}
-      </PageHeader>
+      />
       <div className="m-auto w-full max-w-[1200px] px-4">
         <form
           onSubmit={(e) => {
@@ -300,169 +137,258 @@ function SingleDomainEdit() {
             )}
           </form.AppField>
 
-          <form.AppField name="hasRadar">
-            {field => (
-              <field.RadioGroupField
-                label="Has Radar?"
-                options={[
-                  {
-                    value: "true",
-                    label: "Yes",
-                  },
-                  {
-                    value: "false",
-                    label: "No",
-                  },
-                ]}
-                labelClassName=""
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="topicIds">
-            {field => (
-              <field.MultiComboboxField
-                label="Topics"
-                options={topicOptions}
-                placeholder="Search topics..."
-              />
-            )}
-          </form.AppField>
-
-          <section className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-2xl">Topics excluded from Radar</h3>
-              <p className="text-sm text-muted-foreground">
-                Topics listed here will not be considered by the Radar LLM
-                assistant. Each one can include a reason explaining why.
-              </p>
-            </div>
-            <ul className="flex flex-col gap-3">
-              {excludedRows.map(row => (
-                <li
-                  key={row.localKey}
-                  className="flex flex-col gap-2 rounded-sm border p-3"
-                >
-                  <div
-                    className={`
-                      grid grid-cols-1 gap-2
-                      sm:grid-cols-[minmax(0,1fr)_auto]
-                    `}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs text-muted-foreground uppercase">
-                        Topic
-                      </label>
-                      <Select
-                        value={row.topicId}
-                        onValueChange={value =>
-                          updateExclusion(row.localKey, {
-                            topicId: value,
-                          })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose topic" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(topicsData ?? [])
-                            .filter(
-                              t =>
-                                t.id === row.topicId
-                                || !usedExclusionTopicIds.has(t.id),
-                            )
-                            .map(t => (
-                              <SelectItem
-                                key={t.id}
-                                value={t.id}
-                              >
-                                {t.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-row items-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeExclusion(row.localKey)}
-                        aria-label="Remove excluded topic"
-                      >
-                        <TrashIcon />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground uppercase">
-                      Reason (optional)
-                    </label>
-                    <Textarea
-                      value={row.reason}
-                      onChange={e =>
-                        updateExclusion(row.localKey, {
-                          reason: e.target.value,
-                        })}
-                      placeholder="Why should the radar ignore this topic?"
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addExclusion}
-              >
-                <PlusIcon />
-                {" "}
-                Add Excluded Topic
-              </Button>
-            </div>
-          </section>
-
-          <EditPageFooter
-            isNew={isNew}
-            onDelete={handleDelete}
-            deleteLabel="Delete Domain"
-            onDuplicate={handleDuplicate}
-            duplicateLabel="Duplicate Domain"
-          >
+          <EditPageFooter isNew>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isSaving}
             >
-              {isSubmitting && <Loader2 className="animate-spin" />}
-              {isNew ? "Create Domain" : "Save Changes"}
+              {(isSubmitting || isSaving) && (
+                <Loader2 className="animate-spin" />
+              )}
+              Create Domain
             </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                if (isNew) {
-                  navigate({
-                    to: "/domains",
-                  });
-                }
-                else {
-                  navigate({
-                    to: "/domains/$id",
-                    params: {
-                      id,
-                    },
-                  });
-                }
-              }}
+              onClick={() =>
+                navigate({
+                  to: "/domains",
+                })}
             >
               Cancel
             </Button>
           </EditPageFooter>
         </form>
-        <UnsavedChangesDialog
-          shouldBlockFn={shouldBlockFn(hasChanges)}
-        />
       </div>
+    </div>
+  );
+}
+
+interface ExistingDomainEditProps {
+  id: string;
+}
+
+function ExistingDomainEdit({
+  id,
+}: ExistingDomainEditProps) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const search = Route.useSearch();
+  const tab: EditTab = search.tab ?? "details";
+
+  const {
+    data: domain,
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew: false,
+    queryKey: ["domain", id],
+    queryFn: () => fetchSingleDomain(id),
+    relatedQueryKeys: [["domains"]],
+  });
+
+  const {
+    data: radar,
+  } = useQuery({
+    queryKey: ["radar", id],
+    queryFn: () => fetchRadar(id),
+  });
+
+  const {
+    data: topics,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+  });
+
+  const [detailsHasChanges, setDetailsHasChanges] = useState(false);
+  const [scopeHasChanges, setScopeHasChanges] = useState(false);
+  const anyTabHasChanges = detailsHasChanges || scopeHasChanges;
+
+  const handleSaved = useCallback(async () => {
+    await invalidateRelated();
+    await queryClient.invalidateQueries({
+      queryKey: ["radar", id],
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ["topics"],
+    });
+  }, [invalidateRelated, queryClient, id]);
+
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSingleDomain,
+    entityLabel: "domain",
+    navigateToList: () => navigate({
+      to: "/domains",
+    }),
+  });
+
+  async function handleDuplicate() {
+    try {
+      const result = await duplicateDomain(id);
+      await invalidateRelated();
+      skipBlock();
+      await navigate({
+        to: "/domains/$id/edit",
+        params: {
+          id: result.id,
+        },
+      });
+    }
+    catch {
+      toast.error("Failed to duplicate domain. Please try again.");
+    }
+  }
+
+  function changeTab(next: EditTab) {
+    navigate({
+      to: "/domains/$id/edit",
+      params: {
+        id,
+      },
+      search: {
+        tab: next,
+      },
+      replace: true,
+    });
+  }
+
+  if (!domain) {
+    return (
+      <div className="p-4">
+        <h1 className="mb-4 text-3xl">Loading domain...</h1>
+      </div>
+    );
+  }
+
+  const radarConfigured
+    = (domain.radarConfig?.quadrants?.length ?? 0) > 0
+      && (domain.radarConfig?.rings?.length ?? 0) > 0;
+
+  return (
+    <div>
+      <PageHeader
+        pageTitle="Edit Domain"
+        pageSection="domains"
+      >
+        <div className="flex flex-row gap-2">
+          {radarConfigured && (
+            <Link
+              to="/domains/$id/radar"
+              params={{
+                id,
+              }}
+            >
+              <Button variant="outline">
+                View Radar
+                {" "}
+                <RadarIcon />
+              </Button>
+            </Link>
+          )}
+          <Link
+            to="/domains/$id"
+            params={{
+              id,
+            }}
+          >
+            <Button variant="secondary">
+              View Domain
+              {" "}
+              <EyeIcon />
+            </Button>
+          </Link>
+        </div>
+      </PageHeader>
+      <div className="container flex flex-col gap-6">
+        <Tabs
+          value={tab}
+          onValueChange={value => changeTab(value as EditTab)}
+        >
+          <TabsList>
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="scope">Scope</TabsTrigger>
+            <TabsTrigger value="config">Radar Config</TabsTrigger>
+            <TabsTrigger value="blips">Blips</TabsTrigger>
+            <TabsTrigger value="llm">LLM Edit</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details">
+            <DetailsTab
+              domain={domain}
+              topics={topics ?? []}
+              onSaved={handleSaved}
+              onChangeStateChange={setDetailsHasChanges}
+            />
+          </TabsContent>
+
+          <TabsContent value="scope">
+            <ScopeTab
+              domain={domain}
+              topics={topics ?? []}
+              onSaved={handleSaved}
+              onChangeStateChange={setScopeHasChanges}
+            />
+          </TabsContent>
+
+          <TabsContent value="config">
+            <ConfigTab
+              radar={radar}
+              domainId={id}
+              onSaved={handleSaved}
+            />
+          </TabsContent>
+
+          <TabsContent value="blips">
+            <BlipsTabContainer
+              radar={radar}
+              topics={topics ?? []}
+              domainId={id}
+              onSaved={handleSaved}
+            />
+          </TabsContent>
+
+          <TabsContent value="llm">
+            <LlmTabContainer
+              radar={radar}
+              domain={domain}
+              topics={topics ?? []}
+              onComplete={async () => {
+                await handleSaved();
+                changeTab("blips");
+              }}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <EditPageFooter
+          isNew={false}
+          onDelete={handleDelete}
+          deleteLabel="Delete Domain"
+          onDuplicate={handleDuplicate}
+          duplicateLabel="Duplicate Domain"
+        >
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              navigate({
+                to: "/domains/$id",
+                params: {
+                  id,
+                },
+              })}
+          >
+            Done
+          </Button>
+        </EditPageFooter>
+      </div>
+      <UnsavedChangesDialog
+        shouldBlockFn={shouldBlockFn(anyTabHasChanges)}
+      />
     </div>
   );
 }

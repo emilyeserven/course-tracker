@@ -14,8 +14,7 @@ export function DashboardRadars() {
     queryFn: () => fetchDomains(),
   });
 
-  const withRadars = (domains ?? [])
-    .filter(d => d.hasRadar)
+  const sortedDomains = (domains ?? [])
     .slice()
     .sort((a, b) => a.title.localeCompare(b.title, undefined, {
       sensitivity: "base",
@@ -28,7 +27,7 @@ export function DashboardRadars() {
         <Link
           to="/domains"
           className="
-            text-primary text-sm underline-offset-2
+            text-sm text-primary underline-offset-2
             hover:underline
           "
         >
@@ -37,19 +36,19 @@ export function DashboardRadars() {
       )}
     >
       {isPending && (
-        <p className="text-muted-foreground text-sm">Loading radars...</p>
+        <p className="text-sm text-muted-foreground">Loading radars...</p>
       )}
       {error && (
-        <p className="text-destructive text-sm">Failed to load radars.</p>
+        <p className="text-sm text-destructive">Failed to load radars.</p>
       )}
-      {domains && withRadars.length === 0 && (
-        <p className="text-muted-foreground text-sm">
+      {domains && sortedDomains.length === 0 && (
+        <p className="text-sm text-muted-foreground">
           <i>No radars yet.</i>
         </p>
       )}
-      {withRadars.length > 0 && (
+      {sortedDomains.length > 0 && (
         <ul className="flex flex-col divide-y">
-          {withRadars.map(domain => (
+          {sortedDomains.map(domain => (
             <li
               key={domain.id}
               className="flex flex-row items-center gap-2 py-2"
@@ -64,13 +63,13 @@ export function DashboardRadars() {
                   hover:text-blue-600
                 "
               >
-                <RadarIcon className="text-muted-foreground size-4" />
+                <RadarIcon className="size-4 text-muted-foreground" />
                 {domain.title}
               </Link>
               <div className="ml-auto flex items-center gap-2">
                 <span
                   className="
-                    text-muted-foreground inline-flex items-center gap-1 text-xs
+                    inline-flex items-center gap-1 text-xs text-muted-foreground
                   "
                   title={`${domain.topicCount ?? 0} topic${
                     domain.topicCount === 1 ? "" : "s"

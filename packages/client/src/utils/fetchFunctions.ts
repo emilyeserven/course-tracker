@@ -279,8 +279,8 @@ export async function upsertRadarConfig(
 interface BlipPayload {
   topicId: string;
   description?: string | null;
-  quadrantId: string;
-  ringId: string;
+  quadrantId?: string | null;
+  ringId?: string | null;
 }
 
 export async function createRadarBlip(
@@ -321,8 +321,8 @@ export interface BulkBlipEntry {
   newTopicName?: string | null;
   newTopicDescription?: string | null;
   description?: string | null;
-  quadrantId: string;
-  ringId: string;
+  quadrantId?: string | null;
+  ringId?: string | null;
 }
 
 export async function bulkCreateRadarBlips(

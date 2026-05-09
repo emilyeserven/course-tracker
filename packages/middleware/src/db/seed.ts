@@ -3,13 +3,14 @@ import {
   courses,
   dailyCriteriaTemplates,
   domains,
+  radarBlips,
   topics,
   topicsToCourses,
-  topicsToDomains,
   usersTable,
 } from "@/db/schema";
 import { db } from "@/db/index";
 import { clearData } from "@/db/clearData";
+import { v4 as uuidv4 } from "uuid";
 
 export async function seed() {
   await clearData();
@@ -239,13 +240,11 @@ export async function seed() {
     id: "c1a2b3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
     title: "Web Development",
     description: "Building applications for the web.",
-    hasRadar: true,
   };
   const domainLanguageLearningData: typeof domains.$inferInsert = {
     id: "d2b3c4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
     title: "Language Learning",
     description: "Studying foreign languages.",
-    hasRadar: false,
   };
 
   const domainWebDev = await db
@@ -260,32 +259,30 @@ export async function seed() {
     .onConflictDoNothing()
     .returning();
 
+  const seedBlips: (typeof radarBlips.$inferInsert)[] = [];
   if (domainWebDev[0] && topicReact[0]) {
-    await db
-      .insert(topicsToDomains)
-      .values([{
-        domainId: domainWebDev[0].id,
-        topicId: topicReact[0].id,
-      }])
-      .onConflictDoNothing();
+    seedBlips.push({
+      id: uuidv4(),
+      domainId: domainWebDev[0].id,
+      topicId: topicReact[0].id,
+    });
   }
   if (domainWebDev[0] && topicTypescript[0]) {
-    await db
-      .insert(topicsToDomains)
-      .values([{
-        domainId: domainWebDev[0].id,
-        topicId: topicTypescript[0].id,
-      }])
-      .onConflictDoNothing();
+    seedBlips.push({
+      id: uuidv4(),
+      domainId: domainWebDev[0].id,
+      topicId: topicTypescript[0].id,
+    });
   }
   if (domainLanguageLearning[0] && topicJapanese[0]) {
-    await db
-      .insert(topicsToDomains)
-      .values([{
-        domainId: domainLanguageLearning[0].id,
-        topicId: topicJapanese[0].id,
-      }])
-      .onConflictDoNothing();
+    seedBlips.push({
+      id: uuidv4(),
+      domainId: domainLanguageLearning[0].id,
+      topicId: topicJapanese[0].id,
+    });
+  }
+  if (seedBlips.length > 0) {
+    await db.insert(radarBlips).values(seedBlips).onConflictDoNothing();
   }
 
   await db
