@@ -235,8 +235,7 @@ interface BuildPromptArgs {
     radarNote?: string | null;
     topicDescription?: string | null;
     currentSliceName?: string | null;
-    currentRingName?: string | null;
-    isAdopted?: boolean; }[];
+    currentRingName?: string | null; }[];
 }
 
 interface BuildCleanupPromptArgs {
@@ -275,33 +274,29 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
     existingBlips,
   } = args;
 
+  const adoptedRing = rings.find(r => r.isAdopted);
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings
-    .filter(r => !r.isAdopted)
-    .map(r => `- ${r.name}`)
-    .join("\n");
+  const ringList = rings.map((r) => {
+    if (r.isAdopted) {
+      return `- ${r.name} (use for foundational topics that are fully established and no longer being actively evaluated; a slice is still meaningful for grouping)`;
+    }
+    return `- ${r.name}`;
+  }).join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
     : "(no description provided)";
-  const hasAnyAdopted = existingBlips.some(b => b.isAdopted);
   const existingList = existingBlips.length > 0
     ? existingBlips
       .map((b) => {
         const note = b.radarNote?.trim();
         const topicDesc = b.topicDescription?.trim();
-        const lines = [
-          b.isAdopted
-            ? `- ${b.topicName} [ADOPTED — leave on the side panel; do not move into a slice/ring]`
-            : `- ${b.topicName}`,
-        ];
-        if (!b.isAdopted) {
-          const slice = b.currentSliceName?.trim();
-          const ring = b.currentRingName?.trim();
-          lines.push(
-            `  - current placement: ${slice || "(no slice)"} / ${ring || "(no ring)"}`,
-          );
-        }
+        const slice = b.currentSliceName?.trim();
+        const ring = b.currentRingName?.trim();
+        const lines = [`- ${b.topicName}`];
+        lines.push(
+          `  - current placement: ${slice || "(no slice)"} / ${ring || "(no ring)"}`,
+        );
         lines.push(
           topicDesc
             ? `  - general description: ${topicDesc}`
@@ -312,13 +307,12 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
       })
       .join("\n")
     : "- (none yet)";
-  const adoptedClause = hasAnyAdopted
-    ? `\nSome existing blips are marked [ADOPTED]. Those live in a separate
-"Adopted" side panel — they are intentionally OUT of the slice/ring layout.
-Do not propose moving them into a slice/ring or removing them just because
-they look mis-placed. Only suggest changes to adopted blips if you have a
-specific reason (e.g., the topic now belongs in active rotation again);
-in that case use action "update" and supply a slice + ring.`
+  const adoptedClause = adoptedRing
+    ? `\nThe "${adoptedRing.name}" ring is for topics that are fully established
+and no longer under active evaluation — graduated from the trial/assess flow.
+You may suggest moving topics into or out of "${adoptedRing.name}" when that
+matches the topic's maturity. A slice is still meaningful for "${adoptedRing.name}"
+topics (it groups them by category), so include both quadrant and ring.`
     : "";
 
   const withinScopeBlock = withinScopeDescription?.trim()
@@ -420,11 +414,14 @@ function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
     unassignedBlips,
   } = args;
 
+  const adoptedRing = rings.find(r => r.isAdopted);
   const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings
-    .filter(r => !r.isAdopted)
-    .map(r => `- ${r.name}`)
-    .join("\n");
+  const ringList = rings.map((r) => {
+    if (r.isAdopted) {
+      return `- ${r.name} (use for foundational topics that are fully established and no longer being actively evaluated; a slice is still meaningful for grouping)`;
+    }
+    return `- ${r.name}`;
+  }).join("\n");
   const domainLabel = domainTitle.trim() || "(unnamed domain)";
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
@@ -458,10 +455,16 @@ function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
       })
       .join("\n")
     : "- (none — all blips already have slice and ring assigned)";
+  const adoptedClause = adoptedRing
+    ? `\nNote: "${adoptedRing.name}" is a valid ring for foundational topics that
+are fully established. A blip already in "${adoptedRing.name}" but missing a
+slice should keep its ring and just have the slice filled in.`
+    : "";
 
   return `I'm cleaning up the "${domainLabel}" tech radar — assigning slices and
 rings to blips that are missing one or both. Use the existing topic
-description and radar note (if any) to decide where each belongs.
+description, radar note (if any), and current placement to decide where
+each belongs.
 
 Domain description:
 ${descriptionBlock}
@@ -477,6 +480,7 @@ ${quadrantList || "- (none defined)"}
 
 And these rings (innermost first):
 ${ringList || "- (none defined)"}
+${adoptedClause}
 
 Blips that need a slice and/or ring assigned:
 ${blipList}
@@ -496,7 +500,8 @@ each blip above, using this exact shape (no other keys, no commentary):
 
 Only include the topics from the list above. The "action" field must be
 "update" so I overwrite their slice/ring placement. If a blip already has a
-slice OR ring set (but not both), still include both in your response.
+slice OR ring set (but not both), still include both in your response —
+preserve the existing one unless you have a specific reason to change it.
 `;
 }
 
@@ -557,11 +562,7 @@ export function BlipLlmAssist({
       const ringById = new Map(rings.map(r => [r.id, r]));
       if (mode === "cleanup") {
         const unassignedBlips = existingBlips
-          .filter((b) => {
-            const ring = b.ringId ? ringById.get(b.ringId) : null;
-            if (ring?.isAdopted) return false;
-            return !b.quadrantId || !b.ringId;
-          })
+          .filter(b => !b.quadrantId || !b.ringId)
           .map(b => ({
             topicName: b.topicName,
             quadrantName: b.quadrantId
@@ -601,7 +602,6 @@ export function BlipLlmAssist({
             topicDescription: topicById.get(b.topicId)?.description ?? null,
             currentSliceName: quadrant?.name ?? null,
             currentRingName: ring?.name ?? null,
-            isAdopted: ring?.isAdopted ?? false,
           };
         }),
       });
@@ -623,14 +623,10 @@ export function BlipLlmAssist({
     ],
   );
 
-  const unassignedCount = useMemo(() => {
-    const ringByIdMap = new Map(rings.map(r => [r.id, r]));
-    return existingBlips.filter((b) => {
-      const ring = b.ringId ? ringByIdMap.get(b.ringId) : null;
-      if (ring?.isAdopted) return false;
-      return !b.quadrantId || !b.ringId;
-    }).length;
-  }, [existingBlips, rings]);
+  const unassignedCount = useMemo(
+    () => existingBlips.filter(b => !b.quadrantId || !b.ringId).length,
+    [existingBlips],
+  );
 
   const [jsonText, setJsonText] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);

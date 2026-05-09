@@ -681,20 +681,23 @@ export function BlipTable({
                             <div className="flex flex-row flex-wrap gap-2">
                               <TopicItemLink
                                 label="C"
-                                title="Courses"
+                                title="Courses for this topic"
                                 count={topic.courseCount ?? 0}
+                                to="/courses"
                                 topicId={blip.topicId}
                               />
                               <TopicItemLink
                                 label="T"
-                                title="Tasks"
+                                title="Tasks for this topic"
                                 count={topic.taskCount ?? 0}
+                                to="/tasks"
                                 topicId={blip.topicId}
                               />
                               <TopicItemLink
                                 label="D"
-                                title="Dailies"
+                                title="Dailies for this topic"
                                 count={topic.dailyCount ?? 0}
+                                to="/dailies"
                                 topicId={blip.topicId}
                               />
                             </div>
@@ -806,6 +809,7 @@ interface TopicItemLinkProps {
   label: string;
   title: string;
   count: number;
+  to: "/courses" | "/tasks" | "/dailies";
   topicId: string;
 }
 
@@ -813,6 +817,7 @@ function TopicItemLink({
   label,
   title,
   count,
+  to,
   topicId,
 }: TopicItemLinkProps) {
   if (count === 0) {
@@ -830,9 +835,9 @@ function TopicItemLink({
   }
   return (
     <Link
-      to="/topics/$id"
-      params={{
-        id: topicId,
+      to={to}
+      search={{
+        topicId,
       }}
       title={title}
       className={`
