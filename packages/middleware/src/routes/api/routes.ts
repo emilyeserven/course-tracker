@@ -9,7 +9,6 @@ import topics from "./topics/routes";
 import providers from "./providers/routes";
 import domains from "./domains/routes";
 import dailies from "./dailies/routes";
-import radar from "./radar/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
 import dailyCriteriaTemplates from "./daily-criteria-templates/routes";
@@ -30,9 +29,6 @@ export default async function (server: FastifyInstance) {
     prefix: "/providers",
   });
   fastify.register(domains, {
-    prefix: "/domains",
-  });
-  fastify.register(radar, {
     prefix: "/domains",
   });
   fastify.register(dailies, {

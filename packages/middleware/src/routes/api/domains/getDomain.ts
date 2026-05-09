@@ -27,27 +27,6 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => (eq(domains.id, id)),
         with: {
-          topicsToDomains: {
-            with: {
-              topic: {
-                with: {
-                  topicsToCourses: {
-                    with: {
-                      course: {
-                        columns: {
-                          id: true,
-                          name: true,
-                          progressCurrent: true,
-                          progressTotal: true,
-                          status: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
           radarBlips: {
             with: {
               topic: {
@@ -97,63 +76,31 @@ export default async function (server: FastifyInstance) {
         return sendNotFound(reply, "Domain");
       }
 
-      const topicsById = new Map<string, {
-        id: string;
-        name: string;
-        description: string | null;
-        reason: string | null;
-        courses: {
-          id: string;
-          name: string;
-          progressCurrent: number | null;
-          progressTotal: number | null;
-          status: string | null;
-        }[];
-      }>();
-
-      function addTopic(topic: {
-        id: string;
-        name: string;
-        description?: string | null;
-        reason?: string | null;
-        topicsToCourses?: { course: {
-          id: string;
-          name: string;
-          progressCurrent: number | null;
-          progressTotal: number | null;
-          status: string | null;
-        } | null; }[];
-      } | null | undefined) {
-        if (!topic || topicsById.has(topic.id)) {
-          return;
-        }
-        const courses = (topic.topicsToCourses ?? [])
-          .map(ttc => ttc.course)
-          .filter((c): c is NonNullable<typeof c> => Boolean(c))
-          .map(c => ({
-            id: c.id,
-            name: c.name,
-            progressCurrent: c.progressCurrent ?? null,
-            progressTotal: c.progressTotal ?? null,
-            status: c.status ?? null,
-          }));
-        topicsById.set(topic.id, {
-          id: topic.id,
-          name: topic.name,
-          description: topic.description ?? null,
-          reason: topic.reason ?? null,
-          courses,
-        });
-      }
-
-      for (const ttd of domain.topicsToDomains) {
-        addTopic(ttd.topic);
-      }
-      for (const blip of domain.radarBlips ?? []) {
-        addTopic(blip.topic);
-      }
-
-      const topics = Array.from(topicsById.values());
+      const topics = (domain.radarBlips ?? [])
+        .map((blip) => {
+          const topic = blip.topic;
+          if (!topic) {
+            return null;
+          }
+          const courses = (topic.topicsToCourses ?? [])
+            .map(ttc => ttc.course)
+            .filter((c): c is NonNullable<typeof c> => Boolean(c))
+            .map(c => ({
+              id: c.id,
+              name: c.name,
+              progressCurrent: c.progressCurrent ?? null,
+              progressTotal: c.progressTotal ?? null,
+              status: c.status ?? null,
+            }));
+          return {
+            id: topic.id,
+            name: topic.name,
+            description: topic.description ?? null,
+            reason: topic.reason ?? null,
+            courses,
+          };
+        })
+        .filter((t): t is NonNullable<typeof t> => Boolean(t));
 
       const excludedTopics = (domain.excludedTopics ?? [])
         .map((row) => {
@@ -185,7 +132,7 @@ export default async function (server: FastifyInstance) {
         id: domain.id,
         title: domain.title,
         description: domain.description,
-        hasRadar: domain.hasRadar,
+        radarConfig: domain.radarConfig,
         withinScopeDescription: domain.withinScopeDescription,
         outOfScopeDescription: domain.outOfScopeDescription,
         topicCount: topics.length,

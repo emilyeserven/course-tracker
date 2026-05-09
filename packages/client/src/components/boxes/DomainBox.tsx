@@ -1,6 +1,6 @@
 import type { Domain } from "@emstack/types/src";
 
-import { BookIcon, RadarIcon } from "lucide-react";
+import { BookIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
@@ -19,7 +19,6 @@ export function DomainBox({
   title,
   description,
   topicCount,
-  hasRadar,
 }: Domain) {
   return (
     <ContentBox>
@@ -43,11 +42,6 @@ export function DomainBox({
           value={topicCount}
           condition={true}
           iconNode={<BookIcon size={16} />}
-        />
-        <CourseMetaItem
-          value="Radar"
-          condition={!!hasRadar}
-          iconNode={<RadarIcon size={16} />}
         />
       </ContentBoxFooter>
     </ContentBox>

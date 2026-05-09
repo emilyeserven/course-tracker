@@ -27,18 +27,13 @@ const bulkCreateBlipsSchema = {
           type: "array",
           items: {
             type: "object",
-            required: ["quadrantId", "ringId"],
             properties: {
               topicId: nullableString,
               newTopicName: nullableString,
               newTopicDescription: nullableString,
               description: nullableString,
-              quadrantId: {
-                type: "string",
-              },
-              ringId: {
-                type: "string",
-              },
+              quadrantId: nullableString,
+              ringId: nullableString,
             },
           },
         },
@@ -119,8 +114,8 @@ export default async function (server: FastifyInstance) {
         await db.insert(radarBlips).values({
           id: blipId,
           domainId,
-          quadrantId: entry.quadrantId,
-          ringId: entry.ringId,
+          quadrantId: entry.quadrantId ?? null,
+          ringId: entry.ringId ?? null,
           topicId,
           description: entry.description ?? null,
         });

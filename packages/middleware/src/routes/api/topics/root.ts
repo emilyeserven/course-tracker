@@ -8,7 +8,7 @@ export default async function (server: FastifyInstance) {
 
   fastify.get(
     "/",
-    async (request, reply) => {
+    async () => {
       const rawData = await db.query.topics.findMany({
         with: {
           topicsToCourses: {
@@ -16,16 +16,6 @@ export default async function (server: FastifyInstance) {
               course: {
                 columns: {
                   name: true,
-                },
-              },
-            },
-          },
-          topicsToDomains: {
-            with: {
-              domain: {
-                columns: {
-                  id: true,
-                  title: true,
                 },
               },
             },
@@ -60,14 +50,6 @@ export default async function (server: FastifyInstance) {
 
         const domainsById = new Map<string, { id: string;
           title: string; }>();
-        for (const ttd of topic.topicsToDomains ?? []) {
-          if (ttd.domain?.id && ttd.domain.title && !domainsById.has(ttd.domain.id)) {
-            domainsById.set(ttd.domain.id, {
-              id: ttd.domain.id,
-              title: ttd.domain.title,
-            });
-          }
-        }
         for (const blip of topic.radarBlips ?? []) {
           if (blip.domain?.id && blip.domain.title && !domainsById.has(blip.domain.id)) {
             domainsById.set(blip.domain.id, {

@@ -3,7 +3,6 @@ import type { Course } from "./Course";
 export interface TopicDomain {
   id: string;
   title: string;
-  hasRadar?: boolean | null;
 }
 
 export interface Topic {

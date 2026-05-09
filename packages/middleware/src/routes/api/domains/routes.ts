@@ -7,6 +7,12 @@ import createDomain from "./createDomain";
 import upsertDomain from "./upsertDomain";
 import deleteDomain from "./deleteDomain";
 import duplicateDomain from "./duplicateDomain";
+import getRadar from "./getRadar";
+import upsertRadarConfig from "./upsertRadarConfig";
+import createBlip from "./createBlip";
+import upsertBlip from "./upsertBlip";
+import deleteBlip from "./deleteBlip";
+import bulkCreateBlips from "./bulkCreateBlips";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -17,4 +23,10 @@ export default async function (server: FastifyInstance) {
   fastify.register(upsertDomain);
   fastify.register(deleteDomain);
   fastify.register(duplicateDomain);
+  fastify.register(getRadar);
+  fastify.register(upsertRadarConfig);
+  fastify.register(createBlip);
+  fastify.register(upsertBlip);
+  fastify.register(deleteBlip);
+  fastify.register(bulkCreateBlips);
 }

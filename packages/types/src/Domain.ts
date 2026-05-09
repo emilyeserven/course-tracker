@@ -1,3 +1,5 @@
+import type { RadarConfigEntry } from "./Radar";
+
 export interface DomainExcludedTopic {
   id: string;
   name: string;
@@ -20,11 +22,16 @@ export interface DomainTopic {
   courses?: DomainTopicCourse[];
 }
 
+export interface DomainRadarConfig {
+  quadrants: RadarConfigEntry[];
+  rings: RadarConfigEntry[];
+}
+
 export interface Domain {
   id: string;
   title: string;
   description?: string | null;
-  hasRadar?: boolean | null;
+  radarConfig?: DomainRadarConfig;
   withinScopeDescription?: string | null;
   outOfScopeDescription?: string | null;
   topicCount?: number;

@@ -102,9 +102,12 @@ function RadarView() {
             </Button>
           </Link>
           <Link
-            to="/domains/$id/radar/edit"
+            to="/domains/$id/edit"
             params={{
               id,
+            }}
+            search={{
+              tab: "blips",
             }}
           >
             <Button variant="secondary">
@@ -125,9 +128,12 @@ function RadarView() {
                   rings before adding blips.
                 </p>
                 <Link
-                  to="/domains/$id/radar/edit"
+                  to="/domains/$id/edit"
                   params={{
                     id,
+                  }}
+                  search={{
+                    tab: "config",
                   }}
                 >
                   <Button>Configure Radar</Button>

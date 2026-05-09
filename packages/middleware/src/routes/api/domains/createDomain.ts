@@ -5,9 +5,10 @@ import {
   domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
-  topicsToDomains,
 } from "@/db/schema";
-import { nullableBoolean, nullableString } from "@/utils/schemas";
+import { sendBadRequest } from "@/utils/errors";
+import { nullableString } from "@/utils/schemas";
+import { syncDomainMembershipByDomain } from "@/utils/syncMembershipBlips";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -22,7 +23,6 @@ const createSchema = {
           minLength: 1,
         },
         description: nullableString,
-        hasRadar: nullableBoolean,
         withinScopeDescription: nullableString,
         outOfScopeDescription: nullableString,
         topicIds: {
@@ -65,10 +65,7 @@ export default async function (server: FastifyInstance) {
       const body = request.body;
       const title = body.title.trim();
       if (!title) {
-        reply.status(400);
-        return {
-          error: "Title is required",
-        };
+        return sendBadRequest(reply, "Title is required");
       }
       const id = uuidv4();
 
@@ -76,19 +73,13 @@ export default async function (server: FastifyInstance) {
         id,
         title,
         description: body.description ?? null,
-        hasRadar: body.hasRadar ?? null,
         withinScopeDescription: body.withinScopeDescription ?? null,
         outOfScopeDescription: body.outOfScopeDescription ?? null,
       });
 
       const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));
       if (uniqueTopicIds.length > 0) {
-        await db.insert(topicsToDomains).values(
-          uniqueTopicIds.map(topicId => ({
-            topicId,
-            domainId: id,
-          })),
-        );
+        await syncDomainMembershipByDomain(id, uniqueTopicIds);
       }
 
       const dedupedExcluded = new Map<string, string | null>();
