@@ -5,15 +5,6 @@ import { Fragment } from "react";
 import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import {
-  findStatusForDate,
-  getCurrentChain,
-  getRecentDays,
-  getReferenceDateKey,
-  getTotalCompletedDays,
-} from "@/utils";
-
 import { DailyCommentPopover } from "./DailyCommentPopover";
 import { DailyCourseIndicator } from "./DailyCourseIndicator";
 import { DailyLocationCell } from "./DailyLocationCell";
@@ -22,6 +13,15 @@ import { DailyStatusCircle } from "./DailyStatusCircle";
 import { DailyStatusConnector } from "./DailyStatusConnector";
 import { DailyTaskIndicator } from "./DailyTaskIndicator";
 import { TodayStatusCell } from "./TodayStatusCell";
+
+import { cn } from "@/lib/utils";
+import {
+  findStatusForDate,
+  getCurrentChain,
+  getRecentDays,
+  getReferenceDateKey,
+  getTotalCompletedDays,
+} from "@/utils";
 
 interface DailiesActiveListViewProps {
   dailies: Daily[];
@@ -85,7 +85,7 @@ export function DailiesActiveListView({
                 </span>
                 {daily.description && (
                   <span
-                    className="text-muted-foreground line-clamp-2 text-xs"
+                    className="line-clamp-2 text-xs text-muted-foreground"
                     title={daily.description}
                   >
                     {daily.description}
@@ -132,8 +132,8 @@ export function DailiesActiveListView({
                   <div className="flex flex-col items-center gap-0.5">
                     <span
                       className="
-                        text-foreground text-[0.65rem] leading-none
-                        font-semibold
+                        text-[0.65rem] leading-none font-semibold
+                        text-foreground
                       "
                     >
                       Today
@@ -177,7 +177,7 @@ export function DailiesActiveListView({
                         />
                         <span
                           className="
-                            text-muted-foreground text-[0.65rem] leading-none
+                            text-[0.65rem] leading-none text-muted-foreground
                           "
                         >
                           {day.dayLabel}

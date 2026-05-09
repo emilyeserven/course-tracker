@@ -89,7 +89,7 @@ export function DashboardCoursesInProgress() {
         <Link
           to="/courses"
           className="
-            text-primary text-sm underline-offset-2
+            text-sm text-primary underline-offset-2
             hover:underline
           "
         >
@@ -98,13 +98,13 @@ export function DashboardCoursesInProgress() {
       )}
     >
       {isPending && (
-        <p className="text-muted-foreground text-sm">Loading courses...</p>
+        <p className="text-sm text-muted-foreground">Loading courses...</p>
       )}
       {error && (
-        <p className="text-destructive text-sm">Failed to load courses.</p>
+        <p className="text-sm text-destructive">Failed to load courses.</p>
       )}
       {courses && inProgress.length === 0 && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           <i>No courses in progress.</i>
         </p>
       )}

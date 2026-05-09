@@ -2,6 +2,8 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
 import { useEffect, useState } from "react";
 
+import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,8 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-
-import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
 const CRITERIA_KEY_BY_STATUS: Record<DailyCompletionStatus, keyof NonNullable<Daily["criteria"]>> = {
   incomplete: "incomplete",
@@ -77,7 +77,7 @@ export function DailyStatusModal({
                 Great job! Remember, every day of progress brings you closer to
                 achieving the reason you&apos;re working on this:
                 {" "}
-                <span className="text-foreground whitespace-pre-wrap">
+                <span className="whitespace-pre-wrap text-foreground">
                   {daily.description}
                 </span>
               </DialogDescription>
@@ -152,7 +152,7 @@ export function DailyStatusModal({
                         </p>
                       )
                       : (
-                        <p className="text-muted-foreground/70 text-xs italic">
+                        <p className="text-xs text-muted-foreground/70 italic">
                           No criteria set for this status.
                         </p>
                       )}

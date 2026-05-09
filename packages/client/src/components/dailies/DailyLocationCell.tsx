@@ -53,6 +53,6 @@ export function DailyLocationCell({
   }
 
   return (
-    <span className="text-muted-foreground text-xs">{location}</span>
+    <span className="text-xs text-muted-foreground">{location}</span>
   );
 }

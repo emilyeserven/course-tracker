@@ -27,7 +27,7 @@ export function DashboardRadars() {
         <Link
           to="/domains"
           className="
-            text-primary text-sm underline-offset-2
+            text-sm text-primary underline-offset-2
             hover:underline
           "
         >
@@ -36,13 +36,13 @@ export function DashboardRadars() {
       )}
     >
       {isPending && (
-        <p className="text-muted-foreground text-sm">Loading radars...</p>
+        <p className="text-sm text-muted-foreground">Loading radars...</p>
       )}
       {error && (
-        <p className="text-destructive text-sm">Failed to load radars.</p>
+        <p className="text-sm text-destructive">Failed to load radars.</p>
       )}
       {domains && withRadars.length === 0 && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           <i>No radars yet.</i>
         </p>
       )}
@@ -63,13 +63,13 @@ export function DashboardRadars() {
                   hover:text-blue-600
                 "
               >
-                <RadarIcon className="text-muted-foreground size-4" />
+                <RadarIcon className="size-4 text-muted-foreground" />
                 {domain.title}
               </Link>
               <span
                 className="
-                  text-muted-foreground ml-auto inline-flex items-center gap-1
-                  text-xs
+                  ml-auto inline-flex items-center gap-1 text-xs
+                  text-muted-foreground
                 "
                 title={`${domain.topicCount ?? 0} topic${
                   domain.topicCount === 1 ? "" : "s"

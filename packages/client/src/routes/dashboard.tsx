@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { PageHeader } from "@/components/layout/PageHeader";
-
 import { DashboardCoursesInProgress } from "./dashboard.-components/-DashboardCoursesInProgress";
 import { DashboardDailies } from "./dashboard.-components/-DashboardDailies";
 import { DashboardRadars } from "./dashboard.-components/-DashboardRadars";
 import { DashboardTopics } from "./dashboard.-components/-DashboardTopics";
+
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,

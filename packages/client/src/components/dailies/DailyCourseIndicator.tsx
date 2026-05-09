@@ -62,9 +62,8 @@ export function DailyCourseIndicator({
             }}
             aria-label={`Go to course ${course.name}`}
             className="
-              text-muted-foreground
+              inline-flex items-center text-muted-foreground
               hover:text-foreground
-              inline-flex items-center
             "
           >
             <GraduationCapIcon className="size-4" />
@@ -80,11 +79,10 @@ export function DailyCourseIndicator({
             onClick={() => mutation.mutate(course.id)}
             aria-label={`Progress ${course.name} by 1`}
             className="
-              text-muted-foreground
-              hover:bg-accent hover:text-accent-foreground
               invisible inline-flex size-5 items-center justify-center
-              rounded-sm
+              rounded-sm text-muted-foreground
               group-hover:visible
+              hover:bg-accent hover:text-accent-foreground
               disabled:opacity-50
             "
           >

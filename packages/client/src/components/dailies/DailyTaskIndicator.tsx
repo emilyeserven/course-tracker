@@ -31,9 +31,8 @@ export function DailyTaskIndicator({
           }}
           aria-label={`Go to task ${task.name}`}
           className="
-            text-muted-foreground
+            inline-flex items-center text-muted-foreground
             hover:text-foreground
-            inline-flex items-center
           "
         >
           <CheckSquareIcon className="size-4" />

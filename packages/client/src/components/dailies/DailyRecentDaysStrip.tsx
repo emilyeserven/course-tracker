@@ -3,11 +3,11 @@ import type { Daily } from "@emstack/types/src";
 
 import { Fragment } from "react";
 
-import { cn } from "@/lib/utils";
-import { getReferenceDateKey, getRecentDays } from "@/utils/dailyHelpers";
-
 import { DailyStatusCircle } from "./DailyStatusCircle";
 import { DailyStatusConnector } from "./DailyStatusConnector";
+
+import { cn } from "@/lib/utils";
+import { getReferenceDateKey, getRecentDays } from "@/utils/dailyHelpers";
 
 interface DailyRecentDaysStripProps {
   daily: Daily;
@@ -68,7 +68,7 @@ export function DailyRecentDaysStrip({
                 className={cn(
                   "text-[0.65rem] leading-none",
                   day.isToday
-                    ? "text-foreground font-semibold"
+                    ? "font-semibold text-foreground"
                     : "text-muted-foreground",
                 )}
               >

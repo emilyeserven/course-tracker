@@ -20,7 +20,7 @@ export function DailiesViewModeToggle({
       role="group"
       aria-label="Dailies view mode"
       className={cn(
-        "bg-background inline-flex items-center rounded-md border p-0.5",
+        "inline-flex items-center rounded-md border bg-background p-0.5",
         className,
       )}
     >
@@ -31,10 +31,10 @@ export function DailiesViewModeToggle({
         onClick={() => onChange("table")}
         className={cn(
           `
-            focus-visible:ring-ring
             inline-flex size-7 items-center justify-center rounded-sm
             transition-colors
-            focus-visible:ring-2 focus-visible:outline-none
+            focus-visible:ring-2 focus-visible:ring-ring
+            focus-visible:outline-none
           `,
           mode === "table"
             ? "bg-muted text-foreground"
@@ -53,10 +53,10 @@ export function DailiesViewModeToggle({
         onClick={() => onChange("list")}
         className={cn(
           `
-            focus-visible:ring-ring
             inline-flex size-7 items-center justify-center rounded-sm
             transition-colors
-            focus-visible:ring-2 focus-visible:outline-none
+            focus-visible:ring-2 focus-visible:ring-ring
+            focus-visible:outline-none
           `,
           mode === "list"
             ? "bg-muted text-foreground"

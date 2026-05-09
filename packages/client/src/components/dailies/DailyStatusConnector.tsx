@@ -1,8 +1,8 @@
 import type { DailyCompletionStatus } from "@emstack/types/src";
 
-import { cn } from "@/lib/utils";
-
 import { getDailyStatusOption } from "./dailyStatusMeta";
+
+import { cn } from "@/lib/utils";
 
 interface DailyStatusConnectorProps {
   left: DailyCompletionStatus | null;

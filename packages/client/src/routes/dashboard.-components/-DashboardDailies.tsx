@@ -170,7 +170,7 @@ export function DashboardDailies() {
           <Link
             to="/dailies"
             className="
-              text-primary text-sm underline-offset-2
+              text-sm text-primary underline-offset-2
               hover:underline
             "
           >
@@ -180,13 +180,13 @@ export function DashboardDailies() {
       )}
     >
       {isPending && (
-        <p className="text-muted-foreground text-sm">Loading dailies...</p>
+        <p className="text-sm text-muted-foreground">Loading dailies...</p>
       )}
       {error && (
-        <p className="text-destructive text-sm">Failed to load dailies.</p>
+        <p className="text-sm text-destructive">Failed to load dailies.</p>
       )}
       {sortedDailies && sortedDailies.length === 0 && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           <i>No dailies yet.</i>
         </p>
       )}
@@ -206,14 +206,14 @@ export function DashboardDailies() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="text-muted-foreground text-left text-xs">
+              <tr className="text-left text-xs text-muted-foreground">
                 <th className="p-2 font-medium">
                   <button
                     type="button"
                     onClick={() => toggleSort("progress")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                     aria-label="Sort by progress"
                   >
@@ -226,8 +226,8 @@ export function DashboardDailies() {
                     type="button"
                     onClick={() => toggleSort("name")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                     aria-label="Sort by title"
                   >
@@ -273,9 +273,8 @@ export function DashboardDailies() {
                   <tr
                     key={daily.id}
                     className="
-                      group
+                      group border-t
                       hover:bg-muted/40
-                      border-t
                     "
                   >
                     <td className="p-2">
