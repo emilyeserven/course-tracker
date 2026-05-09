@@ -33,6 +33,13 @@ export default async function (server: FastifyInstance) {
               name: true,
             },
           },
+          taskType: {
+            columns: {
+              id: true,
+              name: true,
+              tags: true,
+            },
+          },
           resources: true,
           todos: true,
           daily: {
@@ -61,6 +68,14 @@ export default async function (server: FastifyInstance) {
             name: task.topic.name,
           }
           : null,
+        taskTypeId: task.taskTypeId ?? null,
+        taskType: task.taskType
+          ? {
+            id: task.taskType.id,
+            name: task.taskType.name,
+            tags: task.taskType.tags ?? [],
+          }
+          : null,
         resources: (task.resources ?? [])
           .slice()
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
@@ -74,6 +89,7 @@ export default async function (server: FastifyInstance) {
             interactivity: r.interactivity,
             usedYet: r.usedYet,
             position: r.position,
+            tags: r.tags ?? [],
           })),
         todos: (task.todos ?? [])
           .slice()

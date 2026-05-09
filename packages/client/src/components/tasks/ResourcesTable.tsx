@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { ResourceEditModal } from "./ResourceEditModal";
 import { getResourceLevelClass, getResourceLevelLabel } from "./resourceMeta";
+import { TagChip } from "./TagChip";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -161,6 +162,7 @@ export function ResourcesTable({
         name: task.name,
         description: task.description ?? null,
         topicId: task.topicId ?? null,
+        taskTypeId: task.taskTypeId ?? null,
         resources: next.map(r => ({
           id: r.id,
           name: r.name,
@@ -169,6 +171,7 @@ export function ResourcesTable({
           timeNeeded: r.timeNeeded ?? null,
           interactivity: r.interactivity ?? null,
           usedYet: r.usedYet,
+          tags: r.tags ?? [],
         })),
         todos: (task.todos ?? []).map(t => ({
           id: t.id,
@@ -267,8 +270,11 @@ export function ResourcesTable({
       timeNeeded: null,
       interactivity: null,
       usedYet: false,
+      tags: [],
     });
   }
+
+  const tagSuggestions = task.taskType?.tags ?? [];
 
   if (resources.length === 0) {
     return (
@@ -289,6 +295,7 @@ export function ResourcesTable({
         <ResourceEditModal
           open={!!draftNewResource}
           resource={draftNewResource}
+          tagSuggestions={tagSuggestions}
           isNew
           onOpenChange={(open) => {
             if (!open) setDraftNewResource(null);
@@ -408,6 +415,7 @@ export function ResourcesTable({
               <th className="p-2 font-medium whitespace-nowrap">Time Needed</th>
               <th className="p-2 font-medium">Interactivity</th>
               <th className="p-2 font-medium whitespace-nowrap">Used yet?</th>
+              <th className="p-2 font-medium">Tags</th>
               <th className="p-2 font-medium">Location</th>
               <th className="w-10 p-2" />
             </tr>
@@ -416,7 +424,7 @@ export function ResourcesTable({
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="p-4 text-center text-muted-foreground"
                 >
                   <i>No resources match these filters.</i>
@@ -459,6 +467,22 @@ export function ResourcesTable({
                         {r.usedYet ? "Used" : "Not yet"}
                       </span>
                     </label>
+                  </td>
+                  <td className="p-2">
+                    {r.tags.length > 0
+                      ? (
+                        <div className="flex flex-wrap gap-1">
+                          {r.tags.map(tag => (
+                            <TagChip
+                              key={tag}
+                              tag={tag}
+                            />
+                          ))}
+                        </div>
+                      )
+                      : (
+                        <span className="text-muted-foreground/60">—</span>
+                      )}
                   </td>
                   <td className="max-w-xs p-2">
                     {r.url
@@ -518,6 +542,7 @@ export function ResourcesTable({
       <ResourceEditModal
         open={!!editingResource}
         resource={editingResource}
+        tagSuggestions={tagSuggestions}
         onOpenChange={(open) => {
           if (!open) setEditingId(null);
         }}
@@ -530,6 +555,7 @@ export function ResourcesTable({
       <ResourceEditModal
         open={!!draftNewResource}
         resource={draftNewResource}
+        tagSuggestions={tagSuggestions}
         isNew
         onOpenChange={(open) => {
           if (!open) setDraftNewResource(null);

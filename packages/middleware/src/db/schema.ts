@@ -1,5 +1,5 @@
 import { boolean, date, integer, jsonb, numeric, pgEnum, pgTable, primaryKey, unique, varchar } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
@@ -94,6 +94,15 @@ export const dailies = pgTable("dailies", {
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });
 
+export const taskTypes = pgTable("task_types", {
+  id: varchar().primaryKey(),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  whenToUse: varchar("when_to_use"),
+  tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
+});
+
 export const tasks = pgTable("tasks", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -101,6 +110,7 @@ export const tasks = pgTable("tasks", {
   }).notNull(),
   description: varchar(),
   topicId: varchar("topic_id"),
+  taskTypeId: varchar("task_type_id"),
 });
 
 export const resources = pgTable("resources", {
@@ -115,6 +125,7 @@ export const resources = pgTable("resources", {
   interactivity: resourceLevelEnum(),
   usedYet: boolean("used_yet").default(false).notNull(),
   position: integer(),
+  tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
 });
 
 export const taskTodos = pgTable("task_todos", {
@@ -135,12 +146,22 @@ export const tasksRelations = relations(tasks, ({
     fields: [tasks.topicId],
     references: [topics.id],
   }),
+  taskType: one(taskTypes, {
+    fields: [tasks.taskTypeId],
+    references: [taskTypes.id],
+  }),
   resources: many(resources),
   todos: many(taskTodos),
   daily: one(dailies, {
     fields: [tasks.id],
     references: [dailies.taskId],
   }),
+}));
+
+export const taskTypesRelations = relations(taskTypes, ({
+  many,
+}) => ({
+  tasks: many(tasks),
 }));
 
 export const resourcesRelations = relations(resources, ({

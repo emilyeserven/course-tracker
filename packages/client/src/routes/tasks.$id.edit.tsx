@@ -16,6 +16,7 @@ import {
   createTask,
   deleteSingleTask,
   fetchSingleTask,
+  fetchTaskTypes,
   fetchTopics,
   formHasChanges,
   upsertTask,
@@ -29,6 +30,7 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(2000),
   topicId: z.string(),
+  taskTypeId: z.string(),
 });
 
 function SingleTaskEdit() {
@@ -56,7 +58,19 @@ function SingleTaskEdit() {
     queryFn: () => fetchTopics(),
   });
 
+  const {
+    data: taskTypes,
+  } = useQuery({
+    queryKey: ["taskTypes"],
+    queryFn: () => fetchTaskTypes(),
+  });
+
   const topicOptions = (topics ?? []).map(t => ({
+    value: t.id,
+    label: t.name,
+  }));
+
+  const taskTypeOptions = (taskTypes ?? []).map(t => ({
     value: t.id,
     label: t.name,
   }));
@@ -66,6 +80,7 @@ function SingleTaskEdit() {
       name: data?.name ?? "",
       description: data?.description ?? "",
       topicId: data?.topicId ?? "",
+      taskTypeId: data?.taskTypeId ?? "",
     }),
     [data],
   );
@@ -86,6 +101,7 @@ function SingleTaskEdit() {
         timeNeeded: r.timeNeeded ?? null,
         interactivity: r.interactivity ?? null,
         usedYet: r.usedYet,
+        tags: r.tags ?? [],
       }));
 
       const existingTodos = (data?.todos ?? []).map(t => ({
@@ -99,6 +115,7 @@ function SingleTaskEdit() {
         name: value.name,
         description: value.description || null,
         topicId: value.topicId || null,
+        taskTypeId: value.taskTypeId || null,
         resources: existingResources,
         todos: existingTodos,
       };
@@ -198,6 +215,16 @@ function SingleTaskEdit() {
                 label="Topic"
                 options={topicOptions}
                 placeholder="Search topics..."
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name="taskTypeId">
+            {field => (
+              <field.ComboboxField
+                label="Task Type"
+                options={taskTypeOptions}
+                placeholder="Search task types..."
               />
             )}
           </form.AppField>

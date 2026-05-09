@@ -85,7 +85,7 @@ export function DashboardUnderutilizedProviders() {
         <Link
           to="/providers"
           className="
-            text-primary text-sm underline-offset-2
+            text-sm text-primary underline-offset-2
             hover:underline
           "
         >
@@ -94,13 +94,13 @@ export function DashboardUnderutilizedProviders() {
       )}
     >
       {isPending && (
-        <p className="text-muted-foreground text-sm">Loading providers...</p>
+        <p className="text-sm text-muted-foreground">Loading providers...</p>
       )}
       {error && (
-        <p className="text-destructive text-sm">Failed to load providers.</p>
+        <p className="text-sm text-destructive">Failed to load providers.</p>
       )}
       {providers && rows.length === 0 && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           <i>No underutilized providers.</i>
         </p>
       )}

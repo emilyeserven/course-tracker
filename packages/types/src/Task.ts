@@ -16,6 +16,10 @@ export interface Task {
   topicId?: string | null;
   topic?: { id: string;
     name: string; } | null;
+  taskTypeId?: string | null;
+  taskType?: { id: string;
+    name: string;
+    tags: string[]; } | null;
   resources?: Resource[];
   todos?: TaskTodo[];
   daily?: TaskLinkedDaily | null;

@@ -18,3 +18,4 @@ export * from "./Radar";
 export * from "./Resource";
 export * from "./Task";
 export * from "./TaskTodo";
+export * from "./TaskType";
