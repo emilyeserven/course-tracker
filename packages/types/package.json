@@ -6,7 +6,15 @@
     "@types/node": "24.10.1",
     "typescript": "5.9.3"
   },
+  "main": "dist/index.js",
   "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "packageManager": "pnpm@10.13.1",
   "private": true,
   "scripts": {
