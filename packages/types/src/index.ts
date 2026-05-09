@@ -11,6 +11,7 @@ export * from "./TopicsToCourses";
 export * from "./Domain";
 export * from "./Daily";
 export * from "./DailyCriteriaTemplate";
+export * from "./Interaction";
 export * from "./Module";
 export * from "./ModuleGroup";
 export * from "./Radar";

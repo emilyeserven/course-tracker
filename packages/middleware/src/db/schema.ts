@@ -32,6 +32,9 @@ export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", 
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
+export const interactionProgressEnum = pgEnum("interaction_progress", ["incomplete", "started", "complete"]);
+export const interactionDifficultyEnum = pgEnum("interaction_difficulty", ["easy", "medium", "hard"]);
+export const interactionUnderstandingEnum = pgEnum("interaction_understanding", ["none", "basic", "comfortable", "proficient", "mastered"]);
 
 export const topics = pgTable("topics", {
   id: varchar().primaryKey(),
@@ -119,6 +122,50 @@ export const modules = pgTable("modules", {
   // (and ungrouped modules) — drag-handle or up/down buttons.
   position: integer(),
 });
+
+// Replaces resources.usedYet with a richer log. An interaction targets a
+// course (= future Resource) and optionally narrows to a module group or
+// a single module. At most one of moduleGroupId / moduleId is set; both
+// null = the interaction is at the whole-course level.
+//
+// Note: the column is named courseId today; when the courses → resources
+// rename lands, this becomes resourceId.
+export const interactions = pgTable("interactions", {
+  id: varchar().primaryKey(),
+  courseId: varchar("course_id")
+    .notNull()
+    .references(() => courses.id),
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+    onDelete: "set null",
+  }),
+  moduleId: varchar("module_id").references(() => modules.id, {
+    onDelete: "set null",
+  }),
+  date: date().notNull(),
+  // Renamed from "status" to "progress" to avoid collision with
+  // course.status (lifecycle) — they're different axes.
+  progress: interactionProgressEnum().notNull(),
+  note: varchar(),
+  difficulty: interactionDifficultyEnum(),
+  understanding: interactionUnderstandingEnum(),
+});
+
+export const interactionsRelations = relations(interactions, ({
+  one,
+}) => ({
+  course: one(courses, {
+    fields: [interactions.courseId],
+    references: [courses.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [interactions.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [interactions.moduleId],
+    references: [modules.id],
+  }),
+}));
 
 export const dailies = pgTable("dailies", {
   id: varchar().primaryKey(),
@@ -438,6 +485,7 @@ export const coursesRelations = relations(courses, ({
   tasksToCourses: many(tasksToCourses),
   moduleGroups: many(moduleGroups),
   modules: many(modules),
+  interactions: many(interactions),
   dailies: many(dailies),
 }));
 
@@ -449,10 +497,11 @@ export const moduleGroupsRelations = relations(moduleGroups, ({
     references: [courses.id],
   }),
   modules: many(modules),
+  interactions: many(interactions),
 }));
 
 export const modulesRelations = relations(modules, ({
-  one,
+  one, many,
 }) => ({
   course: one(courses, {
     fields: [modules.courseId],
@@ -462,6 +511,7 @@ export const modulesRelations = relations(modules, ({
     fields: [modules.moduleGroupId],
     references: [moduleGroups.id],
   }),
+  interactions: many(interactions),
 }));
 
 export const topicsRelations = relations(topics, ({

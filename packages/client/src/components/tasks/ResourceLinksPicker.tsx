@@ -179,7 +179,8 @@ export function ResourceLinksPicker({
         className="
           flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
           shadow-sm transition-colors
-          focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none
+          focus-visible:ring-1 focus-visible:ring-ring
+          focus-visible:outline-none
           disabled:cursor-not-allowed disabled:opacity-50
         "
         disabled={availableOptions.length === 0}

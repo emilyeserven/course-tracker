@@ -1,5 +1,6 @@
 import {
   courses,
+  interactions,
   moduleGroups,
   modules,
   tasksToCourses,
@@ -19,6 +20,13 @@ export default createDeleteHandler({
     {
       table: tasksToCourses,
       foreignKey: tasksToCourses.courseId,
+    },
+    // Interactions reference courses + (optionally) modules / moduleGroups.
+    // Delete them before the modules cascade so the moduleGroupId / moduleId
+    // FKs (ON DELETE SET NULL) don't have to do extra work.
+    {
+      table: interactions,
+      foreignKey: interactions.courseId,
     },
     // Modules reference moduleGroups, so delete modules first (junctions run
     // in order). Both modules and moduleGroups reference courses.

@@ -4,6 +4,7 @@ import {
   domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
+  interactions,
   moduleGroups,
   modules,
   radarBlips,
@@ -19,6 +20,7 @@ import {
 import { db } from "@/db/index";
 
 export async function clearData() {
+  await db.delete(interactions);
   await db.delete(resourcesToTags);
   await db.delete(tasksToTags);
   await db.delete(tasksToCourses);
