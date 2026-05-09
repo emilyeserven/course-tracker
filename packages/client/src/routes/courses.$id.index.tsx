@@ -84,7 +84,7 @@ function SingleCourse() {
                   >
                     {daily.name}
                   </Link>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-xs text-muted-foreground">
                     {`${chain}-day chain · ${total} total`}
                   </span>
                 </div>

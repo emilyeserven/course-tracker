@@ -318,7 +318,7 @@ export function DashboardCoursesByAmortization() {
         <Link
           to="/courses"
           className="
-            text-primary text-sm underline-offset-2
+            text-sm text-primary underline-offset-2
             hover:underline
           "
         >
@@ -355,9 +355,8 @@ export function DashboardCoursesByAmortization() {
             aria-checked={showUnstarted}
             onClick={() => setShowUnstarted(prev => !prev)}
             className="
-              text-muted-foreground
+              inline-flex items-center gap-2 text-xs text-muted-foreground
               hover:text-foreground
-              inline-flex items-center gap-2 text-xs
             "
           >
             <span
@@ -372,7 +371,7 @@ export function DashboardCoursesByAmortization() {
               <span
                 className={cn(
                   `
-                    bg-background inline-block size-3 rounded-full shadow-sm
+                    inline-block size-3 rounded-full bg-background shadow-sm
                     transition-transform
                   `,
                   showUnstarted ? "translate-x-3.5" : "translate-x-0.5",
@@ -384,19 +383,19 @@ export function DashboardCoursesByAmortization() {
         )}
       </div>
       {isPending && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {viewMode === "providers" ? "Loading providers..." : "Loading courses..."}
         </p>
       )}
       {error && (
-        <p className="text-destructive text-sm">
+        <p className="text-sm text-destructive">
           {viewMode === "providers"
             ? "Failed to load providers."
             : "Failed to load courses."}
         </p>
       )}
       {hasData && isEmpty && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           <i>
             {viewMode === "providers"
               ? "No providers with shared course fees."
@@ -416,8 +415,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleCourseSort("name")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Course
@@ -429,8 +428,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleCourseSort("provider")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Provider
@@ -442,8 +441,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleCourseSort("cost")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Cost
@@ -455,8 +454,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleCourseSort("progress")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Progress
@@ -468,8 +467,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleCourseSort("costPerUnit")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Cost per Unit
@@ -589,8 +588,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("name")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Provider
@@ -602,8 +601,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("courseCount")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Courses
@@ -615,8 +614,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("completedUnits")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Completed Units
@@ -628,8 +627,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("totalUnits")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Total Units
@@ -641,8 +640,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("cost")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Cost
@@ -654,8 +653,8 @@ export function DashboardCoursesByAmortization() {
                     type="button"
                     onClick={() => toggleProviderSort("costPerUnit")}
                     className="
-                      hover:text-foreground
                       inline-flex items-center gap-1
+                      hover:text-foreground
                     "
                   >
                     Cost per Unit
