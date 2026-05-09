@@ -13,6 +13,8 @@ import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
 import tagGroups from "./tag-groups/routes";
 import tags from "./tags/routes";
+import moduleGroups from "./module-groups/routes";
+import modules from "./modules/routes";
 import dailyCriteriaTemplates from "./daily-criteria-templates/routes";
 
 export default async function (server: FastifyInstance) {
@@ -47,6 +49,12 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(tags, {
     prefix: "/tags",
+  });
+  fastify.register(moduleGroups, {
+    prefix: "/module-groups",
+  });
+  fastify.register(modules, {
+    prefix: "/modules",
   });
   fastify.register(dailyCriteriaTemplates, {
     prefix: "/daily-criteria-templates",

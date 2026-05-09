@@ -6,6 +6,8 @@ import type {
   DailyCriteriaTemplate,
   Domain,
   Daily,
+  Module,
+  ModuleGroup,
   Radar,
   Tag,
   TagGroup,
@@ -162,6 +164,11 @@ export const tagGroupsApi = createEntityClient<TagGroup>(
   "tag group",
 );
 export const tagsApi = createEntityClient<Tag>("tags", "tag");
+export const moduleGroupsApi = createEntityClient<ModuleGroup>(
+  "module-groups",
+  "module group",
+);
+export const modulesApi = createEntityClient<Module>("modules", "module");
 export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplate>(
   "daily-criteria-templates",
   "criteria template",
@@ -176,6 +183,8 @@ export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;
 export const fetchTagGroups = tagGroupsApi.list;
 export const fetchTags = tagsApi.list;
+export const fetchModuleGroups = moduleGroupsApi.list;
+export const fetchModules = modulesApi.list;
 export const fetchDailyCriteriaTemplates = dailyCriteriaTemplatesApi.list;
 
 export const fetchSingleCourse = coursesApi.get;
@@ -194,6 +203,8 @@ export const upsertTask = tasksApi.upsert;
 export const upsertTaskType = taskTypesApi.upsert;
 export const upsertTagGroup = tagGroupsApi.upsert;
 export const upsertTag = tagsApi.upsert;
+export const upsertModuleGroup = moduleGroupsApi.upsert;
+export const upsertModule = modulesApi.upsert;
 export const upsertDailyCriteriaTemplate = dailyCriteriaTemplatesApi.upsert;
 
 export const createTopic = topicsApi.create;
@@ -204,6 +215,8 @@ export const createTask = tasksApi.create;
 export const createTaskType = taskTypesApi.create;
 export const createTagGroup = tagGroupsApi.create;
 export const createTag = tagsApi.create;
+export const createModuleGroup = moduleGroupsApi.create;
+export const createModule = modulesApi.create;
 export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
 
 export const deleteSingleCourse = coursesApi.delete;
@@ -215,6 +228,8 @@ export const deleteSingleTask = tasksApi.delete;
 export const deleteSingleTaskType = taskTypesApi.delete;
 export const deleteSingleTagGroup = tagGroupsApi.delete;
 export const deleteSingleTag = tagsApi.delete;
+export const deleteSingleModuleGroup = moduleGroupsApi.delete;
+export const deleteSingleModule = modulesApi.delete;
 export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delete;
 
 export const duplicateCourse = coursesApi.duplicate;

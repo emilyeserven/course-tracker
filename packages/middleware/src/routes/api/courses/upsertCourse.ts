@@ -20,6 +20,7 @@ interface CourseBody {
   isExpires?: boolean | null;
   topicId?: string | null;
   courseProviderId?: string | null;
+  modulesAreExhaustive?: boolean;
 }
 
 const updateableColumns = [
@@ -34,6 +35,7 @@ const updateableColumns = [
   "dateExpires",
   "isExpires",
   "courseProviderId",
+  "modulesAreExhaustive",
 ] as const;
 
 export default createUpsertHandler<CourseBody>({
@@ -59,6 +61,9 @@ export default createUpsertHandler<CourseBody>({
       isExpires: nullableBoolean,
       topicId: nullableString,
       courseProviderId: nullableString,
+      modulesAreExhaustive: {
+        type: "boolean",
+      },
     },
   },
   buildRow: (body, id) => ({
@@ -74,6 +79,7 @@ export default createUpsertHandler<CourseBody>({
     dateExpires: body.dateExpires ?? null,
     isExpires: body.isExpires ?? null,
     courseProviderId: body.courseProviderId ?? null,
+    modulesAreExhaustive: body.modulesAreExhaustive ?? false,
   }),
   updateableColumns,
   generateIdIfMissing: true,
