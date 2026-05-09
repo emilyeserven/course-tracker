@@ -101,20 +101,23 @@ export function TopicsTable({
                   </EntityLink>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {topic.domains && topic.domains.length > 0
+                  {topic.domains
+                    && topic.domains.filter(d => d.id !== undefined).length > 0
                     ? (
                       <div className="flex flex-wrap gap-1">
-                        {topic.domains.map(domain => (
-                          <span
-                            key={domain.id}
-                            className="
-                              rounded-sm bg-gray-100 px-2 py-0.5 text-xs
-                              text-gray-700
-                            "
-                          >
-                            {domain.title}
-                          </span>
-                        ))}
+                        {topic.domains
+                          .filter(domain => domain.id !== undefined)
+                          .map(domain => (
+                            <span
+                              key={domain.id}
+                              className="
+                                rounded-sm bg-gray-100 px-2 py-0.5 text-xs
+                                text-gray-700
+                              "
+                            >
+                              {domain.title}
+                            </span>
+                          ))}
                       </div>
                     )
                     : (
