@@ -25,7 +25,7 @@ export function TodayStatusCell({
 
   return (
     <div className="flex flex-row items-center gap-1">
-      <div className="flex w-36 flex-row items-center gap-1">
+      <div className="flex w-28 flex-row items-center gap-1">
         <button
           type="button"
           disabled={disabled}

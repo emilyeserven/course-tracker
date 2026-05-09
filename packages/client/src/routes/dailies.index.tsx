@@ -338,7 +338,7 @@ function Dailies() {
                                 left={currentStatus}
                                 right={days[0].status}
                                 className="
-                                  absolute top-1/2 -right-2 left-38 z-0 w-auto
+                                  absolute top-1/2 -right-2 left-30 z-0 w-auto
                                   -translate-y-1/2
                                 "
                               />
