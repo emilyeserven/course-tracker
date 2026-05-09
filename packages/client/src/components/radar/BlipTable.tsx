@@ -5,11 +5,25 @@ import type {
 
 import { useMemo, useState } from "react";
 
-import { Loader2, PencilIcon, TrashIcon, XIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronsUpDownIcon,
+  Loader2,
+  PencilIcon,
+  TrashIcon,
+  XIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/forms/input";
 import { Textarea } from "@/components/forms/textarea";
+import { Pill } from "@/components/radar/Pill";
+import {
+  pillClassByIndex,
+  RING_PILL_CLASSES,
+  SLICE_PILL_CLASSES,
+} from "@/components/radar/radarColors";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -30,12 +44,17 @@ import {
 interface QuadrantInfo {
   id: string;
   name: string;
+  position: number;
 }
 
 interface RingInfo {
   id: string;
   name: string;
+  position: number;
 }
+
+type SortKey = "topic" | "slice" | "ring";
+type SortDir = "asc" | "desc";
 
 interface BlipTableProps {
   blips: RadarBlip[];
@@ -70,9 +89,20 @@ export function BlipTable({
   const [search, setSearch] = useState("");
   const [filterQuadrant, setFilterQuadrant] = useState<string>(ALL);
   const [filterRing, setFilterRing] = useState<string>(ALL);
+  const [sortKey, setSortKey] = useState<SortKey>("slice");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+
+  function toggleSort(key: SortKey) {
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortDir("asc");
+      return;
+    }
+    setSortDir(prev => prev === "asc" ? "desc" : "asc");
+  }
 
   const quadrantById = useMemo(() => {
     const map = new Map<string, QuadrantInfo>();
@@ -92,9 +122,25 @@ export function BlipTable({
     return map;
   }, [topics]);
 
+  const sliceCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    blips.forEach((b) => {
+      counts.set(b.quadrantId, (counts.get(b.quadrantId) ?? 0) + 1);
+    });
+    return counts;
+  }, [blips]);
+
+  const ringCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    blips.forEach((b) => {
+      counts.set(b.ringId, (counts.get(b.ringId) ?? 0) + 1);
+    });
+    return counts;
+  }, [blips]);
+
   const filteredBlips = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return blips.filter((b) => {
+    const filtered = blips.filter((b) => {
       if (filterQuadrant !== ALL && b.quadrantId !== filterQuadrant) {
         return false;
       }
@@ -110,7 +156,50 @@ export function BlipTable({
       }
       return true;
     });
-  }, [blips, search, filterQuadrant, filterRing]);
+    const dir = sortDir === "asc" ? 1 : -1;
+    const sorted = filtered.slice().sort((a, b) => {
+      let av: number | string;
+      let bv: number | string;
+      if (sortKey === "topic") {
+        av = (a.topicName ?? "").toLowerCase();
+        bv = (b.topicName ?? "").toLowerCase();
+      }
+      else if (sortKey === "slice") {
+        av = quadrantById.get(a.quadrantId)?.position ?? Number.MAX_SAFE_INTEGER;
+        bv = quadrantById.get(b.quadrantId)?.position ?? Number.MAX_SAFE_INTEGER;
+      }
+      else {
+        av = ringById.get(a.ringId)?.position ?? Number.MAX_SAFE_INTEGER;
+        bv = ringById.get(b.ringId)?.position ?? Number.MAX_SAFE_INTEGER;
+      }
+      if (av < bv) {
+        return -1 * dir;
+      }
+      if (av > bv) {
+        return 1 * dir;
+      }
+      return (a.topicName ?? "").localeCompare(b.topicName ?? "");
+    });
+    return sorted;
+  }, [
+    blips,
+    search,
+    filterQuadrant,
+    filterRing,
+    sortKey,
+    sortDir,
+    quadrantById,
+    ringById,
+  ]);
+
+  function sortIcon(key: SortKey) {
+    if (sortKey !== key) {
+      return <ChevronsUpDownIcon className="size-3 opacity-50" />;
+    }
+    return sortDir === "asc"
+      ? <ChevronUpIcon className="size-3" />
+      : <ChevronDownIcon className="size-3" />;
+  }
 
   function startEdit(blip: RadarBlip) {
     setEditingId(blip.id);
@@ -184,13 +273,20 @@ export function BlipTable({
             <SelectValue placeholder="Slice" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All Slices</SelectItem>
+            <SelectItem value={ALL}>
+              All Slices (
+              {blips.length}
+              )
+            </SelectItem>
             {quadrants.map(q => (
               <SelectItem
                 key={q.id}
                 value={q.id}
               >
                 {q.name}
+                {" ("}
+                {sliceCounts.get(q.id) ?? 0}
+                )
               </SelectItem>
             ))}
           </SelectContent>
@@ -203,13 +299,20 @@ export function BlipTable({
             <SelectValue placeholder="Ring" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All Rings</SelectItem>
+            <SelectItem value={ALL}>
+              All Rings (
+              {blips.length}
+              )
+            </SelectItem>
             {rings.map(r => (
               <SelectItem
                 key={r.id}
                 value={r.id}
               >
                 {r.name}
+                {" ("}
+                {ringCounts.get(r.id) ?? 0}
+                )
               </SelectItem>
             ))}
           </SelectContent>
@@ -220,9 +323,45 @@ export function BlipTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Topic</TableHead>
-              <TableHead>Slice</TableHead>
-              <TableHead>Ring</TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  onClick={() => toggleSort("topic")}
+                  className={`
+                    inline-flex items-center gap-1
+                    hover:text-foreground
+                  `}
+                >
+                  Topic
+                  {sortIcon("topic")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  onClick={() => toggleSort("slice")}
+                  className={`
+                    inline-flex items-center gap-1
+                    hover:text-foreground
+                  `}
+                >
+                  Slice
+                  {sortIcon("slice")}
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  onClick={() => toggleSort("ring")}
+                  className={`
+                    inline-flex items-center gap-1
+                    hover:text-foreground
+                  `}
+                >
+                  Ring
+                  {sortIcon("ring")}
+                </button>
+              </TableHead>
               <TableHead>Radar Note</TableHead>
               <TableHead className="w-1 text-right">Actions</TableHead>
             </TableRow>
@@ -388,10 +527,40 @@ export function BlipTable({
                       {blip.topicName}
                     </TableCell>
                     <TableCell>
-                      {quadrantById.get(blip.quadrantId)?.name ?? "—"}
+                      {(() => {
+                        const q = quadrantById.get(blip.quadrantId);
+                        if (!q) {
+                          return "—";
+                        }
+                        return (
+                          <Pill
+                            className={pillClassByIndex(
+                              SLICE_PILL_CLASSES,
+                              q.position,
+                            )}
+                          >
+                            {q.name}
+                          </Pill>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell>
-                      {ringById.get(blip.ringId)?.name ?? "—"}
+                      {(() => {
+                        const r = ringById.get(blip.ringId);
+                        if (!r) {
+                          return "—";
+                        }
+                        return (
+                          <Pill
+                            className={pillClassByIndex(
+                              RING_PILL_CLASSES,
+                              r.position,
+                            )}
+                          >
+                            {r.name}
+                          </Pill>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell
                       className={`

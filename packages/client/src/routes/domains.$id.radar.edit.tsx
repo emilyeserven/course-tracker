@@ -1,38 +1,29 @@
+import type { QuadrantDraft, RingDraft } from "@/components/radar/RadarConfigTab";
 import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types/src";
 
 import { useEffect, useMemo, useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeftIcon,
-  EyeIcon,
-  Loader2,
-  PlusIcon,
-  SparklesIcon,
-  TrashIcon,
-} from "lucide-react";
+import { ArrowLeftIcon, EyeIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/forms/input";
-import { Textarea } from "@/components/forms/textarea";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { BlipBulkAdd } from "@/components/radar/BlipBulkAdd";
-import { BlipLlmAssist } from "@/components/radar/BlipLlmAssist";
-import { BlipTable } from "@/components/radar/BlipTable";
+import { BlipsTab } from "@/components/radar/BlipsTab";
+import { LlmEditTab } from "@/components/radar/LlmEditTab";
 import {
-  QuadrantsIllustration,
-  RingsIllustration,
-} from "@/components/radar/RadarConfigIllustrations";
-import { TopicMultiSelect } from "@/components/radar/TopicMultiSelect";
+
+  RadarConfigTab,
+
+} from "@/components/radar/RadarConfigTab";
+import { ScopeTab } from "@/components/radar/ScopeTab";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   createRadarBlip,
   deleteRadarBlip,
@@ -44,23 +35,25 @@ import {
   upsertRadarConfig,
 } from "@/utils";
 
+const TAB_VALUES = ["config", "scope", "blips", "llm"] as const;
+type RadarEditTab = (typeof TAB_VALUES)[number];
+
+interface RadarEditSearch {
+  tab?: RadarEditTab;
+}
+
 export const Route = createFileRoute("/domains/$id/radar/edit")({
   component: RadarEdit,
+  validateSearch: (search: Record<string, unknown>): RadarEditSearch => {
+    const value = search.tab;
+    if (typeof value === "string" && (TAB_VALUES as readonly string[]).includes(value)) {
+      return {
+        tab: value as RadarEditTab,
+      };
+    }
+    return {};
+  },
 });
-
-interface QuadrantDraft {
-  id?: string;
-  name: string;
-  position: number;
-  localKey: string;
-}
-
-interface RingDraft {
-  id?: string;
-  name: string;
-  position: number;
-  localKey: string;
-}
 
 interface BlipDraft {
   id?: string;
@@ -103,7 +96,7 @@ function quadrantsFromServer(items: RadarQuadrant[]): QuadrantDraft[] {
   while (fromServer.length < QUADRANT_COUNT) {
     const idx = fromServer.length;
     fromServer.push({
-      name: DEFAULT_QUADRANTS[idx] ?? "",
+      name: "",
       position: idx,
       localKey: nextLocalKey(),
     });
@@ -153,12 +146,12 @@ function blipsFromServer(items: RadarBlip[]): BlipDraft[] {
   }));
 }
 
-type AddMode = "single" | "bulk" | "llm";
-
 function RadarEdit() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
+  const tab: RadarEditTab = search.tab ?? "config";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -189,7 +182,6 @@ function RadarEdit() {
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [pendingBlipKey, setPendingBlipKey] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
-  const [addMode, setAddMode] = useState<AddMode>("single");
 
   const [withinScopeDescription, setWithinScopeDescription] = useState("");
   const [outOfScopeDescription, setOutOfScopeDescription] = useState("");
@@ -236,8 +228,10 @@ function RadarEdit() {
     [data],
   );
   const allConfigPersisted
-    = quadrants.every(q => q.id && persistedQuadrantIds.has(q.id))
-      && rings.every(r => r.id && persistedRingIds.has(r.id));
+    = quadrants.every(
+      q => !q.name.trim() || (q.id && persistedQuadrantIds.has(q.id)),
+    )
+    && rings.every(r => r.id && persistedRingIds.has(r.id));
 
   const topicNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -281,6 +275,54 @@ function RadarEdit() {
     });
     return set;
   }, [savedBlipsForTable, newBlipDrafts]);
+
+  const persistedQuadrants = useMemo(
+    () =>
+      quadrants.filter(
+        (q): q is QuadrantDraft & { id: string } => Boolean(q.id),
+      ),
+    [quadrants],
+  );
+  const persistedRings = useMemo(
+    () =>
+      rings.filter((r): r is RingDraft & { id: string } => Boolean(r.id)),
+    [rings],
+  );
+
+  function changeTab(next: RadarEditTab) {
+    navigate({
+      to: "/domains/$id/radar/edit",
+      params: {
+        id,
+      },
+      search: {
+        tab: next,
+      },
+      replace: true,
+    });
+  }
+
+  function changeQuadrant(localKey: string, name: string) {
+    setQuadrants(prev =>
+      prev.map(item =>
+        item.localKey === localKey
+          ? {
+            ...item,
+            name,
+          }
+          : item));
+  }
+
+  function changeRing(localKey: string, name: string) {
+    setRings(prev =>
+      prev.map(item =>
+        item.localKey === localKey
+          ? {
+            ...item,
+            name,
+          }
+          : item));
+  }
 
   function addRing() {
     setRings((prev) => {
@@ -397,7 +439,7 @@ function RadarEdit() {
   }
 
   function addBlipDraft() {
-    if (quadrants.length === 0 || rings.length === 0) {
+    if (persistedQuadrants.length === 0 || persistedRings.length === 0) {
       toast.error("Add at least one slice and ring first.");
       return;
     }
@@ -410,11 +452,55 @@ function RadarEdit() {
       {
         topicId: "",
         description: "",
-        quadrantId: quadrants[0].id ?? "",
-        ringId: rings[0].id ?? "",
+        quadrantId: persistedQuadrants[0].id,
+        ringId: persistedRings[0].id,
         localKey: nextLocalKey(),
       },
     ]);
+  }
+
+  function changeBlipTopic(localKey: string, topicId: string) {
+    setBlips(prev =>
+      prev.map(b =>
+        b.localKey === localKey
+          ? {
+            ...b,
+            topicId,
+          }
+          : b));
+  }
+
+  function changeBlipQuadrant(localKey: string, quadrantId: string) {
+    setBlips(prev =>
+      prev.map(b =>
+        b.localKey === localKey
+          ? {
+            ...b,
+            quadrantId,
+          }
+          : b));
+  }
+
+  function changeBlipRing(localKey: string, ringId: string) {
+    setBlips(prev =>
+      prev.map(b =>
+        b.localKey === localKey
+          ? {
+            ...b,
+            ringId,
+          }
+          : b));
+  }
+
+  function changeBlipDescription(localKey: string, description: string) {
+    setBlips(prev =>
+      prev.map(b =>
+        b.localKey === localKey
+          ? {
+            ...b,
+            description,
+          }
+          : b));
   }
 
   async function saveBlip(blip: BlipDraft) {
@@ -517,7 +603,7 @@ function RadarEdit() {
     }
   }
 
-  async function handleBulkComplete() {
+  async function handleLlmComplete() {
     await queryClient.invalidateQueries({
       queryKey: ["radar", id],
     });
@@ -525,6 +611,7 @@ function RadarEdit() {
       queryKey: ["topics"],
     });
     setHydrated(false);
+    changeTab("blips");
   }
 
   if (isPending) {
@@ -534,13 +621,6 @@ function RadarEdit() {
       </div>
     );
   }
-
-  const persistedQuadrants = quadrants.filter(
-    (q): q is QuadrantDraft & { id: string } => Boolean(q.id),
-  );
-  const persistedRings = rings.filter(
-    (r): r is RingDraft & { id: string } => Boolean(r.id),
-  );
 
   return (
     <div>
@@ -575,462 +655,77 @@ function RadarEdit() {
           </Link>
         </div>
       </PageHeader>
-      <div className="container flex flex-col gap-12">
-        <div
-          className={`
-            grid grid-cols-1 gap-8
-            md:grid-cols-2
-          `}
+      <div className="container flex flex-col gap-6">
+        <Tabs
+          value={tab}
+          onValueChange={value => changeTab(value as RadarEditTab)}
         >
-          <section className="flex flex-col gap-4">
-            <h2 className="text-2xl">Slices</h2>
-            <p className="text-sm text-muted-foreground">
-              Slices are the categories on your radar. The 5th is optional —
-              leave it blank for a 4-slice radar.
-            </p>
-            <div className="flex justify-center">
-              <QuadrantsIllustration names={quadrants.map(q => q.name)} />
-            </div>
-            <ul className="flex flex-col gap-2">
-              {quadrants.map((q, idx) => {
-                const isOptional = idx === QUADRANT_COUNT - 1;
-                const isInactive = isOptional && !q.name.trim();
-                return (
-                  <li
-                    key={q.localKey}
-                    className={`
-                      flex flex-row items-center gap-2
-                      ${isInactive ? "opacity-60" : ""}
-                    `}
-                  >
-                    <span className="w-6 text-sm text-muted-foreground">
-                      {idx + 1}
-                      .
-                    </span>
-                    <Input
-                      value={q.name}
-                      onChange={e =>
-                        setQuadrants(prev =>
-                          prev.map(item =>
-                            item.localKey === q.localKey
-                              ? {
-                                ...item,
-                                name: e.target.value,
-                              }
-                              : item))}
-                      placeholder={
-                        isOptional ? "Slice name (optional)" : "Slice name"
-                      }
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+          <TabsList>
+            <TabsTrigger value="config">Radar Config</TabsTrigger>
+            <TabsTrigger value="scope">Scope</TabsTrigger>
+            <TabsTrigger value="blips">Blips</TabsTrigger>
+            <TabsTrigger value="llm">LLM Edit</TabsTrigger>
+          </TabsList>
 
-          <section className="flex flex-col gap-4">
-            <h2 className="text-2xl">Rings</h2>
-            <p className="text-sm text-muted-foreground">
-              Rings represent levels of adoption.
-            </p>
-            <div className="flex justify-center">
-              <RingsIllustration names={rings.map(r => r.name)} />
-            </div>
-            <ul className="flex flex-col gap-2">
-              {rings.map((r, idx) => (
-                <li
-                  key={r.localKey}
-                  className="flex flex-row items-center gap-2"
-                >
-                  <span className="w-6 text-sm text-muted-foreground">
-                    {idx + 1}
-                    .
-                  </span>
-                  <Input
-                    value={r.name}
-                    onChange={e =>
-                      setRings(prev =>
-                        prev.map(item =>
-                          item.localKey === r.localKey
-                            ? {
-                              ...item,
-                              name: e.target.value,
-                            }
-                            : item))}
-                    placeholder="Ring name"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeRing(r.localKey)}
-                    aria-label="Remove ring"
-                  >
-                    <TrashIcon />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addRing}
-                disabled={rings.length >= MAX_RINGS}
-              >
-                <PlusIcon />
-                {" "}
-                Add Ring
-              </Button>
-            </div>
-          </section>
-        </div>
-
-        <div>
-          <Button
-            type="button"
-            onClick={saveConfig}
-            disabled={isSavingConfig}
-          >
-            {isSavingConfig && <Loader2 className="animate-spin" />}
-            Save Configuration
-          </Button>
-        </div>
-
-        <section className="flex flex-col gap-6">
-          <h2 className="text-3xl">Details</h2>
-          <div
-            className={`
-              grid grid-cols-1 gap-6
-              md:grid-cols-2
-            `}
-          >
-            <div className="flex flex-col gap-3 rounded-md border p-4">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-xl font-semibold">Within Scope</h3>
-                <p className="text-sm text-muted-foreground">
-                  Used to nudge the LLM toward topics that fit this
-                  radar&apos;s focus.
-                </p>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase">Description</label>
-                <Textarea
-                  value={withinScopeDescription}
-                  onChange={e => setWithinScopeDescription(e.target.value)}
-                  placeholder="What kinds of topics belong on this radar?"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase">Topics</label>
-                <TopicMultiSelect
-                  options={(topics ?? [])
-                    .filter(t => !outOfScopeTopicIds.includes(t.id))
-                    .map(t => ({
-                      value: t.id,
-                      label: t.name,
-                    }))}
-                  value={withinScopeTopicIds}
-                  onChange={setWithinScopeTopicIds}
-                  placeholder="Add topics in scope..."
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 rounded-md border p-4">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-xl font-semibold">Out of Scope</h3>
-                <p className="text-sm text-muted-foreground">
-                  Used to nudge the LLM away from topics that don&apos;t fit
-                  this radar.
-                </p>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase">Description</label>
-                <Textarea
-                  value={outOfScopeDescription}
-                  onChange={e => setOutOfScopeDescription(e.target.value)}
-                  placeholder="What kinds of topics should be avoided?"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase">Topics</label>
-                <TopicMultiSelect
-                  options={(topics ?? [])
-                    .filter(t => !withinScopeTopicIds.includes(t.id))
-                    .map(t => ({
-                      value: t.id,
-                      label: t.name,
-                    }))}
-                  value={outOfScopeTopicIds}
-                  onChange={setOutOfScopeTopicIds}
-                  placeholder="Add topics out of scope..."
-                />
-              </div>
-            </div>
-          </div>
-          <div>
-            <Button
-              type="button"
-              onClick={saveDetails}
-              disabled={isSavingDetails || !domainDetail}
-            >
-              {isSavingDetails && <Loader2 className="animate-spin" />}
-              Save Details
-            </Button>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-4">
-          <h2 className="text-2xl">Blips</h2>
-          {!allConfigPersisted && (
-            <p className="text-sm text-amber-700">
-              Save your slices and rings before adding blips.
-            </p>
-          )}
-
-          {allConfigPersisted && (
-            <BlipTable
-              blips={savedBlipsForTable}
-              quadrants={persistedQuadrants}
-              rings={persistedRings}
-              topics={topics ?? []}
-              onSave={handleTableSave}
-              onRemove={handleTableRemove}
+          <TabsContent value="config">
+            <RadarConfigTab
+              quadrants={quadrants}
+              rings={rings}
+              quadrantCount={QUADRANT_COUNT}
+              maxRings={MAX_RINGS}
+              isSaving={isSavingConfig}
+              onChangeQuadrant={changeQuadrant}
+              onChangeRing={changeRing}
+              onAddRing={addRing}
+              onRemoveRing={removeRing}
+              onSave={saveConfig}
             />
-          )}
+          </TabsContent>
 
-          {newBlipDrafts.length > 0 && (
-            <ul className="flex flex-col gap-4">
-              {newBlipDrafts.map((blip) => {
-                const pickedTopic = blip.topicId
-                  ? topicById.get(blip.topicId)
-                  : null;
-                return (
-                  <li
-                    key={blip.localKey}
-                    className="flex flex-col gap-3 rounded-sm border p-4"
-                  >
-                    <h3 className="text-lg font-semibold">Add Blip</h3>
-                    <div
-                      className={`
-                        grid grid-cols-1 gap-4
-                        md:grid-cols-2
-                      `}
-                    >
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs uppercase">Topic</label>
-                        <Select
-                          value={blip.topicId}
-                          onValueChange={value =>
-                            setBlips(prev =>
-                              prev.map(b =>
-                                b.localKey === blip.localKey
-                                  ? {
-                                    ...b,
-                                    topicId: value,
-                                  }
-                                  : b))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose topic" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(topics ?? [])
-                              .filter(
-                                t =>
-                                  t.id === blip.topicId
-                                  || !usedTopicIds.has(t.id),
-                              )
-                              .map(t => (
-                                <SelectItem
-                                  key={t.id}
-                                  value={t.id}
-                                >
-                                  {t.name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        {pickedTopic
-                          ? (
-                            <div className="flex flex-col gap-1">
-                              <h4 className="text-base font-semibold">
-                                {pickedTopic.name}
-                              </h4>
-                              <p
-                                className={`
-                                  text-sm text-muted-foreground
-                                  ${pickedTopic.description?.trim()
-                              ? ""
-                              : "italic"}
-                                `}
-                              >
-                                {pickedTopic.description?.trim()
-                                  || "(no topic description)"}
-                              </p>
-                            </div>
-                          )
-                          : blip.topicId && !topicNameById.has(blip.topicId)
-                            ? (
-                              <span
-                                className="text-xs text-muted-foreground"
-                              >
-                                (topic not in list)
-                              </span>
-                            )
-                            : null}
-                      </div>
-                      <div className="flex flex-col gap-3">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs uppercase">Slice</label>
-                          <Select
-                            value={blip.quadrantId}
-                            onValueChange={value =>
-                              setBlips(prev =>
-                                prev.map(b =>
-                                  b.localKey === blip.localKey
-                                    ? {
-                                      ...b,
-                                      quadrantId: value,
-                                    }
-                                    : b))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose slice" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {persistedQuadrants.map(q => (
-                                <SelectItem
-                                  key={q.id}
-                                  value={q.id}
-                                >
-                                  {q.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs uppercase">Ring</label>
-                          <Select
-                            value={blip.ringId}
-                            onValueChange={value =>
-                              setBlips(prev =>
-                                prev.map(b =>
-                                  b.localKey === blip.localKey
-                                    ? {
-                                      ...b,
-                                      ringId: value,
-                                    }
-                                    : b))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose ring" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {persistedRings.map(r => (
-                                <SelectItem
-                                  key={r.id}
-                                  value={r.id}
-                                >
-                                  {r.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs uppercase">Radar Note</label>
-                          <Textarea
-                            value={blip.description}
-                            onChange={e =>
-                              setBlips(prev =>
-                                prev.map(b =>
-                                  b.localKey === blip.localKey
-                                    ? {
-                                      ...b,
-                                      description: e.target.value,
-                                    }
-                                    : b))}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-row gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => saveBlip(blip)}
-                        disabled={pendingBlipKey === blip.localKey}
-                      >
-                        {pendingBlipKey === blip.localKey && (
-                          <Loader2 className="animate-spin" />
-                        )}
-                        Save Blip
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => removeBlip(blip)}
-                        disabled={pendingBlipKey === blip.localKey}
-                      >
-                        <TrashIcon />
-                        {" "}
-                        Cancel
-                      </Button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          <div className="flex flex-row flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={addMode === "single" ? "default" : "outline"}
-              onClick={() => {
-                setAddMode("single");
-                addBlipDraft();
-              }}
-              disabled={!allConfigPersisted}
-            >
-              <PlusIcon />
-              {" "}
-              Add Blip
-            </Button>
-            <Button
-              type="button"
-              variant={addMode === "bulk" ? "default" : "outline"}
-              onClick={() =>
-                setAddMode(addMode === "bulk" ? "single" : "bulk")}
-              disabled={!allConfigPersisted}
-            >
-              Bulk Add
-            </Button>
-            <Button
-              type="button"
-              variant={addMode === "llm" ? "default" : "outline"}
-              onClick={() => setAddMode(addMode === "llm" ? "single" : "llm")}
-              disabled={!allConfigPersisted}
-            >
-              <SparklesIcon />
-              {" "}
-              LLM Assisted Mode
-            </Button>
-          </div>
-
-          {addMode === "bulk" && allConfigPersisted && (
-            <BlipBulkAdd
-              domainId={id}
-              quadrants={persistedQuadrants}
-              rings={persistedRings}
+          <TabsContent value="scope">
+            <ScopeTab
               topics={topics ?? []}
-              onComplete={handleBulkComplete}
+              withinScopeDescription={withinScopeDescription}
+              outOfScopeDescription={outOfScopeDescription}
+              withinScopeTopicIds={withinScopeTopicIds}
+              outOfScopeTopicIds={outOfScopeTopicIds}
+              onChangeWithinScopeDescription={setWithinScopeDescription}
+              onChangeOutOfScopeDescription={setOutOfScopeDescription}
+              onChangeWithinScopeTopicIds={setWithinScopeTopicIds}
+              onChangeOutOfScopeTopicIds={setOutOfScopeTopicIds}
+              onSave={saveDetails}
+              isSaving={isSavingDetails}
+              canSave={Boolean(domainDetail)}
             />
-          )}
-          {addMode === "llm" && allConfigPersisted && (
-            <BlipLlmAssist
+          </TabsContent>
+
+          <TabsContent value="blips">
+            <BlipsTab
+              allConfigPersisted={allConfigPersisted}
+              savedBlipsForTable={savedBlipsForTable}
+              newBlipDrafts={newBlipDrafts}
+              persistedQuadrants={persistedQuadrants}
+              persistedRings={persistedRings}
+              topics={topics ?? []}
+              usedTopicIds={usedTopicIds}
+              pendingBlipKey={pendingBlipKey}
+              topicById={topicById}
+              topicNameById={topicNameById}
+              onAddBlip={addBlipDraft}
+              onChangeBlipTopic={changeBlipTopic}
+              onChangeBlipQuadrant={changeBlipQuadrant}
+              onChangeBlipRing={changeBlipRing}
+              onChangeBlipDescription={changeBlipDescription}
+              onSaveBlip={saveBlip}
+              onRemoveBlip={removeBlip}
+              onTableSave={handleTableSave}
+              onTableRemove={handleTableRemove}
+            />
+          </TabsContent>
+
+          <TabsContent value="llm">
+            <LlmEditTab
+              allConfigPersisted={allConfigPersisted}
               domainId={id}
               domainTitle={data?.domainTitle ?? ""}
               domainDescription={domainDetail?.description ?? null}
@@ -1044,14 +739,14 @@ function RadarEdit() {
               outOfScopeTopicNames={outOfScopeTopicIds
                 .map(tid => topicNameById.get(tid))
                 .filter((n): n is string => Boolean(n))}
-              quadrants={persistedQuadrants}
-              rings={persistedRings}
+              quadrants={data?.quadrants ?? []}
+              rings={data?.rings ?? []}
               topics={topics ?? []}
               existingBlips={data?.blips ?? []}
-              onComplete={handleBulkComplete}
+              onComplete={handleLlmComplete}
             />
-          )}
-        </section>
+          </TabsContent>
+        </Tabs>
 
         <div>
           <Button
