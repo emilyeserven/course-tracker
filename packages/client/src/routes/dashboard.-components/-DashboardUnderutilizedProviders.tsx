@@ -87,7 +87,7 @@ export function DashboardUnderutilizedProviders() {
         <Link
           to="/providers"
           className="
-            text-sm text-primary underline-offset-2
+            text-primary text-sm underline-offset-2
             hover:underline
           "
         >
@@ -96,29 +96,26 @@ export function DashboardUnderutilizedProviders() {
       }
     >
       {isPending && (
-        <p className="text-sm text-muted-foreground">Loading providers...</p>
+        <p className="text-muted-foreground text-sm">Loading providers...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load providers.</p>
+        <p className="text-destructive text-sm">Failed to load providers.</p>
       )}
       {providers && rows.length === 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           <i>No underutilized providers.</i>
         </p>
       )}
       {rows.length > 0 && (
         <div
-          className="
-            max-h-80 w-full overflow-auto
-            [scrollbar-width:thin]
-          "
+          className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
         >
           <Table className="w-auto min-w-full">
             <TableHeader>
               <TableRow>
                 <TableHead className="whitespace-nowrap">Provider</TableHead>
                 <TableHead className="text-right whitespace-nowrap">
-                  Amortization
+                  Cost per Unit
                 </TableHead>
                 <TableHead className="text-right whitespace-nowrap">
                   Inactive
@@ -133,7 +130,9 @@ export function DashboardUnderutilizedProviders() {
             </TableHeader>
             <TableBody>
               {rows.map(
-                ({ provider, amortization, inactiveCount, completeCount }) => (
+                ({
+                  provider, amortization, inactiveCount, completeCount,
+                }) => (
                   <TableRow key={provider.id}>
                     <TableCell className="font-medium whitespace-nowrap">
                       <Link
@@ -165,7 +164,11 @@ export function DashboardUnderutilizedProviders() {
                       {completeCount}
                     </TableCell>
                     <TableCell className="text-right whitespace-nowrap">
-                      <Button variant="outline" size="sm" asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
                         <a
                           href={provider.url}
                           target="_blank"

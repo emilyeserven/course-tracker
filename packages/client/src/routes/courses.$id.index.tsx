@@ -84,7 +84,7 @@ function SingleCourse() {
                   >
                     {daily.name}
                   </Link>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {`${chain}-day chain · ${total} total`}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ function SingleCourse() {
             <p>{data?.cost.cost}</p>
           </InfoArea>
           <InfoArea
-            header="Amortization"
+            header="Cost per Unit"
             condition={!!percentComplete}
           >
             <p>
