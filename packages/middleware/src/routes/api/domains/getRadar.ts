@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { sendNotFound } from "@/utils/errors";
-import type { Radar } from "@emstack/types/src";
+import type { Radar } from "@emstack/types";
 
 const getRadarSchema = {
   schema: {

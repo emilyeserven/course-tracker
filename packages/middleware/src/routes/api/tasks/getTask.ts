@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { Task } from "@emstack/types/src";
+import type { Task } from "@emstack/types";
 import { idParamSchema } from "@/utils/schemas";
 
 const getSchema = {

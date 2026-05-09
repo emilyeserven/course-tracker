@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
-import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types/src";
+import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();

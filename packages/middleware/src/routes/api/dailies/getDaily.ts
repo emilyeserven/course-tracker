@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { Daily, DailyCompletion, DailyCriteria } from "@emstack/types/src";
+import type { Daily, DailyCompletion, DailyCriteria } from "@emstack/types";
 
 const getSchema = {
   schema: {
