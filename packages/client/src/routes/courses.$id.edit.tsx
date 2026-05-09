@@ -42,6 +42,7 @@ const formSchema = z.object({
   dateExpires: z.date().nullable(),
   topicId: z.string(),
   courseProviderId: z.string(),
+  modulesAreExhaustive: z.boolean(),
 });
 
 function SingleCourseEdit() {
@@ -102,6 +103,7 @@ function SingleCourseEdit() {
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
       topicId: (Array.isArray(data?.topics) && data.topics[0]?.id) || "",
       courseProviderId: data?.provider?.id ?? "",
+      modulesAreExhaustive: data?.modulesAreExhaustive ?? false,
     }),
     [data],
   );
@@ -133,6 +135,7 @@ function SingleCourseEdit() {
         isExpires: !!value.dateExpires,
         topicId: value.topicId || null,
         courseProviderId: value.courseProviderId || null,
+        modulesAreExhaustive: value.modulesAreExhaustive,
       };
 
       try {
@@ -360,6 +363,28 @@ function SingleCourseEdit() {
             )}
           </form.AppField>
         </div>
+
+        <form.Field name="modulesAreExhaustive">
+          {field => (
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={field.state.value}
+                onChange={e => field.handleChange(e.target.checked)}
+                className="mt-0.5 size-4"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="font-medium">
+                  Module list is exhaustive
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  When checked, course progress is computed from the count of
+                  completed modules below rather than the manual fields above.
+                </span>
+              </span>
+            </label>
+          )}
+        </form.Field>
 
         <form.AppField name="cost">
           {field => (
