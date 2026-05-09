@@ -142,8 +142,8 @@ function createEntityClient<TEntity, TList = TEntity[]>(
 }
 
 export const coursesApi = createEntityClient<Course, CourseInCourses[]>(
-  "courses",
-  "course",
+  "resources",
+  "resource",
 );
 export const topicsApi = createEntityClient<Topic, TopicForTopicsPage[]>(
   "topics",
@@ -262,7 +262,7 @@ export async function incrementCourseProgress(
   progressTotal: number;
 }> {
   return postJson(
-    `/api/courses/${id}/incrementProgress`,
+    `/api/resources/${id}/incrementProgress`,
     undefined,
     "Failed to increment resource progress",
   );
