@@ -16,6 +16,17 @@ type ConstraintRow = { constraint_name: string } & Record<string, unknown>;
 //     with NULL quadrant/ring
 //   - drops the now-empty `radar_quadrants` and `radar_rings` tables
 export async function migrateConsolidateRadar() {
+  // Skip on a fresh DB where drizzle-kit push hasn't created tables yet.
+  const domainsTableExists = await db.execute<ExistsRow>(sql`
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.tables
+      WHERE table_name = 'domains'
+    ) AS exists
+  `);
+  if (!domainsTableExists.rows[0]?.exists) {
+    return;
+  }
+
   // Always ensure radar_config exists — drizzle-kit push in a non-TTY
   // container can drop has_radar without adding radar_config, leaving the DB
   // in a state where the has_radar guard below would skip the column add.
