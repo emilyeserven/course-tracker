@@ -32,10 +32,15 @@ COPY packages/middleware/ ./packages/middleware/
 COPY packages/client/ ./packages/client/
 COPY packages/gateway/ ./packages/gateway/
 
-# Build in dependency order
+# Build types first (middleware + client depend on it), then middleware and client in parallel
 RUN pnpm --filter @emstack/types build
-RUN pnpm --filter @emstack/middleware build
-RUN pnpm --filter @emstack/client build
+RUN pnpm --filter @emstack/middleware --filter @emstack/client --parallel build
+
+
+# db-push stage — reuses the build stage's dev deps + source to push the Drizzle schema
+FROM build AS db-push
+WORKDIR /app/packages/middleware
+CMD ["pnpm", "push:dev"]
 
 
 # Production stage — fresh install with only production deps
