@@ -84,7 +84,7 @@ export function DashboardCoursesInProgress() {
 
   return (
     <DashboardCard
-      title="Courses in Progress"
+      title="Resources in Progress"
       action={(
         <Link
           to="/courses"
@@ -101,7 +101,7 @@ export function DashboardCoursesInProgress() {
         <p className="text-sm text-muted-foreground">Loading courses...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load courses.</p>
+        <p className="text-sm text-destructive">Failed to load resources.</p>
       )}
       {courses && inProgress.length === 0 && (
         <p className="text-sm text-muted-foreground">

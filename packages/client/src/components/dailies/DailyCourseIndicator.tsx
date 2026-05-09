@@ -39,7 +39,7 @@ export function DailyCourseIndicator({
       );
     },
     onError: () => {
-      toast.error("Failed to progress course.");
+      toast.error("Failed to progress resource.");
     },
   });
 

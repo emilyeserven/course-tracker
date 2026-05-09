@@ -520,7 +520,7 @@ function SingleDailyEdit() {
                     <ComboboxList>
                       {(courses ?? []).length > 0 && (
                         <ComboboxGroup>
-                          <ComboboxLabel>Courses</ComboboxLabel>
+                          <ComboboxLabel>Resources</ComboboxLabel>
                           {(courses ?? []).map(c => (
                             <ComboboxItem
                               key={`course:${c.id}`}
@@ -576,7 +576,7 @@ function SingleDailyEdit() {
                           py-1 text-sm
                         "
                       >
-                        <option value="">— Whole course —</option>
+                        <option value="">— Whole resource —</option>
                         {courseModuleGroups.map(g => (
                           <option
                             key={g.id}

@@ -109,7 +109,7 @@ function SingleCourse() {
       </InfoArea>
       <InfoRow header="Basic Info">
         <InfoArea
-          header="Course Provider"
+          header="Provider"
           condition={!!data?.provider}
         >
           {data?.provider && data.provider.name && (
@@ -172,7 +172,7 @@ function SingleCourse() {
       >
         <div className="flex flex-row gap-1">
           <InfoArea
-            header="Course Cost"
+            header="Resource Cost"
             condition={!percentComplete}
           >
             <p>{data?.cost.cost}</p>
@@ -195,8 +195,8 @@ function SingleCourse() {
       </InfoRow>
       <ConfirmDialog
         open={dailyPromptOpen}
-        title="Create a Daily for this course?"
-        description="You marked this course as active. Want to create a Daily that tracks your progress on it?"
+        title="Create a Daily for this resource?"
+        description="You marked this resource as active. Want to create a Daily that tracks your progress on it?"
         cancelLabel="No thanks"
         confirmLabel="Create Daily"
         onCancel={async () => {

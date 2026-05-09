@@ -161,11 +161,11 @@ function SingleCourseEdit() {
         });
       }
       catch (err) {
-        console.error("Failed to save course:", err);
+        console.error("Failed to save resource:", err);
         toast.error(
           isNew
-            ? "Failed to create course. Please try again."
-            : "Failed to save course. Please try again.",
+            ? "Failed to create resource. Please try again."
+            : "Failed to save resource. Please try again.",
         );
       }
     },
@@ -209,13 +209,13 @@ function SingleCourseEdit() {
       });
     }
     catch {
-      toast.error("Failed to duplicate course. Please try again.");
+      toast.error("Failed to duplicate resource. Please try again.");
     }
   }
 
   return (
     <div className="m-auto w-full max-w-[1200px] px-4">
-      <h2 className="mb-6 text-2xl">{isNew ? "New Course" : "Edit Course"}</h2>
+      <h2 className="mb-6 text-2xl">{isNew ? "New Resource" : "Edit Resource"}</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -224,7 +224,7 @@ function SingleCourseEdit() {
         className="flex max-w-2xl flex-col gap-8"
       >
         <form.AppField name="name">
-          {field => <field.InputField label="Course Name" />}
+          {field => <field.InputField label="Resource Name" />}
         </form.AppField>
 
         <form.AppField name="description">
@@ -237,7 +237,7 @@ function SingleCourseEdit() {
         </form.AppField>
 
         <form.AppField name="url">
-          {field => <field.InputField label="Course URL" />}
+          {field => <field.InputField label="Resource URL" />}
         </form.AppField>
 
         <form.AppField name="topicId">
@@ -404,16 +404,16 @@ function SingleCourseEdit() {
         <EditPageFooter
           isNew={isNew}
           onDelete={handleDelete}
-          deleteLabel="Delete Course"
+          deleteLabel="Delete Resource"
           onDuplicate={handleDuplicate}
-          duplicateLabel="Duplicate Course"
+          duplicateLabel="Duplicate Resource"
         >
           <Button
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting && <Loader2 className="animate-spin" />}
-            {isNew ? "Create Course" : "Save Changes"}
+            {isNew ? "Create Resource" : "Save Changes"}
           </Button>
           <Button
             type="button"

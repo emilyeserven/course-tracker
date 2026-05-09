@@ -94,7 +94,7 @@ function SingleTopic() {
         </div>
         <div>
           <InfoArea
-            header="Courses"
+            header="Resources"
             condition={!!data?.courseCount && data.courseCount > 0}
           >
             <ul className="ml-5 list-disc">

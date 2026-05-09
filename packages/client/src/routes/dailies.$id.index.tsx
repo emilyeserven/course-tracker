@@ -124,7 +124,7 @@ function SingleDaily() {
               }}
             >
               <Button>
-                Go to Course
+                Go to Resource
                 <ChevronRightIcon />
               </Button>
             </Link>

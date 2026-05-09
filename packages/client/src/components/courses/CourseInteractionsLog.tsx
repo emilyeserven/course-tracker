@@ -461,7 +461,7 @@ function InteractionEditCard({
                 text-sm
               "
             >
-              <option value="">— Whole course —</option>
+              <option value="">— Whole resource —</option>
               {moduleGroups.map(g => (
                 <option
                   key={g.id}

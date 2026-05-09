@@ -76,7 +76,7 @@ function SingleProviders() {
         </InfoArea>
         <InfoRow header="Money Things">
           <InfoArea
-            header="Course Cost"
+            header="Resource Cost"
             condition={!!data?.cost}
           >
             <p>${data?.cost}</p>
@@ -103,7 +103,7 @@ function SingleProviders() {
         </InfoRow>
         <div>
           <InfoArea
-            header="Courses"
+            header="Resources"
             condition={!!data?.courseCount && data.courseCount > 0}
           >
             <ul className="ml-5 list-disc">

@@ -38,7 +38,7 @@ export function PageHeader({
                   to="/courses"
                   className="text-sm uppercase"
                 >
-                  Courses
+                  Resources
                 </Link>
               )}
               {pageSection === "topics" && (

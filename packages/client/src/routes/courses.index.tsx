@@ -49,11 +49,11 @@ export const Route = createFileRoute("/courses/")({
 });
 
 function CoursesPending() {
-  return <EntityPending entity="courses" />;
+  return <EntityPending entity="resources" />;
 }
 
 function CoursesError() {
-  return <EntityError entity="courses" />;
+  return <EntityError entity="resources" />;
 }
 
 function getProgressPercent(course: CourseInCourses): number {
@@ -161,7 +161,7 @@ function Courses() {
   return (
     <div>
       <PageHeader
-        pageTitle="Your Courses"
+        pageTitle="Your Resources"
         pageSection=""
       >
         <Link
@@ -192,7 +192,7 @@ function Courses() {
                   />
                   <input
                     type="text"
-                    placeholder="Search courses..."
+                    placeholder="Search resources..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="
@@ -397,7 +397,7 @@ function Courses() {
                 "
               >
                 <PlusIcon size={32} />
-                <span className="text-lg font-medium">Add New Course</span>
+                <span className="text-lg font-medium">Add New Resource</span>
               </ContentBox>
             </Link>
           </div>

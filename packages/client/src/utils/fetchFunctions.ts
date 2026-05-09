@@ -264,7 +264,7 @@ export async function incrementCourseProgress(
   return postJson(
     `/api/courses/${id}/incrementProgress`,
     undefined,
-    "Failed to increment course progress",
+    "Failed to increment resource progress",
   );
 }
 

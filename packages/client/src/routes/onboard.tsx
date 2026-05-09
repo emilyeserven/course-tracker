@@ -35,8 +35,8 @@ const formSchema = z.object({
   ),
   ...Object.fromEntries(
     FIELD_INDICES.flatMap(i => [
-      [`course${i}Name`, fieldSchema("Course name", 200)],
-      [`course${i}Url`, fieldSchema("Course URL", 200)],
+      [`course${i}Name`, fieldSchema("Resource name", 200)],
+      [`course${i}Url`, fieldSchema("Resource URL", 200)],
     ]),
   ),
 });

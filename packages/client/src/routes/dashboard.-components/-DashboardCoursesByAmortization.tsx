@@ -391,7 +391,7 @@ export function DashboardCoursesByAmortization() {
         <p className="text-sm text-destructive">
           {viewMode === "providers"
             ? "Failed to load providers."
-            : "Failed to load courses."}
+            : "Failed to load resources."}
         </p>
       )}
       {hasData && isEmpty && (

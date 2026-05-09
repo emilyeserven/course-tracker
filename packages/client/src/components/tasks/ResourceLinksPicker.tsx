@@ -84,7 +84,7 @@ function labelForLink(
   modules: Module[],
 ): string {
   const course = courses.find(c => c.id === link.courseId);
-  const courseName = course?.name ?? "(unknown course)";
+  const courseName = course?.name ?? "(unknown resource)";
   if (link.moduleId) {
     const m = modules.find(mm => mm.id === link.moduleId);
     const parentGroup = m?.moduleGroupId
@@ -188,8 +188,8 @@ export function ResourceLinksPicker({
         <option value="">
           {availableOptions.length === 0
             ? courses.length === 0
-              ? "No courses available"
-              : "All courses already linked"
+              ? "No resources available"
+              : "All resources already linked"
             : "Add a resource link..."}
         </option>
         {availableOptions.map(opt => (

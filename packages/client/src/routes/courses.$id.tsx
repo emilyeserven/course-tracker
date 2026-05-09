@@ -41,7 +41,7 @@ function SingleCourseLayout() {
     return (
       <div>
         <PageHeader
-          pageTitle="New Course"
+          pageTitle="New Resource"
           pageSection="courses"
         />
         <Outlet />
@@ -50,11 +50,11 @@ function SingleCourseLayout() {
   }
 
   if (isPending || !data) {
-    return <EntityPending entity="course" />;
+    return <EntityPending entity="resource" />;
   }
 
   if (error) {
-    return <EntityError entity="course" />;
+    return <EntityError entity="resource" />;
   }
 
   return (
@@ -74,7 +74,7 @@ function SingleCourseLayout() {
               rel="noreferrer"
             >
               <Button>
-                Go to Course
+                Go to Resource
                 <ExternalLink />
               </Button>
             </a>
@@ -88,7 +88,7 @@ function SingleCourseLayout() {
                 }}
               >
                 <Button variant="secondary">
-                  View Course
+                  View Resource
                   {" "}
                   <EyeIcon />
                 </Button>
@@ -102,7 +102,7 @@ function SingleCourseLayout() {
                 }}
               >
                 <Button variant="secondary">
-                  Edit Course
+                  Edit Resource
                   {" "}
                   <EditIcon />
                 </Button>
