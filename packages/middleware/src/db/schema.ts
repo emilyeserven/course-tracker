@@ -224,6 +224,7 @@ export const topicsRelations = relations(topics, ({
   topicsToDomains: many(topicsToDomains),
   radarBlips: many(radarBlips),
   domainExclusions: many(domainExcludedTopics),
+  domainWithinScope: many(domainWithinScopeTopics),
   tasks: many(tasks),
 }));
 
@@ -246,6 +247,7 @@ export const domainsRelations = relations(domains, ({
   radarRings: many(radarRings),
   radarBlips: many(radarBlips),
   excludedTopics: many(domainExcludedTopics),
+  withinScopeTopics: many(domainWithinScopeTopics),
 }));
 
 export const domainExcludedTopics = pgTable(
@@ -277,6 +279,39 @@ export const domainExcludedTopicsRelations = relations(
     }),
     domain: one(domains, {
       fields: [domainExcludedTopics.domainId],
+      references: [domains.id],
+    }),
+  }),
+);
+
+export const domainWithinScopeTopics = pgTable(
+  "domain_within_scope_topics",
+  {
+    topicId: varchar("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    domainId: varchar("domain_id")
+      .notNull()
+      .references(() => domains.id),
+  },
+  t => [
+    primaryKey({
+      columns: [t.topicId, t.domainId],
+    }),
+  ],
+);
+
+export const domainWithinScopeTopicsRelations = relations(
+  domainWithinScopeTopics,
+  ({
+    one,
+  }) => ({
+    topic: one(topics, {
+      fields: [domainWithinScopeTopics.topicId],
+      references: [topics.id],
+    }),
+    domain: one(domains, {
+      fields: [domainWithinScopeTopics.domainId],
       references: [domains.id],
     }),
   }),

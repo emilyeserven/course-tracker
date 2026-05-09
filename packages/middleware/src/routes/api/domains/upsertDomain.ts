@@ -1,4 +1,9 @@
-import { domainExcludedTopics, domains, topicsToDomains } from "@/db/schema";
+import {
+  domainExcludedTopics,
+  domains,
+  domainWithinScopeTopics,
+  topicsToDomains,
+} from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { nullableBoolean, nullableString } from "@/utils/schemas";
 
@@ -11,6 +16,7 @@ interface DomainBody {
   topicIds?: string[];
   excludedTopics?: { topicId: string;
     reason?: string | null; }[];
+  withinScopeTopicIds?: string[];
 }
 
 export default createUpsertHandler<DomainBody>({
@@ -47,6 +53,12 @@ export default createUpsertHandler<DomainBody>({
           },
         },
       },
+      withinScopeTopicIds: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
     },
   },
   validate: (body) => {
@@ -74,18 +86,25 @@ export default createUpsertHandler<DomainBody>({
     {
       table: topicsToDomains,
       foreignKey: topicsToDomains.domainId,
-      buildRows: (body, id) =>
-        (body.topicIds ?? []).map(topicId => ({
+      buildRows: (body, id) => {
+        if (body.topicIds === undefined) {
+          return undefined;
+        }
+        return body.topicIds.map(topicId => ({
           topicId,
           domainId: id,
-        })),
+        }));
+      },
     },
     {
       table: domainExcludedTopics,
       foreignKey: domainExcludedTopics.domainId,
       buildRows: (body, id) => {
+        if (body.excludedTopics === undefined) {
+          return undefined;
+        }
         const dedup = new Map<string, string | null>();
-        for (const entry of body.excludedTopics ?? []) {
+        for (const entry of body.excludedTopics) {
           if (!dedup.has(entry.topicId)) {
             dedup.set(entry.topicId, entry.reason ?? null);
           }
@@ -94,6 +113,19 @@ export default createUpsertHandler<DomainBody>({
           topicId,
           domainId: id,
           reason,
+        }));
+      },
+    },
+    {
+      table: domainWithinScopeTopics,
+      foreignKey: domainWithinScopeTopics.domainId,
+      buildRows: (body, id) => {
+        if (body.withinScopeTopicIds === undefined) {
+          return undefined;
+        }
+        return Array.from(new Set(body.withinScopeTopicIds)).map(topicId => ({
+          topicId,
+          domainId: id,
         }));
       },
     },

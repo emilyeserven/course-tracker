@@ -291,7 +291,7 @@ export function BlipBulkAdd({
                 })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Quadrant" />
+                <SelectValue placeholder="Slice" />
               </SelectTrigger>
               <SelectContent>
                 {quadrants.map(q => (

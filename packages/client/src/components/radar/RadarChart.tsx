@@ -196,7 +196,7 @@ export function RadarChart({
           minHeight: size / 2,
         }}
       >
-        Configure at least one quadrant and one ring to display the radar.
+        Configure at least one slice and one ring to display the radar.
       </div>
     );
   }

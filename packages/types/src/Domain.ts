@@ -30,4 +30,5 @@ export interface Domain {
   topicCount?: number;
   topics?: DomainTopic[];
   excludedTopics?: DomainExcludedTopic[];
+  withinScopeTopics?: DomainTopic[];
 }

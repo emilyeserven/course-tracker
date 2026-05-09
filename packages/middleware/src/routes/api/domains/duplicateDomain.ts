@@ -4,6 +4,7 @@ import { db } from "@/db";
 import {
   domainExcludedTopics,
   domains,
+  domainWithinScopeTopics,
   topicsToDomains,
 } from "@/db/schema";
 import { idParamSchema } from "@/utils/schemas";
@@ -34,6 +35,7 @@ export default async function (server: FastifyInstance) {
         with: {
           topicsToDomains: true,
           excludedTopics: true,
+          withinScopeTopics: true,
         },
       });
 
@@ -69,6 +71,14 @@ export default async function (server: FastifyInstance) {
       }));
       if (exclusions.length > 0) {
         await db.insert(domainExcludedTopics).values(exclusions);
+      }
+
+      const withinScopeLinks = (source.withinScopeTopics ?? []).map(w => ({
+        topicId: w.topicId,
+        domainId: newId,
+      }));
+      if (withinScopeLinks.length > 0) {
+        await db.insert(domainWithinScopeTopics).values(withinScopeLinks);
       }
 
       return {

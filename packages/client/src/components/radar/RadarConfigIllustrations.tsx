@@ -13,8 +13,8 @@ const QUADRANT_COLORS = [
 export function QuadrantsIllustration({
   names,
 }: QuadrantsIllustrationProps) {
-  const cleanNames = names.map(n => n.trim());
-  const slots = cleanNames.length > 0 ? cleanNames : ["", "", "", "", ""];
+  const filled = names.map(n => n.trim()).filter(n => n.length > 0);
+  const slots = filled.length > 0 ? filled : ["", "", "", ""];
   const count = slots.length;
 
   const cx = 100;
@@ -53,9 +53,9 @@ export function QuadrantsIllustration({
   return (
     <svg
       viewBox="0 0 200 200"
-      className="size-40"
+      className="size-72"
       role="img"
-      aria-label="Quadrants illustration"
+      aria-label="Slices illustration"
     >
       {sectors.map(s => (
         <path
@@ -106,7 +106,7 @@ export function RingsIllustration({
   return (
     <svg
       viewBox="0 0 200 200"
-      className="size-40"
+      className="size-72"
       role="img"
       aria-label="Rings illustration"
     >
