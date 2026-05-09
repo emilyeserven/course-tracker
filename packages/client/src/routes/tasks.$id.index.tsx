@@ -59,7 +59,24 @@ function SingleTask() {
         pageTitle={data.name}
         pageSection="tasks"
       >
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
+          {linkedDaily && (
+            <Link
+              to="/dailies/$id"
+              params={{
+                id: linkedDaily.id,
+              }}
+            >
+              <Button variant="outline">
+                Open Daily:
+                {" "}
+                {linkedDaily.name}
+                {linkedDaily.status === "complete" ? " (completed)" : ""}
+                {" "}
+                <ExternalLinkIcon />
+              </Button>
+            </Link>
+          )}
           <Link
             to="/tasks/$id/edit"
             params={{
@@ -75,35 +92,16 @@ function SingleTask() {
         </div>
       </PageHeader>
       <div className="container flex flex-col gap-12">
-        {dailyForStrip && linkedDaily && (
+        {dailyForStrip && (
           <InfoArea
             header="Last 14 Days"
             condition={true}
           >
-            <div className="flex flex-col gap-2">
-              <DailyRecentDaysStrip
-                daily={dailyForStrip}
-                count={14}
-                labelFormat="mmdd"
-              />
-              <Link
-                to="/dailies/$id"
-                params={{
-                  id: linkedDaily.id,
-                }}
-                className="
-                  inline-flex w-fit items-center gap-1 text-xs text-blue-700
-                  hover:text-blue-500
-                  dark:text-blue-300
-                "
-              >
-                Open Daily:
-                {" "}
-                {linkedDaily.name}
-                {linkedDaily.status === "complete" ? " (completed)" : ""}
-                <ExternalLinkIcon className="size-3.5" />
-              </Link>
-            </div>
+            <DailyRecentDaysStrip
+              daily={dailyForStrip}
+              count={14}
+              labelFormat="mmdd"
+            />
           </InfoArea>
         )}
         <InfoArea
