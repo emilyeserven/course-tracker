@@ -1,3 +1,6 @@
+import type { Tag } from "./Tag";
+import type { TaskResourceLevel } from "./TaskResource";
+
 export const MODULE_DURATION_BUCKETS = [
   "extra_short",
   "short",
@@ -30,6 +33,10 @@ export interface Module {
   minutesLength?: number | null;
   isComplete: boolean;
   position?: number | null;
+  easeOfStarting?: TaskResourceLevel | null;
+  timeNeeded?: TaskResourceLevel | null;
+  interactivity?: TaskResourceLevel | null;
+  tags?: Tag[];
 }
 
 export function isModuleDurationBucket(

@@ -1,10 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   taskResources,
-  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToResources,
@@ -129,19 +128,6 @@ export default async function (server: FastifyInstance) {
       }
 
       if (body.resources !== undefined) {
-        const existingResourceIds = (
-          await db
-            .select({
-              id: taskResources.id,
-            })
-            .from(taskResources)
-            .where(eq(taskResources.taskId, id))
-        ).map(r => r.id);
-        if (existingResourceIds.length > 0) {
-          await db
-            .delete(taskResourcesToTags)
-            .where(inArray(taskResourcesToTags.resourceId, existingResourceIds));
-        }
         await db.delete(taskResources).where(eq(taskResources.taskId, id));
 
         if (body.resources.length > 0) {
@@ -150,9 +136,6 @@ export default async function (server: FastifyInstance) {
             taskId: id,
             name: r.name,
             url: r.url ?? null,
-            easeOfStarting: r.easeOfStarting ?? null,
-            timeNeeded: r.timeNeeded ?? null,
-            interactivity: r.interactivity ?? null,
             usedYet: r.usedYet ?? false,
             position: index,
             resourceId: r.resourceId ?? null,
@@ -160,26 +143,6 @@ export default async function (server: FastifyInstance) {
             moduleId: r.resourceId ? r.moduleId ?? null : null,
           }));
           await db.insert(taskResources).values(resourceRows);
-
-          const tagJunctionRows: {
-            resourceId: string;
-            tagId: string;
-            position: number;
-          }[] = [];
-          body.resources.forEach((r, index) => {
-            const resourceId = resourceRows[index].id;
-            const uniqueTagIds = Array.from(new Set(r.tagIds ?? []));
-            uniqueTagIds.forEach((tagId, tagIndex) => {
-              tagJunctionRows.push({
-                resourceId,
-                tagId,
-                position: tagIndex,
-              });
-            });
-          });
-          if (tagJunctionRows.length > 0) {
-            await db.insert(taskResourcesToTags).values(tagJunctionRows);
-          }
         }
       }
 

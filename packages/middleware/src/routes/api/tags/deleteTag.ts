@@ -1,4 +1,11 @@
-import { taskResourcesToTags, tags, tasksToTags, topicsToTags } from "@/db/schema";
+import {
+  moduleGroupTags,
+  moduleTags,
+  resourceTags,
+  tags,
+  tasksToTags,
+  topicsToTags,
+} from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
 export default createDeleteHandler({
@@ -11,12 +18,20 @@ export default createDeleteHandler({
       foreignKey: tasksToTags.tagId,
     },
     {
-      table: taskResourcesToTags,
-      foreignKey: taskResourcesToTags.tagId,
-    },
-    {
       table: topicsToTags,
       foreignKey: topicsToTags.tagId,
+    },
+    {
+      table: resourceTags,
+      foreignKey: resourceTags.tagId,
+    },
+    {
+      table: moduleGroupTags,
+      foreignKey: moduleGroupTags.tagId,
+    },
+    {
+      table: moduleTags,
+      foreignKey: moduleTags.tagId,
     },
   ],
 });

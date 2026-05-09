@@ -3,7 +3,6 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import {
   taskResources,
-  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToResources,
@@ -111,9 +110,6 @@ export default async function (server: FastifyInstance) {
           taskId: id,
           name: r.name,
           url: r.url ?? null,
-          easeOfStarting: r.easeOfStarting ?? null,
-          timeNeeded: r.timeNeeded ?? null,
-          interactivity: r.interactivity ?? null,
           usedYet: r.usedYet ?? false,
           position: index,
           resourceId: r.resourceId ?? null,
@@ -121,26 +117,6 @@ export default async function (server: FastifyInstance) {
           moduleId: r.resourceId ? r.moduleId ?? null : null,
         }));
         await db.insert(taskResources).values(resourceRows);
-
-        const tagJunctionRows: {
-          resourceId: string;
-          tagId: string;
-          position: number;
-        }[] = [];
-        incoming.forEach((r, index) => {
-          const resourceId = resourceRows[index].id;
-          const uniqueResourceTagIds = Array.from(new Set(r.tagIds ?? []));
-          uniqueResourceTagIds.forEach((tagId, tagIndex) => {
-            tagJunctionRows.push({
-              resourceId,
-              tagId,
-              position: tagIndex,
-            });
-          });
-        });
-        if (tagJunctionRows.length > 0) {
-          await db.insert(taskResourcesToTags).values(tagJunctionRows);
-        }
       }
 
       const incomingTodos = body.todos ?? [];

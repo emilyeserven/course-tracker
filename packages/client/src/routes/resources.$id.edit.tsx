@@ -21,6 +21,7 @@ import {
   duplicateResource,
   fetchProviders,
   fetchSingleResource,
+  fetchTagGroups,
   fetchTopics,
   formHasChanges,
   upsertResource,
@@ -53,7 +54,43 @@ const formSchema = z.object({
   topicId: z.string(),
   courseProviderId: z.string(),
   modulesAreExhaustive: z.boolean(),
+  easeOfStarting: z.enum(["", "low", "medium", "high"]),
+  timeNeeded: z.enum(["", "low", "medium", "high"]),
+  interactivity: z.enum(["", "low", "medium", "high"]),
+  tagIds: z.array(z.string()),
 });
+
+type LevelValue = "" | "low" | "medium" | "high";
+
+function LevelSelectRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: LevelValue;
+  onChange: (next: LevelValue) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value as LevelValue)}
+        className="
+          flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
+        "
+      >
+        <option value="">—</option>
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+      </select>
+    </div>
+  );
+}
 
 function SingleResourceEdit() {
   const {
@@ -92,6 +129,13 @@ function SingleResourceEdit() {
     queryFn: () => fetchProviders(),
   });
 
+  const {
+    data: tagGroups,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+
   const topicOptions = (topics ?? []).map(t => ({
     value: t.id,
     label: t.name,
@@ -101,6 +145,12 @@ function SingleResourceEdit() {
     value: p.id,
     label: p.name,
   }));
+
+  const tagOptions = (tagGroups ?? []).flatMap(group =>
+    (group.tags ?? []).map(tag => ({
+      value: tag.id,
+      label: tag.name,
+    })));
 
   const startingValues = useMemo(
     () => ({
@@ -114,10 +164,14 @@ function SingleResourceEdit() {
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
       topicId:
         (Array.isArray(data?.topics) && data.topics[0]?.id)
-        || (isNew ? search.topicId ?? "" : "")
+        || (isNew ? (search.topicId ?? "") : "")
         || "",
       courseProviderId: data?.provider?.id ?? "",
       modulesAreExhaustive: data?.modulesAreExhaustive ?? false,
+      easeOfStarting: data?.easeOfStarting ?? "",
+      timeNeeded: data?.timeNeeded ?? "",
+      interactivity: data?.interactivity ?? "",
+      tagIds: (data?.tags ?? []).map(t => t.id),
     }),
     [data, isNew, search.topicId],
   );
@@ -150,6 +204,10 @@ function SingleResourceEdit() {
         topicId: value.topicId || null,
         courseProviderId: value.courseProviderId || null,
         modulesAreExhaustive: value.modulesAreExhaustive,
+        easeOfStarting: value.easeOfStarting || null,
+        timeNeeded: value.timeNeeded || null,
+        interactivity: value.interactivity || null,
+        tagIds: value.tagIds,
       };
 
       try {
@@ -160,8 +218,7 @@ function SingleResourceEdit() {
         skipBlock();
 
         const becameActive
-          = value.status === "active"
-            && (isNew || previousStatus !== "active");
+          = value.status === "active" && (isNew || previousStatus !== "active");
         await navigate({
           to: "/resources/$id",
           params: {
@@ -205,9 +262,10 @@ function SingleResourceEdit() {
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleResource,
     entityLabel: "resource",
-    navigateToList: () => navigate({
-      to: "/resources",
-    }),
+    navigateToList: () =>
+      navigate({
+        to: "/resources",
+      }),
   });
 
   async function handleDuplicate() {
@@ -229,7 +287,9 @@ function SingleResourceEdit() {
 
   return (
     <div className="m-auto w-full max-w-[1200px] px-4">
-      <h2 className="mb-6 text-2xl">{isNew ? "New Resource" : "Edit Resource"}</h2>
+      <h2 className="mb-6 text-2xl">
+        {isNew ? "New Resource" : "Edit Resource"}
+      </h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -388,9 +448,7 @@ function SingleResourceEdit() {
                 className="mt-0.5 size-4"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="font-medium">
-                  Module list is exhaustive
-                </span>
+                <span className="font-medium">Module list is exhaustive</span>
                 <span className="text-xs text-muted-foreground">
                   When checked, course progress is computed from the count of
                   completed modules below rather than the manual fields above.
@@ -413,6 +471,52 @@ function SingleResourceEdit() {
 
         <form.AppField name="dateExpires">
           {field => <field.DatePickerField label="Expiry Date" />}
+        </form.AppField>
+
+        <fieldset
+          className="flex flex-col gap-3 rounded-md border border-border/60 p-3"
+        >
+          <legend className="px-1 text-xs font-medium text-muted-foreground">
+            Effort & Engagement
+          </legend>
+          <form.Field name="easeOfStarting">
+            {field => (
+              <LevelSelectRow
+                label="Ease of Starting"
+                value={field.state.value as LevelValue}
+                onChange={v => field.handleChange(v)}
+              />
+            )}
+          </form.Field>
+          <form.Field name="timeNeeded">
+            {field => (
+              <LevelSelectRow
+                label="Time Needed"
+                value={field.state.value as LevelValue}
+                onChange={v => field.handleChange(v)}
+              />
+            )}
+          </form.Field>
+          <form.Field name="interactivity">
+            {field => (
+              <LevelSelectRow
+                label="Interactivity"
+                value={field.state.value as LevelValue}
+                onChange={v => field.handleChange(v)}
+              />
+            )}
+          </form.Field>
+        </fieldset>
+
+        <form.AppField name="tagIds">
+          {field => (
+            <field.MultiComboboxField
+              label="Tags"
+              options={tagOptions}
+              placeholder="Pick tags..."
+              groupByPrefix
+            />
+          )}
         </form.AppField>
 
         <EditPageFooter
@@ -452,9 +556,7 @@ function SingleResourceEdit() {
           </Button>
         </EditPageFooter>
       </form>
-      <UnsavedChangesDialog
-        shouldBlockFn={shouldBlockFn(hasChanges)}
-      />
+      <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
     </div>
   );
 }

@@ -1,8 +1,14 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
+import type { Module } from "@emstack/types";
 import { db } from "@/db";
-import { modules } from "@/db/schema";
-import { nullableInteger, nullableString } from "@/utils/schemas";
+import { modules, moduleTags } from "@/db/schema";
+import {
+  nullableInteger,
+  nullableResourceLevelEnum,
+  nullableString,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 import { coerceModuleLength } from "@/utils/moduleLength";
@@ -51,6 +57,10 @@ const createSchema = {
           type: "boolean",
         },
         position: nullableInteger,
+        easeOfStarting: nullableResourceLevelEnum,
+        timeNeeded: nullableResourceLevelEnum,
+        interactivity: nullableResourceLevelEnum,
+        tagIds: tagIdsArraySchema,
       },
     },
   },
@@ -74,11 +84,37 @@ export default async function (server: FastifyInstance) {
         if (conds.length === 1) return conds[0];
         return and(...conds);
       },
+      with: {
+        moduleTags: {
+          with: {
+            tag: true,
+          },
+          orderBy: (j, {
+            asc,
+          }) => asc(j.position),
+        },
+      },
       orderBy: (m, {
         asc,
       }) => [asc(m.position), asc(m.name)],
     });
-    return rows;
+    const result: Module[] = rows.map(m => ({
+      id: m.id,
+      resourceId: m.resourceId,
+      moduleGroupId: m.moduleGroupId,
+      name: m.name,
+      description: m.description,
+      url: m.url,
+      length: m.length,
+      minutesLength: m.minutesLength,
+      isComplete: m.isComplete,
+      position: m.position,
+      easeOfStarting: m.easeOfStarting ?? null,
+      timeNeeded: m.timeNeeded ?? null,
+      interactivity: m.interactivity ?? null,
+      tags: (m.moduleTags ?? []).map(j => j.tag),
+    }));
+    return result;
   });
 
   fastify.post("/", createSchema, async function (request) {
@@ -97,7 +133,21 @@ export default async function (server: FastifyInstance) {
       minutesLength: null,
       isComplete: body.isComplete ?? false,
       position: body.position ?? null,
+      easeOfStarting: body.easeOfStarting ?? null,
+      timeNeeded: body.timeNeeded ?? null,
+      interactivity: body.interactivity ?? null,
     });
+
+    if (body.tagIds && body.tagIds.length > 0) {
+      const unique = Array.from(new Set(body.tagIds));
+      await db.insert(moduleTags).values(
+        unique.map((tagId, index) => ({
+          moduleId: id,
+          tagId,
+          position: index,
+        })),
+      );
+    }
 
     return {
       status: "ok",

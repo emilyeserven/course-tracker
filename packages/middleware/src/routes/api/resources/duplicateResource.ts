@@ -52,6 +52,9 @@ export default async function (server: FastifyInstance) {
         status: source.status ?? undefined,
         minutesLength: source.minutesLength ?? null,
         courseProviderId: source.courseProviderId ?? null,
+        easeOfStarting: source.easeOfStarting ?? null,
+        timeNeeded: source.timeNeeded ?? null,
+        interactivity: source.interactivity ?? null,
       });
 
       const topicLinks = (source.topicsToResources ?? []).map(t => ({

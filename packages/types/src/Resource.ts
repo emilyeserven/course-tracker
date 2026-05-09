@@ -3,6 +3,8 @@ import type { Daily } from "./Daily";
 import type { MinimalTopic } from "./MinimalTopic";
 import type { Module } from "./Module";
 import type { ModuleGroup } from "./ModuleGroup";
+import type { Tag } from "./Tag";
+import type { TaskResourceLevel } from "./TaskResource";
 import type { Topic } from "./Topic";
 
 export type ResourceStatus = "active" | "inactive" | "complete" | "paused";
@@ -26,4 +28,8 @@ export interface Resource {
   moduleGroups?: ModuleGroup[];
   modules?: Module[];
   dailies?: Daily[];
+  easeOfStarting?: TaskResourceLevel | null;
+  timeNeeded?: TaskResourceLevel | null;
+  interactivity?: TaskResourceLevel | null;
+  tags?: Tag[];
 }

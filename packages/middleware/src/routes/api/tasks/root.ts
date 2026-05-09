@@ -36,18 +36,27 @@ export default async function (server: FastifyInstance) {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
             moduleGroup: {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
             module: {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
           },
@@ -57,30 +66,31 @@ export default async function (server: FastifyInstance) {
         },
         resources: {
           with: {
-            taskResourcesToTags: {
-              with: {
-                tag: true,
-              },
-              orderBy: (j, {
-                asc,
-              }) => asc(j.position),
-            },
             resource: {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
             moduleGroup: {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
             module: {
               columns: {
                 id: true,
                 name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
               },
             },
           },
@@ -124,6 +134,9 @@ export default async function (server: FastifyInstance) {
           ? {
             id: j.resource.id,
             name: j.resource.name,
+            easeOfStarting: j.resource.easeOfStarting ?? null,
+            timeNeeded: j.resource.timeNeeded ?? null,
+            interactivity: j.resource.interactivity ?? null,
           }
           : null,
         moduleGroupId: j.moduleGroupId ?? null,
@@ -131,6 +144,9 @@ export default async function (server: FastifyInstance) {
           ? {
             id: j.moduleGroup.id,
             name: j.moduleGroup.name,
+            easeOfStarting: j.moduleGroup.easeOfStarting ?? null,
+            timeNeeded: j.moduleGroup.timeNeeded ?? null,
+            interactivity: j.moduleGroup.interactivity ?? null,
           }
           : null,
         moduleId: j.moduleId ?? null,
@@ -138,6 +154,9 @@ export default async function (server: FastifyInstance) {
           ? {
             id: j.module.id,
             name: j.module.name,
+            easeOfStarting: j.module.easeOfStarting ?? null,
+            timeNeeded: j.module.timeNeeded ?? null,
+            interactivity: j.module.interactivity ?? null,
           }
           : null,
         position: j.position ?? null,
@@ -150,17 +169,16 @@ export default async function (server: FastifyInstance) {
           taskId: r.taskId,
           name: r.name,
           url: r.url,
-          easeOfStarting: r.easeOfStarting,
-          timeNeeded: r.timeNeeded,
-          interactivity: r.interactivity,
           usedYet: r.usedYet,
           position: r.position,
-          tags: (r.taskResourcesToTags ?? []).map(j => j.tag),
           resourceId: r.resourceId ?? null,
           resource: r.resource
             ? {
               id: r.resource.id,
               name: r.resource.name,
+              easeOfStarting: r.resource.easeOfStarting ?? null,
+              timeNeeded: r.resource.timeNeeded ?? null,
+              interactivity: r.resource.interactivity ?? null,
             }
             : null,
           moduleGroupId: r.moduleGroupId ?? null,
@@ -168,6 +186,9 @@ export default async function (server: FastifyInstance) {
             ? {
               id: r.moduleGroup.id,
               name: r.moduleGroup.name,
+              easeOfStarting: r.moduleGroup.easeOfStarting ?? null,
+              timeNeeded: r.moduleGroup.timeNeeded ?? null,
+              interactivity: r.moduleGroup.interactivity ?? null,
             }
             : null,
           moduleId: r.moduleId ?? null,
@@ -175,6 +196,9 @@ export default async function (server: FastifyInstance) {
             ? {
               id: r.module.id,
               name: r.module.name,
+              easeOfStarting: r.module.easeOfStarting ?? null,
+              timeNeeded: r.module.timeNeeded ?? null,
+              interactivity: r.module.interactivity ?? null,
             }
             : null,
         })),

@@ -49,6 +49,14 @@ export default async function (server: FastifyInstance) {
             completions: true,
           },
         },
+        resourceTags: {
+          with: {
+            tag: true,
+          },
+          orderBy: (j, {
+            asc,
+          }) => asc(j.position),
+        },
       },
     });
 
@@ -82,6 +90,10 @@ export default async function (server: FastifyInstance) {
           description: d.description,
           completions: (d.completions ?? []) as DailyCompletion[],
         })),
+        easeOfStarting: course.easeOfStarting ?? null,
+        timeNeeded: course.timeNeeded ?? null,
+        interactivity: course.interactivity ?? null,
+        tags: (course.resourceTags ?? []).map(j => j.tag),
       };
 
       return rawData;

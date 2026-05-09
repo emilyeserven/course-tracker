@@ -1,10 +1,12 @@
-import { resources, topicsToResources } from "@/db/schema";
+import { resources, resourceTags, topicsToResources } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import {
   courseStatusEnum,
   nullableBoolean,
   nullableInteger,
+  nullableResourceLevelEnum,
   nullableString,
+  tagIdsArraySchema,
 } from "@/utils/schemas";
 
 interface CourseBody {
@@ -21,6 +23,10 @@ interface CourseBody {
   topicId?: string | null;
   courseProviderId?: string | null;
   modulesAreExhaustive?: boolean;
+  easeOfStarting?: "low" | "medium" | "high" | null;
+  timeNeeded?: "low" | "medium" | "high" | null;
+  interactivity?: "low" | "medium" | "high" | null;
+  tagIds?: string[];
 }
 
 const updateableColumns = [
@@ -36,6 +42,9 @@ const updateableColumns = [
   "isExpires",
   "courseProviderId",
   "modulesAreExhaustive",
+  "easeOfStarting",
+  "timeNeeded",
+  "interactivity",
 ] as const;
 
 export default createUpsertHandler<CourseBody>({
@@ -64,6 +73,10 @@ export default createUpsertHandler<CourseBody>({
       modulesAreExhaustive: {
         type: "boolean",
       },
+      easeOfStarting: nullableResourceLevelEnum,
+      timeNeeded: nullableResourceLevelEnum,
+      interactivity: nullableResourceLevelEnum,
+      tagIds: tagIdsArraySchema,
     },
   },
   buildRow: (body, id) => ({
@@ -80,6 +93,9 @@ export default createUpsertHandler<CourseBody>({
     isExpires: body.isExpires ?? null,
     courseProviderId: body.courseProviderId ?? null,
     modulesAreExhaustive: body.modulesAreExhaustive ?? false,
+    easeOfStarting: body.easeOfStarting ?? null,
+    timeNeeded: body.timeNeeded ?? null,
+    interactivity: body.interactivity ?? null,
   }),
   updateableColumns,
   generateIdIfMissing: true,
@@ -95,6 +111,19 @@ export default createUpsertHandler<CourseBody>({
             resourceId: id,
           }]
           : [],
+    },
+    {
+      table: resourceTags,
+      foreignKey: resourceTags.resourceId,
+      buildRows: (body, id) => {
+        if (body.tagIds === undefined) return undefined;
+        const unique = Array.from(new Set(body.tagIds));
+        return unique.map((tagId, index) => ({
+          resourceId: id,
+          tagId,
+          position: index,
+        }));
+      },
     },
   ],
 });
