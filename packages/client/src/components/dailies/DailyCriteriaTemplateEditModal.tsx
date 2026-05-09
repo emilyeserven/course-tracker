@@ -108,7 +108,7 @@ export function DailyCriteriaTemplateEditModal({
         >
           <div className="flex flex-col gap-1">
             <label
-              className="text-muted-foreground text-xs font-medium"
+              className="text-xs font-medium text-muted-foreground"
               htmlFor="criteria-template-label"
             >
               Label
@@ -130,7 +130,7 @@ export function DailyCriteriaTemplateEditModal({
               className="flex flex-col gap-1"
             >
               <label
-                className="text-muted-foreground text-xs font-medium"
+                className="text-xs font-medium text-muted-foreground"
                 htmlFor={`criteria-template-${f.key}`}
               >
                 {f.label}

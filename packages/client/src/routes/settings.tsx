@@ -281,10 +281,10 @@ function Settings() {
             </Button>
           </div>
           {taskTypesQuery.isPending
-            ? <p className="text-muted-foreground text-sm">Loading...</p>
+            ? <p className="text-sm text-muted-foreground">Loading...</p>
             : taskTypes.length === 0
               ? (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   No task types yet. Create one to start tagging resources.
                 </p>
               )
@@ -308,7 +308,7 @@ function Settings() {
                               />
                             ))}
                             {t.tags.length > 4 && (
-                              <span className="text-muted-foreground text-xs">
+                              <span className="text-xs text-muted-foreground">
                                 +
                                 {t.tags.length - 4}
                                 {" "}
@@ -356,14 +356,14 @@ function Settings() {
               New Template
             </Button>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             Prefill options for the Status Criteria Quick Fill on a daily.
           </p>
           {criteriaTemplatesQuery.isPending
-            ? <p className="text-muted-foreground text-sm">Loading...</p>
+            ? <p className="text-sm text-muted-foreground">Loading...</p>
             : criteriaTemplates.length === 0
               ? (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   No templates yet. Create one to use it as a Quick Fill option.
                 </p>
               )
@@ -381,7 +381,7 @@ function Settings() {
                         {t.goal && (
                           <span
                             className="
-                              text-muted-foreground line-clamp-1 text-xs
+                              line-clamp-1 text-xs text-muted-foreground
                             "
                           >
                             Goal:
