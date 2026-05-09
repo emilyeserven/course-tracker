@@ -12,7 +12,7 @@ import {
 } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
-import { fetchCourses } from "@/utils";
+import { fetchCourses, fetchDailies } from "@/utils";
 
 function ProgressIndicator({
   current,
@@ -64,8 +64,23 @@ export function DashboardCoursesInProgress() {
     queryKey: ["courses"],
     queryFn: () => fetchCourses(),
   });
+  const {
+    data: dailies,
+  } = useQuery({
+    queryKey: ["dailies"],
+    queryFn: () => fetchDailies(),
+  });
 
-  const inProgress = (courses ?? []).filter(c => c.status === "active");
+  const courseIdsWithActiveDaily = new Set(
+    (dailies ?? [])
+      .filter(d => d.status !== "complete" && d.status !== "paused")
+      .map(d => d.course?.id)
+      .filter((id): id is string => Boolean(id)),
+  );
+
+  const inProgress = (courses ?? []).filter(
+    c => c.status === "active" && !courseIdsWithActiveDaily.has(c.id),
+  );
 
   return (
     <DashboardCard

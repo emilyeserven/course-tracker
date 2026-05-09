@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { PageHeader } from "@/components/layout/PageHeader";
-
 import { DashboardCoursesInProgress } from "./dashboard.-components/-DashboardCoursesInProgress";
 import { DashboardDailies } from "./dashboard.-components/-DashboardDailies";
-import { DashboardProviders } from "./dashboard.-components/-DashboardProviders";
+import { DashboardRadars } from "./dashboard.-components/-DashboardRadars";
 import { DashboardUnderutilizedProviders } from "./dashboard.-components/-DashboardUnderutilizedProviders";
+
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
@@ -39,7 +39,7 @@ function Dashboard() {
               md:flex-1
             "
           >
-            <DashboardProviders />
+            <DashboardRadars />
           </div>
           <div
             className="

@@ -1,8 +1,13 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
+import { useState } from "react";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ArrowUpDownIcon,
   FlameIcon,
   LaughIcon,
   PlusIcon,
@@ -34,6 +39,7 @@ import {
   fetchDailies,
   findStatusForDate,
   getCurrentChain,
+  getDailyProgressPercent,
   getDaysBetweenFirstAndLastEntry,
   getLastEntryDate,
   getLongestStreak,
@@ -65,6 +71,9 @@ function formatMmDd(dateKey: string): string {
   return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
+type SortKey = "name" | "progress";
+type SortDir = "asc" | "desc";
+
 function Dailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
@@ -74,6 +83,27 @@ function Dailies() {
   const {
     mode, setMode,
   } = useDailiesViewMode();
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    }
+    else {
+      setSortKey(key);
+      setSortDir(key === "progress" ? "desc" : "asc");
+    }
+  }
+
+  function sortIndicator(key: SortKey) {
+    if (sortKey !== key) {
+      return <ArrowUpDownIcon className="size-3 opacity-40" />;
+    }
+    return sortDir === "asc"
+      ? <ArrowUpIcon className="size-3" />
+      : <ArrowDownIcon className="size-3" />;
+  }
 
   const {
     data: dailies,
@@ -107,18 +137,27 @@ function Dailies() {
     },
   });
 
-  const sortedDailies = dailies
+  const baseSorted = dailies
     ? [...dailies].sort((a, b) =>
       a.name.localeCompare(b.name, undefined, {
         sensitivity: "base",
       }))
     : undefined;
 
-  const activeDailies = sortedDailies?.filter(
+  const activeDailies = (baseSorted?.filter(
     d => d.status !== "complete" && d.status !== "paused",
-  ) ?? [];
-  const pausedDailies = sortedDailies?.filter(d => d.status === "paused") ?? [];
-  const completedDailies = sortedDailies?.filter(d => d.status === "complete")
+  ) ?? []).slice().sort((a, b) => {
+    if (sortKey === "progress") {
+      const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
+      if (diff !== 0) return sortDir === "asc" ? diff : -diff;
+    }
+    const cmp = a.name.localeCompare(b.name, undefined, {
+      sensitivity: "base",
+    });
+    return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
+  });
+  const pausedDailies = baseSorted?.filter(d => d.status === "paused") ?? [];
+  const completedDailies = baseSorted?.filter(d => d.status === "complete")
     ?? [];
 
   const dayHeaders = activeDailies.length > 0
@@ -157,7 +196,7 @@ function Dailies() {
       </PageHeader>
       <div className="container flex flex-col gap-4">
 
-        {(!sortedDailies || sortedDailies.length === 0) && (
+        {(!baseSorted || baseSorted.length === 0) && (
           <p className="text-sm text-muted-foreground">
             <i>No dailies yet!</i>
           </p>
@@ -202,13 +241,44 @@ function Dailies() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="text-left text-xs text-muted-foreground">
-                      <th className="p-2 font-medium">Title</th>
-                      <th className="p-2 font-medium" />
-                      <th className="p-2 font-medium">Description</th>
+                      <th className="p-2 font-medium">
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("progress")}
+                          className="
+                            inline-flex items-center gap-1
+                            hover:text-foreground
+                          "
+                          aria-label="Sort by progress"
+                        >
+                          Progress
+                          {sortIndicator("progress")}
+                        </button>
+                      </th>
+                      <th className="w-full p-2 font-medium">
+                        <button
+                          type="button"
+                          onClick={() => toggleSort("name")}
+                          className="
+                            inline-flex items-center gap-1
+                            hover:text-foreground
+                          "
+                          aria-label="Sort by title"
+                        >
+                          Title
+                          {sortIndicator("name")}
+                        </button>
+                      </th>
+                      <th className="p-2 font-medium">Type</th>
+                      <th className="max-w-xs p-2 font-medium">Description</th>
                       <th className="p-2 font-medium">Streak</th>
                       <th className="p-2 font-medium">Total</th>
                       <th className="p-2 font-medium" />
-                      <th className="p-2 font-medium">Today&apos;s Status</th>
+                      <th
+                        className="p-2 font-medium whitespace-nowrap"
+                      >
+                        Today&apos;s Status
+                      </th>
                       {dayHeaders.map(d => (
                         <th
                           key={d.dateKey}
@@ -245,26 +315,28 @@ function Dailies() {
                           "
                         >
                           <td className="p-2">
+                            <DailyProgressCell daily={daily} />
+                          </td>
+                          <td className="p-2">
+                            <Link
+                              to="/dailies/$id"
+                              from="/dailies"
+                              params={{
+                                id: daily.id,
+                              }}
+                              className="
+                                font-medium
+                                hover:text-blue-600
+                              "
+                            >
+                              {daily.name}
+                            </Link>
+                          </td>
+                          <td className="p-2">
                             <span className="inline-flex items-center gap-1.5">
-                              <Link
-                                to="/dailies/$id"
-                                from="/dailies"
-                                params={{
-                                  id: daily.id,
-                                }}
-                                className="
-                                  font-medium
-                                  hover:text-blue-600
-                                "
-                              >
-                                {daily.name}
-                              </Link>
                               <DailyCourseIndicator daily={daily} />
                               <DailyTaskIndicator daily={daily} />
                             </span>
-                          </td>
-                          <td className="p-2">
-                            <DailyProgressCell daily={daily} />
                           </td>
                           <td className="max-w-xs p-2">
                             {daily.description
@@ -323,7 +395,7 @@ function Dailies() {
                               <DailyCommentPopover daily={daily} />
                             )}
                           </td>
-                          <td className="relative p-2">
+                          <td className="p-2">
                             <TodayStatusCell
                               daily={daily}
                               currentStatus={currentStatus}
@@ -333,16 +405,6 @@ function Dailies() {
                                 status,
                               })}
                             />
-                            {days.length > 0 && (
-                              <DailyStatusConnector
-                                left={currentStatus}
-                                right={days[0].status}
-                                className="
-                                  absolute top-1/2 -right-2 left-30 z-0 w-auto
-                                  -translate-y-1/2
-                                "
-                              />
-                            )}
                           </td>
                           {days.map((day, i) => {
                             return (
@@ -350,6 +412,16 @@ function Dailies() {
                                 key={day.dateKey}
                                 className="relative px-1 py-2 align-middle"
                               >
+                                {i === 0 && (
+                                  <DailyStatusConnector
+                                    left={currentStatus}
+                                    right={day.status}
+                                    className="
+                                      absolute top-1/2 right-[calc(50%+12px)]
+                                      -left-2 z-0 -translate-y-1/2
+                                    "
+                                  />
+                                )}
                                 {i > 0 && (
                                   <DailyStatusConnector
                                     left={days[i - 1].status}

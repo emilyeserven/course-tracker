@@ -1,8 +1,16 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
+import { useState } from "react";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { FlameIcon, LaughIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ArrowUpDownIcon,
+  FlameIcon,
+  LaughIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -26,6 +34,7 @@ import {
   fetchDailies,
   findStatusForDate,
   getCurrentChain,
+  getDailyProgressPercent,
   getRecentDays,
   getTodayKey,
   getTotalCompletedDays,
@@ -40,6 +49,9 @@ function formatMmDd(dateKey: string): string {
   return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
+type SortKey = "name" | "progress";
+type SortDir = "asc" | "desc";
+
 export function DashboardDailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
@@ -49,6 +61,8 @@ export function DashboardDailies() {
   const {
     mode, setMode,
   } = useDailiesViewMode();
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const {
     data: dailies, isPending, error,
@@ -82,15 +96,42 @@ export function DashboardDailies() {
     },
   });
 
-  const sortedDailies = dailies
-    ? [...dailies]
-      .filter(d => d.status !== "complete" && d.status !== "paused")
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, {
-          sensitivity: "base",
-        }))
+  const filtered = dailies
+    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
+    : undefined;
+
+  const sortedDailies = filtered
+    ? [...filtered].sort((a, b) => {
+      if (sortKey === "progress") {
+        const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
+        if (diff !== 0) return sortDir === "asc" ? diff : -diff;
+      }
+      const cmp = a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+      });
+      return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
+    })
     : undefined;
   const activeCount = sortedDailies?.length ?? 0;
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    }
+    else {
+      setSortKey(key);
+      setSortDir(key === "progress" ? "desc" : "asc");
+    }
+  }
+
+  function sortIndicator(key: SortKey) {
+    if (sortKey !== key) {
+      return <ArrowUpDownIcon className="size-3 opacity-40" />;
+    }
+    return sortDir === "asc"
+      ? <ArrowUpIcon className="size-3" />
+      : <ArrowDownIcon className="size-3" />;
+  }
 
   const dayHeaders = sortedDailies && sortedDailies.length > 0
     ? getRecentDays(
@@ -166,12 +207,43 @@ export function DashboardDailies() {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="text-left text-xs text-muted-foreground">
-                <th className="p-2 font-medium">Title</th>
-                <th className="p-2 font-medium" />
+                <th className="p-2 font-medium">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("progress")}
+                    className="
+                      inline-flex items-center gap-1
+                      hover:text-foreground
+                    "
+                    aria-label="Sort by progress"
+                  >
+                    Progress
+                    {sortIndicator("progress")}
+                  </button>
+                </th>
+                <th className="w-full p-2 font-medium">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("name")}
+                    className="
+                      inline-flex items-center gap-1
+                      hover:text-foreground
+                    "
+                    aria-label="Sort by title"
+                  >
+                    Title
+                    {sortIndicator("name")}
+                  </button>
+                </th>
+                <th className="p-2 font-medium">Type</th>
                 <th className="p-2 font-medium">Streak</th>
                 <th className="p-2 font-medium">Total</th>
                 <th className="p-2 font-medium" />
-                <th className="p-2 font-medium">Today&apos;s Status</th>
+                <th
+                  className="p-2 font-medium whitespace-nowrap"
+                >
+                  Today&apos;s Status
+                </th>
                 {dayHeaders.map(d => (
                   <th
                     key={d.dateKey}
@@ -206,25 +278,27 @@ export function DashboardDailies() {
                     "
                   >
                     <td className="p-2">
+                      <DailyProgressCell daily={daily} />
+                    </td>
+                    <td className="p-2">
+                      <Link
+                        to="/dailies/$id"
+                        params={{
+                          id: daily.id,
+                        }}
+                        className="
+                          font-medium
+                          hover:text-blue-600
+                        "
+                      >
+                        {daily.name}
+                      </Link>
+                    </td>
+                    <td className="p-2">
                       <span className="inline-flex items-center gap-1.5">
-                        <Link
-                          to="/dailies/$id"
-                          params={{
-                            id: daily.id,
-                          }}
-                          className="
-                            font-medium
-                            hover:text-blue-600
-                          "
-                        >
-                          {daily.name}
-                        </Link>
                         <DailyCourseIndicator daily={daily} />
                         <DailyTaskIndicator daily={daily} />
                       </span>
-                    </td>
-                    <td className="p-2">
-                      <DailyProgressCell daily={daily} />
                     </td>
                     <td className="p-2">
                       <span
@@ -265,7 +339,7 @@ export function DashboardDailies() {
                         <DailyCommentPopover daily={daily} />
                       )}
                     </td>
-                    <td className="relative p-2">
+                    <td className="p-2">
                       <TodayStatusCell
                         daily={daily}
                         currentStatus={currentStatus}
@@ -275,16 +349,6 @@ export function DashboardDailies() {
                           status,
                         })}
                       />
-                      {days.length > 0 && (
-                        <DailyStatusConnector
-                          left={currentStatus}
-                          right={days[0].status}
-                          className="
-                            absolute top-1/2 -right-2 left-30 z-0 w-auto
-                            -translate-y-1/2
-                          "
-                        />
-                      )}
                     </td>
                     {days.map((day, i) => {
                       return (
@@ -292,6 +356,16 @@ export function DashboardDailies() {
                           key={day.dateKey}
                           className="relative px-1 py-2 align-middle"
                         >
+                          {i === 0 && (
+                            <DailyStatusConnector
+                              left={currentStatus}
+                              right={day.status}
+                              className="
+                                absolute top-1/2 right-[calc(50%+12px)] -left-2
+                                z-0 -translate-y-1/2
+                              "
+                            />
+                          )}
                           {i > 0 && (
                             <DailyStatusConnector
                               left={days[i - 1].status}

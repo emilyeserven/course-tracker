@@ -10,6 +10,11 @@ import {
   PopoverContent,
 } from "@/components/popover";
 import { RadialProgress } from "@/components/ui/RadialProgress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DailyProgressCellProps {
   daily: Daily;
@@ -182,11 +187,13 @@ export function DailyProgressCell({
   }
 
   return (
-    <span
-      className="inline-flex text-muted-foreground"
-      title="No linked progress"
-    >
-      <InfinityIcon className="size-5" />
-    </span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex text-muted-foreground">
+          <InfinityIcon className="size-5" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>Daily Drills</TooltipContent>
+    </Tooltip>
   );
 }
