@@ -1,7 +1,12 @@
-import { modules } from "@/db/schema";
+import { modules, moduleTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { coerceModuleLength } from "@/utils/moduleLength";
-import { nullableInteger, nullableString } from "@/utils/schemas";
+import {
+  nullableInteger,
+  nullableResourceLevelEnum,
+  nullableString,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 
 interface ModuleBody {
   name: string;
@@ -14,6 +19,10 @@ interface ModuleBody {
   minutesLength?: number | null;
   isComplete?: boolean;
   position?: number | null;
+  easeOfStarting?: "low" | "medium" | "high" | null;
+  timeNeeded?: "low" | "medium" | "high" | null;
+  interactivity?: "low" | "medium" | "high" | null;
+  tagIds?: string[];
 }
 
 const updateableColumns = [
@@ -25,6 +34,9 @@ const updateableColumns = [
   "length",
   "isComplete",
   "position",
+  "easeOfStarting",
+  "timeNeeded",
+  "interactivity",
 ] as const;
 
 export default createUpsertHandler<ModuleBody>({
@@ -51,6 +63,10 @@ export default createUpsertHandler<ModuleBody>({
         type: "boolean",
       },
       position: nullableInteger,
+      easeOfStarting: nullableResourceLevelEnum,
+      timeNeeded: nullableResourceLevelEnum,
+      interactivity: nullableResourceLevelEnum,
+      tagIds: tagIdsArraySchema,
     },
   },
   buildRow: (body, id) => ({
@@ -63,6 +79,24 @@ export default createUpsertHandler<ModuleBody>({
     length: coerceModuleLength(body.length, body.minutesLength),
     isComplete: body.isComplete ?? false,
     position: body.position ?? null,
+    easeOfStarting: body.easeOfStarting ?? null,
+    timeNeeded: body.timeNeeded ?? null,
+    interactivity: body.interactivity ?? null,
   }),
   updateableColumns,
+  junctions: [
+    {
+      table: moduleTags,
+      foreignKey: moduleTags.moduleId,
+      buildRows: (body, id) => {
+        if (body.tagIds === undefined) return undefined;
+        const unique = Array.from(new Set(body.tagIds));
+        return unique.map((tagId, index) => ({
+          moduleId: id,
+          tagId,
+          position: index,
+        }));
+      },
+    },
+  ],
 });

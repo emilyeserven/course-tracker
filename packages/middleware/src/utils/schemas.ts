@@ -106,6 +106,10 @@ export const resourceLinksArraySchema = {
   default: [],
 } as const;
 
+// Schema for a task's freeform resource entry. Ease/time/interactivity/tags
+// now live on the linked Resource/ModuleGroup/Module — when a row is linked,
+// those properties are read from the linked entity rather than overridden
+// here.
 export const resourceSchema = {
   type: "object",
   required: ["name"],
@@ -117,13 +121,9 @@ export const resourceSchema = {
       type: "string",
     },
     url: nullableString,
-    easeOfStarting: nullableResourceLevelEnum,
-    timeNeeded: nullableResourceLevelEnum,
-    interactivity: nullableResourceLevelEnum,
     usedYet: {
       type: "boolean",
     },
-    tagIds: tagIdsArraySchema,
     // Optional link to a top-level Resource. resourceId can be null while
     // moduleGroupId / moduleId stay null too — the row is a freeform task
     // resource. If resourceId is set, moduleGroupId / moduleId narrow the

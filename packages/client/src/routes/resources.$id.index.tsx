@@ -24,9 +24,8 @@ interface CourseSearch {
 export const Route = createFileRoute("/resources/$id/")({
   component: SingleCourse,
   validateSearch: (search: Record<string, unknown>): CourseSearch => ({
-    promptDaily: search.promptDaily === 1 || search.promptDaily === "1"
-      ? 1
-      : undefined,
+    promptDaily:
+      search.promptDaily === 1 || search.promptDaily === "1" ? 1 : undefined,
   }),
 });
 
@@ -160,6 +159,31 @@ function SingleCourse() {
         {!data?.progressCurrent && !data?.progressTotal && (
           <span>No progress information given.</span>
         )}
+      </InfoRow>
+      <InfoRow
+        header="Effort & Engagement"
+        condition={
+          !!data?.easeOfStarting || !!data?.timeNeeded || !!data?.interactivity
+        }
+      >
+        <InfoArea
+          header="Ease of Starting"
+          condition={!!data?.easeOfStarting}
+        >
+          <p className="capitalize">{data?.easeOfStarting}</p>
+        </InfoArea>
+        <InfoArea
+          header="Time Needed"
+          condition={!!data?.timeNeeded}
+        >
+          <p className="capitalize">{data?.timeNeeded}</p>
+        </InfoArea>
+        <InfoArea
+          header="Interactivity"
+          condition={!!data?.interactivity}
+        >
+          <p className="capitalize">{data?.interactivity}</p>
+        </InfoArea>
       </InfoRow>
       <CourseModulesAdmin
         resourceId={id}

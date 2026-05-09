@@ -3,9 +3,12 @@ import type {
   ModuleDurationBucket,
   ModuleGroup,
   ParsedModuleLength,
+  Tag,
+  TagGroup,
+  TaskResourceLevel,
 } from "@emstack/types/src";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 import {
   formatModuleLength,
@@ -15,6 +18,7 @@ import {
 } from "@emstack/types/src";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  ActivityIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ExternalLinkIcon,
@@ -25,7 +29,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { InteractionQuickLog } from "./InteractionQuickLog";
+
 import { Input } from "@/components/input";
+import { TagChip } from "@/components/tasks/TagChip";
+import { TagPicker } from "@/components/tasks/TagPicker";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { isHttpUrl } from "@/utils";
@@ -36,6 +44,7 @@ import {
   deleteSingleModuleGroup,
   fetchModuleGroups,
   fetchModules,
+  fetchTagGroups,
   upsertModule,
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
@@ -52,6 +61,10 @@ interface GroupDraft {
   url: string;
   totalCount: string;
   completedCount: string;
+  easeOfStarting: TaskResourceLevel | "";
+  timeNeeded: TaskResourceLevel | "";
+  interactivity: TaskResourceLevel | "";
+  tagIds: string[];
 }
 
 type DurationMode = "minutes" | "bucket";
@@ -64,6 +77,10 @@ interface ModuleDraft {
   durationMode: DurationMode;
   minutesValue: string;
   bucketValue: ModuleDurationBucket | "";
+  easeOfStarting: TaskResourceLevel | "";
+  timeNeeded: TaskResourceLevel | "";
+  interactivity: TaskResourceLevel | "";
+  tagIds: string[];
 }
 
 const NEW_ID = "__new__";
@@ -76,6 +93,10 @@ function emptyGroupDraft(): GroupDraft {
     url: "",
     totalCount: "",
     completedCount: "",
+    easeOfStarting: "",
+    timeNeeded: "",
+    interactivity: "",
+    tagIds: [],
   };
 }
 
@@ -87,6 +108,10 @@ function groupToDraft(g: ModuleGroup): GroupDraft {
     url: g.url ?? "",
     totalCount: g.totalCount != null ? String(g.totalCount) : "",
     completedCount: g.completedCount != null ? String(g.completedCount) : "",
+    easeOfStarting: g.easeOfStarting ?? "",
+    timeNeeded: g.timeNeeded ?? "",
+    interactivity: g.interactivity ?? "",
+    tagIds: (g.tags ?? []).map(t => t.id),
   };
 }
 
@@ -99,6 +124,10 @@ function emptyModuleDraft(): ModuleDraft {
     durationMode: "minutes",
     minutesValue: "",
     bucketValue: "",
+    easeOfStarting: "",
+    timeNeeded: "",
+    interactivity: "",
+    tagIds: [],
   };
 }
 
@@ -109,6 +138,10 @@ function moduleToDraft(m: Module): ModuleDraft {
     name: m.name,
     description: m.description ?? "",
     url: m.url ?? "",
+    easeOfStarting: m.easeOfStarting ?? ("" as const),
+    timeNeeded: m.timeNeeded ?? ("" as const),
+    interactivity: m.interactivity ?? ("" as const),
+    tagIds: (m.tags ?? []).map(t => t.id),
   };
   if (parsed?.kind === "bucket") {
     return {
@@ -134,6 +167,72 @@ function moduleToDraft(m: Module): ModuleDraft {
   };
 }
 
+function levelChipClass(level: TaskResourceLevel | null | undefined): string {
+  switch (level) {
+    case "low":
+      return "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "medium":
+      return "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/40 dark:text-amber-200";
+    case "high":
+      return "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-900/40 dark:text-rose-200";
+    default:
+      return "bg-muted text-muted-foreground border-muted-foreground/30";
+  }
+}
+
+function GroupMetaChips({
+  easeOfStarting,
+  timeNeeded,
+  interactivity,
+  tags,
+}: {
+  easeOfStarting: TaskResourceLevel | null;
+  timeNeeded: TaskResourceLevel | null;
+  interactivity: TaskResourceLevel | null;
+  tags: Tag[];
+}) {
+  const hasAny
+    = !!easeOfStarting || !!timeNeeded || !!interactivity || tags.length > 0;
+  if (!hasAny) return null;
+  function chip(label: string, level: TaskResourceLevel | null) {
+    if (!level) return null;
+    return (
+      <span
+        className={`
+          inline-flex items-center rounded-full border px-2 py-0.5 text-xs
+          font-medium
+          ${levelChipClass(level)}
+        `}
+      >
+        {label}: {level}
+      </span>
+    );
+  }
+  return (
+    <div className="flex flex-wrap gap-1">
+      {chip("Ease", easeOfStarting)}
+      {chip("Time", timeNeeded)}
+      {chip("Interactivity", interactivity)}
+      {tags.map(tag => (
+        <TagChip
+          key={tag.id}
+          tag={tag.name}
+        />
+      ))}
+    </div>
+  );
+}
+
+function lookupTagsByIds(ids: string[], tagGroups: TagGroup[]): Tag[] {
+  const byId = new Map<string, Tag>();
+  for (const group of tagGroups) {
+    for (const tag of group.tags ?? []) {
+      byId.set(tag.id, tag);
+    }
+  }
+  return ids.map(id => byId.get(id)).filter((t): t is Tag => t !== undefined);
+}
+
 function draftToLength(d: ModuleDraft): string | null {
   if (d.durationMode === "minutes") {
     return d.minutesValue ? d.minutesValue : null;
@@ -155,13 +254,19 @@ export function CourseModulesAdmin({
     queryKey: ["course-modules", resourceId],
     queryFn: () => fetchModules(),
   });
+  const tagGroupsQuery = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+  const tagGroups = tagGroupsQuery.data ?? [];
 
   const groups = useMemo(
     () => (groupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
     [groupsQuery.data, resourceId],
   );
   const allModules = useMemo(
-    () => (allModulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
+    () =>
+      (allModulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
     [allModulesQuery.data, resourceId],
   );
 
@@ -224,11 +329,21 @@ export function CourseModulesAdmin({
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [creatingModuleIn, setCreatingModuleIn] = useState<string | null>(null);
 
+  // Quick-log interaction targets. Either a moduleGroupId or a moduleId is set.
+  const [loggingForGroupId, setLoggingForGroupId] = useState<string | null>(
+    null,
+  );
+  const [loggingForModuleId, setLoggingForModuleId] = useState<string | null>(
+    null,
+  );
+
   const isAnyEditing
     = editingGroupId !== null
       || creatingGroup
       || editingModuleId !== null
-      || creatingModuleIn !== null;
+      || creatingModuleIn !== null
+      || loggingForGroupId !== null
+      || loggingForModuleId !== null;
 
   function parseCount(s: string): number | null {
     if (!s) return null;
@@ -247,6 +362,10 @@ export function CourseModulesAdmin({
         url: draft.url || null,
         totalCount: parseCount(draft.totalCount),
         completedCount: parseCount(draft.completedCount),
+        easeOfStarting: draft.easeOfStarting || null,
+        timeNeeded: draft.timeNeeded || null,
+        interactivity: draft.interactivity || null,
+        tagIds: draft.tagIds,
       }),
     onSuccess: () => {
       invalidateAll();
@@ -265,6 +384,10 @@ export function CourseModulesAdmin({
         url: draft.url || null,
         totalCount: parseCount(draft.totalCount),
         completedCount: parseCount(draft.completedCount),
+        easeOfStarting: draft.easeOfStarting || null,
+        timeNeeded: draft.timeNeeded || null,
+        interactivity: draft.interactivity || null,
+        tagIds: draft.tagIds,
       }),
     onSuccess: () => {
       invalidateAll();
@@ -300,6 +423,10 @@ export function CourseModulesAdmin({
         description: draft.description || null,
         url: draft.url || null,
         length: draftToLength(draft),
+        easeOfStarting: draft.easeOfStarting || null,
+        timeNeeded: draft.timeNeeded || null,
+        interactivity: draft.interactivity || null,
+        tagIds: draft.tagIds,
       }),
     onSuccess: () => {
       invalidateAll();
@@ -327,6 +454,10 @@ export function CourseModulesAdmin({
         url: draft.url || null,
         length: draftToLength(draft),
         isComplete,
+        easeOfStarting: draft.easeOfStarting || null,
+        timeNeeded: draft.timeNeeded || null,
+        interactivity: draft.interactivity || null,
+        tagIds: draft.tagIds,
       }),
     onSuccess: () => {
       invalidateAll();
@@ -438,11 +569,7 @@ export function CourseModulesAdmin({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  function moveModule(
-    list: Module[],
-    index: number,
-    direction: "up" | "down",
-  ) {
+  function moveModule(list: Module[], index: number, direction: "up" | "down") {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= list.length) return;
     reorderModulesMutation.mutate({
@@ -474,20 +601,11 @@ export function CourseModulesAdmin({
           <h2 className="text-xl font-semibold">Modules</h2>
           {totalCount > 0 && (
             <p className="text-sm text-muted-foreground">
-              {completedCount}
-              {" "}
-              of
-              {" "}
-              {totalCount}
-              {" "}
-              complete
+              {completedCount} of {totalCount} complete
               {modulesAreExhaustive && totalCount > 0 && (
                 <span>
                   {" "}
-                  ·
-                  {" "}
-                  {Math.round((completedCount / totalCount) * 100)}
-                  %
+                  · {Math.round((completedCount / totalCount) * 100)}%
                 </span>
               )}
             </p>
@@ -519,6 +637,7 @@ export function CourseModulesAdmin({
         <GroupEditCard
           draft={emptyGroupDraft()}
           hasEnumeratedModules={false}
+          tagGroups={tagGroups}
           isNew
           isSaving={createGroupMutation.isPending}
           onSave={d => createGroupMutation.mutate(d)}
@@ -527,7 +646,8 @@ export function CourseModulesAdmin({
       )}
 
       {/* Ungrouped modules */}
-      {(creatingModuleIn === "__ungrouped__" || ungroupedModules.length > 0) && (
+      {(creatingModuleIn === "__ungrouped__"
+        || ungroupedModules.length > 0) && (
         <div className="flex flex-col gap-2 rounded-md border bg-background p-3">
           <h3 className="text-sm font-medium text-muted-foreground">
             Ungrouped
@@ -535,6 +655,7 @@ export function CourseModulesAdmin({
           {creatingModuleIn === "__ungrouped__" && (
             <ModuleEditCard
               draft={emptyModuleDraft()}
+              tagGroups={tagGroups}
               isNew
               isComplete={false}
               isSaving={createModuleMutation.isPending}
@@ -553,6 +674,7 @@ export function CourseModulesAdmin({
                   <ModuleEditCard
                     key={m.id}
                     draft={moduleToDraft(m)}
+                    tagGroups={tagGroups}
                     isComplete={m.isComplete}
                     isSaving={
                       upsertModuleMutation.isPending
@@ -569,20 +691,33 @@ export function CourseModulesAdmin({
                   />
                 )
                 : (
-                  <ModuleDisplayRow
-                    key={m.id}
-                    module={m}
-                    isAnyEditing={isAnyEditing}
-                    isReordering={isReordering}
-                    canMoveUp={index > 0}
-                    canMoveDown={index < ungroupedModules.length - 1}
-                    onMoveUp={() => moveModule(ungroupedModules, index, "up")}
-                    onMoveDown={() =>
-                      moveModule(ungroupedModules, index, "down")}
-                    onToggleComplete={() => toggleCompleteMutation.mutate(m)}
-                    onEdit={() => setEditingModuleId(m.id)}
-                    isToggling={toggleCompleteMutation.isPending}
-                  />
+                  <Fragment key={m.id}>
+                    <ModuleDisplayRow
+                      module={m}
+                      isAnyEditing={isAnyEditing}
+                      isReordering={isReordering}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < ungroupedModules.length - 1}
+                      onMoveUp={() => moveModule(ungroupedModules, index, "up")}
+                      onMoveDown={() =>
+                        moveModule(ungroupedModules, index, "down")}
+                      onToggleComplete={() => toggleCompleteMutation.mutate(m)}
+                      onEdit={() => setEditingModuleId(m.id)}
+                      onLogInteraction={() => setLoggingForModuleId(m.id)}
+                      isToggling={toggleCompleteMutation.isPending}
+                    />
+                    {loggingForModuleId === m.id && (
+                      <li className="border-t bg-muted/30 p-3">
+                        <InteractionQuickLog
+                          resourceId={resourceId}
+                          moduleId={m.id}
+                          scopeLabel={`module: ${m.name}`}
+                          onCancel={() => setLoggingForModuleId(null)}
+                          onSaved={() => setLoggingForModuleId(null)}
+                        />
+                      </li>
+                    )}
+                  </Fragment>
                 ))}
           </ul>
         </div>
@@ -600,6 +735,7 @@ export function CourseModulesAdmin({
               key={g.id}
               draft={groupToDraft(g)}
               hasEnumeratedModules={groupModules.length > 0}
+              tagGroups={tagGroups}
               isSaving={
                 upsertGroupMutation.isPending || deleteGroupMutation.isPending
               }
@@ -619,23 +755,27 @@ export function CourseModulesAdmin({
               <div className="flex flex-col gap-0.5">
                 <h3 className="font-medium">
                   {g.url
-                    ? (isHttpUrl(g.url)
-                      ? (
-                        <a
-                          href={g.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:text-blue-600"
-                        >
-                          {g.name}
-                          {" "}
-                          <ExternalLinkIcon className="inline size-3.5" />
-                        </a>
-                      )
-                      : (
-                        <span title={g.url}>{g.name}</span>
-                      ))
-                    : g.name}
+                    ? (
+                      isHttpUrl(g.url)
+                        ? (
+                          <a
+                            href={g.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:text-blue-600"
+                          >
+                            {g.name}
+                            {" "}
+                            <ExternalLinkIcon className="inline size-3.5" />
+                          </a>
+                        )
+                        : (
+                          <span title={g.url}>{g.name}</span>
+                        )
+                    )
+                    : (
+                      g.name
+                    )}
                 </h3>
                 {g.description && (
                   <span className="text-xs text-muted-foreground">
@@ -649,9 +789,7 @@ export function CourseModulesAdmin({
                     size="icon-sm"
                     variant="ghost"
                     onClick={() => moveGroup(gIndex, "up")}
-                    disabled={
-                      isAnyEditing || isReordering || gIndex === 0
-                    }
+                    disabled={isAnyEditing || isReordering || gIndex === 0}
                     aria-label="Move group up"
                     title="Move group up"
                   >
@@ -682,6 +820,16 @@ export function CourseModulesAdmin({
                   Add Module
                 </Button>
                 <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  onClick={() => setLoggingForGroupId(g.id)}
+                  disabled={isAnyEditing}
+                  aria-label={`Log interaction for ${g.name}`}
+                  title="Log interaction"
+                >
+                  <ActivityIcon className="size-3.5" />
+                </Button>
+                <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setEditingGroupId(g.id)}
@@ -691,9 +839,25 @@ export function CourseModulesAdmin({
                 </Button>
               </div>
             </div>
+            <GroupMetaChips
+              easeOfStarting={g.easeOfStarting ?? null}
+              timeNeeded={g.timeNeeded ?? null}
+              interactivity={g.interactivity ?? null}
+              tags={g.tags ?? []}
+            />
+            {loggingForGroupId === g.id && (
+              <InteractionQuickLog
+                resourceId={resourceId}
+                moduleGroupId={g.id}
+                scopeLabel={`group: ${g.name}`}
+                onCancel={() => setLoggingForGroupId(null)}
+                onSaved={() => setLoggingForGroupId(null)}
+              />
+            )}
             {isCreatingHere && (
               <ModuleEditCard
                 draft={emptyModuleDraft()}
+                tagGroups={tagGroups}
                 isNew
                 isComplete={false}
                 isSaving={createModuleMutation.isPending}
@@ -713,6 +877,7 @@ export function CourseModulesAdmin({
                       <ModuleEditCard
                         key={m.id}
                         draft={moduleToDraft(m)}
+                        tagGroups={tagGroups}
                         isComplete={m.isComplete}
                         isSaving={
                           upsertModuleMutation.isPending
@@ -729,35 +894,51 @@ export function CourseModulesAdmin({
                       />
                     )
                     : (
-                      <ModuleDisplayRow
-                        key={m.id}
-                        module={m}
-                        isAnyEditing={isAnyEditing}
-                        isReordering={isReordering}
-                        canMoveUp={mIndex > 0}
-                        canMoveDown={mIndex < groupModules.length - 1}
-                        onMoveUp={() => moveModule(groupModules, mIndex, "up")}
-                        onMoveDown={() =>
-                          moveModule(groupModules, mIndex, "down")}
-                        onToggleComplete={() => toggleCompleteMutation.mutate(m)}
-                        onEdit={() => setEditingModuleId(m.id)}
-                        isToggling={toggleCompleteMutation.isPending}
-                      />
+                      <Fragment key={m.id}>
+                        <ModuleDisplayRow
+                          module={m}
+                          isAnyEditing={isAnyEditing}
+                          isReordering={isReordering}
+                          canMoveUp={mIndex > 0}
+                          canMoveDown={mIndex < groupModules.length - 1}
+                          onMoveUp={() => moveModule(groupModules, mIndex, "up")}
+                          onMoveDown={() =>
+                            moveModule(groupModules, mIndex, "down")}
+                          onToggleComplete={() =>
+                            toggleCompleteMutation.mutate(m)}
+                          onEdit={() => setEditingModuleId(m.id)}
+                          onLogInteraction={() => setLoggingForModuleId(m.id)}
+                          isToggling={toggleCompleteMutation.isPending}
+                        />
+                        {loggingForModuleId === m.id && (
+                          <li className="border-t bg-muted/30 p-3">
+                            <InteractionQuickLog
+                              resourceId={resourceId}
+                              moduleId={m.id}
+                              scopeLabel={`module: ${m.name}`}
+                              onCancel={() => setLoggingForModuleId(null)}
+                              onSaved={() => setLoggingForModuleId(null)}
+                            />
+                          </li>
+                        )}
+                      </Fragment>
                     ))}
               </ul>
             )}
-            {groupModules.length === 0 && !isCreatingHere
-              && (g.totalCount != null || g.completedCount != null)
-              && (
-                <p className="text-xs text-muted-foreground">
-                  {g.completedCount ?? 0}
-                  {" / "}
-                  {g.totalCount ?? 0}
-                  {" complete"}
-                </p>
-              )}
-            {groupModules.length === 0 && !isCreatingHere
-              && g.totalCount == null && g.completedCount == null && (
+            {groupModules.length === 0
+              && !isCreatingHere
+              && (g.totalCount != null || g.completedCount != null) && (
+              <p className="text-xs text-muted-foreground">
+                {g.completedCount ?? 0}
+                {" / "}
+                {g.totalCount ?? 0}
+                {" complete"}
+              </p>
+            )}
+            {groupModules.length === 0
+              && !isCreatingHere
+              && g.totalCount == null
+              && g.completedCount == null && (
               <p className="text-xs text-muted-foreground">
                 No modules in this group yet — add modules, or edit the group
                 to track totals directly.
@@ -767,7 +948,9 @@ export function CourseModulesAdmin({
         );
       })}
 
-      {groups.length === 0 && ungroupedModules.length === 0 && !creatingGroup
+      {groups.length === 0
+        && ungroupedModules.length === 0
+        && !creatingGroup
         && creatingModuleIn === null && (
         <p className="text-sm text-muted-foreground">
           No modules yet. Add a module directly, or create a module group to
@@ -788,6 +971,7 @@ function ModuleDisplayRow({
   onMoveDown,
   onToggleComplete,
   onEdit,
+  onLogInteraction,
   isToggling,
 }: {
   module: Module;
@@ -799,6 +983,7 @@ function ModuleDisplayRow({
   onMoveDown: () => void;
   onToggleComplete: () => void;
   onEdit: () => void;
+  onLogInteraction: () => void;
   isToggling: boolean;
 }) {
   return (
@@ -862,6 +1047,16 @@ function ModuleDisplayRow({
           <ChevronDownIcon className="size-3.5" />
         </Button>
         <Button
+          size="icon-sm"
+          variant="ghost"
+          onClick={onLogInteraction}
+          disabled={isAnyEditing}
+          aria-label={`Log interaction for ${m.name}`}
+          title="Log interaction"
+        >
+          <ActivityIcon className="size-3.5" />
+        </Button>
+        <Button
           size="sm"
           variant="ghost"
           onClick={onEdit}
@@ -877,6 +1072,7 @@ function ModuleDisplayRow({
 function GroupEditCard({
   draft: initial,
   hasEnumeratedModules,
+  tagGroups,
   isNew = false,
   isSaving = false,
   onSave,
@@ -885,6 +1081,7 @@ function GroupEditCard({
 }: {
   draft: GroupDraft;
   hasEnumeratedModules: boolean;
+  tagGroups: TagGroup[];
   isNew?: boolean;
   isSaving?: boolean;
   onSave: (d: GroupDraft) => void;
@@ -913,9 +1110,10 @@ function GroupEditCard({
         <Input
           type="text"
           value={draft.name}
-          onChange={e => update({
-            name: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              name: e.target.value,
+            })}
           required
           autoFocus
           placeholder="e.g. Section 1: Fundamentals"
@@ -927,9 +1125,10 @@ function GroupEditCard({
         </label>
         <Textarea
           value={draft.description}
-          onChange={e => update({
-            description: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              description: e.target.value,
+            })}
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -939,9 +1138,10 @@ function GroupEditCard({
         <Input
           type="text"
           value={draft.url}
-          onChange={e => update({
-            url: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              url: e.target.value,
+            })}
         />
       </div>
       {!hasEnumeratedModules && (
@@ -951,9 +1151,7 @@ function GroupEditCard({
           <legend className="px-1 text-xs font-medium text-muted-foreground">
             Direct counts (no enumerated modules)
           </legend>
-          <div
-            className="grid grid-cols-2 gap-2"
-          >
+          <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-muted-foreground">
                 Completed
@@ -963,9 +1161,10 @@ function GroupEditCard({
                 min={0}
                 step={1}
                 value={draft.completedCount}
-                onChange={e => update({
-                  completedCount: e.target.value,
-                })}
+                onChange={e =>
+                  update({
+                    completedCount: e.target.value,
+                  })}
                 placeholder="0"
               />
             </div>
@@ -978,9 +1177,10 @@ function GroupEditCard({
                 min={0}
                 step={1}
                 value={draft.totalCount}
-                onChange={e => update({
-                  totalCount: e.target.value,
-                })}
+                onChange={e =>
+                  update({
+                    totalCount: e.target.value,
+                  })}
                 placeholder="0"
               />
             </div>
@@ -993,6 +1193,30 @@ function GroupEditCard({
           Remove all modules to switch to direct counts.
         </p>
       )}
+      <LevelTriad
+        easeOfStarting={draft.easeOfStarting}
+        timeNeeded={draft.timeNeeded}
+        interactivity={draft.interactivity}
+        onChange={patch => update(patch)}
+      />
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-muted-foreground">
+          Tags
+        </label>
+        <TagPicker
+          value={draft.tagIds}
+          onChange={ids =>
+            update({
+              tagIds: lookupTagsByIds(ids, tagGroups).map(t => t.id),
+            })}
+          tagGroups={tagGroups}
+          placeholder={
+            tagGroups.length > 0
+              ? "Pick tags..."
+              : "No tags configured. Add some on the Settings page."
+          }
+        />
+      </div>
       <div
         className="flex flex-row flex-wrap items-center justify-between gap-2"
       >
@@ -1030,8 +1254,68 @@ function GroupEditCard({
   );
 }
 
+function LevelTriad({
+  easeOfStarting,
+  timeNeeded,
+  interactivity,
+  onChange,
+}: {
+  easeOfStarting: TaskResourceLevel | "";
+  timeNeeded: TaskResourceLevel | "";
+  interactivity: TaskResourceLevel | "";
+  onChange: (
+    patch: Partial<{
+      easeOfStarting: TaskResourceLevel | "";
+      timeNeeded: TaskResourceLevel | "";
+      interactivity: TaskResourceLevel | "";
+    }>,
+  ) => void;
+}) {
+  function levelSelect(
+    label: string,
+    value: TaskResourceLevel | "",
+    key: "easeOfStarting" | "timeNeeded" | "interactivity",
+  ) {
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-muted-foreground">
+          {label}
+        </label>
+        <select
+          value={value}
+          onChange={e =>
+            onChange({
+              [key]: (e.target.value || "") as TaskResourceLevel | "",
+            })}
+          className="
+            flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
+          "
+        >
+          <option value="">—</option>
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+    );
+  }
+  return (
+    <div
+      className="
+        grid grid-cols-1 gap-3
+        md:grid-cols-3
+      "
+    >
+      {levelSelect("Ease of Starting", easeOfStarting, "easeOfStarting")}
+      {levelSelect("Time Needed", timeNeeded, "timeNeeded")}
+      {levelSelect("Interactivity", interactivity, "interactivity")}
+    </div>
+  );
+}
+
 function ModuleEditCard({
   draft: initial,
+  tagGroups,
   isNew = false,
   isComplete: _isComplete,
   isSaving = false,
@@ -1040,6 +1324,7 @@ function ModuleEditCard({
   onDelete,
 }: {
   draft: ModuleDraft;
+  tagGroups: TagGroup[];
   isNew?: boolean;
   isComplete: boolean;
   isSaving?: boolean;
@@ -1069,9 +1354,10 @@ function ModuleEditCard({
         <Input
           type="text"
           value={draft.name}
-          onChange={e => update({
-            name: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              name: e.target.value,
+            })}
           required
           autoFocus
         />
@@ -1083,15 +1369,14 @@ function ModuleEditCard({
         <Input
           type="text"
           value={draft.url}
-          onChange={e => update({
-            url: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              url: e.target.value,
+            })}
         />
       </div>
       <div className="flex flex-col gap-1">
-        <div
-          className="flex flex-row items-center justify-between gap-2"
-        >
+        <div className="flex flex-row items-center justify-between gap-2">
           <label className="text-xs font-medium text-muted-foreground">
             Length (optional)
           </label>
@@ -1105,9 +1390,10 @@ function ModuleEditCard({
               size="sm"
               variant={draft.durationMode === "minutes" ? "secondary" : "ghost"}
               aria-pressed={draft.durationMode === "minutes"}
-              onClick={() => update({
-                durationMode: "minutes",
-              })}
+              onClick={() =>
+                update({
+                  durationMode: "minutes",
+                })}
             >
               Minutes
             </Button>
@@ -1116,9 +1402,10 @@ function ModuleEditCard({
               size="sm"
               variant={draft.durationMode === "bucket" ? "secondary" : "ghost"}
               aria-pressed={draft.durationMode === "bucket"}
-              onClick={() => update({
-                durationMode: "bucket",
-              })}
+              onClick={() =>
+                update({
+                  durationMode: "bucket",
+                })}
             >
               Range
             </Button>
@@ -1131,9 +1418,10 @@ function ModuleEditCard({
               min={0}
               step={1}
               value={draft.minutesValue}
-              onChange={e => update({
-                minutesValue: e.target.value,
-              })}
+              onChange={e =>
+                update({
+                  minutesValue: e.target.value,
+                })}
               placeholder="e.g. 30"
             />
           )
@@ -1169,9 +1457,34 @@ function ModuleEditCard({
         </label>
         <Textarea
           value={draft.description}
-          onChange={e => update({
-            description: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              description: e.target.value,
+            })}
+        />
+      </div>
+      <LevelTriad
+        easeOfStarting={draft.easeOfStarting}
+        timeNeeded={draft.timeNeeded}
+        interactivity={draft.interactivity}
+        onChange={patch => update(patch)}
+      />
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-muted-foreground">
+          Tags
+        </label>
+        <TagPicker
+          value={draft.tagIds}
+          onChange={ids =>
+            update({
+              tagIds: lookupTagsByIds(ids, tagGroups).map(t => t.id),
+            })}
+          tagGroups={tagGroups}
+          placeholder={
+            tagGroups.length > 0
+              ? "Pick tags..."
+              : "No tags configured. Add some on the Settings page."
+          }
         />
       </div>
       <div

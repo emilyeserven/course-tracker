@@ -1,14 +1,16 @@
 import {
   courseProviders,
   resources,
+  resourceTags,
   domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
   interactions,
   moduleGroups,
+  moduleGroupTags,
   modules,
+  moduleTags,
   radarBlips,
-  taskResourcesToTags,
   tagGroups,
   tags,
   tasksToResources,
@@ -21,10 +23,12 @@ import { db } from "@/db/index";
 
 export async function clearData() {
   await db.delete(interactions);
-  await db.delete(taskResourcesToTags);
   await db.delete(tasksToTags);
   await db.delete(tasksToResources);
   await db.delete(topicsToTags);
+  await db.delete(moduleTags);
+  await db.delete(moduleGroupTags);
+  await db.delete(resourceTags);
   await db.delete(tags);
   await db.delete(tagGroups);
   await db.delete(modules);

@@ -85,6 +85,9 @@ export const resources = pgTable("resources", {
   // When true, completion is computed from finished modules rather than from
   // progressCurrent/progressTotal.
   modulesAreExhaustive: boolean("modules_are_exhaustive").default(false).notNull(),
+  easeOfStarting: resourceLevelEnum("ease_of_starting"),
+  timeNeeded: resourceLevelEnum("time_needed"),
+  interactivity: resourceLevelEnum(),
 });
 
 export const moduleGroups = pgTable("module_groups", {
@@ -107,6 +110,9 @@ export const moduleGroups = pgTable("module_groups", {
   // and counts derive from those modules.
   totalCount: integer("total_count"),
   completedCount: integer("completed_count"),
+  easeOfStarting: resourceLevelEnum("ease_of_starting"),
+  timeNeeded: resourceLevelEnum("time_needed"),
+  interactivity: resourceLevelEnum(),
 });
 
 export const modules = pgTable("modules", {
@@ -133,6 +139,9 @@ export const modules = pgTable("modules", {
   // but there's no UI to set it. Add a reorder UI for modules within a group
   // (and ungrouped modules) — drag-handle or up/down buttons.
   position: integer(),
+  easeOfStarting: resourceLevelEnum("ease_of_starting"),
+  timeNeeded: resourceLevelEnum("time_needed"),
+  interactivity: resourceLevelEnum(),
 });
 
 // Replaces taskResources.usedYet with a richer log. An interaction targets a
@@ -237,6 +246,10 @@ export const tasks = pgTable("tasks", {
   taskTypeId: varchar("task_type_id"),
 });
 
+// Task-local resource entries for things that don't (yet) warrant a real
+// top-level Resource. Ease/time/interactivity/tags now live on Resource,
+// ModuleGroup, and Module — a task that links to one of those inherits the
+// metadata from the linked entity rather than overriding it here.
 export const taskResources = pgTable("task_resources", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id").notNull(),
@@ -244,9 +257,6 @@ export const taskResources = pgTable("task_resources", {
     length: 255,
   }).notNull(),
   url: varchar(),
-  easeOfStarting: resourceLevelEnum("ease_of_starting"),
-  timeNeeded: resourceLevelEnum("time_needed"),
-  interactivity: resourceLevelEnum(),
   usedYet: boolean("used_yet").default(false).notNull(),
   position: integer(),
   // Optional link to a top-level Resource, narrowed to a module group or
@@ -261,9 +271,6 @@ export const taskResources = pgTable("task_resources", {
   moduleId: varchar("module_id").references(() => modules.id, {
     onDelete: "set null",
   }),
-  // TODO(tag-reform-followup): drop this varchar[] column in favor of the
-  // taskResourcesToTags junction once the taskResources UI is migrated.
-  tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
 });
 
 export const taskTodos = pgTable("task_todos", {
@@ -327,12 +334,12 @@ export const tasksToTags = pgTable(
   ],
 );
 
-export const taskResourcesToTags = pgTable(
-  "resources_to_tags",
+export const resourceTags = pgTable(
+  "resource_tags",
   {
     resourceId: varchar("resource_id")
       .notNull()
-      .references(() => taskResources.id),
+      .references(() => resources.id),
     tagId: varchar("tag_id")
       .notNull()
       .references(() => tags.id),
@@ -341,6 +348,42 @@ export const taskResourcesToTags = pgTable(
   t => [
     primaryKey({
       columns: [t.resourceId, t.tagId],
+    }),
+  ],
+);
+
+export const moduleGroupTags = pgTable(
+  "module_group_tags",
+  {
+    moduleGroupId: varchar("module_group_id")
+      .notNull()
+      .references(() => moduleGroups.id),
+    tagId: varchar("tag_id")
+      .notNull()
+      .references(() => tags.id),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.moduleGroupId, t.tagId],
+    }),
+  ],
+);
+
+export const moduleTags = pgTable(
+  "module_tags",
+  {
+    moduleId: varchar("module_id")
+      .notNull()
+      .references(() => modules.id),
+    tagId: varchar("tag_id")
+      .notNull()
+      .references(() => tags.id),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.moduleId, t.tagId],
     }),
   ],
 );
@@ -377,8 +420,10 @@ export const tagsRelations = relations(tags, ({
     references: [tagGroups.id],
   }),
   tasksToTags: many(tasksToTags),
-  taskResourcesToTags: many(taskResourcesToTags),
   topicsToTags: many(topicsToTags),
+  resourceTags: many(resourceTags),
+  moduleGroupTags: many(moduleGroupTags),
+  moduleTags: many(moduleTags),
 }));
 
 export const tasksToTagsRelations = relations(tasksToTags, ({
@@ -394,15 +439,41 @@ export const tasksToTagsRelations = relations(tasksToTags, ({
   }),
 }));
 
-export const taskResourcesToTagsRelations = relations(taskResourcesToTags, ({
+export const resourceTagsRelations = relations(resourceTags, ({
   one,
 }) => ({
-  resource: one(taskResources, {
-    fields: [taskResourcesToTags.resourceId],
-    references: [taskResources.id],
+  resource: one(resources, {
+    fields: [resourceTags.resourceId],
+    references: [resources.id],
   }),
   tag: one(tags, {
-    fields: [taskResourcesToTags.tagId],
+    fields: [resourceTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const moduleGroupTagsRelations = relations(moduleGroupTags, ({
+  one,
+}) => ({
+  moduleGroup: one(moduleGroups, {
+    fields: [moduleGroupTags.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  tag: one(tags, {
+    fields: [moduleGroupTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const moduleTagsRelations = relations(moduleTags, ({
+  one,
+}) => ({
+  module: one(modules, {
+    fields: [moduleTags.moduleId],
+    references: [modules.id],
+  }),
+  tag: one(tags, {
+    fields: [moduleTags.tagId],
     references: [tags.id],
   }),
 }));
@@ -448,7 +519,7 @@ export const taskTypesRelations = relations(taskTypes, ({
 }));
 
 export const taskResourcesRelations = relations(taskResources, ({
-  one, many,
+  one,
 }) => ({
   task: one(tasks, {
     fields: [taskResources.taskId],
@@ -466,7 +537,6 @@ export const taskResourcesRelations = relations(taskResources, ({
     fields: [taskResources.moduleId],
     references: [modules.id],
   }),
-  taskResourcesToTags: many(taskResourcesToTags),
 }));
 
 export const taskTodosRelations = relations(taskTodos, ({
@@ -523,6 +593,7 @@ export const resourcesRelations = relations(resources, ({
   modules: many(modules),
   interactions: many(interactions),
   dailies: many(dailies),
+  resourceTags: many(resourceTags),
 }));
 
 export const moduleGroupsRelations = relations(moduleGroups, ({
@@ -534,6 +605,7 @@ export const moduleGroupsRelations = relations(moduleGroups, ({
   }),
   modules: many(modules),
   interactions: many(interactions),
+  moduleGroupTags: many(moduleGroupTags),
 }));
 
 export const modulesRelations = relations(modules, ({
@@ -548,6 +620,7 @@ export const modulesRelations = relations(modules, ({
     references: [moduleGroups.id],
   }),
   interactions: many(interactions),
+  moduleTags: many(moduleTags),
 }));
 
 export const topicsRelations = relations(topics, ({

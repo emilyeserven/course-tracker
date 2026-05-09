@@ -40,10 +40,10 @@ export function TodosChecklist({
       id: r.id,
       name: r.name,
       url: r.url ?? null,
-      easeOfStarting: r.easeOfStarting ?? null,
-      timeNeeded: r.timeNeeded ?? null,
-      interactivity: r.interactivity ?? null,
       usedYet: r.usedYet,
+      resourceId: r.resourceId ?? null,
+      moduleGroupId: r.moduleGroupId ?? null,
+      moduleId: r.moduleId ?? null,
     })),
     todos: nextTodos.map(t => ({
       id: t.id,
@@ -166,8 +166,7 @@ export function TodosChecklist({
                 <span
                   className={cn(
                     "flex-1 text-sm",
-                    todo.isComplete
-                    && "text-muted-foreground line-through",
+                    todo.isComplete && "text-muted-foreground line-through",
                   )}
                 >
                   {todo.name}
@@ -192,22 +191,24 @@ export function TodosChecklist({
                       </a>
                     </Button>
                   )
-                  : editingLinkId !== todo.id && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => startEditLink(todo)}
-                      disabled={mutation.isPending}
-                      className="
-                        text-muted-foreground opacity-0 transition
-                        group-hover:opacity-100
-                        focus-visible:opacity-100
-                      "
-                    >
-                      <LinkIcon className="size-3.5" />
-                      Add Link
-                    </Button>
+                  : (
+                    editingLinkId !== todo.id && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => startEditLink(todo)}
+                        disabled={mutation.isPending}
+                        className="
+                          text-muted-foreground opacity-0 transition
+                          group-hover:opacity-100
+                          focus-visible:opacity-100
+                        "
+                      >
+                        <LinkIcon className="size-3.5" />
+                        Add Link
+                      </Button>
+                    )
                   )}
                 {todo.url && editingLinkId !== todo.id && (
                   <Button

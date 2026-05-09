@@ -1,6 +1,11 @@
-import { moduleGroups } from "@/db/schema";
+import { moduleGroups, moduleGroupTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import { nullableInteger, nullableString } from "@/utils/schemas";
+import {
+  nullableInteger,
+  nullableResourceLevelEnum,
+  nullableString,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 
 interface ModuleGroupBody {
   name: string;
@@ -10,6 +15,10 @@ interface ModuleGroupBody {
   position?: number | null;
   totalCount?: number | null;
   completedCount?: number | null;
+  easeOfStarting?: "low" | "medium" | "high" | null;
+  timeNeeded?: "low" | "medium" | "high" | null;
+  interactivity?: "low" | "medium" | "high" | null;
+  tagIds?: string[];
 }
 
 const updateableColumns = [
@@ -20,6 +29,9 @@ const updateableColumns = [
   "position",
   "totalCount",
   "completedCount",
+  "easeOfStarting",
+  "timeNeeded",
+  "interactivity",
 ] as const;
 
 export default createUpsertHandler<ModuleGroupBody>({
@@ -42,6 +54,10 @@ export default createUpsertHandler<ModuleGroupBody>({
       position: nullableInteger,
       totalCount: nullableInteger,
       completedCount: nullableInteger,
+      easeOfStarting: nullableResourceLevelEnum,
+      timeNeeded: nullableResourceLevelEnum,
+      interactivity: nullableResourceLevelEnum,
+      tagIds: tagIdsArraySchema,
     },
   },
   buildRow: (body, id) => ({
@@ -53,6 +69,24 @@ export default createUpsertHandler<ModuleGroupBody>({
     position: body.position ?? null,
     totalCount: body.totalCount ?? null,
     completedCount: body.completedCount ?? null,
+    easeOfStarting: body.easeOfStarting ?? null,
+    timeNeeded: body.timeNeeded ?? null,
+    interactivity: body.interactivity ?? null,
   }),
   updateableColumns,
+  junctions: [
+    {
+      table: moduleGroupTags,
+      foreignKey: moduleGroupTags.moduleGroupId,
+      buildRows: (body, id) => {
+        if (body.tagIds === undefined) return undefined;
+        const unique = Array.from(new Set(body.tagIds));
+        return unique.map((tagId, index) => ({
+          moduleGroupId: id,
+          tagId,
+          position: index,
+        }));
+      },
+    },
+  ],
 });

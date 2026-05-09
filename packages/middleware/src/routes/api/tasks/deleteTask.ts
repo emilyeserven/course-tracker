@@ -1,10 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   taskResources,
-  taskResourcesToTags,
   taskTodos,
   tasks,
   tasksToResources,
@@ -26,24 +25,6 @@ export default async function (server: FastifyInstance) {
     const {
       id,
     } = request.params;
-
-    const existingTaskResources = await db
-      .select({
-        id: taskResources.id,
-      })
-      .from(taskResources)
-      .where(eq(taskResources.taskId, id));
-
-    if (existingTaskResources.length > 0) {
-      await db
-        .delete(taskResourcesToTags)
-        .where(
-          inArray(
-            taskResourcesToTags.resourceId,
-            existingTaskResources.map(r => r.id),
-          ),
-        );
-    }
 
     await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
     await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
