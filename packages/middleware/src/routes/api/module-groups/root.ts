@@ -46,17 +46,25 @@ export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.get("/", listSchema, async function (request) {
-    const { courseId } = request.query;
+    const {
+      courseId,
+    } = request.query;
     const rows = await db.query.moduleGroups.findMany({
       where: courseId
-        ? (g, { eq: eqOp }) => eqOp(g.courseId, courseId)
+        ? (g, {
+          eq: eqOp,
+        }) => eqOp(g.courseId, courseId)
         : undefined,
       with: {
         modules: {
-          orderBy: (m, { asc }) => [asc(m.position), asc(m.name)],
+          orderBy: (m, {
+            asc,
+          }) => [asc(m.position), asc(m.name)],
         },
       },
-      orderBy: (g, { asc }) => [asc(g.position), asc(g.name)],
+      orderBy: (g, {
+        asc,
+      }) => [asc(g.position), asc(g.name)],
     });
     return rows;
   });

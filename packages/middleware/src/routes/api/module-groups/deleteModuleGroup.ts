@@ -17,7 +17,9 @@ export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.delete("/:id", schema, async function (request) {
-    const { id } = request.params;
+    const {
+      id,
+    } = request.params;
 
     // Orphan member modules up to the course level rather than cascading.
     await db
