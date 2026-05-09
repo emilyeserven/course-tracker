@@ -66,7 +66,7 @@ export function DailyStatusModal({
       onOpenChange={onOpenChange}
     >
       <DialogContent className="max-w-xl">
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle>
             {daily.name}
             : Change Today&apos;s Status
