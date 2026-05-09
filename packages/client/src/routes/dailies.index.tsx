@@ -203,11 +203,11 @@ function Dailies() {
                   <thead>
                     <tr className="text-left text-xs text-muted-foreground">
                       <th className="p-2 font-medium">Title</th>
-                      <th className="p-2 font-medium">Progress</th>
+                      <th className="p-2 font-medium" />
                       <th className="p-2 font-medium">Description</th>
                       <th className="p-2 font-medium">Streak</th>
                       <th className="p-2 font-medium">Total</th>
-                      <th className="p-2 font-medium">Comment</th>
+                      <th className="p-2 font-medium" />
                       <th className="p-2 font-medium">Today&apos;s Status</th>
                       {dayHeaders.map(d => (
                         <th
@@ -338,7 +338,7 @@ function Dailies() {
                                 left={currentStatus}
                                 right={days[0].status}
                                 className="
-                                  absolute top-1/2 -right-2 left-38 z-0 w-auto
+                                  absolute top-1/2 -right-2 left-30 z-0 w-auto
                                   -translate-y-1/2
                                 "
                               />
