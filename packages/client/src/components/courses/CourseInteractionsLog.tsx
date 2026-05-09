@@ -94,7 +94,9 @@ const PROGRESS_COLOR: Record<InteractionProgress, string> = {
   complete: "bg-emerald-100 text-emerald-900 border-emerald-200",
 };
 
-export function CourseInteractionsLog({ courseId }: Props) {
+export function CourseInteractionsLog({
+  courseId,
+}: Props) {
   const queryClient = useQueryClient();
 
   const interactionsQuery = useQuery({
@@ -224,12 +226,15 @@ export function CourseInteractionsLog({ courseId }: Props) {
                 key={i.id}
                 className="flex flex-col gap-1 p-3"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div
+                  className="flex flex-wrap items-center justify-between gap-2"
+                >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{i.date}</span>
                     <span
                       className={`
-                        inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium
+                        inline-flex items-center rounded-full border px-2 py-0.5
+                        text-xs font-medium
                         ${PROGRESS_COLOR[i.progress]}
                       `}
                     >
@@ -238,7 +243,8 @@ export function CourseInteractionsLog({ courseId }: Props) {
                     {i.difficulty && (
                       <span
                         className="
-                          inline-flex items-center rounded-full border bg-muted/40 px-2 py-0.5 text-xs
+                          inline-flex items-center rounded-full border
+                          bg-muted/40 px-2 py-0.5 text-xs
                         "
                       >
                         difficulty:
@@ -249,7 +255,8 @@ export function CourseInteractionsLog({ courseId }: Props) {
                     {i.understanding && (
                       <span
                         className="
-                          inline-flex items-center rounded-full border bg-muted/40 px-2 py-0.5 text-xs
+                          inline-flex items-center rounded-full border
+                          bg-muted/40 px-2 py-0.5 text-xs
                         "
                       >
                         understanding:
@@ -297,7 +304,10 @@ function InteractionEditCard({
 }) {
   const [draft, setDraft] = useState<Draft>(initial);
   function update(patch: Partial<Draft>) {
-    setDraft(prev => ({ ...prev, ...patch }));
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
   }
   return (
     <form
@@ -307,7 +317,12 @@ function InteractionEditCard({
       }}
       className="flex flex-col gap-3 rounded-md border bg-muted/30 p-3"
     >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div
+        className="
+          grid grid-cols-1 gap-3
+          md:grid-cols-2
+        "
+      >
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">
             Date
@@ -315,7 +330,9 @@ function InteractionEditCard({
           <Input
             type="date"
             value={draft.date}
-            onChange={e => update({ date: e.target.value })}
+            onChange={e => update({
+              date: e.target.value,
+            })}
             required
           />
         </div>
@@ -326,7 +343,9 @@ function InteractionEditCard({
           <select
             value={draft.progress}
             onChange={e =>
-              update({ progress: e.target.value as InteractionProgress })}
+              update({
+                progress: e.target.value as InteractionProgress,
+              })}
             className="
               flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
             "
@@ -342,7 +361,12 @@ function InteractionEditCard({
           </select>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div
+        className="
+          grid grid-cols-1 gap-3
+          md:grid-cols-2
+        "
+      >
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">
             Difficulty (optional)
@@ -352,8 +376,8 @@ function InteractionEditCard({
             onChange={e =>
               update({
                 difficulty: (e.target.value || "") as
-                  | InteractionDifficulty
-                  | "",
+                | InteractionDifficulty
+                | "",
               })}
             className="
               flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
@@ -379,8 +403,8 @@ function InteractionEditCard({
             onChange={e =>
               update({
                 understanding: (e.target.value || "") as
-                  | InteractionUnderstanding
-                  | "",
+                | InteractionUnderstanding
+                | "",
               })}
             className="
               flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
@@ -404,13 +428,20 @@ function InteractionEditCard({
         </label>
         <Textarea
           value={draft.note}
-          onChange={e => update({ note: e.target.value })}
+          onChange={e => update({
+            note: e.target.value,
+          })}
           placeholder="What did you do? Anything notable?"
         />
       </div>
-      <div className="flex flex-row flex-wrap items-center justify-between gap-2">
+      <div
+        className="flex flex-row flex-wrap items-center justify-between gap-2"
+      >
         <div className="flex flex-row gap-2">
-          <Button type="submit" disabled={isSaving}>
+          <Button
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving && <Loader2 className="animate-spin" />}
             Save
           </Button>
