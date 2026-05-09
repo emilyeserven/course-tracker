@@ -59,6 +59,12 @@ type Resolution
     | "removeBlip"
     | "skip";
 
+function stripCodeFence(input: string): string {
+  const trimmed = input.trim();
+  const fenceMatch = trimmed.match(/^```[^\n]*\n([\s\S]*?)\n?```$/);
+  return fenceMatch ? fenceMatch[1].trim() : trimmed;
+}
+
 interface LlmEntry {
   topic?: unknown;
   quadrant?: unknown;
@@ -519,7 +525,7 @@ export function BlipLlmAssist({
     setParseError(null);
     let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonText);
+      parsed = JSON.parse(stripCodeFence(jsonText));
     }
     catch (err) {
       const message = err instanceof Error ? err.message : "Invalid JSON";
