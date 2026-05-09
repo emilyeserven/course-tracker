@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
+import { Textarea } from "@/components/forms/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { getTodayKey } from "@/utils";
 
 const CRITERIA_KEY_BY_STATUS: Record<DailyCompletionStatus, keyof NonNullable<Daily["criteria"]>> = {
   incomplete: "incomplete",
@@ -28,7 +31,7 @@ interface DailyStatusModalProps {
   currentStatus: DailyCompletionStatus | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onChange: (status: DailyCompletionStatus) => void;
+  onChange: (status: DailyCompletionStatus, note: string | null) => void;
   disabled?: boolean;
 }
 
@@ -40,22 +43,31 @@ export function DailyStatusModal({
   onChange,
   disabled = false,
 }: DailyStatusModalProps) {
+  const todayKey = getTodayKey();
+  const currentNote
+    = daily.completions.find(c => c.date === todayKey)?.note ?? "";
+
   const [selected, setSelected] = useState<DailyCompletionStatus | null>(
     currentStatus,
   );
+  const [comment, setComment] = useState(currentNote);
 
   useEffect(() => {
     if (open) {
       setSelected(currentStatus);
+      setComment(currentNote);
     }
-  }, [open, currentStatus]);
+  }, [open, currentStatus, currentNote]);
 
   const criteria = daily.criteria ?? {};
+  const trimmedComment = comment.trim();
+  const noteChanged = trimmedComment !== currentNote.trim();
+  const statusChanged = selected !== null && selected !== currentStatus;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (selected && selected !== currentStatus) {
-      onChange(selected);
+    if (selected && (statusChanged || noteChanged)) {
+      onChange(selected, trimmedComment || null);
     }
     onOpenChange(false);
   }
@@ -161,6 +173,22 @@ export function DailyStatusModal({
               );
             })}
           </fieldset>
+          <div className="mt-4 flex flex-col gap-2">
+            <Label htmlFor="dailyStatusComment">
+              Comment
+              <span className="ml-1 text-xs font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </Label>
+            <Textarea
+              id="dailyStatusComment"
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Add a comment for today..."
+              maxLength={500}
+              className="min-h-20"
+            />
+          </div>
           <DialogFooter>
             <Button
               type="button"
@@ -172,7 +200,8 @@ export function DailyStatusModal({
             </Button>
             <Button
               type="submit"
-              disabled={disabled || !selected || selected === currentStatus}
+              disabled={disabled || !selected
+                || (!statusChanged && !noteChanged)}
             >
               Save
             </Button>

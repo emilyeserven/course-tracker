@@ -11,7 +11,7 @@ interface TodayStatusCellProps {
   daily: Daily;
   currentStatus: DailyCompletionStatus | null;
   disabled: boolean;
-  onChange: (status: DailyCompletionStatus) => void;
+  onChange: (status: DailyCompletionStatus, note: string | null) => void;
 }
 
 export function TodayStatusCell({

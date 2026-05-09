@@ -26,7 +26,11 @@ import {
 interface DailiesActiveListViewProps {
   dailies: Daily[];
   todayKey: string;
-  onChangeStatus: (daily: Daily, status: DailyCompletionStatus) => void;
+  onChangeStatus: (
+    daily: Daily,
+    status: DailyCompletionStatus,
+    note: string | null,
+  ) => void;
   mutationPending: boolean;
   recentDaysCount?: number;
 }
@@ -161,7 +165,8 @@ export function DailiesActiveListView({
                     daily={daily}
                     currentStatus={currentStatus}
                     disabled={mutationPending}
-                    onChange={status => onChangeStatus(daily, status)}
+                    onChange={(status, note) =>
+                      onChangeStatus(daily, status, note)}
                   />
                 </div>
                 {currentStatus !== null && (
