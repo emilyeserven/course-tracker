@@ -15,6 +15,7 @@ export function DashboardRadars() {
   });
 
   const sortedDomains = (domains ?? [])
+    .filter(d => d.id !== undefined)
     .slice()
     .sort((a, b) => a.title.localeCompare(b.title, undefined, {
       sensitivity: "base",

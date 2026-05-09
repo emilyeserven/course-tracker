@@ -75,7 +75,7 @@ function DomainsIndex() {
           {data
             && data.length > 0
             && data.map((domain: Domain) => {
-              if (domain.title === "") {
+              if (domain.title === "" || domain.id === undefined) {
                 return;
               }
               return (
