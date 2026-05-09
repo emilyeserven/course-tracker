@@ -14,6 +14,7 @@ export * from "./TopicsToCourses";
 export * from "./Domain";
 export * from "./TopicsToDomains";
 export * from "./Daily";
+export * from "./DailyCriteriaTemplate";
 export * from "./Radar";
 export * from "./Resource";
 export * from "./Task";

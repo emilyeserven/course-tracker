@@ -5,6 +5,7 @@ import type {
   CourseInCourses,
   TopicForTopicsPage,
   CourseProvider,
+  DailyCriteriaTemplate,
   Domain,
   Daily,
   Radar,
@@ -156,6 +157,10 @@ export const taskTypesApi = createEntityClient<TaskType>(
   "task-types",
   "task type",
 );
+export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplate>(
+  "daily-criteria-templates",
+  "criteria template",
+);
 
 export async function fetchTest(): Promise<Test> {
   return fetchJson<Test>("/api");
@@ -172,6 +177,7 @@ export const fetchDomains = domainsApi.list;
 export const fetchDailies = dailiesApi.list;
 export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;
+export const fetchDailyCriteriaTemplates = dailyCriteriaTemplatesApi.list;
 
 export const fetchSingleCourse = coursesApi.get;
 export const fetchSingleTopic = topicsApi.get;
@@ -188,6 +194,7 @@ export const upsertDomain = domainsApi.upsert;
 export const upsertDaily = dailiesApi.upsert;
 export const upsertTask = tasksApi.upsert;
 export const upsertTaskType = taskTypesApi.upsert;
+export const upsertDailyCriteriaTemplate = dailyCriteriaTemplatesApi.upsert;
 
 export const createTopic = topicsApi.create;
 export const createProvider = providersApi.create;
@@ -195,6 +202,7 @@ export const createDomain = domainsApi.create;
 export const createDaily = dailiesApi.create;
 export const createTask = tasksApi.create;
 export const createTaskType = taskTypesApi.create;
+export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
 
 export const deleteSingleCourse = coursesApi.delete;
 export const deleteSingleTopic = topicsApi.delete;
@@ -203,6 +211,7 @@ export const deleteSingleDomain = domainsApi.delete;
 export const deleteSingleDaily = dailiesApi.delete;
 export const deleteSingleTask = tasksApi.delete;
 export const deleteSingleTaskType = taskTypesApi.delete;
+export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delete;
 
 export const duplicateCourse = coursesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;

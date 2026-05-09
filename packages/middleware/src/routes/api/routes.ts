@@ -15,6 +15,7 @@ import dailies from "./dailies/routes";
 import radar from "./radar/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
+import dailyCriteriaTemplates from "./daily-criteria-templates/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -48,5 +49,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(taskTypes, {
     prefix: "/task-types",
+  });
+  fastify.register(dailyCriteriaTemplates, {
+    prefix: "/daily-criteria-templates",
   });
 }
