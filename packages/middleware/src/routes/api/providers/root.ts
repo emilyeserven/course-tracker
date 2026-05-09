@@ -14,13 +14,16 @@ export default async function (server: FastifyInstance) {
           courses: {
             columns: {
               name: true,
+              status: true,
             },
           },
         },
       });
 
       const processedData: Partial<CourseProvider>[] = rawData.map((provider: CourseProvider) => {
-        const courseCount = provider.courses?.length ?? 0;
+        const courses = provider.courses ?? [];
+        const countByStatus = (status: string) =>
+          courses.filter(c => c.status === status).length;
 
         return {
           id: provider.id,
@@ -33,7 +36,11 @@ export default async function (server: FastifyInstance) {
           recurPeriodUnit: provider.recurPeriodUnit,
           recurPeriod: provider.recurPeriod,
           isCourseFeesShared: provider.isCourseFeesShared,
-          courseCount: courseCount,
+          courseCount: courses.length,
+          activeCount: countByStatus("active"),
+          inactiveCount: countByStatus("inactive"),
+          completeCount: countByStatus("complete"),
+          pausedCount: countByStatus("paused"),
         };
       });
 

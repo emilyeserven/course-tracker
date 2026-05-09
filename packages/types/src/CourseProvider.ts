@@ -15,4 +15,8 @@ export interface CourseProvider {
   isCourseFeesShared?: boolean | null;
   courses?: Partial<CourseFromServer>[] | null;
   courseCount?: number | null;
+  activeCount?: number | null;
+  inactiveCount?: number | null;
+  completeCount?: number | null;
+  pausedCount?: number | null;
 }
