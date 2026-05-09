@@ -56,17 +56,15 @@ type SortDir = "asc" | "desc";
 export function DashboardDailies() {
   const queryClient = useQueryClient();
   const todayKey = getTodayKey();
-  const {
-    settings,
-  } = useSettings();
-  const {
-    mode, setMode,
-  } = useDailiesViewMode();
+  const { settings } = useSettings();
+  const { mode, setMode } = useDailiesViewMode();
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const {
-    data: dailies, isPending, error,
+    data: dailies,
+    isPending,
+    error,
   } = useQuery({
     queryKey: ["dailies"],
     queryFn: () => fetchDailies(),
@@ -74,21 +72,26 @@ export function DashboardDailies() {
 
   const mutation = useMutation({
     mutationFn: ({
-      daily, status, note,
-    }: { daily: Daily;
+      daily,
+      status,
+      note,
+    }: {
+      daily: Daily;
       status: DailyCompletionStatus;
-      note?: string | null; }) => {
+      note?: string | null;
+    }) => {
       const withStatus = withCompletion(daily, todayKey, status);
-      const completions = note === undefined
-        ? withStatus
-        : withCompletionNote(
-          {
-            ...daily,
-            completions: withStatus,
-          },
-          todayKey,
-          note,
-        );
+      const completions =
+        note === undefined
+          ? withStatus
+          : withCompletionNote(
+              {
+                ...daily,
+                completions: withStatus,
+              },
+              todayKey,
+              note,
+            );
       return upsertDaily(daily.id, {
         name: daily.name,
         location: daily.location ?? null,
@@ -109,28 +112,27 @@ export function DashboardDailies() {
   });
 
   const filtered = dailies
-    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
+    ? dailies.filter((d) => d.status !== "complete" && d.status !== "paused")
     : undefined;
 
   const sortedDailies = filtered
     ? [...filtered].sort((a, b) => {
-      if (sortKey === "progress") {
-        const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
-        if (diff !== 0) return sortDir === "asc" ? diff : -diff;
-      }
-      const cmp = a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      });
-      return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
-    })
+        if (sortKey === "progress") {
+          const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
+          if (diff !== 0) return sortDir === "asc" ? diff : -diff;
+        }
+        const cmp = a.name.localeCompare(b.name, undefined, {
+          sensitivity: "base",
+        });
+        return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
+      })
     : undefined;
   const activeCount = sortedDailies?.length ?? 0;
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
       setSortKey(key);
       setSortDir(key === "progress" ? "desc" : "asc");
     }
@@ -140,30 +142,28 @@ export function DashboardDailies() {
     if (sortKey !== key) {
       return <ArrowUpDownIcon className="size-3 opacity-40" />;
     }
-    return sortDir === "asc"
-      ? <ArrowUpIcon className="size-3" />
-      : <ArrowDownIcon className="size-3" />;
+    return sortDir === "asc" ? (
+      <ArrowUpIcon className="size-3" />
+    ) : (
+      <ArrowDownIcon className="size-3" />
+    );
   }
 
-  const dayHeaders = sortedDailies && sortedDailies.length > 0
-    ? getRecentDays(
-      sortedDailies[0],
-      RECENT_DAYS_COUNT + 1,
-      todayKey,
-      "mmdd",
-    )
-      .slice(0, -1)
-      .reverse()
-      .map(d => ({
-        dateKey: d.dateKey,
-        label: formatMmDd(d.dateKey),
-        isToday: d.isToday,
-      }))
-    : [];
+  const dayHeaders =
+    sortedDailies && sortedDailies.length > 0
+      ? getRecentDays(sortedDailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
+          .slice(0, -1)
+          .reverse()
+          .map((d) => ({
+            dateKey: d.dateKey,
+            label: formatMmDd(d.dateKey),
+            isToday: d.isToday,
+          }))
+      : [];
 
   return (
     <DashboardCard
-      title={(
+      title={
         <span className="inline-flex items-center gap-2">
           Dailies
           <TooManyDailiesWarning
@@ -172,13 +172,10 @@ export function DashboardDailies() {
             size="sm"
           />
         </span>
-      )}
-      action={(
+      }
+      action={
         <>
-          <DailiesViewModeToggle
-            mode={mode}
-            onChange={setMode}
-          />
+          <DailiesViewModeToggle mode={mode} onChange={setMode} />
           <Link
             to="/dailies"
             className="
@@ -189,7 +186,7 @@ export function DashboardDailies() {
             View all
           </Link>
         </>
-      )}
+      }
     >
       {isPending && (
         <p className="text-sm text-muted-foreground">Loading dailies...</p>
@@ -208,11 +205,13 @@ export function DashboardDailies() {
           todayKey={todayKey}
           mutationPending={mutation.isPending}
           recentDaysCount={RECENT_DAYS_COUNT}
-          onChangeStatus={(daily, status, note) => mutation.mutate({
-            daily,
-            status,
-            note,
-          })}
+          onChangeStatus={(daily, status, note) =>
+            mutation.mutate({
+              daily,
+              status,
+              note,
+            })
+          }
         />
       )}
       {sortedDailies && sortedDailies.length > 0 && mode === "table" && (
@@ -252,12 +251,10 @@ export function DashboardDailies() {
                 <th className="p-2 font-medium">Streak</th>
                 <th className="p-2 font-medium">Total</th>
                 <th className="p-2 font-medium" />
-                <th
-                  className="p-2 font-medium whitespace-nowrap"
-                >
+                <th className="p-2 font-medium whitespace-nowrap">
                   Today&apos;s Status
                 </th>
-                {dayHeaders.map(d => (
+                {dayHeaders.map((d) => (
                   <th
                     key={d.dateKey}
                     className={cn(
@@ -281,7 +278,9 @@ export function DashboardDailies() {
                   RECENT_DAYS_COUNT + 1,
                   todayKey,
                   "mmdd",
-                ).slice(0, -1).reverse();
+                )
+                  .slice(0, -1)
+                  .reverse();
                 return (
                   <tr
                     key={daily.id}
@@ -317,16 +316,15 @@ export function DashboardDailies() {
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 text-xs",
-                          currentStatus === "incomplete"
+                          currentStatus === null ||
+                            currentStatus === "incomplete"
                             ? "text-muted-foreground"
                             : chain > 0
                               ? "text-orange-600"
                               : "text-muted-foreground",
                         )}
                         title={
-                          chain > 0
-                            ? `${chain}-day chain`
-                            : "No active chain"
+                          chain > 0 ? `${chain}-day chain` : "No active chain"
                         }
                       >
                         <FlameIcon className="size-3.5" />
@@ -357,10 +355,12 @@ export function DashboardDailies() {
                         daily={daily}
                         currentStatus={currentStatus}
                         disabled={mutation.isPending}
-                        onChange={status => mutation.mutate({
-                          daily,
-                          status,
-                        })}
+                        onChange={(status) =>
+                          mutation.mutate({
+                            daily,
+                            status,
+                          })
+                        }
                       />
                     </td>
                     {days.map((day, i) => {

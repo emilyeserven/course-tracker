@@ -32,15 +32,7 @@ function Dashboard() {
               md:flex-1
             "
           >
-            <DashboardCoursesInProgress />
-          </div>
-          <div
-            className="
-              min-w-0
-              md:flex-1
-            "
-          >
-            <DashboardRadars />
+            <DashboardUnderutilizedProviders />
           </div>
           <div
             className="
@@ -60,10 +52,18 @@ function Dashboard() {
           <div
             className="
               min-w-0
-              md:w-1/2
+              md:flex-1
             "
           >
-            <DashboardUnderutilizedProviders />
+            <DashboardCoursesInProgress />
+          </div>
+          <div
+            className="
+              min-w-0
+              md:flex-1
+            "
+          >
+            <DashboardRadars />
           </div>
         </div>
       </div>

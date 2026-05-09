@@ -70,7 +70,9 @@ function formatCurrency(value: number): string {
 
 export function DashboardUnderutilizedProviders() {
   const {
-    data: providers, isPending, error,
+    data: providers,
+    isPending,
+    error,
   } = useQuery({
     queryKey: ["providers"],
     queryFn: () => fetchProviders(),
@@ -81,7 +83,7 @@ export function DashboardUnderutilizedProviders() {
   return (
     <DashboardCard
       title="Underutilized Providers"
-      action={(
+      action={
         <Link
           to="/providers"
           className="
@@ -91,7 +93,7 @@ export function DashboardUnderutilizedProviders() {
         >
           View all
         </Link>
-      )}
+      }
     >
       {isPending && (
         <p className="text-sm text-muted-foreground">Loading providers...</p>
@@ -107,7 +109,7 @@ export function DashboardUnderutilizedProviders() {
       {rows.length > 0 && (
         <div
           className="
-            max-h-80 w-full overflow-auto rounded-md border
+            max-h-80 w-full overflow-auto
             [scrollbar-width:thin]
           "
         >
@@ -130,57 +132,53 @@ export function DashboardUnderutilizedProviders() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({
-                provider, amortization, inactiveCount, completeCount,
-              }) => (
-                <TableRow key={provider.id}>
-                  <TableCell className="font-medium whitespace-nowrap">
-                    <Link
-                      to="/providers/$id"
-                      params={{
-                        id: provider.id,
-                      }}
-                      className="hover:text-blue-600"
-                    >
-                      {provider.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell
-                    className="text-right whitespace-nowrap"
-                    title={
-                      amortization === null
-                        ? "No completed courses yet"
-                        : undefined
-                    }
-                  >
-                    {amortization === null
-                      ? "—"
-                      : formatCurrency(amortization)}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {inactiveCount}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {completeCount}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <a
-                        href={provider.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+              {rows.map(
+                ({ provider, amortization, inactiveCount, completeCount }) => (
+                  <TableRow key={provider.id}>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      <Link
+                        to="/providers/$id"
+                        params={{
+                          id: provider.id,
+                        }}
+                        className="hover:text-blue-600"
                       >
-                        Go
-                        <ExternalLink />
-                      </a>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        {provider.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell
+                      className="text-right whitespace-nowrap"
+                      title={
+                        amortization === null
+                          ? "No completed courses yet"
+                          : undefined
+                      }
+                    >
+                      {amortization === null
+                        ? "—"
+                        : formatCurrency(amortization)}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {inactiveCount}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {completeCount}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      <Button variant="outline" size="sm" asChild>
+                        <a
+                          href={provider.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Go
+                          <ExternalLink />
+                        </a>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ),
+              )}
             </TableBody>
           </Table>
         </div>
