@@ -51,12 +51,14 @@ import {
   fetchProviders,
   fetchSingleDaily,
   fetchTasks,
+  fetchTopics,
   formHasChanges,
   upsertDaily,
 } from "@/utils";
 
 interface DailyEditSearch {
   newCourseId?: string;
+  topicId?: string;
 }
 
 export const Route = createFileRoute("/dailies/$id/edit")({
@@ -65,6 +67,10 @@ export const Route = createFileRoute("/dailies/$id/edit")({
     newCourseId:
       typeof search.newCourseId === "string" && search.newCourseId
         ? search.newCourseId
+        : undefined,
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
         : undefined,
   }),
 });
@@ -143,6 +149,20 @@ function SingleDailyEdit() {
     queryFn: () => fetchDailyCriteriaTemplates(),
   });
 
+  const {
+    data: topicsForPrefill,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+    enabled: isNew && !!search.topicId,
+  });
+
+  const prefillTopicName = useMemo(() => {
+    if (!isNew || !search.topicId || !topicsForPrefill) return "";
+    const t = topicsForPrefill.find(top => top.id === search.topicId);
+    return t?.name ?? "";
+  }, [isNew, search.topicId, topicsForPrefill]);
+
   const activeDailiesCount
     = existingDailies?.filter(
       d => d.status !== "complete" && d.status !== "paused",
@@ -176,7 +196,7 @@ function SingleDailyEdit() {
 
   const startingValues = useMemo(
     () => ({
-      name: data?.name ?? "",
+      name: data?.name ?? prefillTopicName ?? "",
       location: data?.location ?? "",
       description: data?.description ?? "",
       courseProviderId: data?.provider?.id ?? "",
@@ -196,7 +216,7 @@ function SingleDailyEdit() {
       criteriaExceeded: data?.criteria?.exceeded ?? "",
       criteriaFreeze: data?.criteria?.freeze ?? "",
     }),
-    [data, isNew, search.newCourseId, initialLinked],
+    [data, isNew, search.newCourseId, initialLinked, prefillTopicName],
   );
 
   const [linkBoxCollapsed, setLinkBoxCollapsed] = useState(false);

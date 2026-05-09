@@ -27,8 +27,18 @@ import {
   uuidv4,
 } from "@/utils";
 
+interface CourseEditSearch {
+  topicId?: string;
+}
+
 export const Route = createFileRoute("/courses/$id/edit")({
   component: SingleCourseEdit,
+  validateSearch: (search: Record<string, unknown>): CourseEditSearch => ({
+    topicId:
+      typeof search.topicId === "string" && search.topicId
+        ? search.topicId
+        : undefined,
+  }),
 });
 
 const formSchema = z.object({
@@ -48,6 +58,7 @@ function SingleCourseEdit() {
   const {
     id,
   } = Route.useParams();
+  const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -100,10 +111,13 @@ function SingleCourseEdit() {
       progressTotal: data?.progressTotal ?? null,
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-      topicId: (Array.isArray(data?.topics) && data.topics[0]?.id) || "",
+      topicId:
+        (Array.isArray(data?.topics) && data.topics[0]?.id)
+        || (isNew ? search.topicId ?? "" : "")
+        || "",
       courseProviderId: data?.provider?.id ?? "",
     }),
-    [data],
+    [data, isNew, search.topicId],
   );
 
   const form = useAppForm({

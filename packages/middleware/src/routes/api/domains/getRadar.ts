@@ -55,6 +55,7 @@ export default async function (server: FastifyInstance) {
       const radar: Radar = {
         domainId: domain.id,
         domainTitle: domain.title,
+        hasAdoptedSection: domain.radarConfig.hasAdoptedSection ?? false,
         quadrants: [...(domain.radarConfig.quadrants ?? [])].sort(
           (a, b) => a.position - b.position,
         ),

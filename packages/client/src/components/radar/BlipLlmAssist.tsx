@@ -218,6 +218,8 @@ function formatExcludedTopics(excluded: DomainExcludedTopic[]): string {
     .join("\n");
 }
 
+type PromptMode = "setup" | "cleanup";
+
 interface BuildPromptArgs {
   domainTitle: string;
   domainDescription?: string | null;
@@ -230,6 +232,20 @@ interface BuildPromptArgs {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   existingBlips: { topicName: string;
+    radarNote?: string | null;
+    topicDescription?: string | null; }[];
+}
+
+interface BuildCleanupPromptArgs {
+  domainTitle: string;
+  domainDescription?: string | null;
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
+  unassignedBlips: { topicName: string;
+    quadrantName: string | null;
+    ringName: string | null;
     radarNote?: string | null;
     topicDescription?: string | null; }[];
 }
@@ -366,6 +382,94 @@ from the excluded list above.
 `;
 }
 
+function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
+  const {
+    domainTitle,
+    domainDescription,
+    withinScopeDescription,
+    outOfScopeDescription,
+    quadrants,
+    rings,
+    unassignedBlips,
+  } = args;
+
+  const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
+  const ringList = rings.map(r => `- ${r.name}`).join("\n");
+  const domainLabel = domainTitle.trim() || "(unnamed domain)";
+  const descriptionBlock = domainDescription?.trim()
+    ? domainDescription.trim()
+    : "(no description provided)";
+  const withinScopeBlock = withinScopeDescription?.trim()
+    ? withinScopeDescription.trim()
+    : "(no within-scope description provided)";
+  const outOfScopeBlock = outOfScopeDescription?.trim()
+    ? outOfScopeDescription.trim()
+    : "(no out-of-scope description provided)";
+
+  const blipList = unassignedBlips.length > 0
+    ? unassignedBlips
+      .map((b) => {
+        const lines = [`- ${b.topicName}`];
+        const desc = b.topicDescription?.trim();
+        const note = b.radarNote?.trim();
+        if (desc) {
+          lines.push(`  - description: ${desc}`);
+        }
+        if (note) {
+          lines.push(`  - radar note: ${note}`);
+        }
+        const status: string[] = [];
+        if (!b.quadrantName) status.push("missing slice");
+        if (!b.ringName) status.push("missing ring");
+        if (b.quadrantName) status.push(`current slice: ${b.quadrantName}`);
+        if (b.ringName) status.push(`current ring: ${b.ringName}`);
+        lines.push(`  - status: ${status.join(", ")}`);
+        return lines.join("\n");
+      })
+      .join("\n")
+    : "- (none — all blips already have slice and ring assigned)";
+
+  return `I'm cleaning up the "${domainLabel}" tech radar — assigning slices and
+rings to blips that are missing one or both. Use the existing topic
+description and radar note (if any) to decide where each belongs.
+
+Domain description:
+${descriptionBlock}
+
+Within-scope description:
+${withinScopeBlock}
+
+Out-of-scope description:
+${outOfScopeBlock}
+
+The radar has these slices:
+${quadrantList || "- (none defined)"}
+
+And these rings (innermost first):
+${ringList || "- (none defined)"}
+
+Blips that need a slice and/or ring assigned:
+${blipList}
+
+Please return ONLY a JSON array of entries assigning a slice and ring to
+each blip above, using this exact shape (no other keys, no commentary):
+
+[
+  {
+    "topic": "Topic name (must match exactly from the list above)",
+    "action": "update",
+    "radarNote": "Optional updated note explaining the placement, or null to keep the existing one",
+    "quadrant": "One of the slice names above (exact match)",
+    "ring": "One of the ring names above (exact match)"
+  }
+]
+
+Only include the topics from the list above. The "action" field must be
+"update" so I overwrite their slice/ring placement. If a blip already has a
+slice OR ring set (but not both), still include both in your response.
+`;
+}
+
 function valuesEqual(a: string | null, b: string | null): boolean {
   return (a ?? "") === (b ?? "");
 }
@@ -414,9 +518,35 @@ export function BlipLlmAssist({
   existingBlips,
   onComplete,
 }: BlipLlmAssistProps) {
+  const [mode, setMode] = useState<PromptMode>("setup");
+
   const prompt = useMemo(
     () => {
       const topicById = new Map(topics.map(t => [t.id, t]));
+      const quadrantById = new Map(quadrants.map(q => [q.id, q]));
+      const ringById = new Map(rings.map(r => [r.id, r]));
+      if (mode === "cleanup") {
+        const unassignedBlips = existingBlips
+          .filter(b => !b.quadrantId || !b.ringId)
+          .map(b => ({
+            topicName: b.topicName,
+            quadrantName: b.quadrantId
+              ? quadrantById.get(b.quadrantId)?.name ?? null
+              : null,
+            ringName: b.ringId ? ringById.get(b.ringId)?.name ?? null : null,
+            radarNote: b.description,
+            topicDescription: topicById.get(b.topicId)?.description ?? null,
+          }));
+        return buildCleanupPrompt({
+          domainTitle,
+          domainDescription,
+          withinScopeDescription,
+          outOfScopeDescription,
+          quadrants,
+          rings,
+          unassignedBlips,
+        });
+      }
       return buildLlmPrompt({
         domainTitle,
         domainDescription,
@@ -436,6 +566,7 @@ export function BlipLlmAssist({
       });
     },
     [
+      mode,
       domainTitle,
       domainDescription,
       domainTopics,
@@ -449,6 +580,11 @@ export function BlipLlmAssist({
       existingBlips,
       topics,
     ],
+  );
+
+  const unassignedCount = useMemo(
+    () => existingBlips.filter(b => !b.quadrantId || !b.ringId).length,
+    [existingBlips],
   );
 
   const [jsonText, setJsonText] = useState("");
@@ -914,6 +1050,34 @@ export function BlipLlmAssist({
     <div className="flex flex-col gap-4 rounded-sm border p-4">
       {!resolved && (
         <>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Prompt mode</span>
+            <div className="flex flex-row flex-wrap gap-4">
+              <label className="flex flex-row items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="llm-prompt-mode"
+                  value="setup"
+                  checked={mode === "setup"}
+                  onChange={() => setMode("setup")}
+                />
+                Setup / Update — propose new and updated blips
+              </label>
+              <label className="flex flex-row items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="llm-prompt-mode"
+                  value="cleanup"
+                  checked={mode === "cleanup"}
+                  onChange={() => setMode("cleanup")}
+                  disabled={unassignedCount === 0}
+                />
+                Clean up — assign slice/ring to unassigned blips (
+                {unassignedCount}
+                )
+              </label>
+            </div>
+          </div>
           <div
             className={`
               grid grid-cols-1 gap-4

@@ -265,7 +265,9 @@ interface RadarConfigPayload {
     position: number; }[];
   rings: { id?: string;
     name: string;
-    position: number; }[];
+    position: number;
+    isAdopted?: boolean; }[];
+  hasAdoptedSection?: boolean;
 }
 
 export async function upsertRadarConfig(
