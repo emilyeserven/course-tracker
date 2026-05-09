@@ -1,28 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BookIcon } from "lucide-react";
+import { RadarIcon } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
-import { fetchProviders } from "@/utils";
+import { fetchDomains } from "@/utils";
 
-export function DashboardProviders() {
+export function DashboardRadars() {
   const {
-    data: providers, isPending, error,
+    data: domains, isPending, error,
   } = useQuery({
-    queryKey: ["providers"],
-    queryFn: () => fetchProviders(),
+    queryKey: ["domains"],
+    queryFn: () => fetchDomains(),
   });
 
-  const sorted = (providers ?? [])
+  const withRadars = (domains ?? [])
+    .filter(d => d.hasRadar)
     .slice()
-    .sort((a, b) => (b.courseCount ?? 0) - (a.courseCount ?? 0));
+    .sort((a, b) => a.title.localeCompare(b.title, undefined, {
+      sensitivity: "base",
+    }));
 
   return (
     <DashboardCard
-      title="Providers"
+      title="Radars"
       action={(
         <Link
-          to="/providers"
+          to="/domains"
           className="
             text-sm text-primary underline-offset-2
             hover:underline
@@ -33,46 +36,46 @@ export function DashboardProviders() {
       )}
     >
       {isPending && (
-        <p className="text-sm text-muted-foreground">Loading providers...</p>
+        <p className="text-sm text-muted-foreground">Loading radars...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load providers.</p>
+        <p className="text-sm text-destructive">Failed to load radars.</p>
       )}
-      {providers && sorted.length === 0 && (
+      {domains && withRadars.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          <i>No providers yet.</i>
+          <i>No radars yet.</i>
         </p>
       )}
-      {sorted.length > 0 && (
+      {withRadars.length > 0 && (
         <ul className="flex flex-col divide-y">
-          {sorted.map(provider => (
+          {withRadars.map(domain => (
             <li
-              key={provider.id}
+              key={domain.id}
               className="flex flex-row items-center gap-2 py-2"
             >
               <Link
-                to="/providers/$id"
+                to="/domains/$id/radar"
                 params={{
-                  id: provider.id,
+                  id: domain.id,
                 }}
                 className="
-                  font-medium
+                  inline-flex items-center gap-2 font-medium
                   hover:text-blue-600
                 "
               >
-                {provider.name}
+                <RadarIcon className="size-4 text-muted-foreground" />
+                {domain.title}
               </Link>
               <span
                 className="
                   ml-auto inline-flex items-center gap-1 text-xs
                   text-muted-foreground
                 "
-                title={`${provider.courseCount ?? 0} course${
-                  provider.courseCount === 1 ? "" : "s"
+                title={`${domain.topicCount ?? 0} topic${
+                  domain.topicCount === 1 ? "" : "s"
                 }`}
               >
-                <BookIcon className="size-3.5" />
-                {provider.courseCount ?? 0}
+                {domain.topicCount ?? 0}
               </span>
             </li>
           ))}

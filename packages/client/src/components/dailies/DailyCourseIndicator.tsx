@@ -47,6 +47,10 @@ export function DailyCourseIndicator({
     return null;
   }
 
+  const titlesMatch = course.name.trim().toLowerCase()
+    === daily.name.trim().toLowerCase();
+  const tooltip = titlesMatch ? "Go to Course" : course.name;
+
   return (
     <span className="inline-flex items-center gap-1">
       <Tooltip>
@@ -65,7 +69,7 @@ export function DailyCourseIndicator({
             <GraduationCapIcon className="size-4" />
           </Link>
         </TooltipTrigger>
-        <TooltipContent>{course.name}</TooltipContent>
+        <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>

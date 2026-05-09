@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { DashboardCoursesInProgress } from "./dashboard.-components/-DashboardCoursesInProgress";
 import { DashboardDailies } from "./dashboard.-components/-DashboardDailies";
-import { DashboardProviders } from "./dashboard.-components/-DashboardProviders";
+import { DashboardRadars } from "./dashboard.-components/-DashboardRadars";
 import { DashboardTopics } from "./dashboard.-components/-DashboardTopics";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -39,7 +39,7 @@ function Dashboard() {
               md:flex-1
             "
           >
-            <DashboardProviders />
+            <DashboardRadars />
           </div>
           <div
             className="

@@ -25,46 +25,44 @@ export function TodayStatusCell({
 
   return (
     <div className="flex flex-row items-center gap-1">
-      <div className="flex w-28 flex-row items-center gap-1">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => setModalOpen(true)}
-          aria-label={currentStatus
-            ? `Change today's status for ${daily.name}`
-            : `Set today's status for ${daily.name}`}
-          className={cn(
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setModalOpen(true)}
+        aria-label={currentStatus
+          ? `Change today's status for ${daily.name}`
+          : `Set today's status for ${daily.name}`}
+        className={cn(
+          `
+            inline-flex cursor-pointer items-center gap-1 rounded-full border-2
+            px-2 py-0.5 text-xs font-medium transition-colors
+            focus-visible:ring-2 focus-visible:ring-ring
+            focus-visible:outline-none
+            disabled:cursor-not-allowed disabled:opacity-50
+          `,
+          option
+            ? `
+              ${option.pillClass}
+              hover:opacity-80
             `
-              inline-flex w-full items-center gap-1 rounded-full border-2 px-2
-              py-0.5 text-xs font-medium transition-colors
-              focus-visible:ring-2 focus-visible:ring-ring
-              focus-visible:outline-none
-              disabled:cursor-not-allowed disabled:opacity-50
+            : `
+              border-dashed border-muted-foreground/40 bg-background
+              text-muted-foreground
+              hover:bg-muted
             `,
-            option
-              ? `
-                ${option.pillClass}
-                hover:opacity-80
-              `
-              : `
-                border-dashed border-muted-foreground/40 bg-background
-                text-muted-foreground
-                hover:bg-muted
-              `,
+        )}
+      >
+        {option
+          ? (
+            <>
+              {option.icon}
+              {option.label}
+            </>
+          )
+          : (
+            <span>Select…</span>
           )}
-        >
-          {option
-            ? (
-              <>
-                {option.icon}
-                {option.label}
-              </>
-            )
-            : (
-              <span className="mx-auto">Select…</span>
-            )}
-        </button>
-      </div>
+      </button>
       <DailyStatusModal
         daily={daily}
         currentStatus={currentStatus}
