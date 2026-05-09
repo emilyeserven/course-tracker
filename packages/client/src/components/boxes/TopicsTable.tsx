@@ -62,7 +62,7 @@ export function TopicsTable({
             <TableHead className="whitespace-nowrap">Domains</TableHead>
             <TableHead>Description</TableHead>
             <TableHead className="text-right whitespace-nowrap">
-              Courses
+              Resources
             </TableHead>
             <TableHead className="text-right whitespace-nowrap">
               Tasks
@@ -136,7 +136,7 @@ export function TopicsTable({
                     )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {topic.courseCount ?? 0}
+                  {topic.resourceCount ?? 0}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {topic.taskCount ?? 0}

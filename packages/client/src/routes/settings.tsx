@@ -17,6 +17,7 @@ import { toast } from "sonner";
 
 import { DailyCriteriaTemplateEditModal } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
 import { TagChip } from "@/components/tasks/TagChip";
 import { TaskTypeEditRow } from "@/components/TaskTypeEditRow";
 import { Button } from "@/components/ui/button";
@@ -217,7 +218,7 @@ function Settings() {
 
     if (clearRefetchResult.status === "success") {
       navigate({
-        to: "/courses",
+        to: "/resources",
         reloadDocument: true,
       });
     }
@@ -227,7 +228,7 @@ function Settings() {
     const seedRefetchResult = await seedRefetch();
     if (seedRefetchResult.status === "success") {
       navigate({
-        to: "/courses",
+        to: "/resources",
         reloadDocument: true,
       });
     }
@@ -362,6 +363,8 @@ function Settings() {
                 </ul>
               )}
         </section>
+
+        <TagGroupsAdmin />
 
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">

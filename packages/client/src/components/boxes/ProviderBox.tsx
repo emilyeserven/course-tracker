@@ -18,7 +18,7 @@ export function ProviderBox({
   id,
   name,
   description,
-  courseCount,
+  resourceCount,
   isCourseFeesShared,
   cost,
 }: CourseProvider) {
@@ -41,7 +41,7 @@ export function ProviderBox({
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem
-          value={courseCount}
+          value={resourceCount}
           condition={true}
           iconNode={<BookIcon size={16} />}
         />

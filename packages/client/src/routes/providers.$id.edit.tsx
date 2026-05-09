@@ -202,7 +202,7 @@ function SingleProviderEdit() {
           <form.AppField name="isCourseFeesShared">
             {field => (
               <field.RadioGroupField
-                label="Course Fees Shared?"
+                label="Resource Fees Shared?"
                 options={[
                   {
                     value: "true",

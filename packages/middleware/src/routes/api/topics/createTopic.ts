@@ -1,8 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { topics } from "@/db/schema";
-import { nullableString } from "@/utils/schemas";
+import { topics, topicsToResources, topicsToTags } from "@/db/schema";
+import {
+  nullableString,
+  resourceLinksArraySchema,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 import { v4 as uuidv4 } from "uuid";
 
@@ -25,6 +29,8 @@ const createSchema = {
             type: "string",
           },
         },
+        tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
       },
     },
   },
@@ -50,6 +56,44 @@ export default async function (server: FastifyInstance) {
       const uniqueDomainIds = Array.from(new Set(body.domainIds ?? []));
       if (uniqueDomainIds.length > 0) {
         await syncDomainMembershipByTopic(id, uniqueDomainIds);
+      }
+
+      const uniqueTagIds = Array.from(new Set(body.tagIds ?? []));
+      if (uniqueTagIds.length > 0) {
+        await db.insert(topicsToTags).values(
+          uniqueTagIds.map((tagId, index) => ({
+            topicId: id,
+            tagId,
+            position: index,
+          })),
+        );
+      }
+
+      const incomingLinks = body.resourceLinks ?? [];
+      if (incomingLinks.length > 0) {
+        const seen = new Set<string>();
+        const linkRows: {
+          id: string;
+          topicId: string;
+          resourceId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+        }[] = [];
+        for (const link of incomingLinks) {
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          linkRows.push({
+            id: uuidv4(),
+            topicId: id,
+            resourceId: link.resourceId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+          });
+        }
+        if (linkRows.length > 0) {
+          await db.insert(topicsToResources).values(linkRows);
+        }
       }
 
       return {

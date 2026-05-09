@@ -1,12 +1,21 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, taskTodos, taskTypes, tasks } from "@/db/schema";
+import {
+  taskResources,
+  taskResourcesToTags,
+  taskTodos,
+  tasks,
+  tasksToResources,
+  tasksToTags,
+} from "@/db/schema";
 import {
   idParamSchema,
   nullableString,
+  resourceLinksArraySchema,
   resourceSchema,
+  tagIdsArraySchema,
   todoSchema,
 } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
@@ -25,6 +34,8 @@ const upsertSchema = {
         description: nullableString,
         topicId: nullableString,
         taskTypeId: nullableString,
+        tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -71,53 +82,103 @@ export default async function (server: FastifyInstance) {
           },
         });
 
-      if (body.resources !== undefined) {
-        await db.delete(resources).where(eq(resources.taskId, id));
-        if (body.resources.length > 0) {
-          await db.insert(resources).values(
-            body.resources.map((r, index) => ({
-              id: r.id || uuidv4(),
+      if (body.tagIds !== undefined) {
+        await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
+        const uniqueTagIds = Array.from(new Set(body.tagIds));
+        if (uniqueTagIds.length > 0) {
+          await db.insert(tasksToTags).values(
+            uniqueTagIds.map((tagId, index) => ({
               taskId: id,
-              name: r.name,
-              url: r.url ?? null,
-              easeOfStarting: r.easeOfStarting ?? null,
-              timeNeeded: r.timeNeeded ?? null,
-              interactivity: r.interactivity ?? null,
-              usedYet: r.usedYet ?? false,
+              tagId,
               position: index,
-              tags: r.tags ?? [],
             })),
           );
         }
+      }
 
-        if (taskData.taskTypeId) {
-          const incomingResourceTags = Array.from(
-            new Set(body.resources.flatMap(r => r.tags ?? [])),
-          );
-          if (incomingResourceTags.length > 0) {
-            const taskType = await db.query.taskTypes.findFirst({
-              where: (t, {
-                eq: eqOp,
-              }) => eqOp(t.id, taskData.taskTypeId!),
-              columns: {
-                tags: true,
-              },
+      if (body.resourceLinks !== undefined) {
+        await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
+        // Dedupe by the full (resourceId, moduleGroupId, moduleId) tuple so
+        // a task can hold multiple rows per resource (e.g. whole-resource +
+        // a specific module) without duplicates.
+        const seen = new Set<string>();
+        const rows: {
+          id: string;
+          taskId: string;
+          resourceId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+          position: number;
+        }[] = [];
+        body.resourceLinks.forEach((link, index) => {
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          rows.push({
+            id: uuidv4(),
+            taskId: id,
+            resourceId: link.resourceId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+            position: index,
+          });
+        });
+        if (rows.length > 0) {
+          await db.insert(tasksToResources).values(rows);
+        }
+      }
+
+      if (body.resources !== undefined) {
+        const existingResourceIds = (
+          await db
+            .select({
+              id: taskResources.id,
+            })
+            .from(taskResources)
+            .where(eq(taskResources.taskId, id))
+        ).map(r => r.id);
+        if (existingResourceIds.length > 0) {
+          await db
+            .delete(taskResourcesToTags)
+            .where(inArray(taskResourcesToTags.resourceId, existingResourceIds));
+        }
+        await db.delete(taskResources).where(eq(taskResources.taskId, id));
+
+        if (body.resources.length > 0) {
+          const resourceRows = body.resources.map((r, index) => ({
+            id: r.id || uuidv4(),
+            taskId: id,
+            name: r.name,
+            url: r.url ?? null,
+            easeOfStarting: r.easeOfStarting ?? null,
+            timeNeeded: r.timeNeeded ?? null,
+            interactivity: r.interactivity ?? null,
+            usedYet: r.usedYet ?? false,
+            position: index,
+            resourceId: r.resourceId ?? null,
+            moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+            moduleId: r.resourceId ? r.moduleId ?? null : null,
+          }));
+          await db.insert(taskResources).values(resourceRows);
+
+          const tagJunctionRows: {
+            resourceId: string;
+            tagId: string;
+            position: number;
+          }[] = [];
+          body.resources.forEach((r, index) => {
+            const resourceId = resourceRows[index].id;
+            const uniqueTagIds = Array.from(new Set(r.tagIds ?? []));
+            uniqueTagIds.forEach((tagId, tagIndex) => {
+              tagJunctionRows.push({
+                resourceId,
+                tagId,
+                position: tagIndex,
+              });
             });
-            if (taskType) {
-              const existing = taskType.tags ?? [];
-              const merged = [...existing];
-              for (const tag of incomingResourceTags) {
-                if (!merged.includes(tag)) merged.push(tag);
-              }
-              if (merged.length > existing.length) {
-                await db
-                  .update(taskTypes)
-                  .set({
-                    tags: merged,
-                  })
-                  .where(eq(taskTypes.id, taskData.taskTypeId));
-              }
-            }
+          });
+          if (tagJunctionRows.length > 0) {
+            await db.insert(taskResourcesToTags).values(tagJunctionRows);
           }
         }
       }

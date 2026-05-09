@@ -8,7 +8,7 @@ import {
   domainWithinScopeTopics,
   radarBlips,
   topics,
-  topicsToCourses,
+  topicsToResources,
 } from "@/db/schema";
 
 const bulkDeleteSchema = {
@@ -38,8 +38,8 @@ export default async function (server: FastifyInstance) {
 
     await db.delete(radarBlips).where(inArray(radarBlips.topicId, ids));
     await db
-      .delete(topicsToCourses)
-      .where(inArray(topicsToCourses.topicId, ids));
+      .delete(topicsToResources)
+      .where(inArray(topicsToResources.topicId, ids));
     await db
       .delete(domainExcludedTopics)
       .where(inArray(domainExcludedTopics.topicId, ids));

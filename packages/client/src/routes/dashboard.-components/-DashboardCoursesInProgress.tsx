@@ -12,7 +12,7 @@ import {
 } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
-import { fetchCourses, fetchDailies } from "@/utils";
+import { fetchResources, fetchDailies } from "@/utils";
 
 function ProgressIndicator({
   current,
@@ -62,7 +62,7 @@ export function DashboardCoursesInProgress() {
     data: courses, isPending, error,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
   const {
     data: dailies,
@@ -74,7 +74,7 @@ export function DashboardCoursesInProgress() {
   const courseIdsWithActiveDaily = new Set(
     (dailies ?? [])
       .filter(d => d.status !== "complete" && d.status !== "paused")
-      .map(d => d.course?.id)
+      .map(d => d.resource?.id)
       .filter((id): id is string => Boolean(id)),
   );
 
@@ -84,10 +84,10 @@ export function DashboardCoursesInProgress() {
 
   return (
     <DashboardCard
-      title="Courses in Progress"
+      title="Resources in Progress"
       action={(
         <Link
-          to="/courses"
+          to="/resources"
           className="
             text-sm text-primary underline-offset-2
             hover:underline
@@ -101,7 +101,7 @@ export function DashboardCoursesInProgress() {
         <p className="text-sm text-muted-foreground">Loading courses...</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">Failed to load courses.</p>
+        <p className="text-sm text-destructive">Failed to load resources.</p>
       )}
       {courses && inProgress.length === 0 && (
         <p className="text-sm text-muted-foreground">
@@ -124,7 +124,7 @@ export function DashboardCoursesInProgress() {
                 )
                 : <span className="size-5" />}
               <Link
-                to="/courses/$id"
+                to="/resources/$id"
                 params={{
                   id: course.id,
                 }}

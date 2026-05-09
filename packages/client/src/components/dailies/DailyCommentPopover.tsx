@@ -90,7 +90,7 @@ export function DailyCommentPopover({
         description: daily.description ?? null,
         completions,
         courseProviderId: daily.provider?.id ?? null,
-        courseId: daily.course?.id ?? null,
+        resourceId: daily.resource?.id ?? null,
         taskId: daily.taskId ?? daily.task?.id ?? null,
         status: daily.status ?? "active",
         criteria: daily.criteria ?? {},

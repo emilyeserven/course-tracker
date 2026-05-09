@@ -21,17 +21,17 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
       const provider = await db.query.courseProviders.findFirst({
-        where: (courses, {
+        where: (resources, {
           eq,
-        }) => (eq(courses.id, id)),
+        }) => (eq(resources.id, id)),
         with: {
-          courses: true,
+          resources: true,
         },
       });
 
       if (provider) {
-        const courseCount = provider.courses?.length ?? 0;
-        const courses = provider.courses.map((course) => {
+        const courseCount = provider.resources?.length ?? 0;
+        const resources = provider.resources.map((course) => {
           if (course) {
             return {
               name: course.name,
@@ -52,7 +52,7 @@ export default async function (server: FastifyInstance) {
           recurPeriod: provider.recurPeriod,
           isCourseFeesShared: provider.isCourseFeesShared,
           courseCount: courseCount,
-          courses: courses,
+          resources: resources,
         };
       }
     },

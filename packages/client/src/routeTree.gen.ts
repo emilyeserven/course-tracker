@@ -12,38 +12,38 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as DomainsRouteImport } from './routes/domains'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DailiesRouteImport } from './routes/dailies'
-import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TasksIndexRouteImport } from './routes/tasks.index'
+import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as DomainsIndexRouteImport } from './routes/domains.index'
 import { Route as DailiesIndexRouteImport } from './routes/dailies.index'
-import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as TopicsIdRouteImport } from './routes/topics.$id'
 import { Route as TasksIdRouteImport } from './routes/tasks.$id'
+import { Route as ResourcesIdRouteImport } from './routes/resources.$id'
 import { Route as ProvidersIdRouteImport } from './routes/providers.$id'
 import { Route as DomainsIdRouteImport } from './routes/domains.$id'
 import { Route as DailiesIdRouteImport } from './routes/dailies.$id'
-import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 import { Route as TopicsIdIndexRouteImport } from './routes/topics.$id.index'
 import { Route as TasksIdIndexRouteImport } from './routes/tasks.$id.index'
+import { Route as ResourcesIdIndexRouteImport } from './routes/resources.$id.index'
 import { Route as ProvidersIdIndexRouteImport } from './routes/providers.$id.index'
 import { Route as DomainsIdIndexRouteImport } from './routes/domains.$id.index'
 import { Route as DailiesIdIndexRouteImport } from './routes/dailies.$id.index'
-import { Route as CoursesIdIndexRouteImport } from './routes/courses.$id.index'
 import { Route as TopicsIdEditRouteImport } from './routes/topics.$id.edit'
 import { Route as TasksIdEditRouteImport } from './routes/tasks.$id.edit'
+import { Route as ResourcesIdEditRouteImport } from './routes/resources.$id.edit'
 import { Route as ProvidersIdEditRouteImport } from './routes/providers.$id.edit'
 import { Route as DomainsIdRadarRouteImport } from './routes/domains.$id.radar'
 import { Route as DomainsIdEditRouteImport } from './routes/domains.$id.edit'
 import { Route as DailiesIdEditRouteImport } from './routes/dailies.$id.edit'
-import { Route as CoursesIdEditRouteImport } from './routes/courses.$id.edit'
 import { Route as DomainsIdRadarIndexRouteImport } from './routes/domains.$id.radar.index'
 import { Route as DomainsIdRadarEditRouteImport } from './routes/domains.$id.radar.edit'
 
@@ -60,6 +60,11 @@ const TasksRoute = TasksRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProvidersRoute = ProvidersRouteImport.update({
@@ -87,11 +92,6 @@ const DailiesRoute = DailiesRouteImport.update({
   path: '/dailies',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoursesRoute = CoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -106,6 +106,11 @@ const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TasksRoute,
+} as any)
+const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ResourcesRoute,
 } as any)
 const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
   id: '/',
@@ -122,11 +127,6 @@ const DailiesIndexRoute = DailiesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DailiesRoute,
 } as any)
-const CoursesIndexRoute = CoursesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => CoursesRoute,
-} as any)
 const TopicsIdRoute = TopicsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -136,6 +136,11 @@ const TasksIdRoute = TasksIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => TasksRoute,
+} as any)
+const ResourcesIdRoute = ResourcesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ResourcesRoute,
 } as any)
 const ProvidersIdRoute = ProvidersIdRouteImport.update({
   id: '/$id',
@@ -152,11 +157,6 @@ const DailiesIdRoute = DailiesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DailiesRoute,
 } as any)
-const CoursesIdRoute = CoursesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => CoursesRoute,
-} as any)
 const TopicsIdIndexRoute = TopicsIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -166,6 +166,11 @@ const TasksIdIndexRoute = TasksIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TasksIdRoute,
+} as any)
+const ResourcesIdIndexRoute = ResourcesIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ResourcesIdRoute,
 } as any)
 const ProvidersIdIndexRoute = ProvidersIdIndexRouteImport.update({
   id: '/',
@@ -182,11 +187,6 @@ const DailiesIdIndexRoute = DailiesIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DailiesIdRoute,
 } as any)
-const CoursesIdIndexRoute = CoursesIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => CoursesIdRoute,
-} as any)
 const TopicsIdEditRoute = TopicsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -196,6 +196,11 @@ const TasksIdEditRoute = TasksIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => TasksIdRoute,
+} as any)
+const ResourcesIdEditRoute = ResourcesIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ResourcesIdRoute,
 } as any)
 const ProvidersIdEditRoute = ProvidersIdEditRouteImport.update({
   id: '/edit',
@@ -217,11 +222,6 @@ const DailiesIdEditRoute = DailiesIdEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => DailiesIdRoute,
 } as any)
-const CoursesIdEditRoute = CoursesIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => CoursesIdRoute,
-} as any)
 const DomainsIdRadarIndexRoute = DomainsIdRadarIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -235,38 +235,38 @@ const DomainsIdRadarEditRoute = DomainsIdRadarEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/dailies': typeof DailiesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/resources': typeof ResourcesRouteWithChildren
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
-  '/courses/$id': typeof CoursesIdRouteWithChildren
   '/dailies/$id': typeof DailiesIdRouteWithChildren
   '/domains/$id': typeof DomainsIdRouteWithChildren
   '/providers/$id': typeof ProvidersIdRouteWithChildren
+  '/resources/$id': typeof ResourcesIdRouteWithChildren
   '/tasks/$id': typeof TasksIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
-  '/courses/': typeof CoursesIndexRoute
   '/dailies/': typeof DailiesIndexRoute
   '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
+  '/resources/': typeof ResourcesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/topics/': typeof TopicsIndexRoute
-  '/courses/$id/edit': typeof CoursesIdEditRoute
   '/dailies/$id/edit': typeof DailiesIdEditRoute
   '/domains/$id/edit': typeof DomainsIdEditRoute
   '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
   '/providers/$id/edit': typeof ProvidersIdEditRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
-  '/courses/$id/': typeof CoursesIdIndexRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
+  '/resources/$id/': typeof ResourcesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
   '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
@@ -277,22 +277,22 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/onboard': typeof OnboardRoute
   '/settings': typeof SettingsRoute
-  '/courses': typeof CoursesIndexRoute
   '/dailies': typeof DailiesIndexRoute
   '/domains': typeof DomainsIndexRoute
   '/providers': typeof ProvidersIndexRoute
+  '/resources': typeof ResourcesIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/topics': typeof TopicsIndexRoute
-  '/courses/$id/edit': typeof CoursesIdEditRoute
   '/dailies/$id/edit': typeof DailiesIdEditRoute
   '/domains/$id/edit': typeof DomainsIdEditRoute
   '/providers/$id/edit': typeof ProvidersIdEditRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
-  '/courses/$id': typeof CoursesIdIndexRoute
   '/dailies/$id': typeof DailiesIdIndexRoute
   '/domains/$id': typeof DomainsIdIndexRoute
   '/providers/$id': typeof ProvidersIdIndexRoute
+  '/resources/$id': typeof ResourcesIdIndexRoute
   '/tasks/$id': typeof TasksIdIndexRoute
   '/topics/$id': typeof TopicsIdIndexRoute
   '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
@@ -301,38 +301,38 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/dailies': typeof DailiesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/resources': typeof ResourcesRouteWithChildren
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRouteWithChildren
   '/topics': typeof TopicsRouteWithChildren
-  '/courses/$id': typeof CoursesIdRouteWithChildren
   '/dailies/$id': typeof DailiesIdRouteWithChildren
   '/domains/$id': typeof DomainsIdRouteWithChildren
   '/providers/$id': typeof ProvidersIdRouteWithChildren
+  '/resources/$id': typeof ResourcesIdRouteWithChildren
   '/tasks/$id': typeof TasksIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
-  '/courses/': typeof CoursesIndexRoute
   '/dailies/': typeof DailiesIndexRoute
   '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
+  '/resources/': typeof ResourcesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/topics/': typeof TopicsIndexRoute
-  '/courses/$id/edit': typeof CoursesIdEditRoute
   '/dailies/$id/edit': typeof DailiesIdEditRoute
   '/domains/$id/edit': typeof DomainsIdEditRoute
   '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
   '/providers/$id/edit': typeof ProvidersIdEditRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
   '/topics/$id/edit': typeof TopicsIdEditRoute
-  '/courses/$id/': typeof CoursesIdIndexRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
+  '/resources/$id/': typeof ResourcesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
   '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
@@ -342,38 +342,38 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/courses'
     | '/dailies'
     | '/dashboard'
     | '/domains'
     | '/onboard'
     | '/providers'
+    | '/resources'
     | '/settings'
     | '/tasks'
     | '/topics'
-    | '/courses/$id'
     | '/dailies/$id'
     | '/domains/$id'
     | '/providers/$id'
+    | '/resources/$id'
     | '/tasks/$id'
     | '/topics/$id'
-    | '/courses/'
     | '/dailies/'
     | '/domains/'
     | '/providers/'
+    | '/resources/'
     | '/tasks/'
     | '/topics/'
-    | '/courses/$id/edit'
     | '/dailies/$id/edit'
     | '/domains/$id/edit'
     | '/domains/$id/radar'
     | '/providers/$id/edit'
+    | '/resources/$id/edit'
     | '/tasks/$id/edit'
     | '/topics/$id/edit'
-    | '/courses/$id/'
     | '/dailies/$id/'
     | '/domains/$id/'
     | '/providers/$id/'
+    | '/resources/$id/'
     | '/tasks/$id/'
     | '/topics/$id/'
     | '/domains/$id/radar/edit'
@@ -384,22 +384,22 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboard'
     | '/settings'
-    | '/courses'
     | '/dailies'
     | '/domains'
     | '/providers'
+    | '/resources'
     | '/tasks'
     | '/topics'
-    | '/courses/$id/edit'
     | '/dailies/$id/edit'
     | '/domains/$id/edit'
     | '/providers/$id/edit'
+    | '/resources/$id/edit'
     | '/tasks/$id/edit'
     | '/topics/$id/edit'
-    | '/courses/$id'
     | '/dailies/$id'
     | '/domains/$id'
     | '/providers/$id'
+    | '/resources/$id'
     | '/tasks/$id'
     | '/topics/$id'
     | '/domains/$id/radar/edit'
@@ -407,38 +407,38 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/courses'
     | '/dailies'
     | '/dashboard'
     | '/domains'
     | '/onboard'
     | '/providers'
+    | '/resources'
     | '/settings'
     | '/tasks'
     | '/topics'
-    | '/courses/$id'
     | '/dailies/$id'
     | '/domains/$id'
     | '/providers/$id'
+    | '/resources/$id'
     | '/tasks/$id'
     | '/topics/$id'
-    | '/courses/'
     | '/dailies/'
     | '/domains/'
     | '/providers/'
+    | '/resources/'
     | '/tasks/'
     | '/topics/'
-    | '/courses/$id/edit'
     | '/dailies/$id/edit'
     | '/domains/$id/edit'
     | '/domains/$id/radar'
     | '/providers/$id/edit'
+    | '/resources/$id/edit'
     | '/tasks/$id/edit'
     | '/topics/$id/edit'
-    | '/courses/$id/'
     | '/dailies/$id/'
     | '/domains/$id/'
     | '/providers/$id/'
+    | '/resources/$id/'
     | '/tasks/$id/'
     | '/topics/$id/'
     | '/domains/$id/radar/edit'
@@ -447,12 +447,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CoursesRoute: typeof CoursesRouteWithChildren
   DailiesRoute: typeof DailiesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   DomainsRoute: typeof DomainsRouteWithChildren
   OnboardRoute: typeof OnboardRoute
   ProvidersRoute: typeof ProvidersRouteWithChildren
+  ResourcesRoute: typeof ResourcesRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   TasksRoute: typeof TasksRouteWithChildren
   TopicsRoute: typeof TopicsRouteWithChildren
@@ -479,6 +479,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/providers': {
@@ -516,13 +523,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailiesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/courses': {
-      id: '/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof CoursesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -543,6 +543,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexRouteImport
       parentRoute: typeof TasksRoute
+    }
+    '/resources/': {
+      id: '/resources/'
+      path: '/'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof ResourcesIndexRouteImport
+      parentRoute: typeof ResourcesRoute
     }
     '/providers/': {
       id: '/providers/'
@@ -565,13 +572,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailiesIndexRouteImport
       parentRoute: typeof DailiesRoute
     }
-    '/courses/': {
-      id: '/courses/'
-      path: '/'
-      fullPath: '/courses/'
-      preLoaderRoute: typeof CoursesIndexRouteImport
-      parentRoute: typeof CoursesRoute
-    }
     '/topics/$id': {
       id: '/topics/$id'
       path: '/$id'
@@ -585,6 +585,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/$id'
       preLoaderRoute: typeof TasksIdRouteImport
       parentRoute: typeof TasksRoute
+    }
+    '/resources/$id': {
+      id: '/resources/$id'
+      path: '/$id'
+      fullPath: '/resources/$id'
+      preLoaderRoute: typeof ResourcesIdRouteImport
+      parentRoute: typeof ResourcesRoute
     }
     '/providers/$id': {
       id: '/providers/$id'
@@ -607,13 +614,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailiesIdRouteImport
       parentRoute: typeof DailiesRoute
     }
-    '/courses/$id': {
-      id: '/courses/$id'
-      path: '/$id'
-      fullPath: '/courses/$id'
-      preLoaderRoute: typeof CoursesIdRouteImport
-      parentRoute: typeof CoursesRoute
-    }
     '/topics/$id/': {
       id: '/topics/$id/'
       path: '/'
@@ -627,6 +627,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/$id/'
       preLoaderRoute: typeof TasksIdIndexRouteImport
       parentRoute: typeof TasksIdRoute
+    }
+    '/resources/$id/': {
+      id: '/resources/$id/'
+      path: '/'
+      fullPath: '/resources/$id/'
+      preLoaderRoute: typeof ResourcesIdIndexRouteImport
+      parentRoute: typeof ResourcesIdRoute
     }
     '/providers/$id/': {
       id: '/providers/$id/'
@@ -649,13 +656,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailiesIdIndexRouteImport
       parentRoute: typeof DailiesIdRoute
     }
-    '/courses/$id/': {
-      id: '/courses/$id/'
-      path: '/'
-      fullPath: '/courses/$id/'
-      preLoaderRoute: typeof CoursesIdIndexRouteImport
-      parentRoute: typeof CoursesIdRoute
-    }
     '/topics/$id/edit': {
       id: '/topics/$id/edit'
       path: '/edit'
@@ -669,6 +669,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/$id/edit'
       preLoaderRoute: typeof TasksIdEditRouteImport
       parentRoute: typeof TasksIdRoute
+    }
+    '/resources/$id/edit': {
+      id: '/resources/$id/edit'
+      path: '/edit'
+      fullPath: '/resources/$id/edit'
+      preLoaderRoute: typeof ResourcesIdEditRouteImport
+      parentRoute: typeof ResourcesIdRoute
     }
     '/providers/$id/edit': {
       id: '/providers/$id/edit'
@@ -698,13 +705,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailiesIdEditRouteImport
       parentRoute: typeof DailiesIdRoute
     }
-    '/courses/$id/edit': {
-      id: '/courses/$id/edit'
-      path: '/edit'
-      fullPath: '/courses/$id/edit'
-      preLoaderRoute: typeof CoursesIdEditRouteImport
-      parentRoute: typeof CoursesIdRoute
-    }
     '/domains/$id/radar/': {
       id: '/domains/$id/radar/'
       path: '/'
@@ -721,33 +721,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface CoursesIdRouteChildren {
-  CoursesIdEditRoute: typeof CoursesIdEditRoute
-  CoursesIdIndexRoute: typeof CoursesIdIndexRoute
-}
-
-const CoursesIdRouteChildren: CoursesIdRouteChildren = {
-  CoursesIdEditRoute: CoursesIdEditRoute,
-  CoursesIdIndexRoute: CoursesIdIndexRoute,
-}
-
-const CoursesIdRouteWithChildren = CoursesIdRoute._addFileChildren(
-  CoursesIdRouteChildren,
-)
-
-interface CoursesRouteChildren {
-  CoursesIdRoute: typeof CoursesIdRouteWithChildren
-  CoursesIndexRoute: typeof CoursesIndexRoute
-}
-
-const CoursesRouteChildren: CoursesRouteChildren = {
-  CoursesIdRoute: CoursesIdRouteWithChildren,
-  CoursesIndexRoute: CoursesIndexRoute,
-}
-
-const CoursesRouteWithChildren =
-  CoursesRoute._addFileChildren(CoursesRouteChildren)
 
 interface DailiesIdRouteChildren {
   DailiesIdEditRoute: typeof DailiesIdEditRoute
@@ -847,6 +820,34 @@ const ProvidersRouteWithChildren = ProvidersRoute._addFileChildren(
   ProvidersRouteChildren,
 )
 
+interface ResourcesIdRouteChildren {
+  ResourcesIdEditRoute: typeof ResourcesIdEditRoute
+  ResourcesIdIndexRoute: typeof ResourcesIdIndexRoute
+}
+
+const ResourcesIdRouteChildren: ResourcesIdRouteChildren = {
+  ResourcesIdEditRoute: ResourcesIdEditRoute,
+  ResourcesIdIndexRoute: ResourcesIdIndexRoute,
+}
+
+const ResourcesIdRouteWithChildren = ResourcesIdRoute._addFileChildren(
+  ResourcesIdRouteChildren,
+)
+
+interface ResourcesRouteChildren {
+  ResourcesIdRoute: typeof ResourcesIdRouteWithChildren
+  ResourcesIndexRoute: typeof ResourcesIndexRoute
+}
+
+const ResourcesRouteChildren: ResourcesRouteChildren = {
+  ResourcesIdRoute: ResourcesIdRouteWithChildren,
+  ResourcesIndexRoute: ResourcesIndexRoute,
+}
+
+const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
+  ResourcesRouteChildren,
+)
+
 interface TasksIdRouteChildren {
   TasksIdEditRoute: typeof TasksIdEditRoute
   TasksIdIndexRoute: typeof TasksIdIndexRoute
@@ -901,12 +902,12 @@ const TopicsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CoursesRoute: CoursesRouteWithChildren,
   DailiesRoute: DailiesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   DomainsRoute: DomainsRouteWithChildren,
   OnboardRoute: OnboardRoute,
   ProvidersRoute: ProvidersRouteWithChildren,
+  ResourcesRoute: ResourcesRouteWithChildren,
   SettingsRoute: SettingsRoute,
   TasksRoute: TasksRouteWithChildren,
   TopicsRoute: TopicsRouteWithChildren,

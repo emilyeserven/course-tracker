@@ -10,6 +10,7 @@ import * as z from "zod";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
@@ -17,8 +18,12 @@ import {
   createDomain,
   createTopic,
   deleteSingleTopic,
+  fetchResources,
   fetchDomains,
+  fetchModuleGroups,
+  fetchModules,
   fetchSingleTopic,
+  fetchTagGroups,
   formHasChanges,
   upsertTopic,
 } from "@/utils";
@@ -32,6 +37,15 @@ const formSchema = z.object({
   description: z.string().max(500),
   reason: z.string().max(500),
   domainIds: z.array(z.string()),
+  tagIds: z.array(z.string()),
+  resourceLinks: z.array(
+    z.object({
+      key: z.string(),
+      resourceId: z.string(),
+      moduleGroupId: z.string().nullable(),
+      moduleId: z.string().nullable(),
+    }),
+  ),
 });
 
 function SingleTopicEdit() {
@@ -63,6 +77,34 @@ function SingleTopicEdit() {
     queryFn: () => fetchDomains(),
   });
 
+  const {
+    data: tagGroups,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+  });
+
+  const {
+    data: allModuleGroups,
+  } = useQuery({
+    queryKey: ["module-groups-all"],
+    queryFn: () => fetchModuleGroups(),
+  });
+
+  const {
+    data: allModules,
+  } = useQuery({
+    queryKey: ["modules-all"],
+    queryFn: () => fetchModules(),
+  });
+
   const domainOptions = useMemo(
     () =>
       (domainsData ?? [])
@@ -74,12 +116,29 @@ function SingleTopicEdit() {
     [domainsData],
   );
 
+  const tagOptions = useMemo(
+    () =>
+      (tagGroups ?? []).flatMap(group =>
+        (group.tags ?? []).map(tag => ({
+          value: tag.id,
+          label: tag.name,
+        }))),
+    [tagGroups],
+  );
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
       reason: data?.reason ?? "",
       domainIds: data?.domains?.map(d => d.id) ?? [],
+      tagIds: (data?.tags ?? []).map(t => t.id),
+      resourceLinks: (data?.resourceLinks ?? []).map((l, i) => ({
+        key: l.id ?? `existing-${i}`,
+        resourceId: l.resourceId,
+        moduleGroupId: l.moduleGroupId ?? null,
+        moduleId: l.moduleId ?? null,
+      })),
     }),
     [data],
   );
@@ -97,6 +156,14 @@ function SingleTopicEdit() {
         description: value.description || null,
         reason: value.reason || null,
         domainIds: value.domainIds,
+        tagIds: value.tagIds,
+        resourceLinks: value.resourceLinks
+          .filter(l => l.resourceId)
+          .map(l => ({
+            resourceId: l.resourceId,
+            moduleGroupId: l.moduleGroupId,
+            moduleId: l.moduleId,
+          })),
       };
 
       try {
@@ -220,6 +287,37 @@ function SingleTopicEdit() {
               />
             )}
           </form.AppField>
+
+          <form.AppField name="tagIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Tags"
+                options={tagOptions}
+                placeholder="Pick tags..."
+                groupByPrefix
+              />
+            )}
+          </form.AppField>
+
+          <form.Field name="resourceLinks">
+            {field => (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Resource Links
+                </span>
+                <ResourceLinksPicker
+                  value={field.state.value}
+                  onChange={next => field.handleChange(next)}
+                  courses={(courses ?? []).map(c => ({
+                    id: c.id,
+                    name: c.name,
+                  }))}
+                  moduleGroups={allModuleGroups ?? []}
+                  modules={allModules ?? []}
+                />
+              </div>
+            )}
+          </form.Field>
 
           <EditPageFooter
             isNew={isNew}

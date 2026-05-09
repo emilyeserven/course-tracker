@@ -1,8 +1,21 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { resources, taskTodos, tasks } from "@/db/schema";
-import { nullableString, resourceSchema, todoSchema } from "@/utils/schemas";
+import {
+  taskResources,
+  taskResourcesToTags,
+  taskTodos,
+  tasks,
+  tasksToResources,
+  tasksToTags,
+} from "@/db/schema";
+import {
+  nullableString,
+  resourceLinksArraySchema,
+  resourceSchema,
+  tagIdsArraySchema,
+  todoSchema,
+} from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {
@@ -18,6 +31,8 @@ const createSchema = {
         description: nullableString,
         topicId: nullableString,
         taskTypeId: nullableString,
+        tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -49,22 +64,83 @@ export default async function (server: FastifyInstance) {
         taskTypeId: body.taskTypeId || null,
       });
 
-      const incoming = body.resources ?? [];
-      if (incoming.length > 0) {
-        await db.insert(resources).values(
-          incoming.map((r, index) => ({
-            id: r.id || uuidv4(),
+      const uniqueTagIds = Array.from(new Set(body.tagIds ?? []));
+      if (uniqueTagIds.length > 0) {
+        await db.insert(tasksToTags).values(
+          uniqueTagIds.map((tagId, index) => ({
             taskId: id,
-            name: r.name,
-            url: r.url ?? null,
-            easeOfStarting: r.easeOfStarting ?? null,
-            timeNeeded: r.timeNeeded ?? null,
-            interactivity: r.interactivity ?? null,
-            usedYet: r.usedYet ?? false,
+            tagId,
             position: index,
-            tags: r.tags ?? [],
           })),
         );
+      }
+
+      const incomingLinks = body.resourceLinks ?? [];
+      if (incomingLinks.length > 0) {
+        const seen = new Set<string>();
+        const linkRows: {
+          id: string;
+          taskId: string;
+          resourceId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+          position: number;
+        }[] = [];
+        incomingLinks.forEach((link, index) => {
+          const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          linkRows.push({
+            id: uuidv4(),
+            taskId: id,
+            resourceId: link.resourceId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+            position: index,
+          });
+        });
+        if (linkRows.length > 0) {
+          await db.insert(tasksToResources).values(linkRows);
+        }
+      }
+
+      const incoming = body.resources ?? [];
+      if (incoming.length > 0) {
+        const resourceRows = incoming.map((r, index) => ({
+          id: r.id || uuidv4(),
+          taskId: id,
+          name: r.name,
+          url: r.url ?? null,
+          easeOfStarting: r.easeOfStarting ?? null,
+          timeNeeded: r.timeNeeded ?? null,
+          interactivity: r.interactivity ?? null,
+          usedYet: r.usedYet ?? false,
+          position: index,
+          resourceId: r.resourceId ?? null,
+          moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+          moduleId: r.resourceId ? r.moduleId ?? null : null,
+        }));
+        await db.insert(taskResources).values(resourceRows);
+
+        const tagJunctionRows: {
+          resourceId: string;
+          tagId: string;
+          position: number;
+        }[] = [];
+        incoming.forEach((r, index) => {
+          const resourceId = resourceRows[index].id;
+          const uniqueResourceTagIds = Array.from(new Set(r.tagIds ?? []));
+          uniqueResourceTagIds.forEach((tagId, tagIndex) => {
+            tagJunctionRows.push({
+              resourceId,
+              tagId,
+              position: tagIndex,
+            });
+          });
+        });
+        if (tagJunctionRows.length > 0) {
+          await db.insert(taskResourcesToTags).values(tagJunctionRows);
+        }
       }
 
       const incomingTodos = body.todos ?? [];

@@ -1,12 +1,17 @@
 import type {
-  Course,
-  CourseInCourses,
+  Resource,
+  ResourceInResources,
   TopicForTopicsPage,
   CourseProvider,
   DailyCriteriaTemplate,
   Domain,
   Daily,
+  Interaction,
+  Module,
+  ModuleGroup,
   Radar,
+  Tag,
+  TagGroup,
   Task,
   TaskType,
 } from "@emstack/types/src/index.js";
@@ -136,9 +141,9 @@ function createEntityClient<TEntity, TList = TEntity[]>(
   };
 }
 
-export const coursesApi = createEntityClient<Course, CourseInCourses[]>(
-  "courses",
-  "course",
+export const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
+  "resources",
+  "resource",
 );
 export const topicsApi = createEntityClient<Topic, TopicForTopicsPage[]>(
   "topics",
@@ -155,6 +160,20 @@ export const taskTypesApi = createEntityClient<TaskType>(
   "task-types",
   "task type",
 );
+export const tagGroupsApi = createEntityClient<TagGroup>(
+  "tag-groups",
+  "tag group",
+);
+export const tagsApi = createEntityClient<Tag>("tags", "tag");
+export const moduleGroupsApi = createEntityClient<ModuleGroup>(
+  "module-groups",
+  "module group",
+);
+export const modulesApi = createEntityClient<Module>("modules", "module");
+export const interactionsApi = createEntityClient<Interaction>(
+  "interactions",
+  "interaction",
+);
 export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplate>(
   "daily-criteria-templates",
   "criteria template",
@@ -162,27 +181,37 @@ export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplat
 
 export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
-export const fetchCourses = coursesApi.list;
+export const fetchResources = resourcesApi.list;
 export const fetchDomains = domainsApi.list;
 export const fetchDailies = dailiesApi.list;
 export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;
+export const fetchTagGroups = tagGroupsApi.list;
+export const fetchTags = tagsApi.list;
+export const fetchModuleGroups = moduleGroupsApi.list;
+export const fetchModules = modulesApi.list;
+export const fetchInteractions = interactionsApi.list;
 export const fetchDailyCriteriaTemplates = dailyCriteriaTemplatesApi.list;
 
-export const fetchSingleCourse = coursesApi.get;
+export const fetchSingleResource = resourcesApi.get;
 export const fetchSingleTopic = topicsApi.get;
 export const fetchSingleProvider = providersApi.get;
 export const fetchSingleDomain = domainsApi.get;
 export const fetchSingleDaily = dailiesApi.get;
 export const fetchSingleTask = tasksApi.get;
 
-export const upsertCourse = coursesApi.upsert;
+export const upsertResource = resourcesApi.upsert;
 export const upsertTopic = topicsApi.upsert;
 export const upsertProvider = providersApi.upsert;
 export const upsertDomain = domainsApi.upsert;
 export const upsertDaily = dailiesApi.upsert;
 export const upsertTask = tasksApi.upsert;
 export const upsertTaskType = taskTypesApi.upsert;
+export const upsertTagGroup = tagGroupsApi.upsert;
+export const upsertTag = tagsApi.upsert;
+export const upsertModuleGroup = moduleGroupsApi.upsert;
+export const upsertModule = modulesApi.upsert;
+export const upsertInteraction = interactionsApi.upsert;
 export const upsertDailyCriteriaTemplate = dailyCriteriaTemplatesApi.upsert;
 
 export const createTopic = topicsApi.create;
@@ -191,9 +220,14 @@ export const createDomain = domainsApi.create;
 export const createDaily = dailiesApi.create;
 export const createTask = tasksApi.create;
 export const createTaskType = taskTypesApi.create;
+export const createTagGroup = tagGroupsApi.create;
+export const createTag = tagsApi.create;
+export const createModuleGroup = moduleGroupsApi.create;
+export const createModule = modulesApi.create;
+export const createInteraction = interactionsApi.create;
 export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
 
-export const deleteSingleCourse = coursesApi.delete;
+export const deleteSingleResource = resourcesApi.delete;
 export const deleteSingleTopic = topicsApi.delete;
 
 export async function bulkDeleteTopics(
@@ -214,9 +248,14 @@ export const deleteSingleDomain = domainsApi.delete;
 export const deleteSingleDaily = dailiesApi.delete;
 export const deleteSingleTask = tasksApi.delete;
 export const deleteSingleTaskType = taskTypesApi.delete;
+export const deleteSingleTagGroup = tagGroupsApi.delete;
+export const deleteSingleTag = tagsApi.delete;
+export const deleteSingleModuleGroup = moduleGroupsApi.delete;
+export const deleteSingleModule = modulesApi.delete;
+export const deleteSingleInteraction = interactionsApi.delete;
 export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delete;
 
-export const duplicateCourse = coursesApi.duplicate;
+export const duplicateResource = resourcesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;
 export const duplicateDaily = dailiesApi.duplicate;
 
@@ -228,7 +267,7 @@ export async function fetchClear(): Promise<SuccessObj> {
   return await fetch("/api/clearData").then(res => res.json());
 }
 
-export async function incrementCourseProgress(
+export async function incrementResourceProgress(
   id: string,
 ): Promise<{
   status: string;
@@ -237,9 +276,9 @@ export async function incrementCourseProgress(
   progressTotal: number;
 }> {
   return postJson(
-    `/api/courses/${id}/incrementProgress`,
+    `/api/resources/${id}/incrementProgress`,
     undefined,
-    "Failed to increment course progress",
+    "Failed to increment resource progress",
   );
 }
 

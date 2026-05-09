@@ -80,6 +80,32 @@ export const tagsArraySchema = {
   default: [],
 } as const;
 
+export const tagIdsArraySchema = {
+  type: "array",
+  items: {
+    type: "string",
+  },
+  default: [],
+} as const;
+
+export const resourceLinkSchema = {
+  type: "object",
+  required: ["resourceId"],
+  properties: {
+    resourceId: {
+      type: "string",
+    },
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
+  },
+} as const;
+
+export const resourceLinksArraySchema = {
+  type: "array",
+  items: resourceLinkSchema,
+  default: [],
+} as const;
+
 export const resourceSchema = {
   type: "object",
   required: ["name"],
@@ -97,7 +123,14 @@ export const resourceSchema = {
     usedYet: {
       type: "boolean",
     },
-    tags: tagsArraySchema,
+    tagIds: tagIdsArraySchema,
+    // Optional link to a top-level Resource. resourceId can be null while
+    // moduleGroupId / moduleId stay null too — the row is a freeform task
+    // resource. If resourceId is set, moduleGroupId / moduleId narrow the
+    // sub-target.
+    resourceId: nullableString,
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
   },
 } as const;
 

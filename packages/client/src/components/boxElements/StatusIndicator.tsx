@@ -1,10 +1,10 @@
-import type { CourseStatus } from "@emstack/types/src";
+import type { ResourceStatus } from "@emstack/types/src";
 
 import { CheckCircle, PauseCircle, PlayCircle } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface StatusIndicatorProps { status: CourseStatus }
+interface StatusIndicatorProps { status: ResourceStatus }
 
 export function StatusIndicator({
   status,

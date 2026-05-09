@@ -159,7 +159,7 @@ export function getRecentDays(
 }
 
 export function getDailyProgressPercent(daily: Daily): number {
-  const course = daily.course;
+  const course = daily.resource;
   if (course) {
     const total = course.progressTotal ?? 0;
     const current = course.progressCurrent ?? 0;

@@ -30,7 +30,7 @@ export function CourseFields({
         <form.AppField name={`${name}Name`}>
           {field => (
             <field.InputField
-              label="Course Name"
+              label="Resource Name"
               placeholder="Memes"
             />
           )}
@@ -38,7 +38,7 @@ export function CourseFields({
         <form.AppField name={`${name}Url`}>
           {field => (
             <field.InputField
-              label="Course URL"
+              label="Resource URL"
               placeholder="Memes"
             />
           )}

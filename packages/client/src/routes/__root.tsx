@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  fetchCourses,
+  fetchResources,
   fetchDomains,
   fetchProviders,
   fetchTopics,
@@ -27,10 +27,10 @@ import {
 
 const RootComponent: React.FunctionComponent = () => {
   const {
-    data: coursesData,
+    data: resourcesData,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -55,13 +55,13 @@ const RootComponent: React.FunctionComponent = () => {
   });
 
   const allLoaded
-    = coursesData !== undefined
+    = resourcesData !== undefined
       && topicsData !== undefined
       && providersData !== undefined
       && domainsData !== undefined;
   const showOnboard
     = !allLoaded
-      || (!coursesData?.length
+      || (!resourcesData?.length
         && !topicsData?.length
         && !providersData?.length
         && !domainsData?.length);
@@ -98,8 +98,8 @@ const RootComponent: React.FunctionComponent = () => {
           )}
 
           <NavDropdown
-            label="Courses"
-            to="/courses"
+            label="Resources"
+            to="/resources"
           >
             <DropdownMenuItem
               asChild
@@ -191,7 +191,7 @@ const RootComponent: React.FunctionComponent = () => {
                   asChild
                   className="cursor-pointer"
                 >
-                  <Link to="/courses">Courses</Link>
+                  <Link to="/resources">Resources</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild

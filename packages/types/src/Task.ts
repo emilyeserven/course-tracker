@@ -1,5 +1,7 @@
 import type { DailyCompletion, DailyStatus } from "./Daily";
-import type { Resource } from "./Resource";
+import type { Tag } from "./Tag";
+import type { TaskResource } from "./TaskResource";
+import type { TaskResourceLink } from "./TaskResourceLink";
 import type { TaskTodo } from "./TaskTodo";
 
 export interface TaskLinkedDaily {
@@ -16,11 +18,15 @@ export interface Task {
   topicId?: string | null;
   topic?: { id: string;
     name: string; } | null;
+  // TODO(tag-reform-followup): drop taskTypeId/taskType once the new tag
+  // system replaces Task Types.
   taskTypeId?: string | null;
   taskType?: { id: string;
     name: string;
     tags: string[]; } | null;
-  resources?: Resource[];
+  tags?: Tag[];
+  resourceLinks?: TaskResourceLink[];
+  resources?: TaskResource[];
   todos?: TaskTodo[];
   daily?: TaskLinkedDaily | null;
 }

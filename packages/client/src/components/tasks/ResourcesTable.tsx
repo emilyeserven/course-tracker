@@ -1,8 +1,16 @@
-import type { Resource, ResourceLevel, Task } from "@emstack/types/src";
+import type {
+  Module,
+  ModuleGroup,
+  Tag,
+  TagGroup,
+  Task,
+  TaskResource,
+  TaskResourceLevel,
+} from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLinkIcon,
   Loader2,
@@ -19,8 +27,7 @@ import {
   RESOURCE_LEVEL_OPTIONS,
 } from "./resourceMeta";
 import { TagChip } from "./TagChip";
-import { TagsFilter } from "./TagsFilter";
-import { TagsInput } from "./TagsInput";
+import { TagPicker } from "./TagPicker";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -32,7 +39,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { isHttpUrl, upsertTask } from "@/utils";
+import {
+  fetchModuleGroups,
+  fetchModules,
+  fetchResources,
+  fetchTagGroups,
+  isHttpUrl,
+  upsertTask,
+} from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
 interface ResourcesTableProps {
@@ -65,7 +79,7 @@ const LEVEL_FILTER_OPTIONS = [
 function LevelBadge({
   level,
 }: {
-  level: Resource["easeOfStarting"];
+  level: TaskResource["easeOfStarting"];
 }) {
   return (
     <span
@@ -83,7 +97,7 @@ function LevelBadge({
 }
 
 function levelMatches(
-  resource: ResourceLevel | null | undefined,
+  resource: TaskResourceLevel | null | undefined,
   filter: string,
 ) {
   if (filter === ANY_VALUE) return true;
@@ -132,15 +146,15 @@ function LevelSelect({
   onValueChange,
   ariaLabel,
 }: {
-  value: ResourceLevel | null | undefined;
-  onValueChange: (next: ResourceLevel | null) => void;
+  value: TaskResourceLevel | null | undefined;
+  onValueChange: (next: TaskResourceLevel | null) => void;
   ariaLabel: string;
 }) {
   return (
     <Select
       value={value ?? NONE_VALUE}
       onValueChange={(v) => {
-        onValueChange(v === NONE_VALUE ? null : (v as ResourceLevel));
+        onValueChange(v === NONE_VALUE ? null : (v as TaskResourceLevel));
       }}
     >
       <SelectTrigger
@@ -164,26 +178,53 @@ function LevelSelect({
   );
 }
 
+function tagIdsFromResource(resource: TaskResource) {
+  return resource.tags.map(t => t.id);
+}
+
+function lookupTagsByIds(ids: string[], tagGroups: TagGroup[]): Tag[] {
+  const byId = new Map<string, Tag>();
+  for (const group of tagGroups) {
+    for (const tag of group.tags ?? []) {
+      byId.set(tag.id, tag);
+    }
+  }
+  return ids
+    .map(id => byId.get(id))
+    .filter((t): t is Tag => t !== undefined);
+}
+
+interface LinkOptionResource {
+  id: string;
+  name: string;
+}
+
 function EditingRow({
   resource,
-  tagSuggestions,
+  tagGroups,
+  resourceOptions,
+  allModuleGroups,
+  allModules,
   isNew = false,
   isSaving = false,
   onSave,
   onCancel,
   onDelete,
 }: {
-  resource: Resource;
-  tagSuggestions: string[];
+  resource: TaskResource;
+  tagGroups: TagGroup[];
+  resourceOptions: LinkOptionResource[];
+  allModuleGroups: ModuleGroup[];
+  allModules: Module[];
   isNew?: boolean;
   isSaving?: boolean;
-  onSave: (next: Resource) => void;
+  onSave: (next: TaskResource) => void;
   onCancel: () => void;
   onDelete?: () => void;
 }) {
-  const [draft, setDraft] = useState<Resource>(resource);
+  const [draft, setDraft] = useState<TaskResource>(resource);
 
-  function update(patch: Partial<Resource>) {
+  function update(patch: Partial<TaskResource>) {
     setDraft(prev => ({
       ...prev,
       ...patch,
@@ -194,6 +235,19 @@ function EditingRow({
     e.preventDefault();
     onSave(draft);
   }
+
+  const groupsForResource = draft.resourceId
+    ? allModuleGroups.filter(g => g.resourceId === draft.resourceId)
+    : [];
+  const modulesForRow = !draft.resourceId
+    ? []
+    : draft.moduleGroupId
+      ? allModules.filter(
+        m =>
+          m.resourceId === draft.resourceId
+          && m.moduleGroupId === draft.moduleGroupId,
+      )
+      : allModules.filter(m => m.resourceId === draft.resourceId);
 
   return (
     <tr className="border-t bg-muted/30 align-top">
@@ -248,6 +302,109 @@ function EditingRow({
               />
             </div>
           </div>
+          <fieldset
+            className="
+              flex flex-col gap-2 rounded-md border border-border/60 p-2
+            "
+          >
+            <legend className="px-1 text-xs font-medium text-muted-foreground">
+              Resource Link (optional)
+            </legend>
+            <div
+              className="
+                grid grid-cols-1 gap-2
+                md:grid-cols-3
+              "
+            >
+              <select
+                aria-label="Resource"
+                value={draft.resourceId ?? ""}
+                onChange={(e) => {
+                  const nextId = e.target.value || null;
+                  update({
+                    resourceId: nextId,
+                    // Reset sub-targets when the resource changes / clears
+                    moduleGroupId: nextId === draft.resourceId
+                      ? draft.moduleGroupId
+                      : null,
+                    moduleId: nextId === draft.resourceId
+                      ? draft.moduleId
+                      : null,
+                  });
+                }}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                "
+              >
+                <option value="">— No link —</option>
+                {resourceOptions.map(c => (
+                  <option
+                    key={c.id}
+                    value={c.id}
+                  >
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Module Group"
+                value={draft.moduleGroupId ?? ""}
+                onChange={(e) => {
+                  const nextGroupId = e.target.value || null;
+                  update({
+                    moduleGroupId: nextGroupId,
+                    // Clear module if it no longer belongs to the selected group
+                    moduleId: draft.moduleId
+                      && nextGroupId
+                      && !allModules.some(
+                        m =>
+                          m.id === draft.moduleId
+                          && m.moduleGroupId === nextGroupId,
+                      )
+                      ? null
+                      : draft.moduleId,
+                  });
+                }}
+                disabled={!draft.resourceId || groupsForResource.length === 0}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
+              >
+                <option value="">— Any group —</option>
+                {groupsForResource.map(g => (
+                  <option
+                    key={g.id}
+                    value={g.id}
+                  >
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Module"
+                value={draft.moduleId ?? ""}
+                onChange={e => update({
+                  moduleId: e.target.value || null,
+                })}
+                disabled={!draft.resourceId || modulesForRow.length === 0}
+                className="
+                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  disabled:cursor-not-allowed disabled:opacity-50
+                "
+              >
+                <option value="">— Any module —</option>
+                {modulesForRow.map(m => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                  >
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </fieldset>
           <div
             className="
               grid grid-cols-1 gap-3
@@ -306,16 +463,15 @@ function EditingRow({
             <label className="text-xs font-medium text-muted-foreground">
               Tags
             </label>
-            <TagsInput
-              value={draft.tags ?? []}
-              onChange={tags => update({
-                tags,
+            <TagPicker
+              value={tagIdsFromResource(draft)}
+              onChange={ids => update({
+                tags: lookupTagsByIds(ids, tagGroups),
               })}
-              suggestions={tagSuggestions}
-              placeholder={tagSuggestions.length > 0
-                ? "Pick or type a tag..."
-                : "Type a tag..."}
-              groupByPrefix
+              tagGroups={tagGroups}
+              placeholder={tagGroups.length > 0
+                ? "Pick tags..."
+                : "No tags configured. Add some on the Settings page."}
             />
           </div>
           <div
@@ -365,6 +521,43 @@ export function ResourcesTable({
   const queryClient = useQueryClient();
   const resources = task.resources ?? [];
 
+  const {
+    data: tagGroupsData,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+  const tagGroups = tagGroupsData ?? [];
+
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+  });
+  const {
+    data: allModuleGroups,
+  } = useQuery({
+    queryKey: ["module-groups-all"],
+    queryFn: () => fetchModuleGroups(),
+  });
+  const {
+    data: allModules,
+  } = useQuery({
+    queryKey: ["modules-all"],
+    queryFn: () => fetchModules(),
+  });
+  const resourceOptions = useMemo(
+    () =>
+      [...(courses ?? [])]
+        .map(c => ({
+          id: c.id,
+          name: c.name,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [courses],
+  );
+
   const [search, setSearch] = useState("");
   const [usedFilter, setUsedFilter] = useState<string>(ANY_VALUE);
   const [easeFilter, setEaseFilter] = useState<string>(ANY_VALUE);
@@ -372,7 +565,7 @@ export function ResourcesTable({
   const [interactivityFilter, setInteractivityFilter] = useState<string>(ANY_VALUE);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draftNewResource, setDraftNewResource] = useState<Resource | null>(
+  const [draftNewResource, setDraftNewResource] = useState<TaskResource | null>(
     null,
   );
 
@@ -394,15 +587,15 @@ export function ResourcesTable({
       if (!levelMatches(r.timeNeeded, timeFilter)) return false;
       if (!levelMatches(r.interactivity, interactivityFilter)) return false;
       if (tagFilter.length > 0) {
-        const resourceTags = r.tags ?? [];
-        if (!tagFilter.every(t => resourceTags.includes(t))) return false;
+        const resourceTagIds = new Set((r.tags ?? []).map(t => t.id));
+        if (!tagFilter.every(id => resourceTagIds.has(id))) return false;
       }
       return true;
     });
   }, [resources, search, usedFilter, easeFilter, timeFilter, interactivityFilter, tagFilter]);
 
   const mutation = useMutation({
-    mutationFn: (next: Resource[]) =>
+    mutationFn: (next: TaskResource[]) =>
       upsertTask(task.id, {
         name: task.name,
         description: task.description ?? null,
@@ -416,7 +609,10 @@ export function ResourcesTable({
           timeNeeded: r.timeNeeded ?? null,
           interactivity: r.interactivity ?? null,
           usedYet: r.usedYet,
-          tags: r.tags ?? [],
+          tagIds: (r.tags ?? []).map(t => t.id),
+          resourceId: r.resourceId ?? null,
+          moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+          moduleId: r.resourceId ? r.moduleId ?? null : null,
         })),
         todos: (task.todos ?? []).map(t => ({
           id: t.id,
@@ -454,7 +650,7 @@ export function ResourcesTable({
     mutation.mutate(next);
   }
 
-  function handleSaveEdit(updated: Resource) {
+  function handleSaveEdit(updated: TaskResource) {
     const next = resources.map(r => (r.id === updated.id ? updated : r));
     mutation.mutate(next, {
       onSuccess: async () => {
@@ -471,7 +667,7 @@ export function ResourcesTable({
     });
   }
 
-  function handleSaveNew(created: Resource) {
+  function handleSaveNew(created: TaskResource) {
     const next = [...resources, created];
     mutation.mutate(next, {
       onSuccess: async () => {
@@ -516,6 +712,9 @@ export function ResourcesTable({
       timeNeeded: null,
       interactivity: null,
       usedYet: false,
+      resourceId: null,
+      moduleGroupId: null,
+      moduleId: null,
       tags: [],
     });
   }
@@ -525,14 +724,6 @@ export function ResourcesTable({
     setEditingId(resourceId);
   }
 
-  const tagSuggestions = task.taskType?.tags ?? [];
-  const tagFilterOptions = useMemo(() => {
-    const set = new Set<string>(tagSuggestions);
-    for (const r of resources) {
-      for (const t of r.tags ?? []) set.add(t);
-    }
-    return Array.from(set);
-  }, [resources, tagSuggestions]);
   const isAnyEditing = !!editingResource || !!draftNewResource;
 
   if (resources.length === 0 && !draftNewResource) {
@@ -604,10 +795,11 @@ export function ResourcesTable({
             <label className="text-xs font-medium text-muted-foreground">
               Tags
             </label>
-            <TagsFilter
+            <TagPicker
               value={tagFilter}
               onChange={setTagFilter}
-              options={tagFilterOptions}
+              tagGroups={tagGroups}
+              placeholder="Filter by tag..."
             />
           </div>
         </div>
@@ -696,7 +888,10 @@ export function ResourcesTable({
               <EditingRow
                 key={draftNewResource.id}
                 resource={draftNewResource}
-                tagSuggestions={tagSuggestions}
+                tagGroups={tagGroups}
+                resourceOptions={resourceOptions}
+                allModuleGroups={allModuleGroups ?? []}
+                allModules={allModules ?? []}
                 isNew
                 isSaving={mutation.isPending}
                 onSave={handleSaveNew}
@@ -719,7 +914,10 @@ export function ResourcesTable({
                   <EditingRow
                     key={r.id}
                     resource={editingResource}
-                    tagSuggestions={tagSuggestions}
+                    tagGroups={tagGroups}
+                    resourceOptions={resourceOptions}
+                    allModuleGroups={allModuleGroups ?? []}
+                    allModules={allModules ?? []}
                     isSaving={mutation.isPending}
                     onSave={handleSaveEdit}
                     onCancel={() => setEditingId(null)}
@@ -737,7 +935,32 @@ export function ResourcesTable({
                   "
                 >
                   <td className="p-2">
-                    <span className="font-medium">{r.name}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">{r.name}</span>
+                      {r.resource && (
+                        <span
+                          className="
+                            inline-flex w-fit items-center gap-1 rounded-full
+                            border border-blue-200 bg-blue-50 px-2 py-0.5
+                            text-xs text-blue-900
+                          "
+                          title={[
+                            r.resource.name,
+                            r.moduleGroup?.name,
+                            r.module?.name,
+                          ].filter(Boolean).join(" → ")}
+                        >
+                          <span>↗</span>
+                          <span>
+                            {[
+                              r.resource.name,
+                              r.moduleGroup?.name,
+                              r.module?.name,
+                            ].filter(Boolean).join(" → ")}
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-2">
                     <LevelBadge level={r.easeOfStarting} />
@@ -769,8 +992,8 @@ export function ResourcesTable({
                         <div className="flex flex-wrap gap-1">
                           {r.tags.map(tag => (
                             <TagChip
-                              key={tag}
-                              tag={tag}
+                              key={tag.id}
+                              tag={tag.name}
                             />
                           ))}
                         </div>

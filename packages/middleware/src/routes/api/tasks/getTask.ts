@@ -40,7 +40,69 @@ export default async function (server: FastifyInstance) {
               tags: true,
             },
           },
-          resources: true,
+          tasksToTags: {
+            with: {
+              tag: true,
+            },
+            orderBy: (j, {
+              asc,
+            }) => asc(j.position),
+          },
+          tasksToResources: {
+            with: {
+              resource: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              moduleGroup: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              module: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: (j, {
+              asc,
+            }) => asc(j.position),
+          },
+          resources: {
+            with: {
+              taskResourcesToTags: {
+                with: {
+                  tag: true,
+                },
+                orderBy: (j, {
+                  asc,
+                }) => asc(j.position),
+              },
+              resource: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              moduleGroup: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              module: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
           todos: true,
           daily: {
             columns: {
@@ -76,6 +138,32 @@ export default async function (server: FastifyInstance) {
             tags: task.taskType.tags ?? [],
           }
           : null,
+        tags: (task.tasksToTags ?? []).map(j => j.tag),
+        resourceLinks: (task.tasksToResources ?? []).map(j => ({
+          id: j.id,
+          resourceId: j.resourceId,
+          resource: j.resource
+            ? {
+              id: j.resource.id,
+              name: j.resource.name,
+            }
+            : null,
+          moduleGroupId: j.moduleGroupId ?? null,
+          moduleGroup: j.moduleGroup
+            ? {
+              id: j.moduleGroup.id,
+              name: j.moduleGroup.name,
+            }
+            : null,
+          moduleId: j.moduleId ?? null,
+          module: j.module
+            ? {
+              id: j.module.id,
+              name: j.module.name,
+            }
+            : null,
+          position: j.position ?? null,
+        })),
         resources: (task.resources ?? [])
           .slice()
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
@@ -89,7 +177,28 @@ export default async function (server: FastifyInstance) {
             interactivity: r.interactivity,
             usedYet: r.usedYet,
             position: r.position,
-            tags: r.tags ?? [],
+            tags: (r.taskResourcesToTags ?? []).map(j => j.tag),
+            resourceId: r.resourceId ?? null,
+            resource: r.resource
+              ? {
+                id: r.resource.id,
+                name: r.resource.name,
+              }
+              : null,
+            moduleGroupId: r.moduleGroupId ?? null,
+            moduleGroup: r.moduleGroup
+              ? {
+                id: r.moduleGroup.id,
+                name: r.moduleGroup.name,
+              }
+              : null,
+            moduleId: r.moduleId ?? null,
+            module: r.module
+              ? {
+                id: r.module.id,
+                name: r.module.name,
+              }
+              : null,
           })),
         todos: (task.todos ?? [])
           .slice()

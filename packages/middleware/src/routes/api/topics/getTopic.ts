@@ -26,12 +26,24 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => (eq(topics.id, id)),
         with: {
-          topicsToCourses: {
+          topicsToResources: {
             with: {
-              course: {
+              resource: {
                 columns: {
                   name: true,
                   id: true,
+                },
+              },
+              moduleGroup: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              module: {
+                columns: {
+                  id: true,
+                  name: true,
                 },
               },
             },
@@ -46,12 +58,20 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
+          topicsToTags: {
+            with: {
+              tag: true,
+            },
+            orderBy: (j, {
+              asc,
+            }) => asc(j.position),
+          },
         },
       });
 
       if (topic) {
-        const courseCount = topic.topicsToCourses?.length ?? 0;
-        const courses = processCourses(topic.topicsToCourses);
+        const resourceCount = topic.topicsToResources?.length ?? 0;
+        const resources = processCourses(topic.topicsToResources);
 
         const domainsById = new Map<string, {
           id: string;
@@ -66,15 +86,44 @@ export default async function (server: FastifyInstance) {
           }
         }
         const domains = Array.from(domainsById.values());
+        const tags = (topic.topicsToTags ?? []).map(j => j.tag);
+
+        const resourceLinks = (topic.topicsToResources ?? []).map(j => ({
+          id: j.id,
+          resourceId: j.resourceId,
+          resource: j.resource
+            ? {
+              id: j.resource.id,
+              name: j.resource.name,
+            }
+            : null,
+          moduleGroupId: j.moduleGroupId ?? null,
+          moduleGroup: j.moduleGroup
+            ? {
+              id: j.moduleGroup.id,
+              name: j.moduleGroup.name,
+            }
+            : null,
+          moduleId: j.moduleId ?? null,
+          module: j.module
+            ? {
+              id: j.module.id,
+              name: j.module.name,
+            }
+            : null,
+          position: null,
+        }));
 
         return {
           id: topic.id,
           name: topic.name,
           description: topic.description,
           reason: topic.reason,
-          courseCount: courseCount,
-          courses: courses,
+          resourceCount: resourceCount,
+          resources: resources,
           domains,
+          tags,
+          resourceLinks,
         };
       }
     },

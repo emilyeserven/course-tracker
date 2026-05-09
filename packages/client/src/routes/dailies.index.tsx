@@ -36,7 +36,7 @@ import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
-  fetchCourses,
+  fetchResources,
   fetchDailies,
   fetchTasks,
   findStatusForDate,
@@ -143,7 +143,7 @@ function Dailies() {
     data: courses,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
     enabled: !!filterTopicId,
   });
 
@@ -175,8 +175,8 @@ function Dailies() {
         : d.task?.id
           ? topicMatchedTaskIds.has(d.task.id)
           : false;
-      const courseHit = d.course?.id
-        ? topicMatchedCourseIds.has(d.course.id)
+      const courseHit = d.resource?.id
+        ? topicMatchedCourseIds.has(d.resource.id)
         : false;
       return taskHit || courseHit;
     });
@@ -210,7 +210,7 @@ function Dailies() {
         description: daily.description ?? null,
         completions,
         courseProviderId: daily.provider?.id ?? null,
-        courseId: daily.course?.id ?? null,
+        resourceId: daily.resource?.id ?? null,
       });
     },
     onSuccess: async () => {

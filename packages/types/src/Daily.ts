@@ -41,10 +41,14 @@ export interface Daily {
     name: string;
     id: string;
   };
-  course?: {
+  resource?: {
     id: string;
     name: string;
     progressCurrent: number;
     progressTotal: number;
   };
+  // Optional sub-target within the linked course. At most one of these
+  // is set; both null = the daily targets the whole course.
+  moduleGroupId?: string | null;
+  moduleId?: string | null;
 }

@@ -35,7 +35,7 @@ export function TopicList({
           >
             <Link
               to="/topics/$id"
-              from="/courses"
+              from="/resources"
               params={{
                 id: topic.id + "",
               }}

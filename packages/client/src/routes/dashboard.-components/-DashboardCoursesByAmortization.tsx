@@ -1,4 +1,4 @@
-import type { CourseInCourses, CourseProvider } from "@emstack/types/src";
+import type { ResourceInResources, CourseProvider } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { fetchCourses, fetchProviders } from "@/utils";
+import { fetchResources, fetchProviders } from "@/utils";
 
 type ViewMode = "courses" | "providers";
 
@@ -37,7 +37,7 @@ type ProviderSortKey = "name" | "costPerUnit";
 type SortDir = "asc" | "desc";
 
 interface CourseRow {
-  course: CourseInCourses;
+  resource: ResourceInResources;
   effectiveCost: number;
   progressCurrent: number;
   progressTotal: number;
@@ -68,7 +68,7 @@ function formatCurrency(value: number): string {
   });
 }
 
-function buildCourseRows(courses: CourseInCourses[] | undefined): CourseRow[] {
+function buildCourseRows(courses: ResourceInResources[] | undefined): CourseRow[] {
   if (!courses) return [];
   return courses.map((course) => {
     const rawCost = parseCost(course.cost?.cost);
@@ -85,7 +85,7 @@ function buildCourseRows(courses: CourseInCourses[] | undefined): CourseRow[] {
         : 0;
     const costPerUnit = percentComplete > 0 ? rawCost / percentComplete : null;
     return {
-      course,
+      resource: course,
       effectiveCost,
       progressCurrent,
       progressTotal,
@@ -98,7 +98,7 @@ function buildCourseRows(courses: CourseInCourses[] | undefined): CourseRow[] {
 
 function buildProviderRows(
   providers: CourseProvider[] | undefined,
-  courses: CourseInCourses[] | undefined,
+  courses: ResourceInResources[] | undefined,
 ): ProviderRow[] {
   if (!providers || !courses) return [];
   const sharedFeeProviders = providers.filter(
@@ -141,8 +141,8 @@ function compareCourseRows(
   let bv: number | string;
   switch (key) {
     case "name":
-      av = a.course.name.toLowerCase();
-      bv = b.course.name.toLowerCase();
+      av = a.resource.name.toLowerCase();
+      bv = b.resource.name.toLowerCase();
       break;
     case "costPerUnit":
     default:
@@ -153,7 +153,7 @@ function compareCourseRows(
   }
   if (av < bv) return -1 * direction;
   if (av > bv) return 1 * direction;
-  return a.course.name.localeCompare(b.course.name);
+  return a.resource.name.localeCompare(b.resource.name);
 }
 
 function compareProviderRows(
@@ -188,7 +188,7 @@ export function DashboardCoursesByAmortization() {
     error: coursesError,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -287,7 +287,7 @@ export function DashboardCoursesByAmortization() {
       title="Cost per Unit"
       action={
         <Link
-          to="/courses"
+          to="/resources"
           className="
             text-sm text-primary underline-offset-2
             hover:underline
@@ -362,7 +362,7 @@ export function DashboardCoursesByAmortization() {
         <p className="text-sm text-destructive">
           {viewMode === "providers"
             ? "Failed to load providers."
-            : "Failed to load courses."}
+            : "Failed to load resources."}
         </p>
       )}
       {hasData && isEmpty && (
@@ -418,7 +418,7 @@ export function DashboardCoursesByAmortization() {
             <TableBody>
               {courseRows.map(
                 ({
-                  course,
+                  resource: course,
                   effectiveCost,
                   progressCurrent,
                   progressTotal,
@@ -428,7 +428,7 @@ export function DashboardCoursesByAmortization() {
                   <TableRow key={course.id}>
                     <TableCell className="font-medium whitespace-nowrap">
                       <Link
-                        to="/courses/$id"
+                        to="/resources/$id"
                         params={{
                           id: course.id,
                         }}

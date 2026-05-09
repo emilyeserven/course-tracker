@@ -16,6 +16,7 @@ import {
   createTask,
   deleteSingleTask,
   fetchSingleTask,
+  fetchTagGroups,
   fetchTaskTypes,
   fetchTopics,
   formHasChanges,
@@ -41,6 +42,7 @@ const formSchema = z.object({
   description: z.string().max(2000),
   topicId: z.string(),
   taskTypeId: z.string(),
+  tagIds: z.array(z.string()),
 });
 
 function SingleTaskEdit() {
@@ -76,6 +78,13 @@ function SingleTaskEdit() {
     queryFn: () => fetchTaskTypes(),
   });
 
+  const {
+    data: tagGroups,
+  } = useQuery({
+    queryKey: ["tagGroups"],
+    queryFn: () => fetchTagGroups(),
+  });
+
   const topicOptions = (topics ?? []).map(t => ({
     value: t.id,
     label: t.name,
@@ -86,12 +95,19 @@ function SingleTaskEdit() {
     label: t.name,
   }));
 
+  const tagOptions = (tagGroups ?? []).flatMap(group =>
+    (group.tags ?? []).map(tag => ({
+      value: tag.id,
+      label: tag.name,
+    })));
+
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
       topicId: data?.topicId ?? (isNew ? search.topicId ?? "" : ""),
       taskTypeId: data?.taskTypeId ?? "",
+      tagIds: (data?.tags ?? []).map(t => t.id),
     }),
     [data, isNew, search.topicId],
   );
@@ -112,7 +128,10 @@ function SingleTaskEdit() {
         timeNeeded: r.timeNeeded ?? null,
         interactivity: r.interactivity ?? null,
         usedYet: r.usedYet,
-        tags: r.tags ?? [],
+        tagIds: (r.tags ?? []).map(t => t.id),
+        resourceId: r.resourceId ?? null,
+        moduleGroupId: r.moduleGroupId ?? null,
+        moduleId: r.moduleId ?? null,
       }));
 
       const existingTodos = (data?.todos ?? []).map(t => ({
@@ -127,6 +146,7 @@ function SingleTaskEdit() {
         description: value.description || null,
         topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
+        tagIds: value.tagIds,
         resources: existingResources,
         todos: existingTodos,
       };
@@ -236,6 +256,17 @@ function SingleTaskEdit() {
                 label="Task Type"
                 options={taskTypeOptions}
                 placeholder="Search task types..."
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name="tagIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Tags"
+                options={tagOptions}
+                placeholder="Pick tags..."
+                groupByPrefix
               />
             )}
           </form.AppField>

@@ -188,7 +188,7 @@ export function BlipTable({
   function topicItemCount(topicId: string): number {
     const t = topicById.get(topicId);
     if (!t) return 0;
-    return (t.courseCount ?? 0) + (t.taskCount ?? 0) + (t.dailyCount ?? 0);
+    return (t.resourceCount ?? 0) + (t.taskCount ?? 0) + (t.dailyCount ?? 0);
   }
 
   const filteredBlips = useMemo(() => {
@@ -877,9 +877,9 @@ export function BlipTable({
                             <div className="flex flex-row flex-wrap gap-2">
                               <TopicItemLink
                                 label="C"
-                                title="Courses for this topic"
-                                count={topic.courseCount ?? 0}
-                                to="/courses"
+                                title="Resources for this topic"
+                                count={topic.resourceCount ?? 0}
+                                to="/resources"
                                 topicId={blip.topicId}
                               />
                               <TopicItemLink
@@ -970,7 +970,7 @@ export function BlipTable({
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link
-                                to="/courses/$id/edit"
+                                to="/resources/$id/edit"
                                 params={{
                                   id: "new",
                                 }}
@@ -980,7 +980,7 @@ export function BlipTable({
                               >
                                 <BookOpenIcon />
                                 {" "}
-                                Course
+                                Resource
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -1022,7 +1022,7 @@ interface TopicItemLinkProps {
   label: string;
   title: string;
   count: number;
-  to: "/courses" | "/tasks" | "/dailies";
+  to: "/resources" | "/tasks" | "/dailies";
   topicId: string;
 }
 

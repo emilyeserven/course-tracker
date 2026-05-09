@@ -1,14 +1,29 @@
-export type ResourceLevel = "low" | "medium" | "high";
+import type { CostData } from "./CostData";
+import type { Daily } from "./Daily";
+import type { MinimalTopic } from "./MinimalTopic";
+import type { Module } from "./Module";
+import type { ModuleGroup } from "./ModuleGroup";
+import type { Topic } from "./Topic";
+
+export type ResourceStatus = "active" | "inactive" | "complete" | "paused";
 
 export interface Resource {
   id: string;
-  taskId: string;
   name: string;
+  description?: string | null;
   url?: string | null;
-  easeOfStarting?: ResourceLevel | null;
-  timeNeeded?: ResourceLevel | null;
-  interactivity?: ResourceLevel | null;
-  usedYet: boolean;
-  position?: number | null;
-  tags: string[];
+  dateExpires?: string | null;
+  cost: CostData;
+  progressCurrent: number;
+  progressTotal: number;
+  status: ResourceStatus;
+  modulesAreExhaustive?: boolean;
+  topics?: MinimalTopic | Topic[] | undefined;
+  provider?: {
+    name: string;
+    id: string;
+  };
+  moduleGroups?: ModuleGroup[];
+  modules?: Module[];
+  dailies?: Daily[];
 }

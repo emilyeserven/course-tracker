@@ -1,18 +1,58 @@
-import { resources, taskTodos, tasks } from "@/db/schema";
-import { createDeleteHandler } from "@/utils/createDeleteHandler";
+import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import { FastifyInstance } from "fastify";
+import { eq, inArray } from "drizzle-orm";
+import { db } from "@/db";
+import {
+  taskResources,
+  taskResourcesToTags,
+  taskTodos,
+  tasks,
+  tasksToResources,
+  tasksToTags,
+} from "@/db/schema";
+import { idParamSchema } from "@/utils/schemas";
 
-export default createDeleteHandler({
-  description: "Delete a task by ID",
-  table: tasks,
-  idColumn: tasks.id,
-  junctions: [
-    {
-      table: resources,
-      foreignKey: resources.taskId,
-    },
-    {
-      table: taskTodos,
-      foreignKey: taskTodos.taskId,
-    },
-  ],
-});
+const schema = {
+  schema: {
+    description: "Delete a task by ID",
+    params: idParamSchema,
+  },
+} as const;
+
+export default async function (server: FastifyInstance) {
+  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+
+  fastify.delete("/:id", schema, async function (request) {
+    const {
+      id,
+    } = request.params;
+
+    const existingTaskResources = await db
+      .select({
+        id: taskResources.id,
+      })
+      .from(taskResources)
+      .where(eq(taskResources.taskId, id));
+
+    if (existingTaskResources.length > 0) {
+      await db
+        .delete(taskResourcesToTags)
+        .where(
+          inArray(
+            taskResourcesToTags.resourceId,
+            existingTaskResources.map(r => r.id),
+          ),
+        );
+    }
+
+    await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
+    await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
+    await db.delete(taskResources).where(eq(taskResources.taskId, id));
+    await db.delete(taskTodos).where(eq(taskTodos.taskId, id));
+    await db.delete(tasks).where(eq(tasks.id, id));
+
+    return {
+      status: "ok",
+    };
+  });
+}

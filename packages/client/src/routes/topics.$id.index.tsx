@@ -96,15 +96,15 @@ function SingleTopic() {
         </div>
         <div>
           <InfoArea
-            header="Courses"
-            condition={!!data?.courseCount && data.courseCount > 0}
+            header="Resources"
+            condition={!!data?.resourceCount && data.resourceCount > 0}
           >
             <ul className="ml-5 list-disc">
-              {data?.courses
-                && data.courses.map(course => (
+              {data?.resources
+                && data.resources.map(course => (
                   <li key={course.id}>
                     <Link
-                      to="/courses/$id"
+                      to="/resources/$id"
                       from="/topics/$id"
                       params={{
                         id: course.id + "",

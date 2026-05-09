@@ -843,7 +843,7 @@ export function BlipLlmAssist({
         existingRingId: existingBlip?.ringId ?? null,
         existingRadarNote: existingBlip?.description ?? null,
         existingTopicDescription: topicMatch?.description ?? null,
-        topicCourseCount: topicMatch?.courseCount ?? 0,
+        topicCourseCount: topicMatch?.resourceCount ?? 0,
         topicTaskCount: topicMatch?.taskCount ?? 0,
         topicDailyCount: topicMatch?.dailyCount ?? 0,
         resolution,

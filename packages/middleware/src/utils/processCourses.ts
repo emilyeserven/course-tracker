@@ -1,12 +1,12 @@
-import { TopicsToCourses } from "@emstack/types/src";
+import { TopicsToResources } from "@emstack/types/src";
 
-export function processCourses(ttc: TopicsToCourses[] | null | undefined) {
+export function processCourses(ttc: TopicsToResources[] | null | undefined) {
   if (ttc && ttc.length > 0) {
-    return ttc.map((topicToCourse: TopicsToCourses) => {
-      if (topicToCourse.course) {
+    return ttc.map((topicToCourse: TopicsToResources) => {
+      if (topicToCourse.resource) {
         return {
-          name: topicToCourse.course.name,
-          id: topicToCourse.course.id,
+          name: topicToCourse.resource.name,
+          id: topicToCourse.resource.id,
         };
       }
     });

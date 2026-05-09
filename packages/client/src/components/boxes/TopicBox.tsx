@@ -19,7 +19,7 @@ export function TopicBox({
   id,
   name,
   description,
-  courseCount,
+  resourceCount,
   domains,
 }: TopicForTopicsPage) {
   return (
@@ -57,7 +57,7 @@ export function TopicBox({
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem
-          value={courseCount}
+          value={resourceCount}
           condition={true}
           iconNode={<BookIcon size={16} />}
         />

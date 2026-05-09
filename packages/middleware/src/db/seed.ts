@@ -1,11 +1,13 @@
 import {
   courseProviders,
-  courses,
+  resources,
   dailyCriteriaTemplates,
   domains,
   radarBlips,
+  tagGroups,
+  tags,
   topics,
-  topicsToCourses,
+  topicsToResources,
   usersTable,
 } from "@/db/schema";
 import { db } from "@/db/index";
@@ -109,7 +111,7 @@ export async function seed() {
     .onConflictDoNothing()
     .returning();
 
-  const reactCourseData: typeof courses.$inferInsert = {
+  const reactCourseData: typeof resources.$inferInsert = {
     id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
     name: "react.gg",
     description: "React course with videos and graphics.",
@@ -120,7 +122,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
   };
-  const typescriptCourseData: typeof courses.$inferInsert = {
+  const typescriptCourseData: typeof resources.$inferInsert = {
     id: "e09b541d-8e03-4d00-9f7e-bd75acd0c903",
     name: "Typescript",
     url: "https://ui.dev/c/typescript",
@@ -130,7 +132,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
   };
-  const akikoData: typeof courses.$inferInsert = {
+  const akikoData: typeof resources.$inferInsert = {
     id: "05ea0e1b-74d7-4710-9a67-1b04556c6553",
     name: "Akiko's American Foreign Exchange",
     description: "Story with accessible Japanese.",
@@ -141,7 +143,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerSatori[0] ? providerSatori[0].id : null,
   };
-  const npmPackageCourseData: typeof courses.$inferInsert = {
+  const npmPackageCourseData: typeof resources.$inferInsert = {
     id: "664b3245-6505-416f-b959-4c82a3573b12",
     name: "Creating NPM packages: The Complete Guide",
     description: "NPM packages are their own art...",
@@ -157,35 +159,36 @@ export async function seed() {
   };
 
   const courseReact = await db
-    .insert(courses)
+    .insert(resources)
     .values([reactCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseTypescript = await db
-    .insert(courses)
+    .insert(resources)
     .values([typescriptCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseNpmPackage = await db
-    .insert(courses)
+    .insert(resources)
     .values([npmPackageCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseAkiko = await db
-    .insert(courses)
+    .insert(resources)
     .values([akikoData])
     .onConflictDoNothing()
     .returning();
 
   if (courseReact[0] && topicReact[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseReact[0].id,
+          id: uuidv4(),
+          resourceId: courseReact[0].id,
           topicId: topicReact[0].id,
         },
       ])
@@ -193,10 +196,11 @@ export async function seed() {
   }
   if (courseReact[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseReact[0].id,
+          id: uuidv4(),
+          resourceId: courseReact[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -204,10 +208,11 @@ export async function seed() {
   }
   if (courseTypescript[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseTypescript[0].id,
+          id: uuidv4(),
+          resourceId: courseTypescript[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -215,10 +220,11 @@ export async function seed() {
   }
   if (courseNpmPackage[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseNpmPackage[0].id,
+          id: uuidv4(),
+          resourceId: courseNpmPackage[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -226,10 +232,11 @@ export async function seed() {
   }
   if (courseAkiko[0] && topicJapanese[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseAkiko[0].id,
+          id: uuidv4(),
+          resourceId: courseAkiko[0].id,
           topicId: topicJapanese[0].id,
         },
       ])
@@ -296,6 +303,83 @@ export async function seed() {
       },
     ])
     .onConflictDoNothing();
+
+  const skillsGroupData: typeof tagGroups.$inferInsert = {
+    id: "9b2a1c40-8d3a-4d6c-9f2a-1e30c8d2a401",
+    name: "skills",
+    description: "Specific skill areas",
+    position: 0,
+  };
+  const formatGroupData: typeof tagGroups.$inferInsert = {
+    id: "9b2a1c40-8d3a-4d6c-9f2a-1e30c8d2a402",
+    name: "format",
+    description: "Resource format / medium",
+    position: 1,
+  };
+
+  const skillsGroup = await db
+    .insert(tagGroups)
+    .values([skillsGroupData])
+    .onConflictDoNothing()
+    .returning();
+
+  const formatGroup = await db
+    .insert(tagGroups)
+    .values([formatGroupData])
+    .onConflictDoNothing()
+    .returning();
+
+  if (skillsGroup[0]) {
+    await db
+      .insert(tags)
+      .values([
+        {
+          id: "a3f4d2c1-1111-4111-9111-111111111101",
+          groupId: skillsGroup[0].id,
+          name: "skills:listening",
+          position: 0,
+        },
+        {
+          id: "a3f4d2c1-1111-4111-9111-111111111102",
+          groupId: skillsGroup[0].id,
+          name: "skills:reading",
+          position: 1,
+        },
+        {
+          id: "a3f4d2c1-1111-4111-9111-111111111103",
+          groupId: skillsGroup[0].id,
+          name: "skills:writing",
+          position: 2,
+        },
+      ])
+      .onConflictDoNothing();
+  }
+
+  if (formatGroup[0]) {
+    await db
+      .insert(tags)
+      .values([
+        {
+          id: "a3f4d2c1-2222-4222-9222-222222222201",
+          groupId: formatGroup[0].id,
+          name: "format:video",
+          position: 0,
+        },
+        {
+          id: "a3f4d2c1-2222-4222-9222-222222222202",
+          groupId: formatGroup[0].id,
+          name: "format:article",
+          position: 1,
+        },
+        {
+          id: "a3f4d2c1-2222-4222-9222-222222222203",
+          groupId: formatGroup[0].id,
+          name: "format:interactive",
+          position: 2,
+        },
+      ])
+      .onConflictDoNothing();
+  }
 
   await db
     .insert(dailyCriteriaTemplates)

@@ -1,6 +1,6 @@
-import type { ResourceLevel } from "@emstack/types/src";
+import type { TaskResourceLevel } from "@emstack/types/src";
 
-export const RESOURCE_LEVEL_OPTIONS: { value: ResourceLevel;
+export const RESOURCE_LEVEL_OPTIONS: { value: TaskResourceLevel;
   label: string; }[] = [
   {
     value: "low",
@@ -17,7 +17,7 @@ export const RESOURCE_LEVEL_OPTIONS: { value: ResourceLevel;
 ];
 
 export function getResourceLevelLabel(
-  level: ResourceLevel | null | undefined,
+  level: TaskResourceLevel | null | undefined,
 ): string {
   if (!level) {
     return "—";
@@ -26,7 +26,7 @@ export function getResourceLevelLabel(
 }
 
 export function getResourceLevelClass(
-  level: ResourceLevel | null | undefined,
+  level: TaskResourceLevel | null | undefined,
 ): string {
   switch (level) {
     case "low":

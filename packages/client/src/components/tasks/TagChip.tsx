@@ -5,10 +5,6 @@ interface TagChipProps {
 export function TagChip({
   tag,
 }: TagChipProps) {
-  const idx = tag.indexOf(":");
-  const group = idx > 0 ? tag.slice(0, idx) : null;
-  const value = idx > 0 ? tag.slice(idx + 1) : tag;
-
   return (
     <span
       className="
@@ -16,13 +12,7 @@ export function TagChip({
         text-xs
       "
     >
-      {group && (
-        <span className="mr-1 text-muted-foreground">
-          {group}
-          :
-        </span>
-      )}
-      <span className="font-medium">{value}</span>
+      <span className="font-medium">{tag}</span>
     </span>
   );
 }

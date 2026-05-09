@@ -1,4 +1,4 @@
-import type { CourseInCourses } from "@emstack/types/src";
+import type { ResourceInResources } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -38,7 +38,7 @@ export function CourseBox({
   progressTotal = 0,
   cost,
   dailies,
-}: CourseInCourses) {
+}: ResourceInResources) {
   const costValue
     = cost.cost != null
       ? cost.isCostFromPlatform
@@ -93,7 +93,7 @@ export function CourseBox({
         <ContentBoxTitle>
           <h3 className="text-xl">
             <EntityLink
-              entity="courses"
+              entity="resources"
               id={id}
             >{name}
             </EntityLink>
@@ -108,7 +108,7 @@ export function CourseBox({
             <EntityLink
               entity="providers"
               id={provider.id}
-              from="/courses/$id"
+              from="/resources/$id"
               className={`
                 text-blue-800
                 hover:text-blue-600
