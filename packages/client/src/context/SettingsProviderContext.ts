@@ -2,14 +2,14 @@ import { createContext } from "react";
 
 export type DailiesViewMode = "table" | "list";
 
-export interface AppSettings {
+interface AppSettings {
   maxActiveDailies: number;
   dailiesViewMode: DailiesViewMode | null;
 }
 
 export const DEFAULT_MAX_ACTIVE_DAILIES = 5;
 
-export const DEFAULT_SETTINGS: AppSettings = {
+const DEFAULT_SETTINGS: AppSettings = {
   maxActiveDailies: DEFAULT_MAX_ACTIVE_DAILIES,
   dailiesViewMode: null,
 };

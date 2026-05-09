@@ -1,6 +1,6 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
 
-export function getDateKey(date: Date = new Date()): string {
+function getDateKey(date: Date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -87,7 +87,7 @@ export function getLastEntryDate(daily: Daily): string | null {
   return latest;
 }
 
-export function getFirstEntryDate(daily: Daily): string | null {
+function getFirstEntryDate(daily: Daily): string | null {
   let earliest: string | null = null;
   for (const c of daily.completions) {
     if (!earliest || c.date < earliest) {
@@ -128,7 +128,7 @@ const SHORT_DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export type DayLabelFormat = "dow" | "mmdd";
 
-export interface RecentDay {
+interface RecentDay {
   dateKey: string;
   dayLabel: string;
   isToday: boolean;
@@ -172,13 +172,6 @@ export function getDailyProgressPercent(daily: Daily): number {
     return total > 0 ? done / total : 0;
   }
   return 0;
-}
-
-export function hasDailyProgressTracking(daily: Daily): boolean {
-  if (daily.course) {
-    return true;
-  }
-  return Boolean(daily.task?.progress);
 }
 
 export function withCompletion(

@@ -1,5 +1,5 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { Input } from "@/components/forms/input";
+import { Input } from "@/components/input";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface InputFieldProps {

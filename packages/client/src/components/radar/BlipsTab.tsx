@@ -2,8 +2,8 @@ import type { RadarBlip, TopicForTopicsPage } from "@emstack/types/src";
 
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
-import { Textarea } from "@/components/forms/textarea";
 import { BlipTable } from "@/components/radar/BlipTable";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,

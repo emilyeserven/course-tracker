@@ -16,14 +16,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/forms/input";
-import { Textarea } from "@/components/forms/textarea";
+import { Input } from "@/components/input";
 import { Pill } from "@/components/radar/Pill";
 import {
   pillClassByIndex,
   RING_PILL_CLASSES,
   SLICE_PILL_CLASSES,
 } from "@/components/radar/radarColors";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRightIcon, PencilIcon } from "lucide-react";
 
-import { Input } from "@/components/forms/input";
+import { Input } from "@/components/input";
 import {
   Popover,
   PopoverContent,

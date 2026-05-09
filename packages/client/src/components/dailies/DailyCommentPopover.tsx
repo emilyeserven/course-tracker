@@ -6,12 +6,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Textarea } from "@/components/forms/textarea";
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
 } from "@/components/popover";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {

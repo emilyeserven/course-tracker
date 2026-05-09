@@ -2,8 +2,8 @@ import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { Loader2 } from "lucide-react";
 
-import { Textarea } from "@/components/forms/textarea";
 import { TopicMultiSelect } from "@/components/radar/TopicMultiSelect";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 
 interface ScopeTabProps {

@@ -4,7 +4,7 @@ export const Route = createFileRoute("/courses")({
   component: Courses,
 });
 
-export function Courses() {
+function Courses() {
   return (
     <div>
       <Outlet />
