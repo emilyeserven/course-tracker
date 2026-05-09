@@ -243,11 +243,13 @@ export interface RadarConfigEntry {
   id: string;
   name: string;
   position: number;
+  isAdopted?: boolean;
 }
 
 export interface RadarConfig {
   quadrants: RadarConfigEntry[];
   rings: RadarConfigEntry[];
+  hasAdoptedSection?: boolean;
 }
 
 export const domains = pgTable("domains", {

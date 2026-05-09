@@ -5,12 +5,18 @@ import type {
 
 import { useMemo, useState } from "react";
 
+import { Link } from "@tanstack/react-router";
 import {
+  BookOpenIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ChevronsUpDownIcon,
+  ListChecksIcon,
   Loader2,
+  MoreHorizontalIcon,
   PencilIcon,
+  PlusIcon,
+  SunIcon,
   TrashIcon,
   XIcon,
 } from "lucide-react";
@@ -25,6 +31,14 @@ import {
 } from "@/components/radar/radarColors";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -51,9 +65,10 @@ interface RingInfo {
   id: string;
   name: string;
   position: number;
+  isAdopted?: boolean;
 }
 
-type SortKey = "topic" | "slice" | "ring";
+type SortKey = "topic" | "slice" | "ring" | "items";
 type SortDir = "asc" | "desc";
 
 interface BlipTableProps {
@@ -71,6 +86,7 @@ interface BlipTableProps {
 }
 
 const ALL = "__all__";
+const UNASSIGNED = "__unassigned__";
 
 interface EditDraft {
   quadrantId: string;
@@ -94,6 +110,7 @@ export function BlipTable({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [showItemsColumn, setShowItemsColumn] = useState(false);
 
   function toggleSort(key: SortKey) {
     if (sortKey !== key) {
@@ -124,31 +141,57 @@ export function BlipTable({
 
   const sliceCounts = useMemo(() => {
     const counts = new Map<string, number>();
+    let unassigned = 0;
     blips.forEach((b) => {
       if (b.quadrantId) {
         counts.set(b.quadrantId, (counts.get(b.quadrantId) ?? 0) + 1);
       }
+      else {
+        unassigned += 1;
+      }
     });
-    return counts;
+    return {
+      counts,
+      unassigned,
+    };
   }, [blips]);
 
   const ringCounts = useMemo(() => {
     const counts = new Map<string, number>();
+    let unassigned = 0;
     blips.forEach((b) => {
       if (b.ringId) {
         counts.set(b.ringId, (counts.get(b.ringId) ?? 0) + 1);
       }
+      else {
+        unassigned += 1;
+      }
     });
-    return counts;
+    return {
+      counts,
+      unassigned,
+    };
   }, [blips]);
+
+  function topicItemCount(topicId: string): number {
+    const t = topicById.get(topicId);
+    if (!t) return 0;
+    return (t.courseCount ?? 0) + (t.taskCount ?? 0) + (t.dailyCount ?? 0);
+  }
 
   const filteredBlips = useMemo(() => {
     const query = search.trim().toLowerCase();
     const filtered = blips.filter((b) => {
-      if (filterQuadrant !== ALL && b.quadrantId !== filterQuadrant) {
+      if (filterQuadrant === UNASSIGNED) {
+        if (b.quadrantId !== null) return false;
+      }
+      else if (filterQuadrant !== ALL && b.quadrantId !== filterQuadrant) {
         return false;
       }
-      if (filterRing !== ALL && b.ringId !== filterRing) {
+      if (filterRing === UNASSIGNED) {
+        if (b.ringId !== null) return false;
+      }
+      else if (filterRing !== ALL && b.ringId !== filterRing) {
         return false;
       }
       if (query) {
@@ -172,6 +215,10 @@ export function BlipTable({
         av = quadrantById.get(a.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
         bv = quadrantById.get(b.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
       }
+      else if (sortKey === "items") {
+        av = topicItemCount(a.topicId);
+        bv = topicItemCount(b.topicId);
+      }
       else {
         av = ringById.get(a.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
         bv = ringById.get(b.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
@@ -185,6 +232,7 @@ export function BlipTable({
       return (a.topicName ?? "").localeCompare(b.topicName ?? "");
     });
     return sorted;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     blips,
     search,
@@ -194,6 +242,7 @@ export function BlipTable({
     sortDir,
     quadrantById,
     ringById,
+    topicById,
   ]);
 
   function sortIcon(key: SortKey) {
@@ -261,7 +310,7 @@ export function BlipTable({
       <div
         className={`
           grid grid-cols-1 gap-2
-          sm:grid-cols-[1fr_auto_auto]
+          sm:grid-cols-[1fr_auto_auto_auto]
         `}
       >
         <Input
@@ -282,6 +331,11 @@ export function BlipTable({
               {blips.length}
               )
             </SelectItem>
+            <SelectItem value={UNASSIGNED}>
+              Unassigned (
+              {sliceCounts.unassigned}
+              )
+            </SelectItem>
             {quadrants.map(q => (
               <SelectItem
                 key={q.id}
@@ -289,7 +343,7 @@ export function BlipTable({
               >
                 {q.name}
                 {" ("}
-                {sliceCounts.get(q.id) ?? 0}
+                {sliceCounts.counts.get(q.id) ?? 0}
                 )
               </SelectItem>
             ))}
@@ -308,6 +362,11 @@ export function BlipTable({
               {blips.length}
               )
             </SelectItem>
+            <SelectItem value={UNASSIGNED}>
+              Unassigned (
+              {ringCounts.unassigned}
+              )
+            </SelectItem>
             {rings.map(r => (
               <SelectItem
                 key={r.id}
@@ -315,12 +374,22 @@ export function BlipTable({
               >
                 {r.name}
                 {" ("}
-                {ringCounts.get(r.id) ?? 0}
+                {ringCounts.counts.get(r.id) ?? 0}
                 )
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <label
+          className="flex flex-row items-center gap-2 text-sm"
+        >
+          <input
+            type="checkbox"
+            checked={showItemsColumn}
+            onChange={e => setShowItemsColumn(e.target.checked)}
+          />
+          Topic Items
+        </label>
       </div>
 
       <div className="rounded-sm border">
@@ -367,6 +436,21 @@ export function BlipTable({
                 </button>
               </TableHead>
               <TableHead>Radar Note</TableHead>
+              {showItemsColumn && (
+                <TableHead>
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("items")}
+                    className={`
+                      inline-flex items-center gap-1
+                      hover:text-foreground
+                    `}
+                  >
+                    Topic Items
+                    {sortIcon("items")}
+                  </button>
+                </TableHead>
+              )}
               <TableHead className="w-1 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -374,7 +458,7 @@ export function BlipTable({
             {filteredBlips.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={showItemsColumn ? 6 : 5}
                   className="text-center text-muted-foreground"
                 >
                   {blips.length === 0
@@ -391,7 +475,7 @@ export function BlipTable({
               return isEditing
                 ? (
                   <TableRow key={blip.id}>
-                    <TableCell colSpan={5}>
+                    <TableCell colSpan={showItemsColumn ? 6 : 5}>
                       <div
                         className={`
                           grid grid-cols-1 gap-4
@@ -536,7 +620,13 @@ export function BlipTable({
                           ? quadrantById.get(blip.quadrantId)
                           : undefined;
                         if (!q) {
-                          return "—";
+                          return (
+                            <span
+                              className="text-xs text-muted-foreground italic"
+                            >
+                              unassigned
+                            </span>
+                          );
                         }
                         return (
                           <Pill
@@ -556,7 +646,13 @@ export function BlipTable({
                           ? ringById.get(blip.ringId)
                           : undefined;
                         if (!r) {
-                          return "—";
+                          return (
+                            <span
+                              className="text-xs text-muted-foreground italic"
+                            >
+                              unassigned
+                            </span>
+                          );
                         }
                         return (
                           <Pill
@@ -578,33 +674,126 @@ export function BlipTable({
                     >
                       {blip.description?.trim() || "—"}
                     </TableCell>
+                    {showItemsColumn && (
+                      <TableCell className="text-sm text-muted-foreground">
+                        {topic
+                          ? (
+                            <div className="flex flex-row flex-wrap gap-2">
+                              <TopicItemLink
+                                label="C"
+                                title="Courses for this topic"
+                                count={topic.courseCount ?? 0}
+                                to="/courses"
+                                topicId={blip.topicId}
+                              />
+                              <TopicItemLink
+                                label="T"
+                                title="Tasks for this topic"
+                                count={topic.taskCount ?? 0}
+                                to="/tasks"
+                                topicId={blip.topicId}
+                              />
+                              <TopicItemLink
+                                label="D"
+                                title="Dailies for this topic"
+                                count={topic.dailyCount ?? 0}
+                                to="/dailies"
+                                topicId={blip.topicId}
+                              />
+                            </div>
+                          )
+                          : "—"}
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
-                      <div className="flex flex-row justify-end gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => startEdit(blip)}
-                          disabled={isPending || editingId !== null}
-                        >
-                          <PencilIcon />
-                          {" "}
-                          Edit
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemove(blip)}
-                          disabled={isPending || editingId !== null}
-                        >
-                          {isPending
-                            ? <Loader2 className="animate-spin" />
-                            : <TrashIcon />}
-                          {" "}
-                          Remove
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={isPending || editingId !== null}
+                            aria-label="More actions"
+                          >
+                            {isPending
+                              ? <Loader2 className="animate-spin" />
+                              : <MoreHorizontalIcon />}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => startEdit(blip)}>
+                            <PencilIcon />
+                            {" "}
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRemove(blip)}>
+                            <TrashIcon />
+                            {" "}
+                            Remove
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuLabel className="text-xs">
+                            Quick Create
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem asChild>
+                            <Link
+                              to="/dailies/$id/edit"
+                              params={{
+                                id: "new",
+                              }}
+                              search={{
+                                topicId: blip.topicId,
+                              }}
+                            >
+                              <SunIcon />
+                              {" "}
+                              Daily Item
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link
+                              to="/tasks/$id/edit"
+                              params={{
+                                id: "new",
+                              }}
+                              search={{
+                                topicId: blip.topicId,
+                              }}
+                            >
+                              <ListChecksIcon />
+                              {" "}
+                              Task
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link
+                              to="/courses/$id/edit"
+                              params={{
+                                id: "new",
+                              }}
+                              search={{
+                                topicId: blip.topicId,
+                              }}
+                            >
+                              <BookOpenIcon />
+                              {" "}
+                              Course
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link
+                              to="/topics/$id"
+                              params={{
+                                id: blip.topicId,
+                              }}
+                            >
+                              <PlusIcon />
+                              {" "}
+                              View Topic
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
@@ -613,5 +802,53 @@ export function BlipTable({
         </Table>
       </div>
     </div>
+  );
+}
+
+interface TopicItemLinkProps {
+  label: string;
+  title: string;
+  count: number;
+  to: "/courses" | "/tasks" | "/dailies";
+  topicId: string;
+}
+
+function TopicItemLink({
+  label,
+  title,
+  count,
+  to,
+  topicId,
+}: TopicItemLinkProps) {
+  if (count === 0) {
+    return (
+      <span
+        title={title}
+        className="text-muted-foreground/60"
+      >
+        {label}
+        :
+        {" "}
+        0
+      </span>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      search={{
+        topicId,
+      }}
+      title={title}
+      className={`
+        font-medium text-blue-700
+        hover:text-blue-500 hover:underline
+      `}
+    >
+      {label}
+      :
+      {" "}
+      {count}
+    </Link>
   );
 }

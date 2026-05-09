@@ -45,7 +45,7 @@ const upsertConfigSchema = {
         },
         rings: {
           type: "array",
-          maxItems: 6,
+          maxItems: 7,
           items: {
             type: "object",
             required: ["name", "position"],
@@ -59,8 +59,14 @@ const upsertConfigSchema = {
               position: {
                 type: "integer",
               },
+              isAdopted: {
+                type: "boolean",
+              },
             },
           },
+        },
+        hasAdoptedSection: {
+          type: "boolean",
         },
       },
     },
@@ -78,7 +84,7 @@ export default async function (server: FastifyInstance) {
         domainId,
       } = request.params;
       const {
-        quadrants, rings,
+        quadrants, rings, hasAdoptedSection,
       } = request.body;
 
       const domain = await db.query.domains.findFirst({
@@ -104,7 +110,9 @@ export default async function (server: FastifyInstance) {
           id: r.id ?? uuidv4(),
           name: r.name,
           position: r.position ?? idx,
+          isAdopted: r.isAdopted ?? false,
         })),
+        hasAdoptedSection: hasAdoptedSection ?? false,
       };
 
       await db

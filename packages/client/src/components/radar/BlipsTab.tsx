@@ -23,6 +23,7 @@ interface PersistedRing {
   id: string;
   name: string;
   position: number;
+  isAdopted?: boolean;
 }
 
 interface BlipDraft {

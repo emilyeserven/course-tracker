@@ -29,6 +29,7 @@ const DEFAULT_RINGS = ["Adopt", "Trial", "Assess", "Hold"];
 
 const QUADRANT_COUNT = 5;
 const MAX_RINGS = 6;
+const ADOPTED_RING_NAME = "Adopted";
 
 let localKeyCounter = 0;
 function nextLocalKey() {
@@ -63,7 +64,8 @@ function quadrantsFromServer(items: { id: string;
 
 function ringsFromServer(items: { id: string;
   name: string;
-  position: number; }[]): RingDraft[] {
+  position: number;
+  isAdopted?: boolean; }[]): RingDraft[] {
   return items
     .slice()
     .sort((a, b) => a.position - b.position)
@@ -72,6 +74,7 @@ function ringsFromServer(items: { id: string;
       name: r.name,
       position: r.position,
       localKey: r.id,
+      isAdopted: r.isAdopted ?? false,
     }));
 }
 
@@ -98,6 +101,7 @@ export function ConfigTab({
 }: ConfigTabProps) {
   const [quadrants, setQuadrants] = useState<QuadrantDraft[]>([]);
   const [rings, setRings] = useState<RingDraft[]>([]);
+  const [hasAdoptedSection, setHasAdoptedSection] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -111,6 +115,7 @@ export function ConfigTab({
     setRings(
       radar.rings.length > 0 ? ringsFromServer(radar.rings) : defaultRings(),
     );
+    setHasAdoptedSection(radar.hasAdoptedSection ?? false);
     setHydrated(true);
   }, [radar, hydrated]);
 
@@ -138,15 +143,22 @@ export function ConfigTab({
 
   function addRing() {
     setRings((prev) => {
-      if (prev.length >= MAX_RINGS) return prev;
-      return [
-        ...prev,
+      const nonAdopted = prev.filter(r => !r.isAdopted);
+      if (nonAdopted.length >= MAX_RINGS) return prev;
+      const adopted = prev.filter(r => r.isAdopted);
+      const next = [
+        ...nonAdopted,
         {
           name: "",
-          position: prev.length,
+          position: nonAdopted.length,
           localKey: nextLocalKey(),
         },
+        ...adopted,
       ];
+      return next.map((r, idx) => ({
+        ...r,
+        position: idx,
+      }));
     });
   }
 
@@ -158,6 +170,32 @@ export function ConfigTab({
           ...r,
           position: idx,
         })));
+  }
+
+  function toggleAdoptedSection(enabled: boolean) {
+    setHasAdoptedSection(enabled);
+    setRings((prev) => {
+      const withoutAdopted = prev.filter(r => !r.isAdopted);
+      if (!enabled) {
+        return withoutAdopted.map((r, idx) => ({
+          ...r,
+          position: idx,
+        }));
+      }
+      const next = [
+        ...withoutAdopted,
+        {
+          name: ADOPTED_RING_NAME,
+          position: withoutAdopted.length,
+          localKey: nextLocalKey(),
+          isAdopted: true,
+        },
+      ];
+      return next.map((r, idx) => ({
+        ...r,
+        position: idx,
+      }));
+    });
   }
 
   async function handleSave() {
@@ -177,7 +215,8 @@ export function ConfigTab({
       toast.error("Every ring needs a name.");
       return;
     }
-    if (rings.length > MAX_RINGS) {
+    const nonAdoptedRings = rings.filter(r => !r.isAdopted);
+    if (nonAdoptedRings.length > MAX_RINGS) {
       toast.error(`At most ${MAX_RINGS} rings are allowed.`);
       return;
     }
@@ -189,14 +228,16 @@ export function ConfigTab({
           name: q.name.trim(),
           position: idx,
         })),
-        rings: rings.map(r => ({
+        rings: rings.map((r, idx) => ({
           id: r.id,
           name: r.name.trim(),
-          position: r.position,
+          position: idx,
+          isAdopted: r.isAdopted ?? false,
         })),
+        hasAdoptedSection,
       });
-      setHydrated(false);
       await onSaved();
+      setHydrated(false);
       toast.success("Radar configuration saved.");
     }
     catch {
@@ -214,10 +255,12 @@ export function ConfigTab({
       quadrantCount={QUADRANT_COUNT}
       maxRings={MAX_RINGS}
       isSaving={isSaving}
+      hasAdoptedSection={hasAdoptedSection}
       onChangeQuadrant={changeQuadrant}
       onChangeRing={changeRing}
       onAddRing={addRing}
       onRemoveRing={removeRing}
+      onToggleAdoptedSection={toggleAdoptedSection}
       onSave={handleSave}
     />
   );

@@ -119,9 +119,19 @@ export function RadarChart({
     [quadrants],
   );
   const sortedRings = useMemo(
-    () => [...rings].sort((a, b) => a.position - b.position),
+    () =>
+      [...rings]
+        .filter(r => !r.isAdopted)
+        .sort((a, b) => a.position - b.position),
     [rings],
   );
+  const adoptedRingIds = useMemo(() => {
+    const set = new Set<string>();
+    rings.forEach((r) => {
+      if (r.isAdopted) set.add(r.id);
+    });
+    return set;
+  }, [rings]);
 
   const quadrantCount = sortedQuadrants.length;
   const ringCount = sortedRings.length;
@@ -135,11 +145,17 @@ export function RadarChart({
 
   const ringNameById = useMemo(() => {
     const map: Record<string, string> = {};
-    sortedRings.forEach((r) => {
+    [...rings].forEach((r) => {
       map[r.id] = r.name;
     });
     return map;
-  }, [sortedRings]);
+  }, [rings]);
+
+  const adoptedBlips = useMemo(
+    () =>
+      blips.filter(b => b.ringId !== null && adoptedRingIds.has(b.ringId)),
+    [blips, adoptedRingIds],
+  );
 
   const positionedBlips = useMemo<PositionedBlip[]>(() => {
     if (quadrantCount === 0 || ringCount === 0) {
@@ -149,6 +165,9 @@ export function RadarChart({
     let displayIndex = 0;
     return blips
       .map((blip) => {
+        if (blip.ringId !== null && adoptedRingIds.has(blip.ringId)) {
+          return null;
+        }
         const quadrantIndex = sortedQuadrants.findIndex(
           q => q.id === blip.quadrantId,
         );
@@ -183,6 +202,7 @@ export function RadarChart({
     ringCount,
     cx,
     cy,
+    adoptedRingIds,
   ]);
 
   if (quadrantCount === 0 || ringCount === 0) {
@@ -398,6 +418,7 @@ export function RadarChart({
             quadrants={sortedQuadrants}
             positionedBlips={positionedBlips}
             rings={sortedRings}
+            adoptedBlips={adoptedBlips}
             onDescriptionChange={handleSetDescription}
             onHover={setHoveredBlipId}
             activeBlipId={activeBlipId}
@@ -414,6 +435,7 @@ interface RadarLegendProps {
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
   positionedBlips: PositionedBlip[];
+  adoptedBlips: RadarBlip[];
   onDescriptionChange: (blipId: string, value: string) => void;
   activeBlipId: string | null;
   selectedBlipId: string | null;
@@ -425,6 +447,7 @@ function RadarLegend({
   quadrants,
   rings,
   positionedBlips,
+  adoptedBlips,
   onDescriptionChange,
   activeBlipId,
   selectedBlipId,
@@ -598,6 +621,96 @@ function RadarLegend({
           </div>
         );
       })}
+      {adoptedBlips.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <h4 className="text-sm font-semibold text-amber-700 uppercase">
+            Adopted
+          </h4>
+          <ul className="flex flex-col gap-0.5">
+            {adoptedBlips.map((blip) => {
+              const isActive = activeBlipId === blip.id;
+              const isSelected = selectedBlipId === blip.id;
+              const description = blip.description ?? "";
+              return (
+                <li
+                  key={blip.id}
+                  ref={(el) => {
+                    if (el) {
+                      itemRefs.current.set(blip.id, el);
+                    }
+                    else {
+                      itemRefs.current.delete(blip.id);
+                    }
+                  }}
+                  onMouseEnter={() => onHover(blip.id)}
+                  onMouseLeave={() => onHover(null)}
+                  className={cn(
+                    `
+                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
+                      transition-colors
+                    `,
+                    isActive && "bg-gray-200",
+                    isSelected && "ring-1 ring-gray-400",
+                  )}
+                >
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onBlipClick(blip);
+                      }}
+                      className="flex-1 cursor-pointer text-left"
+                    >
+                      <span className="font-medium">{blip.topicName}</span>
+                    </button>
+                    <div
+                      className={cn(
+                        `
+                          flex items-center gap-0.5 opacity-0 transition-opacity
+                          group-hover:opacity-100
+                          focus-within:opacity-100
+                        `,
+                        isSelected && "opacity-100",
+                      )}
+                    >
+                      <BlipDescriptionPopover
+                        value={description}
+                        onChange={value => onDescriptionChange(blip.id, value)}
+                      />
+                      <Link
+                        to="/topics/$id"
+                        params={{
+                          id: blip.topicId,
+                        }}
+                        aria-label={`Go to topic ${blip.topicName}`}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="size-6 p-0"
+                        >
+                          <ArrowRightIcon className="size-3.5" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                  {description && (
+                    <p
+                      className={`
+                        mt-0.5 ml-4 text-xs text-muted-foreground italic
+                      `}
+                    >
+                      {description}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

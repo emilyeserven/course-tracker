@@ -66,6 +66,7 @@ export function BlipsTabContainer({
       id: r.id,
       name: r.name,
       position: r.position,
+      isAdopted: r.isAdopted ?? false,
     })),
     [radar],
   );
