@@ -23,11 +23,11 @@ const nullableInteractionUnderstandingEnum = {
 const listSchema = {
   schema: {
     description:
-      "List interactions, optionally filtered by courseId, moduleGroupId, or moduleId",
+      "List interactions, optionally filtered by resourceId, moduleGroupId, or moduleId",
     querystring: {
       type: "object",
       properties: {
-        courseId: {
+        resourceId: {
           type: "string",
         },
         moduleGroupId: {
@@ -46,9 +46,9 @@ const createSchema = {
     description: "Create a new interaction",
     body: {
       type: "object",
-      required: ["courseId", "date", "progress"],
+      required: ["resourceId", "date", "progress"],
       properties: {
-        courseId: {
+        resourceId: {
           type: "string",
           minLength: 1,
         },
@@ -71,14 +71,14 @@ export default async function (server: FastifyInstance) {
 
   fastify.get("/", listSchema, async function (request) {
     const {
-      courseId, moduleGroupId, moduleId,
+      resourceId, moduleGroupId, moduleId,
     } = request.query;
     const rows = await db.query.interactions.findMany({
       where: (i, {
         and, eq,
       }) => {
         const conds = [];
-        if (courseId) conds.push(eq(i.courseId, courseId));
+        if (resourceId) conds.push(eq(i.resourceId, resourceId));
         if (moduleGroupId) conds.push(eq(i.moduleGroupId, moduleGroupId));
         if (moduleId) conds.push(eq(i.moduleId, moduleId));
         if (conds.length === 0) return undefined;
@@ -98,7 +98,7 @@ export default async function (server: FastifyInstance) {
 
     await db.insert(interactions).values({
       id,
-      courseId: body.courseId,
+      resourceId: body.resourceId,
       moduleGroupId: body.moduleGroupId ?? null,
       moduleId: body.moduleId ?? null,
       date: body.date,

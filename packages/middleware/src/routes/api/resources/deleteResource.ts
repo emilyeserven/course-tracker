@@ -1,42 +1,42 @@
 import {
-  courses,
+  resources,
   interactions,
   moduleGroups,
   modules,
-  tasksToCourses,
-  topicsToCourses,
+  tasksToResources,
+  topicsToResources,
 } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
 export default createDeleteHandler({
   description: "Delete a course by ID",
-  table: courses,
-  idColumn: courses.id,
+  table: resources,
+  idColumn: resources.id,
   junctions: [
     {
-      table: topicsToCourses,
-      foreignKey: topicsToCourses.courseId,
+      table: topicsToResources,
+      foreignKey: topicsToResources.resourceId,
     },
     {
-      table: tasksToCourses,
-      foreignKey: tasksToCourses.courseId,
+      table: tasksToResources,
+      foreignKey: tasksToResources.resourceId,
     },
-    // Interactions reference courses + (optionally) modules / moduleGroups.
+    // Interactions reference resources + (optionally) modules / moduleGroups.
     // Delete them before the modules cascade so the moduleGroupId / moduleId
     // FKs (ON DELETE SET NULL) don't have to do extra work.
     {
       table: interactions,
-      foreignKey: interactions.courseId,
+      foreignKey: interactions.resourceId,
     },
     // Modules reference moduleGroups, so delete modules first (junctions run
-    // in order). Both modules and moduleGroups reference courses.
+    // in order). Both modules and moduleGroups reference resources.
     {
       table: modules,
-      foreignKey: modules.courseId,
+      foreignKey: modules.resourceId,
     },
     {
       table: moduleGroups,
-      foreignKey: moduleGroups.courseId,
+      foreignKey: moduleGroups.resourceId,
     },
   ],
 });

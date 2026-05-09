@@ -39,7 +39,7 @@ export default async function (server: FastifyInstance) {
               name: true,
             },
           },
-          course: {
+          resource: {
             columns: {
               id: true,
               name: true,
@@ -104,13 +104,13 @@ export default async function (server: FastifyInstance) {
                 id: daily.courseProvider.id,
               }
               : undefined,
-          course:
-            daily.course?.id && daily.course?.name
+          resource:
+            daily.resource?.id && daily.resource?.name
               ? {
-                id: daily.course.id,
-                name: daily.course.name,
-                progressCurrent: daily.course.progressCurrent ?? 0,
-                progressTotal: daily.course.progressTotal ?? 0,
+                id: daily.resource.id,
+                name: daily.resource.name,
+                progressCurrent: daily.resource.progressCurrent ?? 0,
+                progressTotal: daily.resource.progressTotal ?? 0,
               }
               : undefined,
           moduleGroupId: daily.moduleGroupId ?? null,

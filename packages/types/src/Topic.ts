@@ -1,4 +1,4 @@
-import type { Course } from "./Course";
+import type { Resource } from "./Resource";
 import type { Tag } from "./Tag";
 import type { TaskResourceLink } from "./TaskResourceLink";
 
@@ -12,8 +12,8 @@ export interface Topic {
   name: string;
   description?: string | null;
   reason?: string | null;
-  courseCount?: number;
-  courses?: Course[];
+  resourceCount?: number;
+  resources?: Resource[];
   domains?: TopicDomain[];
   tags?: Tag[];
   // Reuses the TaskResourceLink shape (the link concept is the same:

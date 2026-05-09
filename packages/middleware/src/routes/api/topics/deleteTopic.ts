@@ -3,7 +3,7 @@ import {
   domainWithinScopeTopics,
   radarBlips,
   topics,
-  topicsToCourses,
+  topicsToResources,
   topicsToTags,
 } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
@@ -18,8 +18,8 @@ export default createDeleteHandler({
       foreignKey: radarBlips.topicId,
     },
     {
-      table: topicsToCourses,
-      foreignKey: topicsToCourses.topicId,
+      table: topicsToResources,
+      foreignKey: topicsToResources.topicId,
     },
     {
       table: topicsToTags,

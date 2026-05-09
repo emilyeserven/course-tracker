@@ -7,7 +7,7 @@ import {
   taskResourcesToTags,
   taskTodos,
   tasks,
-  tasksToCourses,
+  tasksToResources,
   tasksToTags,
 } from "@/db/schema";
 import { idParamSchema } from "@/utils/schemas";
@@ -46,7 +46,7 @@ export default async function (server: FastifyInstance) {
     }
 
     await db.delete(tasksToTags).where(eq(tasksToTags.taskId, id));
-    await db.delete(tasksToCourses).where(eq(tasksToCourses.taskId, id));
+    await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
     await db.delete(taskResources).where(eq(taskResources.taskId, id));
     await db.delete(taskTodos).where(eq(taskTodos.taskId, id));
     await db.delete(tasks).where(eq(tasks.id, id));

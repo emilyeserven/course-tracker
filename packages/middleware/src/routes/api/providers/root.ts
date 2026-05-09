@@ -11,7 +11,7 @@ export default async function (server: FastifyInstance) {
     async (request, reply) => {
       const rawData = await db.query.courseProviders.findMany({
         with: {
-          courses: {
+          resources: {
             columns: {
               name: true,
               status: true,
@@ -21,9 +21,9 @@ export default async function (server: FastifyInstance) {
       });
 
       const processedData: Partial<CourseProvider>[] = rawData.map((provider: CourseProvider) => {
-        const courses = provider.courses ?? [];
+        const resources = provider.resources ?? [];
         const countByStatus = (status: string) =>
-          courses.filter(c => c.status === status).length;
+          resources.filter(c => c.status === status).length;
 
         return {
           id: provider.id,
@@ -36,7 +36,7 @@ export default async function (server: FastifyInstance) {
           recurPeriodUnit: provider.recurPeriodUnit,
           recurPeriod: provider.recurPeriod,
           isCourseFeesShared: provider.isCourseFeesShared,
-          courseCount: courses.length,
+          courseCount: resources.length,
           activeCount: countByStatus("active"),
           inactiveCount: countByStatus("inactive"),
           completeCount: countByStatus("complete"),

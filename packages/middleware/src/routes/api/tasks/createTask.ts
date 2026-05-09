@@ -6,7 +6,7 @@ import {
   taskResourcesToTags,
   taskTodos,
   tasks,
-  tasksToCourses,
+  tasksToResources,
   tasksToTags,
 } from "@/db/schema";
 import {
@@ -80,24 +80,24 @@ export default async function (server: FastifyInstance) {
         const seen = new Set<string>();
         const linkRows: {
           taskId: string;
-          courseId: string;
+          resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
           position: number;
         }[] = [];
         incomingLinks.forEach((link, index) => {
-          if (seen.has(link.courseId)) return;
-          seen.add(link.courseId);
+          if (seen.has(link.resourceId)) return;
+          seen.add(link.resourceId);
           linkRows.push({
             taskId: id,
-            courseId: link.courseId,
+            resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,
             moduleId: link.moduleId ?? null,
             position: index,
           });
         });
         if (linkRows.length > 0) {
-          await db.insert(tasksToCourses).values(linkRows);
+          await db.insert(tasksToResources).values(linkRows);
         }
       }
 

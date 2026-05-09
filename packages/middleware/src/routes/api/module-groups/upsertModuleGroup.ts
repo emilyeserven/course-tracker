@@ -4,7 +4,7 @@ import { nullableInteger, nullableString } from "@/utils/schemas";
 
 interface ModuleGroupBody {
   name: string;
-  courseId: string;
+  resourceId: string;
   description?: string | null;
   url?: string | null;
   position?: number | null;
@@ -12,7 +12,7 @@ interface ModuleGroupBody {
 
 const updateableColumns = [
   "name",
-  "courseId",
+  "resourceId",
   "description",
   "url",
   "position",
@@ -23,13 +23,13 @@ export default createUpsertHandler<ModuleGroupBody>({
   table: moduleGroups,
   bodySchema: {
     type: "object",
-    required: ["name", "courseId"],
+    required: ["name", "resourceId"],
     properties: {
       name: {
         type: "string",
         minLength: 1,
       },
-      courseId: {
+      resourceId: {
         type: "string",
         minLength: 1,
       },
@@ -40,7 +40,7 @@ export default createUpsertHandler<ModuleGroupBody>({
   },
   buildRow: (body, id) => ({
     id,
-    courseId: body.courseId,
+    resourceId: body.resourceId,
     name: body.name,
     description: body.description ?? null,
     url: body.url ?? null,

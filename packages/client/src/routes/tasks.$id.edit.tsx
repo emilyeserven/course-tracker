@@ -16,7 +16,7 @@ import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createTask,
   deleteSingleTask,
-  fetchCourses,
+  fetchResources,
   fetchModuleGroups,
   fetchModules,
   fetchSingleTask,
@@ -89,7 +89,7 @@ function SingleTaskEdit() {
     data: courses,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -130,7 +130,7 @@ function SingleTaskEdit() {
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
       resourceLinks: (data?.resourceLinks ?? []).map(l => ({
-        courseId: l.courseId,
+        courseId: l.resourceId,
         moduleGroupId: l.moduleGroupId ?? null,
         moduleId: l.moduleId ?? null,
       })),

@@ -5,9 +5,9 @@ import type { Module } from "./Module";
 import type { ModuleGroup } from "./ModuleGroup";
 import type { Topic } from "./Topic";
 
-export type CourseStatus = "active" | "inactive" | "complete" | "paused";
+export type ResourceStatus = "active" | "inactive" | "complete" | "paused";
 
-export interface Course {
+export interface Resource {
   id: string;
   name: string;
   description?: string | null;
@@ -16,7 +16,7 @@ export interface Course {
   cost: CostData;
   progressCurrent: number;
   progressTotal: number;
-  status: CourseStatus;
+  status: ResourceStatus;
   modulesAreExhaustive?: boolean;
   topics?: MinimalTopic | Topic[] | undefined;
   provider?: {

@@ -1,6 +1,6 @@
-import type { CourseStatus } from "./Course";
+import type { ResourceStatus } from "./Resource";
 
-export interface CourseInCourses {
+export interface ResourceInResources {
   id: string;
   name: string;
   description?: string | null;
@@ -13,7 +13,7 @@ export interface CourseInCourses {
   };
   progressCurrent: number;
   progressTotal: number;
-  status: CourseStatus;
+  status: ResourceStatus;
   topics?: (
     {
       name: string;

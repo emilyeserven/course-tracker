@@ -4,7 +4,7 @@ import { drizzle as LocalDrizzle } from "drizzle-orm/node-postgres";
 import { seed } from "./seed.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
-import { courses } from "@/db/schema";
+import { resources } from "@/db/schema";
 
 export const db = LocalDrizzle(process.env.DATABASE_URL!, {
   schema,
@@ -25,7 +25,7 @@ async function main() {
     console.error("Failed to consolidate domain/radar:", err);
   }
 
-  const currentCourses = await db.select().from(courses);
+  const currentCourses = await db.select().from(resources);
   const isCourses = currentCourses.length > 0;
   if (!isCourses) {
     await seed();

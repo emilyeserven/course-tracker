@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { topics, topicsToCourses, topicsToTags } from "@/db/schema";
+import { topics, topicsToResources, topicsToTags } from "@/db/schema";
 import {
   idParamSchema,
   nullableString,
@@ -92,27 +92,27 @@ export default async function (server: FastifyInstance) {
 
       if (body.resourceLinks !== undefined) {
         await db
-          .delete(topicsToCourses)
-          .where(eq(topicsToCourses.topicId, id));
+          .delete(topicsToResources)
+          .where(eq(topicsToResources.topicId, id));
         const seen = new Set<string>();
         const rows: {
           topicId: string;
-          courseId: string;
+          resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
         }[] = [];
         for (const link of body.resourceLinks) {
-          if (seen.has(link.courseId)) continue;
-          seen.add(link.courseId);
+          if (seen.has(link.resourceId)) continue;
+          seen.add(link.resourceId);
           rows.push({
             topicId: id,
-            courseId: link.courseId,
+            resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,
             moduleId: link.moduleId ?? null,
           });
         }
         if (rows.length > 0) {
-          await db.insert(topicsToCourses).values(rows);
+          await db.insert(topicsToResources).values(rows);
         }
       }
 

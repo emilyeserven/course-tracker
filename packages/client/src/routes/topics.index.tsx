@@ -65,7 +65,7 @@ function sortTopics(
       case "alpha-desc":
         return b.name.localeCompare(a.name);
       case "resources":
-        return (b.courseCount ?? 0) - (a.courseCount ?? 0);
+        return (b.resourceCount ?? 0) - (a.resourceCount ?? 0);
     }
   });
 }

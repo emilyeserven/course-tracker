@@ -1,13 +1,13 @@
 import {
   courseProviders,
-  courses,
+  resources,
   dailyCriteriaTemplates,
   domains,
   radarBlips,
   tagGroups,
   tags,
   topics,
-  topicsToCourses,
+  topicsToResources,
   usersTable,
 } from "@/db/schema";
 import { db } from "@/db/index";
@@ -111,7 +111,7 @@ export async function seed() {
     .onConflictDoNothing()
     .returning();
 
-  const reactCourseData: typeof courses.$inferInsert = {
+  const reactCourseData: typeof resources.$inferInsert = {
     id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
     name: "react.gg",
     description: "React course with videos and graphics.",
@@ -122,7 +122,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
   };
-  const typescriptCourseData: typeof courses.$inferInsert = {
+  const typescriptCourseData: typeof resources.$inferInsert = {
     id: "e09b541d-8e03-4d00-9f7e-bd75acd0c903",
     name: "Typescript",
     url: "https://ui.dev/c/typescript",
@@ -132,7 +132,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
   };
-  const akikoData: typeof courses.$inferInsert = {
+  const akikoData: typeof resources.$inferInsert = {
     id: "05ea0e1b-74d7-4710-9a67-1b04556c6553",
     name: "Akiko's American Foreign Exchange",
     description: "Story with accessible Japanese.",
@@ -143,7 +143,7 @@ export async function seed() {
     isCostFromPlatform: true,
     courseProviderId: providerSatori[0] ? providerSatori[0].id : null,
   };
-  const npmPackageCourseData: typeof courses.$inferInsert = {
+  const npmPackageCourseData: typeof resources.$inferInsert = {
     id: "664b3245-6505-416f-b959-4c82a3573b12",
     name: "Creating NPM packages: The Complete Guide",
     description: "NPM packages are their own art...",
@@ -159,35 +159,35 @@ export async function seed() {
   };
 
   const courseReact = await db
-    .insert(courses)
+    .insert(resources)
     .values([reactCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseTypescript = await db
-    .insert(courses)
+    .insert(resources)
     .values([typescriptCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseNpmPackage = await db
-    .insert(courses)
+    .insert(resources)
     .values([npmPackageCourseData])
     .onConflictDoNothing()
     .returning();
 
   const courseAkiko = await db
-    .insert(courses)
+    .insert(resources)
     .values([akikoData])
     .onConflictDoNothing()
     .returning();
 
   if (courseReact[0] && topicReact[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseReact[0].id,
+          resourceId: courseReact[0].id,
           topicId: topicReact[0].id,
         },
       ])
@@ -195,10 +195,10 @@ export async function seed() {
   }
   if (courseReact[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseReact[0].id,
+          resourceId: courseReact[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -206,10 +206,10 @@ export async function seed() {
   }
   if (courseTypescript[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseTypescript[0].id,
+          resourceId: courseTypescript[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -217,10 +217,10 @@ export async function seed() {
   }
   if (courseNpmPackage[0] && topicTypescript[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseNpmPackage[0].id,
+          resourceId: courseNpmPackage[0].id,
           topicId: topicTypescript[0].id,
         },
       ])
@@ -228,10 +228,10 @@ export async function seed() {
   }
   if (courseAkiko[0] && topicJapanese[0]) {
     await db
-      .insert(topicsToCourses)
+      .insert(topicsToResources)
       .values([
         {
-          courseId: courseAkiko[0].id,
+          resourceId: courseAkiko[0].id,
           topicId: topicJapanese[0].id,
         },
       ])

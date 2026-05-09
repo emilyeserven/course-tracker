@@ -7,7 +7,7 @@ import {
   taskResourcesToTags,
   taskTodos,
   tasks,
-  tasksToCourses,
+  tasksToResources,
   tasksToTags,
 } from "@/db/schema";
 import {
@@ -97,29 +97,29 @@ export default async function (server: FastifyInstance) {
       }
 
       if (body.resourceLinks !== undefined) {
-        await db.delete(tasksToCourses).where(eq(tasksToCourses.taskId, id));
-        // Dedupe by courseId — PK is (taskId, courseId), one link per pair.
+        await db.delete(tasksToResources).where(eq(tasksToResources.taskId, id));
+        // Dedupe by resourceId — PK is (taskId, resourceId), one link per pair.
         const seen = new Set<string>();
         const rows: {
           taskId: string;
-          courseId: string;
+          resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
           position: number;
         }[] = [];
         body.resourceLinks.forEach((link, index) => {
-          if (seen.has(link.courseId)) return;
-          seen.add(link.courseId);
+          if (seen.has(link.resourceId)) return;
+          seen.add(link.resourceId);
           rows.push({
             taskId: id,
-            courseId: link.courseId,
+            resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,
             moduleId: link.moduleId ?? null,
             position: index,
           });
         });
         if (rows.length > 0) {
-          await db.insert(tasksToCourses).values(rows);
+          await db.insert(tasksToResources).values(rows);
         }
       }
 

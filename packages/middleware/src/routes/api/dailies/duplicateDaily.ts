@@ -44,7 +44,7 @@ export default async function (server: FastifyInstance) {
         description: source.description ?? null,
         completions: [],
         courseProviderId: source.courseProviderId ?? null,
-        courseId: source.courseId ?? null,
+        resourceId: source.resourceId ?? null,
       });
 
       return {

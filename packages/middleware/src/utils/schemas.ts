@@ -90,9 +90,9 @@ export const tagIdsArraySchema = {
 
 export const resourceLinkSchema = {
   type: "object",
-  required: ["courseId"],
+  required: ["resourceId"],
   properties: {
-    courseId: {
+    resourceId: {
       type: "string",
     },
     moduleGroupId: nullableString,

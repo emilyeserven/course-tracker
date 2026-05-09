@@ -1,4 +1,4 @@
-import type { CourseInCourses } from "@emstack/types/src";
+import type { ResourceInResources } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/table";
 
 interface CoursesTableProps {
-  courses: CourseInCourses[];
+  courses: ResourceInResources[];
 }
 
-function formatProgress(course: CourseInCourses): string {
+function formatProgress(course: ResourceInResources): string {
   if (!course.progressTotal) return "—";
   const pct = Math.round(
     (course.progressCurrent / course.progressTotal) * 100,
@@ -31,7 +31,7 @@ function formatProgress(course: CourseInCourses): string {
   return `${course.progressCurrent} / ${course.progressTotal} (${pct}%)`;
 }
 
-function formatCost(course: CourseInCourses): string {
+function formatCost(course: ResourceInResources): string {
   const {
     cost,
   } = course;

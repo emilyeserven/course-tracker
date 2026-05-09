@@ -104,11 +104,11 @@ function SingleProviders() {
         <div>
           <InfoArea
             header="Resources"
-            condition={!!data?.courseCount && data.courseCount > 0}
+            condition={!!data?.resourceCount && data.resourceCount > 0}
           >
             <ul className="ml-5 list-disc">
-              {data?.courses
-                && data.courses.map(course => (
+              {data?.resources
+                && data.resources.map(course => (
                   <li key={course.id}>
                     <Link
                       to="/resources/$id"

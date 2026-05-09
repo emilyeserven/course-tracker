@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { courses } from "@/db/schema";
+import { resources } from "@/db/schema";
 import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 
@@ -24,14 +24,14 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
 
-      const course = await db.query.courses.findFirst({
-        where: (courses, {
+      const course = await db.query.resources.findFirst({
+        where: (resources, {
           eq,
-        }) => eq(courses.id, id),
+        }) => eq(resources.id, id),
       });
 
       if (!course) {
-        return sendNotFound(reply, "Course");
+        return sendNotFound(reply, "Resource");
       }
 
       const current = course.progressCurrent ?? 0;
@@ -39,11 +39,11 @@ export default async function (server: FastifyInstance) {
       const next = total > 0 ? Math.min(current + 1, total) : current + 1;
 
       await db
-        .update(courses)
+        .update(resources)
         .set({
           progressCurrent: next,
         })
-        .where(eq(courses.id, id));
+        .where(eq(resources.id, id));
 
       return {
         status: "ok",

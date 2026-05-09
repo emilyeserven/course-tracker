@@ -1,6 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { courses, topics, topicsToCourses } from "@/db/schema";
+import { resources, topics, topicsToResources } from "@/db/schema";
 import { db } from "@/db";
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,7 +19,7 @@ const testSchema = {
             type: "string",
           },
         },
-        courses: {
+        resources: {
           type: "array",
           items: {
             type: "object",
@@ -90,22 +90,22 @@ export default async function (server: FastifyInstance) {
 
       const topicsData = makeTopicData(request.body.topics);
 
-      const reqCourses = request.body.courses;
+      const reqCourses = request.body.resources;
 
-      const coursesData = makeCourseData(reqCourses);
+      const resourcesData = makeCourseData(reqCourses);
 
-      if (coursesData && reqCourses) {
+      if (resourcesData && reqCourses) {
         const topicsDb = await db.insert(topics).values(topicsData).onConflictDoNothing().returning();
-        const coursesDb = await db.insert(courses).values(coursesData).onConflictDoNothing().returning();
+        const coursesDb = await db.insert(resources).values(resourcesData).onConflictDoNothing().returning();
 
         coursesDb.map(async (course) => {
-          const courseTopicName = reqCourses.find(courses => course.name === courses.name);
+          const courseTopicName = reqCourses.find(resources => course.name === resources.name);
           if (courseTopicName) {
             const courseTopic = topicsDb.find(topic => topic.name === courseTopicName.topic);
 
             if (courseTopic) {
-              await db.insert(topicsToCourses).values([{
-                courseId: course.id,
+              await db.insert(topicsToResources).values([{
+                resourceId: course.id,
                 topicId: courseTopic.id,
               }]).onConflictDoNothing();
             }

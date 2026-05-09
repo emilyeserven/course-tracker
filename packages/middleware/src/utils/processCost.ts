@@ -1,7 +1,7 @@
 import type { CostData } from "@emstack/types/src";
-import { CourseFromServer } from "@emstack/types/src";
+import { ResourceFromServer } from "@emstack/types/src";
 
-export function processCost(course: CourseFromServer): CostData {
+export function processCost(course: ResourceFromServer): CostData {
   let costData: CostData = {
     cost: null,
     isCostFromPlatform: false,
@@ -11,8 +11,8 @@ export function processCost(course: CourseFromServer): CostData {
       costData = {
         cost: course.courseProvider.cost ?? null,
         isCostFromPlatform: true,
-        splitBy: course.courseProvider.courses
-          ? course.courseProvider.courses.length
+        splitBy: course.courseProvider.resources
+          ? course.courseProvider.resources.length
           : 1,
       };
     }

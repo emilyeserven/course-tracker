@@ -111,7 +111,7 @@ function HoverProgressPopover({
 export function DailyProgressCell({
   daily,
 }: DailyProgressCellProps) {
-  const course = daily.course;
+  const course = daily.resource;
   const taskProgress = daily.task?.progress;
 
   if (course) {

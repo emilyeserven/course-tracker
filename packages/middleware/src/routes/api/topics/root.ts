@@ -11,9 +11,9 @@ export default async function (server: FastifyInstance) {
     async () => {
       const rawData = await db.query.topics.findMany({
         with: {
-          topicsToCourses: {
+          topicsToResources: {
             with: {
-              course: {
+              resource: {
                 columns: {
                   name: true,
                 },
@@ -43,7 +43,7 @@ export default async function (server: FastifyInstance) {
       });
 
       const processedData: TopicForTopicsPage[] = rawData.map((topic) => {
-        const courseCount = topic.topicsToCourses?.length ?? 0;
+        const resourceCount = topic.topicsToResources?.length ?? 0;
         const taskCount = topic.tasks?.length ?? 0;
         const dailyCount
           = topic.tasks?.filter(t => t.daily != null).length ?? 0;
@@ -64,7 +64,7 @@ export default async function (server: FastifyInstance) {
           name: topic.name,
           description: topic.description,
           reason: topic.reason,
-          courseCount: courseCount,
+          resourceCount: resourceCount,
           taskCount: taskCount,
           dailyCount: dailyCount,
           domains: Array.from(domainsById.values()),

@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { topics, topicsToCourses, topicsToTags } from "@/db/schema";
+import { topics, topicsToResources, topicsToTags } from "@/db/schema";
 import {
   nullableString,
   resourceLinksArraySchema,
@@ -74,22 +74,22 @@ export default async function (server: FastifyInstance) {
         const seen = new Set<string>();
         const linkRows: {
           topicId: string;
-          courseId: string;
+          resourceId: string;
           moduleGroupId: string | null;
           moduleId: string | null;
         }[] = [];
         for (const link of incomingLinks) {
-          if (seen.has(link.courseId)) continue;
-          seen.add(link.courseId);
+          if (seen.has(link.resourceId)) continue;
+          seen.add(link.resourceId);
           linkRows.push({
             topicId: id,
-            courseId: link.courseId,
+            resourceId: link.resourceId,
             moduleGroupId: link.moduleGroupId ?? null,
             moduleId: link.moduleId ?? null,
           });
         }
         if (linkRows.length > 0) {
-          await db.insert(topicsToCourses).values(linkRows);
+          await db.insert(topicsToResources).values(linkRows);
         }
       }
 

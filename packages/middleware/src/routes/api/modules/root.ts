@@ -7,11 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 
 const listSchema = {
   schema: {
-    description: "List modules (optionally filtered by courseId or moduleGroupId)",
+    description: "List modules (optionally filtered by resourceId or moduleGroupId)",
     querystring: {
       type: "object",
       properties: {
-        courseId: {
+        resourceId: {
           type: "string",
         },
         moduleGroupId: {
@@ -27,13 +27,13 @@ const createSchema = {
     description: "Create a new module",
     body: {
       type: "object",
-      required: ["name", "courseId"],
+      required: ["name", "resourceId"],
       properties: {
         name: {
           type: "string",
           minLength: 1,
         },
-        courseId: {
+        resourceId: {
           type: "string",
           minLength: 1,
         },
@@ -55,14 +55,14 @@ export default async function (server: FastifyInstance) {
 
   fastify.get("/", listSchema, async function (request) {
     const {
-      courseId, moduleGroupId,
+      resourceId, moduleGroupId,
     } = request.query;
     const rows = await db.query.modules.findMany({
       where: (m, {
         and, eq,
       }) => {
         const conds = [];
-        if (courseId) conds.push(eq(m.courseId, courseId));
+        if (resourceId) conds.push(eq(m.resourceId, resourceId));
         if (moduleGroupId) conds.push(eq(m.moduleGroupId, moduleGroupId));
         if (conds.length === 0) return undefined;
         if (conds.length === 1) return conds[0];
@@ -81,7 +81,7 @@ export default async function (server: FastifyInstance) {
 
     await db.insert(modules).values({
       id,
-      courseId: body.courseId,
+      resourceId: body.resourceId,
       moduleGroupId: body.moduleGroupId ?? null,
       name: body.name,
       description: body.description ?? null,

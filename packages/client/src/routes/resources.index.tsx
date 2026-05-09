@@ -1,4 +1,4 @@
-import type { CourseInCourses } from "@emstack/types/src";
+import type { ResourceInResources } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchCourses, fetchProviders, fetchTopics } from "@/utils";
+import { fetchResources, fetchProviders, fetchTopics } from "@/utils";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
 type ViewMode = "grid" | "table";
@@ -56,15 +56,15 @@ function CoursesError() {
   return <EntityError entity="resources" />;
 }
 
-function getProgressPercent(course: CourseInCourses): number {
+function getProgressPercent(course: ResourceInResources): number {
   if (course.progressTotal === 0) return 0;
   return course.progressCurrent / course.progressTotal;
 }
 
 function sortCourses(
-  courses: CourseInCourses[],
+  courses: ResourceInResources[],
   sortBy: SortOption,
-): CourseInCourses[] {
+): ResourceInResources[] {
   return [...courses].sort((a, b) => {
     switch (sortBy) {
       case "alpha":
@@ -100,7 +100,7 @@ function Courses() {
     data,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -224,13 +224,13 @@ function Courses() {
                         <FilterOptionCount count={noProviderCount} />
                       </SelectItem>
                     )}
-                    {providers?.filter(p => (p.courseCount ?? 0) > 0).map(p => (
+                    {providers?.filter(p => (p.resourceCount ?? 0) > 0).map(p => (
                       <SelectItem
                         key={p.id}
                         value={p.id}
                       >
                         <span>{p.name}</span>
-                        <FilterOptionCount count={p.courseCount ?? 0} />
+                        <FilterOptionCount count={p.resourceCount ?? 0} />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -255,13 +255,13 @@ function Courses() {
                         <FilterOptionCount count={noTopicCount} />
                       </SelectItem>
                     )}
-                    {topics?.filter(t => (t.courseCount ?? 0) > 0).map(t => (
+                    {topics?.filter(t => (t.resourceCount ?? 0) > 0).map(t => (
                       <SelectItem
                         key={t.id}
                         value={t.id}
                       >
                         <span>{t.name}</span>
-                        <FilterOptionCount count={t.courseCount ?? 0} />
+                        <FilterOptionCount count={t.resourceCount ?? 0} />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -370,7 +370,7 @@ function Courses() {
         {viewMode === "grid" && (
           <div className="card-grid">
             {filteredAndSorted.length > 0
-              && filteredAndSorted.map((course: CourseInCourses) => {
+              && filteredAndSorted.map((course: ResourceInResources) => {
                 if (!course) {
                   return <></>;
                 }

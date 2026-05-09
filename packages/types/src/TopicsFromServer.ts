@@ -1,9 +1,9 @@
-import type { TopicsToCourses } from "./TopicsToCourses";
+import type { TopicsToResources } from "./TopicsToResources";
 
 export interface TopicsFromServer {
   id: string;
   name: string;
   description?: string | null;
   reason?: string | null;
-  topicsToCourses?: TopicsToCourses[] | null;
+  topicsToCourses?: TopicsToResources[] | null;
 }

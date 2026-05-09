@@ -7,11 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 
 const listSchema = {
   schema: {
-    description: "List module groups (optionally filtered by courseId)",
+    description: "List module groups (optionally filtered by resourceId)",
     querystring: {
       type: "object",
       properties: {
-        courseId: {
+        resourceId: {
           type: "string",
         },
       },
@@ -24,13 +24,13 @@ const createSchema = {
     description: "Create a new module group",
     body: {
       type: "object",
-      required: ["name", "courseId"],
+      required: ["name", "resourceId"],
       properties: {
         name: {
           type: "string",
           minLength: 1,
         },
-        courseId: {
+        resourceId: {
           type: "string",
           minLength: 1,
         },
@@ -47,13 +47,13 @@ export default async function (server: FastifyInstance) {
 
   fastify.get("/", listSchema, async function (request) {
     const {
-      courseId,
+      resourceId,
     } = request.query;
     const rows = await db.query.moduleGroups.findMany({
-      where: courseId
+      where: resourceId
         ? (g, {
           eq: eqOp,
-        }) => eqOp(g.courseId, courseId)
+        }) => eqOp(g.resourceId, resourceId)
         : undefined,
       with: {
         modules: {
@@ -75,7 +75,7 @@ export default async function (server: FastifyInstance) {
 
     await db.insert(moduleGroups).values({
       id,
-      courseId: body.courseId,
+      resourceId: body.resourceId,
       name: body.name,
       description: body.description ?? null,
       url: body.url ?? null,

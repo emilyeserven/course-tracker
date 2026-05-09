@@ -17,13 +17,13 @@ import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
   createTopic,
-  deleteSingleCourse,
-  duplicateCourse,
+  deleteSingleResource,
+  duplicateResource,
   fetchProviders,
-  fetchSingleCourse,
+  fetchSingleResource,
   fetchTopics,
   formHasChanges,
-  upsertCourse,
+  upsertResource,
   uuidv4,
 } from "@/utils";
 
@@ -63,7 +63,7 @@ function SingleResourceEdit() {
     id,
     isNew,
     queryKey: ["course", id],
-    queryFn: () => fetchSingleCourse(id),
+    queryFn: () => fetchSingleResource(id),
     relatedQueryKeys: [["courses"], ["topics"]],
   });
 
@@ -141,7 +141,7 @@ function SingleResourceEdit() {
       try {
         const courseId = isNew ? uuidv4() : id;
         const previousStatus = data?.status;
-        await upsertCourse(courseId, courseData);
+        await upsertResource(courseId, courseData);
         await invalidateRelated();
         skipBlock();
 
@@ -189,7 +189,7 @@ function SingleResourceEdit() {
   }
 
   const handleDelete = makeDeleteHandler({
-    deleteFn: deleteSingleCourse,
+    deleteFn: deleteSingleResource,
     entityLabel: "resource",
     navigateToList: () => navigate({
       to: "/resources",
@@ -198,7 +198,7 @@ function SingleResourceEdit() {
 
   async function handleDuplicate() {
     try {
-      const result = await duplicateCourse(id);
+      const result = await duplicateResource(id);
       await invalidateRelated();
       skipBlock();
       await navigate({

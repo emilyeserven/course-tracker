@@ -6,7 +6,7 @@ import { GraduationCapIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { incrementCourseProgress } from "@/utils";
+import { incrementResourceProgress } from "@/utils";
 
 interface DailyCourseIndicatorProps {
   daily: Daily;
@@ -16,10 +16,10 @@ export function DailyCourseIndicator({
   daily,
 }: DailyCourseIndicatorProps) {
   const queryClient = useQueryClient();
-  const course = daily.course;
+  const course = daily.resource;
 
   const mutation = useMutation({
-    mutationFn: (courseId: string) => incrementCourseProgress(courseId),
+    mutationFn: (courseId: string) => incrementResourceProgress(courseId),
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({
         queryKey: ["courses"],

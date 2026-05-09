@@ -1,4 +1,4 @@
-import type { CourseStatus } from "@emstack/types/src";
+import type { ResourceStatus } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 
@@ -11,7 +11,7 @@ interface PageHeaderProps {
   children?: React.ReactNode;
   progressCurrent?: number;
   progressTotal?: number;
-  status?: CourseStatus;
+  status?: ResourceStatus;
 }
 
 export function PageHeader({

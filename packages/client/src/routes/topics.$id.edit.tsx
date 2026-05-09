@@ -18,7 +18,7 @@ import {
   createDomain,
   createTopic,
   deleteSingleTopic,
-  fetchCourses,
+  fetchResources,
   fetchDomains,
   fetchModuleGroups,
   fetchModules,
@@ -87,7 +87,7 @@ function SingleTopicEdit() {
     data: courses,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -133,7 +133,7 @@ function SingleTopicEdit() {
       domainIds: data?.domains?.map(d => d.id) ?? [],
       tagIds: (data?.tags ?? []).map(t => t.id),
       resourceLinks: (data?.resourceLinks ?? []).map(l => ({
-        courseId: l.courseId,
+        courseId: l.resourceId,
         moduleGroupId: l.moduleGroupId ?? null,
         moduleId: l.moduleId ?? null,
       })),

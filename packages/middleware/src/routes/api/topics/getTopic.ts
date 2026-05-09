@@ -26,9 +26,9 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => (eq(topics.id, id)),
         with: {
-          topicsToCourses: {
+          topicsToResources: {
             with: {
-              course: {
+              resource: {
                 columns: {
                   name: true,
                   id: true,
@@ -70,8 +70,8 @@ export default async function (server: FastifyInstance) {
       });
 
       if (topic) {
-        const courseCount = topic.topicsToCourses?.length ?? 0;
-        const courses = processCourses(topic.topicsToCourses);
+        const resourceCount = topic.topicsToResources?.length ?? 0;
+        const resources = processCourses(topic.topicsToResources);
 
         const domainsById = new Map<string, {
           id: string;
@@ -88,12 +88,12 @@ export default async function (server: FastifyInstance) {
         const domains = Array.from(domainsById.values());
         const tags = (topic.topicsToTags ?? []).map(j => j.tag);
 
-        const resourceLinks = (topic.topicsToCourses ?? []).map(j => ({
-          courseId: j.courseId,
-          course: j.course
+        const resourceLinks = (topic.topicsToResources ?? []).map(j => ({
+          resourceId: j.resourceId,
+          course: j.resource
             ? {
-              id: j.course.id,
-              name: j.course.name,
+              id: j.resource.id,
+              name: j.resource.name,
             }
             : null,
           moduleGroupId: j.moduleGroupId ?? null,
@@ -118,8 +118,8 @@ export default async function (server: FastifyInstance) {
           name: topic.name,
           description: topic.description,
           reason: topic.reason,
-          courseCount: courseCount,
-          courses: courses,
+          resourceCount: resourceCount,
+          resources: resources,
           domains,
           tags,
           resourceLinks,

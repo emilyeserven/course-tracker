@@ -2,11 +2,11 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 
 import courseRoot from "./root";
-import getCourse from "./getCourse";
-import deleteCourse from "./deleteCourse";
-import upsertCourse from "./upsertCourse";
-import duplicateCourse from "./duplicateCourse";
-import incrementCourseProgress from "./incrementCourseProgress";
+import getCourse from "./getResource";
+import deleteCourse from "./deleteResource";
+import upsertResource from "./upsertResource";
+import duplicateResource from "./duplicateResource";
+import incrementResourceProgress from "./incrementResourceProgress";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -14,7 +14,7 @@ export default async function (server: FastifyInstance) {
   fastify.register(courseRoot);
   fastify.register(getCourse);
   fastify.register(deleteCourse);
-  fastify.register(upsertCourse);
-  fastify.register(duplicateCourse);
-  fastify.register(incrementCourseProgress);
+  fastify.register(upsertResource);
+  fastify.register(duplicateResource);
+  fastify.register(incrementResourceProgress);
 }

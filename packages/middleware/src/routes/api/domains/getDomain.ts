@@ -31,9 +31,9 @@ export default async function (server: FastifyInstance) {
             with: {
               topic: {
                 with: {
-                  topicsToCourses: {
+                  topicsToResources: {
                     with: {
-                      course: {
+                      resource: {
                         columns: {
                           id: true,
                           name: true,
@@ -82,8 +82,8 @@ export default async function (server: FastifyInstance) {
           if (!topic) {
             return null;
           }
-          const courses = (topic.topicsToCourses ?? [])
-            .map(ttc => ttc.course)
+          const resources = (topic.topicsToResources ?? [])
+            .map(ttc => ttc.resource)
             .filter((c): c is NonNullable<typeof c> => Boolean(c))
             .map(c => ({
               id: c.id,
@@ -97,7 +97,7 @@ export default async function (server: FastifyInstance) {
             name: topic.name,
             description: topic.description ?? null,
             reason: topic.reason ?? null,
-            courses,
+            resources,
           };
         })
         .filter((t): t is NonNullable<typeof t> => Boolean(t));

@@ -11,7 +11,7 @@ import { DailyRecentDaysStrip } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import {
-  fetchSingleCourse,
+  fetchSingleResource,
   getCurrentChain,
   getTotalCompletedDays,
   makePercentageComplete,
@@ -45,7 +45,7 @@ function SingleCourse() {
     data,
   } = useQuery({
     queryKey: ["course", id],
-    queryFn: () => fetchSingleCourse(id),
+    queryFn: () => fetchSingleResource(id),
   });
 
   const percentComplete = makePercentageComplete(

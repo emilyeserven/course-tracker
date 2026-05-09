@@ -1,4 +1,4 @@
-import { courses, topicsToCourses } from "@/db/schema";
+import { resources, topicsToResources } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import {
   courseStatusEnum,
@@ -40,7 +40,7 @@ const updateableColumns = [
 
 export default createUpsertHandler<CourseBody>({
   description: "Create or update a course",
-  table: courses,
+  table: resources,
   bodySchema: {
     type: "object",
     required: ["name"],
@@ -86,13 +86,13 @@ export default createUpsertHandler<CourseBody>({
   returnId: true,
   junctions: [
     {
-      table: topicsToCourses,
-      foreignKey: topicsToCourses.courseId,
+      table: topicsToResources,
+      foreignKey: topicsToResources.resourceId,
       buildRows: (body, id) =>
         body.topicId
           ? [{
             topicId: body.topicId,
-            courseId: id,
+            resourceId: id,
           }]
           : [],
     },

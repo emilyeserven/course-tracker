@@ -10,7 +10,7 @@ import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchSingleCourse } from "@/utils";
+import { fetchSingleResource } from "@/utils";
 
 export const Route = createFileRoute("/resources/$id")({
   component: SingleResourceLayout,
@@ -33,7 +33,7 @@ function SingleResourceLayout() {
     isPending, error, data,
   } = useQuery({
     queryKey: ["course", id],
-    queryFn: () => fetchSingleCourse(id),
+    queryFn: () => fetchSingleResource(id),
     enabled: !isNew,
   });
 

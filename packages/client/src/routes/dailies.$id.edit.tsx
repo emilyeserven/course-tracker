@@ -45,7 +45,7 @@ import {
   createProvider,
   deleteSingleDaily,
   duplicateDaily,
-  fetchCourses,
+  fetchResources,
   fetchDailies,
   fetchDailyCriteriaTemplates,
   fetchModuleGroups,
@@ -122,7 +122,7 @@ function SingleDailyEdit() {
     data: courses,
   } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => fetchCourses(),
+    queryFn: () => fetchResources(),
   });
 
   const {
@@ -186,7 +186,7 @@ function SingleDailyEdit() {
   }, [courses, tasks]);
 
   const initialLinked = !!(
-    data?.course?.id
+    data?.resource?.id
     || data?.taskId
     || data?.task?.id
     || (isNew && search.newCourseId)
@@ -198,7 +198,7 @@ function SingleDailyEdit() {
       location: data?.location ?? "",
       description: data?.description ?? "",
       courseProviderId: data?.provider?.id ?? "",
-      courseId: data?.course?.id ?? (isNew && search.newCourseId
+      courseId: data?.resource?.id ?? (isNew && search.newCourseId
         ? search.newCourseId
         : ""),
       moduleGroupId: data?.moduleGroupId ?? "",

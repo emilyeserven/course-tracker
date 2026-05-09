@@ -62,11 +62,11 @@ export const courseProviders = pgTable("courseProviders", {
   isCourseFeesShared: boolean(),
 });
 
-// NOTE(resource-rename-followup): the `courses` table plays the role of the
+// NOTE(resource-rename-followup): the `resources` table plays the role of the
 // future top-level Resource entity. Modules and Module Groups attach via
 // course_id. When the rename lands, course_id columns become resource_id and
-// the Module/ModuleGroup types' `courseId` field becomes `resourceId`.
-export const courses = pgTable("courses", {
+// the Module/ModuleGroup types' `resourceId` field becomes `resourceId`.
+export const resources = pgTable("resources", {
   id: varchar().primaryKey(),
   name: varchar({}).notNull(),
   description: varchar(),
@@ -89,9 +89,9 @@ export const courses = pgTable("courses", {
 
 export const moduleGroups = pgTable("module_groups", {
   id: varchar().primaryKey(),
-  courseId: varchar("course_id")
+  resourceId: varchar("resource_id")
     .notNull()
-    .references(() => courses.id),
+    .references(() => resources.id),
   name: varchar({
     length: 255,
   }).notNull(),
@@ -105,9 +105,9 @@ export const moduleGroups = pgTable("module_groups", {
 
 export const modules = pgTable("modules", {
   id: varchar().primaryKey(),
-  courseId: varchar("course_id")
+  resourceId: varchar("resource_id")
     .notNull()
-    .references(() => courses.id),
+    .references(() => resources.id),
   // Modules can attach directly to a course (no group) or to a module group.
   moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id),
   name: varchar({
@@ -128,13 +128,13 @@ export const modules = pgTable("modules", {
 // a single module. At most one of moduleGroupId / moduleId is set; both
 // null = the interaction is at the whole-course level.
 //
-// Note: the column is named courseId today; when the courses → taskResources
+// Note: the column is named resourceId today; when the resources → taskResources
 // rename lands, this becomes resourceId.
 export const interactions = pgTable("interactions", {
   id: varchar().primaryKey(),
-  courseId: varchar("course_id")
+  resourceId: varchar("resource_id")
     .notNull()
-    .references(() => courses.id),
+    .references(() => resources.id),
   moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
     onDelete: "set null",
   }),
@@ -153,9 +153,9 @@ export const interactions = pgTable("interactions", {
 export const interactionsRelations = relations(interactions, ({
   one,
 }) => ({
-  course: one(courses, {
-    fields: [interactions.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [interactions.resourceId],
+    references: [resources.id],
   }),
   moduleGroup: one(moduleGroups, {
     fields: [interactions.moduleGroupId],
@@ -178,7 +178,7 @@ export const dailies = pgTable("dailies", {
   description: varchar(),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   courseProviderId: varchar("course_provider_id"),
-  courseId: varchar("course_id"),
+  resourceId: varchar("resource_id"),
   // Optional sub-target within the linked course. At most one of these
   // should be set (TODO: enforce via CHECK constraint when Drizzle support
   // lands). Both null = the daily targets the whole course.
@@ -408,7 +408,7 @@ export const tasksRelations = relations(tasks, ({
     references: [taskTypes.id],
   }),
   tasksToTags: many(tasksToTags),
-  tasksToCourses: many(tasksToCourses),
+  tasksToResources: many(tasksToResources),
   resources: many(taskResources),
   todos: many(taskTodos),
   daily: one(dailies, {
@@ -445,7 +445,7 @@ export const taskTodosRelations = relations(taskTodos, ({
 export const courseProviderRelations = relations(courseProviders, ({
   many,
 }) => ({
-  courses: many(courses),
+  resources: many(resources),
   dailies: many(dailies),
 }));
 
@@ -456,9 +456,9 @@ export const dailiesRelations = relations(dailies, ({
     fields: [dailies.courseProviderId],
     references: [courseProviders.id],
   }),
-  course: one(courses, {
-    fields: [dailies.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [dailies.resourceId],
+    references: [resources.id],
   }),
   moduleGroup: one(moduleGroups, {
     fields: [dailies.moduleGroupId],
@@ -474,15 +474,15 @@ export const dailiesRelations = relations(dailies, ({
   }),
 }));
 
-export const coursesRelations = relations(courses, ({
+export const resourcesRelations = relations(resources, ({
   one, many,
 }) => ({
   courseProvider: one(courseProviders, {
-    fields: [courses.courseProviderId],
+    fields: [resources.courseProviderId],
     references: [courseProviders.id],
   }),
-  topicsToCourses: many(topicsToCourses),
-  tasksToCourses: many(tasksToCourses),
+  topicsToResources: many(topicsToResources),
+  tasksToResources: many(tasksToResources),
   moduleGroups: many(moduleGroups),
   modules: many(modules),
   interactions: many(interactions),
@@ -492,9 +492,9 @@ export const coursesRelations = relations(courses, ({
 export const moduleGroupsRelations = relations(moduleGroups, ({
   one, many,
 }) => ({
-  course: one(courses, {
-    fields: [moduleGroups.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [moduleGroups.resourceId],
+    references: [resources.id],
   }),
   modules: many(modules),
   interactions: many(interactions),
@@ -503,9 +503,9 @@ export const moduleGroupsRelations = relations(moduleGroups, ({
 export const modulesRelations = relations(modules, ({
   one, many,
 }) => ({
-  course: one(courses, {
-    fields: [modules.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [modules.resourceId],
+    references: [resources.id],
   }),
   moduleGroup: one(moduleGroups, {
     fields: [modules.moduleGroupId],
@@ -517,7 +517,7 @@ export const modulesRelations = relations(modules, ({
 export const topicsRelations = relations(topics, ({
   many,
 }) => ({
-  topicsToCourses: many(topicsToCourses),
+  topicsToResources: many(topicsToResources),
   radarBlips: many(radarBlips),
   domainExclusions: many(domainExcludedTopics),
   domainWithinScope: many(domainWithinScopeTopics),
@@ -625,15 +625,15 @@ export const domainWithinScopeTopicsRelations = relations(
   }),
 );
 
-export const topicsToCourses = pgTable(
+export const topicsToResources = pgTable(
   "topics_to_courses",
   {
     topicId: varchar("topic_id")
       .notNull()
       .references(() => topics.id),
-    courseId: varchar("course_id")
+    resourceId: varchar("resource_id")
       .notNull()
-      .references(() => courses.id),
+      .references(() => resources.id),
     // Optional sub-target within the linked course. At most one of these
     // should be set (TODO: CHECK constraint). Both null = whole course.
     moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
@@ -645,42 +645,42 @@ export const topicsToCourses = pgTable(
   },
   t => [
     primaryKey({
-      columns: [t.topicId, t.courseId],
+      columns: [t.topicId, t.resourceId],
     }),
   ],
 );
-export const topicsToCoursesRelation = relations(topicsToCourses, ({
+export const topicsToResourcesRelation = relations(topicsToResources, ({
   one,
 }) => ({
   topic: one(topics, {
-    fields: [topicsToCourses.topicId],
+    fields: [topicsToResources.topicId],
     references: [topics.id],
   }),
-  course: one(courses, {
-    fields: [topicsToCourses.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [topicsToResources.resourceId],
+    references: [resources.id],
   }),
   moduleGroup: one(moduleGroups, {
-    fields: [topicsToCourses.moduleGroupId],
+    fields: [topicsToResources.moduleGroupId],
     references: [moduleGroups.id],
   }),
   module: one(modules, {
-    fields: [topicsToCourses.moduleId],
+    fields: [topicsToResources.moduleId],
     references: [modules.id],
   }),
 }));
 
-// New junction so tasks can reference courses (the future "Resources").
+// New junction so tasks can reference resources (the future "Resources").
 // Optionally narrowed to a module group or single module within that course.
-export const tasksToCourses = pgTable(
+export const tasksToResources = pgTable(
   "tasks_to_courses",
   {
     taskId: varchar("task_id")
       .notNull()
       .references(() => tasks.id),
-    courseId: varchar("course_id")
+    resourceId: varchar("resource_id")
       .notNull()
-      .references(() => courses.id),
+      .references(() => resources.id),
     moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
       onDelete: "set null",
     }),
@@ -691,28 +691,28 @@ export const tasksToCourses = pgTable(
   },
   t => [
     primaryKey({
-      columns: [t.taskId, t.courseId],
+      columns: [t.taskId, t.resourceId],
     }),
   ],
 );
 
-export const tasksToCoursesRelations = relations(tasksToCourses, ({
+export const tasksToResourcesRelations = relations(tasksToResources, ({
   one,
 }) => ({
   task: one(tasks, {
-    fields: [tasksToCourses.taskId],
+    fields: [tasksToResources.taskId],
     references: [tasks.id],
   }),
-  course: one(courses, {
-    fields: [tasksToCourses.courseId],
-    references: [courses.id],
+  resource: one(resources, {
+    fields: [tasksToResources.resourceId],
+    references: [resources.id],
   }),
   moduleGroup: one(moduleGroups, {
-    fields: [tasksToCourses.moduleGroupId],
+    fields: [tasksToResources.moduleGroupId],
     references: [moduleGroups.id],
   }),
   module: one(modules, {
-    fields: [tasksToCourses.moduleId],
+    fields: [tasksToResources.moduleId],
     references: [modules.id],
   }),
 }));

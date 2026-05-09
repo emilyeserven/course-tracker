@@ -3,20 +3,20 @@ import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
-import type { Course, CourseFromServer, DailyCompletion } from "@emstack/types/src";
+import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types/src";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.get("/", async (request, reply) => {
-    const rawData = await db.query.courses.findMany({
+    const rawData = await db.query.resources.findMany({
       with: {
         courseProvider: {
           with: {
-            courses: true,
+            resources: true,
           },
         },
-        topicsToCourses: {
+        topicsToResources: {
           with: {
             topic: {
               columns: {
@@ -36,10 +36,10 @@ export default async function (server: FastifyInstance) {
       },
     });
 
-    const processedData: Course[] = rawData.map((course) => {
-      const costData = processCost(course as unknown as CourseFromServer);
+    const processedData: Resource[] = rawData.map((course) => {
+      const costData = processCost(course as unknown as ResourceFromServer);
 
-      const topics = processTopics(course.topicsToCourses);
+      const topics = processTopics(course.topicsToResources);
 
       return {
         id: course.id,

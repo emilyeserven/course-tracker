@@ -30,9 +30,9 @@ export default async function (server: FastifyInstance) {
             asc,
           }) => asc(j.position),
         },
-        tasksToCourses: {
+        tasksToResources: {
           with: {
-            course: {
+            resource: {
               columns: {
                 id: true,
                 name: true,
@@ -99,12 +99,12 @@ export default async function (server: FastifyInstance) {
         }
         : null,
       tags: (task.tasksToTags ?? []).map(j => j.tag),
-      resourceLinks: (task.tasksToCourses ?? []).map(j => ({
-        courseId: j.courseId,
-        course: j.course
+      resourceLinks: (task.tasksToResources ?? []).map(j => ({
+        resourceId: j.resourceId,
+        resource: j.resource
           ? {
-            id: j.course.id,
-            name: j.course.name,
+            id: j.resource.id,
+            name: j.resource.name,
           }
           : null,
         moduleGroupId: j.moduleGroupId ?? null,

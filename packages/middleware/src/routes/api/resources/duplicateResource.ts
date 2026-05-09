@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { courses, topicsToCourses } from "@/db/schema";
+import { resources, topicsToResources } from "@/db/schema";
 import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
@@ -24,21 +24,21 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
 
-      const source = await db.query.courses.findFirst({
+      const source = await db.query.resources.findFirst({
         where: (c, {
           eq,
         }) => eq(c.id, id),
         with: {
-          topicsToCourses: true,
+          topicsToResources: true,
         },
       });
 
       if (!source) {
-        return sendNotFound(reply, "Course");
+        return sendNotFound(reply, "Resource");
       }
 
       const newId = uuidv4();
-      await db.insert(courses).values({
+      await db.insert(resources).values({
         id: newId,
         name: `${source.name} (Copy)`,
         description: source.description ?? null,
@@ -54,12 +54,12 @@ export default async function (server: FastifyInstance) {
         courseProviderId: source.courseProviderId ?? null,
       });
 
-      const topicLinks = (source.topicsToCourses ?? []).map(t => ({
+      const topicLinks = (source.topicsToResources ?? []).map(t => ({
         topicId: t.topicId,
-        courseId: newId,
+        resourceId: newId,
       }));
       if (topicLinks.length > 0) {
-        await db.insert(topicsToCourses).values(topicLinks);
+        await db.insert(topicsToResources).values(topicLinks);
       }
 
       return {

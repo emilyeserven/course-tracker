@@ -41,7 +41,7 @@ export interface Daily {
     name: string;
     id: string;
   };
-  course?: {
+  resource?: {
     id: string;
     name: string;
     progressCurrent: number;

@@ -18,7 +18,7 @@ const nullableInteractionUnderstandingEnum = {
 } as const;
 
 interface InteractionBody {
-  courseId: string;
+  resourceId: string;
   moduleGroupId?: string | null;
   moduleId?: string | null;
   date: string;
@@ -35,7 +35,7 @@ interface InteractionBody {
 }
 
 const updateableColumns = [
-  "courseId",
+  "resourceId",
   "moduleGroupId",
   "moduleId",
   "date",
@@ -50,9 +50,9 @@ export default createUpsertHandler<InteractionBody>({
   table: interactions,
   bodySchema: {
     type: "object",
-    required: ["courseId", "date", "progress"],
+    required: ["resourceId", "date", "progress"],
     properties: {
-      courseId: {
+      resourceId: {
         type: "string",
         minLength: 1,
       },
@@ -69,7 +69,7 @@ export default createUpsertHandler<InteractionBody>({
   },
   buildRow: (body, id) => ({
     id,
-    courseId: body.courseId,
+    resourceId: body.resourceId,
     moduleGroupId: body.moduleGroupId ?? null,
     moduleId: body.moduleId ?? null,
     date: body.date,

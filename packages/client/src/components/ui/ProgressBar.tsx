@@ -1,4 +1,4 @@
-import type { CourseStatus } from "@emstack/types/src";
+import type { ResourceStatus } from "@emstack/types/src";
 
 import * as React from "react";
 
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface ContentBoxProgressProps {
   progressCurrent?: number;
   progressTotal?: number;
-  status?: CourseStatus;
+  status?: ResourceStatus;
   isRounded?: boolean;
 }
 export function ProgressBar({

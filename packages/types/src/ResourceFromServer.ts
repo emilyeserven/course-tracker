@@ -1,8 +1,8 @@
-import type { CourseStatus } from "./Course";
+import type { ResourceStatus } from "./Resource";
 import type { CourseProvider } from "./CourseProvider";
-import type { TopicsToCourses } from "./TopicsToCourses";
+import type { TopicsToResources } from "./TopicsToResources";
 
-export interface CourseFromServer {
+export interface ResourceFromServer {
   id: string;
   name: string;
   description?: string | null;
@@ -13,9 +13,9 @@ export interface CourseFromServer {
   dateExpires?: string | null;
   isExpires?: boolean | null;
   cost?: string | null;
-  status?: CourseStatus | null;
+  status?: ResourceStatus | null;
   minutesLength?: number | null;
   courseProviderId?: string | null;
   courseProvider?: Partial<CourseProvider> | null;
-  topicsToCourses?: TopicsToCourses[] | null;
+  topicsToResources?: TopicsToResources[] | null;
 }

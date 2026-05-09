@@ -1,4 +1,4 @@
-import type { CourseInCourses } from "@emstack/types/src";
+import type { ResourceInResources } from "@emstack/types/src";
 
 import { Link } from "@tanstack/react-router";
 import {
@@ -38,7 +38,7 @@ export function CourseBox({
   progressTotal = 0,
   cost,
   dailies,
-}: CourseInCourses) {
+}: ResourceInResources) {
   const costValue
     = cost.cost != null
       ? cost.isCostFromPlatform

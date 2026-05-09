@@ -116,11 +116,11 @@ function SingleDaily() {
               </Button>
             </Link>
           )}
-          {data.course && !data.task && (
+          {data.resource && !data.task && (
             <Link
               to="/resources/$id"
               params={{
-                id: data.course.id,
+                id: data.resource.id,
               }}
             >
               <Button>
@@ -129,7 +129,7 @@ function SingleDaily() {
               </Button>
             </Link>
           )}
-          {locationIsUrl && data.location && !data.task && !data.course && (
+          {locationIsUrl && data.location && !data.task && !data.resource && (
             <a
               href={data.location}
               target="_blank"

@@ -1,6 +1,6 @@
 import type {
-  Course,
-  CourseInCourses,
+  Resource,
+  ResourceInResources,
   TopicForTopicsPage,
   CourseProvider,
   DailyCriteriaTemplate,
@@ -141,7 +141,7 @@ function createEntityClient<TEntity, TList = TEntity[]>(
   };
 }
 
-export const coursesApi = createEntityClient<Course, CourseInCourses[]>(
+export const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
   "resources",
   "resource",
 );
@@ -181,7 +181,7 @@ export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplat
 
 export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
-export const fetchCourses = coursesApi.list;
+export const fetchResources = resourcesApi.list;
 export const fetchDomains = domainsApi.list;
 export const fetchDailies = dailiesApi.list;
 export const fetchTasks = tasksApi.list;
@@ -193,14 +193,14 @@ export const fetchModules = modulesApi.list;
 export const fetchInteractions = interactionsApi.list;
 export const fetchDailyCriteriaTemplates = dailyCriteriaTemplatesApi.list;
 
-export const fetchSingleCourse = coursesApi.get;
+export const fetchSingleResource = resourcesApi.get;
 export const fetchSingleTopic = topicsApi.get;
 export const fetchSingleProvider = providersApi.get;
 export const fetchSingleDomain = domainsApi.get;
 export const fetchSingleDaily = dailiesApi.get;
 export const fetchSingleTask = tasksApi.get;
 
-export const upsertCourse = coursesApi.upsert;
+export const upsertResource = resourcesApi.upsert;
 export const upsertTopic = topicsApi.upsert;
 export const upsertProvider = providersApi.upsert;
 export const upsertDomain = domainsApi.upsert;
@@ -227,7 +227,7 @@ export const createModule = modulesApi.create;
 export const createInteraction = interactionsApi.create;
 export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
 
-export const deleteSingleCourse = coursesApi.delete;
+export const deleteSingleResource = resourcesApi.delete;
 export const deleteSingleTopic = topicsApi.delete;
 export const deleteSinglePlatform = providersApi.delete;
 export const deleteSingleDomain = domainsApi.delete;
@@ -241,7 +241,7 @@ export const deleteSingleModule = modulesApi.delete;
 export const deleteSingleInteraction = interactionsApi.delete;
 export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delete;
 
-export const duplicateCourse = coursesApi.duplicate;
+export const duplicateResource = resourcesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;
 export const duplicateDaily = dailiesApi.duplicate;
 
@@ -253,7 +253,7 @@ export async function fetchClear(): Promise<SuccessObj> {
   return await fetch("/api/clearData").then(res => res.json());
 }
 
-export async function incrementCourseProgress(
+export async function incrementResourceProgress(
   id: string,
 ): Promise<{
   status: string;

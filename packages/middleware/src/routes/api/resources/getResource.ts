@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
 import { idParamSchema } from "@/utils/schemas";
-import type { Course, CourseFromServer, DailyCompletion } from "@emstack/types/src";
+import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types/src";
 
 const testSchema = {
   schema: {
@@ -20,17 +20,17 @@ export default async function (server: FastifyInstance) {
     const {
       id,
     } = request.params;
-    const course = await db.query.courses.findFirst({
-      where: (courses, {
+    const course = await db.query.resources.findFirst({
+      where: (resources, {
         eq,
-      }) => eq(courses.id, id),
+      }) => eq(resources.id, id),
       with: {
         courseProvider: {
           with: {
-            courses: true,
+            resources: true,
           },
         },
-        topicsToCourses: {
+        topicsToResources: {
           with: {
             topic: {
               columns: {
@@ -53,11 +53,11 @@ export default async function (server: FastifyInstance) {
     });
 
     if (course) {
-      const costData = processCost(course as CourseFromServer);
+      const costData = processCost(course as ResourceFromServer);
 
-      const topics = processTopics(course.topicsToCourses);
+      const topics = processTopics(course.topicsToResources);
 
-      const rawData: Course = {
+      const rawData: Resource = {
         id: course.id,
         name: course.name,
         description: course.description,
