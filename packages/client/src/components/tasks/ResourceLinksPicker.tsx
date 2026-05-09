@@ -75,7 +75,7 @@ export function ResourceLinksPicker({
   return (
     <div className="flex flex-col gap-2">
       {value.length === 0 && (
-        <p className="text-muted-foreground text-xs">
+        <p className="text-xs text-muted-foreground">
           No resource links yet.
         </p>
       )}
@@ -102,8 +102,8 @@ export function ResourceLinksPicker({
               <li
                 key={row.key}
                 className="
-                  bg-background grid grid-cols-[1fr_1fr_1fr_auto] items-center
-                  gap-2 rounded-md border px-2 py-1.5
+                  grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2
+                  rounded-md border bg-background px-2 py-1.5
                 "
               >
                 <select
@@ -121,7 +121,7 @@ export function ResourceLinksPicker({
                     });
                   }}
                   className="
-                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
                   "
                 >
                   <option value="">— Select a resource —</option>
@@ -157,7 +157,7 @@ export function ResourceLinksPicker({
                   }}
                   disabled={!row.resourceId || groupsForResource.length === 0}
                   className="
-                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
                     disabled:cursor-not-allowed disabled:opacity-50
                   "
                 >
@@ -181,7 +181,7 @@ export function ResourceLinksPicker({
                     })}
                   disabled={!row.resourceId || modulesForRow.length === 0}
                   className="
-                    bg-background flex h-9 w-full rounded-md border px-2 text-sm
+                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
                     disabled:cursor-not-allowed disabled:opacity-50
                   "
                 >

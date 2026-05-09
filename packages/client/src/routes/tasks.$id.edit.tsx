@@ -319,7 +319,7 @@ function SingleTaskEdit() {
           <form.Field name="resourceLinks">
             {field => (
               <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground text-xs font-medium">
+                <span className="text-xs font-medium text-muted-foreground">
                   Resource Links
                 </span>
                 <ResourceLinksPicker
