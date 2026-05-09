@@ -339,7 +339,7 @@ export function CourseModulesAdmin({
               onCancel={() => setCreatingModuleIn(null)}
             />
           )}
-          <ul className="flex flex-col divide-y rounded border">
+          <ul className="flex flex-col divide-y rounded-sm border">
             {ungroupedModules.map(m =>
               m.id === editingModuleId
                 ? (
@@ -355,7 +355,7 @@ export function CourseModulesAdmin({
                     isComplete={m.isComplete}
                     isSaving={
                       upsertModuleMutation.isPending
-                        || deleteModuleMutation.isPending
+                      || deleteModuleMutation.isPending
                     }
                     onSave={d =>
                       upsertModuleMutation.mutate({
@@ -475,7 +475,7 @@ export function CourseModulesAdmin({
               />
             )}
             {groupModules.length > 0 && (
-              <ul className="flex flex-col divide-y rounded border">
+              <ul className="flex flex-col divide-y rounded-sm border">
                 {groupModules.map(m =>
                   m.id === editingModuleId
                     ? (
@@ -491,7 +491,7 @@ export function CourseModulesAdmin({
                         isComplete={m.isComplete}
                         isSaving={
                           upsertModuleMutation.isPending
-                            || deleteModuleMutation.isPending
+                          || deleteModuleMutation.isPending
                         }
                         onSave={d =>
                           upsertModuleMutation.mutate({
@@ -572,7 +572,10 @@ function ModuleDisplayRow({
             href={m.url}
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-muted-foreground hover:text-blue-600"
+            className="
+              text-xs text-muted-foreground
+              hover:text-blue-600
+            "
             onClick={e => e.stopPropagation()}
           >
             <ExternalLinkIcon className="inline size-3" />
@@ -614,7 +617,10 @@ function GroupEditCard({
 }) {
   const [draft, setDraft] = useState<GroupDraft>(initial);
   function update(patch: Partial<GroupDraft>) {
-    setDraft(prev => ({ ...prev, ...patch }));
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
   }
   return (
     <form
@@ -631,7 +637,9 @@ function GroupEditCard({
         <Input
           type="text"
           value={draft.name}
-          onChange={e => update({ name: e.target.value })}
+          onChange={e => update({
+            name: e.target.value,
+          })}
           required
           autoFocus
           placeholder="e.g. Section 1: Fundamentals"
@@ -643,7 +651,9 @@ function GroupEditCard({
         </label>
         <Textarea
           value={draft.description}
-          onChange={e => update({ description: e.target.value })}
+          onChange={e => update({
+            description: e.target.value,
+          })}
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -653,12 +663,19 @@ function GroupEditCard({
         <Input
           type="text"
           value={draft.url}
-          onChange={e => update({ url: e.target.value })}
+          onChange={e => update({
+            url: e.target.value,
+          })}
         />
       </div>
-      <div className="flex flex-row flex-wrap items-center justify-between gap-2">
+      <div
+        className="flex flex-row flex-wrap items-center justify-between gap-2"
+      >
         <div className="flex flex-row gap-2">
-          <Button type="submit" disabled={isSaving}>
+          <Button
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving && <Loader2 className="animate-spin" />}
             Save
           </Button>
@@ -707,7 +724,10 @@ function ModuleEditCard({
 }) {
   const [draft, setDraft] = useState<ModuleDraft>(initial);
   function update(patch: Partial<ModuleDraft>) {
-    setDraft(prev => ({ ...prev, ...patch }));
+    setDraft(prev => ({
+      ...prev,
+      ...patch,
+    }));
   }
   return (
     <form
@@ -715,7 +735,7 @@ function ModuleEditCard({
         e.preventDefault();
         onSave(draft);
       }}
-      className="flex flex-col gap-2 rounded border bg-muted/40 p-2"
+      className="flex flex-col gap-2 rounded-sm border bg-muted/40 p-2"
     >
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
@@ -724,7 +744,9 @@ function ModuleEditCard({
         <Input
           type="text"
           value={draft.name}
-          onChange={e => update({ name: e.target.value })}
+          onChange={e => update({
+            name: e.target.value,
+          })}
           required
           autoFocus
         />
@@ -736,7 +758,9 @@ function ModuleEditCard({
         <Input
           type="text"
           value={draft.url}
-          onChange={e => update({ url: e.target.value })}
+          onChange={e => update({
+            url: e.target.value,
+          })}
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -746,7 +770,9 @@ function ModuleEditCard({
         <Input
           type="number"
           value={draft.minutesLength}
-          onChange={e => update({ minutesLength: e.target.value })}
+          onChange={e => update({
+            minutesLength: e.target.value,
+          })}
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -755,12 +781,20 @@ function ModuleEditCard({
         </label>
         <Textarea
           value={draft.description}
-          onChange={e => update({ description: e.target.value })}
+          onChange={e => update({
+            description: e.target.value,
+          })}
         />
       </div>
-      <div className="flex flex-row flex-wrap items-center justify-between gap-2">
+      <div
+        className="flex flex-row flex-wrap items-center justify-between gap-2"
+      >
         <div className="flex flex-row gap-2">
-          <Button size="sm" type="submit" disabled={isSaving}>
+          <Button
+            size="sm"
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving && <Loader2 className="animate-spin" />}
             Save
           </Button>
