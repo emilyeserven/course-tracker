@@ -151,6 +151,149 @@ export const taskTodos = pgTable("task_todos", {
   position: integer(),
 });
 
+export const tagGroups = pgTable("tag_groups", {
+  id: varchar().primaryKey(),
+  name: varchar({
+    length: 255,
+  }).notNull().unique(),
+  description: varchar(),
+  color: varchar({
+    length: 32,
+  }),
+  position: integer(),
+});
+
+export const tags = pgTable(
+  "tags",
+  {
+    id: varchar().primaryKey(),
+    groupId: varchar("group_id")
+      .notNull()
+      .references(() => tagGroups.id),
+    name: varchar({
+      length: 255,
+    }).notNull(),
+    color: varchar({
+      length: 32,
+    }),
+    position: integer(),
+  },
+  t => [
+    unique("tags_group_name_unique").on(t.groupId, t.name),
+  ],
+);
+
+export const tasksToTags = pgTable(
+  "tasks_to_tags",
+  {
+    taskId: varchar("task_id")
+      .notNull()
+      .references(() => tasks.id),
+    tagId: varchar("tag_id")
+      .notNull()
+      .references(() => tags.id),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.taskId, t.tagId],
+    }),
+  ],
+);
+
+export const resourcesToTags = pgTable(
+  "resources_to_tags",
+  {
+    resourceId: varchar("resource_id")
+      .notNull()
+      .references(() => resources.id),
+    tagId: varchar("tag_id")
+      .notNull()
+      .references(() => tags.id),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.resourceId, t.tagId],
+    }),
+  ],
+);
+
+export const topicsToTags = pgTable(
+  "topics_to_tags",
+  {
+    topicId: varchar("topic_id")
+      .notNull()
+      .references(() => topics.id),
+    tagId: varchar("tag_id")
+      .notNull()
+      .references(() => tags.id),
+    position: integer(),
+  },
+  t => [
+    primaryKey({
+      columns: [t.topicId, t.tagId],
+    }),
+  ],
+);
+
+export const tagGroupsRelations = relations(tagGroups, ({
+  many,
+}) => ({
+  tags: many(tags),
+}));
+
+export const tagsRelations = relations(tags, ({
+  one, many,
+}) => ({
+  group: one(tagGroups, {
+    fields: [tags.groupId],
+    references: [tagGroups.id],
+  }),
+  tasksToTags: many(tasksToTags),
+  resourcesToTags: many(resourcesToTags),
+  topicsToTags: many(topicsToTags),
+}));
+
+export const tasksToTagsRelations = relations(tasksToTags, ({
+  one,
+}) => ({
+  task: one(tasks, {
+    fields: [tasksToTags.taskId],
+    references: [tasks.id],
+  }),
+  tag: one(tags, {
+    fields: [tasksToTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const resourcesToTagsRelations = relations(resourcesToTags, ({
+  one,
+}) => ({
+  resource: one(resources, {
+    fields: [resourcesToTags.resourceId],
+    references: [resources.id],
+  }),
+  tag: one(tags, {
+    fields: [resourcesToTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const topicsToTagsRelations = relations(topicsToTags, ({
+  one,
+}) => ({
+  topic: one(topics, {
+    fields: [topicsToTags.topicId],
+    references: [topics.id],
+  }),
+  tag: one(tags, {
+    fields: [topicsToTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
 export const tasksRelations = relations(tasks, ({
   one, many,
 }) => ({

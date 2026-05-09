@@ -13,6 +13,8 @@ export * from "./Daily";
 export * from "./DailyCriteriaTemplate";
 export * from "./Radar";
 export * from "./Resource";
+export * from "./Tag";
+export * from "./TagGroup";
 export * from "./Task";
 export * from "./TaskTodo";
 export * from "./TaskType";
