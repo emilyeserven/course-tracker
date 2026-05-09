@@ -213,6 +213,8 @@ export const domains = pgTable("domains", {
   }).notNull(),
   description: varchar(),
   hasRadar: boolean(),
+  withinScopeDescription: varchar("within_scope_description"),
+  outOfScopeDescription: varchar("out_of_scope_description"),
 });
 
 export const domainsRelations = relations(domains, ({

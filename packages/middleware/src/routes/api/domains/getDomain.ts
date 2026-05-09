@@ -162,6 +162,8 @@ export default async function (server: FastifyInstance) {
         title: domain.title,
         description: domain.description,
         hasRadar: domain.hasRadar,
+        withinScopeDescription: domain.withinScopeDescription,
+        outOfScopeDescription: domain.outOfScopeDescription,
         topicCount: topics.length,
         topics,
         excludedTopics,

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
-import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -86,36 +85,46 @@ function SingleDomain() {
         </div>
       </PageHeader>
       <div className="container flex flex-col gap-12">
-        <InfoArea
-          header="About"
-          condition={!!data?.description}
+        <div
+          className={`
+            grid grid-cols-1 gap-8
+            md:grid-cols-2
+          `}
         >
-          <p>{data?.description}</p>
-        </InfoArea>
-        <InfoArea header="Has Radar?">
-          <YesNoDisplay value={!!data?.hasRadar} />
-        </InfoArea>
-        {radarReady && radarData && (
-          <InfoArea header="Radar Preview">
-            <RadarChart
-              quadrants={radarData.quadrants}
-              rings={radarData.rings}
-              blips={radarData.blips}
-              size={400}
-              showLegend={false}
-              onBlipClick={blip =>
-                navigate({
-                  to: "/domains/$id/radar",
-                  params: {
-                    id,
-                  },
-                  search: {
-                    blipId: blip.id,
-                  },
-                })}
-            />
+          <InfoArea
+            header="About"
+            condition={!!data?.description}
+          >
+            <div className="rounded-md border bg-card p-4">
+              <p>{data?.description}</p>
+            </div>
           </InfoArea>
-        )}
+          {radarReady && radarData && (
+            <InfoArea header="Radar">
+              <div
+                className="flex justify-center rounded-md border bg-card p-4"
+              >
+                <RadarChart
+                  quadrants={radarData.quadrants}
+                  rings={radarData.rings}
+                  blips={radarData.blips}
+                  size={400}
+                  showLegend={false}
+                  onBlipClick={blip =>
+                    navigate({
+                      to: "/domains/$id/radar",
+                      params: {
+                        id,
+                      },
+                      search: {
+                        blipId: blip.id,
+                      },
+                    })}
+                />
+              </div>
+            </InfoArea>
+          )}
+        </div>
         <div>
           <InfoArea
             header="Topics"

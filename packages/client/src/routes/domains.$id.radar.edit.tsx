@@ -20,6 +20,11 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { BlipBulkAdd } from "@/components/radar/BlipBulkAdd";
 import { BlipLlmAssist } from "@/components/radar/BlipLlmAssist";
 import { BlipTable } from "@/components/radar/BlipTable";
+import {
+  QuadrantsIllustration,
+  RingsIllustration,
+} from "@/components/radar/RadarConfigIllustrations";
+import { TopicMultiSelect } from "@/components/radar/TopicMultiSelect";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -34,6 +39,7 @@ import {
   fetchRadar,
   fetchSingleDomain,
   fetchTopics,
+  upsertDomain,
   upsertRadarBlip,
   upsertRadarConfig,
 } from "@/utils";
@@ -70,12 +76,13 @@ const DEFAULT_QUADRANTS = [
   "Tools",
   "Platforms",
   "Techniques",
+  "Practices",
 ];
 
 const DEFAULT_RINGS = ["Adopt", "Trial", "Assess", "Hold"];
 
-const MAX_QUADRANTS = 4;
-const MAX_RINGS = 4;
+const QUADRANT_COUNT = 5;
+const MAX_RINGS = 6;
 
 let localKeyCounter = 0;
 function nextLocalKey() {
@@ -84,7 +91,7 @@ function nextLocalKey() {
 }
 
 function quadrantsFromServer(items: RadarQuadrant[]): QuadrantDraft[] {
-  return items
+  const fromServer: QuadrantDraft[] = items
     .slice()
     .sort((a, b) => a.position - b.position)
     .map(q => ({
@@ -93,6 +100,18 @@ function quadrantsFromServer(items: RadarQuadrant[]): QuadrantDraft[] {
       position: q.position,
       localKey: q.id,
     }));
+  while (fromServer.length < QUADRANT_COUNT) {
+    const idx = fromServer.length;
+    fromServer.push({
+      name: DEFAULT_QUADRANTS[idx] ?? "",
+      position: idx,
+      localKey: nextLocalKey(),
+    });
+  }
+  return fromServer.map((q, idx) => ({
+    ...q,
+    position: idx,
+  }));
 }
 
 function ringsFromServer(items: RadarRing[]): RingDraft[] {
@@ -108,7 +127,7 @@ function ringsFromServer(items: RadarRing[]): RingDraft[] {
 }
 
 function defaultQuadrants(): QuadrantDraft[] {
-  return DEFAULT_QUADRANTS.map((name, idx) => ({
+  return DEFAULT_QUADRANTS.slice(0, QUADRANT_COUNT).map((name, idx) => ({
     name,
     position: idx,
     localKey: nextLocalKey(),
@@ -172,6 +191,13 @@ function RadarEdit() {
   const [hydrated, setHydrated] = useState(false);
   const [addMode, setAddMode] = useState<AddMode>("single");
 
+  const [withinScopeDescription, setWithinScopeDescription] = useState("");
+  const [outOfScopeDescription, setOutOfScopeDescription] = useState("");
+  const [withinScopeTopicIds, setWithinScopeTopicIds] = useState<string[]>([]);
+  const [outOfScopeTopicIds, setOutOfScopeTopicIds] = useState<string[]>([]);
+  const [detailsHydrated, setDetailsHydrated] = useState(false);
+  const [isSavingDetails, setIsSavingDetails] = useState(false);
+
   useEffect(() => {
     if (!data || hydrated) {
       return;
@@ -187,6 +213,17 @@ function RadarEdit() {
     setBlips(blipsFromServer(data.blips));
     setHydrated(true);
   }, [data, hydrated]);
+
+  useEffect(() => {
+    if (!domainDetail || detailsHydrated) {
+      return;
+    }
+    setWithinScopeDescription(domainDetail.withinScopeDescription ?? "");
+    setOutOfScopeDescription(domainDetail.outOfScopeDescription ?? "");
+    setWithinScopeTopicIds((domainDetail.topics ?? []).map(t => t.id));
+    setOutOfScopeTopicIds((domainDetail.excludedTopics ?? []).map(t => t.id));
+    setDetailsHydrated(true);
+  }, [domainDetail, detailsHydrated]);
 
   const persistedQuadrantIds = useMemo(
     () => new Set((data?.quadrants ?? []).map(q => q.id)),
@@ -243,32 +280,6 @@ function RadarEdit() {
     return set;
   }, [savedBlipsForTable, newBlipDrafts]);
 
-  function addQuadrant() {
-    setQuadrants((prev) => {
-      if (prev.length >= MAX_QUADRANTS) {
-        return prev;
-      }
-      return [
-        ...prev,
-        {
-          name: "",
-          position: prev.length,
-          localKey: nextLocalKey(),
-        },
-      ];
-    });
-  }
-
-  function removeQuadrant(localKey: string) {
-    setQuadrants(prev =>
-      prev
-        .filter(q => q.localKey !== localKey)
-        .map((q, idx) => ({
-          ...q,
-          position: idx,
-        })));
-  }
-
   function addRing() {
     setRings((prev) => {
       if (prev.length >= MAX_RINGS) {
@@ -304,10 +315,6 @@ function RadarEdit() {
       toast.error("Every ring needs a name.");
       return;
     }
-    if (quadrants.length > MAX_QUADRANTS) {
-      toast.error(`At most ${MAX_QUADRANTS} quadrants are allowed.`);
-      return;
-    }
     if (rings.length > MAX_RINGS) {
       toast.error(`At most ${MAX_RINGS} rings are allowed.`);
       return;
@@ -337,6 +344,43 @@ function RadarEdit() {
     }
     finally {
       setIsSavingConfig(false);
+    }
+  }
+
+  async function saveDetails() {
+    if (!domainDetail) {
+      return;
+    }
+    setIsSavingDetails(true);
+    try {
+      await upsertDomain(id, {
+        title: domainDetail.title,
+        description: domainDetail.description ?? null,
+        hasRadar: domainDetail.hasRadar ?? null,
+        withinScopeDescription: withinScopeDescription.trim() || null,
+        outOfScopeDescription: outOfScopeDescription.trim() || null,
+        topicIds: withinScopeTopicIds,
+        excludedTopics: outOfScopeTopicIds.map((topicId) => {
+          const existing = (domainDetail.excludedTopics ?? []).find(
+            t => t.id === topicId,
+          );
+          return {
+            topicId,
+            reason: existing?.reason ?? null,
+          };
+        }),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["domain", id],
+      });
+      setDetailsHydrated(false);
+      toast.success("Details saved.");
+    }
+    catch {
+      toast.error("Failed to save details.");
+    }
+    finally {
+      setIsSavingDetails(false);
     }
   }
 
@@ -529,9 +573,11 @@ function RadarEdit() {
           <section className="flex flex-col gap-4">
             <h2 className="text-2xl">Quadrants</h2>
             <p className="text-sm text-muted-foreground">
-              Quadrants are the categories on your radar. They are listed
-              clockwise starting from the top.
+              Quadrants are the categories on your radar.
             </p>
+            <div className="flex justify-center">
+              <QuadrantsIllustration names={quadrants.map(q => q.name)} />
+            </div>
             <ul className="flex flex-col gap-2">
               {quadrants.map((q, idx) => (
                 <li
@@ -555,46 +601,19 @@ function RadarEdit() {
                             : item))}
                     placeholder="Quadrant name"
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeQuadrant(q.localKey)}
-                    aria-label="Remove quadrant"
-                  >
-                    <TrashIcon />
-                  </Button>
                 </li>
               ))}
             </ul>
-            <div className="flex flex-col gap-1">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addQuadrant}
-                disabled={quadrants.length >= MAX_QUADRANTS}
-              >
-                <PlusIcon />
-                {" "}
-                Add Quadrant
-              </Button>
-              {quadrants.length >= MAX_QUADRANTS && (
-                <p className="text-xs text-muted-foreground">
-                  Maximum of
-                  {" "}
-                  {MAX_QUADRANTS}
-                  {" "}
-                  quadrants reached.
-                </p>
-              )}
-            </div>
           </section>
 
           <section className="flex flex-col gap-4">
             <h2 className="text-2xl">Rings</h2>
             <p className="text-sm text-muted-foreground">
-              Rings represent levels — listed innermost first.
+              Rings represent levels of adoption.
             </p>
+            <div className="flex justify-center">
+              <RingsIllustration names={rings.map(r => r.name)} />
+            </div>
             <ul className="flex flex-col gap-2">
               {rings.map((r, idx) => (
                 <li
@@ -630,7 +649,7 @@ function RadarEdit() {
                 </li>
               ))}
             </ul>
-            <div className="flex flex-col gap-1">
+            <div>
               <Button
                 type="button"
                 variant="outline"
@@ -641,15 +660,6 @@ function RadarEdit() {
                 {" "}
                 Add Ring
               </Button>
-              {rings.length >= MAX_RINGS && (
-                <p className="text-xs text-muted-foreground">
-                  Maximum of
-                  {" "}
-                  {MAX_RINGS}
-                  {" "}
-                  rings reached.
-                </p>
-              )}
             </div>
           </section>
         </div>
@@ -664,6 +674,90 @@ function RadarEdit() {
             Save Configuration
           </Button>
         </div>
+
+        <section className="flex flex-col gap-6">
+          <h2 className="text-3xl">Details</h2>
+          <div
+            className={`
+              grid grid-cols-1 gap-6
+              md:grid-cols-2
+            `}
+          >
+            <div className="flex flex-col gap-3 rounded-md border p-4">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-xl font-semibold">Within Scope</h3>
+                <p className="text-sm text-muted-foreground">
+                  Used to nudge the LLM toward topics that fit this
+                  radar&apos;s focus.
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs uppercase">Description</label>
+                <Textarea
+                  value={withinScopeDescription}
+                  onChange={e => setWithinScopeDescription(e.target.value)}
+                  placeholder="What kinds of topics belong on this radar?"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs uppercase">Topics</label>
+                <TopicMultiSelect
+                  options={(topics ?? [])
+                    .filter(t => !outOfScopeTopicIds.includes(t.id))
+                    .map(t => ({
+                      value: t.id,
+                      label: t.name,
+                    }))}
+                  value={withinScopeTopicIds}
+                  onChange={setWithinScopeTopicIds}
+                  placeholder="Add topics in scope..."
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-md border p-4">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-xl font-semibold">Out of Scope</h3>
+                <p className="text-sm text-muted-foreground">
+                  Used to nudge the LLM away from topics that don&apos;t fit
+                  this radar.
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs uppercase">Description</label>
+                <Textarea
+                  value={outOfScopeDescription}
+                  onChange={e => setOutOfScopeDescription(e.target.value)}
+                  placeholder="What kinds of topics should be avoided?"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs uppercase">Topics</label>
+                <TopicMultiSelect
+                  options={(topics ?? [])
+                    .filter(t => !withinScopeTopicIds.includes(t.id))
+                    .map(t => ({
+                      value: t.id,
+                      label: t.name,
+                    }))}
+                  value={outOfScopeTopicIds}
+                  onChange={setOutOfScopeTopicIds}
+                  placeholder="Add topics out of scope..."
+                />
+              </div>
+            </div>
+          </div>
+          <div>
+            <Button
+              type="button"
+              onClick={saveDetails}
+              disabled={isSavingDetails || !domainDetail}
+            >
+              {isSavingDetails && <Loader2 className="animate-spin" />}
+              Save Details
+            </Button>
+          </div>
+        </section>
 
         <section className="flex flex-col gap-4">
           <h2 className="text-2xl">Blips</h2>
@@ -920,6 +1014,14 @@ function RadarEdit() {
               domainDescription={domainDetail?.description ?? null}
               domainTopics={domainDetail?.topics ?? []}
               excludedTopics={domainDetail?.excludedTopics ?? []}
+              withinScopeDescription={withinScopeDescription}
+              outOfScopeDescription={outOfScopeDescription}
+              withinScopeTopicNames={withinScopeTopicIds
+                .map(tid => topicNameById.get(tid))
+                .filter((n): n is string => Boolean(n))}
+              outOfScopeTopicNames={outOfScopeTopicIds
+                .map(tid => topicNameById.get(tid))
+                .filter((n): n is string => Boolean(n))}
               quadrants={persistedQuadrants}
               rings={persistedRings}
               topics={topics ?? []}

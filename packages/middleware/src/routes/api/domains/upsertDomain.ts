@@ -6,6 +6,8 @@ interface DomainBody {
   title: string;
   description?: string | null;
   hasRadar?: boolean | null;
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
   topicIds?: string[];
   excludedTopics?: { topicId: string;
     reason?: string | null; }[];
@@ -24,6 +26,8 @@ export default createUpsertHandler<DomainBody>({
       },
       description: nullableString,
       hasRadar: nullableBoolean,
+      withinScopeDescription: nullableString,
+      outOfScopeDescription: nullableString,
       topicIds: {
         type: "array",
         items: {
@@ -56,8 +60,16 @@ export default createUpsertHandler<DomainBody>({
     title: body.title.trim(),
     description: body.description ?? null,
     hasRadar: body.hasRadar ?? null,
+    withinScopeDescription: body.withinScopeDescription ?? null,
+    outOfScopeDescription: body.outOfScopeDescription ?? null,
   }),
-  updateableColumns: ["title", "description", "hasRadar"],
+  updateableColumns: [
+    "title",
+    "description",
+    "hasRadar",
+    "withinScopeDescription",
+    "outOfScopeDescription",
+  ],
   junctions: [
     {
       table: topicsToDomains,

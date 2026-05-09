@@ -25,6 +25,8 @@ export interface Domain {
   title: string;
   description?: string | null;
   hasRadar?: boolean | null;
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
   topicCount?: number;
   topics?: DomainTopic[];
   excludedTopics?: DomainExcludedTopic[];

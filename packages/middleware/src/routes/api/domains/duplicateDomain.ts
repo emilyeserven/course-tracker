@@ -50,6 +50,8 @@ export default async function (server: FastifyInstance) {
         title: `${source.title} (Copy)`,
         description: source.description ?? null,
         hasRadar: source.hasRadar ?? null,
+        withinScopeDescription: source.withinScopeDescription ?? null,
+        outOfScopeDescription: source.outOfScopeDescription ?? null,
       });
 
       const topicLinks = (source.topicsToDomains ?? []).map(t => ({
