@@ -195,6 +195,20 @@ export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
 
 export const deleteSingleCourse = coursesApi.delete;
 export const deleteSingleTopic = topicsApi.delete;
+
+export async function bulkDeleteTopics(
+  ids: string[],
+): Promise<{ status: string;
+  count: number; }> {
+  return postJson(
+    "/api/topics/bulk-delete",
+    {
+      ids,
+    },
+    "Failed to delete topics",
+  );
+}
+
 export const deleteSinglePlatform = providersApi.delete;
 export const deleteSingleDomain = domainsApi.delete;
 export const deleteSingleDaily = dailiesApi.delete;
