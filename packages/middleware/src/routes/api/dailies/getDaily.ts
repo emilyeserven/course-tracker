@@ -113,6 +113,8 @@ export default async function (server: FastifyInstance) {
                 progressTotal: daily.course.progressTotal ?? 0,
               }
               : undefined,
+          moduleGroupId: daily.moduleGroupId ?? null,
+          moduleId: daily.moduleId ?? null,
         };
 
         return result;

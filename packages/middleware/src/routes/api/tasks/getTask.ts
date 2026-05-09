@@ -48,6 +48,31 @@ export default async function (server: FastifyInstance) {
               asc,
             }) => asc(j.position),
           },
+          tasksToCourses: {
+            with: {
+              course: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              moduleGroup: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              module: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: (j, {
+              asc,
+            }) => asc(j.position),
+          },
           resources: {
             with: {
               resourcesToTags: {
@@ -96,6 +121,30 @@ export default async function (server: FastifyInstance) {
           }
           : null,
         tags: (task.tasksToTags ?? []).map(j => j.tag),
+        resourceLinks: (task.tasksToCourses ?? []).map(j => ({
+          courseId: j.courseId,
+          course: j.course
+            ? {
+              id: j.course.id,
+              name: j.course.name,
+            }
+            : null,
+          moduleGroupId: j.moduleGroupId ?? null,
+          moduleGroup: j.moduleGroup
+            ? {
+              id: j.moduleGroup.id,
+              name: j.moduleGroup.name,
+            }
+            : null,
+          moduleId: j.moduleId ?? null,
+          module: j.module
+            ? {
+              id: j.module.id,
+              name: j.module.name,
+            }
+            : null,
+          position: j.position ?? null,
+        })),
         resources: (task.resources ?? [])
           .slice()
           .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))

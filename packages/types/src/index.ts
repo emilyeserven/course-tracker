@@ -18,5 +18,6 @@ export * from "./Resource";
 export * from "./Tag";
 export * from "./TagGroup";
 export * from "./Task";
+export * from "./TaskResourceLink";
 export * from "./TaskTodo";
 export * from "./TaskType";

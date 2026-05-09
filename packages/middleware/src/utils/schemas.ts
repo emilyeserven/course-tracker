@@ -88,6 +88,24 @@ export const tagIdsArraySchema = {
   default: [],
 } as const;
 
+export const resourceLinkSchema = {
+  type: "object",
+  required: ["courseId"],
+  properties: {
+    courseId: {
+      type: "string",
+    },
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
+  },
+} as const;
+
+export const resourceLinksArraySchema = {
+  type: "array",
+  items: resourceLinkSchema,
+  default: [],
+} as const;
+
 export const resourceSchema = {
   type: "object",
   required: ["name"],

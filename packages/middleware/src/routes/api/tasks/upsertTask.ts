@@ -2,10 +2,18 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { resources, resourcesToTags, taskTodos, tasks, tasksToTags } from "@/db/schema";
+import {
+  resources,
+  resourcesToTags,
+  taskTodos,
+  tasks,
+  tasksToCourses,
+  tasksToTags,
+} from "@/db/schema";
 import {
   idParamSchema,
   nullableString,
+  resourceLinksArraySchema,
   resourceSchema,
   tagIdsArraySchema,
   todoSchema,
@@ -27,6 +35,7 @@ const upsertSchema = {
         topicId: nullableString,
         taskTypeId: nullableString,
         tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
         resources: {
           type: "array",
           items: resourceSchema,
@@ -84,6 +93,33 @@ export default async function (server: FastifyInstance) {
               position: index,
             })),
           );
+        }
+      }
+
+      if (body.resourceLinks !== undefined) {
+        await db.delete(tasksToCourses).where(eq(tasksToCourses.taskId, id));
+        // Dedupe by courseId — PK is (taskId, courseId), one link per pair.
+        const seen = new Set<string>();
+        const rows: {
+          taskId: string;
+          courseId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+          position: number;
+        }[] = [];
+        body.resourceLinks.forEach((link, index) => {
+          if (seen.has(link.courseId)) return;
+          seen.add(link.courseId);
+          rows.push({
+            taskId: id,
+            courseId: link.courseId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+            position: index,
+          });
+        });
+        if (rows.length > 0) {
+          await db.insert(tasksToCourses).values(rows);
         }
       }
 
