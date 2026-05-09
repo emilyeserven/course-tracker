@@ -89,8 +89,7 @@ function SingleTopicEdit() {
         (group.tags ?? []).map(tag => ({
           value: tag.id,
           label: tag.name,
-        })),
-      ),
+        }))),
     [tagGroups],
   );
 

@@ -50,7 +50,9 @@ export default async function (server: FastifyInstance) {
             with: {
               tag: true,
             },
-            orderBy: (j, { asc }) => asc(j.position),
+            orderBy: (j, {
+              asc,
+            }) => asc(j.position),
           },
         },
       });

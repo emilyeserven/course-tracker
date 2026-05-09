@@ -17,6 +17,8 @@ export interface Task {
   topicId?: string | null;
   topic?: { id: string;
     name: string; } | null;
+  // TODO(tag-reform-followup): drop taskTypeId/taskType once the new tag
+  // system replaces Task Types.
   taskTypeId?: string | null;
   taskType?: { id: string;
     name: string;

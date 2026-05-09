@@ -106,6 +106,9 @@ export const dailyCriteriaTemplates = pgTable("daily_criteria_templates", {
   freeze: varchar().notNull().default(""),
 });
 
+// TODO(tag-reform-followup): drop this table once the Tag Groups + Tags system
+// (tagGroups, tags, tasksToTags) has fully replaced the Task Type concept on
+// tasks. Keep in place during the additive migration.
 export const taskTypes = pgTable("task_types", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -122,6 +125,8 @@ export const tasks = pgTable("tasks", {
   }).notNull(),
   description: varchar(),
   topicId: varchar("topic_id"),
+  // TODO(tag-reform-followup): drop taskTypeId once the new Tag Groups + Tags
+  // system fully replaces Task Types on tasks.
   taskTypeId: varchar("task_type_id"),
 });
 
@@ -137,6 +142,8 @@ export const resources = pgTable("resources", {
   interactivity: resourceLevelEnum(),
   usedYet: boolean("used_yet").default(false).notNull(),
   position: integer(),
+  // TODO(tag-reform-followup): drop this varchar[] column in favor of the
+  // resourcesToTags junction once the resources UI is migrated.
   tags: varchar().array().notNull().default(sql`'{}'::varchar[]`),
 });
 
