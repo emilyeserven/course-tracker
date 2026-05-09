@@ -115,6 +115,12 @@ export const modules = pgTable("modules", {
   }).notNull(),
   description: varchar(),
   url: varchar(),
+  // Either an integer (as a string) of exact minutes, or one of the
+  // duration bucket keys: extra_short / short / medium / long / extra_long.
+  // The runtime migration in startup.ts backfills this from `minutes_length`.
+  length: varchar(),
+  // TODO(module-length-followup): drop minutesLength once `length` has fully
+  // replaced it on the wire. Kept for safety during the additive migration.
   minutesLength: integer("minutes_length"),
   isComplete: boolean("is_complete").default(false).notNull(),
   // TODO(modules-ordering-followup): position is queried in ASC order today

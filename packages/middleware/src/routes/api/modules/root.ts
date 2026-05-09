@@ -5,6 +5,8 @@ import { modules } from "@/db/schema";
 import { nullableInteger, nullableString } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
 
+import { coerceModuleLength } from "@/utils/moduleLength";
+
 const listSchema = {
   schema: {
     description: "List modules (optionally filtered by resourceId or moduleGroupId)",
@@ -40,6 +42,10 @@ const createSchema = {
         moduleGroupId: nullableString,
         description: nullableString,
         url: nullableString,
+        // Either an integer-as-string of exact minutes, or one of the
+        // ModuleDurationBucket keys.
+        length: nullableString,
+        // @deprecated — accept for backwards compat; coerced into `length`.
         minutesLength: nullableInteger,
         isComplete: {
           type: "boolean",
@@ -79,6 +85,7 @@ export default async function (server: FastifyInstance) {
     const body = request.body;
     const id = uuidv4();
 
+    const length = coerceModuleLength(body.length, body.minutesLength);
     await db.insert(modules).values({
       id,
       resourceId: body.resourceId,
@@ -86,7 +93,8 @@ export default async function (server: FastifyInstance) {
       name: body.name,
       description: body.description ?? null,
       url: body.url ?? null,
-      minutesLength: body.minutesLength ?? null,
+      length,
+      minutesLength: null,
       isComplete: body.isComplete ?? false,
       position: body.position ?? null,
     });

@@ -1,5 +1,6 @@
 import { modules } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
+import { coerceModuleLength } from "@/utils/moduleLength";
 import { nullableInteger, nullableString } from "@/utils/schemas";
 
 interface ModuleBody {
@@ -8,6 +9,8 @@ interface ModuleBody {
   moduleGroupId?: string | null;
   description?: string | null;
   url?: string | null;
+  length?: string | null;
+  /** @deprecated kept for backwards compat; coerced into `length` */
   minutesLength?: number | null;
   isComplete?: boolean;
   position?: number | null;
@@ -19,7 +22,7 @@ const updateableColumns = [
   "moduleGroupId",
   "description",
   "url",
-  "minutesLength",
+  "length",
   "isComplete",
   "position",
 ] as const;
@@ -42,6 +45,7 @@ export default createUpsertHandler<ModuleBody>({
       moduleGroupId: nullableString,
       description: nullableString,
       url: nullableString,
+      length: nullableString,
       minutesLength: nullableInteger,
       isComplete: {
         type: "boolean",
@@ -56,7 +60,7 @@ export default createUpsertHandler<ModuleBody>({
     name: body.name,
     description: body.description ?? null,
     url: body.url ?? null,
-    minutesLength: body.minutesLength ?? null,
+    length: coerceModuleLength(body.length, body.minutesLength),
     isComplete: body.isComplete ?? false,
     position: body.position ?? null,
   }),

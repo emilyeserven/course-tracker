@@ -1,4 +1,16 @@
-import type { Module, ModuleGroup } from "@emstack/types/src";
+import type {
+  Module,
+  ModuleDurationBucket,
+  ModuleGroup,
+  ParsedModuleLength,
+} from "@emstack/types/src";
+
+import {
+  formatModuleLength,
+  MODULE_DURATION_BUCKETS,
+  MODULE_DURATION_LABELS,
+  parseModuleLength,
+} from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -41,12 +53,16 @@ interface GroupDraft {
   url: string;
 }
 
+type DurationMode = "minutes" | "bucket";
+
 interface ModuleDraft {
   id: string;
   name: string;
   description: string;
   url: string;
-  minutesLength: string;
+  durationMode: DurationMode;
+  minutesValue: string;
+  bucketValue: ModuleDurationBucket | "";
 }
 
 const NEW_ID = "__new__";
@@ -66,8 +82,49 @@ function emptyModuleDraft(): ModuleDraft {
     name: "",
     description: "",
     url: "",
-    minutesLength: "",
+    durationMode: "minutes",
+    minutesValue: "",
+    bucketValue: "",
   };
+}
+
+function moduleToDraft(m: Module): ModuleDraft {
+  const parsed: ParsedModuleLength = parseModuleLength(m.length);
+  const base = {
+    id: m.id,
+    name: m.name,
+    description: m.description ?? "",
+    url: m.url ?? "",
+  };
+  if (parsed?.kind === "bucket") {
+    return {
+      ...base,
+      durationMode: "bucket",
+      minutesValue: "",
+      bucketValue: parsed.bucket,
+    };
+  }
+  if (parsed?.kind === "minutes") {
+    return {
+      ...base,
+      durationMode: "minutes",
+      minutesValue: String(parsed.minutes),
+      bucketValue: "",
+    };
+  }
+  return {
+    ...base,
+    durationMode: "minutes",
+    minutesValue: "",
+    bucketValue: "",
+  };
+}
+
+function draftToLength(d: ModuleDraft): string | null {
+  if (d.durationMode === "minutes") {
+    return d.minutesValue ? d.minutesValue : null;
+  }
+  return d.bucketValue || null;
 }
 
 export function CourseModulesAdmin({
@@ -197,9 +254,7 @@ export function CourseModulesAdmin({
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
-        minutesLength: draft.minutesLength
-          ? Number(draft.minutesLength)
-          : null,
+        length: draftToLength(draft),
       }),
     onSuccess: () => {
       invalidateAll();
@@ -225,9 +280,7 @@ export function CourseModulesAdmin({
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
-        minutesLength: draft.minutesLength
-          ? Number(draft.minutesLength)
-          : null,
+        length: draftToLength(draft),
         isComplete,
       }),
     onSuccess: () => {
@@ -246,7 +299,7 @@ export function CourseModulesAdmin({
         name: m.name,
         description: m.description ?? null,
         url: m.url ?? null,
-        minutesLength: m.minutesLength ?? null,
+        length: m.length ?? null,
         isComplete: !m.isComplete,
       }),
     onSuccess: () => invalidateAll(),
@@ -285,7 +338,7 @@ export function CourseModulesAdmin({
           name: a.name,
           description: a.description ?? null,
           url: a.url ?? null,
-          minutesLength: a.minutesLength ?? null,
+          length: a.length ?? null,
           isComplete: a.isComplete,
           position: aPosition,
         }),
@@ -295,7 +348,7 @@ export function CourseModulesAdmin({
           name: b.name,
           description: b.description ?? null,
           url: b.url ?? null,
-          minutesLength: b.minutesLength ?? null,
+          length: b.length ?? null,
           isComplete: b.isComplete,
           position: bPosition,
         }),
@@ -449,13 +502,7 @@ export function CourseModulesAdmin({
                 ? (
                   <ModuleEditCard
                     key={m.id}
-                    draft={{
-                      id: m.id,
-                      name: m.name,
-                      description: m.description ?? "",
-                      url: m.url ?? "",
-                      minutesLength: m.minutesLength?.toString() ?? "",
-                    }}
+                    draft={moduleToDraft(m)}
                     isComplete={m.isComplete}
                     isSaving={
                       upsertModuleMutation.isPending
@@ -619,13 +666,7 @@ export function CourseModulesAdmin({
                     ? (
                       <ModuleEditCard
                         key={m.id}
-                        draft={{
-                          id: m.id,
-                          name: m.name,
-                          description: m.description ?? "",
-                          url: m.url ?? "",
-                          minutesLength: m.minutesLength?.toString() ?? "",
-                        }}
+                        draft={moduleToDraft(m)}
                         isComplete={m.isComplete}
                         isSaving={
                           upsertModuleMutation.isPending
@@ -735,10 +776,9 @@ function ModuleDisplayRow({
             <ExternalLinkIcon className="inline size-3" />
           </a>
         )}
-        {m.minutesLength != null && (
+        {formatModuleLength(m.length) && (
           <span className="text-xs text-muted-foreground">
-            {m.minutesLength}
-            m
+            {formatModuleLength(m.length)}
           </span>
         )}
       </label>
@@ -940,16 +980,79 @@ function ModuleEditCard({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          Minutes (optional)
-        </label>
-        <Input
-          type="number"
-          value={draft.minutesLength}
-          onChange={e => update({
-            minutesLength: e.target.value,
-          })}
-        />
+        <div
+          className="flex flex-row items-center justify-between gap-2"
+        >
+          <label className="text-xs font-medium text-muted-foreground">
+            Length (optional)
+          </label>
+          <div
+            className="flex items-center rounded-md border border-input"
+            role="group"
+            aria-label="Length mode"
+          >
+            <Button
+              type="button"
+              size="sm"
+              variant={draft.durationMode === "minutes" ? "secondary" : "ghost"}
+              aria-pressed={draft.durationMode === "minutes"}
+              onClick={() => update({
+                durationMode: "minutes",
+              })}
+            >
+              Minutes
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={draft.durationMode === "bucket" ? "secondary" : "ghost"}
+              aria-pressed={draft.durationMode === "bucket"}
+              onClick={() => update({
+                durationMode: "bucket",
+              })}
+            >
+              Range
+            </Button>
+          </div>
+        </div>
+        {draft.durationMode === "minutes"
+          ? (
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={draft.minutesValue}
+              onChange={e => update({
+                minutesValue: e.target.value,
+              })}
+              placeholder="e.g. 30"
+            />
+          )
+          : (
+            <select
+              value={draft.bucketValue}
+              onChange={e =>
+                update({
+                  bucketValue: (e.target.value || "") as
+                  | ModuleDurationBucket
+                  | "",
+                })}
+              className="
+                flex h-9 w-full rounded-md border bg-background px-3 py-1
+                text-sm
+              "
+            >
+              <option value="">— Select a range —</option>
+              {MODULE_DURATION_BUCKETS.map(b => (
+                <option
+                  key={b}
+                  value={b}
+                >
+                  {MODULE_DURATION_LABELS[b]}
+                </option>
+              ))}
+            </select>
+          )}
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
