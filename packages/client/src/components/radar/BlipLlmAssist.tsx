@@ -286,6 +286,8 @@ function buildLlmPrompt(args: BuildPromptArgs): string {
     ? outOfScopeDescription.trim()
     : "(no out-of-scope description provided)";
 
+  // The JSON key below stays "quadrant" for parser compatibility with
+  // existing pasted responses; only the surrounding prose says "slice".
   return `I'm placing topics on a tech-radar style chart for the "${domainLabel}" domain.
 
 Domain description:
@@ -303,7 +305,7 @@ ${outOfScopeBlock}
 Out-of-scope topics (representative examples of what does NOT fit):
 ${formatTopicNameList(outOfScopeTopicNames)}
 
-The radar has these quadrants:
+The radar has these slices:
 ${quadrantList || "- (none defined)"}
 
 And these rings (innermost first):
@@ -335,8 +337,8 @@ JSON array of entries, using this exact shape (no other keys, no commentary):
     "topic": "Topic name",
     "action": "add | update | remove (optional — see below)",
     "description": "A short factual description of what the topic IS — saved as the topic's description if the topic is new, or if the topic exists but has no description yet (marked missing above). Null only when the topic already has a description and you have nothing to add.",
-    "radarNote": "A short note explaining WHY this topic belongs on the radar in this quadrant/ring. Keep high-level framing to a minimum; prefer specific, concrete references — which courses, projects, prior placements, or trade-offs drive the choice — over generic justifications. Null if no note.",
-    "quadrant": "One of the quadrant names above (exact match) — null/omit if action is remove",
+    "radarNote": "A short note explaining WHY this topic belongs on the radar in this slice/ring. Keep high-level framing to a minimum; prefer specific, concrete references — which courses, projects, prior placements, or trade-offs drive the choice — over generic justifications. Null if no note.",
+    "quadrant": "One of the slice names above (exact match) — null/omit if action is remove (JSON key stays \\"quadrant\\" for compatibility)",
     "ring": "One of the ring names above (exact match) — null/omit if action is remove"
   }
 ]
@@ -347,7 +349,7 @@ The optional "action" field tells me what to do with the topic:
   and/or radar note (default for topics already on the radar).
 - "remove" — the topic is currently on the radar but no longer fits this
   domain's focus; propose taking it off. Include a brief radar note
-  explaining why (or null). quadrant and ring may be omitted.
+  explaining why (or null). slice and ring may be omitted.
 
 If you omit "action" I'll default it from whether the topic is already on the
 radar. Only suggest "remove" for topics from the existing-on-radar list above.
@@ -910,58 +912,65 @@ export function BlipLlmAssist({
 
   return (
     <div className="flex flex-col gap-4 rounded-sm border p-4">
-      <h3 className="text-lg font-semibold">LLM Assisted Mode</h3>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row items-center justify-between">
-          <label className="text-sm font-medium">
-            1. Copy this prompt into an LLM
-          </label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={copyPrompt}
+      {!resolved && (
+        <>
+          <div
+            className={`
+              grid grid-cols-1 gap-4
+              md:grid-cols-2
+            `}
           >
-            <CopyIcon />
-            {" "}
-            Copy prompt
-          </Button>
-        </div>
-        <pre
-          className={`
-            max-h-60 overflow-auto rounded-sm bg-muted p-3 text-xs
-            whitespace-pre-wrap
-          `}
-        >
-          {prompt}
-        </pre>
-      </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row items-center justify-between">
+                <label className="text-sm font-medium">Prompt</label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={copyPrompt}
+                >
+                  <CopyIcon />
+                  {" "}
+                  Copy prompt
+                </Button>
+              </div>
+              <pre
+                className={`
+                  h-96 overflow-auto rounded-sm bg-muted p-3 text-xs
+                  whitespace-pre-wrap
+                `}
+              >
+                {prompt}
+              </pre>
+            </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">2. Paste the JSON response</label>
-        <Textarea
-          value={jsonText}
-          onChange={e => setJsonText(e.target.value)}
-          placeholder='[{ "topic": "...", "action": "add | update | remove", "description": "...", "radarNote": "...", "quadrant": "...", "ring": "..." }]'
-          className="min-h-32 font-mono text-xs"
-        />
-        {parseError && (
-          <p className="text-sm text-destructive">{parseError}</p>
-        )}
-        <div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">JSON response</label>
+              <Textarea
+                value={jsonText}
+                onChange={e => setJsonText(e.target.value)}
+                placeholder='[{ "topic": "...", "action": "add | update | remove", "description": "...", "radarNote": "...", "quadrant": "...", "ring": "..." }]'
+                className="h-96 font-mono text-xs"
+              />
+              {parseError && (
+                <p className="text-sm text-destructive">{parseError}</p>
+              )}
+            </div>
+          </div>
+
           <Button
             type="button"
+            className="w-full"
             onClick={parseAndResolve}
             disabled={!jsonText.trim()}
           >
-            Parse & review
+            Parse and Review
           </Button>
-        </div>
-      </div>
+        </>
+      )}
 
       {resolved && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-semibold">3. Review</h4>
           <p className="text-sm text-muted-foreground">
             {counts.create}
             {" "}
