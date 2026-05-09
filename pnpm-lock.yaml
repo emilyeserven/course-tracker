@@ -252,6 +252,9 @@ importers:
 
   packages/middleware:
     dependencies:
+      '@emstack/types':
+        specifier: workspace:*
+        version: link:../types
       '@fastify/cors':
         specifier: 11.1.0
         version: 11.1.0
@@ -289,9 +292,6 @@ importers:
         specifier: 14.0.0
         version: 14.0.0
     devDependencies:
-      '@emstack/types':
-        specifier: workspace:*
-        version: link:../types
       '@fastify/type-provider-json-schema-to-ts':
         specifier: 5.0.0
         version: 5.0.0
