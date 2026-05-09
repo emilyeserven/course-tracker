@@ -48,6 +48,8 @@ import {
   fetchCourses,
   fetchDailies,
   fetchDailyCriteriaTemplates,
+  fetchModuleGroups,
+  fetchModules,
   fetchProviders,
   fetchSingleDaily,
   fetchTasks,
@@ -75,6 +77,8 @@ const formSchema = z.object({
   description: z.string().max(500),
   courseProviderId: z.string(),
   courseId: z.string(),
+  moduleGroupId: z.string(),
+  moduleId: z.string(),
   taskId: z.string(),
   status: z.enum(["active", "paused", "complete"]),
   syncValues: z.boolean(),
@@ -126,6 +130,20 @@ function SingleDailyEdit() {
   } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => fetchTasks(),
+  });
+
+  const {
+    data: allModuleGroups,
+  } = useQuery({
+    queryKey: ["module-groups-all"],
+    queryFn: () => fetchModuleGroups(),
+  });
+
+  const {
+    data: allModules,
+  } = useQuery({
+    queryKey: ["modules-all"],
+    queryFn: () => fetchModules(),
   });
 
   const {
@@ -183,6 +201,8 @@ function SingleDailyEdit() {
       courseId: data?.course?.id ?? (isNew && search.newCourseId
         ? search.newCourseId
         : ""),
+      moduleGroupId: data?.moduleGroupId ?? "",
+      moduleId: data?.moduleId ?? "",
       taskId: data?.taskId ?? data?.task?.id ?? "",
       status: (data?.status === "complete"
         ? "complete"
@@ -233,6 +253,8 @@ function SingleDailyEdit() {
         completions: data?.completions ?? [],
         courseProviderId: value.courseProviderId || null,
         courseId: value.courseId || null,
+        moduleGroupId: value.courseId ? value.moduleGroupId || null : null,
+        moduleId: value.courseId ? value.moduleId || null : null,
         taskId: value.taskId || null,
         status: value.status,
         criteria,
@@ -307,19 +329,48 @@ function SingleDailyEdit() {
   const setLinkedValue = (val: string | null) => {
     if (!val) {
       form.setFieldValue("courseId", "");
+      form.setFieldValue("moduleGroupId", "");
+      form.setFieldValue("moduleId", "");
       form.setFieldValue("taskId", "");
       form.setFieldValue("syncValues", false);
       return;
     }
     if (val.startsWith("course:")) {
-      form.setFieldValue("courseId", val.slice("course:".length));
+      const newCourseId = val.slice("course:".length);
+      if (newCourseId !== currentValues.courseId) {
+        form.setFieldValue("moduleGroupId", "");
+        form.setFieldValue("moduleId", "");
+      }
+      form.setFieldValue("courseId", newCourseId);
       form.setFieldValue("taskId", "");
     }
     else if (val.startsWith("task:")) {
       form.setFieldValue("taskId", val.slice("task:".length));
       form.setFieldValue("courseId", "");
+      form.setFieldValue("moduleGroupId", "");
+      form.setFieldValue("moduleId", "");
     }
   };
+
+  const courseModuleGroups = useMemo(
+    () =>
+      currentValues.courseId
+        ? (allModuleGroups ?? []).filter(
+            g => g.courseId === currentValues.courseId,
+          )
+        : [],
+    [allModuleGroups, currentValues.courseId],
+  );
+
+  const courseModules = useMemo(
+    () =>
+      currentValues.courseId
+        ? (allModules ?? []).filter(
+            m => m.courseId === currentValues.courseId,
+          )
+        : [],
+    [allModules, currentValues.courseId],
+  );
 
   // When a course is linked AND sync is on, mirror its name/url/provider into
   // the daily fields so the (hidden) inputs stay in sync with the source.
@@ -496,6 +547,75 @@ function SingleDailyEdit() {
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
+                {currentValues.courseId
+                && (courseModuleGroups.length > 0 || courseModules.length > 0) && (
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div className="flex flex-col gap-1">
+                      <label
+                        htmlFor="daily-module-group"
+                        className="text-xs font-medium text-muted-foreground"
+                      >
+                        Module Group (optional)
+                      </label>
+                      <select
+                        id="daily-module-group"
+                        value={currentValues.moduleGroupId}
+                        onChange={(e) => {
+                          form.setFieldValue("moduleGroupId", e.target.value);
+                          if (e.target.value) {
+                            form.setFieldValue("moduleId", "");
+                          }
+                        }}
+                        className="
+                          flex h-9 w-full rounded-md border bg-background
+                          px-3 py-1 text-sm
+                        "
+                      >
+                        <option value="">— Whole course —</option>
+                        {courseModuleGroups.map(g => (
+                          <option
+                            key={g.id}
+                            value={g.id}
+                          >
+                            {g.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label
+                        htmlFor="daily-module"
+                        className="text-xs font-medium text-muted-foreground"
+                      >
+                        Specific Module (optional)
+                      </label>
+                      <select
+                        id="daily-module"
+                        value={currentValues.moduleId}
+                        onChange={(e) => {
+                          form.setFieldValue("moduleId", e.target.value);
+                          if (e.target.value) {
+                            form.setFieldValue("moduleGroupId", "");
+                          }
+                        }}
+                        className="
+                          flex h-9 w-full rounded-md border bg-background
+                          px-3 py-1 text-sm
+                        "
+                      >
+                        <option value="">— None —</option>
+                        {courseModules.map(m => (
+                          <option
+                            key={m.id}
+                            value={m.id}
+                          >
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
                 <form.AppField name="syncValues">
                   {field => (
                     <label
