@@ -7,6 +7,8 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailiesActiveListView,
+  DailiesViewModeToggle,
   DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
@@ -17,6 +19,7 @@ import {
   TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
+import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
@@ -43,6 +46,9 @@ export function DashboardDailies() {
   const {
     settings,
   } = useSettings();
+  const {
+    mode, setMode,
+  } = useDailiesViewMode();
 
   const {
     data: dailies, isPending, error,
@@ -114,15 +120,21 @@ export function DashboardDailies() {
         </span>
       )}
       action={(
-        <Link
-          to="/dailies"
-          className="
-            text-sm text-primary underline-offset-2
-            hover:underline
-          "
-        >
-          View all
-        </Link>
+        <>
+          <DailiesViewModeToggle
+            mode={mode}
+            onChange={setMode}
+          />
+          <Link
+            to="/dailies"
+            className="
+              text-sm text-primary underline-offset-2
+              hover:underline
+            "
+          >
+            View all
+          </Link>
+        </>
       )}
     >
       {isPending && (
@@ -136,7 +148,19 @@ export function DashboardDailies() {
           <i>No dailies yet.</i>
         </p>
       )}
-      {sortedDailies && sortedDailies.length > 0 && (
+      {sortedDailies && sortedDailies.length > 0 && mode === "list" && (
+        <DailiesActiveListView
+          dailies={sortedDailies}
+          todayKey={todayKey}
+          mutationPending={mutation.isPending}
+          recentDaysCount={RECENT_DAYS_COUNT}
+          onChangeStatus={(daily, status) => mutation.mutate({
+            daily,
+            status,
+          })}
+        />
+      )}
+      {sortedDailies && sortedDailies.length > 0 && mode === "table" && (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>

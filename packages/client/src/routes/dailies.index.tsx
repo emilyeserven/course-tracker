@@ -11,7 +11,9 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  DailiesActiveListView,
   DailiesLimitSetting,
+  DailiesViewModeToggle,
   DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
@@ -25,6 +27,7 @@ import {
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
@@ -68,6 +71,9 @@ function Dailies() {
   const {
     settings,
   } = useSettings();
+  const {
+    mode, setMode,
+  } = useDailiesViewMode();
 
   const {
     data: dailies,
@@ -168,194 +174,220 @@ function Dailies() {
                 />
               </span>
             )}
-            action={<DailiesLimitSetting />}
+            action={(
+              <>
+                <DailiesViewModeToggle
+                  mode={mode}
+                  onChange={setMode}
+                />
+                <DailiesLimitSetting />
+              </>
+            )}
           >
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
-                    <th className="p-2 font-medium">Title</th>
-                    <th className="p-2 font-medium">Progress</th>
-                    <th className="p-2 font-medium">Description</th>
-                    <th className="p-2 font-medium">Streak</th>
-                    <th className="p-2 font-medium">Total</th>
-                    {dayHeaders.map(d => (
-                      <th
-                        key={d.dateKey}
-                        className={cn(
-                          "px-1 py-2 text-center font-medium",
-                          d.isToday && "text-foreground",
-                        )}
-                      >
-                        {d.label}
-                      </th>
-                    ))}
-                    <th className="p-2 font-medium">Comment</th>
-                    <th className="p-2 font-medium">Today&apos;s Status</th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Location
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeDailies.map((daily) => {
-                    const currentStatus = findStatusForDate(daily, todayKey);
-                    const chain = getCurrentChain(daily, todayKey);
-                    const total = getTotalCompletedDays(daily);
-                    const days = getRecentDays(
-                      daily,
-                      RECENT_DAYS_COUNT + 1,
-                      todayKey,
-                      "mmdd",
-                    ).slice(0, -1);
-                    return (
-                      <tr
-                        key={daily.id}
-                        className="
-                          group border-t align-middle
-                          hover:bg-muted/40
-                        "
-                      >
-                        <td className="p-2">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Link
-                              to="/dailies/$id"
-                              from="/dailies"
-                              params={{
-                                id: daily.id,
-                              }}
-                              className="
-                                font-medium
-                                hover:text-blue-600
-                              "
-                            >
-                              {daily.name}
-                            </Link>
-                            <DailyCourseIndicator daily={daily} />
-                            <DailyTaskIndicator daily={daily} />
-                          </span>
-                        </td>
-                        <td className="p-2">
-                          <DailyProgressCell daily={daily} />
-                        </td>
-                        <td className="max-w-xs p-2">
-                          {daily.description
-                            ? (
-                              <span
-                                className="block truncate text-muted-foreground"
-                                title={daily.description}
-                              >
-                                {daily.description}
-                              </span>
-                            )
-                            : (
-                              <span className="text-muted-foreground/60">
-                                <i>No description</i>
-                              </span>
-                            )}
-                        </td>
-                        <td className="p-2">
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 text-xs",
-                              currentStatus === "incomplete"
-                                ? "text-muted-foreground"
-                                : chain > 0
-                                  ? "text-orange-600"
-                                  : "text-muted-foreground",
-                            )}
-                            title={
-                              chain > 0
-                                ? `${chain}-day chain`
-                                : "No active chain"
-                            }
-                          >
-                            <FlameIcon className="size-3.5" />
-                            {chain}
-                          </span>
-                        </td>
-                        <td className="p-2">
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 text-xs",
-                              total > 0
-                                ? "text-emerald-600"
-                                : "text-muted-foreground",
-                            )}
-                            title={`${total} total day${total === 1 ? "" : "s"} completed`}
-                          >
-                            <LaughIcon className="size-3.5" />
-                            {total}
-                          </span>
-                        </td>
-                        {days.map((day, i) => {
-                          const isLast = i === days.length - 1;
-                          const linkToToday = isLast;
-                          return (
-                            <td
-                              key={day.dateKey}
-                              className="relative px-1 py-2 align-middle"
-                            >
-                              {i > 0 && (
-                                <DailyStatusConnector
-                                  left={days[i - 1].status}
-                                  right={day.status}
-                                  className="
-                                    absolute top-1/2 right-[calc(50%+12px)]
-                                    left-[calc(-50%+12px)] z-0 w-auto
-                                    -translate-y-1/2
-                                  "
-                                />
-                              )}
-                              {linkToToday && (
-                                <DailyStatusConnector
-                                  left={day.status}
-                                  right={currentStatus}
-                                  className="
-                                    absolute top-1/2 -right-2
-                                    left-[calc(50%+12px)] z-0 w-auto
-                                    -translate-y-1/2
-                                  "
-                                />
-                              )}
-                              <div className="relative z-10 flex justify-center">
-                                <DailyStatusCircle
-                                  status={day.status}
-                                  size="sm"
-                                  title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                                />
-                              </div>
-                            </td>
-                          );
-                        })}
-                        <td className="p-2">
-                          {currentStatus !== null && (
-                            <DailyCommentPopover daily={daily} />
+            {mode === "list" && (
+              <DailiesActiveListView
+                dailies={activeDailies}
+                todayKey={todayKey}
+                mutationPending={mutation.isPending}
+                recentDaysCount={RECENT_DAYS_COUNT}
+                onChangeStatus={(daily, status) => mutation.mutate({
+                  daily,
+                  status,
+                })}
+              />
+            )}
+            {mode === "table" && (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-muted-foreground">
+                      <th className="p-2 font-medium">Title</th>
+                      <th className="p-2 font-medium">Progress</th>
+                      <th className="p-2 font-medium">Description</th>
+                      <th className="p-2 font-medium">Streak</th>
+                      <th className="p-2 font-medium">Total</th>
+                      {dayHeaders.map(d => (
+                        <th
+                          key={d.dateKey}
+                          className={cn(
+                            "px-1 py-2 text-center font-medium",
+                            d.isToday && "text-foreground",
                           )}
-                        </td>
-                        <td className="p-2">
-                          <TodayStatusCell
-                            daily={daily}
-                            currentStatus={currentStatus}
-                            disabled={mutation.isPending}
-                            onChange={status => mutation.mutate({
-                              daily,
-                              status,
-                            })}
-                          />
-                        </td>
-                        <td className="p-2 whitespace-nowrap">
-                          <DailyLocationCell
-                            location={daily.location}
-                            taskId={daily.taskId ?? daily.task?.id ?? null}
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        >
+                          {d.label}
+                        </th>
+                      ))}
+                      <th className="p-2 font-medium">Comment</th>
+                      <th className="p-2 font-medium">Today&apos;s Status</th>
+                      <th className="p-2 font-medium whitespace-nowrap">
+                        Location
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeDailies.map((daily) => {
+                      const currentStatus = findStatusForDate(daily, todayKey);
+                      const chain = getCurrentChain(daily, todayKey);
+                      const total = getTotalCompletedDays(daily);
+                      const days = getRecentDays(
+                        daily,
+                        RECENT_DAYS_COUNT + 1,
+                        todayKey,
+                        "mmdd",
+                      ).slice(0, -1);
+                      return (
+                        <tr
+                          key={daily.id}
+                          className="
+                            group border-t align-middle
+                            hover:bg-muted/40
+                          "
+                        >
+                          <td className="p-2">
+                            <span className="inline-flex items-center gap-1.5">
+                              <Link
+                                to="/dailies/$id"
+                                from="/dailies"
+                                params={{
+                                  id: daily.id,
+                                }}
+                                className="
+                                  font-medium
+                                  hover:text-blue-600
+                                "
+                              >
+                                {daily.name}
+                              </Link>
+                              <DailyCourseIndicator daily={daily} />
+                              <DailyTaskIndicator daily={daily} />
+                            </span>
+                          </td>
+                          <td className="p-2">
+                            <DailyProgressCell daily={daily} />
+                          </td>
+                          <td className="max-w-xs p-2">
+                            {daily.description
+                              ? (
+                                <span
+                                  className="
+                                    block truncate text-muted-foreground
+                                  "
+                                  title={daily.description}
+                                >
+                                  {daily.description}
+                                </span>
+                              )
+                              : (
+                                <span className="text-muted-foreground/60">
+                                  <i>No description</i>
+                                </span>
+                              )}
+                          </td>
+                          <td className="p-2">
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 text-xs",
+                                currentStatus === "incomplete"
+                                  ? "text-muted-foreground"
+                                  : chain > 0
+                                    ? "text-orange-600"
+                                    : "text-muted-foreground",
+                              )}
+                              title={
+                                chain > 0
+                                  ? `${chain}-day chain`
+                                  : "No active chain"
+                              }
+                            >
+                              <FlameIcon className="size-3.5" />
+                              {chain}
+                            </span>
+                          </td>
+                          <td className="p-2">
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 text-xs",
+                                total > 0
+                                  ? "text-emerald-600"
+                                  : "text-muted-foreground",
+                              )}
+                              title={`${total} total day${total === 1 ? "" : "s"} completed`}
+                            >
+                              <LaughIcon className="size-3.5" />
+                              {total}
+                            </span>
+                          </td>
+                          {days.map((day, i) => {
+                            const isLast = i === days.length - 1;
+                            const linkToToday = isLast;
+                            return (
+                              <td
+                                key={day.dateKey}
+                                className="relative px-1 py-2 align-middle"
+                              >
+                                {i > 0 && (
+                                  <DailyStatusConnector
+                                    left={days[i - 1].status}
+                                    right={day.status}
+                                    className="
+                                      absolute top-1/2 right-[calc(50%+12px)]
+                                      left-[calc(-50%+12px)] z-0 w-auto
+                                      -translate-y-1/2
+                                    "
+                                  />
+                                )}
+                                {linkToToday && (
+                                  <DailyStatusConnector
+                                    left={day.status}
+                                    right={currentStatus}
+                                    className="
+                                      absolute top-1/2 -right-2
+                                      left-[calc(50%+12px)] z-0 w-auto
+                                      -translate-y-1/2
+                                    "
+                                  />
+                                )}
+                                <div
+                                  className="relative z-10 flex justify-center"
+                                >
+                                  <DailyStatusCircle
+                                    status={day.status}
+                                    size="sm"
+                                    title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                                  />
+                                </div>
+                              </td>
+                            );
+                          })}
+                          <td className="p-2">
+                            {currentStatus !== null && (
+                              <DailyCommentPopover daily={daily} />
+                            )}
+                          </td>
+                          <td className="p-2">
+                            <TodayStatusCell
+                              daily={daily}
+                              currentStatus={currentStatus}
+                              disabled={mutation.isPending}
+                              onChange={status => mutation.mutate({
+                                daily,
+                                status,
+                              })}
+                            />
+                          </td>
+                          <td className="p-2 whitespace-nowrap">
+                            <DailyLocationCell
+                              location={daily.location}
+                              taskId={daily.taskId ?? daily.task?.id ?? null}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </DashboardCard>
         )}
 
