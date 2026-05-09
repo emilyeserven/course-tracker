@@ -61,100 +61,102 @@ export function DailiesActiveListView({
           <li
             key={daily.id}
             className="
-              flex flex-col gap-2 border-b py-3
+              flex flex-col gap-2.5 border-b py-3
               lg:border-b
               lg:even:border-l lg:even:pl-6
             "
           >
-            <div
-              className="flex flex-row items-start justify-between gap-2"
-            >
-              <div className="flex min-w-0 flex-row items-start gap-2">
-                <div className="mt-0.5 shrink-0">
-                  <DailyProgressCell daily={daily} />
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Link
-                      to="/dailies/$id"
-                      params={{
-                        id: daily.id,
-                      }}
-                      className="
-                        truncate font-medium
-                        hover:text-blue-600
-                      "
-                    >
-                      {daily.name}
-                    </Link>
-                    <span
-                      className="
-                        hidden items-center gap-1.5
-                        lg:inline-flex
-                      "
-                    >
-                      <DailyCourseIndicator daily={daily} />
-                      <DailyTaskIndicator daily={daily} />
-                    </span>
+            <div className="flex min-w-0 flex-row items-start gap-3">
+              <div className="mt-0.5 shrink-0">
+                <DailyProgressCell daily={daily} />
+              </div>
+              <div className="flex min-w-0 flex-col gap-1">
+                <Link
+                  to="/dailies/$id"
+                  params={{
+                    id: daily.id,
+                  }}
+                  className="
+                    truncate font-medium
+                    hover:text-blue-600
+                  "
+                >
+                  {daily.name}
+                </Link>
+                {daily.description && (
+                  <span
+                    className="line-clamp-2 text-xs text-muted-foreground"
+                    title={daily.description}
+                  >
+                    {daily.description}
                   </span>
-                  {daily.description && (
-                    <span
-                      className="line-clamp-2 text-xs text-muted-foreground"
-                      title={daily.description}
-                    >
-                      {daily.description}
-                    </span>
-                  )}
-                  <div className="flex flex-row items-center gap-3 text-xs">
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1",
-                        currentStatus === "incomplete"
-                          ? "text-muted-foreground"
-                          : chain > 0
-                            ? "text-orange-600"
-                            : "text-muted-foreground",
-                      )}
-                      title={chain > 0
-                        ? `${chain}-day chain`
-                        : "No active chain"}
-                    >
-                      <FlameIcon className="size-3.5" />
-                      {chain}
-                    </span>
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1",
-                        total > 0
-                          ? "text-emerald-600"
+                )}
+                <div
+                  className="
+                    flex flex-row flex-wrap items-center gap-x-4 gap-y-2 text-sm
+                  "
+                >
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1.5",
+                      currentStatus === "incomplete"
+                        ? "text-muted-foreground"
+                        : chain > 0
+                          ? "text-orange-600"
                           : "text-muted-foreground",
-                      )}
-                      title={`${total} total day${total === 1 ? "" : "s"} completed`}
-                    >
-                      <LaughIcon className="size-3.5" />
-                      {total}
-                    </span>
-                    <span
-                      className="
-                        inline-flex items-center gap-1.5
-                        lg:hidden
-                      "
-                    >
-                      <DailyCourseIndicator daily={daily} />
-                      <DailyTaskIndicator daily={daily} />
-                    </span>
-                  </div>
+                    )}
+                    title={chain > 0
+                      ? `${chain}-day chain`
+                      : "No active chain"}
+                  >
+                    <FlameIcon className="size-4" />
+                    {chain}
+                  </span>
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1.5",
+                      total > 0
+                        ? "text-emerald-600"
+                        : "text-muted-foreground",
+                    )}
+                    title={`${total} total day${total === 1 ? "" : "s"} completed`}
+                  >
+                    <LaughIcon className="size-4" />
+                    {total}
+                  </span>
+                  <span
+                    className="
+                      inline-flex items-center gap-2
+                      [&_a>svg]:size-5
+                    "
+                  >
+                    <DailyCourseIndicator daily={daily} />
+                    <DailyTaskIndicator daily={daily} />
+                  </span>
+                  <span
+                    className="
+                      [&_a]:px-2.5 [&_a]:py-1.5 [&_a]:text-sm
+                      [&_svg]:size-4
+                    "
+                  >
+                    <DailyLocationCell
+                      location={daily.location}
+                      taskId={daily.taskId ?? daily.task?.id ?? null}
+                    />
+                  </span>
                 </div>
               </div>
-              <DailyLocationCell
-                location={daily.location}
-                taskId={daily.taskId ?? daily.task?.id ?? null}
-              />
             </div>
 
-            <div className="flex flex-row items-start gap-1.5">
-              <div className="flex flex-col items-start">
-                <div className="w-40">
+            <div className="flex flex-col items-start">
+              <div className="flex flex-row items-center gap-2">
+                <div
+                  className="
+                    w-44
+                    [&_button]:px-3 [&_button]:py-1 [&_button]:text-sm
+                    [&_svg]:size-4
+                  "
+                >
                   <TodayStatusCell
                     daily={daily}
                     currentStatus={currentStatus}
@@ -162,48 +164,48 @@ export function DailiesActiveListView({
                     onChange={status => onChangeStatus(daily, status)}
                   />
                 </div>
-                <DailyStatusConnector
-                  orientation="vertical"
-                  left={currentStatus}
-                  right={mostRecentPast?.status ?? null}
-                  className="ml-[11px] h-3 shrink-0"
-                />
-                <div className="flex flex-row items-start">
-                  {recentDays.map((day, i) => (
-                    <Fragment key={day.dateKey}>
-                      {i > 0 && (
-                        <DailyStatusConnector
-                          left={recentDays[i - 1].status}
-                          right={day.status}
-                          className="mt-[11px] w-2.5 shrink-0"
-                        />
-                      )}
-                      <div
-                        className="flex shrink-0 flex-col items-center gap-0.5"
-                      >
-                        <DailyStatusCircle
-                          status={day.status}
-                          size="sm"
-                          title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                        />
-                        <span
-                          className="
-                            text-[0.65rem] leading-none text-muted-foreground
-                          "
-                        >
-                          {day.dayLabel}
-                        </span>
-                      </div>
-                    </Fragment>
-                  ))}
-                </div>
+                {currentStatus !== null && (
+                  <DailyCommentPopover
+                    daily={daily}
+                    buttonClassName="size-9 [&_svg]:size-4"
+                  />
+                )}
               </div>
-              {currentStatus !== null && (
-                <DailyCommentPopover
-                  daily={daily}
-                  buttonClassName="size-8 [&_svg]:size-3.5"
-                />
-              )}
+              <DailyStatusConnector
+                orientation="vertical"
+                left={currentStatus}
+                right={mostRecentPast?.status ?? null}
+                className="ml-[11px] h-3 shrink-0"
+              />
+              <div className="flex flex-row items-start">
+                {recentDays.map((day, i) => (
+                  <Fragment key={day.dateKey}>
+                    {i > 0 && (
+                      <DailyStatusConnector
+                        left={recentDays[i - 1].status}
+                        right={day.status}
+                        className="mt-[11px] w-2.5 shrink-0"
+                      />
+                    )}
+                    <div
+                      className="flex shrink-0 flex-col items-center gap-0.5"
+                    >
+                      <DailyStatusCircle
+                        status={day.status}
+                        size="sm"
+                        title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                      />
+                      <span
+                        className="
+                          text-[0.65rem] leading-none text-muted-foreground
+                        "
+                      >
+                        {day.dayLabel}
+                      </span>
+                    </div>
+                  </Fragment>
+                ))}
+              </div>
             </div>
           </li>
         );
