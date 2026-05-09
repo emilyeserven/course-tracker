@@ -174,6 +174,7 @@ export function ResourcesTable({
           id: t.id,
           name: t.name,
           isComplete: t.isComplete,
+          url: t.url ?? null,
         })),
       }),
     onSuccess: async () => {

@@ -92,6 +92,7 @@ function SingleTaskEdit() {
         id: t.id,
         name: t.name,
         isComplete: t.isComplete,
+        url: t.url ?? null,
       }));
 
       const taskData = {
