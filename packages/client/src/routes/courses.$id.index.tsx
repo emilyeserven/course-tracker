@@ -5,6 +5,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
 import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
 import { DailyRecentDaysStrip } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -164,6 +165,7 @@ function SingleCourse() {
         courseId={id}
         modulesAreExhaustive={data?.modulesAreExhaustive}
       />
+      <CourseInteractionsLog courseId={id} />
       <InfoRow
         condition={data?.cost?.cost != null}
         header="Money Things"

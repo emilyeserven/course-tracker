@@ -15,9 +15,13 @@ export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
   fastify.get("/:id", getSchema, async function (request, reply) {
-    const { id } = request.params;
+    const {
+      id,
+    } = request.params;
     const interaction = await db.query.interactions.findFirst({
-      where: (i, { eq }) => eq(i.id, id),
+      where: (i, {
+        eq,
+      }) => eq(i.id, id),
     });
 
     if (!interaction) {
