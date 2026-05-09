@@ -1,12 +1,24 @@
 import { db } from "@/db/index";
 import { resources } from "@/db/schema";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
+import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
 import { migrateTasksToResources } from "./migrateTasksToResources.ts";
 import { seed } from "./seed.ts";
 
 export async function runMigrations() {
+  // Foundational rename — must run before anything that queries `resources`
+  // or `task_resources`, since those tables don't exist under those names
+  // until this migration lands.
+  try {
+    await migrateCoursesToResources();
+  }
+  catch (err) {
+    console.error("Failed to rename courses → resources:", err);
+    throw err;
+  }
+
   try {
     await migrateRadarBlips();
   }
