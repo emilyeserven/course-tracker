@@ -246,6 +246,48 @@ export function BlipsTabContainer({
     }
   }
 
+  async function handleTableBulkSave(
+    ids: string[],
+    patch: { quadrantId?: string;
+      ringId?: string; },
+  ) {
+    if (ids.length === 0) return;
+    if (patch.quadrantId === undefined && patch.ringId === undefined) return;
+    const blipById = new Map<string, RadarBlip>();
+    (radar?.blips ?? []).forEach(b => blipById.set(b.id, b));
+    let updated = 0;
+    let failed = 0;
+    for (const id of ids) {
+      const blip = blipById.get(id);
+      if (!blip) {
+        failed += 1;
+        continue;
+      }
+      try {
+        await upsertRadarBlip(domainId, id, {
+          topicId: blip.topicId,
+          quadrantId: patch.quadrantId ?? blip.quadrantId,
+          ringId: patch.ringId ?? blip.ringId,
+          description: blip.description ?? null,
+        });
+        updated += 1;
+      }
+      catch {
+        failed += 1;
+      }
+    }
+    await onSaved();
+    if (updated > 0 && failed === 0) {
+      toast.success(`Updated ${updated} blip${updated === 1 ? "" : "s"}.`);
+    }
+    else if (updated > 0 && failed > 0) {
+      toast.error(`Updated ${updated}, failed ${failed}.`);
+    }
+    else {
+      toast.error("Failed to update blips.");
+    }
+  }
+
   return (
     <BlipsPanel
       allConfigPersisted={allConfigPersisted}
@@ -267,6 +309,7 @@ export function BlipsTabContainer({
       onRemoveBlip={removeBlip}
       onTableSave={handleTableSave}
       onTableRemove={handleTableRemove}
+      onTableBulkSave={handleTableBulkSave}
     />
   );
 }

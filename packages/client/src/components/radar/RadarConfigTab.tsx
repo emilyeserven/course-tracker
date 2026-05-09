@@ -124,8 +124,7 @@ export function RadarConfigTab({
                 <Input
                   value={r.name}
                   onChange={e => onChangeRing(r.localKey, e.target.value)}
-                  placeholder="Ring name"
-                  disabled={r.isAdopted}
+                  placeholder={r.isAdopted ? "Adopted section name" : "Ring name"}
                 />
                 {r.isAdopted
                   ? (
