@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Textarea } from "@/components/forms/textarea";
 import { TopicMultiSelect } from "@/components/radar/TopicMultiSelect";
+import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,

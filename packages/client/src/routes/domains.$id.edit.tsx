@@ -16,7 +16,6 @@ import { ScopeTab } from "./domains.$id.edit.-components/-ScopeTab";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
