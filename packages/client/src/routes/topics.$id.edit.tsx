@@ -13,11 +13,15 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
+import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import {
   createDomain,
   createTopic,
   deleteSingleTopic,
+  fetchCourses,
   fetchDomains,
+  fetchModuleGroups,
+  fetchModules,
   fetchSingleTopic,
   fetchTagGroups,
   formHasChanges,
@@ -34,6 +38,13 @@ const formSchema = z.object({
   reason: z.string().max(500),
   domainIds: z.array(z.string()),
   tagIds: z.array(z.string()),
+  resourceLinks: z.array(
+    z.object({
+      courseId: z.string(),
+      moduleGroupId: z.string().nullable(),
+      moduleId: z.string().nullable(),
+    }),
+  ),
 });
 
 function SingleTopicEdit() {
@@ -72,6 +83,27 @@ function SingleTopicEdit() {
     queryFn: () => fetchTagGroups(),
   });
 
+  const {
+    data: courses,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchCourses(),
+  });
+
+  const {
+    data: allModuleGroups,
+  } = useQuery({
+    queryKey: ["module-groups-all"],
+    queryFn: () => fetchModuleGroups(),
+  });
+
+  const {
+    data: allModules,
+  } = useQuery({
+    queryKey: ["modules-all"],
+    queryFn: () => fetchModules(),
+  });
+
   const domainOptions = useMemo(
     () =>
       (domainsData ?? [])
@@ -100,6 +132,11 @@ function SingleTopicEdit() {
       reason: data?.reason ?? "",
       domainIds: data?.domains?.map(d => d.id) ?? [],
       tagIds: (data?.tags ?? []).map(t => t.id),
+      resourceLinks: (data?.resourceLinks ?? []).map(l => ({
+        courseId: l.courseId,
+        moduleGroupId: l.moduleGroupId ?? null,
+        moduleId: l.moduleId ?? null,
+      })),
     }),
     [data],
   );
@@ -118,6 +155,7 @@ function SingleTopicEdit() {
         reason: value.reason || null,
         domainIds: value.domainIds,
         tagIds: value.tagIds,
+        resourceLinks: value.resourceLinks,
       };
 
       try {
@@ -252,6 +290,26 @@ function SingleTopicEdit() {
               />
             )}
           </form.AppField>
+
+          <form.Field name="resourceLinks">
+            {field => (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Resource Links
+                </span>
+                <ResourceLinksPicker
+                  value={field.state.value}
+                  onChange={next => field.handleChange(next)}
+                  courses={(courses ?? []).map(c => ({
+                    id: c.id,
+                    name: c.name,
+                  }))}
+                  moduleGroups={allModuleGroups ?? []}
+                  modules={allModules ?? []}
+                />
+              </div>
+            )}
+          </form.Field>
 
           <EditPageFooter
             isNew={isNew}

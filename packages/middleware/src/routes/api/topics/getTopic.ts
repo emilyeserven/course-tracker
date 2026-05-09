@@ -34,6 +34,18 @@ export default async function (server: FastifyInstance) {
                   id: true,
                 },
               },
+              moduleGroup: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+              module: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           radarBlips: {
@@ -76,6 +88,31 @@ export default async function (server: FastifyInstance) {
         const domains = Array.from(domainsById.values());
         const tags = (topic.topicsToTags ?? []).map(j => j.tag);
 
+        const resourceLinks = (topic.topicsToCourses ?? []).map(j => ({
+          courseId: j.courseId,
+          course: j.course
+            ? {
+              id: j.course.id,
+              name: j.course.name,
+            }
+            : null,
+          moduleGroupId: j.moduleGroupId ?? null,
+          moduleGroup: j.moduleGroup
+            ? {
+              id: j.moduleGroup.id,
+              name: j.moduleGroup.name,
+            }
+            : null,
+          moduleId: j.moduleId ?? null,
+          module: j.module
+            ? {
+              id: j.module.id,
+              name: j.module.name,
+            }
+            : null,
+          position: null,
+        }));
+
         return {
           id: topic.id,
           name: topic.name,
@@ -85,6 +122,7 @@ export default async function (server: FastifyInstance) {
           courses: courses,
           domains,
           tags,
+          resourceLinks,
         };
       }
     },

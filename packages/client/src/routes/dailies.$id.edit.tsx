@@ -356,8 +356,8 @@ function SingleDailyEdit() {
     () =>
       currentValues.courseId
         ? (allModuleGroups ?? []).filter(
-            g => g.courseId === currentValues.courseId,
-          )
+          g => g.courseId === currentValues.courseId,
+        )
         : [],
     [allModuleGroups, currentValues.courseId],
   );
@@ -366,8 +366,8 @@ function SingleDailyEdit() {
     () =>
       currentValues.courseId
         ? (allModules ?? []).filter(
-            m => m.courseId === currentValues.courseId,
-          )
+          m => m.courseId === currentValues.courseId,
+        )
         : [],
     [allModules, currentValues.courseId],
   );
@@ -548,8 +548,13 @@ function SingleDailyEdit() {
                   </ComboboxContent>
                 </Combobox>
                 {currentValues.courseId
-                && (courseModuleGroups.length > 0 || courseModules.length > 0) && (
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  && (courseModuleGroups.length > 0 || courseModules.length > 0) && (
+                  <div
+                    className="
+                      grid grid-cols-1 gap-2
+                      md:grid-cols-2
+                    "
+                  >
                     <div className="flex flex-col gap-1">
                       <label
                         htmlFor="daily-module-group"
@@ -567,8 +572,8 @@ function SingleDailyEdit() {
                           }
                         }}
                         className="
-                          flex h-9 w-full rounded-md border bg-background
-                          px-3 py-1 text-sm
+                          flex h-9 w-full rounded-md border bg-background px-3
+                          py-1 text-sm
                         "
                       >
                         <option value="">— Whole course —</option>
@@ -599,8 +604,8 @@ function SingleDailyEdit() {
                           }
                         }}
                         className="
-                          flex h-9 w-full rounded-md border bg-background
-                          px-3 py-1 text-sm
+                          flex h-9 w-full rounded-md border bg-background px-3
+                          py-1 text-sm
                         "
                       >
                         <option value="">— None —</option>

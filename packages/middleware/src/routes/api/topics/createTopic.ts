@@ -1,8 +1,12 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { topics, topicsToTags } from "@/db/schema";
-import { nullableString, tagIdsArraySchema } from "@/utils/schemas";
+import { topics, topicsToCourses, topicsToTags } from "@/db/schema";
+import {
+  nullableString,
+  resourceLinksArraySchema,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 import { v4 as uuidv4 } from "uuid";
 
@@ -26,6 +30,7 @@ const createSchema = {
           },
         },
         tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
       },
     },
   },
@@ -62,6 +67,30 @@ export default async function (server: FastifyInstance) {
             position: index,
           })),
         );
+      }
+
+      const incomingLinks = body.resourceLinks ?? [];
+      if (incomingLinks.length > 0) {
+        const seen = new Set<string>();
+        const linkRows: {
+          topicId: string;
+          courseId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+        }[] = [];
+        for (const link of incomingLinks) {
+          if (seen.has(link.courseId)) continue;
+          seen.add(link.courseId);
+          linkRows.push({
+            topicId: id,
+            courseId: link.courseId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+          });
+        }
+        if (linkRows.length > 0) {
+          await db.insert(topicsToCourses).values(linkRows);
+        }
       }
 
       return {

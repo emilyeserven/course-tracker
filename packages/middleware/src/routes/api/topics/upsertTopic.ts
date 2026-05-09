@@ -2,8 +2,13 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { topics, topicsToTags } from "@/db/schema";
-import { idParamSchema, nullableString, tagIdsArraySchema } from "@/utils/schemas";
+import { topics, topicsToCourses, topicsToTags } from "@/db/schema";
+import {
+  idParamSchema,
+  nullableString,
+  resourceLinksArraySchema,
+  tagIdsArraySchema,
+} from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 
 const upsertSchema = {
@@ -27,6 +32,7 @@ const upsertSchema = {
           },
         },
         tagIds: tagIdsArraySchema,
+        resourceLinks: resourceLinksArraySchema,
       },
     },
   },
@@ -81,6 +87,32 @@ export default async function (server: FastifyInstance) {
               position: index,
             })),
           );
+        }
+      }
+
+      if (body.resourceLinks !== undefined) {
+        await db
+          .delete(topicsToCourses)
+          .where(eq(topicsToCourses.topicId, id));
+        const seen = new Set<string>();
+        const rows: {
+          topicId: string;
+          courseId: string;
+          moduleGroupId: string | null;
+          moduleId: string | null;
+        }[] = [];
+        for (const link of body.resourceLinks) {
+          if (seen.has(link.courseId)) continue;
+          seen.add(link.courseId);
+          rows.push({
+            topicId: id,
+            courseId: link.courseId,
+            moduleGroupId: link.moduleGroupId ?? null,
+            moduleId: link.moduleId ?? null,
+          });
+        }
+        if (rows.length > 0) {
+          await db.insert(topicsToCourses).values(rows);
         }
       }
 

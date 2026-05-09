@@ -1,5 +1,6 @@
 import type { Course } from "./Course";
 import type { Tag } from "./Tag";
+import type { TaskResourceLink } from "./TaskResourceLink";
 
 export interface TopicDomain {
   id: string;
@@ -15,4 +16,7 @@ export interface Topic {
   courses?: Course[];
   domains?: TopicDomain[];
   tags?: Tag[];
+  // Reuses the TaskResourceLink shape (the link concept is the same:
+  // course + optional moduleGroup or module sub-target).
+  resourceLinks?: TaskResourceLink[];
 }
