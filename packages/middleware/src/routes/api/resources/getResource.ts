@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
 import { processTopics } from "@/utils/processTopics";
 import { idParamSchema } from "@/utils/schemas";
-import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types/src";
+import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types";
 
 const testSchema = {
   schema: {

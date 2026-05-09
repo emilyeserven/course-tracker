@@ -8,7 +8,7 @@ import {
   nullableDailyStatusEnum,
   nullableString,
 } from "@/utils/schemas";
-import type { DailyCompletion, DailyCriteria } from "@emstack/types/src";
+import type { DailyCompletion, DailyCriteria } from "@emstack/types";
 import { v4 as uuidv4 } from "uuid";
 
 const createSchema = {

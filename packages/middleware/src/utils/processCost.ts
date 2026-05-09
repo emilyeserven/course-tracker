@@ -1,5 +1,5 @@
-import type { CostData } from "@emstack/types/src";
-import { ResourceFromServer } from "@emstack/types/src";
+import type { CostData } from "@emstack/types";
+import { ResourceFromServer } from "@emstack/types";
 
 export function processCost(course: ResourceFromServer): CostData {
   let costData: CostData = {

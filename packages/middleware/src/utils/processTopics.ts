@@ -1,4 +1,4 @@
-import { TopicsToResources } from "@emstack/types/src";
+import { TopicsToResources } from "@emstack/types";
 
 export function processTopics(ttc: TopicsToResources[] | null | undefined) {
   if (ttc && ttc.length > 0) {

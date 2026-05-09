@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import type { Domain } from "@emstack/types/src";
+import type { Domain } from "@emstack/types";
 import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 

@@ -1,6 +1,6 @@
 import {
   isModuleDurationBucket,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 // Normalize the incoming module length value to the unified `length` column
 // shape. Accepts the new `length` string OR the legacy `minutesLength`
