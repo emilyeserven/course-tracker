@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { resources, resourceTags, topicsToResources } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import {
@@ -107,6 +108,7 @@ export default createUpsertHandler<CourseBody>({
       buildRows: (body, id) =>
         body.topicId
           ? [{
+            id: uuidv4(),
             topicId: body.topicId,
             resourceId: id,
           }]
