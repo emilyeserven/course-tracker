@@ -4,6 +4,9 @@ const envSchema = {
     VALUE: {
       type: "string",
     },
+    ANTHROPIC_API_KEY: {
+      type: "string",
+    },
   },
 } as const;
 
