@@ -1173,7 +1173,7 @@ function GroupEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          URL (optional)
+          Location (optional)
         </label>
         <Input
           type="text"
@@ -1404,7 +1404,7 @@ function ModuleEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          URL (optional)
+          Location (optional)
         </label>
         <Input
           type="text"
