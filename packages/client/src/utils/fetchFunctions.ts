@@ -282,39 +282,6 @@ export async function incrementResourceProgress(
   );
 }
 
-export interface SuggestedModule {
-  name: string;
-  description: string | null;
-  url: string | null;
-  length: string | null;
-}
-
-export interface SuggestedModuleGroup {
-  name: string;
-  description: string | null;
-  url: string | null;
-  modules: SuggestedModule[];
-}
-
-export interface ModuleSuggestion {
-  moduleGroups: SuggestedModuleGroup[];
-  ungroupedModules: SuggestedModule[];
-  notes: string | null;
-}
-
-export async function suggestModulesForResource(
-  id: string,
-  notes: string | null,
-): Promise<ModuleSuggestion> {
-  return postJson(
-    `/api/resources/${id}/suggest-modules`,
-    {
-      notes,
-    },
-    "Failed to generate module suggestions",
-  );
-}
-
 export async function postOnboardForm(
   formData: OnboardData,
 ): Promise<SuccessObj> {

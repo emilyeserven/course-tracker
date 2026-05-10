@@ -1,13 +1,7 @@
-import type {
-  ModuleSuggestion,
-  SuggestedModule,
-  SuggestedModuleGroup,
-} from "@/utils/fetchFunctions";
-
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, SparklesIcon } from "lucide-react";
+import { CopyIcon, Loader2, SparklesIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Textarea } from "@/components/textarea";
@@ -21,18 +15,40 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  createModule,
-  createModuleGroup,
-  suggestModulesForResource,
-} from "@/utils/fetchFunctions";
+import { createModule, createModuleGroup } from "@/utils/fetchFunctions";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resourceId: string;
   resourceName: string;
+  resourceDescription: string | null;
+  resourceUrl: string | null;
+  providerName: string | null;
+  topicNames: string[];
+  existingGroupNames: string[];
+  existingUngroupedModuleNames: string[];
   onApplied: () => void;
+}
+
+interface SuggestedModule {
+  name: string;
+  description: string | null;
+  url: string | null;
+  length: string | null;
+}
+
+interface SuggestedModuleGroup {
+  name: string;
+  description: string | null;
+  url: string | null;
+  modules: SuggestedModule[];
+}
+
+interface ModuleSuggestion {
+  moduleGroups: SuggestedModuleGroup[];
+  ungroupedModules: SuggestedModule[];
+  notes: string | null;
 }
 
 interface GroupSelection {
@@ -43,6 +59,95 @@ interface GroupSelection {
 interface SelectionState {
   groups: GroupSelection[];
   ungrouped: boolean[];
+}
+
+function stripCodeFence(input: string): string {
+  const trimmed = input.trim();
+  const fenceMatch = trimmed.match(/^```[^\n]*\n([\s\S]*?)\n?```$/);
+  return fenceMatch ? fenceMatch[1].trim() : trimmed;
+}
+
+function nullableString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeLength(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const v = value.trim().toLowerCase().replace(/[\s-]/g, "_");
+  if (!v) return null;
+  if (
+    v === "extra_short"
+    || v === "short"
+    || v === "medium"
+    || v === "long"
+    || v === "extra_long"
+  ) {
+    return v;
+  }
+  // Allow integer minutes as a string (e.g. "30")
+  const n = Number(v);
+  if (Number.isFinite(n) && n > 0 && Number.isInteger(n)) {
+    return String(n);
+  }
+  return null;
+}
+
+function parseSuggestion(raw: string): ModuleSuggestion {
+  const parsed = JSON.parse(stripCodeFence(raw)) as unknown;
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error(
+      "Expected a JSON object with moduleGroups, ungroupedModules, and notes.",
+    );
+  }
+  const obj = parsed as Record<string, unknown>;
+  const moduleGroupsRaw = Array.isArray(obj.moduleGroups) ? obj.moduleGroups : [];
+  const ungroupedRaw = Array.isArray(obj.ungroupedModules)
+    ? obj.ungroupedModules
+    : [];
+
+  const moduleGroups: SuggestedModuleGroup[] = moduleGroupsRaw
+    .map((g) => {
+      if (typeof g !== "object" || g === null) return null;
+      const group = g as Record<string, unknown>;
+      const name = nullableString(group.name);
+      if (!name) return null;
+      const modulesRaw = Array.isArray(group.modules) ? group.modules : [];
+      const modules: SuggestedModule[] = modulesRaw
+        .map(m => parseModule(m))
+        .filter((m): m is SuggestedModule => m !== null);
+      return {
+        name,
+        description: nullableString(group.description),
+        url: nullableString(group.url),
+        modules,
+      };
+    })
+    .filter((g): g is SuggestedModuleGroup => g !== null);
+
+  const ungroupedModules: SuggestedModule[] = ungroupedRaw
+    .map(m => parseModule(m))
+    .filter((m): m is SuggestedModule => m !== null);
+
+  return {
+    moduleGroups,
+    ungroupedModules,
+    notes: nullableString(obj.notes),
+  };
+}
+
+function parseModule(raw: unknown): SuggestedModule | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const obj = raw as Record<string, unknown>;
+  const name = nullableString(obj.name);
+  if (!name) return null;
+  return {
+    name,
+    description: nullableString(obj.description),
+    url: nullableString(obj.url),
+    length: normalizeLength(obj.length),
+  };
 }
 
 function buildSelection(suggestion: ModuleSuggestion): SelectionState {
@@ -76,36 +181,211 @@ function lengthLabel(length: string | null): string {
   }
 }
 
+function bulletList(items: string[]): string {
+  if (items.length === 0) return "- (none)";
+  return items.map(i => `- ${i}`).join("\n");
+}
+
+function buildPrompt(args: {
+  resourceName: string;
+  resourceDescription: string | null;
+  resourceUrl: string | null;
+  providerName: string | null;
+  topicNames: string[];
+  existingGroupNames: string[];
+  existingUngroupedModuleNames: string[];
+  userNotes: string;
+}): string {
+  const {
+    resourceName,
+    resourceDescription,
+    resourceUrl,
+    providerName,
+    topicNames,
+    existingGroupNames,
+    existingUngroupedModuleNames,
+    userNotes,
+  } = args;
+  const label = resourceName.trim() || "(unnamed resource)";
+  const description = resourceDescription?.trim() || "(no description provided)";
+  const url = resourceUrl?.trim() || "(no URL provided)";
+  const provider = providerName?.trim() || "(no provider set)";
+  const notesBlock = userNotes.trim()
+    ? `\nAdditional notes from me:\n${userNotes.trim()}\n`
+    : "";
+  return `I'm tracking my progress through the learning resource "${label}" and want to break it down into a structured outline of module groups and modules I can check off as I go.
+
+Resource info:
+- Name: ${label}
+- Description: ${description}
+- URL: ${url}
+- Provider: ${provider}
+- Topics: ${topicNames.length > 0 ? topicNames.join(", ") : "(none)"}
+
+Module groups I've already added (do not duplicate):
+${bulletList(existingGroupNames)}
+
+Ungrouped modules I've already added (do not duplicate):
+${bulletList(existingUngroupedModuleNames)}
+${notesBlock}
+Please propose a structured outline. If the resource is one you know well (e.g. a famous book or popular course), use its actual table of contents. Otherwise propose a reasonable generic outline based on the topic and call that out in "notes". Aim for 3-8 module groups with 3-10 modules each for a typical course; fewer (or all ungrouped) is fine for shorter resources.
+
+Return ONLY a JSON object with this exact shape (no commentary, no other keys):
+
+{
+  "moduleGroups": [
+    {
+      "name": "Section / chapter / unit name",
+      "description": "Short one-sentence description, or null",
+      "url": "URL for this group, or null",
+      "modules": [
+        {
+          "name": "Module / lesson / chapter name",
+          "description": "Short one-sentence description, or null",
+          "url": "URL for this module, or null",
+          "length": "Either an integer string of minutes (\\"30\\"), or one of: \\"extra_short\\" (<5m), \\"short\\" (5-15m), \\"medium\\" (15-30m), \\"long\\" (30m-1h), \\"extra_long\\" (1h+). Use null if unknown."
+        }
+      ]
+    }
+  ],
+  "ungroupedModules": [
+    {
+      "name": "Standalone module name",
+      "description": "...",
+      "url": "...",
+      "length": "..."
+    }
+  ],
+  "notes": "Any brief caveats — e.g. 'best-effort outline; I am not familiar with this specific resource'. Use null when no caveat applies."
+}
+
+Leave URLs null unless you're confident. Use empty arrays for moduleGroups or ungroupedModules if you have nothing to suggest in that bucket.
+`;
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    catch {
+      // fall through
+    }
+  }
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return ok;
+  }
+  catch {
+    return false;
+  }
+}
+
 export function ModuleSuggestDialog({
   open,
   onOpenChange,
   resourceId,
   resourceName,
+  resourceDescription,
+  resourceUrl,
+  providerName,
+  topicNames,
+  existingGroupNames,
+  existingUngroupedModuleNames,
   onApplied,
 }: Props) {
   const [notes, setNotes] = useState("");
+  const [jsonText, setJsonText] = useState("");
+  const [parseError, setParseError] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<ModuleSuggestion | null>(null);
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [applyError, setApplyError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!open) {
-      setNotes("");
-      setSuggestion(null);
-      setSelection(null);
-      setApplyError(null);
-    }
-  }, [open]);
+  const prompt = useMemo(
+    () =>
+      buildPrompt({
+        resourceName,
+        resourceDescription,
+        resourceUrl,
+        providerName,
+        topicNames,
+        existingGroupNames,
+        existingUngroupedModuleNames,
+        userNotes: notes,
+      }),
+    [
+      resourceName,
+      resourceDescription,
+      resourceUrl,
+      providerName,
+      topicNames,
+      existingGroupNames,
+      existingUngroupedModuleNames,
+      notes,
+    ],
+  );
 
-  const generate = useMutation({
-    mutationFn: () =>
-      suggestModulesForResource(resourceId, notes.trim() || null),
-    onSuccess: (data) => {
-      setSuggestion(data);
-      setSelection(buildSelection(data));
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  function reset() {
+    setNotes("");
+    setJsonText("");
+    setParseError(null);
+    setSuggestion(null);
+    setSelection(null);
+    setApplyError(null);
+  }
+
+  function handleOpenChange(next: boolean) {
+    if (!next) reset();
+    onOpenChange(next);
+  }
+
+  async function copyPrompt() {
+    const ok = await copyToClipboard(prompt);
+    if (ok) {
+      toast.success("Prompt copied to clipboard.");
+    }
+    else {
+      toast.error("Couldn't copy — please select and copy manually.");
+    }
+  }
+
+  function parseAndReview() {
+    setParseError(null);
+    setApplyError(null);
+    if (!jsonText.trim()) {
+      setParseError("Paste the LLM's JSON response above.");
+      return;
+    }
+    try {
+      const parsed = parseSuggestion(jsonText);
+      if (
+        parsed.moduleGroups.length === 0
+        && parsed.ungroupedModules.length === 0
+      ) {
+        setParseError(
+          "The response had no module groups or modules. Double-check the JSON.",
+        );
+        return;
+      }
+      setSuggestion(parsed);
+      setSelection(buildSelection(parsed));
+    }
+    catch (err) {
+      setParseError(err instanceof Error ? err.message : String(err));
+    }
+  }
 
   const totalSelected = useMemo(() => {
     if (!selection) {
@@ -147,9 +427,7 @@ export function ModuleSuggestDialog({
         let groupId: string | null = null;
         if (wantsGroup) {
           try {
-            const result = await createModuleGroup(
-              groupPayload(resourceId, g),
-            );
+            const result = await createModuleGroup(groupPayload(resourceId, g));
             groupId = result.id;
             groupsCreated += 1;
           }
@@ -203,6 +481,7 @@ export function ModuleSuggestDialog({
           toast.warning(
             `Created ${groupsCreated} group(s) and ${modulesCreated} module(s); ${errors.length} failed.`,
           );
+          onApplied();
         }
         else {
           toast.error("Failed to create any modules — see details below.");
@@ -213,7 +492,7 @@ export function ModuleSuggestDialog({
         `Created ${groupsCreated} group(s) and ${modulesCreated} module(s).`,
       );
       onApplied();
-      onOpenChange(false);
+      handleOpenChange(false);
     },
     onError: (e: Error) => {
       setApplyError(e.message);
@@ -277,10 +556,16 @@ export function ModuleSuggestDialog({
     });
   }
 
+  function backToSetup() {
+    setSuggestion(null);
+    setSelection(null);
+    setApplyError(null);
+  }
+
   return (
     <Dialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
     >
       <DialogContent
         className="max-h-[90vh] max-w-3xl overflow-y-auto"
@@ -291,8 +576,8 @@ export function ModuleSuggestDialog({
             {`LLM Assist — Modules for "${resourceName}"`}
           </DialogTitle>
           <DialogDescription>
-            Use Claude to propose a structured outline of module groups and
-            modules. Review the suggestions and pick which ones to add.
+            Copy the prompt below into any LLM, paste its JSON response back
+            here, then review and pick which suggestions to add.
           </DialogDescription>
         </DialogHeader>
 
@@ -300,20 +585,53 @@ export function ModuleSuggestDialog({
           <div className="flex flex-col gap-3">
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-medium">
-                Notes for the model (optional)
+                Optional notes for the LLM
               </span>
               <Textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                placeholder="e.g. only cover the first 5 chapters, or focus on the hands-on exercises"
-                rows={3}
+                placeholder="e.g. only cover the first 5 chapters, or focus on hands-on exercises"
+                rows={2}
               />
-              <span className="text-xs text-muted-foreground">
-                Claude already sees the resource name, description, URL,
-                provider, topics, and any modules you&apos;ve already added.
-              </span>
             </label>
-            <div className="flex flex-row justify-end gap-2">
+
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-row items-center justify-between">
+                <span className="text-sm font-medium">Prompt</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={copyPrompt}
+                >
+                  <CopyIcon className="size-3.5" />
+                  Copy prompt
+                </Button>
+              </div>
+              <pre
+                className={`
+                  h-56 overflow-auto rounded-sm bg-muted p-3 text-xs
+                  whitespace-pre-wrap
+                `}
+              >
+                {prompt}
+              </pre>
+            </div>
+
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">JSON response</span>
+              <Textarea
+                value={jsonText}
+                onChange={e => setJsonText(e.target.value)}
+                placeholder='{"moduleGroups": [...], "ungroupedModules": [...], "notes": null}'
+                className="h-40 font-mono text-xs"
+              />
+              {parseError && (
+                <span className="text-xs text-destructive">{parseError}</span>
+              )}
+            </label>
+
+            <DialogFooter>
               <DialogClose asChild>
                 <Button
                   type="button"
@@ -324,14 +642,12 @@ export function ModuleSuggestDialog({
               </DialogClose>
               <Button
                 type="button"
-                onClick={() => generate.mutate()}
-                disabled={generate.isPending}
+                onClick={parseAndReview}
+                disabled={!jsonText.trim()}
               >
-                {generate.isPending && <Loader2 className="animate-spin" />}
-                <SparklesIcon className="size-4" />
-                Generate Suggestions
+                Parse and Review
               </Button>
-            </div>
+            </DialogFooter>
           </div>
         )}
 
@@ -353,12 +669,9 @@ export function ModuleSuggestDialog({
             <div className="flex flex-row items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">
                 {totalSelected.groups}
-                {" "}
-                group(s) and
-                {" "}
+                {" group(s) and "}
                 {totalSelected.modules}
-                {" "}
-                module(s) selected
+                {" module(s) selected"}
               </p>
               <div className="flex flex-row gap-1">
                 <Button
@@ -427,14 +740,10 @@ export function ModuleSuggestDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setSuggestion(null);
-                  setSelection(null);
-                  setApplyError(null);
-                }}
+                onClick={backToSetup}
                 disabled={apply.isPending}
               >
-                Regenerate
+                Back
               </Button>
               <DialogClose asChild>
                 <Button

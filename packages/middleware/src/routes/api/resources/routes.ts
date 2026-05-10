@@ -7,7 +7,6 @@ import deleteCourse from "./deleteResource";
 import upsertResource from "./upsertResource";
 import duplicateResource from "./duplicateResource";
 import incrementResourceProgress from "./incrementResourceProgress";
-import suggestModules from "./suggestModules";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -18,5 +17,4 @@ export default async function (server: FastifyInstance) {
   fastify.register(upsertResource);
   fastify.register(duplicateResource);
   fastify.register(incrementResourceProgress);
-  fastify.register(suggestModules);
 }
