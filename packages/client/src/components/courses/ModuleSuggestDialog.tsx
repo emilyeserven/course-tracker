@@ -34,14 +34,14 @@ interface Props {
 interface SuggestedModule {
   name: string;
   description: string | null;
-  url: string | null;
+  location: string | null;
   length: string | null;
 }
 
 interface SuggestedModuleGroup {
   name: string;
   description: string | null;
-  url: string | null;
+  location: string | null;
   modules: SuggestedModule[];
 }
 
@@ -120,7 +120,8 @@ function parseSuggestion(raw: string): ModuleSuggestion {
       return {
         name,
         description: nullableString(group.description),
-        url: nullableString(group.url),
+        // Accept "location" (preferred) or "url" (back-compat) from the LLM.
+        location: nullableString(group.location) ?? nullableString(group.url),
         modules,
       };
     })
@@ -145,7 +146,7 @@ function parseModule(raw: unknown): SuggestedModule | null {
   return {
     name,
     description: nullableString(obj.description),
-    url: nullableString(obj.url),
+    location: nullableString(obj.location) ?? nullableString(obj.url),
     length: normalizeLength(obj.length),
   };
 }
@@ -210,9 +211,12 @@ function buildPrompt(args: {
   const description = resourceDescription?.trim() || "(no description provided)";
   const url = resourceUrl?.trim() || "(no URL provided)";
   const provider = providerName?.trim() || "(no provider set)";
-  const notesBlock = userNotes.trim()
-    ? `\nAdditional notes from me:\n${userNotes.trim()}\n`
-    : "";
+  const trimmedNotes = userNotes.trim();
+  const additionalDetailsBlock = trimmedNotes
+    ? `Additional details / reference material from me:
+${trimmedNotes}`
+    : `Additional details / reference material from me:
+(none — fill in above if I have a real table of contents, page count, edition, or other reference info you should use)`;
   return `I'm tracking my progress through the learning resource "${label}" and want to break it down into a structured outline of module groups and modules I can check off as I go.
 
 Resource info:
@@ -227,8 +231,8 @@ ${bulletList(existingGroupNames)}
 
 Ungrouped modules I've already added (do not duplicate):
 ${bulletList(existingUngroupedModuleNames)}
-${notesBlock}
-Please propose a structured outline. If the resource is one you know well (e.g. a famous book or popular course), use its actual table of contents. Otherwise propose a reasonable generic outline based on the topic and call that out in "notes". Aim for 3-8 module groups with 3-10 modules each for a typical course; fewer (or all ungrouped) is fine for shorter resources.
+
+Please propose a structured outline. If the resource is one you know well (e.g. a famous book or popular course), use its actual table of contents. Otherwise propose a reasonable generic outline based on the topic and call that out in "notes". If I've pasted reference material or a real table of contents at the bottom of this prompt, prefer that over anything you'd otherwise guess. Aim for 3-8 module groups with 3-10 modules each for a typical course; fewer (or all ungrouped) is fine for shorter resources.
 
 Return ONLY a JSON object with this exact shape (no commentary, no other keys):
 
@@ -237,12 +241,12 @@ Return ONLY a JSON object with this exact shape (no commentary, no other keys):
     {
       "name": "Section / chapter / unit name",
       "description": "Short one-sentence description, or null",
-      "url": "URL for this group, or null",
+      "location": "Where to find this group inside the resource. Use whatever shape fits the resource type: a URL for online content, a page-number range like \\"pp. 23-67\\" for a book, a timestamp range like \\"00:12:30-00:34:15\\" for a video, or null if not applicable.",
       "modules": [
         {
           "name": "Module / lesson / chapter name",
           "description": "Short one-sentence description, or null",
-          "url": "URL for this module, or null",
+          "location": "Where to find this module — URL, page-number range for a book chapter, timestamp range for a video lesson, or null.",
           "length": "Either an integer string of minutes (\\"30\\"), or one of: \\"extra_short\\" (<5m), \\"short\\" (5-15m), \\"medium\\" (15-30m), \\"long\\" (30m-1h), \\"extra_long\\" (1h+). Use null if unknown."
         }
       ]
@@ -252,14 +256,16 @@ Return ONLY a JSON object with this exact shape (no commentary, no other keys):
     {
       "name": "Standalone module name",
       "description": "...",
-      "url": "...",
+      "location": "...",
       "length": "..."
     }
   ],
   "notes": "Any brief caveats — e.g. 'best-effort outline; I am not familiar with this specific resource'. Use null when no caveat applies."
 }
 
-Leave URLs null unless you're confident. Use empty arrays for moduleGroups or ungroupedModules if you have nothing to suggest in that bucket.
+Leave location null unless you're confident. For a book, prefer page numbers ("pp. 23-67") over made-up URLs. Use empty arrays for moduleGroups or ungroupedModules if you have nothing to suggest in that bucket.
+
+${additionalDetailsBlock}
 `;
 }
 
@@ -585,14 +591,18 @@ export function ModuleSuggestDialog({
           <div className="flex flex-col gap-3">
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-medium">
-                Optional notes for the LLM
+                Additional details / reference material (optional)
               </span>
               <Textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                placeholder="e.g. only cover the first 5 chapters, or focus on hands-on exercises"
-                rows={2}
+                placeholder="Paste an actual table of contents, list the chapters, give the page count or video length, name the edition, mention which sections to focus on, etc. Anything you put here goes at the END of the prompt — the LLM is told to prefer it over guesses."
+                rows={4}
               />
+              <span className="text-xs text-muted-foreground">
+                For books, asking for page-number ranges as the location is
+                usually more useful than URLs.
+              </span>
             </label>
 
             <div className="flex flex-col gap-1">
@@ -784,7 +794,10 @@ function groupPayload(
     resourceId,
     name: g.name,
     description: g.description ?? null,
-    url: g.url ?? null,
+    // The DB column is `url` but the LLM is asked for "location" (URL, page
+    // range, video timestamp, etc.). Store the location string in `url` —
+    // the existing UI falls back to plain text when it isn't an http URL.
+    url: g.location ?? null,
     totalCount: null,
     completedCount: null,
     easeOfStarting: null,
@@ -804,7 +817,7 @@ function modulePayload(
     moduleGroupId,
     name: m.name,
     description: m.description ?? null,
-    url: m.url ?? null,
+    url: m.location ?? null,
     length: m.length ?? null,
     isComplete: false,
     easeOfStarting: null,
