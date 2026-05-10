@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, RadarIcon } from "lucide-react";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DashboardCard,
+  DashboardSectionStatus,
+} from "@/components/boxes/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { fetchDomains } from "@/utils";
 
@@ -36,17 +39,13 @@ export function DashboardRadars() {
         </Link>
       )}
     >
-      {isPending && (
-        <p className="text-sm text-muted-foreground">Loading radars...</p>
-      )}
-      {error && (
-        <p className="text-sm text-destructive">Failed to load radars.</p>
-      )}
-      {domains && sortedDomains.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          <i>No radars yet.</i>
-        </p>
-      )}
+      <DashboardSectionStatus
+        isPending={isPending}
+        error={error}
+        isEmpty={!!domains && sortedDomains.length === 0}
+        entity="radars"
+        emptyMessage="No radars yet."
+      />
       {sortedDomains.length > 0 && (
         <ul className="flex flex-col divide-y">
           {sortedDomains.map(domain => (

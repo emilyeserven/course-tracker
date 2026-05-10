@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DashboardCard,
+  DashboardSectionStatus,
+} from "@/components/boxes/DashboardCard";
 import {
   DailiesActiveListView,
   DailiesViewModeToggle,
@@ -198,17 +201,13 @@ export function DashboardDailies() {
         </>
       }
     >
-      {isPending && (
-        <p className="text-sm text-muted-foreground">Loading dailies...</p>
-      )}
-      {error && (
-        <p className="text-sm text-destructive">Failed to load dailies.</p>
-      )}
-      {sortedDailies && sortedDailies.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          <i>No dailies yet.</i>
-        </p>
-      )}
+      <DashboardSectionStatus
+        isPending={isPending}
+        error={error}
+        isEmpty={!!sortedDailies && sortedDailies.length === 0}
+        entity="dailies"
+        emptyMessage="No dailies yet."
+      />
       {sortedDailies && sortedDailies.length > 0 && mode === "list" && (
         <DailiesActiveListView
           dailies={sortedDailies}

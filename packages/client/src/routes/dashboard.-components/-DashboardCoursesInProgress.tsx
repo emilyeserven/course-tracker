@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DashboardCard,
+  DashboardSectionStatus,
+} from "@/components/boxes/DashboardCard";
 import {
   Popover,
   PopoverContent,
@@ -97,17 +100,13 @@ export function DashboardCoursesInProgress() {
         </Link>
       )}
     >
-      {isPending && (
-        <p className="text-sm text-muted-foreground">Loading courses...</p>
-      )}
-      {error && (
-        <p className="text-sm text-destructive">Failed to load resources.</p>
-      )}
-      {courses && inProgress.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          <i>No courses in progress.</i>
-        </p>
-      )}
+      <DashboardSectionStatus
+        isPending={isPending}
+        error={error}
+        isEmpty={!!courses && inProgress.length === 0}
+        entity="courses"
+        emptyMessage="No courses in progress."
+      />
       {inProgress.length > 0 && (
         <ul className="flex flex-col divide-y">
           {inProgress.map(course => (

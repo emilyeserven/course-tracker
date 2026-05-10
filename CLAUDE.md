@@ -108,7 +108,7 @@ If you change `packages/middleware/src/db/schema.ts`, run `pnpm --filter=@emstac
 - Theme support via ThemeProvider context (dark/light mode)
 - **Forms:** Uses TanStack Form's `createFormHook` API. The `useAppForm` hook (re-exported from `components/formFields/index.ts`, defined in `hooks/useAppForm.ts`) registers context-based field components (`InputField`, `TextareaField`, `NumberField`, `RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField`) accessed via `form.AppField` — do not import the field components directly. They live in `components/formFields/` and access form state via `useFieldContext()` from `utils/fieldContext.ts`. To add a new reusable field: create the component, register it in `useAppForm.ts`.
 - **Edit-page boilerplate** (skip-blocker, query invalidation, navigation, delete handler) lives in `hooks/useEditFormPage.ts`. New edit routes should reuse it.
-- **Loading / error placeholders** for routes use `<EntityPending entity="..."/>` and `<EntityError entity="..."/>` from `components/EntityStates.tsx`.
+- **Loading / error placeholders** for routes use `<EntityPending entity="..."/>` and `<EntityError entity="..."/>` from `components/EntityStates.tsx`. Inside a `DashboardCard`, use the inline `<DashboardSectionStatus isPending error isEmpty entity="..." emptyMessage="..." />` from `components/boxes/DashboardCard.tsx` instead — it renders pending / error / empty rows in the card body.
 - **Fetch layer:** `utils/fetchFunctions.ts` builds typed entity clients with `createEntityClient(endpoint, label)` (CRUD + duplicate). Each entity gets a `<name>Api` object and named function re-exports (`upsertCourse`, `fetchSingleCourse`, etc.). Reuse the helper rather than hand-rolling `fetch` calls.
 
 ### Backend
@@ -121,7 +121,8 @@ If you change `packages/middleware/src/db/schema.ts`, run `pnpm --filter=@emstac
 - Auto-seeds on empty database via `src/db/seed.ts`
 - **Shared handler factories** in `src/utils/`: `createDeleteHandler` (single or multi-junction cascade), `createUpsertHandler` (insert + onConflictDoUpdate + junction sync). Reuse these instead of hand-writing CRUD.
 - **Shared schemas** in `src/utils/schemas.ts`: `idParamSchema`, `nullableString/Boolean/Integer`, `statusEnum`, `resourceLevelEnum`, `dailyStatusEnum`, `resourceSchema`, `todoSchema`, `completionSchema`, `criteriaSchema`.
-- **Error helpers** in `src/utils/errors.ts`: `sendNotFound(reply, resource)`, `sendBadRequest(reply, message)`.
+- **Error helpers** in `src/utils/errors.ts`: `sendNotFound(reply, resource)`, `sendBadRequest(reply, message)`, `sendConflict(reply, message)`.
+- **Junction projection** in `src/utils/processResourceLinks.ts`: `processResourceLinks(rows, "resource" | "topic")` flattens a `topicsToResources` join into `{id, name}[]` from one side of the relation. Use it in GET handlers instead of bespoke `.map(...)` projections.
 
 ### Database Schema
 Defined in `packages/middleware/src/db/schema.ts`.
