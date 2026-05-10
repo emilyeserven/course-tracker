@@ -70,8 +70,7 @@ export function ComboboxCreatePanel({
     f => !f.required || (values[f.name] ?? "").trim().length > 0,
   );
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit() {
     if (!canSubmit || submitting) return;
     const trimmed: Record<string, unknown> = {};
     for (const f of config.fields) {
@@ -81,21 +80,30 @@ export function ComboboxCreatePanel({
     onSubmit(trimmed);
   }
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      // Stop the Enter from bubbling to any outer <form> and submitting it —
+      // this panel is rendered inside edit-page forms, and nested <form>s are
+      // not allowed in HTML, so we can't use one here.
+      e.preventDefault();
+      e.stopPropagation();
+      submit();
+    }
+  }
+
   return (
     <div
       className="
         mt-2 flex flex-col gap-3 rounded-md border border-border bg-muted/30 p-4
       "
+      onKeyDown={handleKeyDown}
     >
       <div className="text-sm font-medium">
         New
         {" "}
         {config.itemLabel}
       </div>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-3"
-      >
+      <div className="flex flex-col gap-3">
         {config.fields.map(f => (
           <div
             key={f.name}
@@ -125,9 +133,10 @@ export function ComboboxCreatePanel({
         ))}
         <div className="flex gap-2">
           <Button
-            type="submit"
+            type="button"
             size="sm"
             disabled={!canSubmit || submitting}
+            onClick={submit}
           >
             {submitting && <Loader2 className="size-4 animate-spin" />}
             Create
@@ -142,7 +151,7 @@ export function ComboboxCreatePanel({
             Cancel
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
