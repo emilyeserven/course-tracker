@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DashboardCard,
+  DashboardSectionStatus,
+} from "@/components/boxes/DashboardCard";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -95,17 +98,13 @@ export function DashboardUnderutilizedProviders() {
         </Link>
       }
     >
-      {isPending && (
-        <p className="text-sm text-muted-foreground">Loading providers...</p>
-      )}
-      {error && (
-        <p className="text-sm text-destructive">Failed to load providers.</p>
-      )}
-      {providers && rows.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          <i>No underutilized providers.</i>
-        </p>
-      )}
+      <DashboardSectionStatus
+        isPending={isPending}
+        error={error}
+        isEmpty={!!providers && rows.length === 0}
+        entity="providers"
+        emptyMessage="No underutilized providers."
+      />
       {rows.length > 0 && (
         <div
           className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"

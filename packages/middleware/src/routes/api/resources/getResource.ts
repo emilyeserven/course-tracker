@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { processCost } from "@/utils/processCost";
-import { processTopics } from "@/utils/processTopics";
+import { processResourceLinks } from "@/utils/processResourceLinks";
 import { idParamSchema } from "@/utils/schemas";
 import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types";
 
@@ -63,7 +63,7 @@ export default async function (server: FastifyInstance) {
     if (course) {
       const costData = processCost(course as ResourceFromServer);
 
-      const topics = processTopics(course.topicsToResources);
+      const topics = processResourceLinks(course.topicsToResources, "topic");
 
       const rawData: Resource = {
         id: course.id,

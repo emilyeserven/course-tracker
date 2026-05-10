@@ -11,7 +11,10 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import {
+  DashboardCard,
+  DashboardSectionStatus,
+} from "@/components/boxes/DashboardCard";
 import {
   Popover,
   PopoverContent,
@@ -353,27 +356,15 @@ export function DashboardCoursesByAmortization() {
           </button>
         )}
       </div>
-      {isPending && (
-        <p className="text-sm text-muted-foreground">
-          {viewMode === "providers" ? "Loading providers..." : "Loading courses..."}
-        </p>
-      )}
-      {error && (
-        <p className="text-sm text-destructive">
-          {viewMode === "providers"
-            ? "Failed to load providers."
-            : "Failed to load resources."}
-        </p>
-      )}
-      {hasData && isEmpty && (
-        <p className="text-sm text-muted-foreground">
-          <i>
-            {viewMode === "providers"
-              ? "No providers with shared course fees."
-              : "No courses to show."}
-          </i>
-        </p>
-      )}
+      <DashboardSectionStatus
+        isPending={isPending}
+        error={error}
+        isEmpty={hasData && isEmpty}
+        entity={viewMode === "providers" ? "providers" : "courses"}
+        emptyMessage={viewMode === "providers"
+          ? "No providers with shared course fees."
+          : "No courses to show."}
+      />
       {viewMode === "courses" && courseRows.length > 0 && (
         <div
           className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"

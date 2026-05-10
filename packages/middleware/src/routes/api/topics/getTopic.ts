@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { processCourses } from "@/utils/processCourses";
+import { processResourceLinks } from "@/utils/processResourceLinks";
 import { idParamSchema } from "@/utils/schemas";
 
 const testSchema = {
@@ -71,7 +71,7 @@ export default async function (server: FastifyInstance) {
 
       if (topic) {
         const resourceCount = topic.topicsToResources?.length ?? 0;
-        const resources = processCourses(topic.topicsToResources);
+        const resources = processResourceLinks(topic.topicsToResources, "resource");
 
         const domainsById = new Map<string, {
           id: string;

@@ -37,4 +37,55 @@ function DashboardCard({
   );
 }
 
-export { DashboardCard };
+interface DashboardSectionStatusProps {
+  isPending?: boolean;
+  error?: unknown;
+  isEmpty?: boolean;
+  /** Plural noun used in the loading + error messages, e.g. "courses". */
+  entity: string;
+  /** Italic text shown when `isEmpty` is true (after data has loaded). */
+  emptyMessage: string;
+}
+
+/**
+ * Inline pending/error/empty status row for a `DashboardCard` body. Returns
+ * `null` once data has loaded and the section has rows to render.
+ */
+function DashboardSectionStatus({
+  isPending,
+  error,
+  isEmpty,
+  entity,
+  emptyMessage,
+}: DashboardSectionStatusProps) {
+  if (isPending) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Loading
+        {" "}
+        {entity}
+        ...
+      </p>
+    );
+  }
+  if (error) {
+    return (
+      <p className="text-sm text-destructive">
+        Failed to load
+        {" "}
+        {entity}
+        .
+      </p>
+    );
+  }
+  if (isEmpty) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        <i>{emptyMessage}</i>
+      </p>
+    );
+  }
+  return null;
+}
+
+export { DashboardCard, DashboardSectionStatus };
