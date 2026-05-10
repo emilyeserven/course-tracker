@@ -25,11 +25,13 @@ import {
   Loader2,
   PencilIcon,
   PlusIcon,
+  SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { InteractionQuickLog } from "./InteractionQuickLog";
+import { ModuleSuggestDialog } from "./ModuleSuggestDialog";
 
 import { Input } from "@/components/input";
 import { TagChip } from "@/components/tasks/TagChip";
@@ -44,6 +46,7 @@ import {
   deleteSingleModuleGroup,
   fetchModuleGroups,
   fetchModules,
+  fetchSingleResource,
   fetchTagGroups,
   upsertModule,
   upsertModuleGroup,
@@ -258,6 +261,10 @@ export function CourseModulesAdmin({
     queryKey: ["tagGroups"],
     queryFn: () => fetchTagGroups(),
   });
+  const resourceQuery = useQuery({
+    queryKey: ["course", resourceId],
+    queryFn: () => fetchSingleResource(resourceId),
+  });
   const tagGroups = tagGroupsQuery.data ?? [];
 
   const groups = useMemo(
@@ -336,6 +343,9 @@ export function CourseModulesAdmin({
   const [loggingForModuleId, setLoggingForModuleId] = useState<string | null>(
     null,
   );
+
+  // LLM Assist dialog
+  const [llmAssistOpen, setLlmAssistOpen] = useState(false);
 
   const isAnyEditing
     = editingGroupId !== null
@@ -615,6 +625,16 @@ export function CourseModulesAdmin({
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setLlmAssistOpen(true)}
+            disabled={isAnyEditing}
+            title="Suggest module groups and modules via Claude"
+          >
+            <SparklesIcon className="size-4" />
+            LLM Assist
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setCreatingModuleIn("__ungrouped__")}
             disabled={isAnyEditing}
           >
@@ -632,6 +652,26 @@ export function CourseModulesAdmin({
           </Button>
         </div>
       </div>
+
+      <ModuleSuggestDialog
+        open={llmAssistOpen}
+        onOpenChange={setLlmAssistOpen}
+        resourceId={resourceId}
+        resourceName={resourceQuery.data?.name ?? "this resource"}
+        resourceDescription={resourceQuery.data?.description ?? null}
+        resourceUrl={resourceQuery.data?.url ?? null}
+        providerName={resourceQuery.data?.provider?.name ?? null}
+        topicNames={
+          Array.isArray(resourceQuery.data?.topics)
+            ? resourceQuery.data.topics.map(t => t.name)
+            : resourceQuery.data?.topics
+              ? [resourceQuery.data.topics.name]
+              : []
+        }
+        existingGroupNames={groups.map(g => g.name)}
+        existingUngroupedModuleNames={ungroupedModules.map(m => m.name)}
+        onApplied={() => invalidateAll()}
+      />
 
       {creatingGroup && (
         <GroupEditCard
@@ -1133,7 +1173,7 @@ function GroupEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          URL (optional)
+          Location (optional)
         </label>
         <Input
           type="text"
@@ -1364,7 +1404,7 @@ function ModuleEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          URL (optional)
+          Location (optional)
         </label>
         <Input
           type="text"
