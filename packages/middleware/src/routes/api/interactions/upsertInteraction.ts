@@ -1,21 +1,6 @@
 import { interactions } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import { nullableString } from "@/utils/schemas";
-
-const interactionProgressEnumSchema = {
-  type: "string",
-  enum: ["incomplete", "started", "complete"],
-} as const;
-
-const nullableInteractionDifficultyEnum = {
-  type: ["string", "null"],
-  enum: ["easy", "medium", "hard", null],
-} as const;
-
-const nullableInteractionUnderstandingEnum = {
-  type: ["string", "null"],
-  enum: ["none", "basic", "comfortable", "proficient", "mastered", null],
-} as const;
+import { interactionBodySchema } from "@/utils/schemas";
 
 interface InteractionBody {
   resourceId: string;
@@ -48,25 +33,7 @@ const updateableColumns = [
 export default createUpsertHandler<InteractionBody>({
   description: "Create or update an interaction",
   table: interactions,
-  bodySchema: {
-    type: "object",
-    required: ["resourceId", "date", "progress"],
-    properties: {
-      resourceId: {
-        type: "string",
-        minLength: 1,
-      },
-      moduleGroupId: nullableString,
-      moduleId: nullableString,
-      date: {
-        type: "string",
-      },
-      progress: interactionProgressEnumSchema,
-      note: nullableString,
-      difficulty: nullableInteractionDifficultyEnum,
-      understanding: nullableInteractionUnderstandingEnum,
-    },
-  },
+  bodySchema: interactionBodySchema,
   buildRow: (body, id) => ({
     id,
     resourceId: body.resourceId,

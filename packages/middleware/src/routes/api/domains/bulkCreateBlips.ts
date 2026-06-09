@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/db";
 import { radarBlips, topics } from "@/db/schema";
+import { sendBadRequest } from "@/utils/errors";
 import { nullableString } from "@/utils/schemas";
 
 const bulkCreateBlipsSchema = {
@@ -100,10 +101,10 @@ export default async function (server: FastifyInstance) {
           }
         }
         if (!topicId) {
-          reply.status(400);
-          return {
-            error: "Each blip must have either topicId or newTopicName.",
-          };
+          return sendBadRequest(
+            reply,
+            "Each blip must have either topicId or newTopicName.",
+          );
         }
         if (usedTopicIds.has(topicId)) {
           skippedDuplicates += 1;

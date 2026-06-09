@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/db";
 import { radarBlips } from "@/db/schema";
+import { sendConflict } from "@/utils/errors";
 import { nullableString } from "@/utils/schemas";
 
 const createBlipSchema = {
@@ -50,10 +51,7 @@ export default async function (server: FastifyInstance) {
         }) => and(eq(b.domainId, domainId), eq(b.topicId, body.topicId)),
       });
       if (duplicate) {
-        reply.status(409);
-        return {
-          error: "This topic is already on the radar.",
-        };
+        return sendConflict(reply, "This topic is already on the radar.");
       }
 
       const id = uuidv4();

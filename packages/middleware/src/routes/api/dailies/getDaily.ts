@@ -1,20 +1,13 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { idParamSchema } from "@/utils/schemas";
 import type { Daily, DailyCompletion, DailyCriteria } from "@emstack/types";
 
 const getSchema = {
   schema: {
     description: "Get a daily by id",
-    params: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-        },
-      },
-      required: ["id"],
-    },
+    params: idParamSchema,
   },
 } as const;
 
