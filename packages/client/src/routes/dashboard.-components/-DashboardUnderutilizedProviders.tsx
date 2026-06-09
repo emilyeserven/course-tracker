@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchProviders } from "@/utils";
+import { fetchProviders, formatCurrency, parseCost } from "@/utils";
 
 interface UnderutilizedProvider {
   provider: CourseProvider;
@@ -26,12 +26,6 @@ interface UnderutilizedProvider {
   inactiveCount: number;
   completeCount: number;
   amortization: number | null;
-}
-
-function parseCost(cost: CourseProvider["cost"]): number {
-  if (cost == null || cost === "") return 0;
-  const value = Number(cost);
-  return Number.isFinite(value) ? value : 0;
 }
 
 function buildUnderutilized(
@@ -62,13 +56,6 @@ function buildUnderutilized(
     return b.amortization - a.amortization;
   });
   return rows;
-}
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
 }
 
 export function DashboardUnderutilizedProviders() {

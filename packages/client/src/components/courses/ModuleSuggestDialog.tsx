@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { copyTextToClipboard, stripCodeFence } from "@/utils";
 import { createModule, createModuleGroup } from "@/utils/fetchFunctions";
 
 interface Props {
@@ -59,12 +60,6 @@ interface GroupSelection {
 interface SelectionState {
   groups: GroupSelection[];
   ungrouped: boolean[];
-}
-
-function stripCodeFence(input: string): string {
-  const trimmed = input.trim();
-  const fenceMatch = trimmed.match(/^```[^\n]*\n([\s\S]*?)\n?```$/);
-  return fenceMatch ? fenceMatch[1].trim() : trimmed;
 }
 
 function nullableString(value: unknown): string | null {
@@ -269,36 +264,6 @@ ${additionalDetailsBlock}
 `;
 }
 
-async function copyToClipboard(text: string): Promise<boolean> {
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-    catch {
-      // fall through
-    }
-  }
-  try {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "0";
-    textarea.style.left = "0";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(textarea);
-    return ok;
-  }
-  catch {
-    return false;
-  }
-}
-
 export function ModuleSuggestDialog({
   open,
   onOpenChange,
@@ -358,7 +323,7 @@ export function ModuleSuggestDialog({
   }
 
   async function copyPrompt() {
-    const ok = await copyToClipboard(prompt);
+    const ok = await copyTextToClipboard(prompt);
     if (ok) {
       toast.success("Prompt copied to clipboard.");
     }

@@ -33,8 +33,10 @@ import {
 } from "@/components/ui/table";
 import {
   bulkCreateRadarBlips,
+  copyTextToClipboard,
   deleteRadarBlip,
   deleteSingleTopic,
+  stripCodeFence,
   upsertRadarBlip,
   upsertTopic,
 } from "@/utils";
@@ -62,12 +64,6 @@ type Resolution
     | "updateBlip"
     | "removeBlip"
     | "skip";
-
-function stripCodeFence(input: string): string {
-  const trimmed = input.trim();
-  const fenceMatch = trimmed.match(/^```[^\n]*\n([\s\S]*?)\n?```$/);
-  return fenceMatch ? fenceMatch[1].trim() : trimmed;
-}
 
 function isNoChangeSentinel(value: string): boolean {
   const v = value.trim().toLowerCase();
@@ -701,38 +697,11 @@ export function BlipLlmAssist({
   }, [excludedTopics]);
 
   async function copyPrompt() {
-    if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(prompt);
-        toast.success("Prompt copied to clipboard.");
-        return;
-      }
-      catch {
-        // Fall through to the textarea fallback below.
-      }
+    const ok = await copyTextToClipboard(prompt);
+    if (ok) {
+      toast.success("Prompt copied to clipboard.");
     }
-
-    try {
-      const textarea = document.createElement("textarea");
-      textarea.value = prompt;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.top = "0";
-      textarea.style.left = "0";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(textarea);
-      if (ok) {
-        toast.success("Prompt copied to clipboard.");
-      }
-      else {
-        toast.error("Couldn't copy — please select and copy manually.");
-      }
-    }
-    catch {
+    else {
       toast.error("Couldn't copy — please select and copy manually.");
     }
   }
