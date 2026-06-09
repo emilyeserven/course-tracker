@@ -25,6 +25,7 @@ import {
   fetchSingleTopic,
   fetchTagGroups,
   formHasChanges,
+  tagGroupsToOptions,
   upsertTopic,
 } from "@/utils";
 
@@ -117,12 +118,7 @@ function SingleTopicEdit() {
   );
 
   const tagOptions = useMemo(
-    () =>
-      (tagGroups ?? []).flatMap(group =>
-        (group.tags ?? []).map(tag => ({
-          value: tag.id,
-          label: tag.name,
-        }))),
+    () => tagGroupsToOptions(tagGroups),
     [tagGroups],
   );
 

@@ -24,6 +24,8 @@ import {
   fetchTagGroups,
   fetchTopics,
   formHasChanges,
+  tagGroupsToOptions,
+  toOptions,
   upsertResource,
   uuidv4,
 } from "@/utils";
@@ -136,21 +138,11 @@ function SingleResourceEdit() {
     queryFn: () => fetchTagGroups(),
   });
 
-  const topicOptions = (topics ?? []).map(t => ({
-    value: t.id,
-    label: t.name,
-  }));
+  const topicOptions = toOptions(topics);
 
-  const providerOptions = (providers ?? []).map(p => ({
-    value: p.id,
-    label: p.name,
-  }));
+  const providerOptions = toOptions(providers);
 
-  const tagOptions = (tagGroups ?? []).flatMap(group =>
-    (group.tags ?? []).map(tag => ({
-      value: tag.id,
-      label: tag.name,
-    })));
+  const tagOptions = tagGroupsToOptions(tagGroups);
 
   const startingValues = useMemo(
     () => ({
