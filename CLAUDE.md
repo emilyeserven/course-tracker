@@ -18,7 +18,7 @@ Course Tracker ("emstack") — a full-stack TypeScript monorepo for tracking onl
 ```
 packages/
   client/       # React frontend (Vite + TypeScript)
-  gateway/      # Express reverse proxy (production entrypoint)
+  gateway/      # Fastify reverse proxy (production entrypoint)
   middleware/   # Fastify API backend
   types/        # Shared TypeScript type definitions
 ```
@@ -183,7 +183,7 @@ See `packages/middleware/.env.example` for env templates.
 
 ## Deployment
 
-- **Gateway pattern:** The gateway (`packages/gateway`) is the single production entrypoint — an Express server that spawns middleware as a child process, proxies `/api/*` to it, and serves the client's static build files. This means same-origin requests (no CORS needed) and a single container to deploy.
+- **Gateway pattern:** The gateway (`packages/gateway`) is the single production entrypoint — a Fastify server (using `@fastify/http-proxy` and `@fastify/static`) that spawns middleware as a child process, proxies `/api/*` to it, and serves the client's static build files. This means same-origin requests (no CORS needed) and a single container to deploy.
 - **Containers:** Docker Compose for local multi-service; root `Dockerfile` builds everything and runs the gateway
 - **Coolify:** Deploy the root Dockerfile. Only `DATABASE_URL` is needed as an env var.
 - **Environment:** Middleware uses `.env` (local) / `.env.production` with `DATABASE_URL` as the key variable

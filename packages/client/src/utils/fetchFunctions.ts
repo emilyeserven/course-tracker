@@ -14,9 +14,9 @@ import type {
   TagGroup,
   Task,
   TaskType,
+  OnboardData,
+  Topic,
 } from "@emstack/types/src/index.js";
-import type { OnboardData } from "@emstack/types/src/OnboardData";
-import type { Topic } from "@emstack/types/src/Topic";
 
 interface SuccessObj {
   status: string;

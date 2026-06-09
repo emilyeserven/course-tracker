@@ -661,13 +661,7 @@ export function CourseModulesAdmin({
         resourceDescription={resourceQuery.data?.description ?? null}
         resourceUrl={resourceQuery.data?.url ?? null}
         providerName={resourceQuery.data?.provider?.name ?? null}
-        topicNames={
-          Array.isArray(resourceQuery.data?.topics)
-            ? resourceQuery.data.topics.map(t => t.name)
-            : resourceQuery.data?.topics
-              ? [resourceQuery.data.topics.name]
-              : []
-        }
+        topicNames={(resourceQuery.data?.topics ?? []).map(t => t.name)}
         existingGroupNames={groups.map(g => g.name)}
         existingUngroupedModuleNames={ungroupedModules.map(m => m.name)}
         onApplied={() => invalidateAll()}
@@ -1565,5 +1559,3 @@ function ModuleEditCard({
     </form>
   );
 }
-
-export type { Props as CourseModulesAdminProps };

@@ -3,6 +3,8 @@
 // (name, url, usedYet) are kept alongside for additional task-local
 // metadata. Ease/time/interactivity/tags now live on Resource, ModuleGroup,
 // and Module — when this row is linked, the linked entity supplies them.
+import type { ResourceLinkTarget } from "./ResourceLinkTarget";
+
 export type TaskResourceLevel = "low" | "medium" | "high";
 
 export interface TaskResource {
@@ -15,27 +17,9 @@ export interface TaskResource {
   // Optional link to a top-level Resource (= future Course rename).
   // Both null = whole-resource link; all three null = no link.
   resourceId?: string | null;
-  resource?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  resource?: ResourceLinkTarget | null;
   moduleGroupId?: string | null;
-  moduleGroup?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  moduleGroup?: ResourceLinkTarget | null;
   moduleId?: string | null;
-  module?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  module?: ResourceLinkTarget | null;
 }

@@ -50,7 +50,6 @@ export default async function (server: FastifyInstance) {
         isExpires: source.isExpires ?? null,
         cost: source.cost ?? null,
         status: source.status ?? undefined,
-        minutesLength: source.minutesLength ?? null,
         courseProviderId: source.courseProviderId ?? null,
         easeOfStarting: source.easeOfStarting ?? null,
         timeNeeded: source.timeNeeded ?? null,

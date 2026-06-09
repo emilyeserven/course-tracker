@@ -1,4 +1,4 @@
-import type { TaskResourceLevel } from "./TaskResource";
+import type { ResourceLinkTarget } from "./ResourceLinkTarget";
 
 // A task's (or topic's) link to a Resource, optionally narrowed to a module
 // group or a single module within that Resource. At most one of
@@ -8,28 +8,10 @@ import type { TaskResourceLevel } from "./TaskResource";
 export interface TaskResourceLink {
   id?: string;
   resourceId: string;
-  resource?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  resource?: ResourceLinkTarget | null;
   moduleGroupId?: string | null;
-  moduleGroup?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  moduleGroup?: ResourceLinkTarget | null;
   moduleId?: string | null;
-  module?: {
-    id: string;
-    name: string;
-    easeOfStarting?: TaskResourceLevel | null;
-    timeNeeded?: TaskResourceLevel | null;
-    interactivity?: TaskResourceLevel | null;
-  } | null;
+  module?: ResourceLinkTarget | null;
   position?: number | null;
 }

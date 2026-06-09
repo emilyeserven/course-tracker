@@ -14,7 +14,6 @@ export interface ResourceFromServer {
   isExpires?: boolean | null;
   cost?: string | null;
   status?: ResourceStatus | null;
-  minutesLength?: number | null;
   courseProviderId?: string | null;
   courseProvider?: Partial<CourseProvider> | null;
   topicsToResources?: TopicsToResources[] | null;

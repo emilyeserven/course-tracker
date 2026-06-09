@@ -1,3 +1,4 @@
+import type { CostData } from "./CostData";
 import type { ResourceStatus } from "./Resource";
 
 export interface ResourceInResources {
@@ -6,11 +7,7 @@ export interface ResourceInResources {
   description?: string | null;
   url: string;
   dateExpires: string;
-  cost: {
-    cost: string | null;
-    isCostFromPlatform: boolean;
-    splitBy: number;
-  };
+  cost: CostData & { splitBy: number };
   progressCurrent: number;
   progressTotal: number;
   status: ResourceStatus;
