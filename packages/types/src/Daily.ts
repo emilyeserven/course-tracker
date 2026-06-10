@@ -1,3 +1,5 @@
+import type { EntityStatus } from "./EntityStatus";
+
 export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
 export interface DailyCompletion {
@@ -14,7 +16,7 @@ export interface DailyCriteria {
   freeze?: string;
 }
 
-export type DailyStatus = "active" | "inactive" | "complete" | "paused";
+export type DailyStatus = EntityStatus;
 
 export interface DailyTaskProgress {
   todosTotal: number;

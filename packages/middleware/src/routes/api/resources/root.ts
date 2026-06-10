@@ -1,9 +1,8 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { processCost } from "@/utils/processCost";
-import { processResourceLinks } from "@/utils/processResourceLinks";
-import type { Resource, ResourceFromServer, DailyCompletion } from "@emstack/types";
+import { mapResource } from "@/utils/resourceProjection";
+import type { Resource } from "@emstack/types";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -44,40 +43,7 @@ export default async function (server: FastifyInstance) {
       },
     });
 
-    const processedData: Resource[] = rawData.map((course) => {
-      const costData = processCost(course as unknown as ResourceFromServer);
-
-      const topics = processResourceLinks(course.topicsToResources, "topic");
-
-      return {
-        id: course.id,
-        name: course.name,
-        description: course.description,
-        url: course.url,
-        cost: costData,
-        dateExpires: course.dateExpires,
-        progressCurrent: course.progressCurrent ? course.progressCurrent : 0,
-        progressTotal: course.progressTotal ? course.progressTotal : 0,
-        status: course.status ?? "inactive",
-        topics: topics,
-        provider:
-          course.courseProvider?.name && course.courseProvider?.id
-            ? {
-              name: course.courseProvider.name,
-              id: course.courseProvider.id,
-            }
-            : undefined,
-        dailies: (course.dailies ?? []).map(d => ({
-          id: d.id,
-          name: d.name,
-          completions: (d.completions ?? []) as DailyCompletion[],
-        })),
-        easeOfStarting: course.easeOfStarting ?? null,
-        timeNeeded: course.timeNeeded ?? null,
-        interactivity: course.interactivity ?? null,
-        tags: (course.resourceTags ?? []).map(j => j.tag),
-      };
-    });
+    const processedData: Resource[] = rawData.map(mapResource);
 
     return processedData;
   });

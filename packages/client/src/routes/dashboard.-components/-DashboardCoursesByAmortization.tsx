@@ -31,7 +31,12 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { fetchResources, fetchProviders } from "@/utils";
+import {
+  fetchProviders,
+  fetchResources,
+  formatCurrency,
+  parseCost,
+} from "@/utils";
 
 type ViewMode = "courses" | "providers";
 
@@ -56,19 +61,6 @@ interface ProviderRow {
   totalUnits: number;
   cost: number;
   costPerUnit: number | null;
-}
-
-function parseCost(value: string | null | undefined): number {
-  if (value == null || value === "") return 0;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function formatCurrency(value: number): string {
-  return value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
 }
 
 function buildCourseRows(courses: ResourceInResources[] | undefined): CourseRow[] {

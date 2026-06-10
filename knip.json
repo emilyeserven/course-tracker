@@ -4,18 +4,23 @@
       "vite": {
         "config": ["vite.config.ts"]
       },
-      "ignore": "src/routeTree.gen.ts",
-      "ignoreDependencies": ["tailwindcss"]
+      "ignore": ["src/routeTree.gen.ts", "vitest.shims.d.ts"],
+      "ignoreDependencies": [
+        "@testing-library/react",
+        "eslint-plugin-storybook",
+        "globals",
+        "typescript-eslint"
+      ]
     },
     "packages/types": {
       "project": ["src/*.{js,ts}"]
     },
     "packages/middleware": {
-      "project": ["src/**/*.ts"]
+      "entry": ["src/app.ts", "src/tests/*.test.js"],
+      "project": ["src/**/*.{ts,js}"],
+      "ignoreDependencies": ["eslint", "globals", "typescript-eslint"]
     },
-    "packages/gateway": {
-      "entry": ["server.js"]
-    }
+    "packages/gateway": {}
   },
   "ignoreDependencies": ["syncpack"]
 }

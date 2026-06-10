@@ -51,9 +51,7 @@ function startMiddleware() {
   middlewareChild = spawn("node", ["dist/app.js"], {
     cwd: MIDDLEWARE_DIR,
     stdio: "inherit",
-    env: {
-      ...process.env,
-    },
+    env: process.env,
   });
 
   middlewareChild.on("exit", (code) => {

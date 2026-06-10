@@ -2,23 +2,8 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { interactions } from "@/db/schema";
-import { nullableString } from "@/utils/schemas";
+import { interactionBodySchema } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
-
-const interactionProgressEnumSchema = {
-  type: "string",
-  enum: ["incomplete", "started", "complete"],
-} as const;
-
-const nullableInteractionDifficultyEnum = {
-  type: ["string", "null"],
-  enum: ["easy", "medium", "hard", null],
-} as const;
-
-const nullableInteractionUnderstandingEnum = {
-  type: ["string", "null"],
-  enum: ["none", "basic", "comfortable", "proficient", "mastered", null],
-} as const;
 
 const listSchema = {
   schema: {
@@ -44,25 +29,7 @@ const listSchema = {
 const createSchema = {
   schema: {
     description: "Create a new interaction",
-    body: {
-      type: "object",
-      required: ["resourceId", "date", "progress"],
-      properties: {
-        resourceId: {
-          type: "string",
-          minLength: 1,
-        },
-        moduleGroupId: nullableString,
-        moduleId: nullableString,
-        date: {
-          type: "string",
-        },
-        progress: interactionProgressEnumSchema,
-        note: nullableString,
-        difficulty: nullableInteractionDifficultyEnum,
-        understanding: nullableInteractionUnderstandingEnum,
-      },
-    },
+    body: interactionBodySchema,
   },
 } as const;
 

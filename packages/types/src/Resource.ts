@@ -1,13 +1,13 @@
 import type { CostData } from "./CostData";
 import type { Daily } from "./Daily";
+import type { EntityStatus } from "./EntityStatus";
 import type { MinimalTopic } from "./MinimalTopic";
 import type { Module } from "./Module";
 import type { ModuleGroup } from "./ModuleGroup";
 import type { Tag } from "./Tag";
 import type { TaskResourceLevel } from "./TaskResource";
-import type { Topic } from "./Topic";
 
-export type ResourceStatus = "active" | "inactive" | "complete" | "paused";
+export type ResourceStatus = EntityStatus;
 
 export interface Resource {
   id: string;
@@ -20,7 +20,7 @@ export interface Resource {
   progressTotal: number;
   status: ResourceStatus;
   modulesAreExhaustive?: boolean;
-  topics?: MinimalTopic | Topic[] | undefined;
+  topics?: MinimalTopic[];
   provider?: {
     name: string;
     id: string;

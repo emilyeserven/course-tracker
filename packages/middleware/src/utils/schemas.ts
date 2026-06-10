@@ -40,6 +40,41 @@ export const dailyCompletionStatusEnum = {
   enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
 } as const;
 
+export const interactionProgressEnum = {
+  type: "string",
+  enum: ["incomplete", "started", "complete"],
+} as const;
+
+export const nullableInteractionDifficultyEnum = {
+  type: ["string", "null"],
+  enum: ["easy", "medium", "hard", null],
+} as const;
+
+export const nullableInteractionUnderstandingEnum = {
+  type: ["string", "null"],
+  enum: ["none", "basic", "comfortable", "proficient", "mastered", null],
+} as const;
+
+export const interactionBodySchema = {
+  type: "object",
+  required: ["resourceId", "date", "progress"],
+  properties: {
+    resourceId: {
+      type: "string",
+      minLength: 1,
+    },
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
+    date: {
+      type: "string",
+    },
+    progress: interactionProgressEnum,
+    note: nullableString,
+    difficulty: nullableInteractionDifficultyEnum,
+    understanding: nullableInteractionUnderstandingEnum,
+  },
+} as const;
+
 export const completionSchema = {
   type: "object",
   required: ["date"],

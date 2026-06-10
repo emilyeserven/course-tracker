@@ -20,6 +20,8 @@ import {
   fetchTaskTypes,
   fetchTopics,
   formHasChanges,
+  tagGroupsToOptions,
+  toOptions,
   upsertTask,
 } from "@/utils";
 
@@ -85,21 +87,11 @@ function SingleTaskEdit() {
     queryFn: () => fetchTagGroups(),
   });
 
-  const topicOptions = (topics ?? []).map(t => ({
-    value: t.id,
-    label: t.name,
-  }));
+  const topicOptions = toOptions(topics);
 
-  const taskTypeOptions = (taskTypes ?? []).map(t => ({
-    value: t.id,
-    label: t.name,
-  }));
+  const taskTypeOptions = toOptions(taskTypes);
 
-  const tagOptions = (tagGroups ?? []).flatMap(group =>
-    (group.tags ?? []).map(tag => ({
-      value: tag.id,
-      label: tag.name,
-    })));
+  const tagOptions = tagGroupsToOptions(tagGroups);
 
   const startingValues = useMemo(
     () => ({
