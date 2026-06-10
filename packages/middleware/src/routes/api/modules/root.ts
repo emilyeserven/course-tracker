@@ -3,6 +3,8 @@ import { FastifyInstance } from "fastify";
 import type { Module } from "@emstack/types";
 import { db } from "@/db";
 import { modules, moduleTags } from "@/db/schema";
+import { coerceModuleLength } from "@/utils/moduleLength";
+import { mapModule } from "@/utils/moduleProjection";
 import {
   nullableInteger,
   nullableResourceLevelEnum,
@@ -10,8 +12,6 @@ import {
   tagIdsArraySchema,
 } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
-
-import { coerceModuleLength } from "@/utils/moduleLength";
 
 const listSchema = {
   schema: {
@@ -98,22 +98,7 @@ export default async function (server: FastifyInstance) {
         asc,
       }) => [asc(m.position), asc(m.name)],
     });
-    const result: Module[] = rows.map(m => ({
-      id: m.id,
-      resourceId: m.resourceId,
-      moduleGroupId: m.moduleGroupId,
-      name: m.name,
-      description: m.description,
-      url: m.url,
-      length: m.length,
-      minutesLength: m.minutesLength,
-      isComplete: m.isComplete,
-      position: m.position,
-      easeOfStarting: m.easeOfStarting ?? null,
-      timeNeeded: m.timeNeeded ?? null,
-      interactivity: m.interactivity ?? null,
-      tags: (m.moduleTags ?? []).map(j => j.tag),
-    }));
+    const result: Module[] = rows.map(mapModule);
     return result;
   });
 

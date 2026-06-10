@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import type { ModuleGroup } from "@emstack/types";
 import { db } from "@/db";
 import { moduleGroups, moduleGroupTags } from "@/db/schema";
+import { mapModuleGroup } from "@/utils/moduleProjection";
 import {
   nullableInteger,
   nullableResourceLevelEnum,
@@ -86,21 +87,7 @@ export default async function (server: FastifyInstance) {
         asc,
       }) => [asc(g.position), asc(g.name)],
     });
-    const result: ModuleGroup[] = rows.map(g => ({
-      id: g.id,
-      resourceId: g.resourceId,
-      name: g.name,
-      description: g.description,
-      url: g.url,
-      position: g.position,
-      totalCount: g.totalCount,
-      completedCount: g.completedCount,
-      modules: g.modules,
-      easeOfStarting: g.easeOfStarting ?? null,
-      timeNeeded: g.timeNeeded ?? null,
-      interactivity: g.interactivity ?? null,
-      tags: (g.moduleGroupTags ?? []).map(j => j.tag),
-    }));
+    const result: ModuleGroup[] = rows.map(mapModuleGroup);
     return result;
   });
 
