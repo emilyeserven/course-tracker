@@ -3,6 +3,7 @@ import type {
   DailyCompletion,
   DailyCriteria,
   EntityStatus,
+  RoutineConnection,
   RoutineMode,
   RoutineReferenceItem,
   RoutineWeekly,
@@ -48,31 +49,27 @@ export interface ResolvedResource {
   progressTotal: number | null;
 }
 
-// The raw routine columns (plus optional topic relation) the projection reads.
+// The routine columns (plus its resolved connections) the projection reads.
 export interface RoutineRow {
   id: string;
   name: string;
   description: string | null;
-  topicId: string | null;
   status: EntityStatus | null;
   weekly: RoutineWeekly | null;
   mode: RoutineMode;
   location: string | null;
   completions: DailyCompletion[];
   criteria: DailyCriteria;
-  topic?: { id: string;
-    name: string; } | null;
+  connections?: RoutineConnection[];
 }
 
 // A daily-mode routine projected into the Daily shape (so the existing daily
 // tracker / detail components render unchanged) while still carrying the
-// routine-specific fields (mode, weekly, topic) consumers need.
+// routine-specific fields (mode, weekly, connections) consumers need.
 export type RoutineDaily = Daily & {
   mode: RoutineMode;
   weekly: RoutineWeekly;
-  topicId: string | null;
-  topic?: { id: string;
-    name: string; } | null;
+  connections: RoutineConnection[];
 };
 
 // Build a Daily-compatible object from a daily-mode routine, resolving the
@@ -103,7 +100,6 @@ export function mapRoutineToDaily(
     ...daily,
     mode: routine.mode,
     weekly: routine.weekly ?? {},
-    topicId: routine.topicId,
-    topic: routine.topic ?? null,
+    connections: routine.connections ?? [],
   };
 }

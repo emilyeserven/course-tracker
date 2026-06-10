@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -14,6 +15,7 @@ import {
 } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
 import {
+  connectionEntityKind,
   fetchResources,
   fetchSingleRoutine,
   fetchTasks,
@@ -210,22 +212,29 @@ function SingleRoutine() {
           </div>
         </div>
         <InfoArea
-          header="Topic"
-          condition={!!data.topic}
+          header="Connected To"
+          condition={(data.connections?.length ?? 0) > 0}
         >
-          <Link
-            to="/topics/$id"
-            params={{
-              id: data.topic?.id ?? "",
-            }}
-            className={`
-              font-bold text-blue-800
-              hover:text-blue-600
-              dark:text-blue-300
-            `}
-          >
-            {data.topic?.name}
-          </Link>
+          <ul className="flex flex-col gap-1">
+            {data.connections?.map(c => (
+              <li key={`${c.type}:${c.id}`}>
+                <EntityLink
+                  entity={connectionEntityKind(c.type)}
+                  id={c.id}
+                  className={`
+                    font-bold text-blue-800
+                    hover:text-blue-600
+                    dark:text-blue-300
+                  `}
+                >
+                  <span className="mr-2 text-xs text-muted-foreground uppercase">
+                    {c.type}
+                  </span>
+                  {c.name ?? c.id}
+                </EntityLink>
+              </li>
+            ))}
+          </ul>
         </InfoArea>
         {isDaily
           ? (

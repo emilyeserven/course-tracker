@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { nullableRoutineModeEnum } from "@/utils/schemas";
+import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
   mapRoutineToDaily,
   representativeEntry,
@@ -35,26 +36,23 @@ export default async function (server: FastifyInstance) {
         }) => eq(routines.mode, mode)
         : undefined,
       with: {
-        topic: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
+        connections: true,
       },
     });
 
+    const withConnections = await resolveRoutineConnections(routinesList);
+
     // Only the daily-mode list is projected into the Daily shape (task/resource
     // progress) for the tracker. Weekly and unfiltered lists return raw routines
-    // plus topic; the client resolves schedule names itself.
+    // plus resolved connections; the client resolves schedule names itself.
     if (mode !== "daily") {
-      return routinesList;
+      return withConnections;
     }
 
     // Batch-resolve every representative task/resource id up front to avoid N+1.
     const taskIds: string[] = [];
     const resourceIds: string[] = [];
-    for (const routine of routinesList) {
+    for (const routine of withConnections) {
       const entry = representativeEntry(routine.weekly);
       if (entry?.type === "task") {
         taskIds.push(entry.id);
@@ -107,7 +105,7 @@ export default async function (server: FastifyInstance) {
     const taskMap = new Map(taskRows.map(t => [t.id, t]));
     const resourceMap = new Map(resourceRows.map(r => [r.id, r]));
 
-    return routinesList.map((routine) => {
+    return withConnections.map((routine) => {
       const entry = representativeEntry(routine.weekly);
       const task = entry?.type === "task"
         ? taskMap.get(entry.id) ?? null

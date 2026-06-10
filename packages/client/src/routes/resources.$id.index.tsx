@@ -57,11 +57,12 @@ function SingleCourse() {
 
   const topics = data?.topics ?? null;
 
-  // The resource → routine link lives inside each routine's weekly grid.
+  // A resource → routine link is either a weekly-grid entry or a connection.
   const linkedRoutines = (routines ?? []).filter(r =>
     Object.values(r.weekly ?? {}).some(
       e => e?.type === "resource" && e.id === id,
-    ));
+    )
+    || (r.connections ?? []).some(c => c.type === "resource" && c.id === id));
 
   return (
     <div className="container flex-col gap-12">

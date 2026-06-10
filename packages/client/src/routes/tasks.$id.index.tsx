@@ -49,11 +49,12 @@ function SingleTask() {
     return <TaskError />;
   }
 
-  // The task → routine link lives inside each routine's weekly grid.
+  // A task → routine link is either a weekly-grid entry or a connection.
   const linkedRoutines = (routines ?? []).filter(r =>
     Object.values(r.weekly ?? {}).some(
       e => e?.type === "task" && e.id === id,
-    ));
+    )
+    || (r.connections ?? []).some(c => c.type === "task" && c.id === id));
 
   return (
     <div>

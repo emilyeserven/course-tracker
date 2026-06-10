@@ -29,6 +29,10 @@ export interface RoutineReferenceItem {
 
 export type RoutineWeekly = Partial<Record<RoutineWeekday, RoutineReferenceItem>>;
 
+// Declared locally (like the types above) to avoid a circular dependency on
+// @emstack/types from the schema layer.
+export type RoutineConnectionType = "topic" | "task" | "resource";
+
 export const usersTable = pgTable("users", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -224,17 +228,17 @@ export const dailies = pgTable("dailies", {
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });
 
-// A per-topic plan that also carries daily completion tracking. In "weekly"
-// mode each day of the week optionally points at a Task or Resource; in "daily"
-// mode the same entry is applied to every day. Only one routine per topic should
-// be "active" at a time (enforced in the create/upsert handlers).
+// A plan that also carries daily completion tracking. In "weekly" mode each day
+// of the week optionally points at a Task or Resource; in "daily" mode the same
+// entry is applied to every day. A routine's categorical links live in the
+// `routine_connections` junction (many Topics/Tasks/Resources); any number may
+// be "active" at once.
 export const routines = pgTable("routines", {
   id: varchar().primaryKey(),
   name: varchar({
     length: 255,
   }).notNull(),
   description: varchar(),
-  topicId: varchar("topic_id"),
   status: statusEnum().default("active"),
   weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
   mode: routineModeEnum().default("weekly").notNull(),
@@ -243,6 +247,21 @@ export const routines = pgTable("routines", {
   }),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
+});
+
+// Polymorphic many-to-many link from a routine to Topics, Tasks, and/or
+// Resources. UUID PK so a routine can hold multiple links (mirrors
+// topics_to_resources / tasks_to_resources). `connected_id` has no FK because
+// it points at one of three tables; dangling rows (target deleted) are dropped
+// at read time, exactly like dangling weekly-grid entries.
+export const routineConnections = pgTable("routine_connections", {
+  id: varchar().primaryKey(),
+  routineId: varchar("routine_id")
+    .notNull()
+    .references(() => routines.id),
+  connectedType: varchar("connected_type").$type<RoutineConnectionType>().notNull(),
+  connectedId: varchar("connected_id").notNull(),
+  position: integer(),
 });
 
 export const dailyCriteriaTemplates = pgTable("daily_criteria_templates", {
@@ -625,11 +644,17 @@ export const dailiesRelations = relations(dailies, ({
 }));
 
 export const routinesRelations = relations(routines, ({
+  many,
+}) => ({
+  connections: many(routineConnections),
+}));
+
+export const routineConnectionsRelations = relations(routineConnections, ({
   one,
 }) => ({
-  topic: one(topics, {
-    fields: [routines.topicId],
-    references: [topics.id],
+  routine: one(routines, {
+    fields: [routineConnections.routineId],
+    references: [routines.id],
   }),
 }));
 
@@ -684,7 +709,6 @@ export const topicsRelations = relations(topics, ({
   domainWithinScope: many(domainWithinScopeTopics),
   topicsToTags: many(topicsToTags),
   tasks: many(tasks),
-  routines: many(routines),
 }));
 
 export interface RadarConfigEntry {

@@ -10,6 +10,7 @@ export * from "./formHasChanges";
 export * from "./isHttpUrl";
 export * from "./makePercentageComplete";
 export * from "./parseCost";
+export * from "./routineConnections";
 export * from "./selectOptions";
 export * from "./stripCodeFence";
 export * from "./useIsFieldInvalid";

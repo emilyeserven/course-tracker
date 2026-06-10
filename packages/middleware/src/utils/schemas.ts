@@ -35,8 +35,8 @@ export const nullableResourceLevelEnum = {
   enum: ["low", "medium", "high", null],
 } as const;
 
-// Routines use the full lifecycle status set (including "inactive", since the
-// single-active-per-topic rule deactivates siblings).
+// Routines use the full lifecycle status set, including "inactive" as a manual
+// status (any number of routines may be active at once).
 export const nullableRoutineStatusEnum = {
   type: ["string", "null"],
   enum: ["active", "inactive", "complete", "paused", null],
@@ -79,6 +79,30 @@ export const weeklySchema = {
     5: routineReferenceItemSchema,
     6: routineReferenceItemSchema,
   },
+} as const;
+
+// A routine's polymorphic connection to a topic / task / resource. `id` is the
+// connected entity's id; the resolved name is added on read, not accepted here.
+export const routineConnectionTypeEnum = {
+  type: "string",
+  enum: ["topic", "task", "resource"],
+} as const;
+
+export const routineConnectionItemSchema = {
+  type: "object",
+  required: ["type", "id"],
+  additionalProperties: false,
+  properties: {
+    type: routineConnectionTypeEnum,
+    id: {
+      type: "string",
+    },
+  },
+} as const;
+
+export const routineConnectionsSchema = {
+  type: "array",
+  items: routineConnectionItemSchema,
 } as const;
 
 export const dailyCompletionStatusEnum = {

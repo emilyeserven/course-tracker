@@ -1,4 +1,4 @@
-import type { Routine } from "@emstack/types/src";
+import type { Routine, RoutineConnectionType } from "@emstack/types/src";
 
 import { useMemo, useState } from "react";
 
@@ -18,10 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchRoutines, fetchTopics } from "@/utils";
+import { fetchRoutines } from "@/utils";
 
 interface RoutinesSearch {
+  // Legacy alias: `?topicId=` still prefilters by that topic connection.
   topicId?: string;
+  connectedType?: RoutineConnectionType;
+  connectedId?: string;
 }
 
 export const Route = createFileRoute("/routines/")({
@@ -32,6 +35,16 @@ export const Route = createFileRoute("/routines/")({
     topicId:
       typeof search.topicId === "string" && search.topicId
         ? search.topicId
+        : undefined,
+    connectedType:
+      search.connectedType === "topic"
+      || search.connectedType === "task"
+      || search.connectedType === "resource"
+        ? search.connectedType
+        : undefined,
+    connectedId:
+      typeof search.connectedId === "string" && search.connectedId
+        ? search.connectedId
         : undefined,
   }),
 });
@@ -46,9 +59,15 @@ function RoutinesError() {
 
 function Routines() {
   const urlSearch = Route.useSearch();
+  const initialConnection
+    = urlSearch.connectedType && urlSearch.connectedId
+      ? `${urlSearch.connectedType}:${urlSearch.connectedId}`
+      : urlSearch.topicId
+        ? `topic:${urlSearch.topicId}`
+        : undefined;
   const [search, setSearch] = useState("");
-  const [filterTopic, setFilterTopic] = useState<string | undefined>(
-    urlSearch.topicId,
+  const [filterConnection, setFilterConnection] = useState<string | undefined>(
+    initialConnection,
   );
   const [filterMode, setFilterMode] = useState<"weekly" | "daily" | undefined>(
     undefined,
@@ -59,13 +78,6 @@ function Routines() {
   } = useQuery({
     queryKey: ["routines"],
     queryFn: () => fetchRoutines(),
-  });
-
-  const {
-    data: topics,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
   });
 
   const filtered = useMemo(() => {
@@ -80,11 +92,14 @@ function Routines() {
         || (r.description?.toLowerCase().includes(q) ?? false));
     }
 
-    if (filterTopic === "none") {
-      result = result.filter(r => !r.topic);
+    if (filterConnection === "none") {
+      result = result.filter(r => !r.connections || r.connections.length === 0);
     }
-    else if (filterTopic) {
-      result = result.filter(r => r.topic?.id === filterTopic);
+    else if (filterConnection) {
+      result = result.filter(r =>
+        (r.connections ?? []).some(
+          c => `${c.type}:${c.id}` === filterConnection,
+        ));
     }
 
     if (filterMode) {
@@ -93,21 +108,44 @@ function Routines() {
     }
 
     return result;
-  }, [data, search, filterTopic, filterMode]);
+  }, [data, search, filterConnection, filterMode]);
 
-  const hasActiveFilters = !!filterTopic || !!filterMode;
+  const hasActiveFilters = !!filterConnection || !!filterMode;
 
-  const routineCountByTopic = useMemo(() => {
-    const counts = new Map<string, number>();
+  // Distinct connections across all routines, each with its display name and
+  // count, for the filter dropdown.
+  const connectionFilterOptions = useMemo(() => {
+    const map = new Map<string, {
+      value: string;
+      name: string;
+      type: RoutineConnectionType;
+      count: number;
+    }>();
     data?.forEach((r) => {
-      const id = r.topic?.id;
-      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+      r.connections?.forEach((c) => {
+        const value = `${c.type}:${c.id}`;
+        const existing = map.get(value);
+        if (existing) {
+          existing.count += 1;
+        }
+        else {
+          map.set(value, {
+            value,
+            name: c.name ?? c.id,
+            type: c.type,
+            count: 1,
+          });
+        }
+      });
     });
-    return counts;
+    return Array.from(map.values()).sort((a, b) =>
+      a.name.localeCompare(b.name));
   }, [data]);
   const totalRoutineCount = data?.length ?? 0;
-  const noTopicCount = useMemo(
-    () => data?.filter(r => !r.topic).length ?? 0,
+  const noConnectionCount = useMemo(
+    () =>
+      data?.filter(r => !r.connections || r.connections.length === 0).length
+      ?? 0,
     [data],
   );
 
@@ -160,37 +198,38 @@ function Routines() {
               />
             </div>
             <Select
-              value={filterTopic ?? "all"}
+              value={filterConnection ?? "all"}
               onValueChange={v =>
-                setFilterTopic(v === "all" ? undefined : v)}
+                setFilterConnection(v === "all" ? undefined : v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Topic" />
+                <SelectValue placeholder="Connection" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  <span>All Topics</span>
+                  <span>All Connections</span>
                   <FilterOptionCount count={totalRoutineCount} />
                 </SelectItem>
-                {noTopicCount > 0 && (
+                {noConnectionCount > 0 && (
                   <SelectItem value="none">
-                    <span>No Topic</span>
-                    <FilterOptionCount count={noTopicCount} />
+                    <span>No Connection</span>
+                    <FilterOptionCount count={noConnectionCount} />
                   </SelectItem>
                 )}
-                {topics
-                  ?.filter(t => (routineCountByTopic.get(t.id) ?? 0) > 0)
-                  .map(t => (
-                    <SelectItem
-                      key={t.id}
-                      value={t.id}
+                {connectionFilterOptions.map(opt => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                  >
+                    <span
+                      className="mr-1 text-xs text-muted-foreground uppercase"
                     >
-                      <span>{t.name}</span>
-                      <FilterOptionCount
-                        count={routineCountByTopic.get(t.id) ?? 0}
-                      />
-                    </SelectItem>
-                  ))}
+                      {opt.type}
+                    </span>
+                    <span>{opt.name}</span>
+                    <FilterOptionCount count={opt.count} />
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select
@@ -212,7 +251,7 @@ function Routines() {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setFilterTopic(undefined);
+                  setFilterConnection(undefined);
                   setFilterMode(undefined);
                 }}
               >
