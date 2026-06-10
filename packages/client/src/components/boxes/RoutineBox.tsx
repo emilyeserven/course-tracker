@@ -14,7 +14,11 @@ import {
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { cn } from "@/lib/utils";
-import { getCurrentChain, getTotalCompletedDays } from "@/utils";
+import {
+  connectionEntityKind,
+  getCurrentChain,
+  getTotalCompletedDays,
+} from "@/utils";
 
 // Monday-first display order with single-letter labels.
 const DAY_STRIP: { day: RoutineWeekday;
@@ -53,7 +57,7 @@ export function RoutineBox({
   id,
   name,
   description,
-  topic,
+  connections,
   status,
   weekly,
   mode,
@@ -75,23 +79,26 @@ export function RoutineBox({
     <ContentBox>
       <ContentBoxHeader>
         <ContentBoxHeaderBar>
-          <div className="flex flex-row items-center gap-2">
-            {topic
+          <div className="flex flex-row flex-wrap items-center gap-2">
+            {connections && connections.length > 0
               ? (
-                <EntityLink
-                  entity="topics"
-                  id={topic.id}
-                  className={`
-                    rounded-sm bg-gray-50 px-2 py-0.5 text-xs
-                    hover:bg-gray-900 hover:text-white
-                  `}
-                >
-                  {topic.name}
-                </EntityLink>
+                connections.map(c => (
+                  <EntityLink
+                    key={`${c.type}:${c.id}`}
+                    entity={connectionEntityKind(c.type)}
+                    id={c.id}
+                    className={`
+                      rounded-sm bg-gray-50 px-2 py-0.5 text-xs
+                      hover:bg-gray-900 hover:text-white
+                    `}
+                  >
+                    {c.name ?? c.id}
+                  </EntityLink>
+                ))
               )
               : (
                 <span className="text-xs text-muted-foreground italic">
-                  No topic
+                  No connections
                 </span>
               )}
           </div>

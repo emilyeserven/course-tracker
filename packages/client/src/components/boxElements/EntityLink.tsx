@@ -2,13 +2,14 @@ import type { ReactNode } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-type EntityKind = "resources" | "topics" | "providers" | "domains";
+type EntityKind = "resources" | "topics" | "providers" | "domains" | "tasks";
 
 const FROM_BY_KIND: Record<EntityKind, string> = {
   resources: "/resources",
   topics: "/topics",
   providers: "/providers",
   domains: "/domains",
+  tasks: "/tasks",
 };
 
 const TO_BY_KIND: Record<EntityKind, string> = {
@@ -16,6 +17,7 @@ const TO_BY_KIND: Record<EntityKind, string> = {
   topics: "/topics/$id",
   providers: "/providers/$id",
   domains: "/domains/$id",
+  tasks: "/tasks/$id",
 };
 
 interface EntityLinkProps {

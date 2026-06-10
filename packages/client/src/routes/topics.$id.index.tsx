@@ -6,7 +6,7 @@ import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { fetchSingleTopic } from "@/utils";
+import { fetchRoutines, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({
   component: SingleTopic,
@@ -24,6 +24,13 @@ function SingleTopic() {
     queryFn: () => fetchSingleTopic(id),
   });
 
+  const {
+    data: routines,
+  } = useQuery({
+    queryKey: ["routines"],
+    queryFn: () => fetchRoutines(),
+  });
+
   if (isPending) {
     return <EntityPending entity="topic" />;
   }
@@ -31,6 +38,9 @@ function SingleTopic() {
   if (error) {
     return <EntityError entity="topic" />;
   }
+
+  const linkedRoutines = (routines ?? []).filter(r =>
+    (r.connections ?? []).some(c => c.type === "topic" && c.id === id));
 
   return (
     <div>
@@ -118,6 +128,31 @@ function SingleTopic() {
                     </Link>
                   </li>
                 ))}
+            </ul>
+          </InfoArea>
+        </div>
+        <div>
+          <InfoArea
+            header="Routines"
+            condition={linkedRoutines.length > 0}
+          >
+            <ul className="ml-5 list-disc">
+              {linkedRoutines.map(r => (
+                <li key={r.id}>
+                  <Link
+                    to="/routines/$id"
+                    params={{
+                      id: r.id,
+                    }}
+                    className={`
+                      font-bold text-blue-800
+                      hover:text-blue-600
+                    `}
+                  >
+                    {r.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </InfoArea>
         </div>

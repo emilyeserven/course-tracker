@@ -3,6 +3,7 @@ import { resources } from "@/db/schema";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
 import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
 import { migrateDailiesToRoutines } from "./migrateDailiesToRoutines.ts";
+import { migrateRoutineConnections } from "./migrateRoutineConnections.ts";
 import { migrateIgnoreBlips } from "./migrateIgnoreBlips.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
@@ -68,6 +69,16 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to migrate dailies → routines:", err);
+    throw err;
+  }
+
+  // Backfill each routine's legacy topic_id into the routine_connections
+  // junction. Runs after dailies → routines so every routine row exists first.
+  try {
+    await migrateRoutineConnections();
+  }
+  catch (err) {
+    console.error("Failed to migrate routine topics → connections:", err);
     throw err;
   }
 }

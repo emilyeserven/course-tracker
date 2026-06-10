@@ -1,4 +1,4 @@
-import type { RoutineMode } from "@emstack/types/src";
+import type { RoutineConnectionType, RoutineMode } from "@emstack/types/src";
 
 import { useMemo, useRef } from "react";
 
@@ -30,9 +30,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
+  buildConnectionOptions,
   createRoutine,
+  decodeConnection,
   deleteSingleRoutine,
   duplicateRoutine,
+  encodeConnection,
   fetchDailyCriteriaTemplates,
   fetchResources,
   fetchRoutineTemplates,
@@ -45,7 +48,10 @@ import {
 } from "@/utils";
 
 interface RoutineEditSearch {
+  // Legacy alias: a bare `?topicId=` still prefills a topic connection.
   topicId?: string;
+  connectedType?: RoutineConnectionType;
+  connectedId?: string;
   mode?: RoutineMode;
   entryType?: "task" | "resource";
   entryId?: string;
@@ -57,6 +63,16 @@ export const Route = createFileRoute("/routines/$id/edit")({
     topicId:
       typeof search.topicId === "string" && search.topicId
         ? search.topicId
+        : undefined,
+    connectedType:
+      search.connectedType === "topic"
+      || search.connectedType === "task"
+      || search.connectedType === "resource"
+        ? search.connectedType
+        : undefined,
+    connectedId:
+      typeof search.connectedId === "string" && search.connectedId
+        ? search.connectedId
         : undefined,
     mode:
       search.mode === "weekly" || search.mode === "daily"
@@ -117,7 +133,7 @@ const weeklyRowSchema = z
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(2000),
-  topicId: z.string(),
+  connections: z.array(z.string()),
   status: z.enum(["active", "inactive", "complete", "paused"]),
   mode: z.enum(["weekly", "daily"]),
   location: z.string().max(255),
@@ -183,15 +199,41 @@ function SingleRoutineEdit() {
     queryFn: () => fetchDailyCriteriaTemplates(),
   });
 
-  const topicOptions = toOptions(topics);
   const taskOptions = useMemo(() => toOptions(tasks), [tasks]);
   const resourceOptions = useMemo(() => toOptions(resources), [resources]);
+  const connectionOptions = useMemo(
+    () => buildConnectionOptions(topics, tasks, resources),
+    [topics, tasks, resources],
+  );
+
+  // New routines can be prefilled with a connection via search params: the
+  // generic `?connectedType=&connectedId=` or the legacy `?topicId=` alias.
+  const prefilledConnections = useMemo(() => {
+    const out: string[] = [];
+    if (search.connectedType && search.connectedId) {
+      out.push(
+        encodeConnection({
+          type: search.connectedType,
+          id: search.connectedId,
+        }),
+      );
+    }
+    if (search.topicId) {
+      out.push(encodeConnection({
+        type: "topic",
+        id: search.topicId,
+      }));
+    }
+    return out;
+  }, [search.connectedType, search.connectedId, search.topicId]);
 
   const startingValues = useMemo(
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
-      topicId: data?.topicId ?? (isNew ? (search.topicId ?? "") : ""),
+      connections: isNew
+        ? prefilledConnections
+        : (data?.connections ?? []).map(encodeConnection),
       status: data?.status ?? "active",
       mode: data?.mode ?? (isNew ? (search.mode ?? "weekly") : "weekly"),
       location: data?.location ?? "",
@@ -208,7 +250,7 @@ function SingleRoutineEdit() {
       criteriaExceeded: data?.criteria?.exceeded ?? "",
       criteriaFreeze: data?.criteria?.freeze ?? "",
     }),
-    [data, isNew, search.topicId, search.mode, search.entryType, search.entryId],
+    [data, isNew, prefilledConnections, search.mode, search.entryType, search.entryId],
   );
 
   const form = useAppForm({
@@ -236,10 +278,14 @@ function SingleRoutineEdit() {
         criteria.freeze = value.criteriaFreeze;
       }
 
+      const connections = value.connections
+        .map(decodeConnection)
+        .filter((c): c is NonNullable<typeof c> => c !== null);
+
       const routineData = {
         name: value.name,
         description: value.description || null,
-        topicId: value.topicId || null,
+        connections,
         status: value.status,
         mode: value.mode,
         location: value.mode === "daily" ? value.location || null : null,
@@ -376,12 +422,13 @@ function SingleRoutineEdit() {
             )}
           </form.AppField>
 
-          <form.AppField name="topicId">
+          <form.AppField name="connections">
             {field => (
-              <field.ComboboxField
-                label="Topic"
-                options={topicOptions}
-                placeholder="Search topics..."
+              <field.MultiComboboxField
+                label="Connected To"
+                options={connectionOptions}
+                groupByPrefix
+                placeholder="Search topics, tasks, resources..."
               />
             )}
           </form.AppField>

@@ -3,6 +3,19 @@ import type { EntityStatus } from "./EntityStatus";
 
 export type RoutineReferenceType = "task" | "resource" | "freeform";
 
+// A routine can be connected to any number of these entity kinds. The
+// connection is the routine's categorical link (what it's "about"); it is
+// separate from the weekly grid, which is the per-day activity.
+export type RoutineConnectionType = "topic" | "task" | "resource";
+
+// A single polymorphic connection. `name` is resolved on read for display and
+// omitted on write (the client sends only `type` + `id`).
+export interface RoutineConnection {
+  type: RoutineConnectionType;
+  id: string;
+  name?: string | null;
+}
+
 // A routine is either a weekly schedule (each weekday can differ) or a daily
 // task (the same entry applied to every day). Both modes carry completion
 // tracking; the mode only changes how the weekly grid is edited.
@@ -23,11 +36,7 @@ export interface Routine {
   id: string;
   name: string;
   description?: string | null;
-  topicId?: string | null;
-  topic?: {
-    id: string;
-    name: string;
-  } | null;
+  connections?: RoutineConnection[] | null;
   status?: EntityStatus | null;
   weekly?: RoutineWeekly | null;
   mode?: RoutineMode | null;

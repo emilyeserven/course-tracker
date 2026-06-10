@@ -128,7 +128,7 @@ If you change `packages/middleware/src/db/schema.ts`, run `pnpm --filter=@emstac
 Defined in `packages/middleware/src/db/schema.ts`.
 
 - **Core tables:** `users`, `topics`, `courseProviders`, `courses`, `dailies`, `tasks`, `resources` (task resources), `task_todos`, `domains`
-- **Junction tables:** `topics_to_courses`, `domain_within_scope_topics`
+- **Junction tables:** `topics_to_courses`, `domain_within_scope_topics`, `routine_connections` (polymorphic many-to-many linking a routine to Topics/Tasks/Resources via `connected_type` + `connected_id`; any number may be active)
 - **Radar tables:** `radar_blips` (a blip's `is_ignored` flag marks an "out of scope" / ignored topic; its `description` holds the ignore reasoning). Quadrants/rings live in the `domains.radar_config` JSONB column.
 - **Enums:** `recurPeriodUnit` (days/months/years), `status` (active/inactive/complete/paused), `dailyCompletionStatus` (incomplete/touched/goal/exceeded/freeze), `resourceLevel` (low/medium/high)
 - Uses `drizzle-kit push` (not migration files) — schema changes pushed directly to database

@@ -2,6 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { idParamSchema } from "@/utils/schemas";
+import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
   mapRoutineToDaily,
   representativeEntry,
@@ -33,25 +34,26 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => eq(routines.id, id),
         with: {
-          topic: {
-            columns: {
-              id: true,
-              name: true,
-            },
-          },
+          connections: true,
         },
       });
 
-      // Weekly-mode routines (and a missing row) are returned raw — they still
-      // carry completions/criteria for the tracking panel; the client resolves
-      // schedule names itself.
-      if (!routine || routine.mode !== "daily") {
+      if (!routine) {
         return routine;
+      }
+
+      const [resolved] = await resolveRoutineConnections([routine]);
+
+      // Weekly-mode routines are returned raw (with resolved connections) — they
+      // still carry completions/criteria for the tracking panel; the client
+      // resolves schedule names itself.
+      if (resolved.mode !== "daily") {
+        return resolved;
       }
 
       // Daily mode: resolve the representative weekly entry so the response is a
       // Daily-compatible shape (task/resource progress) for the tracker UI.
-      const entry = representativeEntry(routine.weekly);
+      const entry = representativeEntry(resolved.weekly);
       let task: ResolvedTask | null = null;
       let resource: ResolvedResource | null = null;
 
@@ -94,7 +96,7 @@ export default async function (server: FastifyInstance) {
         })) ?? null;
       }
 
-      return mapRoutineToDaily(routine as RoutineRow, {
+      return mapRoutineToDaily(resolved as RoutineRow, {
         task,
         resource,
       });
