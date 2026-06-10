@@ -128,9 +128,13 @@ export function DashboardDailies() {
         const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
         if (diff !== 0) return sortDir === "asc" ? diff : -diff;
       }
-      const cmp = a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      });
+      const cmp = (a.actionLabel ?? a.name).localeCompare(
+        b.actionLabel ?? b.name,
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      );
       return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
     })
     : undefined;
@@ -311,7 +315,7 @@ export function DashboardDailies() {
                           hover:text-blue-600
                         "
                       >
-                        {daily.name}
+                        {daily.actionLabel ?? daily.name}
                       </Link>
                     </td>
                     <td className="p-2">

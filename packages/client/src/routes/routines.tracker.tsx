@@ -226,9 +226,13 @@ function DailyTracker() {
 
   const baseSorted = topicFilteredDailies
     ? [...topicFilteredDailies].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      }))
+      (a.actionLabel ?? a.name).localeCompare(
+        b.actionLabel ?? b.name,
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      ))
     : undefined;
 
   const activeDailies = (
@@ -242,9 +246,13 @@ function DailyTracker() {
         const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
         if (diff !== 0) return sortDir === "asc" ? diff : -diff;
       }
-      const cmp = a.name.localeCompare(b.name, undefined, {
-        sensitivity: "base",
-      });
+      const cmp = (a.actionLabel ?? a.name).localeCompare(
+        b.actionLabel ?? b.name,
+        undefined,
+        {
+          sensitivity: "base",
+        },
+      );
       return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
     });
   const pausedDailies = baseSorted?.filter(d => d.status === "paused") ?? [];
@@ -426,7 +434,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.name}
+                              {daily.actionLabel ?? daily.name}
                             </Link>
                           </td>
                           <td className="p-2">
@@ -596,7 +604,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.name}
+                              {daily.actionLabel ?? daily.name}
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
@@ -661,7 +669,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.name}
+                              {daily.actionLabel ?? daily.name}
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />

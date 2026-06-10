@@ -85,7 +85,7 @@ export function DailiesActiveListView({
                     hover:text-blue-600
                   "
                 >
-                  {daily.name}
+                  {daily.actionLabel ?? daily.name}
                 </Link>
                 {daily.description && (
                   <span

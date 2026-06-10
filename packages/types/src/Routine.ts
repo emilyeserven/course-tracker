@@ -27,6 +27,11 @@ export interface RoutineReferenceItem {
   // Optional free-text annotation for this day's scheduled item (e.g. "focus
   // on the subjunctive"). Empty/absent means no note.
   notes?: string | null;
+  // Optional text wrapped around the item's name to form a natural, actionable
+  // sentence (e.g. prepend "Review" / append "for 10 minutes"). Empty/absent
+  // means the name stands alone.
+  prependText?: string | null;
+  appendText?: string | null;
 }
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.

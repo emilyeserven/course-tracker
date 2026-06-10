@@ -3,6 +3,8 @@ import type { RoutineWeekday } from "@emstack/types/src";
 
 import { useMemo } from "react";
 
+import { buildActionableSentence } from "@emstack/types/src";
+
 import {
   Combobox,
   ComboboxContent,
@@ -54,6 +56,8 @@ export function WeeklyScheduleField({
             type: "" as WeeklyRowType,
             id: "",
             notes: "",
+            prependText: "",
+            appendText: "",
           };
           const itemOptions
             = row.type === "task"
@@ -62,6 +66,16 @@ export function WeeklyScheduleField({
                 ? resourceOptions
                 : [];
           const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
+          const itemName
+            = row.type === "freeform" ? row.id : optionsMap.get(row.id) ?? "";
+          const showPreview
+            = !!itemName
+              && (!!row.prependText.trim() || !!row.appendText.trim());
+          const preview = buildActionableSentence({
+            prependText: row.prependText,
+            name: itemName,
+            appendText: row.appendText,
+          });
 
           return (
             <li
@@ -151,17 +165,58 @@ export function WeeklyScheduleField({
               </div>
 
               {row.type !== "" && (
-                <input
-                  aria-label={`${DAY_LABELS[day]} notes`}
-                  value={row.notes}
-                  onChange={e => update(day, {
-                    notes: e.target.value,
-                  })}
-                  placeholder="Notes (optional)…"
-                  className="
-                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
-                  "
-                />
+                <>
+                  <input
+                    aria-label={`${DAY_LABELS[day]} notes`}
+                    value={row.notes}
+                    onChange={e => update(day, {
+                      notes: e.target.value,
+                    })}
+                    placeholder="Notes (optional)…"
+                    className="
+                      flex h-9 w-full rounded-md border bg-background px-2
+                      text-sm
+                    "
+                  />
+                  <div
+                    className="
+                      grid grid-cols-1 gap-1.5
+                      sm:grid-cols-2
+                    "
+                  >
+                    <input
+                      aria-label={`${DAY_LABELS[day]} prepend text`}
+                      value={row.prependText}
+                      onChange={e => update(day, {
+                        prependText: e.target.value,
+                      })}
+                      placeholder="Prepend text (e.g. Review)…"
+                      className="
+                        flex h-9 w-full rounded-md border bg-background px-2
+                        text-sm
+                      "
+                    />
+                    <input
+                      aria-label={`${DAY_LABELS[day]} append text`}
+                      value={row.appendText}
+                      onChange={e => update(day, {
+                        appendText: e.target.value,
+                      })}
+                      placeholder="Append text (e.g. for 10 minutes)…"
+                      className="
+                        flex h-9 w-full rounded-md border bg-background px-2
+                        text-sm
+                      "
+                    />
+                  </div>
+                  {showPreview && (
+                    <p className="px-0.5 text-sm text-muted-foreground">
+                      Preview:
+                      {" "}
+                      <span className="text-foreground">{preview}</span>
+                    </p>
+                  )}
+                </>
               )}
             </li>
           );
