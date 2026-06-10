@@ -7,6 +7,7 @@ import {
   ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxGroup,
@@ -40,9 +41,19 @@ export function TagPicker({
     }
   }
 
+  // Base UI grouped-items shape: `items` lets the dropdown filter within each
+  // group and hide empty ones (`value` is the header label, kept alongside the
+  // group `id` so both survive filtering).
+  const groupedItems = tagGroups.map(group => ({
+    id: group.id,
+    value: group.name,
+    items: (group.tags ?? []).map(tag => tag.id),
+  }));
+
   return (
     <Combobox
       multiple
+      items={groupedItems}
       value={value}
       onValueChange={(next: string[]) => onChange(next)}
       inputValue={inputValue}
@@ -53,10 +64,7 @@ export function TagPicker({
         {value.map((id) => {
           const tag = tagsById.get(id);
           return (
-            <ComboboxChip
-              key={id}
-              value={id}
-            >
+            <ComboboxChip key={id}>
               {tag?.name ?? id}
             </ComboboxChip>
           );
@@ -66,19 +74,26 @@ export function TagPicker({
       <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No tags found.</ComboboxEmpty>
         <ComboboxList>
-          {tagGroups.map(group => (
-            <ComboboxGroup key={group.id}>
-              <ComboboxLabel>{group.name}</ComboboxLabel>
-              {(group.tags ?? []).map(tag => (
-                <ComboboxItem
-                  key={tag.id}
-                  value={tag.id}
-                >
-                  {tag.name}
-                </ComboboxItem>
-              ))}
+          {(group: { id: string;
+            value: string;
+            items: string[]; }) => (
+            <ComboboxGroup
+              key={group.id}
+              items={group.items}
+            >
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {(id: string) => (
+                  <ComboboxItem
+                    key={id}
+                    value={id}
+                  >
+                    {tagsById.get(id)?.name ?? id}
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
             </ComboboxGroup>
-          ))}
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>

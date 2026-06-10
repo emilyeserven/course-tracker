@@ -156,10 +156,7 @@ export function MultiComboboxField({
       >
         <ComboboxChips ref={anchor}>
           {(field.state.value || []).map(val => (
-            <ComboboxChip
-              key={val}
-              value={val}
-            >
+            <ComboboxChip key={val}>
               {optionsMap.get(val) ?? val}
             </ComboboxChip>
           ))}

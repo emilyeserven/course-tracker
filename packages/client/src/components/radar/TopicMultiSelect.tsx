@@ -37,10 +37,7 @@ export function TopicMultiSelect({
     >
       <ComboboxChips ref={anchor}>
         {value.map(val => (
-          <ComboboxChip
-            key={val}
-            value={val}
-          >
+          <ComboboxChip key={val}>
             {optionsMap.get(val) ?? val}
           </ComboboxChip>
         ))}
