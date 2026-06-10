@@ -53,7 +53,7 @@ describe("connectionEntityKind", () => {
 });
 
 describe("buildConnectionOptions", () => {
-  test("prefixes each entity by its group and keeps the bare name as label", () => {
+  test("prefixes each entity value by type and tags it with a dropdown group", () => {
     const options = buildConnectionOptions(
       [{
         id: "t1",
@@ -72,14 +72,110 @@ describe("buildConnectionOptions", () => {
       {
         value: "Topic:t1",
         label: "React",
+        group: "Topics · No domain",
       },
       {
         value: "Task:k1",
         label: "Finish module",
+        group: "Tasks",
       },
       {
         value: "Resource:r1",
         label: "Docs site",
+        group: "Resources",
+      },
+    ]);
+  });
+
+  test("groups topics by domain, sorted with No domain last and names sorted", () => {
+    const options = buildConnectionOptions(
+      [
+        {
+          id: "t1",
+          name: "Zebra",
+          domains: [{
+            id: "d2",
+            title: "Tooling",
+          }],
+        },
+        {
+          id: "t2",
+          name: "Apple",
+          domains: [{
+            id: "d1",
+            title: "Frontend",
+          }],
+        },
+        {
+          id: "t3",
+          name: "Mango",
+          domains: [],
+        },
+        {
+          id: "t4",
+          name: "Bravo",
+          domains: [{
+            id: "d1",
+            title: "Frontend",
+          }],
+        },
+      ],
+      [],
+      [],
+    );
+    expect(options).toEqual([
+      {
+        value: "Topic:t2",
+        label: "Apple",
+        group: "Topics · Frontend",
+      },
+      {
+        value: "Topic:t4",
+        label: "Bravo",
+        group: "Topics · Frontend",
+      },
+      {
+        value: "Topic:t1",
+        label: "Zebra",
+        group: "Topics · Tooling",
+      },
+      {
+        value: "Topic:t3",
+        label: "Mango",
+        group: "Topics · No domain",
+      },
+    ]);
+  });
+
+  test("lists a multi-domain topic once under each of its domains", () => {
+    const options = buildConnectionOptions(
+      [{
+        id: "t1",
+        name: "React",
+        domains: [
+          {
+            id: "d1",
+            title: "Frontend",
+          },
+          {
+            id: "d2",
+            title: "Tooling",
+          },
+        ],
+      }],
+      [],
+      [],
+    );
+    expect(options).toEqual([
+      {
+        value: "Topic:t1",
+        label: "React",
+        group: "Topics · Frontend",
+      },
+      {
+        value: "Topic:t1",
+        label: "React",
+        group: "Topics · Tooling",
       },
     ]);
   });

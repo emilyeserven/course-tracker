@@ -3,6 +3,9 @@ import type { TagGroup } from "@emstack/types";
 export interface SelectOption {
   value: string;
   label: string;
+  // Optional explicit dropdown group. When set, a grouped combobox buckets the
+  // option under this label instead of deriving one from the value prefix.
+  group?: string;
 }
 
 // Map a list of {id, name} entities to combobox/select options.

@@ -10,6 +10,7 @@ import {
   ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxGroup,
@@ -24,35 +25,49 @@ import { cn } from "@/lib/utils";
 import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
+interface ComboboxOption {
+  value: string;
+  label: string;
+  group?: string;
+}
+
 interface MultiComboboxFieldProps {
   label: string;
-  options: { value: string;
-    label: string; }[];
+  options: ComboboxOption[];
   placeholder?: string;
   className?: string;
   create?: CreateConfig;
   /**
-   * When true, options whose value matches `group:value` are partitioned by
-   * the substring before the first `:` and rendered under a group header.
-   * Options without a colon fall under an "Other" group rendered last.
+   * When true, options are rendered under group headers (and the dropdown filters
+   * per group, hiding empty ones). An option's group comes from its explicit
+   * `group` field, falling back to the substring before the first `:` in its
+   * value; options with neither fall under an "Other" group rendered last.
    */
   groupByPrefix?: boolean;
 }
 
-function partitionOptions(options: { value: string;
-  label: string; }[]) {
-  const groups = new Map<string, { value: string;
-    label: string; }[]>();
+// Group option values into Base UI's grouped-items shape (`{ value, items }[]`,
+// where `value` is the header label and `items` are the option values). Passing
+// this as the combobox `items` lets Base UI filter within each group and hide
+// empty ones. Groups keep first-appearance order, with "Other" forced last.
+function partitionOptions(
+  options: ComboboxOption[],
+): { value: string;
+  items: string[]; }[] {
+  const groups = new Map<string, string[]>();
   const otherKey = "Other";
   for (const opt of options) {
-    const idx = opt.value.indexOf(":");
-    const groupName = idx > 0 ? opt.value.slice(0, idx) : otherKey;
+    let groupName = opt.group;
+    if (!groupName) {
+      const idx = opt.value.indexOf(":");
+      groupName = idx > 0 ? opt.value.slice(0, idx) : otherKey;
+    }
     const bucket = groups.get(groupName);
     if (bucket) {
-      bucket.push(opt);
+      bucket.push(opt.value);
     }
     else {
-      groups.set(groupName, [opt]);
+      groups.set(groupName, [opt.value]);
     }
   }
   const others = groups.get(otherKey);
@@ -60,7 +75,10 @@ function partitionOptions(options: { value: string;
     groups.delete(otherKey);
     groups.set(otherKey, others);
   }
-  return groups;
+  return Array.from(groups.entries()).map(([value, items]) => ({
+    value,
+    items,
+  }));
 }
 
 function stripGroup(label: string) {
@@ -128,11 +146,9 @@ export function MultiComboboxField({
       <FieldLabel className={className}>{label}</FieldLabel>
       <Combobox
         multiple
-        {...(groupByPrefix
-          ? {}
-          : {
-            items: options.map(o => o.value),
-          })}
+        items={
+          groupByPrefix ? partitionOptions(options) : options.map(o => o.value)
+        }
         value={field.state.value || []}
         onValueChange={val => field.handleChange(val)}
         onInputValueChange={val => setInputValue(val)}
@@ -180,20 +196,24 @@ export function MultiComboboxField({
           <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>
             {groupByPrefix
-              ? Array.from(partitionOptions(options).entries()).map(
-                ([groupName, groupOptions]) => (
-                  <ComboboxGroup key={groupName}>
-                    <ComboboxLabel>{groupName}</ComboboxLabel>
-                    {groupOptions.map(o => (
+              ? (group: { value: string;
+                items: string[]; }) => (
+                <ComboboxGroup
+                  key={group.value}
+                  items={group.items}
+                >
+                  <ComboboxLabel>{group.value}</ComboboxLabel>
+                  <ComboboxCollection>
+                    {(value: string) => (
                       <ComboboxItem
-                        key={o.value}
-                        value={o.value}
+                        key={value}
+                        value={value}
                       >
-                        {stripGroup(o.label)}
+                        {stripGroup(optionsMap.get(value) ?? value)}
                       </ComboboxItem>
-                    ))}
-                  </ComboboxGroup>
-                ),
+                    )}
+                  </ComboboxCollection>
+                </ComboboxGroup>
               )
               : (value: string) => (
                 <ComboboxItem
