@@ -31,7 +31,7 @@ export function ComboboxField({
   label,
   options,
   placeholder,
-  className = "text-2xl",
+  className,
   disabled,
   create,
 }: ComboboxFieldProps) {

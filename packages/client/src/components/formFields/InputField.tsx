@@ -12,9 +12,9 @@ interface InputFieldProps {
 
 export function InputField({
   label,
-  className = "text-2xl",
+  className,
   placeholder,
-  fieldClassName = "h-11 md:text-xl",
+  fieldClassName,
   disabled,
 }: InputFieldProps) {
   const {

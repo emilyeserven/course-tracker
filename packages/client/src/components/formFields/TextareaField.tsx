@@ -12,7 +12,7 @@ interface TextareaFieldProps {
 
 export function TextareaField({
   label,
-  className = "text-2xl",
+  className,
   placeholder,
   disabled,
   labelIcon,

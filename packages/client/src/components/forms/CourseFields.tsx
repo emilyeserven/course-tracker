@@ -32,6 +32,8 @@ export function CourseFields({
             <field.InputField
               label="Resource Name"
               placeholder="Memes"
+              className="text-2xl"
+              fieldClassName="h-11 md:text-xl"
             />
           )}
         </form.AppField>
@@ -40,6 +42,8 @@ export function CourseFields({
             <field.InputField
               label="Resource URL"
               placeholder="Memes"
+              className="text-2xl"
+              fieldClassName="h-11 md:text-xl"
             />
           )}
         </form.AppField>
