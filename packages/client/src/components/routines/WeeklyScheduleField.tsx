@@ -56,6 +56,7 @@ export function WeeklyScheduleField({
             type: "" as WeeklyRowType,
             id: "",
             notes: "",
+            location: "",
             prependText: "",
             appendText: "",
           };
@@ -95,11 +96,12 @@ export function WeeklyScheduleField({
                   value={row.type}
                   onChange={(e) => {
                     // Changing the type clears the chosen item (different
-                    // option set) and any note.
+                    // option set) and any note/location.
                     update(day, {
                       type: e.target.value as WeeklyRowType,
                       id: "",
                       notes: "",
+                      location: "",
                     });
                   }}
                   className="
@@ -173,6 +175,18 @@ export function WeeklyScheduleField({
                       notes: e.target.value,
                     })}
                     placeholder="Notes (optional)…"
+                    className="
+                      flex h-9 w-full rounded-md border bg-background px-2
+                      text-sm
+                    "
+                  />
+                  <input
+                    aria-label={`${DAY_LABELS[day]} location`}
+                    value={row.location}
+                    onChange={e => update(day, {
+                      location: e.target.value,
+                    })}
+                    placeholder="Location (e.g. gym, Spanish app, or a URL)…"
                     className="
                       flex h-9 w-full rounded-md border bg-background px-2
                       text-sm

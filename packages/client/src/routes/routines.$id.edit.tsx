@@ -94,20 +94,6 @@ const MODE_OPTIONS = [
   },
 ];
 
-const weeklyRowSchema = z
-  .object({
-    day: z.enum(["0", "1", "2", "3", "4", "5", "6"]),
-    type: z.enum(["", "task", "resource", "freeform"]),
-    id: z.string(),
-    notes: z.string(),
-    prependText: z.string(),
-    appendText: z.string(),
-  })
-  .refine(row => row.type === "" || row.id.length > 0, {
-    message: "Required",
-    path: ["id"],
-  });
-
 const newRoutineSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   mode: z.enum(["weekly", "daily"]),

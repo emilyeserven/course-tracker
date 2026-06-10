@@ -73,6 +73,9 @@ const weeklyRowSchema = z
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
     notes: z.string(),
+    location: z.string(),
+    prependText: z.string(),
+    appendText: z.string(),
   })
   .refine(row => row.type === "" || row.id.length > 0, {
     message: "Required",
@@ -85,7 +88,6 @@ const detailsSchema = z.object({
   connections: z.array(z.string()),
   status: z.enum(["active", "inactive", "complete", "paused"]),
   mode: z.enum(["weekly", "daily"]),
-  location: z.string().max(255),
   weekly: z.array(weeklyRowSchema).length(7),
 });
 
@@ -142,7 +144,6 @@ export function DetailsTab({
       connections: (routine.connections ?? []).map(encodeConnection),
       status: routine.status ?? "active",
       mode: routine.mode ?? "weekly",
-      location: routine.location ?? "",
       weekly: weeklyToRows(routine.weekly),
     }),
     [routine],
@@ -171,7 +172,6 @@ export function DetailsTab({
           connections,
           status: value.status,
           mode: value.mode,
-          location: value.mode === "daily" ? value.location || null : null,
           // Daily mode mirrors the single chosen entry onto all 7 days so
           // "today's item" resolves identically every day.
           weekly:
@@ -252,17 +252,6 @@ export function DetailsTab({
           />
         )}
       </form.AppField>
-
-      {isDaily && (
-        <form.AppField name="location">
-          {field => (
-            <field.InputField
-              label="Location"
-              placeholder="e.g. Spanish app, gym, journal"
-            />
-          )}
-        </form.AppField>
-      )}
 
       <form.Field name="weekly">
         {field =>

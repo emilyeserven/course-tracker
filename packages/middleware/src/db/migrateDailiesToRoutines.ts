@@ -9,10 +9,12 @@ type ExistsRow = { exists: boolean } & Record<string, unknown>;
 const DAY_KEYS = ["0", "1", "2", "3", "4", "5", "6"] as const;
 
 // In the unified model the same entry is applied to every weekday, so a daily's
-// single task/resource link becomes a 7-day grid pointing at it.
+// single task/resource link becomes a 7-day grid pointing at it. The daily's
+// location is now a per-item field, so it rides along on every entry.
 function buildWeekly(
   entry: { type: "task" | "resource";
     id: string; } | null,
+  location: string | null,
 ): RoutineWeekly {
   if (!entry) {
     return {};
@@ -22,6 +24,11 @@ function buildWeekly(
     weekly[key] = {
       type: entry.type,
       id: entry.id,
+      ...(location
+        ? {
+          location,
+        }
+        : {}),
     };
   }
   return weekly;
@@ -61,7 +68,6 @@ export async function migrateDailiesToRoutines() {
     END $$;
   `);
   await db.execute(sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS mode routine_mode NOT NULL DEFAULT 'weekly'`);
-  await db.execute(sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS location varchar(255)`);
   await db.execute(sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS completions jsonb NOT NULL DEFAULT '[]'::jsonb`);
   await db.execute(sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS criteria jsonb NOT NULL DEFAULT '{}'::jsonb`);
 
@@ -89,9 +95,8 @@ export async function migrateDailiesToRoutines() {
       description: daily.description ?? null,
       topicId: null,
       status: daily.status ?? "active",
-      weekly: buildWeekly(entry),
+      weekly: buildWeekly(entry, daily.location ?? null),
       mode: "daily" as const,
-      location: daily.location ?? null,
       completions: daily.completions ?? [],
       criteria: daily.criteria ?? {},
     };

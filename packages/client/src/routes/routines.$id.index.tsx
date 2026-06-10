@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
+import { EditIcon, FlameIcon, LaughIcon, MapPinIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -28,7 +28,7 @@ import {
   getTotalCompletedDays,
 } from "@/utils";
 
-interface RoutineViewSearch {
+export interface RoutineViewSearch {
   tab?: DailyDetailTab;
 }
 
@@ -174,6 +174,7 @@ function SingleRoutine() {
   function renderEntryLink(entry: { type: string;
     id: string;
     notes?: string | null;
+    location?: string | null;
     prependText?: string | null;
     appendText?: string | null; }) {
     const main = (
@@ -185,14 +186,26 @@ function SingleRoutine() {
       </span>
     );
 
-    if (!entry.notes) {
+    if (!entry.notes && !entry.location) {
       return main;
     }
 
     return (
       <span className="flex flex-col gap-0.5">
         {main}
-        <span className="text-sm text-muted-foreground">{entry.notes}</span>
+        {entry.notes && (
+          <span className="text-sm text-muted-foreground">{entry.notes}</span>
+        )}
+        {entry.location && (
+          <span
+            className="
+              inline-flex items-center gap-1 text-xs text-muted-foreground
+            "
+          >
+            <MapPinIcon className="size-3.5 shrink-0" />
+            {entry.location}
+          </span>
+        )}
       </span>
     );
   }
