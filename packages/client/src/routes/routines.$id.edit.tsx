@@ -125,6 +125,8 @@ const weeklyRowSchema = z
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
     notes: z.string(),
+    prependText: z.string(),
+    appendText: z.string(),
   })
   .refine(row => row.type === "" || row.id.length > 0, {
     message: "Required",

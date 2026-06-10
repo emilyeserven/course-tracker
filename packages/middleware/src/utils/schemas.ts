@@ -61,6 +61,8 @@ export const routineReferenceItemSchema = {
       type: "string",
     },
     notes: nullableString,
+    prependText: nullableString,
+    appendText: nullableString,
   },
 } as const;
 

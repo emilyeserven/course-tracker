@@ -1,4 +1,5 @@
 /* eslint-disable import/max-dependencies */
+export * from "./actionableSentence.js";
 export * from "./CostData.js";
 export * from "./EntityStatus.js";
 export * from "./Resource.js";

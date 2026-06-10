@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
+import { DashboardCard } from "@/components/boxes/DashboardCard";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -91,38 +92,62 @@ function SingleRoutine() {
     completions,
   });
 
+  // The entry's name as a clickable link (task / resource) or plain text
+  // (freeform) — no type badge, so it can sit inside an actionable sentence.
+  function entryNameLink(entry: { type: string;
+    id: string; }) {
+    if (entry.type === "freeform") {
+      return entry.id;
+    }
+    return (
+      <Link
+        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
+        params={{
+          id: entry.id,
+        }}
+        className="
+          text-blue-800
+          hover:text-blue-600
+          dark:text-blue-300
+        "
+      >
+        {entry.type === "task"
+          ? (taskNames.get(entry.id) ?? entry.id)
+          : (resourceNames.get(entry.id) ?? entry.id)}
+      </Link>
+    );
+  }
+
+  // prepend text + linked name + append text, forming the actionable sentence
+  // while keeping the name itself clickable.
+  function renderActionable(entry: { type: string;
+    id: string;
+    prependText?: string | null;
+    appendText?: string | null; }) {
+    const prepend = entry.prependText?.trim();
+    const append = entry.appendText?.trim();
+    return (
+      <>
+        {prepend ? `${prepend} ` : null}
+        {entryNameLink(entry)}
+        {append ? ` ${append}` : null}
+      </>
+    );
+  }
+
   function renderEntryLink(entry: { type: string;
     id: string;
-    notes?: string | null; }) {
-    const main = entry.type === "freeform"
-      ? (
-        <span className="text-sm">
-          <span className="mr-2 text-xs text-muted-foreground uppercase">
-            freeform
-          </span>
-          {entry.id}
+    notes?: string | null;
+    prependText?: string | null;
+    appendText?: string | null; }) {
+    const main = (
+      <span className="text-sm">
+        <span className="mr-2 text-xs text-muted-foreground uppercase">
+          {entry.type}
         </span>
-      )
-      : (
-        <Link
-          to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-          params={{
-            id: entry.id,
-          }}
-          className="
-            text-blue-800
-            hover:text-blue-600
-            dark:text-blue-300
-          "
-        >
-          <span className="mr-2 text-xs text-muted-foreground uppercase">
-            {entry.type}
-          </span>
-          {entry.type === "task"
-            ? (taskNames.get(entry.id) ?? entry.id)
-            : (resourceNames.get(entry.id) ?? entry.id)}
-        </Link>
-      );
+        {renderActionable(entry)}
+      </span>
+    );
 
     if (!entry.notes) {
       return main;
@@ -156,6 +181,18 @@ function SingleRoutine() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-12">
+        {isDaily && dailyEntry && (
+          <DashboardCard title="Daily Task">
+            <p className="text-lg font-medium">
+              {renderActionable(dailyEntry)}
+            </p>
+            {dailyEntry.notes && (
+              <p className="text-sm text-muted-foreground">
+                {dailyEntry.notes}
+              </p>
+            )}
+          </DashboardCard>
+        )}
         <DailyDetailsPanel
           dailyId={id}
           detailsContent={(
@@ -244,51 +281,40 @@ function SingleRoutine() {
                   ))}
                 </ul>
               </InfoArea>
-              {isDaily
-                ? (
-                  <InfoArea
-                    header="Daily Task"
-                    condition={!!dailyEntry}
-                  >
-                    {dailyEntry && renderEntryLink(dailyEntry)}
-                  </InfoArea>
-                )
-                : (
-                  <InfoArea
-                    header="Weekly Schedule"
-                    condition={true}
-                  >
-                    <ul className="flex flex-col gap-1">
-                      {DAY_ORDER.map((day) => {
-                        const entry = weekly[day];
-                        return (
-                          <li
-                            key={day}
-                            className="
-                              grid grid-cols-[120px_1fr] items-center gap-2
-                              border-b border-border/60 py-1
-                            "
-                          >
-                            <span className="text-sm font-medium">
-                              {DAY_LABELS[day]}
-                            </span>
-                            {entry
-                              ? renderEntryLink(entry)
-                              : (
-                                <span
-                                  className="
-                                    text-sm text-muted-foreground italic
-                                  "
-                                >
-                                  Nothing scheduled
-                                </span>
-                              )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </InfoArea>
-                )}
+              {!isDaily && (
+                <InfoArea
+                  header="Weekly Schedule"
+                  condition={true}
+                >
+                  <ul className="flex flex-col gap-1">
+                    {DAY_ORDER.map((day) => {
+                      const entry = weekly[day];
+                      return (
+                        <li
+                          key={day}
+                          className="
+                            grid grid-cols-[120px_1fr] items-center gap-2
+                            border-b border-border/60 py-1
+                          "
+                        >
+                          <span className="text-sm font-medium">
+                            {DAY_LABELS[day]}
+                          </span>
+                          {entry
+                            ? renderEntryLink(entry)
+                            : (
+                              <span
+                                className="text-sm text-muted-foreground italic"
+                              >
+                                Nothing scheduled
+                              </span>
+                            )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </InfoArea>
+              )}
             </div>
           )}
         />
