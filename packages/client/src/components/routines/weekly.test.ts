@@ -2,7 +2,7 @@ import type { RoutineWeekly } from "@emstack/types/src";
 
 import { describe, expect, test } from "vitest";
 
-import { rowsToWeekly, weeklyToRows } from "./weekly";
+import { fillAllDays, representativeRow, rowsToWeekly, weeklyToRows } from "./weekly";
 
 describe("weekly schedule item notes", () => {
   test("weeklyToRows surfaces an item's notes", () => {
@@ -81,6 +81,44 @@ describe("weekly schedule item notes", () => {
     expect(restored[5]).toEqual({
       type: "freeform",
       id: "Read a chapter",
+    });
+  });
+});
+
+describe("representativeRow (Daily Task mode)", () => {
+  // Regression: picking a type clears the id, so the editor must still surface
+  // the chosen type before an item is picked — otherwise the controlled type
+  // <select> reverts to "None" and the item picker can never be enabled.
+  test("surfaces a type chosen before its item (empty id)", () => {
+    const rows = fillAllDays({
+      type: "task",
+      id: "",
+    });
+    expect(representativeRow(rows)).toEqual({
+      type: "task",
+      id: "",
+      notes: "",
+    });
+  });
+
+  test("surfaces a fully populated entry", () => {
+    const rows = fillAllDays({
+      type: "resource",
+      id: "res-1",
+      notes: "chapter 3",
+    });
+    expect(representativeRow(rows)).toEqual({
+      type: "resource",
+      id: "res-1",
+      notes: "chapter 3",
+    });
+  });
+
+  test("returns a blank entry for an empty grid", () => {
+    expect(representativeRow(weeklyToRows(undefined))).toEqual({
+      type: "",
+      id: "",
+      notes: "",
     });
   });
 });

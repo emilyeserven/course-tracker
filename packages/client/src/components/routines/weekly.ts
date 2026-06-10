@@ -65,14 +65,17 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
 }
 
 // Daily Task mode keeps the same entry on every weekday. `representativeRow`
-// reads that shared entry (the first populated day), and `fillAllDays` writes a
-// single entry across the whole length-7 grid.
+// reads that shared entry (the first day with a type), and `fillAllDays` writes
+// a single entry across the whole length-7 grid. We match on `type` alone — not
+// `type && id` — so a half-chosen entry (a type picked before its item) still
+// surfaces; otherwise the controlled type <select> would snap back to "None" and
+// the item picker would never enable.
 export function representativeRow(rows: WeeklyRow[]): {
   type: WeeklyRowType;
   id: string;
   notes: string;
 } {
-  const found = rows.find(r => r.type !== "" && r.id);
+  const found = rows.find(r => r.type !== "");
   return found
     ? {
       type: found.type,
