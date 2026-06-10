@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   dailiesViewMode: null,
 };
 
-interface SettingsProviderState {
+export interface SettingsProviderState {
   settings: AppSettings;
   setMaxActiveDailies: (value: number) => void;
   setDailiesViewMode: (value: DailiesViewMode | null) => void;

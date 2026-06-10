@@ -55,7 +55,7 @@ import {
   withCompletionNote,
 } from "@/utils";
 
-interface TrackerSearch {
+export interface TrackerSearch {
   topicId?: string;
 }
 

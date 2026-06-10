@@ -13,7 +13,7 @@ import { InfoRow } from "@/components/layout/InfoRow";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 
-interface CourseSearch {
+export interface CourseSearch {
   promptDaily?: 1;
 }
 

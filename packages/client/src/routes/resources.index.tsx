@@ -43,7 +43,7 @@ function getInitialViewMode(): ViewMode {
   return stored === "table" ? "table" : "grid";
 }
 
-interface ResourcesSearch {
+export interface ResourcesSearch {
   topicId?: string;
 }
 

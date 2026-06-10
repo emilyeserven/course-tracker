@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { fetchRoutines } from "@/utils";
 
-interface RoutinesSearch {
+export interface RoutinesSearch {
   // Legacy alias: `?topicId=` still prefilters by that topic connection.
   topicId?: string;
   connectedType?: RoutineConnectionType;

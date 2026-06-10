@@ -80,7 +80,6 @@ export function CoursesTable({
                     <EntityLink
                       entity="providers"
                       id={course.provider.id}
-                      from="/resources"
                       className="
                         text-blue-800
                         hover:text-blue-600

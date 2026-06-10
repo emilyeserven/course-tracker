@@ -35,7 +35,7 @@ import {
 const TAB_VALUES = ["details", "entries", "criteria"] as const;
 type EditTab = (typeof TAB_VALUES)[number];
 
-interface RoutineEditSearch {
+export interface RoutineEditSearch {
   // Legacy alias: a bare `?topicId=` still prefills a topic connection.
   topicId?: string;
   connectedType?: RoutineConnectionType;

@@ -180,7 +180,11 @@ function Onboard() {
               {FIELD_INDICES.map(i => (
                 <CourseFields
                   key={`course${i}`}
-                  form={form}
+                  // CourseFields is form-data-agnostic (it only renders
+                  // dynamically-named string fields). Bridge TanStack Form's
+                  // invariant generics: this form's data is Record<string,string>
+                  // while the prop defaults to the unknown-data form type.
+                  form={form as unknown as ReturnType<typeof useAppForm>}
                   condition={i === 0 || !!topics[i]}
                   name={`course${i}`}
                   label={topics[i]}

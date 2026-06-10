@@ -21,7 +21,7 @@ import {
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchTasks, fetchTopics } from "@/utils";
 
-interface TasksSearch {
+export interface TasksSearch {
   topicId?: string;
 }
 

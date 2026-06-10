@@ -87,7 +87,6 @@ export function CourseBox({
             <EntityLink
               entity="providers"
               id={provider.id}
-              from="/resources/$id"
               className={`
                 text-blue-800
                 hover:text-blue-600

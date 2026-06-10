@@ -7,6 +7,7 @@ import {
   ComboboxChip,
   ComboboxChips,
   ComboboxChipsInput,
+  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxGroup,
@@ -25,7 +26,11 @@ interface TagsInputProps {
   groupByPrefix?: boolean;
 }
 
-function partitionTags(tags: string[]) {
+// Group tags into Base UI's grouped-items shape (`{ value, items }[]`, where
+// `value` is the header label and `items` are the tag values) so the dropdown
+// filters within each group and hides empty ones. "Other" is forced last.
+function partitionTags(tags: string[]): { value: string;
+  items: string[]; }[] {
   const groups = new Map<string, string[]>();
   const otherKey = "Other";
   for (const tag of tags) {
@@ -44,7 +49,10 @@ function partitionTags(tags: string[]) {
     groups.delete(otherKey);
     groups.set(otherKey, others);
   }
-  return groups;
+  return Array.from(groups.entries()).map(([value, items]) => ({
+    value,
+    items,
+  }));
 }
 
 function stripGroup(tag: string) {
@@ -80,11 +88,7 @@ export function TagsInput({
   return (
     <Combobox
       multiple
-      {...(groupByPrefix
-        ? {}
-        : {
-          items: allOptionValues,
-        })}
+      items={groupByPrefix ? partitionTags(allOptionValues) : allOptionValues}
       value={value}
       onValueChange={(next: string[]) => onChange(next)}
       inputValue={inputValue}
@@ -93,10 +97,7 @@ export function TagsInput({
     >
       <ComboboxChips ref={anchor}>
         {value.map(tag => (
-          <ComboboxChip
-            key={tag}
-            value={tag}
-          >
+          <ComboboxChip key={tag}>
             {tag}
           </ComboboxChip>
         ))}
@@ -137,20 +138,24 @@ export function TagsInput({
         <ComboboxEmpty>No tags found.</ComboboxEmpty>
         <ComboboxList>
           {groupByPrefix
-            ? Array.from(partitionTags(allOptionValues).entries()).map(
-              ([groupName, groupTags]) => (
-                <ComboboxGroup key={groupName}>
-                  <ComboboxLabel>{groupName}</ComboboxLabel>
-                  {groupTags.map(tag => (
+            ? (group: { value: string;
+              items: string[]; }) => (
+              <ComboboxGroup
+                key={group.value}
+                items={group.items}
+              >
+                <ComboboxLabel>{group.value}</ComboboxLabel>
+                <ComboboxCollection>
+                  {(tag: string) => (
                     <ComboboxItem
                       key={tag}
                       value={tag}
                     >
                       {stripGroup(tag)}
                     </ComboboxItem>
-                  ))}
-                </ComboboxGroup>
-              ),
+                  )}
+                </ComboboxCollection>
+              </ComboboxGroup>
             )
             : (val: string) => (
               <ComboboxItem
