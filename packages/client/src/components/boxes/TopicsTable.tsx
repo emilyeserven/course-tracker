@@ -2,6 +2,8 @@ import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { useMemo } from "react";
 
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
+
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   Table,
@@ -11,6 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+
+export type TopicsTableSortColumn
+  = | "name"
+    | "domains"
+    | "resources"
+    | "tasks"
+    | "dailies";
+export type TopicsTableSortDirection = "asc" | "desc";
+
+export interface TopicsTableSort {
+  column: TopicsTableSortColumn;
+  direction: TopicsTableSortDirection;
+}
 
 interface TopicsTableSelection {
   selectedIds: Set<string>;
@@ -21,11 +37,103 @@ interface TopicsTableSelection {
 interface TopicsTableProps {
   topics: TopicForTopicsPage[];
   selection?: TopicsTableSelection;
+  sort?: TopicsTableSort;
+  onSortChange?: (sort: TopicsTableSort) => void;
+}
+
+interface SortableHeaderProps {
+  column: TopicsTableSortColumn;
+  label: string;
+  sort?: TopicsTableSort;
+  onSortChange?: (sort: TopicsTableSort) => void;
+  align?: "left" | "right";
+}
+
+function SortableHeader({
+  column,
+  label,
+  sort,
+  onSortChange,
+  align = "left",
+}: SortableHeaderProps) {
+  const headClassName = cn(
+    "whitespace-nowrap",
+    align === "right" ? "text-right" : undefined,
+  );
+
+  if (!onSortChange) {
+    return <TableHead className={headClassName}>{label}</TableHead>;
+  }
+
+  const isActive = sort?.column === column;
+  const direction = isActive ? sort.direction : undefined;
+  const ariaSort = isActive
+    ? direction === "asc" ? "ascending" : "descending"
+    : "none";
+
+  const handleClick = () => {
+    if (isActive) {
+      onSortChange({
+        column,
+        direction: direction === "asc" ? "desc" : "asc",
+      });
+    }
+    else {
+      onSortChange({
+        column,
+        direction: column === "name" || column === "domains" ? "asc" : "desc",
+      });
+    }
+  };
+
+  return (
+    <TableHead
+      aria-sort={ariaSort}
+      className={headClassName}
+    >
+      <button
+        type="button"
+        onClick={handleClick}
+        className={cn(
+          `
+            inline-flex items-center gap-1 text-xs font-semibold
+            text-muted-foreground uppercase transition-colors
+            hover:text-foreground
+            focus-visible:rounded-sm focus-visible:outline-2
+            focus-visible:outline-offset-2 focus-visible:outline-ring
+          `,
+          align === "right" ? "justify-end" : "justify-start",
+        )}
+      >
+        <span>{label}</span>
+        {isActive && direction === "asc" && (
+          <ArrowUpIcon
+            className="size-3.5"
+            aria-hidden="true"
+          />
+        )}
+        {isActive && direction === "desc" && (
+          <ArrowDownIcon
+            className="size-3.5"
+            aria-hidden="true"
+          />
+        )}
+        {!isActive && (
+          <ArrowUpDownIcon
+            className="size-3.5 opacity-40"
+            aria-hidden="true"
+          />
+        )}
+      </button>
+    </TableHead>
+  );
 }
 
 export function TopicsTable({
   topics,
   selection,
+  sort,
+  onSortChange,
 }: TopicsTableProps) {
   const selectedIds = selection?.selectedIds;
 
@@ -58,18 +166,40 @@ export function TopicsTable({
                 />
               </TableHead>
             )}
-            <TableHead className="whitespace-nowrap">Name</TableHead>
-            <TableHead className="whitespace-nowrap">Domains</TableHead>
+            <SortableHeader
+              column="name"
+              label="Name"
+              sort={sort}
+              onSortChange={onSortChange}
+            />
+            <SortableHeader
+              column="domains"
+              label="Domains"
+              sort={sort}
+              onSortChange={onSortChange}
+            />
             <TableHead>Description</TableHead>
-            <TableHead className="text-right whitespace-nowrap">
-              Resources
-            </TableHead>
-            <TableHead className="text-right whitespace-nowrap">
-              Tasks
-            </TableHead>
-            <TableHead className="text-right whitespace-nowrap">
-              Dailies
-            </TableHead>
+            <SortableHeader
+              column="resources"
+              label="Resources"
+              sort={sort}
+              onSortChange={onSortChange}
+              align="right"
+            />
+            <SortableHeader
+              column="tasks"
+              label="Tasks"
+              sort={sort}
+              onSortChange={onSortChange}
+              align="right"
+            />
+            <SortableHeader
+              column="dailies"
+              label="Dailies"
+              sort={sort}
+              onSortChange={onSortChange}
+              align="right"
+            />
           </TableRow>
         </TableHeader>
         <TableBody>
