@@ -16,7 +16,6 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
-  ActionableSentence,
   DailiesActiveListView,
   DailiesLimitSetting,
   DailiesViewModeToggle,
@@ -27,6 +26,7 @@ import {
   DailyStatusCircle,
   DailyStatusConnector,
   DailyTaskIndicator,
+  DailyTitle,
   TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
@@ -435,11 +435,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              <ActionableSentence
-                                prependText={daily.actionParts?.prependText}
-                                appendText={daily.actionParts?.appendText}
-                                name={daily.actionParts?.name ?? daily.name}
-                              />
+                              <DailyTitle daily={daily} />
                             </Link>
                           </td>
                           <td className="p-2">
@@ -609,11 +605,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              <ActionableSentence
-                                prependText={daily.actionParts?.prependText}
-                                appendText={daily.actionParts?.appendText}
-                                name={daily.actionParts?.name ?? daily.name}
-                              />
+                              <DailyTitle daily={daily} />
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
@@ -678,11 +670,7 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              <ActionableSentence
-                                prependText={daily.actionParts?.prependText}
-                                appendText={daily.actionParts?.appendText}
-                                name={daily.actionParts?.name ?? daily.name}
-                              />
+                              <DailyTitle daily={daily} />
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
