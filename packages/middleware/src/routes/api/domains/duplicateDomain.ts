@@ -2,7 +2,6 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import {
-  domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
   radarBlips,
@@ -35,7 +34,6 @@ export default async function (server: FastifyInstance) {
         }) => eq(d.id, id),
         with: {
           radarBlips: true,
-          excludedTopics: true,
           withinScopeTopics: true,
         },
       });
@@ -61,18 +59,10 @@ export default async function (server: FastifyInstance) {
         quadrantId: b.quadrantId,
         ringId: b.ringId,
         description: b.description ?? null,
+        isIgnored: b.isIgnored ?? false,
       }));
       if (blipCopies.length > 0) {
         await db.insert(radarBlips).values(blipCopies);
-      }
-
-      const exclusions = (source.excludedTopics ?? []).map(e => ({
-        topicId: e.topicId,
-        domainId: newId,
-        reason: e.reason ?? null,
-      }));
-      if (exclusions.length > 0) {
-        await db.insert(domainExcludedTopics).values(exclusions);
       }
 
       const withinScopeLinks = (source.withinScopeTopics ?? []).map(w => ({

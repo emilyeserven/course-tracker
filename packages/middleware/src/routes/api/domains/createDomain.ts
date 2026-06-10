@@ -2,7 +2,6 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import {
-  domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
 } from "@/db/schema";
@@ -29,19 +28,6 @@ const createSchema = {
           type: "array",
           items: {
             type: "string",
-          },
-        },
-        excludedTopics: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["topicId"],
-            properties: {
-              topicId: {
-                type: "string",
-              },
-              reason: nullableString,
-            },
           },
         },
         withinScopeTopicIds: {
@@ -80,22 +66,6 @@ export default async function (server: FastifyInstance) {
       const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));
       if (uniqueTopicIds.length > 0) {
         await syncDomainMembershipByDomain(id, uniqueTopicIds);
-      }
-
-      const dedupedExcluded = new Map<string, string | null>();
-      for (const entry of body.excludedTopics ?? []) {
-        if (!dedupedExcluded.has(entry.topicId)) {
-          dedupedExcluded.set(entry.topicId, entry.reason ?? null);
-        }
-      }
-      if (dedupedExcluded.size > 0) {
-        await db.insert(domainExcludedTopics).values(
-          Array.from(dedupedExcluded.entries()).map(([topicId, reason]) => ({
-            topicId,
-            domainId: id,
-            reason,
-          })),
-        );
       }
 
       const uniqueWithinScopeTopicIds = Array.from(

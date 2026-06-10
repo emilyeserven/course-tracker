@@ -51,6 +51,7 @@ function RadarView() {
         description: description.trim() ? description.trim() : null,
         quadrantId: blip.quadrantId,
         ringId: blip.ringId,
+        isIgnored: blip.isIgnored ?? false,
       });
     },
     onSuccess: async () => {

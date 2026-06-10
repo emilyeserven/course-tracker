@@ -11,6 +11,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ChevronsUpDownIcon,
+  EyeOffIcon,
   ListChecksIcon,
   Loader2,
   MoreHorizontalIcon,
@@ -18,6 +19,7 @@ import {
   PlusIcon,
   SunIcon,
   TrashIcon,
+  Undo2Icon,
   XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -83,9 +85,10 @@ interface BlipTableProps {
   topics: TopicForTopicsPage[];
   onSave: (
     blip: RadarBlip,
-    patch: { quadrantId: string;
-      ringId: string;
-      description: string | null; },
+    patch: { quadrantId: string | null;
+      ringId: string | null;
+      description: string | null;
+      isIgnored: boolean; },
   ) => Promise<void>;
   onRemove: (blip: RadarBlip) => Promise<void>;
   onBulkSave: (ids: string[], patch: BulkPatch) => Promise<void>;
@@ -99,6 +102,7 @@ interface EditDraft {
   quadrantId: string;
   ringId: string;
   description: string;
+  isIgnored: boolean;
 }
 
 export function BlipTable({
@@ -326,6 +330,7 @@ export function BlipTable({
       quadrantId: blip.quadrantId ?? quadrants[0]?.id ?? "",
       ringId: blip.ringId ?? rings[0]?.id ?? "",
       description: blip.description ?? "",
+      isIgnored: blip.isIgnored ?? false,
     });
   }
 
@@ -338,19 +343,38 @@ export function BlipTable({
     if (!editDraft) {
       return;
     }
-    if (!editDraft.quadrantId || !editDraft.ringId) {
+    // Ignored blips carry no slice/ring; everything else needs both.
+    if (!editDraft.isIgnored && (!editDraft.quadrantId || !editDraft.ringId)) {
       toast.error("Pick a slice and ring.");
       return;
     }
     setPendingId(blip.id);
     try {
       await onSave(blip, {
-        quadrantId: editDraft.quadrantId,
-        ringId: editDraft.ringId,
+        quadrantId: editDraft.isIgnored ? null : editDraft.quadrantId,
+        ringId: editDraft.isIgnored ? null : editDraft.ringId,
         description: editDraft.description.trim() || null,
+        isIgnored: editDraft.isIgnored,
       });
       setEditingId(null);
       setEditDraft(null);
+    }
+    finally {
+      setPendingId(null);
+    }
+  }
+
+  // Quick toggle from the row menu: flip a blip in/out of the ignored category.
+  // Moving back to the radar leaves it unassigned for the user to place.
+  async function toggleIgnore(blip: RadarBlip) {
+    setPendingId(blip.id);
+    try {
+      await onSave(blip, {
+        quadrantId: blip.isIgnored ? blip.quadrantId : null,
+        ringId: blip.isIgnored ? blip.ringId : null,
+        description: blip.description ?? null,
+        isIgnored: !blip.isIgnored,
+      });
     }
     finally {
       setPendingId(null);
@@ -692,67 +716,88 @@ export function BlipTable({
                             )}
                         </div>
                         <div className="flex flex-col gap-3">
-                          <div className="flex flex-col gap-1">
-                            <label className="text-xs uppercase">
-                              Slice
-                            </label>
-                            <Select
-                              value={editDraft.quadrantId}
-                              onValueChange={value =>
+                          <label
+                            className="flex flex-row items-center gap-2 text-sm"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={editDraft.isIgnored}
+                              onChange={e =>
                                 setEditDraft(prev =>
                                   prev
                                     ? {
                                       ...prev,
-                                      quadrantId: value,
+                                      isIgnored: e.target.checked,
                                     }
                                     : prev)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose slice" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {quadrants.map(q => (
-                                  <SelectItem
-                                    key={q.id}
-                                    value={q.id}
-                                  >
-                                    {q.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <label className="text-xs uppercase">Ring</label>
-                            <Select
-                              value={editDraft.ringId}
-                              onValueChange={value =>
-                                setEditDraft(prev =>
-                                  prev
-                                    ? {
-                                      ...prev,
-                                      ringId: value,
-                                    }
-                                    : prev)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose ring" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {rings.map(r => (
-                                  <SelectItem
-                                    key={r.id}
-                                    value={r.id}
-                                  >
-                                    {r.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                            />
+                            Ignore (out of scope)
+                          </label>
+                          {!editDraft.isIgnored && (
+                            <>
+                              <div className="flex flex-col gap-1">
+                                <label className="text-xs uppercase">
+                                  Slice
+                                </label>
+                                <Select
+                                  value={editDraft.quadrantId}
+                                  onValueChange={value =>
+                                    setEditDraft(prev =>
+                                      prev
+                                        ? {
+                                          ...prev,
+                                          quadrantId: value,
+                                        }
+                                        : prev)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Choose slice" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {quadrants.map(q => (
+                                      <SelectItem
+                                        key={q.id}
+                                        value={q.id}
+                                      >
+                                        {q.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="text-xs uppercase">Ring</label>
+                                <Select
+                                  value={editDraft.ringId}
+                                  onValueChange={value =>
+                                    setEditDraft(prev =>
+                                      prev
+                                        ? {
+                                          ...prev,
+                                          ringId: value,
+                                        }
+                                        : prev)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Choose ring" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {rings.map(r => (
+                                      <SelectItem
+                                        key={r.id}
+                                        value={r.id}
+                                      >
+                                        {r.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </>
+                          )}
                           <div className="flex flex-col gap-1">
                             <label className="text-xs uppercase">
-                              Radar Note
+                              {editDraft.isIgnored ? "Reason" : "Radar Note"}
                             </label>
                             <Textarea
                               value={editDraft.description}
@@ -812,6 +857,13 @@ export function BlipTable({
                     </TableCell>
                     <TableCell>
                       {(() => {
+                        if (blip.isIgnored) {
+                          return (
+                            <Pill className="bg-gray-200 text-gray-700">
+                              Ignored
+                            </Pill>
+                          );
+                        }
                         const q = blip.quadrantId
                           ? quadrantById.get(blip.quadrantId)
                           : undefined;
@@ -838,6 +890,13 @@ export function BlipTable({
                     </TableCell>
                     <TableCell>
                       {(() => {
+                        if (blip.isIgnored) {
+                          return (
+                            <span className="text-xs text-muted-foreground">
+                              —
+                            </span>
+                          );
+                        }
                         const r = blip.ringId
                           ? ringById.get(blip.ringId)
                           : undefined;
@@ -995,6 +1054,25 @@ export function BlipTable({
                                 {" "}
                                 View Topic
                               </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => toggleIgnore(blip)}
+                            >
+                              {blip.isIgnored
+                                ? (
+                                  <>
+                                    <Undo2Icon />
+                                    {" "}
+                                    Move back to radar
+                                  </>
+                                )
+                                : (
+                                  <>
+                                    <EyeOffIcon />
+                                    {" "}
+                                    Mark as Ignored
+                                  </>
+                                )}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               variant="destructive"

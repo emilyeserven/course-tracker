@@ -48,16 +48,6 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
-          excludedTopics: {
-            with: {
-              topic: {
-                columns: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
           withinScopeTopics: {
             with: {
               topic: {
@@ -76,7 +66,12 @@ export default async function (server: FastifyInstance) {
         return sendNotFound(reply, "Domain");
       }
 
+      // Ignored blips are "out of scope" topics — keep them out of the
+      // domain's topic list (so they don't surface as "not on radar") and
+      // expose them separately as excludedTopics, with the blip description
+      // serving as the ignore reasoning.
       const topics = (domain.radarBlips ?? [])
+        .filter(blip => !blip.isIgnored)
         .map((blip) => {
           const topic = blip.topic;
           if (!topic) {
@@ -102,15 +97,16 @@ export default async function (server: FastifyInstance) {
         })
         .filter((t): t is NonNullable<typeof t> => Boolean(t));
 
-      const excludedTopics = (domain.excludedTopics ?? [])
-        .map((row) => {
-          if (!row.topic) {
+      const excludedTopics = (domain.radarBlips ?? [])
+        .filter(blip => blip.isIgnored)
+        .map((blip) => {
+          if (!blip.topic) {
             return null;
           }
           return {
-            id: row.topic.id,
-            name: row.topic.name,
-            reason: row.reason ?? null,
+            id: blip.topic.id,
+            name: blip.topic.name,
+            reason: blip.description ?? null,
           };
         })
         .filter((row): row is NonNullable<typeof row> => Boolean(row));

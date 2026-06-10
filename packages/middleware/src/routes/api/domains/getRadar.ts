@@ -70,6 +70,7 @@ export default async function (server: FastifyInstance) {
           topicId: b.topicId,
           topicName: b.topic?.name ?? "",
           description: b.description,
+          isIgnored: b.isIgnored ?? false,
         })),
       };
 

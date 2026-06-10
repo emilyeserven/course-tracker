@@ -328,6 +328,7 @@ function ExistingDomainEdit({
           <TabsContent value="scope">
             <ScopeTab
               domain={domain}
+              radar={radar}
               topics={topics ?? []}
               onSaved={handleSaved}
               onChangeStateChange={setScopeHasChanges}

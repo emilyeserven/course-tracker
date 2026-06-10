@@ -16,6 +16,7 @@ export interface RadarBlip {
   topicId: string;
   topicName: string;
   description?: string | null;
+  isIgnored?: boolean;
 }
 
 export interface Radar {

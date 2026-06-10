@@ -628,7 +628,6 @@ export const topicsRelations = relations(topics, ({
 }) => ({
   topicsToResources: many(topicsToResources),
   radarBlips: many(radarBlips),
-  domainExclusions: many(domainExcludedTopics),
   domainWithinScope: many(domainWithinScopeTopics),
   topicsToTags: many(topicsToTags),
   tasks: many(tasks),
@@ -665,43 +664,8 @@ export const domainsRelations = relations(domains, ({
   many,
 }) => ({
   radarBlips: many(radarBlips),
-  excludedTopics: many(domainExcludedTopics),
   withinScopeTopics: many(domainWithinScopeTopics),
 }));
-
-export const domainExcludedTopics = pgTable(
-  "domain_excluded_topics",
-  {
-    topicId: varchar("topic_id")
-      .notNull()
-      .references(() => topics.id),
-    domainId: varchar("domain_id")
-      .notNull()
-      .references(() => domains.id),
-    reason: varchar(),
-  },
-  t => [
-    primaryKey({
-      columns: [t.topicId, t.domainId],
-    }),
-  ],
-);
-
-export const domainExcludedTopicsRelations = relations(
-  domainExcludedTopics,
-  ({
-    one,
-  }) => ({
-    topic: one(topics, {
-      fields: [domainExcludedTopics.topicId],
-      references: [topics.id],
-    }),
-    domain: one(domains, {
-      fields: [domainExcludedTopics.domainId],
-      references: [domains.id],
-    }),
-  }),
-);
 
 export const domainWithinScopeTopics = pgTable(
   "domain_within_scope_topics",
@@ -833,6 +797,10 @@ export const radarBlips = pgTable(
       .notNull()
       .references(() => topics.id),
     description: varchar(),
+    // Marks the topic as "ignored" / out of scope for this domain. Ignored
+    // blips are kept off the radar circle and listed in their own section.
+    // Their `description` holds the ignore reasoning.
+    isIgnored: boolean("is_ignored").notNull().default(false),
   },
   t => [
     unique("radar_blips_domain_topic_unique").on(t.domainId, t.topicId),
