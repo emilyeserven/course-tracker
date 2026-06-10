@@ -2,7 +2,6 @@ import {
   courseProviders,
   resources,
   resourceTags,
-  domainExcludedTopics,
   domains,
   domainWithinScopeTopics,
   interactions,
@@ -35,7 +34,6 @@ export async function clearData() {
   await db.delete(moduleGroups);
   await db.delete(topicsToResources);
   await db.delete(radarBlips);
-  await db.delete(domainExcludedTopics);
   await db.delete(domainWithinScopeTopics);
   await db.delete(topics);
   await db.delete(resources);

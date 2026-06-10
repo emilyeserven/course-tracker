@@ -2,7 +2,7 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
 import { radarBlips } from "@/db/schema";
-import { nullableString } from "@/utils/schemas";
+import { nullableBoolean, nullableString } from "@/utils/schemas";
 
 const upsertBlipSchema = {
   schema: {
@@ -29,6 +29,7 @@ const upsertBlipSchema = {
         description: nullableString,
         quadrantId: nullableString,
         ringId: nullableString,
+        isIgnored: nullableBoolean,
       },
     },
   },
@@ -55,6 +56,7 @@ export default async function (server: FastifyInstance) {
           ringId: body.ringId ?? null,
           topicId: body.topicId,
           description: body.description ?? null,
+          isIgnored: body.isIgnored ?? false,
         })
         .onConflictDoUpdate({
           target: radarBlips.id,
@@ -63,6 +65,7 @@ export default async function (server: FastifyInstance) {
             ringId: body.ringId ?? null,
             topicId: body.topicId,
             description: body.description ?? null,
+            isIgnored: body.isIgnored ?? false,
           },
         });
 

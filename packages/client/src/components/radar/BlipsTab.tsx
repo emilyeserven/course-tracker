@@ -56,9 +56,10 @@ interface BlipsTabProps {
   onRemoveBlip: (blip: BlipDraft) => void;
   onTableSave: (
     blip: RadarBlip,
-    patch: { quadrantId: string;
-      ringId: string;
-      description: string | null; },
+    patch: { quadrantId: string | null;
+      ringId: string | null;
+      description: string | null;
+      isIgnored: boolean; },
   ) => Promise<void>;
   onTableRemove: (blip: RadarBlip) => Promise<void>;
   onTableBulkSave: (

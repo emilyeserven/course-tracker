@@ -215,9 +215,10 @@ export function BlipsTabContainer({
 
   async function handleTableSave(
     blip: RadarBlip,
-    patch: { quadrantId: string;
-      ringId: string;
-      description: string | null; },
+    patch: { quadrantId: string | null;
+      ringId: string | null;
+      description: string | null;
+      isIgnored: boolean; },
   ) {
     try {
       await upsertRadarBlip(domainId, blip.id, {
@@ -225,6 +226,7 @@ export function BlipsTabContainer({
         quadrantId: patch.quadrantId,
         ringId: patch.ringId,
         description: patch.description,
+        isIgnored: patch.isIgnored,
       });
       await onSaved();
       toast.success("Blip saved.");
@@ -269,6 +271,7 @@ export function BlipsTabContainer({
           quadrantId: patch.quadrantId ?? blip.quadrantId,
           ringId: patch.ringId ?? blip.ringId,
           description: blip.description ?? null,
+          isIgnored: blip.isIgnored ?? false,
         });
         updated += 1;
       }
