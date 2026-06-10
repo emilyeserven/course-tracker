@@ -11,7 +11,7 @@ import {
 
 interface NavDropdownProps {
   label: string;
-  to: React.ComponentProps<typeof Link>["to"];
+  to?: React.ComponentProps<typeof Link>["to"];
   children: React.ReactNode;
 }
 
@@ -49,17 +49,23 @@ export function NavDropdown({
             inline-flex cursor-pointer items-center gap-0.5 outline-none
           "
         >
-          <Link
-            to={to}
-            className={`
-              underline-offset-2
-              hover:underline
-              [&.active]:font-bold
-            `}
-            onClick={() => setOpen(false)}
-          >
-            {label}
-          </Link>
+          {to
+            ? (
+              <Link
+                to={to}
+                className={`
+                  underline-offset-2
+                  hover:underline
+                  [&.active]:font-bold
+                `}
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </Link>
+            )
+            : (
+              <span>{label}</span>
+            )}
           <span
             aria-label={`Open ${label} menu`}
             role="button"

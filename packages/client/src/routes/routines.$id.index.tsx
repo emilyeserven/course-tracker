@@ -1,11 +1,16 @@
+import type { DailyDetailTab } from "@/components/dailies/dailyStatusMeta";
+
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
+import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
+import { DAILY_DETAIL_TABS } from "@/components/dailies/dailyStatusMeta";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -23,8 +28,24 @@ import {
   getTotalCompletedDays,
 } from "@/utils";
 
+interface RoutineViewSearch {
+  tab?: DailyDetailTab;
+}
+
 export const Route = createFileRoute("/routines/$id/")({
   component: SingleRoutine,
+  validateSearch: (search: Record<string, unknown>): RoutineViewSearch => {
+    const value = search.tab;
+    if (
+      typeof value === "string"
+      && (DAILY_DETAIL_TABS as readonly string[]).includes(value)
+    ) {
+      return {
+        tab: value as DailyDetailTab,
+      };
+    }
+    return {};
+  },
 });
 
 function RoutinePending() {
@@ -39,6 +60,23 @@ function SingleRoutine() {
   const {
     id,
   } = Route.useParams();
+
+  const navigate = useNavigate();
+  const search = Route.useSearch();
+  const tab: DailyDetailTab = search.tab ?? "details";
+
+  function changeTab(next: DailyDetailTab) {
+    navigate({
+      to: "/routines/$id",
+      params: {
+        id,
+      },
+      search: {
+        tab: next,
+      },
+      replace: true,
+    });
+  }
 
   const {
     isPending, error, data,
@@ -91,38 +129,61 @@ function SingleRoutine() {
     completions,
   });
 
+  // The entry's name as a clickable link (task / resource) or plain text
+  // (freeform) — no type badge, so it can sit inside an actionable sentence.
+  function entryNameLink(entry: { type: string;
+    id: string; }) {
+    if (entry.type === "freeform") {
+      return entry.id;
+    }
+    return (
+      <Link
+        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
+        params={{
+          id: entry.id,
+        }}
+        className="
+          text-blue-800
+          hover:text-blue-600
+          dark:text-blue-300
+        "
+      >
+        {entry.type === "task"
+          ? (taskNames.get(entry.id) ?? entry.id)
+          : (resourceNames.get(entry.id) ?? entry.id)}
+      </Link>
+    );
+  }
+
+  // prepend text + linked name + append text, forming the actionable sentence
+  // while keeping the name itself clickable. The affixes render a notch lighter
+  // than the name so the resource itself stands out.
+  function renderActionable(entry: { type: string;
+    id: string;
+    prependText?: string | null;
+    appendText?: string | null; }) {
+    return (
+      <ActionableSentence
+        prependText={entry.prependText}
+        appendText={entry.appendText}
+        name={entryNameLink(entry)}
+      />
+    );
+  }
+
   function renderEntryLink(entry: { type: string;
     id: string;
-    notes?: string | null; }) {
-    const main = entry.type === "freeform"
-      ? (
-        <span className="text-sm">
-          <span className="mr-2 text-xs text-muted-foreground uppercase">
-            freeform
-          </span>
-          {entry.id}
+    notes?: string | null;
+    prependText?: string | null;
+    appendText?: string | null; }) {
+    const main = (
+      <span className="text-sm">
+        <span className="mr-2 text-xs text-muted-foreground uppercase">
+          {entry.type}
         </span>
-      )
-      : (
-        <Link
-          to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-          params={{
-            id: entry.id,
-          }}
-          className="
-            text-blue-800
-            hover:text-blue-600
-            dark:text-blue-300
-          "
-        >
-          <span className="mr-2 text-xs text-muted-foreground uppercase">
-            {entry.type}
-          </span>
-          {entry.type === "task"
-            ? (taskNames.get(entry.id) ?? entry.id)
-            : (resourceNames.get(entry.id) ?? entry.id)}
-        </Link>
-      );
+        {renderActionable(entry)}
+      </span>
+    );
 
     if (!entry.notes) {
       return main;
@@ -156,8 +217,42 @@ function SingleRoutine() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-12">
+        {isDaily && dailyEntry && (
+          <DashboardCard title="Daily Task">
+            <p className="text-lg font-medium">
+              {renderActionable(dailyEntry)}
+            </p>
+            {dailyEntry.notes && (
+              <p className="text-sm text-muted-foreground">
+                {dailyEntry.notes}
+              </p>
+            )}
+          </DashboardCard>
+        )}
         <DailyDetailsPanel
           dailyId={id}
+          tab={tab}
+          onTabChange={changeTab}
+          criteriaEmptyAction={(
+            <Link
+              to="/routines/$id/edit"
+              params={{
+                id,
+              }}
+              search={{
+                tab: "criteria",
+              }}
+            >
+              <Button
+                variant="secondary"
+                size="sm"
+              >
+                Add Status Criteria
+                {" "}
+                <EditIcon />
+              </Button>
+            </Link>
+          )}
           detailsContent={(
             <div className="flex flex-col gap-12">
               <div
@@ -244,51 +339,40 @@ function SingleRoutine() {
                   ))}
                 </ul>
               </InfoArea>
-              {isDaily
-                ? (
-                  <InfoArea
-                    header="Daily Task"
-                    condition={!!dailyEntry}
-                  >
-                    {dailyEntry && renderEntryLink(dailyEntry)}
-                  </InfoArea>
-                )
-                : (
-                  <InfoArea
-                    header="Weekly Schedule"
-                    condition={true}
-                  >
-                    <ul className="flex flex-col gap-1">
-                      {DAY_ORDER.map((day) => {
-                        const entry = weekly[day];
-                        return (
-                          <li
-                            key={day}
-                            className="
-                              grid grid-cols-[120px_1fr] items-center gap-2
-                              border-b border-border/60 py-1
-                            "
-                          >
-                            <span className="text-sm font-medium">
-                              {DAY_LABELS[day]}
-                            </span>
-                            {entry
-                              ? renderEntryLink(entry)
-                              : (
-                                <span
-                                  className="
-                                    text-sm text-muted-foreground italic
-                                  "
-                                >
-                                  Nothing scheduled
-                                </span>
-                              )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </InfoArea>
-                )}
+              {!isDaily && (
+                <InfoArea
+                  header="Weekly Schedule"
+                  condition={true}
+                >
+                  <ul className="flex flex-col gap-1">
+                    {DAY_ORDER.map((day) => {
+                      const entry = weekly[day];
+                      return (
+                        <li
+                          key={day}
+                          className="
+                            grid grid-cols-[120px_1fr] items-center gap-2
+                            border-b border-border/60 py-1
+                          "
+                        >
+                          <span className="text-sm font-medium">
+                            {DAY_LABELS[day]}
+                          </span>
+                          {entry
+                            ? renderEntryLink(entry)
+                            : (
+                              <span
+                                className="text-sm text-muted-foreground italic"
+                              >
+                                Nothing scheduled
+                              </span>
+                            )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </InfoArea>
+              )}
             </div>
           )}
         />

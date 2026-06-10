@@ -2,6 +2,8 @@ import type { WeeklyRowType } from "@/components/routines/weekly";
 
 import { useMemo } from "react";
 
+import { buildActionableSentence } from "@emstack/types/src";
+
 import {
   Combobox,
   ComboboxContent,
@@ -16,21 +18,30 @@ interface ItemOption {
   label: string;
 }
 
-interface WeeklyEntryEditorProps {
+interface EntryValue {
   type: WeeklyRowType;
   id: string;
-  onChange: (next: { type: WeeklyRowType;
-    id: string; }) => void;
+  notes: string;
+  prependText: string;
+  appendText: string;
+}
+
+interface WeeklyEntryEditorProps extends EntryValue {
+  onChange: (next: EntryValue) => void;
   taskOptions: ItemOption[];
   resourceOptions: ItemOption[];
 }
 
 // A single task / resource / freeform picker — the same control the weekly grid
 // uses per day, but standalone for Daily Task mode (the chosen entry is applied
-// to every weekday).
+// to every weekday). Also carries the optional note and prepend/append text that
+// build the daily's actionable sentence.
 export function WeeklyEntryEditor({
   type,
   id,
+  notes,
+  prependText,
+  appendText,
   onChange,
   taskOptions,
   resourceOptions,
@@ -46,82 +57,163 @@ export function WeeklyEntryEditor({
     [itemOptions],
   );
 
+  function emit(patch: Partial<EntryValue>) {
+    onChange({
+      type,
+      id,
+      notes,
+      prependText,
+      appendText,
+      ...patch,
+    });
+  }
+
+  const itemName = type === "freeform" ? id : optionsMap.get(id) ?? "";
+  const showPreview
+    = !!itemName && (!!prependText.trim() || !!appendText.trim());
+  const preview = buildActionableSentence({
+    prependText,
+    name: itemName,
+    appendText,
+  });
+
   return (
     <div
       className="
-        grid grid-cols-[140px_1fr] items-center gap-2 rounded-md border
-        bg-background px-2 py-1.5
+        flex flex-col gap-1.5 rounded-md border bg-background px-2 py-1.5
       "
     >
-      <select
-        aria-label="Daily task type"
-        value={type}
-        onChange={e =>
-          onChange({
-            type: e.target.value as WeeklyRowType,
-            id: "",
-          })}
-        className="flex h-9 w-full rounded-md border bg-background px-2 text-sm"
-      >
-        <option value="">— None —</option>
-        <option value="task">Task</option>
-        <option value="resource">Resource</option>
-        <option value="freeform">Freeform</option>
-      </select>
+      <div className="grid grid-cols-[140px_1fr] items-center gap-2">
+        <select
+          aria-label="Daily task type"
+          value={type}
+          onChange={e =>
+            // Changing the type clears the chosen item (different option set)
+            // and any note/prepend/append.
+            emit({
+              type: e.target.value as WeeklyRowType,
+              id: "",
+              notes: "",
+              prependText: "",
+              appendText: "",
+            })}
+          className="
+            flex h-9 w-full rounded-md border bg-background px-2 text-sm
+          "
+        >
+          <option value="">— None —</option>
+          <option value="task">Task</option>
+          <option value="resource">Resource</option>
+          <option value="freeform">Freeform</option>
+        </select>
 
-      {type === "freeform"
-        ? (
+        {type === "freeform"
+          ? (
+            <input
+              aria-label="Daily task description"
+              value={id}
+              onChange={e =>
+                emit({
+                  id: e.target.value,
+                })}
+              placeholder="Describe the activity…"
+              className="
+                flex h-9 w-full rounded-md border bg-background px-2 text-sm
+              "
+            />
+          )
+          : (
+            <Combobox
+              items={itemOptions.map(o => o.value)}
+              value={id || null}
+              onValueChange={val =>
+                emit({
+                  id: val ?? "",
+                })}
+              itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+            >
+              <ComboboxInput
+                placeholder={
+                  type === "task"
+                    ? "Search tasks..."
+                    : type === "resource"
+                      ? "Search resources..."
+                      : "Pick a type first"
+                }
+                showClear
+                disabled={!type}
+              />
+              <ComboboxContent>
+                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                <ComboboxList>
+                  {(val: string) => (
+                    <ComboboxItem
+                      key={val}
+                      value={val}
+                    >
+                      {optionsMap.get(val) ?? val}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+          )}
+      </div>
+
+      {type !== "" && (
+        <>
           <input
-            aria-label="Daily task description"
-            value={id}
+            aria-label="Daily task notes"
+            value={notes}
             onChange={e =>
-              onChange({
-                type,
-                id: e.target.value,
+              emit({
+                notes: e.target.value,
               })}
-            placeholder="Describe the activity…"
+            placeholder="Notes (optional)…"
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
-        )
-        : (
-          <Combobox
-            items={itemOptions.map(o => o.value)}
-            value={id || null}
-            onValueChange={val =>
-              onChange({
-                type,
-                id: val ?? "",
-              })}
-            itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+          <div
+            className="
+              grid grid-cols-1 gap-1.5
+              sm:grid-cols-2
+            "
           >
-            <ComboboxInput
-              placeholder={
-                type === "task"
-                  ? "Search tasks..."
-                  : type === "resource"
-                    ? "Search resources..."
-                    : "Pick a type first"
-              }
-              showClear
-              disabled={!type}
+            <input
+              aria-label="Prepend text"
+              value={prependText}
+              onChange={e =>
+                emit({
+                  prependText: e.target.value,
+                })}
+              placeholder="Prepend text (e.g. Review)…"
+              className="
+                flex h-9 w-full rounded-md border bg-background px-2 text-sm
+              "
             />
-            <ComboboxContent>
-              <ComboboxEmpty>No items found.</ComboboxEmpty>
-              <ComboboxList>
-                {(val: string) => (
-                  <ComboboxItem
-                    key={val}
-                    value={val}
-                  >
-                    {optionsMap.get(val) ?? val}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-        )}
+            <input
+              aria-label="Append text"
+              value={appendText}
+              onChange={e =>
+                emit({
+                  appendText: e.target.value,
+                })}
+              placeholder="Append text (e.g. for 10 minutes)…"
+              className="
+                flex h-9 w-full rounded-md border bg-background px-2 text-sm
+              "
+            />
+          </div>
+          {showPreview && (
+            <p className="px-0.5 text-sm text-muted-foreground">
+              Preview:
+              {" "}
+              <span className="text-foreground">{preview}</span>
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }

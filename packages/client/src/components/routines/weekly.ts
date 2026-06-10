@@ -9,6 +9,10 @@ export interface WeeklyRow {
   id: string;
   // Optional free-text note for this day's item. "" = no note.
   notes: string;
+  // Optional text wrapped around the item's name to form an actionable
+  // sentence. "" = nothing to prepend/append.
+  prependText: string;
+  appendText: string;
 }
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
@@ -39,6 +43,8 @@ export function weeklyToRows(
       type: entry?.type ?? "",
       id: entry?.id ?? "",
       notes: entry?.notes ?? "",
+      prependText: entry?.prependText ?? "",
+      appendText: entry?.appendText ?? "",
     };
   });
 }
@@ -52,10 +58,20 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
       weekly[row.day] = {
         type: row.type,
         id: row.id,
-        // Only persist a note when present, keeping the stored JSON clean.
+        // Only persist optional text when present, keeping the stored JSON clean.
         ...(row.notes
           ? {
             notes: row.notes,
+          }
+          : {}),
+        ...(row.prependText
+          ? {
+            prependText: row.prependText,
+          }
+          : {}),
+        ...(row.appendText
+          ? {
+            appendText: row.appendText,
           }
           : {}),
       };
@@ -74,6 +90,8 @@ export function representativeRow(rows: WeeklyRow[]): {
   type: WeeklyRowType;
   id: string;
   notes: string;
+  prependText: string;
+  appendText: string;
 } {
   const found = rows.find(r => r.type !== "");
   return found
@@ -81,11 +99,15 @@ export function representativeRow(rows: WeeklyRow[]): {
       type: found.type,
       id: found.id,
       notes: found.notes,
+      prependText: found.prependText,
+      appendText: found.appendText,
     }
     : {
       type: "",
       id: "",
       notes: "",
+      prependText: "",
+      appendText: "",
     };
 }
 
@@ -93,11 +115,15 @@ export function fillAllDays(entry: {
   type: WeeklyRowType;
   id: string;
   notes?: string;
+  prependText?: string;
+  appendText?: string;
 }): WeeklyRow[] {
   return ALL_DAYS.map(day => ({
     day,
     type: entry.type,
     id: entry.id,
     notes: entry.notes ?? "",
+    prependText: entry.prependText ?? "",
+    appendText: entry.appendText ?? "",
   }));
 }

@@ -8,6 +8,7 @@ import type {
   RoutineReferenceItem,
   RoutineWeekly,
 } from "@emstack/types";
+import { buildActionableSentence } from "@emstack/types";
 import { mapDaily } from "./dailyProjection";
 
 const DAY_KEYS = ["0", "1", "2", "3", "4", "5", "6"] as const;
@@ -96,8 +97,31 @@ export function mapRoutineToDaily(
     task: resolved.task ?? null,
   });
 
+  // Wrap the representative entry's name with its prepend/append text into a
+  // natural sentence. Only set when the user actually added prepend/append text,
+  // so untouched dailies keep falling back to the routine name.
+  const entry = representativeEntry(routine.weekly);
+  const baseName
+    = resolved.resource?.name
+      ?? resolved.task?.name
+      ?? (entry?.type === "freeform" ? entry.id : null);
+  // Structured parts (affixes + name) so consumers can render the name heavier
+  // than the surrounding text; the flat label is derived from them so the two
+  // never drift.
+  const actionParts
+    = entry && baseName && (entry.prependText || entry.appendText)
+      ? {
+        prependText: entry.prependText ?? null,
+        name: baseName,
+        appendText: entry.appendText ?? null,
+      }
+      : null;
+  const actionLabel = actionParts ? buildActionableSentence(actionParts) : null;
+
   return {
     ...daily,
+    actionLabel,
+    actionParts,
     mode: routine.mode,
     weekly: routine.weekly ?? {},
     connections: routine.connections ?? [],

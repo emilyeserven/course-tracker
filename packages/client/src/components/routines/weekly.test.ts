@@ -85,6 +85,58 @@ describe("weekly schedule item notes", () => {
   });
 });
 
+describe("weekly schedule prepend/append text", () => {
+  test("weeklyToRows surfaces an item's prepend/append text", () => {
+    const weekly: RoutineWeekly = {
+      1: {
+        type: "resource",
+        id: "res-1",
+        prependText: "Review",
+        appendText: "for 10 minutes",
+      },
+    };
+    const monday = weeklyToRows(weekly).find(r => r.day === "1");
+    expect(monday?.prependText).toBe("Review");
+    expect(monday?.appendText).toBe("for 10 minutes");
+  });
+
+  test("weeklyToRows defaults missing prepend/append to empty strings", () => {
+    const weekly: RoutineWeekly = {
+      2: {
+        type: "resource",
+        id: "res-1",
+      },
+    };
+    const tuesday = weeklyToRows(weekly).find(r => r.day === "2");
+    expect(tuesday?.prependText).toBe("");
+    expect(tuesday?.appendText).toBe("");
+  });
+
+  test("rowsToWeekly preserves non-empty prepend/append and omits empty ones", () => {
+    const original: RoutineWeekly = {
+      3: {
+        type: "resource",
+        id: "res-9",
+        prependText: "Review",
+        appendText: "for 10 minutes",
+      },
+      4: {
+        type: "task",
+        id: "task-2",
+      },
+    };
+    const restored = rowsToWeekly(weeklyToRows(original));
+    expect(restored[3]).toEqual({
+      type: "resource",
+      id: "res-9",
+      prependText: "Review",
+      appendText: "for 10 minutes",
+    });
+    expect(restored[4]).not.toHaveProperty("prependText");
+    expect(restored[4]).not.toHaveProperty("appendText");
+  });
+});
+
 describe("representativeRow (Daily Task mode)", () => {
   // Regression: picking a type clears the id, so the editor must still surface
   // the chosen type before an item is picked — otherwise the controlled type
@@ -98,6 +150,8 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "task",
       id: "",
       notes: "",
+      prependText: "",
+      appendText: "",
     });
   });
 
@@ -106,11 +160,15 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "resource",
       id: "res-1",
       notes: "chapter 3",
+      prependText: "Review",
+      appendText: "for 10 minutes",
     });
     expect(representativeRow(rows)).toEqual({
       type: "resource",
       id: "res-1",
       notes: "chapter 3",
+      prependText: "Review",
+      appendText: "for 10 minutes",
     });
   });
 
@@ -119,6 +177,8 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "",
       id: "",
       notes: "",
+      prependText: "",
+      appendText: "",
     });
   });
 });

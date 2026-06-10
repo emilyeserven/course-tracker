@@ -28,6 +28,17 @@ export interface DailyTaskProgress {
 export interface Daily {
   id: string;
   name: string;
+  // The representative entry's name wrapped with its prepend/append text into a
+  // natural sentence (e.g. "Review Spanish flashcards for 10 minutes"). Null
+  // unless prepend or append text is set; consumers fall back to `name`.
+  actionLabel?: string | null;
+  // Structured form of `actionLabel` for styled rendering (affixes lighter than
+  // the name). Null unless prepend/append text is set; consumers fall back to `name`.
+  actionParts?: {
+    prependText?: string | null;
+    name: string;
+    appendText?: string | null;
+  } | null;
   location?: string | null;
   description?: string | null;
   completions: DailyCompletion[];

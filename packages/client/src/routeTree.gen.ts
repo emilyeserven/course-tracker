@@ -14,11 +14,14 @@ import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RoutinesRouteImport } from './routes/routines'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as RecordsRouteImport } from './routes/records'
 import { Route as ProvidersRouteImport } from './routes/providers'
+import { Route as PlansRouteImport } from './routes/plans'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as DomainsRouteImport } from './routes/domains'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DailiesRouteImport } from './routes/dailies'
+import { Route as ActionsRouteImport } from './routes/actions'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TasksIndexRouteImport } from './routes/tasks.index'
@@ -78,9 +81,19 @@ const ResourcesRoute = ResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecordsRoute = RecordsRouteImport.update({
+  id: '/records',
+  path: '/records',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProvidersRoute = ProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardRoute = OnboardRouteImport.update({
@@ -101,6 +114,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const DailiesRoute = DailiesRouteImport.update({
   id: '/dailies',
   path: '/dailies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsRoute = ActionsRouteImport.update({
+  id: '/actions',
+  path: '/actions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -271,11 +289,14 @@ const DomainsIdRadarEditRoute = DomainsIdRadarEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
   '/dailies': typeof DailiesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/plans': typeof PlansRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/records': typeof RecordsRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/routines': typeof RoutinesRouteWithChildren
   '/settings': typeof SettingsRoute
@@ -316,8 +337,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
   '/dashboard': typeof DashboardRoute
   '/onboard': typeof OnboardRoute
+  '/plans': typeof PlansRoute
+  '/records': typeof RecordsRoute
   '/settings': typeof SettingsRoute
   '/routines/tracker': typeof RoutinesTrackerRoute
   '/dailies': typeof DailiesIndexRoute
@@ -347,11 +371,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/actions': typeof ActionsRoute
   '/dailies': typeof DailiesRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/domains': typeof DomainsRouteWithChildren
   '/onboard': typeof OnboardRoute
+  '/plans': typeof PlansRoute
   '/providers': typeof ProvidersRouteWithChildren
+  '/records': typeof RecordsRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/routines': typeof RoutinesRouteWithChildren
   '/settings': typeof SettingsRoute
@@ -394,11 +421,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/actions'
     | '/dailies'
     | '/dashboard'
     | '/domains'
     | '/onboard'
+    | '/plans'
     | '/providers'
+    | '/records'
     | '/resources'
     | '/routines'
     | '/settings'
@@ -439,8 +469,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/actions'
     | '/dashboard'
     | '/onboard'
+    | '/plans'
+    | '/records'
     | '/settings'
     | '/routines/tracker'
     | '/dailies'
@@ -469,11 +502,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/actions'
     | '/dailies'
     | '/dashboard'
     | '/domains'
     | '/onboard'
+    | '/plans'
     | '/providers'
+    | '/records'
     | '/resources'
     | '/routines'
     | '/settings'
@@ -515,11 +551,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActionsRoute: typeof ActionsRoute
   DailiesRoute: typeof DailiesRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   DomainsRoute: typeof DomainsRouteWithChildren
   OnboardRoute: typeof OnboardRoute
+  PlansRoute: typeof PlansRoute
   ProvidersRoute: typeof ProvidersRouteWithChildren
+  RecordsRoute: typeof RecordsRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
   RoutinesRoute: typeof RoutinesRouteWithChildren
   SettingsRoute: typeof SettingsRoute
@@ -564,11 +603,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/records': {
+      id: '/records'
+      path: '/records'
+      fullPath: '/records'
+      preLoaderRoute: typeof RecordsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/providers': {
       id: '/providers'
       path: '/providers'
       fullPath: '/providers'
       preLoaderRoute: typeof ProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboard': {
@@ -597,6 +650,13 @@ declare module '@tanstack/react-router' {
       path: '/dailies'
       fullPath: '/dailies'
       preLoaderRoute: typeof DailiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions': {
+      id: '/actions'
+      path: '/actions'
+      fullPath: '/actions'
+      preLoaderRoute: typeof ActionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1043,11 +1103,14 @@ const TopicsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActionsRoute: ActionsRoute,
   DailiesRoute: DailiesRouteWithChildren,
   DashboardRoute: DashboardRoute,
   DomainsRoute: DomainsRouteWithChildren,
   OnboardRoute: OnboardRoute,
+  PlansRoute: PlansRoute,
   ProvidersRoute: ProvidersRouteWithChildren,
+  RecordsRoute: RecordsRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
   RoutinesRoute: RoutinesRouteWithChildren,
   SettingsRoute: SettingsRoute,

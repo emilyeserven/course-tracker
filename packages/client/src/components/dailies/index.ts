@@ -1,3 +1,4 @@
+export { ActionableSentence } from "./ActionableSentence";
 export { DailiesActiveListView } from "./DailiesActiveListView";
 export { DailyCriteriaTemplateEditModal } from "./DailyCriteriaTemplateEditModal";
 export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
