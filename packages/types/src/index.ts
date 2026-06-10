@@ -18,6 +18,7 @@ export * from "./ModuleGroup.js";
 export * from "./OnboardData.js";
 export * from "./Radar.js";
 export * from "./Routine.js";
+export * from "./RoutineTemplate.js";
 export * from "./Tag.js";
 export * from "./TagGroup.js";
 export * from "./Task.js";

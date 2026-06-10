@@ -1,4 +1,8 @@
-import type { DailyCriteriaTemplate, TaskType } from "@emstack/types/src";
+import type {
+  DailyCriteriaTemplate,
+  RoutineTemplate,
+  TaskType,
+} from "@emstack/types/src";
 
 import { useState } from "react";
 
@@ -17,6 +21,7 @@ import { toast } from "sonner";
 
 import { DailyCriteriaTemplateEditModal } from "@/components/dailies";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { RoutineTemplateEditModal } from "@/components/routines/RoutineTemplateEditModal";
 import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
 import { TagChip } from "@/components/tasks/TagChip";
 import { TaskTypeEditRow } from "@/components/TaskTypeEditRow";
@@ -24,14 +29,21 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/useTheme.ts";
 import {
   createDailyCriteriaTemplate,
+  createRoutineTemplate,
   createTaskType,
   deleteSingleDailyCriteriaTemplate,
+  deleteSingleRoutineTemplate,
   deleteSingleTaskType,
   fetchClear,
   fetchDailyCriteriaTemplates,
+  fetchResources,
+  fetchRoutineTemplates,
   fetchSeed,
+  fetchTasks,
   fetchTaskTypes,
+  toOptions,
   upsertDailyCriteriaTemplate,
+  upsertRoutineTemplate,
   upsertTaskType,
 } from "@/utils";
 
@@ -41,6 +53,7 @@ export const Route = createFileRoute("/settings")({
 
 const NEW_TASK_TYPE_ID = "__new__";
 const NEW_CRITERIA_TEMPLATE_ID = "__new__";
+const NEW_ROUTINE_TEMPLATE_ID = "__new__";
 
 function makeEmptyTaskType(): TaskType {
   return {
@@ -63,6 +76,14 @@ function makeEmptyCriteriaTemplate(): DailyCriteriaTemplate {
   };
 }
 
+function makeEmptyRoutineTemplate(): RoutineTemplate {
+  return {
+    id: NEW_ROUTINE_TEMPLATE_ID,
+    label: "",
+    weekly: {},
+  };
+}
+
 function Settings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -74,6 +95,10 @@ function Settings() {
   const [creatingNew, setCreatingNew] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
+  const [editingRoutineTemplateId, setEditingRoutineTemplateId]
+    = useState<string | null>(null);
+  const [creatingNewRoutineTemplate, setCreatingNewRoutineTemplate]
+    = useState(false);
 
   const {
     isFetching: isSeedFetching,
@@ -155,6 +180,21 @@ function Settings() {
     queryFn: () => fetchDailyCriteriaTemplates(),
   });
 
+  const routineTemplatesQuery = useQuery({
+    queryKey: ["routineTemplates"],
+    queryFn: () => fetchRoutineTemplates(),
+  });
+
+  const tasksQuery = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+  });
+
+  const resourcesQuery = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+  });
+
   const upsertTemplateMutation = useMutation({
     mutationFn: (template: DailyCriteriaTemplate) =>
       upsertDailyCriteriaTemplate(template.id, {
@@ -213,6 +253,56 @@ function Settings() {
     },
   });
 
+  const upsertRoutineTemplateMutation = useMutation({
+    mutationFn: (template: RoutineTemplate) =>
+      upsertRoutineTemplate(template.id, {
+        label: template.label,
+        weekly: template.weekly,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["routineTemplates"],
+      });
+      setEditingRoutineTemplateId(null);
+      toast.success("Routine template saved");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const createRoutineTemplateMutation = useMutation({
+    mutationFn: (template: RoutineTemplate) =>
+      createRoutineTemplate({
+        label: template.label,
+        weekly: template.weekly,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["routineTemplates"],
+      });
+      setCreatingNewRoutineTemplate(false);
+      toast.success("Routine template created");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const deleteRoutineTemplateMutation = useMutation({
+    mutationFn: (id: string) => deleteSingleRoutineTemplate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["routineTemplates"],
+      });
+      setEditingRoutineTemplateId(null);
+      toast.success("Routine template deleted");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
   async function handleClearLocal() {
     const clearRefetchResult = await clearRefetch();
 
@@ -244,6 +334,13 @@ function Settings() {
   const editingCriteriaTemplate = editingTemplateId
     ? criteriaTemplates.find(t => t.id === editingTemplateId) ?? null
     : null;
+
+  const routineTemplates = routineTemplatesQuery.data ?? [];
+  const editingRoutineTemplate = editingRoutineTemplateId
+    ? routineTemplates.find(t => t.id === editingRoutineTemplateId) ?? null
+    : null;
+  const taskOptions = toOptions(tasksQuery.data);
+  const resourceOptions = toOptions(resourcesQuery.data);
 
   return (
     <div>
@@ -439,6 +536,75 @@ function Settings() {
         </section>
 
         <section className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xl font-semibold">
+              Routine Templates
+            </h2>
+            <Button
+              variant="outline"
+              onClick={() => setCreatingNewRoutineTemplate(true)}
+            >
+              <PlusIcon />
+              New Template
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Prefill options for the Weekly Schedule Quick Fill on a routine.
+          </p>
+          {routineTemplatesQuery.isPending
+            ? <p className="text-sm text-muted-foreground">Loading...</p>
+            : routineTemplates.length === 0
+              ? (
+                <p className="text-sm text-muted-foreground">
+                  No templates yet. Create one to use it as a Quick Fill option.
+                </p>
+              )
+              : (
+                <ul className="flex flex-col divide-y rounded-md border">
+                  {routineTemplates.map(t => (
+                    <li
+                      key={t.id}
+                      className="
+                        flex flex-wrap items-center justify-between gap-2 p-3
+                      "
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{t.label}</span>
+                        <span
+                          className="line-clamp-1 text-xs text-muted-foreground"
+                        >
+                          {Object.keys(t.weekly ?? {}).length}
+                          {" "}
+                          day(s) scheduled
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingRoutineTemplateId(t.id)}
+                        >
+                          <PencilIcon className="size-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() =>
+                            deleteRoutineTemplateMutation.mutate(t.id)}
+                          disabled={deleteRoutineTemplateMutation.isPending}
+                        >
+                          <Trash2Icon className="size-4" />
+                          Delete
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+        </section>
+
+        <section className="flex flex-col gap-3">
           <h2 className="text-xl font-semibold">Appearance</h2>
           <div className="flex flex-col items-start gap-2">
             {theme === "dark"
@@ -491,6 +657,38 @@ function Settings() {
         }}
         onSave={t => createTemplateMutation.mutate(t)}
         isSaving={createTemplateMutation.isPending}
+      />
+
+      <RoutineTemplateEditModal
+        open={editingRoutineTemplateId !== null}
+        template={editingRoutineTemplate}
+        taskOptions={taskOptions}
+        resourceOptions={resourceOptions}
+        onOpenChange={(open) => {
+          if (!open) setEditingRoutineTemplateId(null);
+        }}
+        onSave={t => upsertRoutineTemplateMutation.mutate(t)}
+        onDelete={editingRoutineTemplate
+          ? () =>
+            deleteRoutineTemplateMutation.mutate(editingRoutineTemplate.id)
+          : undefined}
+        isSaving={upsertRoutineTemplateMutation.isPending
+          || deleteRoutineTemplateMutation.isPending}
+      />
+
+      <RoutineTemplateEditModal
+        open={creatingNewRoutineTemplate}
+        template={creatingNewRoutineTemplate
+          ? makeEmptyRoutineTemplate()
+          : null}
+        isNew
+        taskOptions={taskOptions}
+        resourceOptions={resourceOptions}
+        onOpenChange={(open) => {
+          if (!open) setCreatingNewRoutineTemplate(false);
+        }}
+        onSave={t => createRoutineTemplateMutation.mutate(t)}
+        isSaving={createRoutineTemplateMutation.isPending}
       />
     </div>
   );

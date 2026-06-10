@@ -248,6 +248,15 @@ export const dailyCriteriaTemplates = pgTable("daily_criteria_templates", {
   freeze: varchar().notNull().default(""),
 });
 
+// Reusable weekly layouts that pre-fill a routine's weekly schedule.
+export const routineTemplates = pgTable("routine_templates", {
+  id: varchar().primaryKey(),
+  label: varchar({
+    length: 255,
+  }).notNull(),
+  weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
+});
+
 // TODO(tag-reform-followup): drop this table once the Tag Groups + Tags system
 // (tagGroups, tags, tasksToTags) has fully replaced the Task Type concept on
 // tasks. Keep in place during the additive migration.
