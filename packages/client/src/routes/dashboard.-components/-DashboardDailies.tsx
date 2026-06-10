@@ -18,6 +18,7 @@ import {
   DashboardSectionStatus,
 } from "@/components/boxes/DashboardCard";
 import {
+  ActionableSentence,
   DailiesActiveListView,
   DailiesViewModeToggle,
   DailyCommentPopover,
@@ -315,7 +316,11 @@ export function DashboardDailies() {
                           hover:text-blue-600
                         "
                       >
-                        {daily.actionLabel ?? daily.name}
+                        <ActionableSentence
+                          prependText={daily.actionParts?.prependText}
+                          appendText={daily.actionParts?.appendText}
+                          name={daily.actionParts?.name ?? daily.name}
+                        />
                       </Link>
                     </td>
                     <td className="p-2">

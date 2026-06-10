@@ -6,6 +6,7 @@ import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
@@ -119,19 +120,18 @@ function SingleRoutine() {
   }
 
   // prepend text + linked name + append text, forming the actionable sentence
-  // while keeping the name itself clickable.
+  // while keeping the name itself clickable. The affixes render a notch lighter
+  // than the name so the resource itself stands out.
   function renderActionable(entry: { type: string;
     id: string;
     prependText?: string | null;
     appendText?: string | null; }) {
-    const prepend = entry.prependText?.trim();
-    const append = entry.appendText?.trim();
     return (
-      <>
-        {prepend ? `${prepend} ` : null}
-        {entryNameLink(entry)}
-        {append ? ` ${append}` : null}
-      </>
+      <ActionableSentence
+        prependText={entry.prependText}
+        appendText={entry.appendText}
+        name={entryNameLink(entry)}
+      />
     );
   }
 

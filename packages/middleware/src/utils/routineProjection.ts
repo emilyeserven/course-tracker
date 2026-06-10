@@ -105,18 +105,23 @@ export function mapRoutineToDaily(
     = resolved.resource?.name
       ?? resolved.task?.name
       ?? (entry?.type === "freeform" ? entry.id : null);
-  const actionLabel
+  // Structured parts (affixes + name) so consumers can render the name heavier
+  // than the surrounding text; the flat label is derived from them so the two
+  // never drift.
+  const actionParts
     = entry && baseName && (entry.prependText || entry.appendText)
-      ? buildActionableSentence({
-        prependText: entry.prependText,
+      ? {
+        prependText: entry.prependText ?? null,
         name: baseName,
-        appendText: entry.appendText,
-      })
+        appendText: entry.appendText ?? null,
+      }
       : null;
+  const actionLabel = actionParts ? buildActionableSentence(actionParts) : null;
 
   return {
     ...daily,
     actionLabel,
+    actionParts,
     mode: routine.mode,
     weekly: routine.weekly ?? {},
     connections: routine.connections ?? [],
