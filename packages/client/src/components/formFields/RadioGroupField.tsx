@@ -1,6 +1,8 @@
 import { Field, FieldLabel } from "@/components/forms/field";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useFieldContext } from "@/utils/fieldContext";
 
 interface RadioGroupFieldProps {
@@ -18,9 +20,10 @@ export function RadioGroupField({
   labelClassName = "capitalize",
 }: RadioGroupFieldProps) {
   const field = useFieldContext<string>();
+  const showChanged = useFieldChangeHighlight();
 
   return (
-    <Field>
+    <Field className={cn(showChanged && changedFieldClass)}>
       <FieldLabel className={className}>{label}</FieldLabel>
       <RadioGroup
         value={field.state.value}

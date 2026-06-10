@@ -1,3 +1,4 @@
+/* eslint-disable import/max-dependencies */
 import type { AnyFieldApi } from "@tanstack/react-form";
 
 import { useMemo } from "react";
@@ -14,11 +15,14 @@ import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
+import { cn } from "@/lib/utils";
 import {
+  changedFieldClass,
   createProvider,
   createTopic,
   deleteSingleResource,
   duplicateResource,
+  FieldChangeHighlightProvider,
   fetchProviders,
   fetchSingleResource,
   fetchTagGroups,
@@ -68,13 +72,15 @@ function LevelSelectRow({
   label,
   value,
   onChange,
+  changed,
 }: {
   label: string;
   value: LevelValue;
   onChange: (next: LevelValue) => void;
+  changed?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className={cn("flex flex-col gap-1", changed && changedFieldClass)}>
       <label className="text-xs font-medium text-muted-foreground">
         {label}
       </label>
@@ -282,272 +288,284 @@ function SingleResourceEdit() {
       <h2 className="mb-6 text-2xl">
         {isNew ? "New Resource" : "Edit Resource"}
       </h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="flex max-w-2xl flex-col gap-8"
-      >
-        <form.AppField name="name">
-          {field => <field.InputField label="Resource Name" />}
-        </form.AppField>
+      <FieldChangeHighlightProvider enabled={!isNew}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="flex max-w-2xl flex-col gap-8"
+        >
+          <form.AppField name="name">
+            {field => <field.InputField label="Resource Name" />}
+          </form.AppField>
 
-        <form.AppField name="description">
-          {field => (
-            <field.TextareaField
-              label="Description"
-              placeholder="What is this course about?"
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="url">
-          {field => <field.InputField label="Resource URL" />}
-        </form.AppField>
-
-        <form.AppField name="topicId">
-          {field => (
-            <field.ComboboxField
-              label="Topic"
-              options={topicOptions}
-              placeholder="Search topics..."
-              create={{
-                itemLabel: "topic",
-                fields: [
-                  {
-                    name: "name",
-                    label: "Name",
-                    required: true,
-                    isPrimary: true,
-                  },
-                ],
-                onCreate: async (values) => {
-                  const result = await createTopic(values);
-                  await queryClient.invalidateQueries({
-                    queryKey: ["topics"],
-                  });
-                  return result.id;
-                },
-              }}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="courseProviderId">
-          {field => (
-            <field.ComboboxField
-              label="Provider"
-              options={providerOptions}
-              placeholder="Search providers..."
-              create={{
-                itemLabel: "provider",
-                fields: [
-                  {
-                    name: "name",
-                    label: "Name",
-                    required: true,
-                    isPrimary: true,
-                  },
-                  {
-                    name: "url",
-                    label: "URL",
-                    required: true,
-                    type: "url",
-                    placeholder: "https://...",
-                  },
-                ],
-                onCreate: async (values) => {
-                  const result = await createProvider(values);
-                  await queryClient.invalidateQueries({
-                    queryKey: ["providers"],
-                  });
-                  return result.id;
-                },
-              }}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="status">
-          {field => (
-            <field.RadioGroupField
-              label="Status"
-              options={[
-                {
-                  value: "active",
-                  label: "active",
-                },
-                {
-                  value: "inactive",
-                  label: "inactive",
-                },
-                {
-                  value: "complete",
-                  label: "complete",
-                },
-              ]}
-            />
-          )}
-        </form.AppField>
-
-        <div className="grid grid-cols-2 gap-4">
-          <form.AppField
-            name="progressCurrent"
-            validators={{
-              onSubmit: ({
-                value,
-                fieldApi,
-              }: {
-                value: number | null;
-                fieldApi: AnyFieldApi;
-              }) => {
-                const total = fieldApi.form.getFieldValue("progressTotal");
-                if (value != null && total != null && value > total) {
-                  return {
-                    message: "Current progress cannot exceed total modules",
-                  };
-                }
-                return undefined;
-              },
-            }}
-          >
+          <form.AppField name="description">
             {field => (
-              <field.NumberField
-                label="Current Progress"
-                min={0}
+              <field.TextareaField
+                label="Description"
+                placeholder="What is this course about?"
               />
             )}
           </form.AppField>
 
-          <form.AppField name="progressTotal">
+          <form.AppField name="url">
+            {field => <field.InputField label="Resource URL" />}
+          </form.AppField>
+
+          <form.AppField name="topicId">
             {field => (
-              <field.NumberField
-                label="Total Modules"
-                min={0}
+              <field.ComboboxField
+                label="Topic"
+                options={topicOptions}
+                placeholder="Search topics..."
+                create={{
+                  itemLabel: "topic",
+                  fields: [
+                    {
+                      name: "name",
+                      label: "Name",
+                      required: true,
+                      isPrimary: true,
+                    },
+                  ],
+                  onCreate: async (values) => {
+                    const result = await createTopic(values);
+                    await queryClient.invalidateQueries({
+                      queryKey: ["topics"],
+                    });
+                    return result.id;
+                  },
+                }}
               />
             )}
           </form.AppField>
-        </div>
 
-        <form.Field name="modulesAreExhaustive">
-          {field => (
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={field.state.value}
-                onChange={e => field.handleChange(e.target.checked)}
-                className="mt-0.5 size-4"
+          <form.AppField name="courseProviderId">
+            {field => (
+              <field.ComboboxField
+                label="Provider"
+                options={providerOptions}
+                placeholder="Search providers..."
+                create={{
+                  itemLabel: "provider",
+                  fields: [
+                    {
+                      name: "name",
+                      label: "Name",
+                      required: true,
+                      isPrimary: true,
+                    },
+                    {
+                      name: "url",
+                      label: "URL",
+                      required: true,
+                      type: "url",
+                      placeholder: "https://...",
+                    },
+                  ],
+                  onCreate: async (values) => {
+                    const result = await createProvider(values);
+                    await queryClient.invalidateQueries({
+                      queryKey: ["providers"],
+                    });
+                    return result.id;
+                  },
+                }}
               />
-              <span className="flex flex-col gap-0.5">
-                <span className="font-medium">Module list is exhaustive</span>
-                <span className="text-xs text-muted-foreground">
-                  When checked, course progress is computed from the count of
-                  completed modules below rather than the manual fields above.
+            )}
+          </form.AppField>
+
+          <form.AppField name="status">
+            {field => (
+              <field.RadioGroupField
+                label="Status"
+                options={[
+                  {
+                    value: "active",
+                    label: "active",
+                  },
+                  {
+                    value: "inactive",
+                    label: "inactive",
+                  },
+                  {
+                    value: "complete",
+                    label: "complete",
+                  },
+                ]}
+              />
+            )}
+          </form.AppField>
+
+          <div className="grid grid-cols-2 gap-4">
+            <form.AppField
+              name="progressCurrent"
+              validators={{
+                onSubmit: ({
+                  value,
+                  fieldApi,
+                }: {
+                  value: number | null;
+                  fieldApi: AnyFieldApi;
+                }) => {
+                  const total = fieldApi.form.getFieldValue("progressTotal");
+                  if (value != null && total != null && value > total) {
+                    return {
+                      message: "Current progress cannot exceed total modules",
+                    };
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {field => (
+                <field.NumberField
+                  label="Current Progress"
+                  min={0}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="progressTotal">
+              {field => (
+                <field.NumberField
+                  label="Total Modules"
+                  min={0}
+                />
+              )}
+            </form.AppField>
+          </div>
+
+          <form.Field name="modulesAreExhaustive">
+            {field => (
+              <label
+                className={cn(
+                  "flex items-start gap-2 text-sm",
+                  !isNew && !field.state.meta.isDefaultValue && changedFieldClass,
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={field.state.value}
+                  onChange={e => field.handleChange(e.target.checked)}
+                  className="mt-0.5 size-4"
+                />
+                <span className="flex flex-col gap-0.5">
+                  <span className="font-medium">Module list is exhaustive</span>
+                  <span className="text-xs text-muted-foreground">
+                    When checked, course progress is computed from the count of
+                    completed modules below rather than the manual fields above.
+                  </span>
                 </span>
-              </span>
-            </label>
-          )}
-        </form.Field>
-
-        <form.AppField name="cost">
-          {field => (
-            <field.NumberField
-              label="Cost ($)"
-              min={0}
-              step="0.01"
-              disabled={isCostFromPlatform}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="dateExpires">
-          {field => <field.DatePickerField label="Expiry Date" />}
-        </form.AppField>
-
-        <fieldset
-          className="flex flex-col gap-3 rounded-md border border-border/60 p-3"
-        >
-          <legend className="px-1 text-xs font-medium text-muted-foreground">
-            Effort & Engagement
-          </legend>
-          <form.Field name="easeOfStarting">
-            {field => (
-              <LevelSelectRow
-                label="Ease of Starting"
-                value={field.state.value as LevelValue}
-                onChange={v => field.handleChange(v)}
-              />
+              </label>
             )}
           </form.Field>
-          <form.Field name="timeNeeded">
+
+          <form.AppField name="cost">
             {field => (
-              <LevelSelectRow
-                label="Time Needed"
-                value={field.state.value as LevelValue}
-                onChange={v => field.handleChange(v)}
+              <field.NumberField
+                label="Cost ($)"
+                min={0}
+                step="0.01"
+                disabled={isCostFromPlatform}
               />
             )}
-          </form.Field>
-          <form.Field name="interactivity">
-            {field => (
-              <LevelSelectRow
-                label="Interactivity"
-                value={field.state.value as LevelValue}
-                onChange={v => field.handleChange(v)}
-              />
-            )}
-          </form.Field>
-        </fieldset>
+          </form.AppField>
 
-        <form.AppField name="tagIds">
-          {field => (
-            <field.MultiComboboxField
-              label="Tags"
-              options={tagOptions}
-              placeholder="Pick tags..."
-              groupByPrefix
-            />
-          )}
-        </form.AppField>
+          <form.AppField name="dateExpires">
+            {field => <field.DatePickerField label="Expiry Date" />}
+          </form.AppField>
 
-        <EditPageFooter
-          isNew={isNew}
-          onDelete={handleDelete}
-          deleteLabel="Delete Resource"
-          onDuplicate={handleDuplicate}
-          duplicateLabel="Duplicate Resource"
-        >
-          <Button
-            type="submit"
-            disabled={isSubmitting}
+          <fieldset
+            className="
+              flex flex-col gap-3 rounded-md border border-border/60 p-3
+            "
           >
-            {isSubmitting && <Loader2 className="animate-spin" />}
-            {isNew ? "Create Resource" : "Save Changes"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              if (isNew) {
-                navigate({
-                  to: "/resources",
-                });
-              }
-              else {
-                navigate({
-                  to: "/resources/$id",
-                  params: {
-                    id,
-                  },
-                });
-              }
-            }}
+            <legend className="px-1 text-xs font-medium text-muted-foreground">
+              Effort & Engagement
+            </legend>
+            <form.Field name="easeOfStarting">
+              {field => (
+                <LevelSelectRow
+                  label="Ease of Starting"
+                  value={field.state.value as LevelValue}
+                  onChange={v => field.handleChange(v)}
+                  changed={!isNew && !field.state.meta.isDefaultValue}
+                />
+              )}
+            </form.Field>
+            <form.Field name="timeNeeded">
+              {field => (
+                <LevelSelectRow
+                  label="Time Needed"
+                  value={field.state.value as LevelValue}
+                  onChange={v => field.handleChange(v)}
+                  changed={!isNew && !field.state.meta.isDefaultValue}
+                />
+              )}
+            </form.Field>
+            <form.Field name="interactivity">
+              {field => (
+                <LevelSelectRow
+                  label="Interactivity"
+                  value={field.state.value as LevelValue}
+                  onChange={v => field.handleChange(v)}
+                  changed={!isNew && !field.state.meta.isDefaultValue}
+                />
+              )}
+            </form.Field>
+          </fieldset>
+
+          <form.AppField name="tagIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Tags"
+                options={tagOptions}
+                placeholder="Pick tags..."
+                groupByPrefix
+              />
+            )}
+          </form.AppField>
+
+          <EditPageFooter
+            isNew={isNew}
+            onDelete={handleDelete}
+            deleteLabel="Delete Resource"
+            onDuplicate={handleDuplicate}
+            duplicateLabel="Duplicate Resource"
           >
-            Cancel
-          </Button>
-        </EditPageFooter>
-      </form>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting && <Loader2 className="animate-spin" />}
+              {isNew ? "Create Resource" : "Save Changes"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (isNew) {
+                  navigate({
+                    to: "/resources",
+                  });
+                }
+                else {
+                  navigate({
+                    to: "/resources/$id",
+                    params: {
+                      id,
+                    },
+                  });
+                }
+              }}
+            >
+              Cancel
+            </Button>
+          </EditPageFooter>
+        </form>
+      </FieldChangeHighlightProvider>
       <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
     </div>
   );

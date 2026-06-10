@@ -1,5 +1,7 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/input";
+import { cn } from "@/lib/utils";
+import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface NumberFieldProps {
@@ -20,9 +22,13 @@ export function NumberField({
   const {
     field, isInvalid,
   } = useIsFieldInvalid<number | null>();
+  const showChanged = useFieldChangeHighlight();
 
   return (
-    <Field data-invalid={isInvalid}>
+    <Field
+      data-invalid={isInvalid}
+      className={cn(showChanged && changedFieldClass)}
+    >
       <FieldLabel
         htmlFor={field.name}
         className={className}

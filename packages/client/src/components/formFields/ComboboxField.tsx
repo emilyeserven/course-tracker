@@ -15,6 +15,8 @@ import {
 } from "@/components/combobox";
 import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
+import { cn } from "@/lib/utils";
+import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface ComboboxFieldProps {
@@ -38,6 +40,7 @@ export function ComboboxField({
   const {
     field, isInvalid,
   } = useIsFieldInvalid<string>();
+  const showChanged = useFieldChangeHighlight();
 
   const [inputValue, setInputValue] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -76,7 +79,10 @@ export function ComboboxField({
   }
 
   return (
-    <Field data-invalid={isInvalid}>
+    <Field
+      data-invalid={isInvalid}
+      className={cn(showChanged && changedFieldClass)}
+    >
       <FieldLabel className={className}>{label}</FieldLabel>
       <Combobox
         items={options.map(o => o.value)}

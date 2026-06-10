@@ -5,6 +5,7 @@ import { Field, FieldLabel } from "@/components/forms/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useFieldContext } from "@/utils/fieldContext";
 
 interface DatePickerFieldProps {
@@ -21,9 +22,10 @@ export function DatePickerField({
   className,
 }: DatePickerFieldProps) {
   const field = useFieldContext<Date | null>();
+  const showChanged = useFieldChangeHighlight();
 
   return (
-    <Field>
+    <Field className={cn(showChanged && changedFieldClass)}>
       <FieldLabel className={className}>{label}</FieldLabel>
       <Popover>
         <PopoverTrigger asChild>
