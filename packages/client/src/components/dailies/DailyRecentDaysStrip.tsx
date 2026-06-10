@@ -43,7 +43,10 @@ export function DailyRecentDaysStrip({
   return (
     <div
       className={cn(
-        "flex flex-row items-start overflow-x-auto py-1 [scrollbar-width:thin]",
+        `
+          flex flex-row items-start overflow-x-auto px-2 py-1
+          [scrollbar-width:thin]
+        `,
         className,
       )}
     >

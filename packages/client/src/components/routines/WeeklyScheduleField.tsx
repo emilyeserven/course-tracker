@@ -53,6 +53,7 @@ export function WeeklyScheduleField({
             day,
             type: "" as WeeklyRowType,
             id: "",
+            notes: "",
           };
           const itemOptions
             = row.type === "task"
@@ -66,83 +67,102 @@ export function WeeklyScheduleField({
             <li
               key={day}
               className="
-                grid grid-cols-[110px_140px_1fr] items-center gap-2 rounded-md
-                border bg-background px-2 py-1.5
+                flex flex-col gap-1.5 rounded-md border bg-background px-2
+                py-1.5
               "
             >
-              <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
-
-              <select
-                aria-label={`${DAY_LABELS[day]} type`}
-                value={row.type}
-                onChange={(e) => {
-                  // Changing the type clears the chosen item (different
-                  // option set).
-                  update(day, {
-                    type: e.target.value as WeeklyRowType,
-                    id: "",
-                  });
-                }}
-                className="
-                  flex h-9 w-full rounded-md border bg-background px-2 text-sm
-                "
+              <div
+                className="grid grid-cols-[110px_140px_1fr] items-center gap-2"
               >
-                <option value="">— None —</option>
-                <option value="task">Task</option>
-                <option value="resource">Resource</option>
-                <option value="freeform">Freeform</option>
-              </select>
+                <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
 
-              {row.type === "freeform"
-                ? (
-                  <input
-                    aria-label={`${DAY_LABELS[day]} description`}
-                    value={row.id}
-                    onChange={e => update(day, {
-                      id: e.target.value,
-                    })}
-                    placeholder="Describe the activity…"
-                    className="
-                      flex h-9 w-full rounded-md border bg-background px-2
-                      text-sm
-                    "
-                  />
-                )
-                : (
-                  <Combobox
-                    items={itemOptions.map(o => o.value)}
-                    value={row.id || null}
-                    onValueChange={val => update(day, {
-                      id: val ?? "",
-                    })}
-                    itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-                  >
-                    <ComboboxInput
-                      placeholder={
-                        row.type === "task"
-                          ? "Search tasks..."
-                          : row.type === "resource"
-                            ? "Search resources..."
-                            : "Pick a type first"
-                      }
-                      showClear
-                      disabled={!row.type}
+                <select
+                  aria-label={`${DAY_LABELS[day]} type`}
+                  value={row.type}
+                  onChange={(e) => {
+                    // Changing the type clears the chosen item (different
+                    // option set) and any note.
+                    update(day, {
+                      type: e.target.value as WeeklyRowType,
+                      id: "",
+                      notes: "",
+                    });
+                  }}
+                  className="
+                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  "
+                >
+                  <option value="">— None —</option>
+                  <option value="task">Task</option>
+                  <option value="resource">Resource</option>
+                  <option value="freeform">Freeform</option>
+                </select>
+
+                {row.type === "freeform"
+                  ? (
+                    <input
+                      aria-label={`${DAY_LABELS[day]} description`}
+                      value={row.id}
+                      onChange={e => update(day, {
+                        id: e.target.value,
+                      })}
+                      placeholder="Describe the activity…"
+                      className="
+                        flex h-9 w-full rounded-md border bg-background px-2
+                        text-sm
+                      "
                     />
-                    <ComboboxContent>
-                      <ComboboxEmpty>No items found.</ComboboxEmpty>
-                      <ComboboxList>
-                        {(val: string) => (
-                          <ComboboxItem
-                            key={val}
-                            value={val}
-                          >
-                            {optionsMap.get(val) ?? val}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
-                )}
+                  )
+                  : (
+                    <Combobox
+                      items={itemOptions.map(o => o.value)}
+                      value={row.id || null}
+                      onValueChange={val => update(day, {
+                        id: val ?? "",
+                      })}
+                      itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+                    >
+                      <ComboboxInput
+                        placeholder={
+                          row.type === "task"
+                            ? "Search tasks..."
+                            : row.type === "resource"
+                              ? "Search resources..."
+                              : "Pick a type first"
+                        }
+                        showClear
+                        disabled={!row.type}
+                      />
+                      <ComboboxContent>
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                          {(val: string) => (
+                            <ComboboxItem
+                              key={val}
+                              value={val}
+                            >
+                              {optionsMap.get(val) ?? val}
+                            </ComboboxItem>
+                          )}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
+                  )}
+              </div>
+
+              {row.type !== "" && (
+                <input
+                  aria-label={`${DAY_LABELS[day]} notes`}
+                  value={row.notes}
+                  onChange={e => update(day, {
+                    notes: e.target.value,
+                  })}
+                  placeholder="Notes (optional)…"
+                  className="
+                    flex h-9 w-full rounded-md border bg-background px-2 text-sm
+                  "
+                />
+              )}
             </li>
           );
         })}

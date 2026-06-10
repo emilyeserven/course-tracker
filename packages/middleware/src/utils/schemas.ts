@@ -60,6 +60,7 @@ export const routineReferenceItemSchema = {
     id: {
       type: "string",
     },
+    notes: nullableString,
   },
 } as const;
 

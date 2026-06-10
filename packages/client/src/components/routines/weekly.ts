@@ -7,6 +7,8 @@ export interface WeeklyRow {
   // "" = no entry scheduled for this day.
   type: WeeklyRowType;
   id: string;
+  // Optional free-text note for this day's item. "" = no note.
+  notes: string;
 }
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
@@ -36,6 +38,7 @@ export function weeklyToRows(
       day,
       type: entry?.type ?? "",
       id: entry?.id ?? "",
+      notes: entry?.notes ?? "",
     };
   });
 }
@@ -49,6 +52,12 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
       weekly[row.day] = {
         type: row.type,
         id: row.id,
+        // Only persist a note when present, keeping the stored JSON clean.
+        ...(row.notes
+          ? {
+            notes: row.notes,
+          }
+          : {}),
       };
     }
   }
@@ -61,26 +70,31 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
 export function representativeRow(rows: WeeklyRow[]): {
   type: WeeklyRowType;
   id: string;
+  notes: string;
 } {
   const found = rows.find(r => r.type !== "" && r.id);
   return found
     ? {
       type: found.type,
       id: found.id,
+      notes: found.notes,
     }
     : {
       type: "",
       id: "",
+      notes: "",
     };
 }
 
 export function fillAllDays(entry: {
   type: WeeklyRowType;
   id: string;
+  notes?: string;
 }): WeeklyRow[] {
   return ALL_DAYS.map(day => ({
     day,
     type: entry.type,
     id: entry.id,
+    notes: entry.notes ?? "",
   }));
 }

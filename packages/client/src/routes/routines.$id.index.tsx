@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
+import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
@@ -19,6 +19,8 @@ import {
   fetchResources,
   fetchSingleRoutine,
   fetchTasks,
+  getCurrentChain,
+  getTotalCompletedDays,
 } from "@/utils";
 
 export const Route = createFileRoute("/routines/$id/")({
@@ -81,38 +83,56 @@ function SingleRoutine() {
   const dailyEntry = isDaily
     ? Object.values(weekly).find(Boolean) ?? null
     : null;
+  const completions = data.completions ?? [];
+  const chain = getCurrentChain({
+    completions,
+  });
+  const total = getTotalCompletedDays({
+    completions,
+  });
 
   function renderEntryLink(entry: { type: string;
-    id: string; }) {
-    if (entry.type === "freeform") {
-      return (
+    id: string;
+    notes?: string | null; }) {
+    const main = entry.type === "freeform"
+      ? (
         <span className="text-sm">
           <span className="mr-2 text-xs text-muted-foreground uppercase">
             freeform
           </span>
           {entry.id}
         </span>
+      )
+      : (
+        <Link
+          to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
+          params={{
+            id: entry.id,
+          }}
+          className="
+            text-blue-800
+            hover:text-blue-600
+            dark:text-blue-300
+          "
+        >
+          <span className="mr-2 text-xs text-muted-foreground uppercase">
+            {entry.type}
+          </span>
+          {entry.type === "task"
+            ? (taskNames.get(entry.id) ?? entry.id)
+            : (resourceNames.get(entry.id) ?? entry.id)}
+        </Link>
       );
+
+    if (!entry.notes) {
+      return main;
     }
+
     return (
-      <Link
-        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-        params={{
-          id: entry.id,
-        }}
-        className="
-          text-blue-800
-          hover:text-blue-600
-          dark:text-blue-300
-        "
-      >
-        <span className="mr-2 text-xs text-muted-foreground uppercase">
-          {entry.type}
-        </span>
-        {entry.type === "task"
-          ? (taskNames.get(entry.id) ?? entry.id)
-          : (resourceNames.get(entry.id) ?? entry.id)}
-      </Link>
+      <span className="flex flex-col gap-0.5">
+        {main}
+        <span className="text-sm text-muted-foreground">{entry.notes}</span>
+      </span>
     );
   }
 
@@ -136,19 +156,61 @@ function SingleRoutine() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-12">
-        <InfoArea
-          header="Type"
-          condition={true}
+        <div
+          className="
+            grid grid-cols-1 gap-12
+            md:grid-cols-4
+          "
         >
-          <span
-            className="
-              inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs
-              font-medium
-            "
+          <InfoArea
+            header="Type"
+            condition={true}
           >
-            {isDaily ? "Daily Task" : "Weekly Schedule"}
-          </span>
-        </InfoArea>
+            <span
+              className="
+                inline-flex items-center rounded-full border px-2.5 py-0.5
+                text-xs font-medium
+              "
+            >
+              {isDaily ? "Daily Task" : "Weekly Schedule"}
+            </span>
+          </InfoArea>
+          <InfoArea
+            header="Status"
+            condition={true}
+          >
+            <span className="capitalize">{data.status ?? "active"}</span>
+          </InfoArea>
+          <div className="md:col-span-2">
+            <InfoArea
+              header="Stats"
+              condition={true}
+            >
+              <div className="flex flex-row flex-wrap gap-6 text-sm">
+                <span className="inline-flex items-center gap-1">
+                  <FlameIcon
+                    size={16}
+                    className={chain > 0
+                      ? "text-orange-600"
+                      : "text-muted-foreground"}
+                  />
+                  <strong>{chain}</strong>
+                  <span className="text-muted-foreground">day chain</span>
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <LaughIcon
+                    size={16}
+                    className={total > 0
+                      ? "text-emerald-600"
+                      : "text-muted-foreground"}
+                  />
+                  <strong>{total}</strong>
+                  <span className="text-muted-foreground">total days</span>
+                </span>
+              </div>
+            </InfoArea>
+          </div>
+        </div>
         <InfoArea
           header="Connected To"
           condition={(data.connections?.length ?? 0) > 0}
@@ -173,12 +235,6 @@ function SingleRoutine() {
               </li>
             ))}
           </ul>
-        </InfoArea>
-        <InfoArea
-          header="Status"
-          condition={true}
-        >
-          <span className="capitalize">{data.status ?? "active"}</span>
         </InfoArea>
         {isDaily
           ? (
