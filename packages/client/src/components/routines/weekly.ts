@@ -9,6 +9,8 @@ export interface WeeklyRow {
   id: string;
   // Optional free-text note for this day's item. "" = no note.
   notes: string;
+  // Optional place/link where this day's item happens. "" = no location.
+  location: string;
   // Optional text wrapped around the item's name to form an actionable
   // sentence. "" = nothing to prepend/append.
   prependText: string;
@@ -43,6 +45,7 @@ export function weeklyToRows(
       type: entry?.type ?? "",
       id: entry?.id ?? "",
       notes: entry?.notes ?? "",
+      location: entry?.location ?? "",
       prependText: entry?.prependText ?? "",
       appendText: entry?.appendText ?? "",
     };
@@ -62,6 +65,11 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
         ...(row.notes
           ? {
             notes: row.notes,
+          }
+          : {}),
+        ...(row.location
+          ? {
+            location: row.location,
           }
           : {}),
         ...(row.prependText
@@ -90,6 +98,7 @@ export function representativeRow(rows: WeeklyRow[]): {
   type: WeeklyRowType;
   id: string;
   notes: string;
+  location: string;
   prependText: string;
   appendText: string;
 } {
@@ -99,6 +108,7 @@ export function representativeRow(rows: WeeklyRow[]): {
       type: found.type,
       id: found.id,
       notes: found.notes,
+      location: found.location,
       prependText: found.prependText,
       appendText: found.appendText,
     }
@@ -106,6 +116,7 @@ export function representativeRow(rows: WeeklyRow[]): {
       type: "",
       id: "",
       notes: "",
+      location: "",
       prependText: "",
       appendText: "",
     };
@@ -115,6 +126,7 @@ export function fillAllDays(entry: {
   type: WeeklyRowType;
   id: string;
   notes?: string;
+  location?: string;
   prependText?: string;
   appendText?: string;
 }): WeeklyRow[] {
@@ -123,6 +135,7 @@ export function fillAllDays(entry: {
     type: entry.type,
     id: entry.id,
     notes: entry.notes ?? "",
+    location: entry.location ?? "",
     prependText: entry.prependText ?? "",
     appendText: entry.appendText ?? "",
   }));

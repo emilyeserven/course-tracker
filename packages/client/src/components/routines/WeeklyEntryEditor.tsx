@@ -22,6 +22,7 @@ interface EntryValue {
   type: WeeklyRowType;
   id: string;
   notes: string;
+  location: string;
   prependText: string;
   appendText: string;
 }
@@ -40,6 +41,7 @@ export function WeeklyEntryEditor({
   type,
   id,
   notes,
+  location,
   prependText,
   appendText,
   onChange,
@@ -62,6 +64,7 @@ export function WeeklyEntryEditor({
       type,
       id,
       notes,
+      location,
       prependText,
       appendText,
       ...patch,
@@ -89,11 +92,12 @@ export function WeeklyEntryEditor({
           value={type}
           onChange={e =>
             // Changing the type clears the chosen item (different option set)
-            // and any note/prepend/append.
+            // and any note/location/prepend/append.
             emit({
               type: e.target.value as WeeklyRowType,
               id: "",
               notes: "",
+              location: "",
               prependText: "",
               appendText: "",
             })}
@@ -170,6 +174,18 @@ export function WeeklyEntryEditor({
                 notes: e.target.value,
               })}
             placeholder="Notes (optional)…"
+            className="
+              flex h-9 w-full rounded-md border bg-background px-2 text-sm
+            "
+          />
+          <input
+            aria-label="Daily task location"
+            value={location}
+            onChange={e =>
+              emit({
+                location: e.target.value,
+              })}
+            placeholder="Location (e.g. gym, Spanish app, or a URL)…"
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "

@@ -25,6 +25,7 @@ export interface RoutineReferenceItem {
   type: "task" | "resource" | "freeform";
   id: string;
   notes?: string | null;
+  location?: string | null;
 }
 
 export type RoutineWeekly = Partial<Record<RoutineWeekday, RoutineReferenceItem>>;
@@ -242,9 +243,6 @@ export const routines = pgTable("routines", {
   status: statusEnum().default("active"),
   weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
   mode: routineModeEnum().default("weekly").notNull(),
-  location: varchar({
-    length: 255,
-  }),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });

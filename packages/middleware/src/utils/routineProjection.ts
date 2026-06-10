@@ -58,7 +58,6 @@ export interface RoutineRow {
   status: EntityStatus | null;
   weekly: RoutineWeekly | null;
   mode: RoutineMode;
-  location: string | null;
   completions: DailyCompletion[];
   criteria: DailyCriteria;
   connections?: RoutineConnection[];
@@ -81,10 +80,14 @@ export function mapRoutineToDaily(
   resolved: { task?: ResolvedTask | null;
     resource?: ResolvedResource | null; } = {},
 ): RoutineDaily {
+  // The representative entry carries the per-item location (daily mode mirrors
+  // the same entry on every day) and the prepend/append text below.
+  const entry = representativeEntry(routine.weekly);
+
   const daily = mapDaily({
     id: routine.id,
     name: routine.name,
-    location: routine.location,
+    location: entry?.location ?? null,
     description: routine.description,
     completions: routine.completions ?? [],
     status: routine.status,
@@ -100,7 +103,6 @@ export function mapRoutineToDaily(
   // Wrap the representative entry's name with its prepend/append text into a
   // natural sentence. Only set when the user actually added prepend/append text,
   // so untouched dailies keep falling back to the routine name.
-  const entry = representativeEntry(routine.weekly);
   const baseName
     = resolved.resource?.name
       ?? resolved.task?.name

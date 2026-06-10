@@ -27,6 +27,9 @@ export interface RoutineReferenceItem {
   // Optional free-text annotation for this day's scheduled item (e.g. "focus
   // on the subjunctive"). Empty/absent means no note.
   notes?: string | null;
+  // Optional place/link where this day's item happens (e.g. "gym", "Spanish
+  // app", or a URL). Empty/absent means no location.
+  location?: string | null;
   // Optional text wrapped around the item's name to form a natural, actionable
   // sentence (e.g. prepend "Review" / append "for 10 minutes"). Empty/absent
   // means the name stands alone.
@@ -48,7 +51,6 @@ export interface Routine {
   status?: EntityStatus | null;
   weekly?: RoutineWeekly | null;
   mode?: RoutineMode | null;
-  location?: string | null;
   completions?: DailyCompletion[] | null;
   criteria?: DailyCriteria | null;
 }

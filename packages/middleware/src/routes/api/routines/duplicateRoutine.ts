@@ -45,7 +45,6 @@ export default async function (server: FastifyInstance) {
         status: "inactive",
         weekly: source.weekly ?? {},
         mode: source.mode,
-        location: source.location ?? null,
         completions: [],
         criteria: source.criteria ?? {},
       });
