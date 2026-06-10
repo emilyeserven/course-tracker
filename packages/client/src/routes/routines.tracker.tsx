@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
+  ActionableSentence,
   DailiesActiveListView,
   DailiesLimitSetting,
   DailiesViewModeToggle,
@@ -434,7 +435,11 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.actionLabel ?? daily.name}
+                              <ActionableSentence
+                                prependText={daily.actionParts?.prependText}
+                                appendText={daily.actionParts?.appendText}
+                                name={daily.actionParts?.name ?? daily.name}
+                              />
                             </Link>
                           </td>
                           <td className="p-2">
@@ -604,7 +609,11 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.actionLabel ?? daily.name}
+                              <ActionableSentence
+                                prependText={daily.actionParts?.prependText}
+                                appendText={daily.actionParts?.appendText}
+                                name={daily.actionParts?.name ?? daily.name}
+                              />
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
@@ -669,7 +678,11 @@ function DailyTracker() {
                                 hover:text-blue-600
                               "
                             >
-                              {daily.actionLabel ?? daily.name}
+                              <ActionableSentence
+                                prependText={daily.actionParts?.prependText}
+                                appendText={daily.actionParts?.appendText}
+                                name={daily.actionParts?.name ?? daily.name}
+                              />
                             </Link>
                             <DailyCourseIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
