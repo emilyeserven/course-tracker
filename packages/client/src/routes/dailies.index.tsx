@@ -34,6 +34,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { cn } from "@/lib/utils";
 import {
   fetchResources,
@@ -267,6 +268,7 @@ function Dailies() {
       <PageHeader
         pageTitle="Dailies"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.dailies}
       >
         <Link
           to="/dailies/$id/edit"
