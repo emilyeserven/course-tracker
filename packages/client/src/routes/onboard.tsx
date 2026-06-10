@@ -148,6 +148,8 @@ function Onboard() {
                           <field.InputField
                             label={`Topic ${i + 1}`}
                             placeholder="Memes"
+                            className="text-2xl"
+                            fieldClassName="h-11 md:text-xl"
                           />
                         )}
                       </form.AppField>

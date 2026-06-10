@@ -12,7 +12,7 @@ interface NumberFieldProps {
 
 export function NumberField({
   label,
-  className = "text-2xl",
+  className,
   min,
   step,
   disabled,

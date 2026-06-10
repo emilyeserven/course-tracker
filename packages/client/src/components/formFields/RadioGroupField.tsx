@@ -14,7 +14,7 @@ interface RadioGroupFieldProps {
 export function RadioGroupField({
   label,
   options,
-  className = "text-2xl",
+  className,
   labelClassName = "capitalize",
 }: RadioGroupFieldProps) {
   const field = useFieldContext<string>();

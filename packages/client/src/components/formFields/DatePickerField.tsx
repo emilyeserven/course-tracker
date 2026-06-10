@@ -18,7 +18,7 @@ export function DatePickerField({
   label,
   placeholder = "No expiry date",
   clearLabel = "Clear date",
-  className = "text-2xl",
+  className,
 }: DatePickerFieldProps) {
   const field = useFieldContext<Date | null>();
 
