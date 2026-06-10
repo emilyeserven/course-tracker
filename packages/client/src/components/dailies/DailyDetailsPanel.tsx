@@ -1,3 +1,5 @@
+import type { DailyDetailTab } from "./dailyStatusMeta";
+
 import { useQuery } from "@tanstack/react-query";
 
 import { DailyCompletionsManager } from "./DailyCompletionsManager";
@@ -16,11 +18,24 @@ interface DailyDetailsPanelProps {
   dailyId: string;
   /** Extra content rendered at the top of the Details tab. */
   detailsContent?: React.ReactNode;
+  /**
+   * Active tab. When provided together with `onTabChange`, the panel is
+   * controlled (e.g. driven by a URL search param); otherwise it manages its
+   * own tab state, defaulting to "details".
+   */
+  tab?: DailyDetailTab;
+  /** Called with the next tab when the user selects a different tab. */
+  onTabChange?: (tab: DailyDetailTab) => void;
+  /** Rendered under the empty state of the Status Criteria tab. */
+  criteriaEmptyAction?: React.ReactNode;
 }
 
 export function DailyDetailsPanel({
   dailyId,
   detailsContent,
+  tab,
+  onTabChange,
+  criteriaEmptyAction,
 }: DailyDetailsPanelProps) {
   const {
     isPending, error, data,
@@ -75,8 +90,19 @@ export function DailyDetailsPanel({
   ];
   const visibleCriteria = criteriaLabels.filter(c => !!criteria[c.key]);
 
+  // Controlled only when both `tab` and `onTabChange` are supplied, so the
+  // panel never passes Radix both `value` and `defaultValue` at once.
+  const tabsProps = tab !== undefined && onTabChange !== undefined
+    ? {
+      value: tab,
+      onValueChange: (v: string) => onTabChange(v as DailyDetailTab),
+    }
+    : {
+      defaultValue: "details" as const,
+    };
+
   return (
-    <Tabs defaultValue="details">
+    <Tabs {...tabsProps}>
       <TabsList>
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="entries">
@@ -157,9 +183,12 @@ export function DailyDetailsPanel({
             </dl>
           )
           : (
-            <p className="text-sm text-muted-foreground">
-              <i>No status criteria defined.</i>
-            </p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-sm text-muted-foreground">
+                <i>No status criteria defined.</i>
+              </p>
+              {criteriaEmptyAction}
+            </div>
           )}
       </TabsContent>
     </Tabs>

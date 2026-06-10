@@ -1,12 +1,15 @@
+import type { DailyDetailTab } from "@/components/dailies/dailyStatusMeta";
+
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
+import { DAILY_DETAIL_TABS } from "@/components/dailies/dailyStatusMeta";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -24,8 +27,24 @@ import {
   getTotalCompletedDays,
 } from "@/utils";
 
+interface RoutineViewSearch {
+  tab?: DailyDetailTab;
+}
+
 export const Route = createFileRoute("/routines/$id/")({
   component: SingleRoutine,
+  validateSearch: (search: Record<string, unknown>): RoutineViewSearch => {
+    const value = search.tab;
+    if (
+      typeof value === "string"
+      && (DAILY_DETAIL_TABS as readonly string[]).includes(value)
+    ) {
+      return {
+        tab: value as DailyDetailTab,
+      };
+    }
+    return {};
+  },
 });
 
 function RoutinePending() {
@@ -40,6 +59,23 @@ function SingleRoutine() {
   const {
     id,
   } = Route.useParams();
+
+  const navigate = useNavigate();
+  const search = Route.useSearch();
+  const tab: DailyDetailTab = search.tab ?? "details";
+
+  function changeTab(next: DailyDetailTab) {
+    navigate({
+      to: "/routines/$id",
+      params: {
+        id,
+      },
+      search: {
+        tab: next,
+      },
+      replace: true,
+    });
+  }
 
   const {
     isPending, error, data,
@@ -195,6 +231,28 @@ function SingleRoutine() {
         )}
         <DailyDetailsPanel
           dailyId={id}
+          tab={tab}
+          onTabChange={changeTab}
+          criteriaEmptyAction={(
+            <Link
+              to="/routines/$id/edit"
+              params={{
+                id,
+              }}
+              search={{
+                tab: "criteria",
+              }}
+            >
+              <Button
+                variant="secondary"
+                size="sm"
+              >
+                Add Status Criteria
+                {" "}
+                <EditIcon />
+              </Button>
+            </Link>
+          )}
           detailsContent={(
             <div className="flex flex-col gap-12">
               <div
