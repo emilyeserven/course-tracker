@@ -4,7 +4,11 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { routines } from "@/db/schema";
 import type { RoutineWeekly } from "@/db/schema";
+import type { DailyCompletion, DailyCriteria } from "@emstack/types";
 import {
+  completionSchema,
+  criteriaSchema,
+  nullableRoutineModeEnum,
   nullableRoutineStatusEnum,
   nullableString,
   weeklySchema,
@@ -25,6 +29,13 @@ const createSchema = {
         topicId: nullableString,
         status: nullableRoutineStatusEnum,
         weekly: weeklySchema,
+        mode: nullableRoutineModeEnum,
+        location: nullableString,
+        completions: {
+          type: "array",
+          items: completionSchema,
+        },
+        criteria: criteriaSchema,
       },
     },
   },
@@ -50,6 +61,10 @@ export default async function (server: FastifyInstance) {
           topicId,
           status,
           weekly: (body.weekly ?? {}) as RoutineWeekly,
+          mode: body.mode ?? "weekly",
+          location: body.location ?? null,
+          completions: (body.completions ?? []) as DailyCompletion[],
+          criteria: (body.criteria ?? {}) as DailyCriteria,
         });
 
         // Single-active-per-topic enforcement: a new active routine claims the

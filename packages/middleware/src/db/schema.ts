@@ -44,6 +44,7 @@ export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", 
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
+export const routineModeEnum = pgEnum("routine_mode", ["weekly", "daily"]);
 export const interactionProgressEnum = pgEnum("interaction_progress", ["incomplete", "started", "complete"]);
 export const interactionDifficultyEnum = pgEnum("interaction_difficulty", ["easy", "medium", "hard"]);
 export const interactionUnderstandingEnum = pgEnum("interaction_understanding", ["none", "basic", "comfortable", "proficient", "mastered"]);
@@ -222,9 +223,10 @@ export const dailies = pgTable("dailies", {
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });
 
-// A per-topic weekly plan: each day of the week optionally points at a Task
-// or a Resource to work on. Only one routine per topic should be "active" at a
-// time (enforced in the create/upsert handlers).
+// A per-topic plan that also carries daily completion tracking. In "weekly"
+// mode each day of the week optionally points at a Task or Resource; in "daily"
+// mode the same entry is applied to every day. Only one routine per topic should
+// be "active" at a time (enforced in the create/upsert handlers).
 export const routines = pgTable("routines", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -234,6 +236,12 @@ export const routines = pgTable("routines", {
   topicId: varchar("topic_id"),
   status: statusEnum().default("active"),
   weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
+  mode: routineModeEnum().default("weekly").notNull(),
+  location: varchar({
+    length: 255,
+  }),
+  completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
+  criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
 });
 
 export const dailyCriteriaTemplates = pgTable("daily_criteria_templates", {

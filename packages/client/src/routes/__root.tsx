@@ -122,13 +122,6 @@ const RootComponent: React.FunctionComponent = () => {
           </NavDropdown>
 
           <Link
-            to="/dailies"
-            className={navLinkClass}
-          >
-            Dailies
-          </Link>
-
-          <Link
             to="/tasks"
             className={navLinkClass}
           >
@@ -217,12 +210,6 @@ const RootComponent: React.FunctionComponent = () => {
                   className="cursor-pointer"
                 >
                   <Link to="/domains">Domains</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/dailies">Dailies</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild

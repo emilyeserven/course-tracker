@@ -2,6 +2,7 @@ import { db } from "@/db/index";
 import { resources } from "@/db/schema";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
 import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
+import { migrateDailiesToRoutines } from "./migrateDailiesToRoutines.ts";
 import { migrateIgnoreBlips } from "./migrateIgnoreBlips.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
@@ -57,6 +58,16 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to migrate tasks_to_courses to uuid PK:", err);
+    throw err;
+  }
+
+  // Collapse dailies into daily-mode routines. Runs after the tasks/resources
+  // rename since a daily's representative entry points at those tables.
+  try {
+    await migrateDailiesToRoutines();
+  }
+  catch (err) {
+    console.error("Failed to migrate dailies → routines:", err);
     throw err;
   }
 }

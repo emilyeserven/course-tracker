@@ -1,6 +1,4 @@
 import type {
-  DailyCompletion,
-  DailyStatus,
   ResourceLinkTarget,
   Tag,
   Task,
@@ -68,12 +66,6 @@ interface TaskProjectionRow {
   tasksToResources: TaskResourceJoinRow[];
   resources: TaskResourceRow[];
   todos: TaskTodoRow[];
-  daily: {
-    id: string;
-    name: string;
-    status: DailyStatus | null;
-    completions: DailyCompletion[];
-  } | null;
 }
 
 function mapLinkTarget(t: LinkTargetRow | null): ResourceLinkTarget | null {
@@ -150,13 +142,5 @@ export function mapTask(task: TaskProjectionRow): Task {
         url: t.url ?? null,
         position: t.position,
       })),
-    daily: task.daily
-      ? {
-        id: task.daily.id,
-        name: task.daily.name,
-        status: task.daily.status ?? null,
-        completions: task.daily.completions ?? [],
-      }
-      : null,
   };
 }

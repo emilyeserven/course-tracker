@@ -42,6 +42,13 @@ export const nullableRoutineStatusEnum = {
   enum: ["active", "inactive", "complete", "paused", null],
 } as const;
 
+// Weekly schedule vs. daily task. Both carry completion tracking; the mode only
+// changes how the weekly grid is edited (per-day vs. same entry every day).
+export const nullableRoutineModeEnum = {
+  type: ["string", "null"],
+  enum: ["weekly", "daily", null],
+} as const;
+
 export const routineReferenceItemSchema = {
   type: "object",
   required: ["type", "id"],
@@ -140,6 +147,9 @@ export const criteriaSchema = {
       type: "string",
     },
     exceeded: {
+      type: "string",
+    },
+    freeze: {
       type: "string",
     },
   },

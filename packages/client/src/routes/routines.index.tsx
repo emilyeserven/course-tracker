@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { CalendarCheckIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 
 import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
@@ -50,6 +50,9 @@ function Routines() {
   const [filterTopic, setFilterTopic] = useState<string | undefined>(
     urlSearch.topicId,
   );
+  const [filterMode, setFilterMode] = useState<"weekly" | "daily" | undefined>(
+    undefined,
+  );
 
   const {
     data,
@@ -84,10 +87,15 @@ function Routines() {
       result = result.filter(r => r.topic?.id === filterTopic);
     }
 
-    return result;
-  }, [data, search, filterTopic]);
+    if (filterMode) {
+      // Pre-existing routines default to "weekly" when mode is absent.
+      result = result.filter(r => (r.mode ?? "weekly") === filterMode);
+    }
 
-  const hasActiveFilters = !!filterTopic;
+    return result;
+  }, [data, search, filterTopic, filterMode]);
+
+  const hasActiveFilters = !!filterTopic || !!filterMode;
 
   const routineCountByTopic = useMemo(() => {
     const counts = new Map<string, number>();
@@ -109,6 +117,12 @@ function Routines() {
         pageTitle="Routines"
         pageSection=""
       >
+        <Link to="/routines/tracker">
+          <Button variant="outline">
+            <CalendarCheckIcon className="size-4" />
+            Daily Tracker
+          </Button>
+        </Link>
         <Link
           to="/routines/$id/edit"
           params={{
@@ -179,12 +193,27 @@ function Routines() {
                   ))}
               </SelectContent>
             </Select>
+            <Select
+              value={filterMode ?? "all"}
+              onValueChange={v =>
+                setFilterMode(v === "all" ? undefined : (v as "weekly" | "daily"))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="weekly">Weekly Schedule</SelectItem>
+                <SelectItem value="daily">Daily Task</SelectItem>
+              </SelectContent>
+            </Select>
             {hasActiveFilters && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
                   setFilterTopic(undefined);
+                  setFilterMode(undefined);
                 }}
               >
                 <XIcon className="size-4" />

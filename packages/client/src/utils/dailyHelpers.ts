@@ -24,7 +24,7 @@ export function findStatusForDate(
   return daily.completions.find(c => c.date === dateKey)?.status ?? null;
 }
 
-export function getCurrentChain(daily: Daily, todayKey: string = getTodayKey()): number {
+export function getCurrentChain(daily: Pick<Daily, "completions">, todayKey: string = getTodayKey()): number {
   const completedDates = new Set(
     daily.completions
       .filter(c => c.status && c.status !== "incomplete")
@@ -47,7 +47,7 @@ export function getCurrentChain(daily: Daily, todayKey: string = getTodayKey()):
   return count;
 }
 
-export function getTotalCompletedDays(daily: Daily): number {
+export function getTotalCompletedDays(daily: Pick<Daily, "completions">): number {
   return daily.completions.filter(
     c => c.status && c.status !== "incomplete",
   ).length;

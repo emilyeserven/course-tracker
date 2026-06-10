@@ -114,14 +114,6 @@ export default async function (server: FastifyInstance) {
             },
           },
           todos: true,
-          daily: {
-            columns: {
-              id: true,
-              name: true,
-              status: true,
-              completions: true,
-            },
-          },
         },
       });
 

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
+import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -70,6 +71,44 @@ function SingleRoutine() {
   }
 
   const weekly = data.weekly ?? {};
+  const isDaily = data.mode === "daily";
+  const dailyEntry = isDaily
+    ? Object.values(weekly).find(Boolean) ?? null
+    : null;
+
+  function renderEntryLink(entry: { type: string;
+    id: string; }) {
+    if (entry.type === "freeform") {
+      return (
+        <span className="text-sm">
+          <span className="mr-2 text-xs text-muted-foreground uppercase">
+            freeform
+          </span>
+          {entry.id}
+        </span>
+      );
+    }
+    return (
+      <Link
+        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
+        params={{
+          id: entry.id,
+        }}
+        className="
+          text-blue-800
+          hover:text-blue-600
+          dark:text-blue-300
+        "
+      >
+        <span className="mr-2 text-xs text-muted-foreground uppercase">
+          {entry.type}
+        </span>
+        {entry.type === "task"
+          ? (taskNames.get(entry.id) ?? entry.id)
+          : (resourceNames.get(entry.id) ?? entry.id)}
+      </Link>
+    );
+  }
 
   return (
     <div>
@@ -91,6 +130,19 @@ function SingleRoutine() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-12">
+        <InfoArea
+          header="Type"
+          condition={true}
+        >
+          <span
+            className="
+              inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs
+              font-medium
+            "
+          >
+            {isDaily ? "Daily Task" : "Weekly Schedule"}
+          </span>
+        </InfoArea>
         <InfoArea
           header="Topic"
           condition={!!data.topic}
@@ -115,80 +167,50 @@ function SingleRoutine() {
         >
           <span className="capitalize">{data.status ?? "active"}</span>
         </InfoArea>
-        <InfoArea
-          header="Description"
-          condition={!!data.description}
-        >
-          <p>{data.description}</p>
-        </InfoArea>
-        <InfoArea
-          header="Weekly Schedule"
-          condition={true}
-        >
-          <ul className="flex flex-col gap-1">
-            {DAY_ORDER.map((day) => {
-              const entry = weekly[day];
-              return (
-                <li
-                  key={day}
-                  className="
-                    grid grid-cols-[120px_1fr] items-center gap-2 border-b
-                    border-border/60 py-1
-                  "
-                >
-                  <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
-                  {entry
-                    ? entry.type === "freeform"
-                      ? (
-                        <span className="text-sm">
-                          <span
-                            className="
-                              mr-2 text-xs text-muted-foreground uppercase
-                            "
-                          >
-                            freeform
-                          </span>
-                          {entry.id}
-                        </span>
-                      )
-                      : (
-                        <Link
-                          to={
-                            entry.type === "task"
-                              ? "/tasks/$id"
-                              : "/resources/$id"
-                          }
-                          params={{
-                            id: entry.id,
-                          }}
-                          className="
-                            text-blue-800
-                            hover:text-blue-600
-                            dark:text-blue-300
-                          "
-                        >
-                          <span
-                            className="
-                              mr-2 text-xs text-muted-foreground uppercase
-                            "
-                          >
-                            {entry.type}
-                          </span>
-                          {entry.type === "task"
-                            ? (taskNames.get(entry.id) ?? entry.id)
-                            : (resourceNames.get(entry.id) ?? entry.id)}
-                        </Link>
-                      )
-                    : (
-                      <span className="text-sm text-muted-foreground italic">
-                        Nothing scheduled
+        {isDaily
+          ? (
+            <InfoArea
+              header="Daily Task"
+              condition={!!dailyEntry}
+            >
+              {dailyEntry && renderEntryLink(dailyEntry)}
+            </InfoArea>
+          )
+          : (
+            <InfoArea
+              header="Weekly Schedule"
+              condition={true}
+            >
+              <ul className="flex flex-col gap-1">
+                {DAY_ORDER.map((day) => {
+                  const entry = weekly[day];
+                  return (
+                    <li
+                      key={day}
+                      className="
+                        grid grid-cols-[120px_1fr] items-center gap-2 border-b
+                        border-border/60 py-1
+                      "
+                    >
+                      <span className="text-sm font-medium">
+                        {DAY_LABELS[day]}
                       </span>
-                    )}
-                </li>
-              );
-            })}
-          </ul>
-        </InfoArea>
+                      {entry
+                        ? renderEntryLink(entry)
+                        : (
+                          <span
+                            className="text-sm text-muted-foreground italic"
+                          >
+                            Nothing scheduled
+                          </span>
+                        )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </InfoArea>
+          )}
+        <DailyDetailsPanel dailyId={id} />
       </div>
     </div>
   );

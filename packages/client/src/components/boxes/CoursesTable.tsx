@@ -1,8 +1,6 @@
 import type { ResourceInResources } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import {
-  CalendarCheckIcon,
   ExternalLink,
 } from "lucide-react";
 
@@ -55,7 +53,6 @@ export function CoursesTable({
             <TableHead className="whitespace-nowrap">Name</TableHead>
             <TableHead className="whitespace-nowrap">Provider</TableHead>
             <TableHead className="whitespace-nowrap">Topics</TableHead>
-            <TableHead className="whitespace-nowrap">Daily</TableHead>
             <TableHead className="whitespace-nowrap">Progress</TableHead>
             <TableHead className="whitespace-nowrap">Cost</TableHead>
             <TableHead className="whitespace-nowrap">Expires</TableHead>
@@ -103,29 +100,6 @@ export function CoursesTable({
                       topics={course.topics}
                       isPills={false}
                     />
-                  )
-                  : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {course.dailies && course.dailies.length > 0
-                  ? (
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      asChild
-                      title={`Open Daily: ${course.dailies[0].name}`}
-                    >
-                      <Link
-                        to="/dailies/$id"
-                        params={{
-                          id: course.dailies[0].id,
-                        }}
-                      >
-                        <CalendarCheckIcon />
-                      </Link>
-                    </Button>
                   )
                   : (
                     <span className="text-muted-foreground">—</span>

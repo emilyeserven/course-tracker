@@ -3,7 +3,6 @@ import type { Task } from "@emstack/types/src";
 import { Link } from "@tanstack/react-router";
 import {
   CheckSquareIcon,
-  CalendarCheckIcon,
 } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
@@ -17,7 +16,6 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
-import { Button } from "@/components/ui/button";
 
 export function TaskBox({
   id,
@@ -25,7 +23,6 @@ export function TaskBox({
   description,
   topic,
   resources,
-  daily,
 }: Task) {
   const totalResources = resources?.length ?? 0;
   const usedResources = resources?.filter(r => r.usedYet).length ?? 0;
@@ -54,23 +51,6 @@ export function TaskBox({
                 </span>
               )}
           </div>
-          {daily && (
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              asChild
-              title={`Open Daily: ${daily.name}`}
-            >
-              <Link
-                to="/dailies/$id"
-                params={{
-                  id: daily.id,
-                }}
-              >
-                <CalendarCheckIcon />
-              </Link>
-            </Button>
-          )}
         </ContentBoxHeaderBar>
         <ContentBoxTitle>
           <h3 className="text-xl">

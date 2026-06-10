@@ -36,7 +36,8 @@ export default async function (server: FastifyInstance) {
 
       const newId = uuidv4();
       // The copy starts "inactive" so duplicating never silently steals the
-      // topic's single active slot.
+      // topic's single active slot, and with an empty completion log so the new
+      // routine begins its own tracking history.
       await db.insert(routines).values({
         id: newId,
         name: `${source.name} (Copy)`,
@@ -44,6 +45,10 @@ export default async function (server: FastifyInstance) {
         topicId: source.topicId ?? null,
         status: "inactive",
         weekly: source.weekly ?? {},
+        mode: source.mode,
+        location: source.location ?? null,
+        completions: [],
+        criteria: source.criteria ?? {},
       });
 
       return {
