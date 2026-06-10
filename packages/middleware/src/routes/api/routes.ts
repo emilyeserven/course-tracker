@@ -18,6 +18,7 @@ import moduleGroups from "./module-groups/routes";
 import modules from "./modules/routes";
 import interactions from "./interactions/routes";
 import dailyCriteriaTemplates from "./daily-criteria-templates/routes";
+import routineTemplates from "./routine-templates/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -66,5 +67,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(dailyCriteriaTemplates, {
     prefix: "/daily-criteria-templates",
+  });
+  fastify.register(routineTemplates, {
+    prefix: "/routine-templates",
   });
 }

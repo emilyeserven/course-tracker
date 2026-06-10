@@ -11,6 +11,7 @@ import type {
   ModuleGroup,
   Radar,
   Routine,
+  RoutineTemplate,
   Tag,
   TagGroup,
   Task,
@@ -180,6 +181,10 @@ export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplat
   "daily-criteria-templates",
   "criteria template",
 );
+export const routineTemplatesApi = createEntityClient<RoutineTemplate>(
+  "routine-templates",
+  "routine template",
+);
 
 export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
@@ -195,6 +200,7 @@ export const fetchModuleGroups = moduleGroupsApi.list;
 export const fetchModules = modulesApi.list;
 export const fetchInteractions = interactionsApi.list;
 export const fetchDailyCriteriaTemplates = dailyCriteriaTemplatesApi.list;
+export const fetchRoutineTemplates = routineTemplatesApi.list;
 
 export const fetchSingleResource = resourcesApi.get;
 export const fetchSingleTopic = topicsApi.get;
@@ -218,6 +224,7 @@ export const upsertModuleGroup = moduleGroupsApi.upsert;
 export const upsertModule = modulesApi.upsert;
 export const upsertInteraction = interactionsApi.upsert;
 export const upsertDailyCriteriaTemplate = dailyCriteriaTemplatesApi.upsert;
+export const upsertRoutineTemplate = routineTemplatesApi.upsert;
 
 export const createTopic = topicsApi.create;
 export const createProvider = providersApi.create;
@@ -232,6 +239,7 @@ export const createModuleGroup = moduleGroupsApi.create;
 export const createModule = modulesApi.create;
 export const createInteraction = interactionsApi.create;
 export const createDailyCriteriaTemplate = dailyCriteriaTemplatesApi.create;
+export const createRoutineTemplate = routineTemplatesApi.create;
 
 export const deleteSingleResource = resourcesApi.delete;
 export const deleteSingleTopic = topicsApi.delete;
@@ -261,6 +269,7 @@ export const deleteSingleModuleGroup = moduleGroupsApi.delete;
 export const deleteSingleModule = modulesApi.delete;
 export const deleteSingleInteraction = interactionsApi.delete;
 export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delete;
+export const deleteSingleRoutineTemplate = routineTemplatesApi.delete;
 
 export const duplicateResource = resourcesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;

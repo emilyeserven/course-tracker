@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EyeIcon, Loader2 } from "lucide-react";
+import { ChevronDownIcon, EyeIcon, Loader2, WandSparklesIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -13,11 +13,18 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { rowsToWeekly, weeklyToRows } from "@/components/routines/weekly";
 import { WeeklyScheduleField } from "@/components/routines/WeeklyScheduleField";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import {
   createRoutine,
   deleteSingleRoutine,
   fetchResources,
+  fetchRoutineTemplates,
   fetchSingleRoutine,
   fetchTasks,
   fetchTopics,
@@ -116,6 +123,13 @@ function SingleRoutineEdit() {
   } = useQuery({
     queryKey: ["courses"],
     queryFn: () => fetchResources(),
+  });
+
+  const {
+    data: routineTemplates,
+  } = useQuery({
+    queryKey: ["routineTemplates"],
+    queryFn: () => fetchRoutineTemplates(),
   });
 
   const topicOptions = toOptions(topics);
@@ -269,7 +283,42 @@ function SingleRoutineEdit() {
           <form.Field name="weekly">
             {field => (
               <div className="flex flex-col gap-1">
-                <span className="text-2xl">Weekly Schedule</span>
+                <div
+                  className="flex flex-wrap items-center justify-between gap-2"
+                >
+                  <span className="text-2xl">Weekly Schedule</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                      >
+                        <WandSparklesIcon className="size-4" />
+                        Quick Fill
+                        <ChevronDownIcon className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {(routineTemplates ?? []).length === 0
+                        ? (
+                          <DropdownMenuItem disabled>
+                            No templates — add one in Settings
+                          </DropdownMenuItem>
+                        )
+                        : (routineTemplates ?? []).map(template => (
+                          <DropdownMenuItem
+                            key={template.id}
+                            onSelect={() => {
+                              field.handleChange(weeklyToRows(template.weekly));
+                            }}
+                          >
+                            {template.label}
+                          </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
                 <WeeklyScheduleField
                   value={field.state.value}
                   onChange={next => field.handleChange(next)}
