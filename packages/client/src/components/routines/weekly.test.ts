@@ -137,6 +137,52 @@ describe("weekly schedule prepend/append text", () => {
   });
 });
 
+describe("weekly schedule item location", () => {
+  test("weeklyToRows surfaces an item's location", () => {
+    const weekly: RoutineWeekly = {
+      1: {
+        type: "task",
+        id: "task-1",
+        location: "the gym",
+      },
+    };
+    const monday = weeklyToRows(weekly).find(r => r.day === "1");
+    expect(monday?.location).toBe("the gym");
+  });
+
+  test("weeklyToRows defaults a missing location to an empty string", () => {
+    const weekly: RoutineWeekly = {
+      2: {
+        type: "resource",
+        id: "res-1",
+      },
+    };
+    const tuesday = weeklyToRows(weekly).find(r => r.day === "2");
+    expect(tuesday?.location).toBe("");
+  });
+
+  test("rowsToWeekly preserves a non-empty location and omits an empty one", () => {
+    const original: RoutineWeekly = {
+      3: {
+        type: "task",
+        id: "task-9",
+        location: "https://example.com/app",
+      },
+      4: {
+        type: "task",
+        id: "task-2",
+      },
+    };
+    const restored = rowsToWeekly(weeklyToRows(original));
+    expect(restored[3]).toEqual({
+      type: "task",
+      id: "task-9",
+      location: "https://example.com/app",
+    });
+    expect(restored[4]).not.toHaveProperty("location");
+  });
+});
+
 describe("representativeRow (Daily Task mode)", () => {
   // Regression: picking a type clears the id, so the editor must still surface
   // the chosen type before an item is picked — otherwise the controlled type
@@ -150,6 +196,7 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "task",
       id: "",
       notes: "",
+      location: "",
       prependText: "",
       appendText: "",
     });
@@ -160,6 +207,7 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "resource",
       id: "res-1",
       notes: "chapter 3",
+      location: "the gym",
       prependText: "Review",
       appendText: "for 10 minutes",
     });
@@ -167,6 +215,7 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "resource",
       id: "res-1",
       notes: "chapter 3",
+      location: "the gym",
       prependText: "Review",
       appendText: "for 10 minutes",
     });
@@ -177,6 +226,7 @@ describe("representativeRow (Daily Task mode)", () => {
       type: "",
       id: "",
       notes: "",
+      location: "",
       prependText: "",
       appendText: "",
     });

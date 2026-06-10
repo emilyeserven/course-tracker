@@ -31,7 +31,6 @@ const createSchema = {
         status: nullableRoutineStatusEnum,
         weekly: weeklySchema,
         mode: nullableRoutineModeEnum,
-        location: nullableString,
         completions: {
           type: "array",
           items: completionSchema,
@@ -59,7 +58,6 @@ export default async function (server: FastifyInstance) {
         status: body.status ?? "active",
         weekly: (body.weekly ?? {}) as RoutineWeekly,
         mode: body.mode ?? "weekly",
-        location: body.location ?? null,
         completions: (body.completions ?? []) as DailyCompletion[],
         criteria: (body.criteria ?? {}) as DailyCriteria,
       });

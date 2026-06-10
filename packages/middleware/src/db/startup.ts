@@ -4,6 +4,7 @@ import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
 import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
 import { migrateDailiesToRoutines } from "./migrateDailiesToRoutines.ts";
 import { migrateRoutineConnections } from "./migrateRoutineConnections.ts";
+import { migrateRoutineLocationToWeekly } from "./migrateRoutineLocationToWeekly.ts";
 import { migrateIgnoreBlips } from "./migrateIgnoreBlips.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
@@ -79,6 +80,16 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to migrate routine topics → connections:", err);
+    throw err;
+  }
+
+  // Move each routine's legacy `location` onto its per-day weekly entries, then
+  // drop the column. Runs after dailies → routines so every entry exists first.
+  try {
+    await migrateRoutineLocationToWeekly();
+  }
+  catch (err) {
+    console.error("Failed to migrate routine location → weekly entries:", err);
     throw err;
   }
 }
