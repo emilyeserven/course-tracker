@@ -9,7 +9,7 @@ import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, upsertRadarBlip } from "@/utils";
 
-interface RadarSearch {
+export interface RadarSearch {
   blipId?: string;
 }
 

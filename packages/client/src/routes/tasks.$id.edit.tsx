@@ -25,7 +25,7 @@ import {
   upsertTask,
 } from "@/utils";
 
-interface TaskEditSearch {
+export interface TaskEditSearch {
   topicId?: string;
 }
 

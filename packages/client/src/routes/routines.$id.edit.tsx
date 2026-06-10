@@ -47,7 +47,7 @@ import {
   upsertRoutine,
 } from "@/utils";
 
-interface RoutineEditSearch {
+export interface RoutineEditSearch {
   // Legacy alias: a bare `?topicId=` still prefills a topic connection.
   topicId?: string;
   connectedType?: RoutineConnectionType;

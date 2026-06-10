@@ -34,7 +34,7 @@ import {
   uuidv4,
 } from "@/utils";
 
-interface ResourceEditSearch {
+export interface ResourceEditSearch {
   topicId?: string;
 }
 

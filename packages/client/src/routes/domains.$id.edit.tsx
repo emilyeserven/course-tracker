@@ -37,7 +37,7 @@ import {
 const TAB_VALUES = ["details", "scope", "config", "blips", "llm"] as const;
 type EditTab = (typeof TAB_VALUES)[number];
 
-interface EditSearch {
+export interface EditSearch {
   tab?: EditTab;
 }
 
