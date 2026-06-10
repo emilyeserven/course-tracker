@@ -106,7 +106,6 @@ export function mapRoutineToDaily(
   // optional and may be null — so a daily assigned to something shows that
   // thing's name even without affixes, with the routine name rendered beneath.
   // A daily with no representative entry still falls back to the routine name.
-  const entry = representativeEntry(routine.weekly);
   const baseName
     = resolved.resource?.name
       ?? resolved.task?.name
