@@ -11,6 +11,7 @@ import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { RESOURCE_LEVEL_OPTIONS } from "@/components/tasks/resourceMeta";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
@@ -86,9 +87,14 @@ function LevelSelectRow({
         "
       >
         <option value="">—</option>
-        <option value="low">low</option>
-        <option value="medium">medium</option>
-        <option value="high">high</option>
+        {RESOURCE_LEVEL_OPTIONS.map(opt => (
+          <option
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.label}
+          </option>
+        ))}
       </select>
     </div>
   );
