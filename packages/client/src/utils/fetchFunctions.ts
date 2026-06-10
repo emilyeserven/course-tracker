@@ -10,6 +10,7 @@ import type {
   Module,
   ModuleGroup,
   Radar,
+  Routine,
   Tag,
   TagGroup,
   Task,
@@ -155,6 +156,7 @@ export const providersApi = createEntityClient<CourseProvider>(
 );
 export const domainsApi = createEntityClient<Domain>("domains", "domain");
 export const dailiesApi = createEntityClient<Daily>("dailies", "daily");
+export const routinesApi = createEntityClient<Routine>("routines", "routine");
 export const tasksApi = createEntityClient<Task>("tasks", "task");
 export const taskTypesApi = createEntityClient<TaskType>(
   "task-types",
@@ -184,6 +186,7 @@ export const fetchProviders = providersApi.list;
 export const fetchResources = resourcesApi.list;
 export const fetchDomains = domainsApi.list;
 export const fetchDailies = dailiesApi.list;
+export const fetchRoutines = routinesApi.list;
 export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;
 export const fetchTagGroups = tagGroupsApi.list;
@@ -198,6 +201,7 @@ export const fetchSingleTopic = topicsApi.get;
 export const fetchSingleProvider = providersApi.get;
 export const fetchSingleDomain = domainsApi.get;
 export const fetchSingleDaily = dailiesApi.get;
+export const fetchSingleRoutine = routinesApi.get;
 export const fetchSingleTask = tasksApi.get;
 
 export const upsertResource = resourcesApi.upsert;
@@ -205,6 +209,7 @@ export const upsertTopic = topicsApi.upsert;
 export const upsertProvider = providersApi.upsert;
 export const upsertDomain = domainsApi.upsert;
 export const upsertDaily = dailiesApi.upsert;
+export const upsertRoutine = routinesApi.upsert;
 export const upsertTask = tasksApi.upsert;
 export const upsertTaskType = taskTypesApi.upsert;
 export const upsertTagGroup = tagGroupsApi.upsert;
@@ -218,6 +223,7 @@ export const createTopic = topicsApi.create;
 export const createProvider = providersApi.create;
 export const createDomain = domainsApi.create;
 export const createDaily = dailiesApi.create;
+export const createRoutine = routinesApi.create;
 export const createTask = tasksApi.create;
 export const createTaskType = taskTypesApi.create;
 export const createTagGroup = tagGroupsApi.create;
@@ -246,6 +252,7 @@ export async function bulkDeleteTopics(
 export const deleteSinglePlatform = providersApi.delete;
 export const deleteSingleDomain = domainsApi.delete;
 export const deleteSingleDaily = dailiesApi.delete;
+export const deleteSingleRoutine = routinesApi.delete;
 export const deleteSingleTask = tasksApi.delete;
 export const deleteSingleTaskType = taskTypesApi.delete;
 export const deleteSingleTagGroup = tagGroupsApi.delete;
@@ -258,6 +265,7 @@ export const deleteSingleDailyCriteriaTemplate = dailyCriteriaTemplatesApi.delet
 export const duplicateResource = resourcesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;
 export const duplicateDaily = dailiesApi.duplicate;
+export const duplicateRoutine = routinesApi.duplicate;
 
 export async function fetchSeed(): Promise<SuccessObj> {
   return await fetch("/api/seed").then(res => res.json());
