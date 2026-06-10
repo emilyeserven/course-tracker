@@ -2,6 +2,7 @@ import { db } from "@/db/index";
 import { resources } from "@/db/schema";
 import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
 import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
+import { migrateIgnoreBlips } from "./migrateIgnoreBlips.ts";
 import { migrateModuleLength } from "./migrateModuleLength.ts";
 import { migrateRadarBlips } from "./migrateRadarBlips.ts";
 import { migrateTasksToResources } from "./migrateTasksToResources.ts";
@@ -32,6 +33,14 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to consolidate domain/radar:", err);
+    throw err;
+  }
+
+  try {
+    await migrateIgnoreBlips();
+  }
+  catch (err) {
+    console.error("Failed to migrate ignored blips:", err);
     throw err;
   }
 

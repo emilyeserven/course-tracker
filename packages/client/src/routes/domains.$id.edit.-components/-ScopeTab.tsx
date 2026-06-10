@@ -1,4 +1,4 @@
-import type { Domain, TopicForTopicsPage } from "@emstack/types/src";
+import type { Domain, Radar, TopicForTopicsPage } from "@emstack/types/src";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -15,37 +15,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { upsertDomain } from "@/utils";
+import {
+  createRadarBlip,
+  deleteRadarBlip,
+  upsertDomain,
+  upsertRadarBlip,
+} from "@/utils";
 
 interface ScopeTabProps {
   domain: Domain;
+  radar: Radar | undefined;
   topics: TopicForTopicsPage[];
   onSaved: () => Promise<void>;
   onChangeStateChange?: (hasChanges: boolean) => void;
 }
 
-interface ExcludedRow {
+// An "ignore" row maps to a radar blip with `isIgnored = true`. `blipId` is
+// absent for rows the user just added (created on save).
+interface IgnoreRow {
+  blipId?: string;
   topicId: string;
   reason: string;
   localKey: string;
 }
 
-let exclusionKeyCounter = 0;
-function nextExclusionKey() {
-  exclusionKeyCounter += 1;
-  return `exclusion-${exclusionKeyCounter}`;
+let ignoreKeyCounter = 0;
+function nextIgnoreKey() {
+  ignoreKeyCounter += 1;
+  return `ignore-${ignoreKeyCounter}`;
 }
 
-function buildExcludedFromDomain(domain: Domain): ExcludedRow[] {
-  return (domain.excludedTopics ?? []).map(et => ({
-    topicId: et.id,
-    reason: et.reason ?? "",
-    localKey: nextExclusionKey(),
-  }));
+function buildIgnoreRows(radar: Radar | undefined): IgnoreRow[] {
+  return (radar?.blips ?? [])
+    .filter(b => b.isIgnored)
+    .map(b => ({
+      blipId: b.id,
+      topicId: b.topicId,
+      reason: b.description ?? "",
+      localKey: nextIgnoreKey(),
+    }));
 }
 
 export function ScopeTab({
   domain,
+  radar,
   topics,
   onSaved,
   onChangeStateChange,
@@ -56,26 +69,59 @@ export function ScopeTab({
     () => (domain.withinScopeTopics ?? []).map(t => t.id),
     [domain],
   );
-  const startingExcluded = useMemo(
-    () => buildExcludedFromDomain(domain),
-    [domain],
-  );
 
   const [withinDescription, setWithinDescription] = useState(startingWithinDescription);
   const [outDescription, setOutDescription] = useState(startingOutDescription);
   const [withinTopicIds, setWithinTopicIds] = useState<string[]>(startingWithinTopicIds);
-  const [excludedRows, setExcludedRows] = useState<ExcludedRow[]>(startingExcluded);
+  const [ignoreRows, setIgnoreRows] = useState<IgnoreRow[]>(() =>
+    buildIgnoreRows(radar));
   const [isSaving, setIsSaving] = useState(false);
   const lastSavedRef = useRef({
     withinDescription: startingWithinDescription,
     outDescription: startingOutDescription,
     withinTopicIds: startingWithinTopicIds,
-    excludedRows: startingExcluded,
+    ignoreRows: buildIgnoreRows(radar),
   });
 
-  const usedExclusionTopicIds = useMemo(
-    () => new Set(excludedRows.map(r => r.topicId).filter(Boolean)),
-    [excludedRows],
+  // The ignore rows live on the radar query (separate from the domain query),
+  // which may resolve after this tab mounts and refetches after a save. Re-sync
+  // from the server whenever the set of ignored blips actually changes, so new
+  // rows pick up their server-assigned blip ids.
+  const serverIgnoreSig = useMemo(
+    () =>
+      (radar?.blips ?? [])
+        .filter(b => b.isIgnored)
+        .map(b => `${b.id}:${b.description ?? ""}`)
+        .sort()
+        .join("|"),
+    [radar],
+  );
+  const lastSyncedSigRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (lastSyncedSigRef.current === serverIgnoreSig) {
+      return;
+    }
+    lastSyncedSigRef.current = serverIgnoreSig;
+    const rows = buildIgnoreRows(radar);
+    setIgnoreRows(rows);
+    lastSavedRef.current.ignoreRows = rows;
+  }, [serverIgnoreSig, radar]);
+
+  const usedIgnoreTopicIds = useMemo(
+    () => new Set(ignoreRows.map(r => r.topicId).filter(Boolean)),
+    [ignoreRows],
+  );
+
+  // Topics already placed on the radar (non-ignored blips) can't also be
+  // ignored — a topic has at most one blip per domain.
+  const onRadarTopicIds = useMemo(
+    () =>
+      new Set(
+        (radar?.blips ?? [])
+          .filter(b => !b.isIgnored)
+          .map(b => b.topicId),
+      ),
+    [radar],
   );
 
   const hasChanges = useMemo(() => {
@@ -86,32 +132,32 @@ export function ScopeTab({
       || withinTopicIds.some((v, i) => v !== last.withinTopicIds[i])) {
       return true;
     }
-    if (excludedRows.length !== last.excludedRows.length) return true;
-    const lastByTopic = new Map(last.excludedRows.map(r => [r.topicId, r.reason]));
-    return excludedRows.some(r => !lastByTopic.has(r.topicId) || lastByTopic.get(r.topicId) !== r.reason);
-  }, [withinDescription, outDescription, withinTopicIds, excludedRows]);
+    if (ignoreRows.length !== last.ignoreRows.length) return true;
+    const lastByTopic = new Map(last.ignoreRows.map(r => [r.topicId, r.reason]));
+    return ignoreRows.some(r => !lastByTopic.has(r.topicId) || lastByTopic.get(r.topicId) !== r.reason);
+  }, [withinDescription, outDescription, withinTopicIds, ignoreRows]);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);
   }, [hasChanges, onChangeStateChange]);
 
-  function addExclusion() {
-    setExcludedRows(prev => [
+  function addIgnore() {
+    setIgnoreRows(prev => [
       ...prev,
       {
         topicId: "",
         reason: "",
-        localKey: nextExclusionKey(),
+        localKey: nextIgnoreKey(),
       },
     ]);
   }
 
-  function removeExclusion(localKey: string) {
-    setExcludedRows(prev => prev.filter(r => r.localKey !== localKey));
+  function removeIgnore(localKey: string) {
+    setIgnoreRows(prev => prev.filter(r => r.localKey !== localKey));
   }
 
-  function updateExclusion(localKey: string, patch: Partial<ExcludedRow>) {
-    setExcludedRows(prev =>
+  function updateIgnore(localKey: string, patch: Partial<IgnoreRow>) {
+    setIgnoreRows(prev =>
       prev.map(r =>
         r.localKey === localKey
           ? {
@@ -122,14 +168,9 @@ export function ScopeTab({
   }
 
   async function handleSave() {
-    const cleanedExcluded = excludedRows
-      .filter(r => r.topicId)
-      .map(r => ({
-        topicId: r.topicId,
-        reason: r.reason.trim() || null,
-      }));
+    const cleaned = ignoreRows.filter(r => r.topicId);
     const seen = new Set<string>();
-    const dedupedExcluded = cleanedExcluded.filter((r) => {
+    const deduped = cleaned.filter((r) => {
       if (seen.has(r.topicId)) return false;
       seen.add(r.topicId);
       return true;
@@ -143,13 +184,49 @@ export function ScopeTab({
         withinScopeDescription: withinDescription.trim() || null,
         outOfScopeDescription: outDescription.trim() || null,
         withinScopeTopicIds: withinTopicIds,
-        excludedTopics: dedupedExcluded,
       });
+
+      // Reconcile ignore blips against the server's current ignored blips.
+      const serverIgnore = buildIgnoreRows(radar);
+      const serverById = new Map(serverIgnore.map(b => [b.blipId, b]));
+      const keptBlipIds = new Set(
+        deduped.map(r => r.blipId).filter((x): x is string => Boolean(x)),
+      );
+      for (const b of serverIgnore) {
+        if (b.blipId && !keptBlipIds.has(b.blipId)) {
+          await deleteRadarBlip(domain.id, b.blipId);
+        }
+      }
+      for (const r of deduped) {
+        const reason = r.reason.trim() || null;
+        if (r.blipId) {
+          const prev = serverById.get(r.blipId);
+          const prevReason = prev?.reason.trim() ? prev.reason.trim() : null;
+          if (prev && prevReason === reason) continue;
+          await upsertRadarBlip(domain.id, r.blipId, {
+            topicId: r.topicId,
+            description: reason,
+            quadrantId: null,
+            ringId: null,
+            isIgnored: true,
+          });
+        }
+        else {
+          await createRadarBlip(domain.id, {
+            topicId: r.topicId,
+            description: reason,
+            quadrantId: null,
+            ringId: null,
+            isIgnored: true,
+          });
+        }
+      }
+
       lastSavedRef.current = {
         withinDescription,
         outDescription,
         withinTopicIds,
-        excludedRows: excludedRows.slice(),
+        ignoreRows: deduped.slice(),
       };
       onChangeStateChange?.(false);
       await onSaved();
@@ -191,7 +268,7 @@ export function ScopeTab({
             <label className="text-xs uppercase">Topics</label>
             <TopicMultiSelect
               options={topics
-                .filter(t => !usedExclusionTopicIds.has(t.id))
+                .filter(t => !usedIgnoreTopicIds.has(t.id))
                 .map(t => ({
                   value: t.id,
                   label: t.name,
@@ -205,10 +282,11 @@ export function ScopeTab({
 
         <div className="flex flex-col gap-3 rounded-md border p-4">
           <div className="flex flex-col gap-1">
-            <h3 className="text-xl font-semibold">Out of Scope</h3>
+            <h3 className="text-xl font-semibold">Out of Scope (Ignored)</h3>
             <p className="text-sm text-muted-foreground">
-              Topics listed here are excluded from the radar. Each can include
-              an optional reason explaining why.
+              Topics listed here are ignored — kept off the radar circle and
+              shown in the radar&apos;s Ignored list. Each can include an
+              optional reason explaining why.
             </p>
           </div>
           <div className="flex flex-col gap-1">
@@ -220,7 +298,7 @@ export function ScopeTab({
             />
           </div>
           <ul className="flex flex-col gap-3">
-            {excludedRows.map(row => (
+            {ignoreRows.map(row => (
               <li
                 key={row.localKey}
                 className="flex flex-col gap-2 rounded-sm border p-3"
@@ -238,7 +316,7 @@ export function ScopeTab({
                     <Select
                       value={row.topicId}
                       onValueChange={value =>
-                        updateExclusion(row.localKey, {
+                        updateIgnore(row.localKey, {
                           topicId: value,
                         })}
                     >
@@ -250,8 +328,9 @@ export function ScopeTab({
                           .filter(
                             t =>
                               t.id === row.topicId
-                              || (!usedExclusionTopicIds.has(t.id)
-                                && !withinTopicIds.includes(t.id)),
+                              || (!usedIgnoreTopicIds.has(t.id)
+                                && !withinTopicIds.includes(t.id)
+                                && !onRadarTopicIds.has(t.id)),
                           )
                           .map(t => (
                             <SelectItem
@@ -269,8 +348,8 @@ export function ScopeTab({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      onClick={() => removeExclusion(row.localKey)}
-                      aria-label="Remove excluded topic"
+                      onClick={() => removeIgnore(row.localKey)}
+                      aria-label="Remove ignored topic"
                     >
                       <TrashIcon />
                     </Button>
@@ -283,7 +362,7 @@ export function ScopeTab({
                   <Textarea
                     value={row.reason}
                     onChange={e =>
-                      updateExclusion(row.localKey, {
+                      updateIgnore(row.localKey, {
                         reason: e.target.value,
                       })}
                     placeholder="Why should the radar ignore this topic?"
@@ -296,11 +375,11 @@ export function ScopeTab({
             <Button
               type="button"
               variant="outline"
-              onClick={addExclusion}
+              onClick={addIgnore}
             >
               <PlusIcon />
               {" "}
-              Add Excluded Topic
+              Add Ignored Topic
             </Button>
           </div>
         </div>

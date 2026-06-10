@@ -4,7 +4,6 @@ import { inArray } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
-  domainExcludedTopics,
   domainWithinScopeTopics,
   radarBlips,
   topics,
@@ -40,9 +39,6 @@ export default async function (server: FastifyInstance) {
     await db
       .delete(topicsToResources)
       .where(inArray(topicsToResources.topicId, ids));
-    await db
-      .delete(domainExcludedTopics)
-      .where(inArray(domainExcludedTopics.topicId, ids));
     await db
       .delete(domainWithinScopeTopics)
       .where(inArray(domainWithinScopeTopics.topicId, ids));

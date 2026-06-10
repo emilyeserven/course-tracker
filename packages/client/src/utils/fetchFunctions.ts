@@ -325,6 +325,7 @@ interface BlipPayload {
   description?: string | null;
   quadrantId?: string | null;
   ringId?: string | null;
+  isIgnored?: boolean | null;
 }
 
 export async function createRadarBlip(

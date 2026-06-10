@@ -56,6 +56,17 @@ const ADOPTED_AREA_RIGHT_PAD = 12;
 const ADOPTED_AREA_HEIGHT = 96;
 const ADOPTED_LABEL_GAP = 18;
 
+// Ignored ("out of scope") dots get their own strip beneath the Adopted one.
+// They carry no slice, so they render in a neutral gray.
+const IGNORED_DOT_RADIUS = 8;
+const IGNORED_DOT_SPACING = 22;
+const IGNORED_AREA_BOTTOM_PAD = 12;
+const IGNORED_AREA_RIGHT_PAD = 12;
+const IGNORED_AREA_HEIGHT = 96;
+const IGNORED_LABEL_GAP = 18;
+const IGNORED_DOT_COLOR = "#6b7280";
+const IGNORED_LABEL_COLOR = "#4b5563";
+
 // Deterministic pseudo-random in [0, 1) from a string. Used to keep blip
 // placements stable across renders without storing coordinates in the DB.
 function hashUnit(input: string): number {
@@ -82,6 +93,7 @@ export function RadarChart({
     initialSelectedBlipId,
   );
   const [showAdoptedDots, setShowAdoptedDots] = useState(false);
+  const [showIgnoredDots, setShowIgnoredDots] = useState(false);
   const containerWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -164,8 +176,15 @@ export function RadarChart({
 
   const adoptedBlips = useMemo(
     () =>
-      blips.filter(b => b.ringId !== null && adoptedRingIds.has(b.ringId)),
+      blips.filter(
+        b => !b.isIgnored && b.ringId !== null && adoptedRingIds.has(b.ringId),
+      ),
     [blips, adoptedRingIds],
+  );
+
+  const ignoredBlips = useMemo(
+    () => blips.filter(b => b.isIgnored),
+    [blips],
   );
 
   const positionedBlips = useMemo<PositionedBlip[]>(() => {
@@ -176,6 +195,9 @@ export function RadarChart({
     let displayIndex = 0;
     return blips
       .map((blip) => {
+        if (blip.isIgnored) {
+          return null;
+        }
         if (blip.ringId !== null && adoptedRingIds.has(blip.ringId)) {
           return null;
         }
@@ -217,7 +239,14 @@ export function RadarChart({
   ]);
 
   const showAdoptedInChart = showAdoptedDots && adoptedBlips.length > 0;
-  const totalHeight = size + (showAdoptedInChart ? ADOPTED_AREA_HEIGHT : 0);
+  const showIgnoredInChart = showIgnoredDots && ignoredBlips.length > 0;
+  const adoptedAreaHeight = showAdoptedInChart ? ADOPTED_AREA_HEIGHT : 0;
+  const ignoredAreaHeight = showIgnoredInChart ? IGNORED_AREA_HEIGHT : 0;
+  const totalHeight = size + adoptedAreaHeight + ignoredAreaHeight;
+  // The Adopted strip sits directly below the circle; the Ignored strip sits
+  // below the Adopted one.
+  const adoptedBandBottom = size + adoptedAreaHeight;
+  const ignoredBandTop = size + adoptedAreaHeight;
 
   const positionedAdoptedBlips = useMemo<PositionedBlip[]>(() => {
     if (!showAdoptedInChart) return [];
@@ -225,7 +254,7 @@ export function RadarChart({
     // radar circle (bottom-right of the radar graphic).
     const startX = size - ADOPTED_AREA_RIGHT_PAD - ADOPTED_DOT_RADIUS;
     const startY
-      = totalHeight - ADOPTED_AREA_BOTTOM_PAD - ADOPTED_DOT_RADIUS;
+      = adoptedBandBottom - ADOPTED_AREA_BOTTOM_PAD - ADOPTED_DOT_RADIUS;
     const cols = Math.max(
       1,
       Math.floor((size / 2) / ADOPTED_DOT_SPACING),
@@ -240,7 +269,34 @@ export function RadarChart({
         index: positionedBlips.length + i + 1,
       };
     });
-  }, [showAdoptedInChart, adoptedBlips, size, totalHeight, positionedBlips]);
+  }, [showAdoptedInChart, adoptedBlips, size, adoptedBandBottom, positionedBlips]);
+
+  const positionedIgnoredBlips = useMemo<PositionedBlip[]>(() => {
+    if (!showIgnoredInChart) return [];
+    const startX = size - IGNORED_AREA_RIGHT_PAD - IGNORED_DOT_RADIUS;
+    const startY = totalHeight - IGNORED_AREA_BOTTOM_PAD - IGNORED_DOT_RADIUS;
+    const cols = Math.max(
+      1,
+      Math.floor((size / 2) / IGNORED_DOT_SPACING),
+    );
+    return ignoredBlips.map((blip, i) => {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      return {
+        blip,
+        x: startX - col * IGNORED_DOT_SPACING,
+        y: startY - row * IGNORED_DOT_SPACING,
+        index: positionedBlips.length + adoptedBlips.length + i + 1,
+      };
+    });
+  }, [
+    showIgnoredInChart,
+    ignoredBlips,
+    size,
+    totalHeight,
+    positionedBlips,
+    adoptedBlips,
+  ]);
 
   if (quadrantCount === 0 || ringCount === 0) {
     return (
@@ -269,8 +325,8 @@ export function RadarChart({
     onBlipClick?.(blip);
   };
 
-  const adoptedLabelY
-    = totalHeight - ADOPTED_AREA_HEIGHT + ADOPTED_LABEL_GAP;
+  const adoptedLabelY = size + ADOPTED_LABEL_GAP;
+  const ignoredLabelY = ignoredBandTop + IGNORED_LABEL_GAP;
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -568,6 +624,114 @@ export function RadarChart({
                   })}
               </>
             )}
+            {showIgnoredInChart && (
+              <>
+                <text
+                  x={size - IGNORED_AREA_RIGHT_PAD}
+                  y={ignoredLabelY}
+                  textAnchor="end"
+                  fontSize={11}
+                  fontWeight="600"
+                  fill={IGNORED_LABEL_COLOR}
+                >
+                  Ignored
+                </text>
+                {[...positionedIgnoredBlips]
+                  .sort((a, b) => {
+                    const aActive = activeBlipId === a.blip.id ? 1 : 0;
+                    const bActive = activeBlipId === b.blip.id ? 1 : 0;
+                    return aActive - bActive;
+                  })
+                  .map(({
+                    blip, x, y, index,
+                  }) => {
+                    const isActive = activeBlipId === blip.id;
+                    const isSelected = selectedBlipId === blip.id;
+                    return (
+                      <Tooltip
+                        key={`ignored-${blip.id}`}
+                        open={isActive || undefined}
+                      >
+                        <TooltipTrigger asChild>
+                          <g
+                            onMouseEnter={() => setHoveredBlipId(blip.id)}
+                            onMouseLeave={() => setHoveredBlipId(null)}
+                            onFocus={() => setHoveredBlipId(blip.id)}
+                            onBlur={() => setHoveredBlipId(null)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBlipClick(blip);
+                            }}
+                            style={{
+                              cursor: "pointer",
+                            }}
+                            tabIndex={0}
+                          >
+                            {isActive && (
+                              <circle
+                                cx={x}
+                                cy={y}
+                                r={IGNORED_DOT_RADIUS + 5}
+                                fill="none"
+                                stroke={IGNORED_DOT_COLOR}
+                                strokeWidth={isSelected ? 3 : 2}
+                                strokeOpacity={isSelected ? 0.8 : 0.5}
+                              />
+                            )}
+                            <circle
+                              cx={x}
+                              cy={y}
+                              r={
+                                isActive
+                                  ? IGNORED_DOT_RADIUS + 2
+                                  : IGNORED_DOT_RADIUS
+                              }
+                              fill={IGNORED_DOT_COLOR}
+                              stroke="white"
+                              strokeWidth={2}
+                            />
+                            <text
+                              x={x}
+                              y={y}
+                              textAnchor="middle"
+                              dominantBaseline="central"
+                              fontSize={9}
+                              fontWeight="700"
+                              fill="white"
+                              style={{
+                                pointerEvents: "none",
+                              }}
+                            >
+                              {index}
+                            </text>
+                          </g>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          className="max-w-xs"
+                        >
+                          <div className="flex flex-col gap-0.5 text-left">
+                            <div className="font-semibold">
+                              {index}
+                              .
+                              {" "}
+                              {blip.topicName}
+                            </div>
+                            <div className="text-[11px] opacity-80">
+                              Ignored
+                            </div>
+                            {blip.description && (
+                              <div className="text-[11px] opacity-90">
+                                {blip.description}
+                              </div>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+              </>
+            )}
           </svg>
         </div>
         {showLegend && (
@@ -593,12 +757,25 @@ export function RadarChart({
                 dots on radar
               </label>
             )}
+            {ignoredBlips.length > 0 && (
+              <label
+                className="flex flex-row items-center gap-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={showIgnoredDots}
+                  onChange={e => setShowIgnoredDots(e.target.checked)}
+                />
+                Show Ignored dots on radar
+              </label>
+            )}
             <RadarLegend
               quadrants={sortedQuadrants}
               positionedBlips={positionedBlips}
               rings={sortedRings}
               adoptedBlips={adoptedBlips}
               adoptedSectionName={adoptedSectionName}
+              ignoredBlips={ignoredBlips}
               onDescriptionChange={handleSetDescription}
               onHover={setHoveredBlipId}
               activeBlipId={activeBlipId}
@@ -618,6 +795,7 @@ interface RadarLegendProps {
   positionedBlips: PositionedBlip[];
   adoptedBlips: RadarBlip[];
   adoptedSectionName: string;
+  ignoredBlips: RadarBlip[];
   onDescriptionChange: (blipId: string, value: string) => void;
   activeBlipId: string | null;
   selectedBlipId: string | null;
@@ -631,6 +809,7 @@ function RadarLegend({
   positionedBlips,
   adoptedBlips,
   adoptedSectionName,
+  ignoredBlips,
   onDescriptionChange,
   activeBlipId,
   selectedBlipId,
@@ -810,6 +989,96 @@ function RadarLegend({
           </h4>
           <ul className="flex flex-col gap-0.5">
             {adoptedBlips.map((blip) => {
+              const isActive = activeBlipId === blip.id;
+              const isSelected = selectedBlipId === blip.id;
+              const description = blip.description ?? "";
+              return (
+                <li
+                  key={blip.id}
+                  ref={(el) => {
+                    if (el) {
+                      itemRefs.current.set(blip.id, el);
+                    }
+                    else {
+                      itemRefs.current.delete(blip.id);
+                    }
+                  }}
+                  onMouseEnter={() => onHover(blip.id)}
+                  onMouseLeave={() => onHover(null)}
+                  className={cn(
+                    `
+                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
+                      transition-colors
+                    `,
+                    isActive && "bg-gray-200",
+                    isSelected && "ring-1 ring-gray-400",
+                  )}
+                >
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onBlipClick(blip);
+                      }}
+                      className="flex-1 cursor-pointer text-left"
+                    >
+                      <span className="font-medium">{blip.topicName}</span>
+                    </button>
+                    <div
+                      className={cn(
+                        `
+                          flex items-center gap-0.5 opacity-0 transition-opacity
+                          group-hover:opacity-100
+                          focus-within:opacity-100
+                        `,
+                        isSelected && "opacity-100",
+                      )}
+                    >
+                      <BlipDescriptionPopover
+                        value={description}
+                        onChange={value => onDescriptionChange(blip.id, value)}
+                      />
+                      <Link
+                        to="/topics/$id"
+                        params={{
+                          id: blip.topicId,
+                        }}
+                        aria-label={`Go to topic ${blip.topicName}`}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="size-6 p-0"
+                        >
+                          <ArrowRightIcon className="size-3.5" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                  {description && (
+                    <p
+                      className={`
+                        mt-0.5 ml-4 text-xs text-muted-foreground italic
+                      `}
+                    >
+                      {description}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      {ignoredBlips.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <h4 className="text-sm font-semibold text-gray-600 uppercase">
+            Ignored
+          </h4>
+          <ul className="flex flex-col gap-0.5">
+            {ignoredBlips.map((blip) => {
               const isActive = activeBlipId === blip.id;
               const isSelected = selectedBlipId === blip.id;
               const description = blip.description ?? "";

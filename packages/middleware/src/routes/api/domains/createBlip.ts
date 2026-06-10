@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "@/db";
 import { radarBlips } from "@/db/schema";
 import { sendConflict } from "@/utils/errors";
-import { nullableString } from "@/utils/schemas";
+import { nullableBoolean, nullableString } from "@/utils/schemas";
 
 const createBlipSchema = {
   schema: {
@@ -28,6 +28,7 @@ const createBlipSchema = {
         description: nullableString,
         quadrantId: nullableString,
         ringId: nullableString,
+        isIgnored: nullableBoolean,
       },
     },
   },
@@ -63,6 +64,7 @@ export default async function (server: FastifyInstance) {
         ringId: body.ringId ?? null,
         topicId: body.topicId,
         description: body.description ?? null,
+        isIgnored: body.isIgnored ?? false,
       });
 
       return {
