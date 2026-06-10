@@ -180,6 +180,9 @@ export function DailyCompletionsManager({
           queryKey: ["daily", daily.id],
         }),
         queryClient.invalidateQueries({
+          queryKey: ["routine", daily.id],
+        }),
+        queryClient.invalidateQueries({
           queryKey: ["dailies"],
         }),
       ]);
