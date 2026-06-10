@@ -2,7 +2,6 @@ import { processCost } from "@/utils/processCost";
 import { processResourceLinks } from "@/utils/processResourceLinks";
 import type {
   CostData,
-  DailyCompletion,
   Resource,
   ResourceFromServer,
   Tag,
@@ -28,13 +27,6 @@ interface ResourceProjectionRow {
   courseProvider: { id: string;
     name: string | null; } | null;
   topicsToResources: TopicsToResources[];
-  dailies: {
-    id: string;
-    name: string;
-    location?: string | null;
-    description?: string | null;
-    completions: DailyCompletion[];
-  }[];
   resourceTags: { tag: Tag }[];
 }
 
@@ -58,13 +50,6 @@ export function mapResource(course: ResourceProjectionRow): Resource {
           id: course.courseProvider.id,
         }
         : undefined,
-    dailies: (course.dailies ?? []).map(d => ({
-      id: d.id,
-      name: d.name,
-      location: d.location,
-      description: d.description,
-      completions: (d.completions ?? []) as DailyCompletion[],
-    })),
     easeOfStarting: course.easeOfStarting ?? null,
     timeNeeded: course.timeNeeded ?? null,
     interactivity: course.interactivity ?? null,

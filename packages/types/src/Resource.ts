@@ -1,5 +1,4 @@
 import type { CostData } from "./CostData";
-import type { Daily } from "./Daily";
 import type { EntityStatus } from "./EntityStatus";
 import type { MinimalTopic } from "./MinimalTopic";
 import type { Module } from "./Module";
@@ -27,7 +26,6 @@ export interface Resource {
   };
   moduleGroups?: ModuleGroup[];
   modules?: Module[];
-  dailies?: Daily[];
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;

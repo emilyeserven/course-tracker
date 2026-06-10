@@ -21,8 +21,4 @@ export interface ResourceInResources {
     name: string;
     id: string;
   };
-  dailies?: {
-    id: string;
-    name: string;
-  }[];
 }

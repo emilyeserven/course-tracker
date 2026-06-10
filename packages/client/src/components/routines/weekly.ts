@@ -54,3 +54,33 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
   }
   return weekly;
 }
+
+// Daily Task mode keeps the same entry on every weekday. `representativeRow`
+// reads that shared entry (the first populated day), and `fillAllDays` writes a
+// single entry across the whole length-7 grid.
+export function representativeRow(rows: WeeklyRow[]): {
+  type: WeeklyRowType;
+  id: string;
+} {
+  const found = rows.find(r => r.type !== "" && r.id);
+  return found
+    ? {
+      type: found.type,
+      id: found.id,
+    }
+    : {
+      type: "",
+      id: "",
+    };
+}
+
+export function fillAllDays(entry: {
+  type: WeeklyRowType;
+  id: string;
+}): WeeklyRow[] {
+  return ALL_DAYS.map(day => ({
+    day,
+    type: entry.type,
+    id: entry.id,
+  }));
+}

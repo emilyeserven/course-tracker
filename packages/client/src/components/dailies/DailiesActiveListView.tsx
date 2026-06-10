@@ -76,7 +76,7 @@ export function DailiesActiveListView({
               </div>
               <div className="flex min-w-0 flex-col gap-1">
                 <Link
-                  to="/dailies/$id"
+                  to="/routines/$id"
                   params={{
                     id: daily.id,
                   }}

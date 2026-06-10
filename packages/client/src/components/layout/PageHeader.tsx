@@ -69,7 +69,7 @@ export function PageHeader({
               )}
               {pageSection === "dailies" && (
                 <Link
-                  to="/dailies"
+                  to="/routines/tracker"
                   className="text-sm uppercase"
                 >
                   Dailies

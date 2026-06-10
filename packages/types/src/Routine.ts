@@ -1,6 +1,12 @@
+import type { DailyCompletion, DailyCriteria } from "./Daily";
 import type { EntityStatus } from "./EntityStatus";
 
 export type RoutineReferenceType = "task" | "resource" | "freeform";
+
+// A routine is either a weekly schedule (each weekday can differ) or a daily
+// task (the same entry applied to every day). Both modes carry completion
+// tracking; the mode only changes how the weekly grid is edited.
+export type RoutineMode = "weekly" | "daily";
 
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;
@@ -24,4 +30,8 @@ export interface Routine {
   } | null;
   status?: EntityStatus | null;
   weekly?: RoutineWeekly | null;
+  mode?: RoutineMode | null;
+  location?: string | null;
+  completions?: DailyCompletion[] | null;
+  criteria?: DailyCriteria | null;
 }

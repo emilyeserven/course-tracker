@@ -29,6 +29,7 @@ import { Route as DomainsIndexRouteImport } from './routes/domains.index'
 import { Route as DailiesIndexRouteImport } from './routes/dailies.index'
 import { Route as TopicsIdRouteImport } from './routes/topics.$id'
 import { Route as TasksIdRouteImport } from './routes/tasks.$id'
+import { Route as RoutinesTrackerRouteImport } from './routes/routines.tracker'
 import { Route as RoutinesIdRouteImport } from './routes/routines.$id'
 import { Route as ResourcesIdRouteImport } from './routes/resources.$id'
 import { Route as ProvidersIdRouteImport } from './routes/providers.$id'
@@ -151,6 +152,11 @@ const TasksIdRoute = TasksIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => TasksRoute,
+} as any)
+const RoutinesTrackerRoute = RoutinesTrackerRouteImport.update({
+  id: '/tracker',
+  path: '/tracker',
+  getParentRoute: () => RoutinesRoute,
 } as any)
 const RoutinesIdRoute = RoutinesIdRouteImport.update({
   id: '/$id',
@@ -280,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/providers/$id': typeof ProvidersIdRouteWithChildren
   '/resources/$id': typeof ResourcesIdRouteWithChildren
   '/routines/$id': typeof RoutinesIdRouteWithChildren
+  '/routines/tracker': typeof RoutinesTrackerRoute
   '/tasks/$id': typeof TasksIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/onboard': typeof OnboardRoute
   '/settings': typeof SettingsRoute
+  '/routines/tracker': typeof RoutinesTrackerRoute
   '/dailies': typeof DailiesIndexRoute
   '/domains': typeof DomainsIndexRoute
   '/providers': typeof ProvidersIndexRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/providers/$id': typeof ProvidersIdRouteWithChildren
   '/resources/$id': typeof ResourcesIdRouteWithChildren
   '/routines/$id': typeof RoutinesIdRouteWithChildren
+  '/routines/tracker': typeof RoutinesTrackerRoute
   '/tasks/$id': typeof TasksIdRouteWithChildren
   '/topics/$id': typeof TopicsIdRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
@@ -400,6 +409,7 @@ export interface FileRouteTypes {
     | '/providers/$id'
     | '/resources/$id'
     | '/routines/$id'
+    | '/routines/tracker'
     | '/tasks/$id'
     | '/topics/$id'
     | '/dailies/'
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboard'
     | '/settings'
+    | '/routines/tracker'
     | '/dailies'
     | '/domains'
     | '/providers'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/providers/$id'
     | '/resources/$id'
     | '/routines/$id'
+    | '/routines/tracker'
     | '/tasks/$id'
     | '/topics/$id'
     | '/dailies/'
@@ -656,6 +668,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tasks/$id'
       preLoaderRoute: typeof TasksIdRouteImport
       parentRoute: typeof TasksRoute
+    }
+    '/routines/tracker': {
+      id: '/routines/tracker'
+      path: '/tracker'
+      fullPath: '/routines/tracker'
+      preLoaderRoute: typeof RoutinesTrackerRouteImport
+      parentRoute: typeof RoutinesRoute
     }
     '/routines/$id': {
       id: '/routines/$id'
@@ -956,11 +975,13 @@ const RoutinesIdRouteWithChildren = RoutinesIdRoute._addFileChildren(
 
 interface RoutinesRouteChildren {
   RoutinesIdRoute: typeof RoutinesIdRouteWithChildren
+  RoutinesTrackerRoute: typeof RoutinesTrackerRoute
   RoutinesIndexRoute: typeof RoutinesIndexRoute
 }
 
 const RoutinesRouteChildren: RoutinesRouteChildren = {
   RoutinesIdRoute: RoutinesIdRouteWithChildren,
+  RoutinesTrackerRoute: RoutinesTrackerRoute,
   RoutinesIndexRoute: RoutinesIndexRoute,
 }
 

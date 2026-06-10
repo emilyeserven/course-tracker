@@ -952,7 +952,7 @@ export function BlipTable({
                                 label="D"
                                 title="Dailies for this topic"
                                 count={topic.dailyCount ?? 0}
-                                to="/dailies"
+                                to="/routines/tracker"
                                 topicId={blip.topicId}
                               />
                             </div>
@@ -999,12 +999,13 @@ export function BlipTable({
                             </DropdownMenuLabel>
                             <DropdownMenuItem asChild>
                               <Link
-                                to="/dailies/$id/edit"
+                                to="/routines/$id/edit"
                                 params={{
                                   id: "new",
                                 }}
                                 search={{
                                   topicId: blip.topicId,
+                                  mode: "daily",
                                 }}
                               >
                                 <SunIcon />
@@ -1100,7 +1101,7 @@ interface TopicItemLinkProps {
   label: string;
   title: string;
   count: number;
-  to: "/resources" | "/tasks" | "/dailies";
+  to: "/resources" | "/tasks" | "/routines/tracker";
   topicId: string;
 }
 

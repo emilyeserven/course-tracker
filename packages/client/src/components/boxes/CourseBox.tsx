@@ -1,8 +1,6 @@
 import type { ResourceInResources } from "@emstack/types/src";
 
-import { Link } from "@tanstack/react-router";
 import {
-  CalendarCheckIcon,
   CheckCheckIcon,
   DollarSignIcon,
   ExternalLink,
@@ -37,7 +35,6 @@ export function CourseBox({
   progressCurrent = 0,
   progressTotal = 0,
   cost,
-  dailies,
 }: ResourceInResources) {
   const costValue
     = cost.cost != null
@@ -45,7 +42,6 @@ export function CourseBox({
         ? `${Number(cost.cost) / cost.splitBy}*`
         : Number(cost.cost)
       : null;
-  const linkedDaily = dailies?.[0];
   return (
     <ContentBox>
       <ContentBoxHeader>
@@ -55,23 +51,6 @@ export function CourseBox({
           </div>
 
           <div className="flex flex-row items-center gap-2">
-            {linkedDaily && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                asChild
-                title={`Open Daily: ${linkedDaily.name}`}
-              >
-                <Link
-                  to="/dailies/$id"
-                  params={{
-                    id: linkedDaily.id,
-                  }}
-                >
-                  <CalendarCheckIcon />
-                </Link>
-              </Button>
-            )}
             {url && (
               <Button
                 variant="outline"

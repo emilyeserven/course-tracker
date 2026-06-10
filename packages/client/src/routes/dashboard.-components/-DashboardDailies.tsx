@@ -190,7 +190,7 @@ export function DashboardDailies() {
             onChange={setMode}
           />
           <Link
-            to="/dailies"
+            to="/routines/tracker"
             className="
               text-sm text-primary underline-offset-2
               hover:underline
@@ -302,7 +302,7 @@ export function DashboardDailies() {
                     </td>
                     <td className="p-2">
                       <Link
-                        to="/dailies/$id"
+                        to="/routines/$id"
                         params={{
                           id: daily.id,
                         }}

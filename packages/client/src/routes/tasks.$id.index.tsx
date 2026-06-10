@@ -1,35 +1,17 @@
-import { useState } from "react";
-
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, PlusIcon } from "lucide-react";
 
-import { DailyEditDialog, DailySection } from "@/components/dailies";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourcesTable } from "@/components/tasks/ResourcesTable";
 import { TodosChecklist } from "@/components/tasks/TodosChecklist";
 import { Button } from "@/components/ui/button";
-import { fetchSingleTask } from "@/utils";
-
-interface TaskSearch {
-  dailySection?: string;
-  dailyMode?: "view" | "edit";
-}
+import { fetchRoutines, fetchSingleTask } from "@/utils";
 
 export const Route = createFileRoute("/tasks/$id/")({
   component: SingleTask,
-  validateSearch: (search: Record<string, unknown>): TaskSearch => ({
-    dailySection:
-      typeof search.dailySection === "string" && search.dailySection
-        ? search.dailySection
-        : undefined,
-    dailyMode:
-      search.dailyMode === "view" || search.dailyMode === "edit"
-        ? search.dailyMode
-        : undefined,
-  }),
 });
 
 function TaskPending() {
@@ -44,16 +26,19 @@ function SingleTask() {
   const {
     id,
   } = Route.useParams();
-  const search = Route.useSearch();
-  const navigate = useNavigate();
-
-  const [createDailyOpen, setCreateDailyOpen] = useState(false);
 
   const {
     isPending, error, data,
   } = useQuery({
     queryKey: ["task", id],
     queryFn: () => fetchSingleTask(id),
+  });
+
+  const {
+    data: routines,
+  } = useQuery({
+    queryKey: ["routines"],
+    queryFn: () => fetchRoutines(),
   });
 
   if (isPending) {
@@ -64,18 +49,11 @@ function SingleTask() {
     return <TaskError />;
   }
 
-  const linkedDaily = data.daily;
-
-  const clearDailySearch = () => {
-    void navigate({
-      to: "/tasks/$id",
-      params: {
-        id,
-      },
-      search: {},
-      replace: true,
-    });
-  };
+  // The task → routine link lives inside each routine's weekly grid.
+  const linkedRoutines = (routines ?? []).filter(r =>
+    Object.values(r.weekly ?? {}).some(
+      e => e?.type === "task" && e.id === id,
+    ));
 
   return (
     <div>
@@ -100,21 +78,38 @@ function SingleTask() {
       </PageHeader>
       <div className="container flex flex-col gap-12">
         <InfoArea
-          header="Daily"
+          header="Routines"
           condition={true}
         >
-          {linkedDaily
+          {linkedRoutines.length > 0
             ? (
-              <DailySection
-                daily={{
-                  id: linkedDaily.id,
-                  name: linkedDaily.name,
-                  status: linkedDaily.status ?? "active",
-                }}
-                lockedTaskId={data.id}
-                autoOpenMode={search.dailyMode}
-                onAutoOpenConsumed={clearDailySearch}
-              />
+              <ul className="flex flex-col gap-2">
+                {linkedRoutines.map(r => (
+                  <li
+                    key={r.id}
+                    className="
+                      flex flex-row items-center justify-between gap-2
+                      rounded-md border bg-card p-3
+                    "
+                  >
+                    <Link
+                      to="/routines/$id"
+                      params={{
+                        id: r.id,
+                      }}
+                      className="
+                        font-medium
+                        hover:text-blue-600
+                      "
+                    >
+                      {r.name}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">
+                      {r.mode === "daily" ? "Daily" : "Weekly"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )
             : (
               <div
@@ -124,12 +119,24 @@ function SingleTask() {
                 "
               >
                 <span className="text-sm text-muted-foreground">
-                  No daily tracker linked to this task.
+                  No routines include this task.
                 </span>
-                <Button onClick={() => setCreateDailyOpen(true)}>
-                  <PlusIcon />
-                  Create Daily for this Task
-                </Button>
+                <Link
+                  to="/routines/$id/edit"
+                  params={{
+                    id: "new",
+                  }}
+                  search={{
+                    mode: "daily",
+                    entryType: "task",
+                    entryId: data.id,
+                  }}
+                >
+                  <Button>
+                    <PlusIcon />
+                    Create Routine for this Task
+                  </Button>
+                </Link>
               </div>
             )}
         </InfoArea>
@@ -170,13 +177,6 @@ function SingleTask() {
           <ResourcesTable task={data} />
         </InfoArea>
       </div>
-      <DailyEditDialog
-        open={createDailyOpen}
-        onOpenChange={setCreateDailyOpen}
-        id="new"
-        isNew
-        lockedTaskId={data.id}
-      />
     </div>
   );
 }

@@ -156,7 +156,6 @@ export const providersApi = createEntityClient<CourseProvider>(
   "provider",
 );
 export const domainsApi = createEntityClient<Domain>("domains", "domain");
-export const dailiesApi = createEntityClient<Daily>("dailies", "daily");
 export const routinesApi = createEntityClient<Routine>("routines", "routine");
 export const tasksApi = createEntityClient<Task>("tasks", "task");
 export const taskTypesApi = createEntityClient<TaskType>(
@@ -190,7 +189,12 @@ export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
 export const fetchResources = resourcesApi.list;
 export const fetchDomains = domainsApi.list;
-export const fetchDailies = dailiesApi.list;
+// Dailies are now daily-mode routines. These thin wrappers keep the existing
+// daily tracker / dashboard / detail components working unchanged: the server
+// projects daily-mode routines into the Daily shape, and writes inject
+// mode:"daily" so partial completion updates never lose the routine's mode.
+export const fetchDailies = () =>
+  fetchJson<Daily[]>("/api/routines?mode=daily");
 export const fetchRoutines = routinesApi.list;
 export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;
@@ -206,7 +210,8 @@ export const fetchSingleResource = resourcesApi.get;
 export const fetchSingleTopic = topicsApi.get;
 export const fetchSingleProvider = providersApi.get;
 export const fetchSingleDomain = domainsApi.get;
-export const fetchSingleDaily = dailiesApi.get;
+export const fetchSingleDaily = (id: string) =>
+  fetchJson<Daily>(`/api/routines/${id}`);
 export const fetchSingleRoutine = routinesApi.get;
 export const fetchSingleTask = tasksApi.get;
 
@@ -214,7 +219,10 @@ export const upsertResource = resourcesApi.upsert;
 export const upsertTopic = topicsApi.upsert;
 export const upsertProvider = providersApi.upsert;
 export const upsertDomain = domainsApi.upsert;
-export const upsertDaily = dailiesApi.upsert;
+// No mode injection: the routines upsert merges partially, so an absent `mode`
+// preserves the row's existing mode. This keeps completion edits safe on both
+// daily- and weekly-mode routines (a weekly routine is never flipped to daily).
+export const upsertDaily = routinesApi.upsert;
 export const upsertRoutine = routinesApi.upsert;
 export const upsertTask = tasksApi.upsert;
 export const upsertTaskType = taskTypesApi.upsert;
@@ -229,7 +237,6 @@ export const upsertRoutineTemplate = routineTemplatesApi.upsert;
 export const createTopic = topicsApi.create;
 export const createProvider = providersApi.create;
 export const createDomain = domainsApi.create;
-export const createDaily = dailiesApi.create;
 export const createRoutine = routinesApi.create;
 export const createTask = tasksApi.create;
 export const createTaskType = taskTypesApi.create;
@@ -259,7 +266,7 @@ export async function bulkDeleteTopics(
 
 export const deleteSinglePlatform = providersApi.delete;
 export const deleteSingleDomain = domainsApi.delete;
-export const deleteSingleDaily = dailiesApi.delete;
+export const deleteSingleDaily = routinesApi.delete;
 export const deleteSingleRoutine = routinesApi.delete;
 export const deleteSingleTask = tasksApi.delete;
 export const deleteSingleTaskType = taskTypesApi.delete;
@@ -273,7 +280,6 @@ export const deleteSingleRoutineTemplate = routineTemplatesApi.delete;
 
 export const duplicateResource = resourcesApi.duplicate;
 export const duplicateDomain = domainsApi.duplicate;
-export const duplicateDaily = dailiesApi.duplicate;
 export const duplicateRoutine = routinesApi.duplicate;
 
 export async function fetchSeed(): Promise<SuccessObj> {

@@ -38,15 +38,6 @@ export default async function (server: FastifyInstance) {
             },
           },
         },
-        dailies: {
-          columns: {
-            id: true,
-            name: true,
-            location: true,
-            description: true,
-            completions: true,
-          },
-        },
         resourceTags: {
           with: {
             tag: true,

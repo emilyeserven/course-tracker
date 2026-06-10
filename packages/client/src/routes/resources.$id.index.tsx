@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -8,16 +8,13 @@ import { TopicList } from "@/components/boxElements/TopicList";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
 import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
-import { DailyEditDialog, DailySection } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { Button } from "@/components/ui/button";
-import { fetchSingleResource, makePercentageComplete } from "@/utils";
+import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 
 interface CourseSearch {
   promptDaily?: 1;
-  dailySection?: string;
-  dailyMode?: "view" | "edit";
 }
 
 export const Route = createFileRoute("/resources/$id/")({
@@ -25,14 +22,6 @@ export const Route = createFileRoute("/resources/$id/")({
   validateSearch: (search: Record<string, unknown>): CourseSearch => ({
     promptDaily:
       search.promptDaily === 1 || search.promptDaily === "1" ? 1 : undefined,
-    dailySection:
-      typeof search.dailySection === "string" && search.dailySection
-        ? search.dailySection
-        : undefined,
-    dailyMode:
-      search.dailyMode === "view" || search.dailyMode === "edit"
-        ? search.dailyMode
-        : undefined,
   }),
 });
 
@@ -46,16 +35,6 @@ function SingleCourse() {
   const [dailyPromptOpen, setDailyPromptOpen] = useState<boolean>(
     search.promptDaily === 1,
   );
-  const [createDailyOpen, setCreateDailyOpen] = useState(false);
-  // Track which daily section was auto-targeted by search params so we only
-  // surface the auto-open hint to the matching DailySection.
-  const [autoOpenedFor, setAutoOpenedFor] = useState<string | null>(
-    search.dailySection ?? null,
-  );
-
-  useEffect(() => {
-    setAutoOpenedFor(search.dailySection ?? null);
-  }, [search.dailySection]);
 
   const {
     data,
@@ -64,64 +43,83 @@ function SingleCourse() {
     queryFn: () => fetchSingleResource(id),
   });
 
+  const {
+    data: routines,
+  } = useQuery({
+    queryKey: ["routines"],
+    queryFn: () => fetchRoutines(),
+  });
+
   const percentComplete = makePercentageComplete(
     data?.progressCurrent,
     data?.progressTotal,
   );
 
   const topics = data?.topics ?? null;
-  const dailies = data?.dailies ?? [];
 
-  const clearDailySearch = () => {
-    void navigate({
-      to: "/resources/$id",
-      params: {
-        id,
-      },
-      search: {
-        promptDaily: search.promptDaily,
-      },
-      replace: true,
-    });
-  };
+  // The resource → routine link lives inside each routine's weekly grid.
+  const linkedRoutines = (routines ?? []).filter(r =>
+    Object.values(r.weekly ?? {}).some(
+      e => e?.type === "resource" && e.id === id,
+    ));
 
   return (
     <div className="container flex-col gap-12">
       <InfoArea
-        header={`Dail${dailies.length === 1 ? "y" : "ies"}`}
+        header="Routines"
         condition={true}
       >
         <div className="flex flex-col gap-3">
-          {dailies.length === 0 && (
+          {linkedRoutines.length === 0 && (
             <span className="text-sm text-muted-foreground">
-              No dailies linked to this resource yet.
+              No routines include this resource yet.
             </span>
           )}
-          {dailies.map(daily => (
-            <DailySection
-              key={daily.id}
-              daily={{
-                id: daily.id,
-                name: daily.name,
-                location: daily.location ?? null,
-                status: daily.status ?? "active",
-              }}
-              lockedResourceId={id}
-              autoOpenMode={
-                autoOpenedFor === daily.id ? search.dailyMode : null
-              }
-              onAutoOpenConsumed={clearDailySearch}
-            />
+          {linkedRoutines.map(r => (
+            <div
+              key={r.id}
+              className="
+                flex flex-row items-center justify-between gap-2 rounded-md
+                border bg-card p-3
+              "
+            >
+              <Link
+                to="/routines/$id"
+                params={{
+                  id: r.id,
+                }}
+                className="
+                  font-medium
+                  hover:text-blue-600
+                "
+              >
+                {r.name}
+              </Link>
+              <span className="text-xs text-muted-foreground">
+                {r.mode === "daily" ? "Daily" : "Weekly"}
+              </span>
+            </div>
           ))}
           <div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCreateDailyOpen(true)}
+            <Link
+              to="/routines/$id/edit"
+              params={{
+                id: "new",
+              }}
+              search={{
+                mode: "daily",
+                entryType: "resource",
+                entryId: id,
+              }}
             >
-              <PlusIcon />
-              New Daily
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                <PlusIcon />
+                New Routine
+              </Button>
+            </Link>
           </div>
         </div>
       </InfoArea>
@@ -244,10 +242,10 @@ function SingleCourse() {
       </InfoRow>
       <ConfirmDialog
         open={dailyPromptOpen}
-        title="Create a Daily for this resource?"
-        description="You marked this resource as active. Want to create a Daily that tracks your progress on it?"
+        title="Create a Routine for this resource?"
+        description="You marked this resource as active. Want to create a daily Routine that tracks your progress on it?"
         cancelLabel="No thanks"
-        confirmLabel="Create Daily"
+        confirmLabel="Create Routine"
         onCancel={async () => {
           setDailyPromptOpen(false);
           await navigate({
@@ -262,22 +260,17 @@ function SingleCourse() {
         onConfirm={async () => {
           setDailyPromptOpen(false);
           await navigate({
-            to: "/resources/$id",
+            to: "/routines/$id/edit",
             params: {
-              id,
+              id: "new",
             },
-            search: {},
-            replace: true,
+            search: {
+              mode: "daily",
+              entryType: "resource",
+              entryId: id,
+            },
           });
-          setCreateDailyOpen(true);
         }}
-      />
-      <DailyEditDialog
-        open={createDailyOpen}
-        onOpenChange={setCreateDailyOpen}
-        id="new"
-        isNew
-        lockedResourceId={id}
       />
     </div>
   );

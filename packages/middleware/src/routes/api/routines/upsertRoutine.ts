@@ -4,8 +4,12 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { routines } from "@/db/schema";
 import type { RoutineWeekly } from "@/db/schema";
+import type { DailyCompletion, DailyCriteria } from "@emstack/types";
 import {
+  completionSchema,
+  criteriaSchema,
   idParamSchema,
+  nullableRoutineModeEnum,
   nullableRoutineStatusEnum,
   nullableString,
   weeklySchema,
@@ -27,6 +31,13 @@ const upsertSchema = {
         topicId: nullableString,
         status: nullableRoutineStatusEnum,
         weekly: weeklySchema,
+        mode: nullableRoutineModeEnum,
+        location: nullableString,
+        completions: {
+          type: "array",
+          items: completionSchema,
+        },
+        criteria: criteriaSchema,
       },
     },
   },
@@ -40,37 +51,68 @@ export default async function (server: FastifyInstance) {
     upsertSchema,
     async function (request) {
       const {
-        id,
+        id: paramId,
       } = request.params;
       const body = request.body;
+      const id = paramId || uuidv4();
 
-      const routineData = {
-        id: id || uuidv4(),
-        name: body.name,
-        description: body.description ?? null,
-        topicId: body.topicId || null,
-        status: body.status ?? "active",
-        weekly: (body.weekly ?? {}) as RoutineWeekly,
-      };
+      // Partial merge: only the columns present in the request body are written
+      // on update. The daily tracker / dashboard / comment popover send partial
+      // payloads (e.g. just completions), so this preserves the routine's mode,
+      // topic, weekly grid and criteria instead of resetting them to defaults.
+      const set: Partial<typeof routines.$inferInsert> = {};
+      if (body.name !== undefined) {
+        set.name = body.name;
+      }
+      if (body.description !== undefined) {
+        set.description = body.description ?? null;
+      }
+      if (body.topicId !== undefined) {
+        set.topicId = body.topicId || null;
+      }
+      if (body.status !== undefined) {
+        set.status = body.status ?? "active";
+      }
+      if (body.weekly !== undefined) {
+        set.weekly = body.weekly as RoutineWeekly;
+      }
+      if (body.mode !== undefined) {
+        set.mode = body.mode ?? "weekly";
+      }
+      if (body.location !== undefined) {
+        set.location = body.location ?? null;
+      }
+      if (body.completions !== undefined) {
+        set.completions = body.completions as DailyCompletion[];
+      }
+      if (body.criteria !== undefined) {
+        set.criteria = body.criteria as DailyCriteria;
+      }
 
       await db.transaction(async (tx) => {
         await tx
           .insert(routines)
-          .values(routineData)
+          .values({
+            id,
+            name: body.name,
+            description: body.description ?? null,
+            topicId: body.topicId || null,
+            status: body.status ?? "active",
+            weekly: (body.weekly ?? {}) as RoutineWeekly,
+            mode: body.mode ?? "weekly",
+            location: body.location ?? null,
+            completions: (body.completions ?? []) as DailyCompletion[],
+            criteria: (body.criteria ?? {}) as DailyCriteria,
+          })
           .onConflictDoUpdate({
             target: routines.id,
-            set: {
-              name: routineData.name,
-              description: routineData.description,
-              topicId: routineData.topicId,
-              status: routineData.status,
-              weekly: routineData.weekly,
-            },
+            set,
           });
 
-        // Single-active-per-topic enforcement: activating this routine
-        // deactivates its siblings on the same topic.
-        if (routineData.status === "active" && routineData.topicId) {
+        // Single-active-per-topic enforcement only runs when this request both
+        // activates the routine and names its topic, so a partial completion
+        // toggle never reshuffles a topic's active slot.
+        if (set.status === "active" && set.topicId) {
           await tx
             .update(routines)
             .set({
@@ -78,8 +120,8 @@ export default async function (server: FastifyInstance) {
             })
             .where(
               and(
-                eq(routines.topicId, routineData.topicId),
-                ne(routines.id, routineData.id),
+                eq(routines.topicId, set.topicId),
+                ne(routines.id, id),
               ),
             );
         }
@@ -87,7 +129,7 @@ export default async function (server: FastifyInstance) {
 
       return {
         status: "ok",
-        id: routineData.id,
+        id,
       };
     },
   );
