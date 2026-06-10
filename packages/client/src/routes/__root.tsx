@@ -16,7 +16,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -99,7 +98,10 @@ const RootComponent: React.FunctionComponent = () => {
             </Link>
           )}
 
-          <NavDropdown label="Records">
+          <NavDropdown
+            label="Records"
+            to="/records"
+          >
             <DropdownMenuItem
               asChild
               className="cursor-pointer"
@@ -120,7 +122,10 @@ const RootComponent: React.FunctionComponent = () => {
             </DropdownMenuItem>
           </NavDropdown>
 
-          <NavDropdown label="Plans">
+          <NavDropdown
+            label="Plans"
+            to="/plans"
+          >
             <DropdownMenuItem
               asChild
               className="cursor-pointer"
@@ -129,7 +134,10 @@ const RootComponent: React.FunctionComponent = () => {
             </DropdownMenuItem>
           </NavDropdown>
 
-          <NavDropdown label="Actions">
+          <NavDropdown
+            label="Actions"
+            to="/actions"
+          >
             <DropdownMenuItem
               asChild
               className="cursor-pointer"
@@ -199,7 +207,12 @@ const RootComponent: React.FunctionComponent = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Records</DropdownMenuLabel>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer font-semibold"
+                >
+                  <Link to="/records">Records</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
                   className="cursor-pointer"
@@ -221,7 +234,12 @@ const RootComponent: React.FunctionComponent = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Plans</DropdownMenuLabel>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer font-semibold"
+                >
+                  <Link to="/plans">Plans</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
                   className="cursor-pointer"
@@ -231,7 +249,12 @@ const RootComponent: React.FunctionComponent = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer font-semibold"
+                >
+                  <Link to="/actions">Actions</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   asChild
                   className="cursor-pointer"
