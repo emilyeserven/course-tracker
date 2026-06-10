@@ -1,3 +1,4 @@
+import type { TopicsTableSort } from "@/components/boxes/TopicsTable";
 import type { TopicForTopicsPage } from "@emstack/types/src";
 
 import { useEffect, useMemo, useState } from "react";
@@ -33,8 +34,66 @@ import {
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { bulkDeleteTopics, fetchDomains, fetchTopics } from "@/utils";
 
-type SortOption = "alpha-asc" | "alpha-desc" | "resources";
+type SortOption
+  = | "alpha-asc"
+    | "alpha-desc"
+    | "resources-desc"
+    | "tasks-desc"
+    | "dailies-desc"
+    | "custom";
 type ViewMode = "grid" | "table";
+
+const DEFAULT_SORT: TopicsTableSort = {
+  column: "name",
+  direction: "asc",
+};
+
+function sortToOption(sort: TopicsTableSort): SortOption {
+  if (sort.column === "name" && sort.direction === "asc") return "alpha-asc";
+  if (sort.column === "name" && sort.direction === "desc") return "alpha-desc";
+  if (sort.column === "resources" && sort.direction === "desc") {
+    return "resources-desc";
+  }
+  if (sort.column === "tasks" && sort.direction === "desc") {
+    return "tasks-desc";
+  }
+  if (sort.column === "dailies" && sort.direction === "desc") {
+    return "dailies-desc";
+  }
+  return "custom";
+}
+
+function optionToSort(option: SortOption): TopicsTableSort {
+  switch (option) {
+    case "alpha-asc":
+      return {
+        column: "name",
+        direction: "asc",
+      };
+    case "alpha-desc":
+      return {
+        column: "name",
+        direction: "desc",
+      };
+    case "resources-desc":
+      return {
+        column: "resources",
+        direction: "desc",
+      };
+    case "tasks-desc":
+      return {
+        column: "tasks",
+        direction: "desc",
+      };
+    case "dailies-desc":
+      return {
+        column: "dailies",
+        direction: "desc",
+      };
+    case "custom":
+      return DEFAULT_SORT;
+  }
+}
 
 const VIEW_MODE_STORAGE_KEY = "topics:viewMode";
 
@@ -58,18 +117,33 @@ function TopicsError() {
   return <EntityError entity="topics" />;
 }
 
+function firstDomainTitle(topic: TopicForTopicsPage): string {
+  const first = topic.domains?.find(d => d.id !== undefined);
+  return first?.title ?? "";
+}
+
 function sortTopics(
   topics: TopicForTopicsPage[],
-  sortBy: SortOption,
+  sort: TopicsTableSort,
 ): TopicForTopicsPage[] {
+  const dir = sort.direction === "asc" ? 1 : -1;
   return [...topics].sort((a, b) => {
-    switch (sortBy) {
-      case "alpha-asc":
-        return a.name.localeCompare(b.name);
-      case "alpha-desc":
-        return b.name.localeCompare(a.name);
+    switch (sort.column) {
+      case "name":
+        return a.name.localeCompare(b.name) * dir;
+      case "domains": {
+        const cmp = firstDomainTitle(a).localeCompare(firstDomainTitle(b));
+        return cmp !== 0 ? cmp * dir : a.name.localeCompare(b.name);
+      }
       case "resources":
-        return (b.resourceCount ?? 0) - (a.resourceCount ?? 0);
+        return ((a.resourceCount ?? 0) - (b.resourceCount ?? 0)) * dir
+          || a.name.localeCompare(b.name);
+      case "tasks":
+        return ((a.taskCount ?? 0) - (b.taskCount ?? 0)) * dir
+          || a.name.localeCompare(b.name);
+      case "dailies":
+        return ((a.dailyCount ?? 0) - (b.dailyCount ?? 0)) * dir
+          || a.name.localeCompare(b.name);
     }
   });
 }
@@ -77,7 +151,7 @@ function sortTopics(
 function Topics() {
   const [search, setSearch] = useState("");
   const [filterDomain, setFilterDomain] = useState<string | undefined>();
-  const [sortBy, setSortBy] = useState<SortOption>("alpha-asc");
+  const [sort, setSort] = useState<TopicsTableSort>(DEFAULT_SORT);
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -128,8 +202,8 @@ function Topics() {
         t.domains?.some(d => d.id === filterDomain));
     }
 
-    return sortTopics(result, sortBy);
-  }, [data, search, filterDomain, sortBy]);
+    return sortTopics(result, sort);
+  }, [data, search, filterDomain, sort]);
 
   const filteredIds = useMemo(
     () => filteredAndSorted.map(t => t.id),
@@ -298,8 +372,12 @@ function Topics() {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Sort</span>
                 <Select
-                  value={sortBy}
-                  onValueChange={v => setSortBy(v as SortOption)}
+                  value={sortToOption(sort)}
+                  onValueChange={(v) => {
+                    const option = v as SortOption;
+                    if (option === "custom") return;
+                    setSort(optionToSort(option));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sort by" />
@@ -307,9 +385,18 @@ function Topics() {
                   <SelectContent>
                     <SelectItem value="alpha-asc">A-Z</SelectItem>
                     <SelectItem value="alpha-desc">Z-A</SelectItem>
-                    <SelectItem value="resources">
+                    <SelectItem value="resources-desc">
                       Number of linked resources
                     </SelectItem>
+                    <SelectItem value="tasks-desc">
+                      Number of linked tasks
+                    </SelectItem>
+                    <SelectItem value="dailies-desc">
+                      Number of linked dailies
+                    </SelectItem>
+                    {sortToOption(sort) === "custom" && (
+                      <SelectItem value="custom">Custom</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
                 <div
@@ -444,6 +531,8 @@ function Topics() {
                     onToggleSelected: handleToggleSelected,
                     onToggleAll: handleToggleAll,
                   }}
+                  sort={sort}
+                  onSortChange={setSort}
                 />
               </>
             )}
