@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { bulkDeleteTopics, fetchDomains, fetchTopics } from "@/utils";
 
 type SortOption = "alpha-asc" | "alpha-desc" | "resources";
@@ -217,6 +218,7 @@ function Topics() {
       <PageHeader
         pageTitle="Topics"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.topics}
       />
       <div className="container flex flex-col gap-4">
         <div>

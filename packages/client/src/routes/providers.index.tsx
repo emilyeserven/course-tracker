@@ -9,6 +9,7 @@ import { ProviderBox } from "@/components/boxes/ProviderBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchProviders } from "@/utils";
 
 export const Route = createFileRoute("/providers/")({
@@ -38,6 +39,7 @@ function Providers() {
       <PageHeader
         pageTitle="Providers"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.providers}
       >
         <Link
           to="/providers/$id/edit"

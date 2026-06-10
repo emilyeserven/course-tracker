@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchResources, fetchProviders, fetchTopics } from "@/utils";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
@@ -176,6 +177,7 @@ function Courses() {
       <PageHeader
         pageTitle="Your Resources"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.resources}
       >
         <Link
           to="/resources/$id/edit"

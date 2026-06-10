@@ -9,6 +9,7 @@ import { DomainBox } from "@/components/boxes/DomainBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchDomains } from "@/utils";
 
 export const Route = createFileRoute("/domains/")({
@@ -38,6 +39,7 @@ function DomainsIndex() {
       <PageHeader
         pageTitle="Domains"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.domains}
       >
         <Link
           to="/domains/$id/edit"

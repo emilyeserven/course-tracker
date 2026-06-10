@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchTasks, fetchTopics } from "@/utils";
 
 interface TasksSearch {
@@ -108,6 +109,7 @@ function Tasks() {
       <PageHeader
         pageTitle="Tasks"
         pageSection=""
+        description={ENTITY_DESCRIPTIONS.tasks}
       >
         <Link
           to="/tasks/$id/edit"

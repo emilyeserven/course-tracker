@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 interface PageHeaderProps {
   pageTitle?: string;
   pageSection?: "" | "resources" | "topics" | "providers" | "domains" | "dailies" | "tasks";
+  description?: React.ReactNode;
   children?: React.ReactNode;
   progressCurrent?: number;
   progressTotal?: number;
@@ -17,6 +18,7 @@ interface PageHeaderProps {
 export function PageHeader({
   pageTitle = "",
   pageSection = "",
+  description,
   children,
   progressCurrent = 0,
   progressTotal = 0,
@@ -91,6 +93,11 @@ export function PageHeader({
           >
             <div>
               <h1 className="text-3xl">{pageTitle}</h1>
+              {description && (
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                  {description}
+                </p>
+              )}
             </div>
             {children && <div>{children}</div>}
           </div>
