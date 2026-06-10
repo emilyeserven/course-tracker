@@ -14,10 +14,13 @@ import {
 
 interface DailyDetailsPanelProps {
   dailyId: string;
+  /** Extra content rendered at the top of the Details tab. */
+  detailsContent?: React.ReactNode;
 }
 
 export function DailyDetailsPanel({
   dailyId,
+  detailsContent,
 }: DailyDetailsPanelProps) {
   const {
     isPending, error, data,
@@ -84,6 +87,7 @@ export function DailyDetailsPanel({
 
       <TabsContent value="details">
         <div className="flex flex-col gap-6">
+          {detailsContent}
           <InfoArea
             header="Description"
             condition={!!data.description}
