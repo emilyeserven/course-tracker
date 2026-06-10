@@ -11,6 +11,9 @@ export type RoutineMode = "weekly" | "daily";
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;
   id: string;
+  // Optional free-text annotation for this day's scheduled item (e.g. "focus
+  // on the subjunctive"). Empty/absent means no note.
+  notes?: string | null;
 }
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
