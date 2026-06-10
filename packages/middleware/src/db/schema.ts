@@ -22,7 +22,7 @@ export interface DailyCriteria {
 export type RoutineWeekday = "0" | "1" | "2" | "3" | "4" | "5" | "6";
 
 export interface RoutineReferenceItem {
-  type: "task" | "resource";
+  type: "task" | "resource" | "freeform";
   id: string;
 }
 

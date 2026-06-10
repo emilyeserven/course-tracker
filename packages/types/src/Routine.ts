@@ -1,6 +1,6 @@
 import type { EntityStatus } from "./EntityStatus";
 
-export type RoutineReferenceType = "task" | "resource";
+export type RoutineReferenceType = "task" | "resource" | "freeform";
 
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;

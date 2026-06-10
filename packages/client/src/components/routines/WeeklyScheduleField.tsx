@@ -90,41 +90,59 @@ export function WeeklyScheduleField({
                 <option value="">— None —</option>
                 <option value="task">Task</option>
                 <option value="resource">Resource</option>
+                <option value="freeform">Freeform</option>
               </select>
 
-              <Combobox
-                items={itemOptions.map(o => o.value)}
-                value={row.id || null}
-                onValueChange={val => update(day, {
-                  id: val ?? "",
-                })}
-                itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-              >
-                <ComboboxInput
-                  placeholder={
-                    row.type === "task"
-                      ? "Search tasks..."
-                      : row.type === "resource"
-                        ? "Search resources..."
-                        : "Pick a type first"
-                  }
-                  showClear
-                  disabled={!row.type}
-                />
-                <ComboboxContent>
-                  <ComboboxEmpty>No items found.</ComboboxEmpty>
-                  <ComboboxList>
-                    {(val: string) => (
-                      <ComboboxItem
-                        key={val}
-                        value={val}
-                      >
-                        {optionsMap.get(val) ?? val}
-                      </ComboboxItem>
-                    )}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
+              {row.type === "freeform"
+                ? (
+                  <input
+                    aria-label={`${DAY_LABELS[day]} description`}
+                    value={row.id}
+                    onChange={e => update(day, {
+                      id: e.target.value,
+                    })}
+                    placeholder="Describe the activity…"
+                    className="
+                      flex h-9 w-full rounded-md border bg-background px-2
+                      text-sm
+                    "
+                  />
+                )
+                : (
+                  <Combobox
+                    items={itemOptions.map(o => o.value)}
+                    value={row.id || null}
+                    onValueChange={val => update(day, {
+                      id: val ?? "",
+                    })}
+                    itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+                  >
+                    <ComboboxInput
+                      placeholder={
+                        row.type === "task"
+                          ? "Search tasks..."
+                          : row.type === "resource"
+                            ? "Search resources..."
+                            : "Pick a type first"
+                      }
+                      showClear
+                      disabled={!row.type}
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(val: string) => (
+                          <ComboboxItem
+                            key={val}
+                            value={val}
+                          >
+                            {optionsMap.get(val) ?? val}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                )}
             </li>
           );
         })}

@@ -1,6 +1,6 @@
 import type { RoutineWeekday, RoutineWeekly } from "@emstack/types/src";
 
-export type WeeklyRowType = "" | "task" | "resource";
+export type WeeklyRowType = "" | "task" | "resource" | "freeform";
 
 export interface WeeklyRow {
   day: RoutineWeekday;
@@ -45,7 +45,7 @@ export function weeklyToRows(
 export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
   const weekly: RoutineWeekly = {};
   for (const row of rows) {
-    if ((row.type === "task" || row.type === "resource") && row.id) {
+    if ((row.type === "task" || row.type === "resource" || row.type === "freeform") && row.id) {
       weekly[row.day] = {
         type: row.type,
         id: row.id,

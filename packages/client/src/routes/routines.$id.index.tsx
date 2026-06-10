@@ -138,34 +138,47 @@ function SingleRoutine() {
                 >
                   <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
                   {entry
-                    ? (
-                      <Link
-                        to={
-                          entry.type === "task"
-                            ? "/tasks/$id"
-                            : "/resources/$id"
-                        }
-                        params={{
-                          id: entry.id,
-                        }}
-                        className="
-                          text-blue-800
-                          hover:text-blue-600
-                          dark:text-blue-300
-                        "
-                      >
-                        <span
+                    ? entry.type === "freeform"
+                      ? (
+                        <span className="text-sm">
+                          <span
+                            className="
+                              mr-2 text-xs text-muted-foreground uppercase
+                            "
+                          >
+                            freeform
+                          </span>
+                          {entry.id}
+                        </span>
+                      )
+                      : (
+                        <Link
+                          to={
+                            entry.type === "task"
+                              ? "/tasks/$id"
+                              : "/resources/$id"
+                          }
+                          params={{
+                            id: entry.id,
+                          }}
                           className="
-                            mr-2 text-xs text-muted-foreground uppercase
+                            text-blue-800
+                            hover:text-blue-600
+                            dark:text-blue-300
                           "
                         >
-                          {entry.type}
-                        </span>
-                        {entry.type === "task"
-                          ? (taskNames.get(entry.id) ?? entry.id)
-                          : (resourceNames.get(entry.id) ?? entry.id)}
-                      </Link>
-                    )
+                          <span
+                            className="
+                              mr-2 text-xs text-muted-foreground uppercase
+                            "
+                          >
+                            {entry.type}
+                          </span>
+                          {entry.type === "task"
+                            ? (taskNames.get(entry.id) ?? entry.id)
+                            : (resourceNames.get(entry.id) ?? entry.id)}
+                        </Link>
+                      )
                     : (
                       <span className="text-sm text-muted-foreground italic">
                         Nothing scheduled
