@@ -1,24 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
 import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
-import { DailyRecentDaysStrip } from "@/components/dailies";
+import { DailyEditDialog, DailySection } from "@/components/dailies";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
-import {
-  fetchSingleResource,
-  getCurrentChain,
-  getTotalCompletedDays,
-  makePercentageComplete,
-} from "@/utils";
+import { Button } from "@/components/ui/button";
+import { fetchSingleResource, makePercentageComplete } from "@/utils";
 
 interface CourseSearch {
   promptDaily?: 1;
+  dailySection?: string;
+  dailyMode?: "view" | "edit";
 }
 
 export const Route = createFileRoute("/resources/$id/")({
@@ -26,6 +25,14 @@ export const Route = createFileRoute("/resources/$id/")({
   validateSearch: (search: Record<string, unknown>): CourseSearch => ({
     promptDaily:
       search.promptDaily === 1 || search.promptDaily === "1" ? 1 : undefined,
+    dailySection:
+      typeof search.dailySection === "string" && search.dailySection
+        ? search.dailySection
+        : undefined,
+    dailyMode:
+      search.dailyMode === "view" || search.dailyMode === "edit"
+        ? search.dailyMode
+        : undefined,
   }),
 });
 
@@ -39,6 +46,16 @@ function SingleCourse() {
   const [dailyPromptOpen, setDailyPromptOpen] = useState<boolean>(
     search.promptDaily === 1,
   );
+  const [createDailyOpen, setCreateDailyOpen] = useState(false);
+  // Track which daily section was auto-targeted by search params so we only
+  // surface the auto-open hint to the matching DailySection.
+  const [autoOpenedFor, setAutoOpenedFor] = useState<string | null>(
+    search.dailySection ?? null,
+  );
+
+  useEffect(() => {
+    setAutoOpenedFor(search.dailySection ?? null);
+  }, [search.dailySection]);
 
   const {
     data,
@@ -55,50 +72,58 @@ function SingleCourse() {
   const topics = data?.topics ?? null;
   const dailies = data?.dailies ?? [];
 
+  const clearDailySearch = () => {
+    void navigate({
+      to: "/resources/$id",
+      params: {
+        id,
+      },
+      search: {
+        promptDaily: search.promptDaily,
+      },
+      replace: true,
+    });
+  };
+
   return (
     <div className="container flex-col gap-12">
       <InfoArea
         header={`Dail${dailies.length === 1 ? "y" : "ies"}`}
-        condition={dailies.length > 0}
+        condition={true}
       >
-        <ul className="flex flex-col gap-4">
-          {dailies.map((daily) => {
-            const chain = getCurrentChain(daily);
-            const total = getTotalCompletedDays(daily);
-            return (
-              <li
-                key={daily.id}
-                className="flex flex-col gap-2 rounded-sm border p-3"
-              >
-                <div
-                  className="flex flex-row items-center justify-between gap-3"
-                >
-                  <Link
-                    to="/dailies/$id"
-                    params={{
-                      id: daily.id,
-                    }}
-                    className={`
-                      font-medium
-                      hover:text-blue-600
-                    `}
-                  >
-                    {daily.name}
-                  </Link>
-                  <span className="text-xs text-muted-foreground">
-                    {`${chain}-day chain · ${total} total`}
-                  </span>
-                </div>
-                <DailyRecentDaysStrip
-                  daily={daily}
-                  count={14}
-                  labelFormat="mmdd"
-                  size="sm"
-                />
-              </li>
-            );
-          })}
-        </ul>
+        <div className="flex flex-col gap-3">
+          {dailies.length === 0 && (
+            <span className="text-sm text-muted-foreground">
+              No dailies linked to this resource yet.
+            </span>
+          )}
+          {dailies.map(daily => (
+            <DailySection
+              key={daily.id}
+              daily={{
+                id: daily.id,
+                name: daily.name,
+                location: daily.location ?? null,
+                status: daily.status ?? "active",
+              }}
+              lockedResourceId={id}
+              autoOpenMode={
+                autoOpenedFor === daily.id ? search.dailyMode : null
+              }
+              onAutoOpenConsumed={clearDailySearch}
+            />
+          ))}
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCreateDailyOpen(true)}
+            >
+              <PlusIcon />
+              New Daily
+            </Button>
+          </div>
+        </div>
       </InfoArea>
       <InfoArea
         header="About"
@@ -237,15 +262,22 @@ function SingleCourse() {
         onConfirm={async () => {
           setDailyPromptOpen(false);
           await navigate({
-            to: "/dailies/$id/edit",
+            to: "/resources/$id",
             params: {
-              id: "new",
+              id,
             },
-            search: {
-              newCourseId: id,
-            },
+            search: {},
+            replace: true,
           });
+          setCreateDailyOpen(true);
         }}
+      />
+      <DailyEditDialog
+        open={createDailyOpen}
+        onOpenChange={setCreateDailyOpen}
+        id="new"
+        isNew
+        lockedResourceId={id}
       />
     </div>
   );
