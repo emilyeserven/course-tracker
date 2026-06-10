@@ -1,5 +1,7 @@
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Textarea } from "@/components/textarea";
+import { cn } from "@/lib/utils";
+import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface TextareaFieldProps {
@@ -20,9 +22,13 @@ export function TextareaField({
   const {
     field, isInvalid,
   } = useIsFieldInvalid<string>();
+  const showChanged = useFieldChangeHighlight();
 
   return (
-    <Field data-invalid={isInvalid}>
+    <Field
+      data-invalid={isInvalid}
+      className={cn(showChanged && changedFieldClass)}
+    >
       <FieldLabel
         htmlFor={field.name}
         className={className}
