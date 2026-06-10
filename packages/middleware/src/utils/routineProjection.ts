@@ -97,9 +97,12 @@ export function mapRoutineToDaily(
     task: resolved.task ?? null,
   });
 
-  // Wrap the representative entry's name with its prepend/append text into a
-  // natural sentence. Only set when the user actually added prepend/append text,
-  // so untouched dailies keep falling back to the routine name.
+  // Surface the representative entry's resolved name (task/resource/freeform) as
+  // the daily's action title, wrapped with any prepend/append text into a
+  // natural sentence. Set whenever the entry resolves to a name — affixes are
+  // optional and may be null — so a daily assigned to something shows that
+  // thing's name even without affixes, with the routine name rendered beneath.
+  // A daily with no representative entry still falls back to the routine name.
   const entry = representativeEntry(routine.weekly);
   const baseName
     = resolved.resource?.name
@@ -109,7 +112,7 @@ export function mapRoutineToDaily(
   // than the surrounding text; the flat label is derived from them so the two
   // never drift.
   const actionParts
-    = entry && baseName && (entry.prependText || entry.appendText)
+    = entry && baseName
       ? {
         prependText: entry.prependText ?? null,
         name: baseName,

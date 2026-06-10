@@ -28,12 +28,15 @@ export interface DailyTaskProgress {
 export interface Daily {
   id: string;
   name: string;
-  // The representative entry's name wrapped with its prepend/append text into a
-  // natural sentence (e.g. "Review Spanish flashcards for 10 minutes"). Null
-  // unless prepend or append text is set; consumers fall back to `name`.
+  // The representative entry's resolved name (task/resource/freeform), wrapped
+  // with any prepend/append text into a natural sentence (e.g. "Review Spanish
+  // flashcards for 10 minutes"). Null unless the daily is assigned to something;
+  // consumers fall back to `name` (the routine title).
   actionLabel?: string | null;
   // Structured form of `actionLabel` for styled rendering (affixes lighter than
-  // the name). Null unless prepend/append text is set; consumers fall back to `name`.
+  // the name). Null unless the daily is assigned to something; consumers fall
+  // back to `name` (the routine title), which is also shown as a de-emphasized
+  // subline when it differs from the action name.
   actionParts?: {
     prependText?: string | null;
     name: string;

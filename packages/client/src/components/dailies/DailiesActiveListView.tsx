@@ -5,7 +5,6 @@ import { Fragment } from "react";
 import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { ActionableSentence } from "./ActionableSentence";
 import { DailyCommentPopover } from "./DailyCommentPopover";
 import { DailyCourseIndicator } from "./DailyCourseIndicator";
 import { DailyLocationCell } from "./DailyLocationCell";
@@ -13,6 +12,7 @@ import { DailyProgressCell } from "./DailyProgressCell";
 import { DailyStatusCircle } from "./DailyStatusCircle";
 import { DailyStatusConnector } from "./DailyStatusConnector";
 import { DailyTaskIndicator } from "./DailyTaskIndicator";
+import { DailyTitle } from "./DailyTitle";
 import { TodayStatusCell } from "./TodayStatusCell";
 
 import { cn } from "@/lib/utils";
@@ -86,11 +86,7 @@ export function DailiesActiveListView({
                     hover:text-blue-600
                   "
                 >
-                  <ActionableSentence
-                    prependText={daily.actionParts?.prependText}
-                    appendText={daily.actionParts?.appendText}
-                    name={daily.actionParts?.name ?? daily.name}
-                  />
+                  <DailyTitle daily={daily} />
                 </Link>
                 {daily.description && (
                   <span

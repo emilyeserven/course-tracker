@@ -9,6 +9,7 @@ export { DailyDetailsPanel } from "./DailyDetailsPanel";
 export { DailyLocationCell } from "./DailyLocationCell";
 export { DailyProgressCell } from "./DailyProgressCell";
 export { DailyTaskIndicator } from "./DailyTaskIndicator";
+export { DailyTitle } from "./DailyTitle";
 export { DailyRecentDaysStrip } from "./DailyRecentDaysStrip";
 export { DailyStatusCircle } from "./DailyStatusCircle";
 export { DailyStatusConnector } from "./DailyStatusConnector";

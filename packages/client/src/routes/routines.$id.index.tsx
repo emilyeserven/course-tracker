@@ -28,7 +28,7 @@ import {
   getTotalCompletedDays,
 } from "@/utils";
 
-interface RoutineViewSearch {
+export interface RoutineViewSearch {
   tab?: DailyDetailTab;
 }
 
