@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Loader2 } from "lucide-react";
 
@@ -58,13 +58,6 @@ export function ComboboxCreatePanel({
     }
     return initial;
   });
-
-  useEffect(() => {
-    setValues(prev => ({
-      ...prev,
-      [primaryFieldName]: initialPrimaryValue,
-    }));
-  }, [initialPrimaryValue, primaryFieldName]);
 
   const canSubmit = config.fields.every(
     f => !f.required || (values[f.name] ?? "").trim().length > 0,

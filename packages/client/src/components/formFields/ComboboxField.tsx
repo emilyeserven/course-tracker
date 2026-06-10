@@ -15,7 +15,6 @@ import {
 } from "@/components/combobox";
 import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { Button } from "@/components/ui/button";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
 interface ComboboxFieldProps {
@@ -42,6 +41,7 @@ export function ComboboxField({
 
   const [inputValue, setInputValue] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
+  const [createInitialValue, setCreateInitialValue] = useState("");
   const [creating, setCreating] = useState(false);
 
   const optionsMap = new Map(options.map(o => [o.value, o.label]));
@@ -53,6 +53,7 @@ export function ComboboxField({
   const showAddRow = !!create && trimmedInput.length > 0 && !hasExactMatch;
 
   function openCreate() {
+    setCreateInitialValue(trimmedInput);
     setCreateOpen(true);
   }
 
@@ -115,33 +116,7 @@ export function ComboboxField({
               </span>
             </button>
           )}
-          <ComboboxEmpty>
-            {create
-              ? (
-                <div className="flex w-full flex-col items-center gap-2 py-3">
-                  <span>No items found.</span>
-                  {trimmedInput && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        openCreate();
-                      }}
-                    >
-                      <PlusIcon className="size-4" />
-                      Add new
-                      {" "}
-                      {create.itemLabel}
-                    </Button>
-                  )}
-                </div>
-              )
-              : (
-                "No items found."
-              )}
-          </ComboboxEmpty>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>
             {(value: string) => (
               <ComboboxItem
@@ -157,7 +132,7 @@ export function ComboboxField({
       {create && createOpen && (
         <ComboboxCreatePanel
           config={create}
-          initialPrimaryValue={trimmedInput}
+          initialPrimaryValue={createInitialValue}
           submitting={creating}
           onCancel={() => setCreateOpen(false)}
           onSubmit={handleCreateSubmit}
