@@ -77,36 +77,47 @@ function SingleRoutine() {
     : null;
 
   function renderEntryLink(entry: { type: string;
-    id: string; }) {
-    if (entry.type === "freeform") {
-      return (
+    id: string;
+    notes?: string | null; }) {
+    const main = entry.type === "freeform"
+      ? (
         <span className="text-sm">
           <span className="mr-2 text-xs text-muted-foreground uppercase">
             freeform
           </span>
           {entry.id}
         </span>
+      )
+      : (
+        <Link
+          to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
+          params={{
+            id: entry.id,
+          }}
+          className="
+            text-blue-800
+            hover:text-blue-600
+            dark:text-blue-300
+          "
+        >
+          <span className="mr-2 text-xs text-muted-foreground uppercase">
+            {entry.type}
+          </span>
+          {entry.type === "task"
+            ? (taskNames.get(entry.id) ?? entry.id)
+            : (resourceNames.get(entry.id) ?? entry.id)}
+        </Link>
       );
+
+    if (!entry.notes) {
+      return main;
     }
+
     return (
-      <Link
-        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-        params={{
-          id: entry.id,
-        }}
-        className="
-          text-blue-800
-          hover:text-blue-600
-          dark:text-blue-300
-        "
-      >
-        <span className="mr-2 text-xs text-muted-foreground uppercase">
-          {entry.type}
-        </span>
-        {entry.type === "task"
-          ? (taskNames.get(entry.id) ?? entry.id)
-          : (resourceNames.get(entry.id) ?? entry.id)}
-      </Link>
+      <span className="flex flex-col gap-0.5">
+        {main}
+        <span className="text-sm text-muted-foreground">{entry.notes}</span>
+      </span>
     );
   }
 
