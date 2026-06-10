@@ -16,6 +16,18 @@ export interface DailyCriteria {
   exceeded?: string;
 }
 
+// Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
+// Declared locally (mirroring DailyCompletion/DailyCriteria) to avoid a
+// circular dependency on @emstack/types from the schema layer.
+export type RoutineWeekday = "0" | "1" | "2" | "3" | "4" | "5" | "6";
+
+export interface RoutineReferenceItem {
+  type: "task" | "resource";
+  id: string;
+}
+
+export type RoutineWeekly = Partial<Record<RoutineWeekday, RoutineReferenceItem>>;
+
 export const usersTable = pgTable("users", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -208,6 +220,20 @@ export const dailies = pgTable("dailies", {
   taskId: varchar("task_id").unique(),
   status: statusEnum().default("active"),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
+});
+
+// A per-topic weekly plan: each day of the week optionally points at a Task
+// or a Resource to work on. Only one routine per topic should be "active" at a
+// time (enforced in the create/upsert handlers).
+export const routines = pgTable("routines", {
+  id: varchar().primaryKey(),
+  name: varchar({
+    length: 255,
+  }).notNull(),
+  description: varchar(),
+  topicId: varchar("topic_id"),
+  status: statusEnum().default("active"),
+  weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
 });
 
 export const dailyCriteriaTemplates = pgTable("daily_criteria_templates", {
@@ -580,6 +606,15 @@ export const dailiesRelations = relations(dailies, ({
   }),
 }));
 
+export const routinesRelations = relations(routines, ({
+  one,
+}) => ({
+  topic: one(topics, {
+    fields: [routines.topicId],
+    references: [topics.id],
+  }),
+}));
+
 export const resourcesRelations = relations(resources, ({
   one, many,
 }) => ({
@@ -632,6 +667,7 @@ export const topicsRelations = relations(topics, ({
   domainWithinScope: many(domainWithinScopeTopics),
   topicsToTags: many(topicsToTags),
   tasks: many(tasks),
+  routines: many(routines),
 }));
 
 export interface RadarConfigEntry {

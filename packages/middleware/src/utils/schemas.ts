@@ -35,6 +35,44 @@ export const nullableResourceLevelEnum = {
   enum: ["low", "medium", "high", null],
 } as const;
 
+// Routines use the full lifecycle status set (including "inactive", since the
+// single-active-per-topic rule deactivates siblings).
+export const nullableRoutineStatusEnum = {
+  type: ["string", "null"],
+  enum: ["active", "inactive", "complete", "paused", null],
+} as const;
+
+export const routineReferenceItemSchema = {
+  type: "object",
+  required: ["type", "id"],
+  properties: {
+    type: {
+      type: "string",
+      enum: ["task", "resource"],
+    },
+    id: {
+      type: "string",
+    },
+  },
+} as const;
+
+// Optional properties "0".."6" (Date.getDay() order), each a {type, id}. No
+// `required`, so every day is optional; additionalProperties:false keeps stray
+// keys out.
+export const weeklySchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    0: routineReferenceItemSchema,
+    1: routineReferenceItemSchema,
+    2: routineReferenceItemSchema,
+    3: routineReferenceItemSchema,
+    4: routineReferenceItemSchema,
+    5: routineReferenceItemSchema,
+    6: routineReferenceItemSchema,
+  },
+} as const;
+
 export const dailyCompletionStatusEnum = {
   type: "string",
   enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
