@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   pageTitle?: string;
-  pageSection?: "" | "resources" | "topics" | "providers" | "domains" | "dailies" | "tasks";
+  pageSection?: "" | "resources" | "topics" | "providers" | "domains" | "dailies" | "routines" | "tasks";
   description?: React.ReactNode;
   children?: React.ReactNode;
   progressCurrent?: number;
@@ -73,6 +73,14 @@ export function PageHeader({
                   className="text-sm uppercase"
                 >
                   Dailies
+                </Link>
+              )}
+              {pageSection === "routines" && (
+                <Link
+                  to="/routines"
+                  className="text-sm uppercase"
+                >
+                  Routines
                 </Link>
               )}
               {pageSection === "tasks" && (

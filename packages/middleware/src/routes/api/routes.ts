@@ -9,6 +9,7 @@ import topics from "./topics/routes";
 import providers from "./providers/routes";
 import domains from "./domains/routes";
 import dailies from "./dailies/routes";
+import routines from "./routines/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
 import tagGroups from "./tag-groups/routes";
@@ -38,6 +39,9 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(dailies, {
     prefix: "/dailies",
+  });
+  fastify.register(routines, {
+    prefix: "/routines",
   });
   fastify.register(tasks, {
     prefix: "/tasks",
