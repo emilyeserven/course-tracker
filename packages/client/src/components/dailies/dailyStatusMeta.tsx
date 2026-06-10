@@ -8,6 +8,10 @@ import {
   SparklesIcon,
 } from "lucide-react";
 
+/** Tabs shown in the daily / routine detail panel. */
+export const DAILY_DETAIL_TABS = ["details", "entries", "criteria"] as const;
+export type DailyDetailTab = (typeof DAILY_DETAIL_TABS)[number];
+
 export interface DailyStatusOption {
   value: DailyCompletionStatus;
   label: string;
