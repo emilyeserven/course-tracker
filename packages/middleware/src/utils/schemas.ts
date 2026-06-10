@@ -48,7 +48,7 @@ export const routineReferenceItemSchema = {
   properties: {
     type: {
       type: "string",
-      enum: ["task", "resource"],
+      enum: ["task", "resource", "freeform"],
     },
     id: {
       type: "string",
