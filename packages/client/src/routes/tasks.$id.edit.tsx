@@ -1,7 +1,7 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
+import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createTask,
   deleteSingleTask,
@@ -54,16 +55,19 @@ function SingleTaskEdit() {
   const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const skipBlocker = useRef(false);
 
   const {
     data,
-  } = useQuery({
+    skipBlock,
+    invalidateRelated,
+    shouldBlockFn,
+    makeDeleteHandler,
+  } = useEditFormPage({
+    id,
+    isNew,
     queryKey: ["task", id],
     queryFn: () => fetchSingleTask(id),
-    enabled: !isNew,
+    relatedQueryKeys: [["tasks"]],
   });
 
   const {
@@ -148,14 +152,9 @@ function SingleTaskEdit() {
         else {
           await upsertTask(id, taskData);
           taskId = id;
-          await queryClient.invalidateQueries({
-            queryKey: ["task", id],
-          });
         }
-        await queryClient.invalidateQueries({
-          queryKey: ["tasks"],
-        });
-        skipBlocker.current = true;
+        await invalidateRelated();
+        skipBlock();
         await navigate({
           to: "/tasks/$id",
           params: {
@@ -179,21 +178,14 @@ function SingleTaskEdit() {
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
 
-  async function handleDelete() {
-    try {
-      await deleteSingleTask(id);
-      await queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
-      skipBlocker.current = true;
-      await navigate({
+  const handleDelete = makeDeleteHandler({
+    deleteFn: deleteSingleTask,
+    entityLabel: "task",
+    navigateToList: () =>
+      navigate({
         to: "/tasks",
-      });
-    }
-    catch {
-      toast.error("Failed to delete task. Please try again.");
-    }
-  }
+      }),
+  });
 
   return (
     <div>
@@ -304,7 +296,7 @@ function SingleTaskEdit() {
           </EditPageFooter>
         </form>
         <UnsavedChangesDialog
-          shouldBlockFn={() => hasChanges && !skipBlocker.current}
+          shouldBlockFn={shouldBlockFn(hasChanges)}
         />
       </div>
     </div>
