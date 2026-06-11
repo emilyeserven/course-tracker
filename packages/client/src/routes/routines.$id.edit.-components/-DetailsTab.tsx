@@ -36,6 +36,7 @@ import {
   toOptions,
   upsertRoutine,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const STATUS_OPTIONS = [
   {
@@ -119,7 +120,7 @@ export function DetailsTab({
   const {
     data: resources,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

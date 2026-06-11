@@ -25,12 +25,13 @@ import {
   fetchProviders,
   fetchTopics,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const RootComponent: React.FunctionComponent = () => {
   const {
     data: resourcesData,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

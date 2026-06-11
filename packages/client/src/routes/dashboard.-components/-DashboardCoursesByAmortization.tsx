@@ -37,6 +37,7 @@ import {
   formatCurrency,
   parseCost,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 type ViewMode = "courses" | "providers";
 
@@ -182,7 +183,7 @@ export function DashboardCoursesByAmortization() {
     isPending: isCoursesPending,
     error: coursesError,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

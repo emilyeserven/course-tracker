@@ -18,7 +18,7 @@ import { idParamSchema } from "@/utils/schemas";
 
 const schema = {
   schema: {
-    description: "Delete a course by ID",
+    description: "Delete a resource by ID",
     params: idParamSchema,
   },
 } as const;

@@ -21,7 +21,7 @@ import {
   DailiesViewModeToggle,
   DailyCadenceBadge,
   DailyCommentPopover,
-  DailyCourseIndicator,
+  DailyResourceIndicator,
   DailyLocationCell,
   DailyProgressCell,
   DailyStatusCircle,
@@ -55,6 +55,7 @@ import {
   withCompletion,
   withCompletionNote,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export interface TrackerSearch {
   topicId?: string;
@@ -145,7 +146,7 @@ function DailyTracker() {
   const {
     data: courses,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
     enabled: !!filterTopicId,
   });
@@ -443,7 +444,7 @@ function DailyTracker() {
                           </td>
                           <td className="p-2">
                             <span className="inline-flex items-center gap-1.5">
-                              <DailyCourseIndicator daily={daily} />
+                              <DailyResourceIndicator daily={daily} />
                               <DailyTaskIndicator daily={daily} />
                             </span>
                           </td>
@@ -595,7 +596,7 @@ function DailyTracker() {
                             >
                               <DailyTitle daily={daily} />
                             </Link>
-                            <DailyCourseIndicator daily={daily} />
+                            <DailyResourceIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
                           </span>
                         </td>
@@ -660,7 +661,7 @@ function DailyTracker() {
                             >
                               <DailyTitle daily={daily} />
                             </Link>
-                            <DailyCourseIndicator daily={daily} />
+                            <DailyResourceIndicator daily={daily} />
                             <DailyTaskIndicator daily={daily} />
                           </span>
                         </td>

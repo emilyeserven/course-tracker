@@ -33,29 +33,29 @@ interface ResourceProjectionRow {
   resourceTags: { tag: Tag }[];
 }
 
-export function mapResource(course: ResourceProjectionRow): Resource {
-  const cost: CostData = processCost(course);
+export function mapResource(resource: ResourceProjectionRow): Resource {
+  const cost: CostData = processCost(resource);
   return {
-    id: course.id,
-    name: course.name,
-    description: course.description,
-    url: course.url,
+    id: resource.id,
+    name: resource.name,
+    description: resource.description,
+    url: resource.url,
     cost,
-    dateExpires: course.dateExpires,
-    progressCurrent: course.progressCurrent ? course.progressCurrent : 0,
-    progressTotal: course.progressTotal ? course.progressTotal : 0,
-    status: course.status ?? "inactive",
-    topics: processResourceLinks(course.topicsToResources, "topic"),
+    dateExpires: resource.dateExpires,
+    progressCurrent: resource.progressCurrent ? resource.progressCurrent : 0,
+    progressTotal: resource.progressTotal ? resource.progressTotal : 0,
+    status: resource.status ?? "inactive",
+    topics: processResourceLinks(resource.topicsToResources, "topic"),
     provider:
-      course.courseProvider?.name && course.courseProvider?.id
+      resource.courseProvider?.name && resource.courseProvider?.id
         ? {
-          name: course.courseProvider.name,
-          id: course.courseProvider.id,
+          name: resource.courseProvider.name,
+          id: resource.courseProvider.id,
         }
         : undefined,
-    easeOfStarting: course.easeOfStarting ?? null,
-    timeNeeded: course.timeNeeded ?? null,
-    interactivity: course.interactivity ?? null,
-    tags: (course.resourceTags ?? []).map(j => j.tag),
+    easeOfStarting: resource.easeOfStarting ?? null,
+    timeNeeded: resource.timeNeeded ?? null,
+    interactivity: resource.interactivity ?? null,
+    tags: (resource.resourceTags ?? []).map(j => j.tag),
   };
 }

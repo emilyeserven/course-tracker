@@ -5,7 +5,7 @@ export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
 export { DailyCadenceBadge } from "./DailyCadenceBadge";
 export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
-export { DailyCourseIndicator } from "./DailyCourseIndicator";
+export { DailyResourceIndicator } from "./DailyResourceIndicator";
 export { DailyDetailsPanel } from "./DailyDetailsPanel";
 export { DailyLocationCell } from "./DailyLocationCell";
 export { DailyProgressCell } from "./DailyProgressCell";

@@ -31,6 +31,7 @@ import {
   duplicateRoutine,
   fetchSingleRoutine,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const TAB_VALUES = ["details", "entries", "criteria"] as const;
 type EditTab = (typeof TAB_VALUES)[number];
@@ -260,7 +261,7 @@ function ExistingRoutineEdit({
     isNew: false,
     queryKey: ["routine", id],
     queryFn: () => fetchSingleRoutine(id),
-    relatedQueryKeys: [["routines"], ["dailies"]],
+    relatedQueryKeys: [queryKeys.routines.list(), queryKeys.dailies.list()],
   });
 
   const [detailsHasChanges, setDetailsHasChanges] = useState(false);

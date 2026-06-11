@@ -8,7 +8,7 @@ import { idParamSchema } from "@/utils/schemas";
 
 const incrementSchema = {
   schema: {
-    description: "Increment a course's progressCurrent by 1",
+    description: "Increment a resource's progressCurrent by 1",
     params: idParamSchema,
   },
 } as const;
@@ -24,18 +24,18 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
 
-      const course = await db.query.resources.findFirst({
+      const resource = await db.query.resources.findFirst({
         where: (resources, {
           eq,
         }) => eq(resources.id, id),
       });
 
-      if (!course) {
+      if (!resource) {
         return sendNotFound(reply, "Resource");
       }
 
-      const current = course.progressCurrent ?? 0;
-      const total = course.progressTotal ?? 0;
+      const current = resource.progressCurrent ?? 0;
+      const total = resource.progressTotal ?? 0;
       const next = total > 0 ? Math.min(current + 1, total) : current + 1;
 
       await db

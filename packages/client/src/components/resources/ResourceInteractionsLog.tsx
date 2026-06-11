@@ -24,6 +24,7 @@ import {
   fetchModules,
   upsertInteraction,
 } from "@/utils/fetchFunctions";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface Props {
   resourceId: string;
@@ -104,23 +105,23 @@ const PROGRESS_COLOR: Record<InteractionProgress, string> = {
   complete: "bg-emerald-100 text-emerald-900 border-emerald-200",
 };
 
-export function CourseInteractionsLog({
+export function ResourceInteractionsLog({
   resourceId,
 }: Props) {
   const queryClient = useQueryClient();
 
   const interactionsQuery = useQuery({
-    queryKey: ["course-interactions", resourceId],
+    queryKey: queryKeys.resources.interactions(resourceId),
     queryFn: () => fetchInteractions(),
   });
 
   const moduleGroupsQuery = useQuery({
-    queryKey: ["course-module-groups", resourceId],
+    queryKey: queryKeys.resources.moduleGroups(resourceId),
     queryFn: () => fetchModuleGroups(),
   });
 
   const modulesQuery = useQuery({
-    queryKey: ["course-modules", resourceId],
+    queryKey: queryKeys.resources.modules(resourceId),
     queryFn: () => fetchModules(),
   });
 
@@ -142,7 +143,7 @@ export function CourseInteractionsLog({
 
   function invalidate() {
     queryClient.invalidateQueries({
-      queryKey: ["course-interactions", resourceId],
+      queryKey: queryKeys.resources.interactions(resourceId),
     });
   }
 

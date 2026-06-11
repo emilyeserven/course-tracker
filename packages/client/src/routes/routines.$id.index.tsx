@@ -35,6 +35,7 @@ import {
   withCompletion,
   withCompletionNote,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export interface RoutineViewSearch {
   tab?: DailyDetailTab;
@@ -104,7 +105,7 @@ function SingleRoutine() {
   const {
     data: resources,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 
