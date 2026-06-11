@@ -1,4 +1,5 @@
 import type { EntityStatus } from "./EntityStatus";
+import type { RoutineMode, RoutineWeekly } from "./Routine";
 
 export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
@@ -67,4 +68,9 @@ export interface Daily {
   // is set; both null = the daily targets the whole course.
   moduleGroupId?: string | null;
   moduleId?: string | null;
+  // Per-weekday scheduled grid (unresolved names). Present only on weekly-mode
+  // routine projections; absent/null for daily-mode dailies.
+  weekly?: RoutineWeekly | null;
+  // Routine mode. "weekly" means the `weekly` grid is meaningful per day.
+  mode?: RoutineMode | null;
 }

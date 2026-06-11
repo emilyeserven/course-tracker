@@ -5,18 +5,18 @@ import { useMemo } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, FlameIcon, LaughIcon, MapPinIcon } from "lucide-react";
+import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import { TodayStatusCell } from "@/components/dailies";
-import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { DAILY_DETAIL_TABS } from "@/components/dailies/dailyStatusMeta";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import {
   DAY_LABELS,
   DAY_ORDER,
@@ -195,87 +195,6 @@ function SingleRoutine() {
     completions,
   });
 
-  // The entry's name as a clickable link (task / resource) or plain text
-  // (freeform) — no type badge, so it can sit inside an actionable sentence.
-  function entryNameLink(entry: { type: string;
-    id: string; }) {
-    if (entry.type === "freeform") {
-      return entry.id;
-    }
-    return (
-      <Link
-        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-        params={{
-          id: entry.id,
-        }}
-        className="
-          text-blue-800
-          hover:text-blue-600
-          dark:text-blue-300
-        "
-      >
-        {entry.type === "task"
-          ? (taskNames.get(entry.id) ?? entry.id)
-          : (resourceNames.get(entry.id) ?? entry.id)}
-      </Link>
-    );
-  }
-
-  // prepend text + linked name + append text, forming the actionable sentence
-  // while keeping the name itself clickable. The affixes render a notch lighter
-  // than the name so the resource itself stands out.
-  function renderActionable(entry: { type: string;
-    id: string;
-    prependText?: string | null;
-    appendText?: string | null; }) {
-    return (
-      <ActionableSentence
-        prependText={entry.prependText}
-        appendText={entry.appendText}
-        name={entryNameLink(entry)}
-      />
-    );
-  }
-
-  function renderEntryLink(entry: { type: string;
-    id: string;
-    notes?: string | null;
-    location?: string | null;
-    prependText?: string | null;
-    appendText?: string | null; }) {
-    const main = (
-      <span className="text-sm">
-        <span className="mr-2 text-xs text-muted-foreground uppercase">
-          {entry.type}
-        </span>
-        {renderActionable(entry)}
-      </span>
-    );
-
-    if (!entry.notes && !entry.location) {
-      return main;
-    }
-
-    return (
-      <span className="flex flex-col gap-0.5">
-        {main}
-        {entry.notes && (
-          <span className="text-sm text-muted-foreground">{entry.notes}</span>
-        )}
-        {entry.location && (
-          <span
-            className="
-              inline-flex items-center gap-1 text-xs text-muted-foreground
-            "
-          >
-            <MapPinIcon className="size-3.5 shrink-0" />
-            {entry.location}
-          </span>
-        )}
-      </span>
-    );
-  }
-
   // A Daily-shaped view of this routine for the shared today's-status modal,
   // which only reads name / completions / criteria / description.
   const dailyForStatus: Daily = {
@@ -331,7 +250,12 @@ function SingleRoutine() {
             ? (
               <>
                 <p className="text-lg font-medium">
-                  {renderActionable(todayEntry)}
+                  <RoutineEntryLabel
+                    entry={todayEntry}
+                    taskNames={taskNames}
+                    resourceNames={resourceNames}
+                    showMeta={false}
+                  />
                 </p>
                 {todayEntry.notes && (
                   <p className="text-sm text-muted-foreground">
@@ -476,7 +400,13 @@ function SingleRoutine() {
                             {DAY_LABELS[day]}
                           </span>
                           {entry
-                            ? renderEntryLink(entry)
+                            ? (
+                              <RoutineEntryLabel
+                                entry={entry}
+                                taskNames={taskNames}
+                                resourceNames={resourceNames}
+                              />
+                            )
                             : (
                               <span
                                 className="text-sm text-muted-foreground italic"
