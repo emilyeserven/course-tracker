@@ -1,9 +1,13 @@
 import type { ViewMonth } from "./MonthYearPicker";
-import type { Daily, DailyCompletionStatus } from "@emstack/types";
+import type {
+  Daily,
+  DailyCompletionStatus,
+  RoutineWeekday,
+} from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -20,9 +24,12 @@ import { MonthYearPicker } from "./MonthYearPicker";
 import { NoteEditButton } from "./NoteEditButton";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
+import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
+  fetchResources,
+  fetchTasks,
   getReferenceDateKey,
   getTodayKey,
   shiftDateKey,
@@ -48,6 +55,14 @@ function formatDateLabel(dateKey: string): string {
     day: "numeric",
     timeZone: "UTC",
   });
+}
+
+// Day-of-week key for a UTC date key, matching RoutineWeekday ("0" = Sunday …
+// "6" = Saturday) so it can index a routine's `weekly` grid.
+function weekdayKey(dateKey: string): RoutineWeekday {
+  return String(
+    new Date(`${dateKey}T00:00:00Z`).getUTCDay(),
+  ) as RoutineWeekday;
 }
 
 function formatMonthLabel(year: number, month: number): string {
@@ -128,6 +143,37 @@ export function DailyCompletionsManager({
   const [viewMonth, setViewMonth] = useState<ViewMonth>(currentMonth);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const [expandedDateKey, setExpandedDateKey] = useState<string | null>(null);
+
+  // Weekly routines schedule a different item per weekday; surface that item on
+  // each date row. The grid carries unresolved ids, so resolve task/resource
+  // names from the (already cached) task/resource lists.
+  const isWeekly = daily.mode === "weekly";
+  const weekly = daily.weekly ?? {};
+
+  const {
+    data: tasks,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+    enabled: isWeekly,
+  });
+
+  const {
+    data: resources,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+    enabled: isWeekly,
+  });
+
+  const taskNames = useMemo(
+    () => new Map((tasks ?? []).map(t => [t.id, t.name])),
+    [tasks],
+  );
+  const resourceNames = useMemo(
+    () => new Map((resources ?? []).map(r => [r.id, r.name])),
+    [resources],
+  );
 
   const completionsByDate = useMemo(() => {
     const map = new Map<
@@ -281,6 +327,9 @@ export function DailyCompletionsManager({
               : null;
             const showVerticalConnector
               = status !== null && nextStatus !== null;
+            const scheduledEntry = isWeekly
+              ? (weekly[weekdayKey(dateKey)] ?? null)
+              : null;
             return (
               <li
                 key={dateKey}
@@ -310,9 +359,21 @@ export function DailyCompletionsManager({
                       />
                     )}
                   </div>
-                  <span className="shrink-0 text-sm font-medium">
-                    {formatDateLabel(dateKey)}
-                  </span>
+                  <div className="flex min-w-0 shrink-0 flex-col">
+                    <span className="text-sm font-medium">
+                      {formatDateLabel(dateKey)}
+                    </span>
+                    {scheduledEntry && (
+                      <span className="text-xs text-muted-foreground">
+                        <RoutineEntryLabel
+                          entry={scheduledEntry}
+                          taskNames={taskNames}
+                          resourceNames={resourceNames}
+                          showMeta={false}
+                        />
+                      </span>
+                    )}
+                  </div>
                   {note && (
                     <Popover>
                       <PopoverTrigger asChild>
