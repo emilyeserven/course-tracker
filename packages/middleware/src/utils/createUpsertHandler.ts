@@ -25,7 +25,15 @@ interface UpsertHandlerOptions<TBody> {
   bodySchema: object;
   buildRow: (body: TBody, id: string) => Row;
   updateableColumns: readonly string[];
+  /**
+   * Override the conflict-update SET clause. Defaults to picking
+   * `updateableColumns` out of the built row; use this for partial-merge
+   * semantics where only columns present in the body are written.
+   */
+  buildSetClause?: (body: TBody, row: Row) => Row;
   junctions?: readonly JunctionConfig<TBody>[];
+  /** Runs after the row and junctions are written (cross-table side effects). */
+  afterUpsert?: (body: TBody, id: string) => Promise<void>;
   /** When true, missing or empty `id` params get a fresh uuid. */
   generateIdIfMissing?: boolean;
   /** Return an error message string to abort with 400, or null to proceed. */
@@ -67,9 +75,15 @@ export function createUpsertHandler<TBody = Record<string, unknown>>(
 
       const row = options.buildRow(body, id);
 
-      const setClause: Row = {};
-      for (const col of options.updateableColumns) {
-        setClause[col] = row[col];
+      let setClause: Row;
+      if (options.buildSetClause) {
+        setClause = options.buildSetClause(body, row);
+      }
+      else {
+        setClause = {};
+        for (const col of options.updateableColumns) {
+          setClause[col] = row[col];
+        }
       }
 
       await db
@@ -90,6 +104,10 @@ export function createUpsertHandler<TBody = Record<string, unknown>>(
             rows,
           );
         }
+      }
+
+      if (options.afterUpsert) {
+        await options.afterUpsert(body, id);
       }
 
       if (options.returnId) {
