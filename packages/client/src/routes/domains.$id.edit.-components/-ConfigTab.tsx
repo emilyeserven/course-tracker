@@ -2,7 +2,7 @@ import type {
   QuadrantDraft,
   RingDraft,
 } from "@/components/radar/RadarConfigTab";
-import type { Radar } from "@emstack/types/src";
+import type { Radar } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 

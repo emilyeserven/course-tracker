@@ -1,4 +1,4 @@
-import type { TopicForTopicsPage } from "@emstack/types/src";
+import type { TopicForTopicsPage } from "@emstack/types";
 
 import {
   BookIcon,

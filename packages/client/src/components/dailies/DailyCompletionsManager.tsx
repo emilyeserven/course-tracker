@@ -1,5 +1,5 @@
 import type { ViewMonth } from "./MonthYearPicker";
-import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
+import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 

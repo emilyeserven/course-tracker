@@ -1,4 +1,4 @@
-import type { DailyCriteriaTemplate } from "@emstack/types/src";
+import type { DailyCriteriaTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 

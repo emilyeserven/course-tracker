@@ -1,9 +1,9 @@
 import type { WeeklyRow, WeeklyRowType } from "@/components/routines/weekly";
-import type { RoutineWeekday } from "@emstack/types/src";
+import type { RoutineWeekday } from "@emstack/types";
 
 import { useMemo } from "react";
 
-import { buildActionableSentence } from "@emstack/types/src";
+import { buildActionableSentence } from "@emstack/types";
 
 import {
   Combobox,

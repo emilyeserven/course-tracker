@@ -1,4 +1,4 @@
-import type { RoutineConnectionType, RoutineMode } from "@emstack/types/src";
+import type { RoutineConnectionType, RoutineMode } from "@emstack/types";
 
 import { useCallback, useMemo, useState } from "react";
 

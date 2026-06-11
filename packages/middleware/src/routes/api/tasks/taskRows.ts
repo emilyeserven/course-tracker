@@ -1,0 +1,129 @@
+import { v4 as uuidv4 } from "uuid";
+
+// Pure row builders shared by the task create and upsert handlers. Each
+// junction builder returns `undefined` when its input is absent — callers
+// (createUpsertHandler junctions) treat that as "leave existing rows
+// untouched", while `[]` means "clear all rows".
+
+export interface TaskBodyFields {
+  name: string;
+  description?: string | null;
+  topicId?: string | null;
+  taskTypeId?: string | null;
+}
+
+export interface ResourceLinkInput {
+  resourceId: string;
+  moduleGroupId?: string | null;
+  moduleId?: string | null;
+}
+
+export interface TaskResourceInput {
+  id?: string | null;
+  name: string;
+  url?: string | null;
+  usedYet?: boolean | null;
+  resourceId?: string | null;
+  moduleGroupId?: string | null;
+  moduleId?: string | null;
+}
+
+export interface TodoInput {
+  id?: string | null;
+  name: string;
+  isComplete?: boolean | null;
+  url?: string | null;
+}
+
+export function buildTaskRow(body: TaskBodyFields, id: string) {
+  return {
+    id,
+    name: body.name,
+    description: body.description ?? null,
+    topicId: body.topicId || null,
+    taskTypeId: body.taskTypeId || null,
+  };
+}
+
+export function buildTagRows(
+  tagIds: readonly string[] | undefined,
+  taskId: string,
+) {
+  if (tagIds === undefined) return undefined;
+  return Array.from(new Set(tagIds)).map((tagId, index) => ({
+    taskId,
+    tagId,
+    position: index,
+  }));
+}
+
+export function buildResourceLinkRows(
+  resourceLinks: readonly ResourceLinkInput[] | undefined,
+  taskId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (resourceLinks === undefined) return undefined;
+  // Dedupe by the full (resourceId, moduleGroupId, moduleId) tuple so a task
+  // can hold multiple rows per resource (e.g. whole-resource + a specific
+  // module) without duplicates.
+  const seen = new Set<string>();
+  const rows: {
+    id: string;
+    taskId: string;
+    resourceId: string;
+    moduleGroupId: string | null;
+    moduleId: string | null;
+    position: number;
+  }[] = [];
+  resourceLinks.forEach((link, index) => {
+    const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    rows.push({
+      id: makeId(),
+      taskId,
+      resourceId: link.resourceId,
+      moduleGroupId: link.moduleGroupId ?? null,
+      moduleId: link.moduleId ?? null,
+      position: index,
+    });
+  });
+  return rows;
+}
+
+export function buildTaskResourceRows(
+  resources: readonly TaskResourceInput[] | undefined,
+  taskId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (resources === undefined) return undefined;
+  return resources.map((r, index) => ({
+    id: r.id || makeId(),
+    taskId,
+    name: r.name,
+    url: r.url ?? null,
+    usedYet: r.usedYet ?? false,
+    position: index,
+    resourceId: r.resourceId ?? null,
+    // A module-group / module narrowing only makes sense under a resource
+    // link; drop it when no resourceId is set.
+    moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
+    moduleId: r.resourceId ? r.moduleId ?? null : null,
+  }));
+}
+
+export function buildTodoRows(
+  todos: readonly TodoInput[] | undefined,
+  taskId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (todos === undefined) return undefined;
+  return todos.map((t, index) => ({
+    id: t.id || makeId(),
+    taskId,
+    name: t.name,
+    isComplete: t.isComplete ?? false,
+    url: t.url ?? null,
+    position: index,
+  }));
+}

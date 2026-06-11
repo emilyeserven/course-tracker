@@ -1,4 +1,4 @@
-import type { RoutineWeekly } from "@emstack/types/src";
+import type { RoutineWeekly } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 

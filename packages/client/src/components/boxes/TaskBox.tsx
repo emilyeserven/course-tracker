@@ -1,4 +1,4 @@
-import type { Task } from "@emstack/types/src";
+import type { Task } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 import {

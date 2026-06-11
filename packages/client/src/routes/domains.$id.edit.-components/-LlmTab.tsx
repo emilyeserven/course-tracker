@@ -2,7 +2,7 @@ import type {
   Domain,
   Radar,
   TopicForTopicsPage,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useMemo } from "react";
 

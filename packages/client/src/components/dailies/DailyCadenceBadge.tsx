@@ -1,4 +1,4 @@
-import type { Daily, RoutineMode } from "@emstack/types/src";
+import type { Daily, RoutineMode } from "@emstack/types";
 
 import { cn } from "@/lib/utils";
 

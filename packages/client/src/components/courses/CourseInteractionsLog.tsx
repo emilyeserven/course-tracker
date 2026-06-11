@@ -5,7 +5,7 @@ import type {
   InteractionUnderstanding,
   Module,
   ModuleGroup,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useMemo, useState } from "react";
 

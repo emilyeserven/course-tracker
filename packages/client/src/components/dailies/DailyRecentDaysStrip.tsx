@@ -1,5 +1,5 @@
 import type { DayLabelFormat } from "@/utils/dailyHelpers";
-import type { Daily } from "@emstack/types/src";
+import type { Daily } from "@emstack/types";
 
 import { Fragment } from "react";
 

@@ -67,8 +67,6 @@
     "build-storybook": "storybook build",
     "dev": "vite",
     "test": "vitest",
-    "lint": "eslint ..",
-    "lint:fix": "eslint .. --fix",
     "routeTree": "tsr generate",
     "storybook": "storybook dev -p 6006",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"

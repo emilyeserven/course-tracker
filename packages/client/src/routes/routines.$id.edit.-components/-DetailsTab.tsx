@@ -1,4 +1,4 @@
-import type { Routine } from "@emstack/types/src";
+import type { Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -73,6 +73,7 @@ const weeklyRowSchema = z
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
     notes: z.string(),
+    location: z.string(),
     prependText: z.string(),
     appendText: z.string(),
   })

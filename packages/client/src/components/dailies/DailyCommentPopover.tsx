@@ -1,4 +1,4 @@
-import type { Daily } from "@emstack/types/src";
+import type { Daily } from "@emstack/types";
 
 import { useEffect, useRef, useState } from "react";
 

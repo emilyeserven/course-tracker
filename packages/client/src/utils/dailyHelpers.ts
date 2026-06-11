@@ -1,4 +1,4 @@
-import type { Daily, DailyCompletionStatus } from "@emstack/types/src";
+import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 function getDateKey(date: Date = new Date()): string {
   const y = date.getFullYear();

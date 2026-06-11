@@ -1,4 +1,4 @@
-import type { Task, TaskTodo } from "@emstack/types/src";
+import type { Task, TaskTodo } from "@emstack/types";
 
 import { useState } from "react";
 

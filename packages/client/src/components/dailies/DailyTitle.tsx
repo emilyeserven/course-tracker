@@ -3,7 +3,7 @@ import type {
   RoutineMode,
   RoutineWeekday,
   RoutineWeekly,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { ActionableSentence } from "./ActionableSentence";
 

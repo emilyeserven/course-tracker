@@ -1,4 +1,4 @@
-import type { RadarBlip, TopicForTopicsPage } from "@emstack/types/src";
+import type { RadarBlip, TopicForTopicsPage } from "@emstack/types";
 
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 

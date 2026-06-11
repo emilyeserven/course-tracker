@@ -14,9 +14,11 @@ yarn-error.log*
 dist
 appout
 
-tsconfig.build.tsbuildinfo
+*.tsbuildinfo
 
 .npmrc
 
 .env
 .env.production
+# Claude Code temporary agent worktrees
+.claude/worktrees/

@@ -1,4 +1,4 @@
-import type { CourseProvider } from "@emstack/types/src";
+import type { CourseProvider } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

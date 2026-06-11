@@ -1,5 +1,5 @@
 import type { TopicsTableSort } from "@/components/boxes/TopicsTable";
-import type { TopicForTopicsPage } from "@emstack/types/src";
+import type { TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 

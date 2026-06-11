@@ -1,4 +1,4 @@
-import type { TagGroup } from "@emstack/types/src";
+import type { TagGroup } from "@emstack/types";
 
 import { useState } from "react";
 

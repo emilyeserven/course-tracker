@@ -1,10 +1,5 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
 
-import { useState } from "react";
-
-import { PlusIcon } from "lucide-react";
-import { toast } from "sonner";
-
 import {
   Combobox,
   ComboboxContent,
@@ -13,7 +8,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/combobox";
+import { ComboboxAddNewRow } from "@/components/formFields/ComboboxAddNewRow";
 import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
+import { useComboboxCreate } from "@/components/formFields/useComboboxCreate";
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { cn } from "@/lib/utils";
 import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
@@ -42,41 +39,23 @@ export function ComboboxField({
   } = useIsFieldInvalid<string>();
   const showChanged = useFieldChangeHighlight();
 
-  const [inputValue, setInputValue] = useState("");
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createInitialValue, setCreateInitialValue] = useState("");
-  const [creating, setCreating] = useState(false);
+  const {
+    setInputValue,
+    trimmedInput,
+    showAddRow,
+    createOpen,
+    setCreateOpen,
+    createInitialValue,
+    creating,
+    openCreate,
+    handleCreateSubmit,
+  } = useComboboxCreate({
+    create,
+    options,
+    onCreated: newId => field.handleChange(newId),
+  });
 
   const optionsMap = new Map(options.map(o => [o.value, o.label]));
-
-  const trimmedInput = inputValue.trim();
-  const hasExactMatch = trimmedInput.length > 0
-    && options.some(o => o.label.toLowerCase() === trimmedInput.toLowerCase());
-
-  const showAddRow = !!create && trimmedInput.length > 0 && !hasExactMatch;
-
-  function openCreate() {
-    setCreateInitialValue(trimmedInput);
-    setCreateOpen(true);
-  }
-
-  async function handleCreateSubmit(values: Record<string, unknown>) {
-    if (!create) return;
-    setCreating(true);
-    try {
-      const newId = await create.onCreate(values);
-      field.handleChange(newId);
-      setCreateOpen(false);
-      setInputValue("");
-    }
-    catch (err) {
-      console.error(`Failed to create ${create.itemLabel}:`, err);
-      toast.error(`Failed to create ${create.itemLabel}. Please try again.`);
-    }
-    finally {
-      setCreating(false);
-    }
-  }
 
   return (
     <Field
@@ -99,28 +78,11 @@ export function ComboboxField({
         />
         <ComboboxContent>
           {showAddRow && (
-            <button
-              type="button"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                openCreate();
-              }}
-              className="
-                flex w-full items-center gap-2 border-b border-border p-2
-                text-left text-sm
-                hover:bg-accent hover:text-accent-foreground
-              "
-            >
-              <PlusIcon className="size-4" />
-              <span>
-                Add new
-                {" "}
-                {create?.itemLabel}
-                :
-                {" "}
-                <strong>{trimmedInput}</strong>
-              </span>
-            </button>
+            <ComboboxAddNewRow
+              itemLabel={create?.itemLabel}
+              trimmedInput={trimmedInput}
+              onOpenCreate={openCreate}
+            />
           )}
           <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>

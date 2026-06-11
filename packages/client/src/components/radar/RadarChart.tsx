@@ -1,24 +1,32 @@
-import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types/src";
+import type { PositionedBlip } from "@/components/radar/radarLayout";
+import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Link } from "@tanstack/react-router";
-import { ArrowRightIcon, PencilIcon } from "lucide-react";
+import { RadarBlipDot } from "@/components/radar/RadarBlipDot";
+import {
+  ADOPTED_AREA_BOTTOM_PAD,
+  ADOPTED_AREA_HEIGHT,
+  ADOPTED_AREA_RIGHT_PAD,
+  ADOPTED_DOT_RADIUS,
+  ADOPTED_DOT_SPACING,
+  ADOPTED_LABEL_GAP,
+  IGNORED_AREA_BOTTOM_PAD,
+  IGNORED_AREA_HEIGHT,
+  IGNORED_AREA_RIGHT_PAD,
+  IGNORED_DOT_COLOR,
+  IGNORED_DOT_RADIUS,
+  IGNORED_DOT_SPACING,
+  IGNORED_LABEL_COLOR,
+  IGNORED_LABEL_GAP,
+  QUADRANT_PALETTE,
+  computeRingRadii,
+  layoutStripBlips,
+  positionRadarBlips,
 
-import { Input } from "@/components/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+} from "@/components/radar/radarLayout";
+import { RadarLegend } from "@/components/radar/RadarLegend";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface RadarChartProps {
   quadrants: RadarQuadrant[];
@@ -29,53 +37,6 @@ interface RadarChartProps {
   onDescriptionChange?: (blipId: string, description: string) => void;
   showLegend?: boolean;
   initialSelectedBlipId?: string | null;
-}
-
-interface PositionedBlip {
-  blip: RadarBlip;
-  x: number;
-  y: number;
-  index: number;
-}
-
-const QUADRANT_PALETTE = [
-  "#2563eb",
-  "#16a34a",
-  "#dc2626",
-  "#9333ea",
-  "#ea580c",
-  "#0891b2",
-  "#ca8a04",
-  "#db2777",
-];
-
-const ADOPTED_DOT_RADIUS = 8;
-const ADOPTED_DOT_SPACING = 22;
-const ADOPTED_AREA_BOTTOM_PAD = 12;
-const ADOPTED_AREA_RIGHT_PAD = 12;
-const ADOPTED_AREA_HEIGHT = 96;
-const ADOPTED_LABEL_GAP = 18;
-
-// Ignored ("out of scope") dots get their own strip beneath the Adopted one.
-// They carry no slice, so they render in a neutral gray.
-const IGNORED_DOT_RADIUS = 8;
-const IGNORED_DOT_SPACING = 22;
-const IGNORED_AREA_BOTTOM_PAD = 12;
-const IGNORED_AREA_RIGHT_PAD = 12;
-const IGNORED_AREA_HEIGHT = 96;
-const IGNORED_LABEL_GAP = 18;
-const IGNORED_DOT_COLOR = "#6b7280";
-const IGNORED_LABEL_COLOR = "#4b5563";
-
-// Deterministic pseudo-random in [0, 1) from a string. Used to keep blip
-// placements stable across renders without storing coordinates in the DB.
-function hashUnit(input: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < input.length; i += 1) {
-    h ^= input.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return ((h >>> 0) % 10000) / 10000;
 }
 
 export function RadarChart({
@@ -159,12 +120,10 @@ export function RadarChart({
   const quadrantCount = sortedQuadrants.length;
   const ringCount = sortedRings.length;
 
-  const ringRadii = useMemo(() => {
-    if (ringCount === 0) {
-      return [];
-    }
-    return sortedRings.map((_ring, idx) => ((idx + 1) / ringCount) * maxRadius);
-  }, [sortedRings, ringCount, maxRadius]);
+  const ringRadii = useMemo(
+    () => computeRingRadii(ringCount, maxRadius),
+    [ringCount, maxRadius],
+  );
 
   const ringNameById = useMemo(() => {
     const map: Record<string, string> = {};
@@ -187,56 +146,27 @@ export function RadarChart({
     [blips],
   );
 
-  const positionedBlips = useMemo<PositionedBlip[]>(() => {
-    if (quadrantCount === 0 || ringCount === 0) {
-      return [];
-    }
-    const angleStep = (Math.PI * 2) / quadrantCount;
-    let displayIndex = 0;
-    return blips
-      .map((blip) => {
-        if (blip.isIgnored) {
-          return null;
-        }
-        if (blip.ringId !== null && adoptedRingIds.has(blip.ringId)) {
-          return null;
-        }
-        const quadrantIndex = sortedQuadrants.findIndex(
-          q => q.id === blip.quadrantId,
-        );
-        const ringIndex = sortedRings.findIndex(r => r.id === blip.ringId);
-        if (quadrantIndex < 0 || ringIndex < 0) {
-          return null;
-        }
-        const innerR = ringIndex === 0 ? 0 : ringRadii[ringIndex - 1];
-        const outerR = ringRadii[ringIndex];
-        const startAngle = -Math.PI / 2 + quadrantIndex * angleStep;
-        // Pad away from boundaries so blips don't visually escape their cell.
-        const angleSeed = hashUnit(`${blip.id}:angle`);
-        const radiusSeed = hashUnit(`${blip.id}:radius`);
-        const angleOffset = (0.1 + angleSeed * 0.8) * angleStep;
-        const radius = innerR + (0.15 + radiusSeed * 0.7) * (outerR - innerR);
-        const angle = startAngle + angleOffset;
-        displayIndex += 1;
-        return {
-          blip,
-          x: cx + radius * Math.cos(angle),
-          y: cy + radius * Math.sin(angle),
-          index: displayIndex,
-        };
-      })
-      .filter((b): b is PositionedBlip => b !== null);
-  }, [
-    blips,
-    sortedQuadrants,
-    sortedRings,
-    ringRadii,
-    quadrantCount,
-    ringCount,
-    cx,
-    cy,
-    adoptedRingIds,
-  ]);
+  const positionedBlips = useMemo<PositionedBlip[]>(
+    () =>
+      positionRadarBlips({
+        blips,
+        sortedQuadrants,
+        sortedRings,
+        ringRadii,
+        adoptedRingIds,
+        cx,
+        cy,
+      }),
+    [
+      blips,
+      sortedQuadrants,
+      sortedRings,
+      ringRadii,
+      cx,
+      cy,
+      adoptedRingIds,
+    ],
+  );
 
   const showAdoptedInChart = showAdoptedDots && adoptedBlips.length > 0;
   const showIgnoredInChart = showIgnoredDots && ignoredBlips.length > 0;
@@ -250,44 +180,29 @@ export function RadarChart({
 
   const positionedAdoptedBlips = useMemo<PositionedBlip[]>(() => {
     if (!showAdoptedInChart) return [];
-    // Lay out adopted dots right-to-left, bottom-up in the strip below the
-    // radar circle (bottom-right of the radar graphic).
-    const startX = size - ADOPTED_AREA_RIGHT_PAD - ADOPTED_DOT_RADIUS;
-    const startY
-      = adoptedBandBottom - ADOPTED_AREA_BOTTOM_PAD - ADOPTED_DOT_RADIUS;
-    const cols = Math.max(
-      1,
-      Math.floor((size / 2) / ADOPTED_DOT_SPACING),
-    );
-    return adoptedBlips.map((blip, i) => {
-      const row = Math.floor(i / cols);
-      const col = i % cols;
-      return {
-        blip,
-        x: startX - col * ADOPTED_DOT_SPACING,
-        y: startY - row * ADOPTED_DOT_SPACING,
-        index: positionedBlips.length + i + 1,
-      };
+    return layoutStripBlips({
+      blips: adoptedBlips,
+      size,
+      bandBottom: adoptedBandBottom,
+      startIndex: positionedBlips.length,
+      dotRadius: ADOPTED_DOT_RADIUS,
+      dotSpacing: ADOPTED_DOT_SPACING,
+      rightPad: ADOPTED_AREA_RIGHT_PAD,
+      bottomPad: ADOPTED_AREA_BOTTOM_PAD,
     });
   }, [showAdoptedInChart, adoptedBlips, size, adoptedBandBottom, positionedBlips]);
 
   const positionedIgnoredBlips = useMemo<PositionedBlip[]>(() => {
     if (!showIgnoredInChart) return [];
-    const startX = size - IGNORED_AREA_RIGHT_PAD - IGNORED_DOT_RADIUS;
-    const startY = totalHeight - IGNORED_AREA_BOTTOM_PAD - IGNORED_DOT_RADIUS;
-    const cols = Math.max(
-      1,
-      Math.floor((size / 2) / IGNORED_DOT_SPACING),
-    );
-    return ignoredBlips.map((blip, i) => {
-      const row = Math.floor(i / cols);
-      const col = i % cols;
-      return {
-        blip,
-        x: startX - col * IGNORED_DOT_SPACING,
-        y: startY - row * IGNORED_DOT_SPACING,
-        index: positionedBlips.length + adoptedBlips.length + i + 1,
-      };
+    return layoutStripBlips({
+      blips: ignoredBlips,
+      size,
+      bandBottom: totalHeight,
+      startIndex: positionedBlips.length + adoptedBlips.length,
+      dotRadius: IGNORED_DOT_RADIUS,
+      dotSpacing: IGNORED_DOT_SPACING,
+      rightPad: IGNORED_AREA_RIGHT_PAD,
+      bottomPad: IGNORED_AREA_BOTTOM_PAD,
     });
   }, [
     showIgnoredInChart,
@@ -424,87 +339,29 @@ export function RadarChart({
                 );
                 const color
                   = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
-                const isActive = activeBlipId === blip.id;
-                const isSelected = selectedBlipId === blip.id;
                 return (
-                  <Tooltip
+                  <RadarBlipDot
                     key={blip.id}
-                    open={isActive || undefined}
-                  >
-                    <TooltipTrigger asChild>
-                      <g
-                        onMouseEnter={() => setHoveredBlipId(blip.id)}
-                        onMouseLeave={() => setHoveredBlipId(null)}
-                        onFocus={() => setHoveredBlipId(blip.id)}
-                        onBlur={() => setHoveredBlipId(null)}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBlipClick(blip);
-                        }}
-                        style={{
-                          cursor: "pointer",
-                        }}
-                        tabIndex={0}
-                      >
-                        {isActive && (
-                          <circle
-                            cx={x}
-                            cy={y}
-                            r={16}
-                            fill="none"
-                            stroke={color}
-                            strokeWidth={isSelected ? 3 : 2}
-                            strokeOpacity={isSelected ? 0.8 : 0.5}
-                          />
-                        )}
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={isActive ? 12 : 10}
-                          fill={color}
-                          stroke="white"
-                          strokeWidth={2}
-                        />
-                        <text
-                          x={x}
-                          y={y}
-                          textAnchor="middle"
-                          dominantBaseline="central"
-                          fontSize={10}
-                          fontWeight="700"
-                          fill="white"
-                          style={{
-                            pointerEvents: "none",
-                          }}
-                        >
-                          {index}
-                        </text>
-                      </g>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="max-w-xs"
-                    >
-                      <div className="flex flex-col gap-0.5 text-left">
-                        <div className="font-semibold">
-                          {index}
-                          .
-                          {" "}
-                          {blip.topicName}
-                        </div>
-                        <div className="text-[11px] opacity-80">
-                          {sortedQuadrants[quadrantIndex]?.name}
-                          {" · "}
-                          {ringNameById[blip.ringId ?? ""]}
-                        </div>
-                        {blip.description && (
-                          <div className="text-[11px] opacity-90">
-                            {blip.description}
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+                    blip={blip}
+                    x={x}
+                    y={y}
+                    index={index}
+                    color={color}
+                    dotRadius={10}
+                    haloRadius={16}
+                    fontSize={10}
+                    subtitle={(
+                      <>
+                        {sortedQuadrants[quadrantIndex]?.name}
+                        {" · "}
+                        {ringNameById[blip.ringId ?? ""]}
+                      </>
+                    )}
+                    isActive={activeBlipId === blip.id}
+                    isSelected={selectedBlipId === blip.id}
+                    onHover={setHoveredBlipId}
+                    onClick={handleBlipClick}
+                  />
                 );
               })}
             {showAdoptedInChart && (
@@ -535,91 +392,29 @@ export function RadarChart({
                       = QUADRANT_PALETTE[
                         Math.max(0, quadrantIndex) % QUADRANT_PALETTE.length
                       ];
-                    const isActive = activeBlipId === blip.id;
-                    const isSelected = selectedBlipId === blip.id;
                     return (
-                      <Tooltip
+                      <RadarBlipDot
                         key={`adopted-${blip.id}`}
-                        open={isActive || undefined}
-                      >
-                        <TooltipTrigger asChild>
-                          <g
-                            onMouseEnter={() => setHoveredBlipId(blip.id)}
-                            onMouseLeave={() => setHoveredBlipId(null)}
-                            onFocus={() => setHoveredBlipId(blip.id)}
-                            onBlur={() => setHoveredBlipId(null)}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBlipClick(blip);
-                            }}
-                            style={{
-                              cursor: "pointer",
-                            }}
-                            tabIndex={0}
-                          >
-                            {isActive && (
-                              <circle
-                                cx={x}
-                                cy={y}
-                                r={ADOPTED_DOT_RADIUS + 5}
-                                fill="none"
-                                stroke={color}
-                                strokeWidth={isSelected ? 3 : 2}
-                                strokeOpacity={isSelected ? 0.8 : 0.5}
-                              />
-                            )}
-                            <circle
-                              cx={x}
-                              cy={y}
-                              r={
-                                isActive
-                                  ? ADOPTED_DOT_RADIUS + 2
-                                  : ADOPTED_DOT_RADIUS
-                              }
-                              fill={color}
-                              stroke="white"
-                              strokeWidth={2}
-                            />
-                            <text
-                              x={x}
-                              y={y}
-                              textAnchor="middle"
-                              dominantBaseline="central"
-                              fontSize={9}
-                              fontWeight="700"
-                              fill="white"
-                              style={{
-                                pointerEvents: "none",
-                              }}
-                            >
-                              {index}
-                            </text>
-                          </g>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="max-w-xs"
-                        >
-                          <div className="flex flex-col gap-0.5 text-left">
-                            <div className="font-semibold">
-                              {index}
-                              .
-                              {" "}
-                              {blip.topicName}
-                            </div>
-                            <div className="text-[11px] opacity-80">
-                              {sortedQuadrants[quadrantIndex]?.name}
-                              {" · "}
-                              {adoptedSectionName}
-                            </div>
-                            {blip.description && (
-                              <div className="text-[11px] opacity-90">
-                                {blip.description}
-                              </div>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
+                        blip={blip}
+                        x={x}
+                        y={y}
+                        index={index}
+                        color={color}
+                        dotRadius={ADOPTED_DOT_RADIUS}
+                        haloRadius={ADOPTED_DOT_RADIUS + 5}
+                        fontSize={9}
+                        subtitle={(
+                          <>
+                            {sortedQuadrants[quadrantIndex]?.name}
+                            {" · "}
+                            {adoptedSectionName}
+                          </>
+                        )}
+                        isActive={activeBlipId === blip.id}
+                        isSelected={selectedBlipId === blip.id}
+                        onHover={setHoveredBlipId}
+                        onClick={handleBlipClick}
+                      />
                     );
                   })}
               </>
@@ -644,92 +439,24 @@ export function RadarChart({
                   })
                   .map(({
                     blip, x, y, index,
-                  }) => {
-                    const isActive = activeBlipId === blip.id;
-                    const isSelected = selectedBlipId === blip.id;
-                    return (
-                      <Tooltip
-                        key={`ignored-${blip.id}`}
-                        open={isActive || undefined}
-                      >
-                        <TooltipTrigger asChild>
-                          <g
-                            onMouseEnter={() => setHoveredBlipId(blip.id)}
-                            onMouseLeave={() => setHoveredBlipId(null)}
-                            onFocus={() => setHoveredBlipId(blip.id)}
-                            onBlur={() => setHoveredBlipId(null)}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBlipClick(blip);
-                            }}
-                            style={{
-                              cursor: "pointer",
-                            }}
-                            tabIndex={0}
-                          >
-                            {isActive && (
-                              <circle
-                                cx={x}
-                                cy={y}
-                                r={IGNORED_DOT_RADIUS + 5}
-                                fill="none"
-                                stroke={IGNORED_DOT_COLOR}
-                                strokeWidth={isSelected ? 3 : 2}
-                                strokeOpacity={isSelected ? 0.8 : 0.5}
-                              />
-                            )}
-                            <circle
-                              cx={x}
-                              cy={y}
-                              r={
-                                isActive
-                                  ? IGNORED_DOT_RADIUS + 2
-                                  : IGNORED_DOT_RADIUS
-                              }
-                              fill={IGNORED_DOT_COLOR}
-                              stroke="white"
-                              strokeWidth={2}
-                            />
-                            <text
-                              x={x}
-                              y={y}
-                              textAnchor="middle"
-                              dominantBaseline="central"
-                              fontSize={9}
-                              fontWeight="700"
-                              fill="white"
-                              style={{
-                                pointerEvents: "none",
-                              }}
-                            >
-                              {index}
-                            </text>
-                          </g>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="max-w-xs"
-                        >
-                          <div className="flex flex-col gap-0.5 text-left">
-                            <div className="font-semibold">
-                              {index}
-                              .
-                              {" "}
-                              {blip.topicName}
-                            </div>
-                            <div className="text-[11px] opacity-80">
-                              Ignored
-                            </div>
-                            {blip.description && (
-                              <div className="text-[11px] opacity-90">
-                                {blip.description}
-                              </div>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
+                  }) => (
+                    <RadarBlipDot
+                      key={`ignored-${blip.id}`}
+                      blip={blip}
+                      x={x}
+                      y={y}
+                      index={index}
+                      color={IGNORED_DOT_COLOR}
+                      dotRadius={IGNORED_DOT_RADIUS}
+                      haloRadius={IGNORED_DOT_RADIUS + 5}
+                      fontSize={9}
+                      subtitle="Ignored"
+                      isActive={activeBlipId === blip.id}
+                      isSelected={selectedBlipId === blip.id}
+                      onHover={setHoveredBlipId}
+                      onClick={handleBlipClick}
+                    />
+                  ))}
               </>
             )}
           </svg>
@@ -786,467 +513,5 @@ export function RadarChart({
         )}
       </div>
     </TooltipProvider>
-  );
-}
-
-interface RadarLegendProps {
-  quadrants: RadarQuadrant[];
-  rings: RadarRing[];
-  positionedBlips: PositionedBlip[];
-  adoptedBlips: RadarBlip[];
-  adoptedSectionName: string;
-  ignoredBlips: RadarBlip[];
-  onDescriptionChange: (blipId: string, value: string) => void;
-  activeBlipId: string | null;
-  selectedBlipId: string | null;
-  onHover: (id: string | null) => void;
-  onBlipClick: (blip: RadarBlip) => void;
-}
-
-function RadarLegend({
-  quadrants,
-  rings,
-  positionedBlips,
-  adoptedBlips,
-  adoptedSectionName,
-  ignoredBlips,
-  onDescriptionChange,
-  activeBlipId,
-  selectedBlipId,
-  onHover,
-  onBlipClick,
-}: RadarLegendProps) {
-  const ringNameById = useMemo(() => {
-    const map: Record<string, string> = {};
-    rings.forEach((r) => {
-      map[r.id] = r.name;
-    });
-    return map;
-  }, [rings]);
-
-  const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // Gently scroll the hovered/selected list item into view inside the side
-  // panel.
-  useEffect(() => {
-    if (!activeBlipId) return;
-    const el = itemRefs.current.get(activeBlipId);
-    const container = containerRef.current;
-    if (!el || !container) return;
-    const elRect = el.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    if (
-      elRect.top < containerRect.top
-      || elRect.bottom > containerRect.bottom
-    ) {
-      el.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }
-  }, [activeBlipId]);
-
-  return (
-    <div
-      ref={containerRef}
-      className={`
-        grid grid-cols-1 gap-4
-        sm:grid-cols-2
-        lg:grid lg:max-h-[600px] lg:grid-cols-1 lg:overflow-y-auto lg:pr-1
-      `}
-    >
-      {quadrants.map((q, idx) => {
-        const color = QUADRANT_PALETTE[idx % QUADRANT_PALETTE.length];
-        const items = positionedBlips.filter(
-          pb => pb.blip.quadrantId === q.id,
-        );
-        return (
-          <div
-            key={q.id}
-            className="flex flex-col gap-1"
-          >
-            <h4
-              className="text-sm font-semibold uppercase"
-              style={{
-                color,
-              }}
-            >
-              {q.name}
-            </h4>
-            {items.length === 0 && (
-              <p className="text-xs text-muted-foreground italic">
-                No blips yet.
-              </p>
-            )}
-            <ul className="flex flex-col gap-0.5">
-              {items.map(({
-                blip, index,
-              }) => {
-                const isActive = activeBlipId === blip.id;
-                const isSelected = selectedBlipId === blip.id;
-                const description = blip.description ?? "";
-                return (
-                  <li
-                    key={blip.id}
-                    ref={(el) => {
-                      if (el) {
-                        itemRefs.current.set(blip.id, el);
-                      }
-                      else {
-                        itemRefs.current.delete(blip.id);
-                      }
-                    }}
-                    onMouseEnter={() => onHover(blip.id)}
-                    onMouseLeave={() => onHover(null)}
-                    className={cn(
-                      `
-                        group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                        transition-colors
-                      `,
-                      isActive && "bg-gray-200",
-                      isSelected && "ring-1 ring-gray-400",
-                    )}
-                  >
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onBlipClick(blip);
-                        }}
-                        className="flex-1 cursor-pointer text-left"
-                      >
-                        <span
-                          className="mr-1 inline-block font-mono text-xs"
-                          style={{
-                            color,
-                          }}
-                        >
-                          {index}
-                          .
-                        </span>
-                        <span className="font-medium">{blip.topicName}</span>
-                        <span className="ml-1 text-xs text-muted-foreground">
-                          (
-                          {ringNameById[blip.ringId ?? ""]}
-                          )
-                        </span>
-                      </button>
-                      <div
-                        className={cn(
-                          `
-                            flex items-center gap-0.5 opacity-0
-                            transition-opacity
-                            group-hover:opacity-100
-                            focus-within:opacity-100
-                          `,
-                          isSelected && "opacity-100",
-                        )}
-                      >
-                        <BlipDescriptionPopover
-                          value={description}
-                          onChange={value => onDescriptionChange(blip.id, value)}
-                        />
-                        <Link
-                          to="/topics/$id"
-                          params={{
-                            id: blip.topicId,
-                          }}
-                          aria-label={`Go to topic ${blip.topicName}`}
-                        >
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="size-6 p-0"
-                          >
-                            <ArrowRightIcon className="size-3.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                    {description && (
-                      <p
-                        className={`
-                          mt-0.5 ml-4 text-xs text-muted-foreground italic
-                        `}
-                      >
-                        {description}
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        );
-      })}
-      {adoptedBlips.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <h4 className="text-sm font-semibold text-amber-700 uppercase">
-            {adoptedSectionName}
-          </h4>
-          <ul className="flex flex-col gap-0.5">
-            {adoptedBlips.map((blip) => {
-              const isActive = activeBlipId === blip.id;
-              const isSelected = selectedBlipId === blip.id;
-              const description = blip.description ?? "";
-              return (
-                <li
-                  key={blip.id}
-                  ref={(el) => {
-                    if (el) {
-                      itemRefs.current.set(blip.id, el);
-                    }
-                    else {
-                      itemRefs.current.delete(blip.id);
-                    }
-                  }}
-                  onMouseEnter={() => onHover(blip.id)}
-                  onMouseLeave={() => onHover(null)}
-                  className={cn(
-                    `
-                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                      transition-colors
-                    `,
-                    isActive && "bg-gray-200",
-                    isSelected && "ring-1 ring-gray-400",
-                  )}
-                >
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlipClick(blip);
-                      }}
-                      className="flex-1 cursor-pointer text-left"
-                    >
-                      <span className="font-medium">{blip.topicName}</span>
-                    </button>
-                    <div
-                      className={cn(
-                        `
-                          flex items-center gap-0.5 opacity-0 transition-opacity
-                          group-hover:opacity-100
-                          focus-within:opacity-100
-                        `,
-                        isSelected && "opacity-100",
-                      )}
-                    >
-                      <BlipDescriptionPopover
-                        value={description}
-                        onChange={value => onDescriptionChange(blip.id, value)}
-                      />
-                      <Link
-                        to="/topics/$id"
-                        params={{
-                          id: blip.topicId,
-                        }}
-                        aria-label={`Go to topic ${blip.topicName}`}
-                      >
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="size-6 p-0"
-                        >
-                          <ArrowRightIcon className="size-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  {description && (
-                    <p
-                      className={`
-                        mt-0.5 ml-4 text-xs text-muted-foreground italic
-                      `}
-                    >
-                      {description}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-      {ignoredBlips.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <h4 className="text-sm font-semibold text-gray-600 uppercase">
-            Ignored
-          </h4>
-          <ul className="flex flex-col gap-0.5">
-            {ignoredBlips.map((blip) => {
-              const isActive = activeBlipId === blip.id;
-              const isSelected = selectedBlipId === blip.id;
-              const description = blip.description ?? "";
-              return (
-                <li
-                  key={blip.id}
-                  ref={(el) => {
-                    if (el) {
-                      itemRefs.current.set(blip.id, el);
-                    }
-                    else {
-                      itemRefs.current.delete(blip.id);
-                    }
-                  }}
-                  onMouseEnter={() => onHover(blip.id)}
-                  onMouseLeave={() => onHover(null)}
-                  className={cn(
-                    `
-                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                      transition-colors
-                    `,
-                    isActive && "bg-gray-200",
-                    isSelected && "ring-1 ring-gray-400",
-                  )}
-                >
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlipClick(blip);
-                      }}
-                      className="flex-1 cursor-pointer text-left"
-                    >
-                      <span className="font-medium">{blip.topicName}</span>
-                    </button>
-                    <div
-                      className={cn(
-                        `
-                          flex items-center gap-0.5 opacity-0 transition-opacity
-                          group-hover:opacity-100
-                          focus-within:opacity-100
-                        `,
-                        isSelected && "opacity-100",
-                      )}
-                    >
-                      <BlipDescriptionPopover
-                        value={description}
-                        onChange={value => onDescriptionChange(blip.id, value)}
-                      />
-                      <Link
-                        to="/topics/$id"
-                        params={{
-                          id: blip.topicId,
-                        }}
-                        aria-label={`Go to topic ${blip.topicName}`}
-                      >
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="size-6 p-0"
-                        >
-                          <ArrowRightIcon className="size-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  {description && (
-                    <p
-                      className={`
-                        mt-0.5 ml-4 text-xs text-muted-foreground italic
-                      `}
-                    >
-                      {description}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface BlipDescriptionPopoverProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-function BlipDescriptionPopover({
-  value,
-  onChange,
-}: BlipDescriptionPopoverProps) {
-  const [draft, setDraft] = useState(value);
-  const [open, setOpen] = useState(false);
-
-  // Keep the draft in sync if the saved value changes from elsewhere while
-  // the popover is closed.
-  useEffect(() => {
-    if (!open) {
-      setDraft(value);
-    }
-  }, [value, open]);
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="size-6 p-0"
-          aria-label="Edit blip description"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <PencilIcon className="size-3.5" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        side="left"
-        className="w-72"
-        onClick={e => e.stopPropagation()}
-      >
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onChange(draft.trim());
-            setOpen(false);
-          }}
-        >
-          <label className="text-xs font-medium">Blip description</label>
-          <Input
-            autoFocus
-            value={draft}
-            onChange={e => setDraft(e.target.value)}
-            placeholder="Add a description for this blip"
-          />
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDraft(value);
-                setOpen(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              size="sm"
-            >
-              Save
-            </Button>
-          </div>
-        </form>
-      </PopoverContent>
-    </Popover>
   );
 }
