@@ -59,16 +59,17 @@ async function pushSchema() {
 // --- Child process management ---
 
 // Crash-loop protection: back off exponentially between restarts, and give up
-// (exit non-zero, so the orchestrator restarts the whole container) when the
-// middleware keeps dying. Without this the old fixed 1s respawn looped forever
-// while /healthz kept reporting ok.
+// (exit non-zero, so the orchestrator restarts the whole container) after too
+// many consecutive short-lived runs. Without this the old fixed 1s respawn
+// looped forever while /healthz kept reporting ok. A run that survives
+// HEALTHY_RUN_MS resets the counter and the backoff.
 const RESTART_BASE_DELAY_MS = 1000;
 const RESTART_MAX_DELAY_MS = 30000;
-const RESTART_WINDOW_MS = 60000;
-const MAX_RESTARTS_PER_WINDOW = 5;
+const HEALTHY_RUN_MS = 60000;
+const MAX_CONSECUTIVE_CRASHES = 5;
 
 let restartDelay = RESTART_BASE_DELAY_MS;
-let restartTimes = [];
+let consecutiveCrashes = 0;
 
 function startMiddleware() {
   const startedAt = Date.now();
@@ -79,19 +80,15 @@ function startMiddleware() {
   });
 
   middlewareChild.on("exit", (code) => {
-    const now = Date.now();
-    // A run that survived the whole window counts as healthy: start the
-    // backoff over instead of escalating old crashes.
-    if (now - startedAt > RESTART_WINDOW_MS) {
+    if (Date.now() - startedAt >= HEALTHY_RUN_MS) {
+      consecutiveCrashes = 0;
       restartDelay = RESTART_BASE_DELAY_MS;
-      restartTimes = [];
     }
 
-    restartTimes = restartTimes.filter(t => now - t < RESTART_WINDOW_MS);
-    restartTimes.push(now);
-    if (restartTimes.length > MAX_RESTARTS_PER_WINDOW) {
+    consecutiveCrashes += 1;
+    if (consecutiveCrashes > MAX_CONSECUTIVE_CRASHES) {
       console.error(
-        `[gateway] middleware crashed ${restartTimes.length} times in ${RESTART_WINDOW_MS / 1000}s, giving up`,
+        `[gateway] middleware crashed ${consecutiveCrashes} times in a row, giving up`,
       );
       process.exit(1);
     }
