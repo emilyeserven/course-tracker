@@ -2,9 +2,10 @@ import type { DailyDetailTab } from "@/components/dailies/dailyStatusMeta";
 
 import { useMemo } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, FlameIcon, LaughIcon, MapPinIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
@@ -20,13 +21,40 @@ import {
 } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   connectionEntityKind,
   fetchResources,
   fetchSingleRoutine,
   fetchTasks,
   getCurrentChain,
   getTotalCompletedDays,
+  upsertRoutine,
 } from "@/utils";
+
+const STATUS_OPTIONS = [
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+  {
+    value: "complete",
+    label: "Complete",
+  },
+  {
+    value: "paused",
+    label: "Paused",
+  },
+] as const;
 
 export interface RoutineViewSearch {
   tab?: DailyDetailTab;
@@ -62,6 +90,7 @@ function SingleRoutine() {
   } = Route.useParams();
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const search = Route.useSearch();
   const tab: DailyDetailTab = search.tab ?? "details";
 
@@ -108,6 +137,27 @@ function SingleRoutine() {
     [resources],
   );
 
+  const statusMutation = useMutation({
+    mutationFn: (vars: { name: string;
+      status: string; }) =>
+      upsertRoutine(id, {
+        name: vars.name,
+        status: vars.status,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["routine", id],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["routines"],
+      });
+      toast.success("Status updated.");
+    },
+    onError: () => {
+      toast.error("Failed to update status.");
+    },
+  });
+
   if (isPending) {
     return <RoutinePending />;
   }
@@ -121,6 +171,13 @@ function SingleRoutine() {
   const dailyEntry = isDaily
     ? Object.values(weekly).find(Boolean) ?? null
     : null;
+  // The same day of the week as today (JS getDay: "0" = Sunday … "6" = Saturday).
+  // Daily routines mirror their entry onto every day, so this resolves to the
+  // single daily item; weekly routines resolve to today's scheduled entry (if any).
+  const todayKey = String(new Date().getDay());
+  const todayEntry = isDaily
+    ? dailyEntry
+    : (weekly[todayKey as keyof typeof weekly] ?? null);
   const completions = data.completions ?? [];
   const chain = getCurrentChain({
     completions,
@@ -210,6 +267,33 @@ function SingleRoutine() {
     );
   }
 
+  const currentStatus = data.status ?? "active";
+  const statusControl = (
+    <Select
+      value={currentStatus}
+      onValueChange={next =>
+        statusMutation.mutate({
+          name: data.name,
+          status: next,
+        })}
+      disabled={statusMutation.isPending}
+    >
+      <SelectTrigger size="sm">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
+        {STATUS_OPTIONS.map(option => (
+          <SelectItem
+            key={option.value}
+            value={option.value}
+          >
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
   return (
     <div>
       <PageHeader
@@ -230,18 +314,29 @@ function SingleRoutine() {
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-12">
-        {isDaily && dailyEntry && (
-          <DashboardCard title="Daily Task">
-            <p className="text-lg font-medium">
-              {renderActionable(dailyEntry)}
-            </p>
-            {dailyEntry.notes && (
-              <p className="text-sm text-muted-foreground">
-                {dailyEntry.notes}
+        <DashboardCard
+          title="Today's Task"
+          action={statusControl}
+        >
+          {todayEntry
+            ? (
+              <>
+                <p className="text-lg font-medium">
+                  {renderActionable(todayEntry)}
+                </p>
+                {todayEntry.notes && (
+                  <p className="text-sm text-muted-foreground">
+                    {todayEntry.notes}
+                  </p>
+                )}
+              </>
+            )
+            : (
+              <p className="text-muted-foreground italic">
+                Nothing, take a break!
               </p>
             )}
-          </DashboardCard>
-        )}
+        </DashboardCard>
         <DailyDetailsPanel
           dailyId={id}
           tab={tab}
