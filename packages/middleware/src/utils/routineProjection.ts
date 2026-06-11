@@ -5,34 +5,22 @@ import type {
   EntityStatus,
   RoutineConnection,
   RoutineMode,
-  RoutineReferenceItem,
+  RoutineWeekday,
   RoutineWeekly,
 } from "@emstack/types";
 import { buildActionableSentence } from "@emstack/types";
 import { mapDaily } from "./dailyProjection";
+import {
+  activeEntry,
+  currentWeekday,
+  representativeEntry,
+} from "./routineWeekday";
 
-const DAY_KEYS = ["0", "1", "2", "3", "4", "5", "6"] as const;
+// Entry-selection helpers live in a dependency-free leaf module so they can be
+// unit-tested directly; re-export them here so callers keep a single import site.
+export { activeEntry, currentWeekday, representativeEntry };
 
-// In daily mode every weekday holds the same entry, so the first populated day
-// is a faithful "representative" of the routine's single task/resource. Returns
-// null for an empty grid or a freeform-only routine (where the name carries the
-// label).
-export function representativeEntry(
-  weekly: RoutineWeekly | null | undefined,
-): RoutineReferenceItem | null {
-  if (!weekly) {
-    return null;
-  }
-  for (const key of DAY_KEYS) {
-    const entry = weekly[key];
-    if (entry && entry.id) {
-      return entry;
-    }
-  }
-  return null;
-}
-
-// Resolved task/resource rows the handler loads for a representative entry. They
+// Resolved task/resource rows the handler loads for an active entry. They
 // mirror the column selection mapDaily expects (see dailyProjection.ts).
 export interface ResolvedTask {
   id: string;
@@ -79,10 +67,12 @@ export function mapRoutineToDaily(
   routine: RoutineRow,
   resolved: { task?: ResolvedTask | null;
     resource?: ResolvedResource | null; } = {},
+  weekday: RoutineWeekday = currentWeekday(),
 ): RoutineDaily {
-  // The representative entry carries the per-item location (daily mode mirrors
-  // the same entry on every day) and the prepend/append text below.
-  const entry = representativeEntry(routine.weekly);
+  // The active entry carries the per-item location and the prepend/append text
+  // below: today's scheduled entry for weekly routines, or the representative
+  // entry (mirrored on every day) for daily ones.
+  const entry = activeEntry(routine.weekly, routine.mode, weekday);
 
   const daily = mapDaily({
     id: routine.id,

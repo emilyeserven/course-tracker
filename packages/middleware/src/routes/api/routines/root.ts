@@ -4,8 +4,9 @@ import { db } from "@/db";
 import { nullableRoutineModeEnum } from "@/utils/schemas";
 import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
+  activeEntry,
+  currentWeekday,
   mapRoutineToDaily,
-  representativeEntry,
   type RoutineRow,
 } from "@/utils/routineProjection";
 
@@ -58,11 +59,15 @@ export default async function (server: FastifyInstance) {
       return withConnections;
     }
 
-    // Batch-resolve every representative task/resource id up front to avoid N+1.
+    // Resolve against one "today" for the whole request so id-collection,
+    // resolution, and projection all agree on which weekday's entry is active.
+    const weekday = currentWeekday();
+
+    // Batch-resolve every active task/resource id up front to avoid N+1.
     const taskIds: string[] = [];
     const resourceIds: string[] = [];
     for (const routine of withConnections) {
-      const entry = representativeEntry(routine.weekly);
+      const entry = activeEntry(routine.weekly, routine.mode, weekday);
       if (entry?.type === "task") {
         taskIds.push(entry.id);
       }
@@ -115,7 +120,7 @@ export default async function (server: FastifyInstance) {
     const resourceMap = new Map(resourceRows.map(r => [r.id, r]));
 
     return withConnections.map((routine) => {
-      const entry = representativeEntry(routine.weekly);
+      const entry = activeEntry(routine.weekly, routine.mode, weekday);
       const task = entry?.type === "task"
         ? taskMap.get(entry.id) ?? null
         : null;
@@ -125,7 +130,7 @@ export default async function (server: FastifyInstance) {
       return mapRoutineToDaily(routine as RoutineRow, {
         task,
         resource,
-      });
+      }, weekday);
     });
   });
 }
