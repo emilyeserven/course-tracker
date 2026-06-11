@@ -20,3 +20,5 @@ appout
 
 .env
 .env.production
+# Claude Code temporary agent worktrees
+.claude/worktrees/
