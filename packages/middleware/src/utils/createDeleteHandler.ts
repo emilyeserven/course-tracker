@@ -1,10 +1,13 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { AnyPgColumn, PgTable } from "drizzle-orm/pg-core";
 import { db } from "@/db";
+import { routineConnections } from "@/db/schema";
 import { sendConflict } from "./errors";
 import { idParamSchema } from "./schemas";
+
+import type { RoutineConnectionType } from "@emstack/types";
 
 interface JunctionRef {
   table: PgTable;
@@ -27,6 +30,12 @@ interface DeleteHandlerOptions {
   junctions?: JunctionRef[];
   /** Refuse deletion with a 409 while referencing rows exist. */
   guard?: ReferenceGuard;
+  /**
+   * Also remove the entity's polymorphic routine_connections rows.
+   * `connected_id` has no FK (it points at one of three tables), so without
+   * this the rows would dangle forever, invisibly filtered at read time.
+   */
+  routineConnectionType?: RoutineConnectionType;
 }
 
 export function createDeleteHandler({
@@ -35,6 +44,7 @@ export function createDeleteHandler({
   idColumn,
   junctions = [],
   guard,
+  routineConnectionType,
 }: DeleteHandlerOptions) {
   const schema = {
     schema: {
@@ -67,6 +77,14 @@ export function createDeleteHandler({
 
       for (const junction of junctions) {
         await db.delete(junction.table).where(eq(junction.foreignKey, id));
+      }
+      if (routineConnectionType) {
+        await db.delete(routineConnections).where(
+          and(
+            eq(routineConnections.connectedType, routineConnectionType),
+            eq(routineConnections.connectedId, id),
+          ),
+        );
       }
       await db.delete(table).where(eq(idColumn, id));
 

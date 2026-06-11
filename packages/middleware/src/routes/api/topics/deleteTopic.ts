@@ -11,6 +11,7 @@ export default createDeleteHandler({
   description: "Delete a topic by ID",
   table: topics,
   idColumn: topics.id,
+  routineConnectionType: "topic",
   junctions: [
     {
       table: radarBlips,

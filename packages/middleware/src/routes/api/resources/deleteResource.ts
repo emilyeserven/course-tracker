@@ -1,6 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
   interactions,
@@ -10,6 +10,7 @@ import {
   moduleTags,
   resources,
   resourceTags,
+  routineConnections,
   tasksToResources,
   topicsToResources,
 } from "@/db/schema";
@@ -33,6 +34,14 @@ export default async function (server: FastifyInstance) {
     await db.delete(topicsToResources).where(eq(topicsToResources.resourceId, id));
     await db.delete(tasksToResources).where(eq(tasksToResources.resourceId, id));
     await db.delete(resourceTags).where(eq(resourceTags.resourceId, id));
+    // routine_connections has no FK on connected_id (polymorphic), so clean up
+    // this resource's rows explicitly — they'd dangle forever otherwise.
+    await db.delete(routineConnections).where(
+      and(
+        eq(routineConnections.connectedType, "resource"),
+        eq(routineConnections.connectedId, id),
+      ),
+    );
     // Interactions reference resources + (optionally) modules / moduleGroups.
     // Delete them before the modules cascade so the FK ON DELETE SET NULL
     // doesn't have to do extra work.

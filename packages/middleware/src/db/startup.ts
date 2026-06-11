@@ -1,95 +1,34 @@
 import { db } from "@/db/index";
 import { resources } from "@/db/schema";
-import { migrateConsolidateRadar } from "./migrateConsolidateRadar.ts";
-import { migrateCoursesToResources } from "./migrateCoursesToResources.ts";
-import { migrateDailiesToRoutines } from "./migrateDailiesToRoutines.ts";
-import { migrateRoutineConnections } from "./migrateRoutineConnections.ts";
-import { migrateRoutineLocationToWeekly } from "./migrateRoutineLocationToWeekly.ts";
-import { migrateIgnoreBlips } from "./migrateIgnoreBlips.ts";
-import { migrateModuleLength } from "./migrateModuleLength.ts";
-import { migrateRadarBlips } from "./migrateRadarBlips.ts";
-import { migrateTasksToResources } from "./migrateTasksToResources.ts";
+import { migrateDropDailies } from "./migrateDropDailies.ts";
+import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
 import { seed } from "./seed.ts";
 
+// Runtime migrations run on every server start and must be idempotent (see
+// CLAUDE.md). There is a single, fully controlled prod DB, so migrations that
+// have run there get pruned from this list (and their files deleted) instead
+// of accumulating forever. Previously completed: courses → resources rename,
+// radar blip consolidation, module length backfill, tasks_to_courses uuid PK,
+// dailies → routines copy, routine topic_id → connections, routine location →
+// weekly entries.
 export async function runMigrations() {
-  // Foundational rename — must run before anything that queries `resources`
-  // or `task_resources`, since those tables don't exist under those names
-  // until this migration lands.
+  // Drop the legacy `dailies` table. Guarded: keeps the table (with a loud
+  // error) if it still has rows that were never copied into `routines`.
   try {
-    await migrateCoursesToResources();
+    await migrateDropDailies();
   }
   catch (err) {
-    console.error("Failed to rename courses → resources:", err);
+    console.error("Failed to drop legacy dailies table:", err);
     throw err;
   }
 
+  // Purge dangling routine_connections rows left behind before delete
+  // handlers started cleaning them up.
   try {
-    await migrateRadarBlips();
+    await migrateSweepRoutineConnectionOrphans();
   }
   catch (err) {
-    console.error("Failed to migrate radar blips:", err);
-    throw err;
-  }
-
-  try {
-    await migrateConsolidateRadar();
-  }
-  catch (err) {
-    console.error("Failed to consolidate domain/radar:", err);
-    throw err;
-  }
-
-  try {
-    await migrateIgnoreBlips();
-  }
-  catch (err) {
-    console.error("Failed to migrate ignored blips:", err);
-    throw err;
-  }
-
-  try {
-    await migrateModuleLength();
-  }
-  catch (err) {
-    console.error("Failed to backfill module length:", err);
-    throw err;
-  }
-
-  try {
-    await migrateTasksToResources();
-  }
-  catch (err) {
-    console.error("Failed to migrate tasks_to_courses to uuid PK:", err);
-    throw err;
-  }
-
-  // Collapse dailies into daily-mode routines. Runs after the tasks/resources
-  // rename since a daily's representative entry points at those tables.
-  try {
-    await migrateDailiesToRoutines();
-  }
-  catch (err) {
-    console.error("Failed to migrate dailies → routines:", err);
-    throw err;
-  }
-
-  // Backfill each routine's legacy topic_id into the routine_connections
-  // junction. Runs after dailies → routines so every routine row exists first.
-  try {
-    await migrateRoutineConnections();
-  }
-  catch (err) {
-    console.error("Failed to migrate routine topics → connections:", err);
-    throw err;
-  }
-
-  // Move each routine's legacy `location` onto its per-day weekly entries, then
-  // drop the column. Runs after dailies → routines so every entry exists first.
-  try {
-    await migrateRoutineLocationToWeekly();
-  }
-  catch (err) {
-    console.error("Failed to migrate routine location → weekly entries:", err);
+    console.error("Failed to sweep dangling routine connections:", err);
     throw err;
   }
 }

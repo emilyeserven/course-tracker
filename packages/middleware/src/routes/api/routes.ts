@@ -8,7 +8,6 @@ import resources from "./resources/routes";
 import topics from "./topics/routes";
 import providers from "./providers/routes";
 import domains from "./domains/routes";
-import dailies from "./dailies/routes";
 import routines from "./routines/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
@@ -23,8 +22,12 @@ import routineTemplates from "./routine-templates/routes";
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
-  fastify.register(apiSeed);
-  fastify.register(apiClear);
+  // Destructive dev-only helpers (GET /seed, GET /clearData) — never expose
+  // them in production, where a single request could wipe the database.
+  if (process.env.NODE_ENV !== "production") {
+    fastify.register(apiSeed);
+    fastify.register(apiClear);
+  }
   fastify.register(apiFormSubmit);
   fastify.register(resources, {
     prefix: "/resources",
@@ -37,9 +40,6 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(domains, {
     prefix: "/domains",
-  });
-  fastify.register(dailies, {
-    prefix: "/dailies",
   });
   fastify.register(routines, {
     prefix: "/routines",

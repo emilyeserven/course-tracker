@@ -2,7 +2,7 @@
 // tables for FK references (lazy callbacks, no cycles); all relations()
 // declarations live in relations.ts.
 export * from "./courses";
-export * from "./dailies";
+export * from "./dailyCriteriaTemplates";
 export * from "./enums";
 export * from "./radar";
 export * from "./relations";
