@@ -6,6 +6,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
+import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
 import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/tabs";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 
-const TAB_VALUES = ["details", "modules", "interactions"] as const;
+const TAB_VALUES = ["details", "modules", "routines", "interactions"] as const;
 type ResourceTab = (typeof TAB_VALUES)[number];
 
 export interface CourseSearch {
@@ -105,6 +106,7 @@ function SingleCourse() {
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="routines">Routines</TabsTrigger>
           <TabsTrigger value="interactions">Interactions</TabsTrigger>
         </TabsList>
 
@@ -234,68 +236,50 @@ function SingleCourse() {
           />
         </TabsContent>
 
-        <TabsContent value="interactions">
-          <div className="flex flex-col gap-12">
-            <InfoArea
-              header="Routines"
-              condition={true}
-            >
-              <div className="flex flex-col gap-3">
-                {linkedRoutines.length === 0 && (
-                  <span className="text-sm text-muted-foreground">
-                    No routines include this resource yet.
-                  </span>
-                )}
-                {linkedRoutines.map(r => (
-                  <div
-                    key={r.id}
-                    className="
-                      flex flex-row items-center justify-between gap-2
-                      rounded-md border bg-card p-3
-                    "
+        <TabsContent value="routines">
+          <InfoArea
+            header="Routines"
+            condition={true}
+          >
+            <div className="flex flex-col gap-3">
+              {linkedRoutines.length === 0 && (
+                <span className="text-sm text-muted-foreground">
+                  No routines include this resource yet.
+                </span>
+              )}
+              {linkedRoutines.map(r => (
+                <RoutineBox
+                  key={r.id}
+                  {...r}
+                />
+              ))}
+              <div>
+                <Link
+                  to="/routines/$id/edit"
+                  params={{
+                    id: "new",
+                  }}
+                  search={{
+                    mode: "daily",
+                    entryType: "resource",
+                    entryId: id,
+                  }}
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
                   >
-                    <Link
-                      to="/routines/$id"
-                      params={{
-                        id: r.id,
-                      }}
-                      className="
-                        font-medium
-                        hover:text-blue-600
-                      "
-                    >
-                      {r.name}
-                    </Link>
-                    <span className="text-xs text-muted-foreground">
-                      {r.mode === "daily" ? "Daily" : "Weekly"}
-                    </span>
-                  </div>
-                ))}
-                <div>
-                  <Link
-                    to="/routines/$id/edit"
-                    params={{
-                      id: "new",
-                    }}
-                    search={{
-                      mode: "daily",
-                      entryType: "resource",
-                      entryId: id,
-                    }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                    >
-                      <PlusIcon />
-                      New Routine
-                    </Button>
-                  </Link>
-                </div>
+                    <PlusIcon />
+                    New Routine
+                  </Button>
+                </Link>
               </div>
-            </InfoArea>
-            <CourseInteractionsLog resourceId={id} />
-          </div>
+            </div>
+          </InfoArea>
+        </TabsContent>
+
+        <TabsContent value="interactions">
+          <CourseInteractionsLog resourceId={id} />
         </TabsContent>
       </Tabs>
       <ConfirmDialog

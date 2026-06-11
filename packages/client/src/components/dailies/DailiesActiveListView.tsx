@@ -88,14 +88,6 @@ export function DailiesActiveListView({
                 >
                   <DailyTitle daily={daily} />
                 </Link>
-                {daily.description && (
-                  <span
-                    className="line-clamp-2 text-xs text-muted-foreground"
-                    title={daily.description}
-                  >
-                    {daily.description}
-                  </span>
-                )}
                 <div
                   className="
                     flex flex-row flex-wrap items-center gap-x-4 gap-y-2 text-sm
