@@ -17,7 +17,7 @@ services:
   db-push:
     build:
       context: ./
-      dockerfile: ./packages/middleware/Dockerfile
+      dockerfile: Dockerfile
       target: db-push
     restart: "no"
     environment:
