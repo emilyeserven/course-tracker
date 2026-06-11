@@ -1,4 +1,4 @@
-import type { ResourceInResources } from "@emstack/types/src";
+import type { ResourceInResources } from "@emstack/types";
 
 import {
   CheckCheckIcon,

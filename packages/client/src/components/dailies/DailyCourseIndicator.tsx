@@ -1,4 +1,4 @@
-import type { Daily } from "@emstack/types/src";
+import type { Daily } from "@emstack/types";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";

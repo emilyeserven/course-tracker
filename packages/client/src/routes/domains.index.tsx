@@ -1,4 +1,4 @@
-import type { Domain } from "@emstack/types/src";
+import type { Domain } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";

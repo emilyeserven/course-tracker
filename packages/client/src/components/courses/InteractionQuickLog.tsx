@@ -2,7 +2,7 @@ import type {
   InteractionDifficulty,
   InteractionProgress,
   InteractionUnderstanding,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useState } from "react";
 

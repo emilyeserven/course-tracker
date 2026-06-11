@@ -4,7 +4,7 @@ import type {
   Task,
   TaskResource,
   TaskResourceLevel,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { Fragment, useMemo, useState } from "react";
 

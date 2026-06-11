@@ -5,7 +5,7 @@ import type {
   RadarQuadrant,
   RadarRing,
   TopicForTopicsPage,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { BlipLlmAssist } from "@/components/radar/BlipLlmAssist";
 

@@ -1,4 +1,4 @@
-import type { Daily } from "@emstack/types/src";
+import type { Daily } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 import { CheckSquareIcon } from "lucide-react";

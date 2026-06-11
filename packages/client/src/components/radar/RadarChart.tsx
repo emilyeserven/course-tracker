@@ -1,4 +1,4 @@
-import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types/src";
+import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 

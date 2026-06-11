@@ -1,7 +1,7 @@
 import type {
   RadarBlip,
   TopicForTopicsPage,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 

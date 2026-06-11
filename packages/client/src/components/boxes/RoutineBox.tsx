@@ -1,4 +1,4 @@
-import type { Routine, RoutineWeekday } from "@emstack/types/src";
+import type { Routine, RoutineWeekday } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 import { FlameIcon } from "lucide-react";

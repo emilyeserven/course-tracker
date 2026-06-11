@@ -2,7 +2,7 @@ import type {
   DailyCriteriaTemplate,
   RoutineTemplate,
   TaskType,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useState } from "react";
 

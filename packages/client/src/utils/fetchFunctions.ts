@@ -18,7 +18,7 @@ import type {
   TaskType,
   OnboardData,
   Topic,
-} from "@emstack/types/src/index.js";
+} from "@emstack/types";
 
 interface SuccessObj {
   status: string;

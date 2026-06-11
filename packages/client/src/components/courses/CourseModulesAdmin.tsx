@@ -6,7 +6,7 @@ import type {
   Tag,
   TagGroup,
   TaskResourceLevel,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { Fragment, useMemo, useState } from "react";
 
@@ -15,7 +15,7 @@ import {
   MODULE_DURATION_BUCKETS,
   MODULE_DURATION_LABELS,
   parseModuleLength,
-} from "@emstack/types/src";
+} from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIcon,

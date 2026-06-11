@@ -1,4 +1,4 @@
-import type { ResourceInResources, CourseProvider } from "@emstack/types/src";
+import type { ResourceInResources, CourseProvider } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 

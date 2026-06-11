@@ -1,4 +1,4 @@
-import type { Routine } from "@emstack/types/src";
+import type { Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 

@@ -25,4 +25,21 @@ export default tseslint.config([
       "react-refresh/only-export-components": "off",
     },
   },
+  {
+    files: ["packages/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@emstack/types/*"],
+              message:
+                "Import from \"@emstack/types\" — subpath imports bypass the package's exports map.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);

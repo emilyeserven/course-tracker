@@ -6,7 +6,7 @@ import type {
   RadarQuadrant,
   RadarRing,
   TopicForTopicsPage,
-} from "@emstack/types/src";
+} from "@emstack/types";
 
 import { useMemo, useState } from "react";
 

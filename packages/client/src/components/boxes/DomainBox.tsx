@@ -1,4 +1,4 @@
-import type { Domain } from "@emstack/types/src";
+import type { Domain } from "@emstack/types";
 
 import { BookIcon } from "lucide-react";
 

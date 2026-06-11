@@ -2,7 +2,7 @@ import type { WeeklyRowType } from "@/components/routines/weekly";
 
 import { useMemo } from "react";
 
-import { buildActionableSentence } from "@emstack/types/src";
+import { buildActionableSentence } from "@emstack/types";
 
 import {
   Combobox,

@@ -1,4 +1,4 @@
-import type { Topic } from "@emstack/types/src";
+import type { Topic } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 

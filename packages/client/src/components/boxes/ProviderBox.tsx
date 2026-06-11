@@ -1,4 +1,4 @@
-import type { CourseProvider } from "@emstack/types/src";
+import type { CourseProvider } from "@emstack/types";
 
 import { BookIcon, DollarSignIcon, RefreshCwIcon } from "lucide-react";
 

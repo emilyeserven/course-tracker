@@ -1,4 +1,4 @@
-import type { Module, ModuleGroup } from "@emstack/types/src";
+import type { Module, ModuleGroup } from "@emstack/types";
 
 import { useMemo } from "react";
 

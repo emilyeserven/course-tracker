@@ -1,4 +1,4 @@
-import type { RoutineWeekday, RoutineWeekly } from "@emstack/types/src";
+import type { RoutineWeekday, RoutineWeekly } from "@emstack/types";
 
 export type WeeklyRowType = "" | "task" | "resource" | "freeform";
 

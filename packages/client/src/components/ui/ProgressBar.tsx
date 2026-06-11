@@ -1,4 +1,4 @@
-import type { ResourceStatus } from "@emstack/types/src";
+import type { ResourceStatus } from "@emstack/types";
 
 import * as React from "react";
 

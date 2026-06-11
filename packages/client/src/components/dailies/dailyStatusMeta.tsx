@@ -1,4 +1,4 @@
-import type { DailyCompletionStatus } from "@emstack/types/src";
+import type { DailyCompletionStatus } from "@emstack/types";
 
 import {
   CircleCheckIcon,

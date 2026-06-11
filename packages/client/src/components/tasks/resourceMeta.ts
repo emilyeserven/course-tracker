@@ -1,4 +1,4 @@
-import type { TaskResourceLevel } from "@emstack/types/src";
+import type { TaskResourceLevel } from "@emstack/types";
 
 export const RESOURCE_LEVEL_OPTIONS: { value: TaskResourceLevel;
   label: string; }[] = [

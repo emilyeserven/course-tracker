@@ -1,4 +1,4 @@
-import type { Domain, TopicForTopicsPage } from "@emstack/types/src";
+import type { Domain, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 

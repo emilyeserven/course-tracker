@@ -7,9 +7,6 @@
     },
     {
       "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "../types/tsconfig.build.json"
     }
   ],
   "include": ["src"],

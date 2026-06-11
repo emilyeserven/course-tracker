@@ -1,4 +1,4 @@
-import type { TaskType } from "@emstack/types/src";
+import type { TaskType } from "@emstack/types";
 
 import { useState } from "react";
 

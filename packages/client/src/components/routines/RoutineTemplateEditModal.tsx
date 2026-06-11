@@ -1,6 +1,6 @@
 import type { WeeklyRow } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
-import type { RoutineTemplate } from "@emstack/types/src";
+import type { RoutineTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
