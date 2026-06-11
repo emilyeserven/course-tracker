@@ -19,6 +19,7 @@ import {
   DailiesActiveListView,
   DailiesLimitSetting,
   DailiesViewModeToggle,
+  DailyCadenceBadge,
   DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
@@ -275,7 +276,7 @@ function DailyTracker() {
   return (
     <div>
       <PageHeader
-        pageTitle="Daily Tracker"
+        pageTitle="Routine Tracker"
         pageSection="routines"
         description={ENTITY_DESCRIPTIONS.dailies}
       >
@@ -297,7 +298,7 @@ function DailyTracker() {
       <div className="container flex flex-col gap-4">
         {(!baseSorted || baseSorted.length === 0) && (
           <p className="text-sm text-muted-foreground">
-            <i>No dailies yet!</i>
+            <i>No routines yet!</i>
           </p>
         )}
 
@@ -305,7 +306,7 @@ function DailyTracker() {
           <DashboardCard
             title={
               <span className="inline-flex items-center gap-2">
-                Active Dailies
+                Active Routines
                 <TooManyDailiesWarning
                   activeCount={activeDailies.length}
                   limit={settings.maxActiveDailies}
@@ -372,6 +373,9 @@ function DailyTracker() {
                       </th>
                       <th className="p-2 font-medium whitespace-nowrap">
                         Type
+                      </th>
+                      <th className="p-2 font-medium whitespace-nowrap">
+                        Cadence
                       </th>
                       <th className="p-2 font-medium whitespace-nowrap">
                         Streak
@@ -442,6 +446,9 @@ function DailyTracker() {
                               <DailyCourseIndicator daily={daily} />
                               <DailyTaskIndicator daily={daily} />
                             </span>
+                          </td>
+                          <td className="p-2">
+                            <DailyCadenceBadge daily={daily} />
                           </td>
                           <td className="p-2">
                             <span
@@ -551,7 +558,7 @@ function DailyTracker() {
         )}
 
         {pausedDailies.length > 0 && (
-          <DashboardCard title="Paused Dailies">
+          <DashboardCard title="Paused Routines">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -608,7 +615,7 @@ function DailyTracker() {
         )}
 
         {completedDailies.length > 0 && (
-          <DashboardCard title="Completed Dailies">
+          <DashboardCard title="Completed Routines">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
