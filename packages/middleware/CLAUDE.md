@@ -11,7 +11,8 @@ Fastify 5 + Drizzle ORM API backend. Read the root CLAUDE.md for commands and se
 
 ## Shared utilities (`src/utils/`) — reuse these, don't hand-roll
 
-- **Handler factories:** `createUpsertHandler` (PUT `/:id`: insert + `onConflictDoUpdate` + junction sync), `createDeleteHandler` (single or multi-junction cascade).
+- **Handler factories:** `createCreateHandler` (POST `/`: uuid + insert + junction inserts), `createUpsertHandler` (PUT `/:id`: insert + `onConflictDoUpdate` + junction sync), `createDeleteHandler` (single or multi-junction cascade).
+- Junction semantics: a builder returning `undefined` means "leave existing rows untouched" (request omitted the array), `[]` means "clear". The `<x>Rows.ts` files import `schemas.ts` relatively (not via `@/`) so `node --test` can load them.
 - **Schemas** (`schemas.ts`): `idParamSchema`, `nullableString/Boolean/Integer`, `statusEnum`, `resourceLevelEnum`, `dailyStatusEnum`, `resourceSchema`, `todoSchema`, `completionSchema`, `criteriaSchema`.
 - **Error helpers** (`errors.ts`): `sendNotFound(reply, resource)`, `sendBadRequest(reply, message)`, `sendConflict(reply, message)`.
 - **Projections:** `taskProjection.ts`, `resourceProjection.ts`, `dailyProjection.ts`, `routineProjection.ts`, and `processResourceLinks.ts` (flattens a `topicsToResources` join into `{id, name}[]`). Use these in GET handlers instead of bespoke `.map(...)`.
