@@ -373,7 +373,6 @@ function DailyTracker() {
                       <th className="p-2 font-medium whitespace-nowrap">
                         Type
                       </th>
-                      <th className="max-w-xs p-2 font-medium">Description</th>
                       <th className="p-2 font-medium whitespace-nowrap">
                         Streak
                       </th>
@@ -443,24 +442,6 @@ function DailyTracker() {
                               <DailyCourseIndicator daily={daily} />
                               <DailyTaskIndicator daily={daily} />
                             </span>
-                          </td>
-                          <td className="max-w-xs p-2">
-                            {daily.description
-                              ? (
-                                <span
-                                  className="
-                                    block truncate text-muted-foreground
-                                  "
-                                  title={daily.description}
-                                >
-                                  {daily.description}
-                                </span>
-                              )
-                              : (
-                                <span className="text-muted-foreground/60">
-                                  <i>No description</i>
-                                </span>
-                              )}
                           </td>
                           <td className="p-2">
                             <span
