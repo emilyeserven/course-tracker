@@ -48,6 +48,36 @@
       "Bash(docker compose ps:*)",
       "Bash(docker compose logs:*)",
       "Bash(curl http://localhost:*)"
+    ],
+    "deny": [
+      "Read(packages/client/src/routeTree.gen.ts)",
+      "Edit(packages/client/src/routeTree.gen.ts)",
+      "Edit(pnpm-lock.yaml)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -d node_modules ] || pnpm install --frozen-lockfile",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/eslint-fix.sh",
+            "timeout": 120
+          }
+        ]
+      }
     ]
   }
 }
