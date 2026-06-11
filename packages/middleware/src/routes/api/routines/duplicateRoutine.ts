@@ -47,6 +47,7 @@ export default async function (server: FastifyInstance) {
         mode: source.mode,
         completions: [],
         criteria: source.criteria ?? {},
+        weeklyTarget: source.weeklyTarget ?? null,
       });
 
       // Carry the source's connections over to the copy with fresh row ids.

@@ -7,7 +7,9 @@ import type {
 
 import { ActionableSentence } from "./ActionableSentence";
 
+import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
+import { getTodayKey, isWeeklyTargetMet } from "@/utils";
 
 // The action name (the assigned task/resource/freeform the routine points at,
 // with any prepend/append affixes) on top, and a smaller, de-emphasized subtitle
@@ -31,18 +33,33 @@ export function DailyTitle({
     weekly?: RoutineWeekly | null;
   };
 
+  const {
+    settings,
+  } = useSettings();
+
   const isWeekly = routineView.mode === "weekly";
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
   const todayEntry = isWeekly ? routineView.weekly?.[todayWeekday] : null;
   const hasTodayEntry = !!(todayEntry && todayEntry.id);
 
-  // Weekly: today's note when scheduled, else a placeholder. Daily: description.
+  // A daily-mode routine that's met its weekly target needs nothing more today.
+  // Completed/paused routines don't track a "today", so the note doesn't apply.
+  const isActive = daily.status !== "complete" && daily.status !== "paused";
+  const targetMet
+    = !isWeekly
+      && isActive
+      && isWeeklyTargetMet(daily, getTodayKey(), settings.weekTargetWindow);
+
+  // Weekly: today's note when scheduled, else a placeholder. Daily: the
+  // "nothing required today" note when the target is met, otherwise description.
   const subtitle = isWeekly
     ? hasTodayEntry
       ? (todayEntry?.notes ?? null)
       : "Nothing scheduled today"
-    : (daily.description ?? null);
-  const isPlaceholder = isWeekly && !hasTodayEntry;
+    : targetMet
+      ? "Nothing required today"
+      : (daily.description ?? null);
+  const isPlaceholder = (isWeekly && !hasTodayEntry) || targetMet;
   const showSubtitle = subtitle != null && subtitle !== "";
 
   return (

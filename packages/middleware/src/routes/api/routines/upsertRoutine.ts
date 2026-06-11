@@ -19,6 +19,7 @@ export default createUpsertHandler<RoutineBody>({
     "mode",
     "completions",
     "criteria",
+    "weeklyTarget",
   ],
   // Partial merge: only the columns present in the request body are written
   // on update. The daily tracker / dashboard / comment popover send partial
@@ -46,6 +47,9 @@ export default createUpsertHandler<RoutineBody>({
     }
     if (body.criteria !== undefined) {
       set.criteria = body.criteria;
+    }
+    if (body.weeklyTarget !== undefined) {
+      set.weeklyTarget = body.weeklyTarget ?? null;
     }
     return set;
   },

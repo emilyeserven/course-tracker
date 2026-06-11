@@ -1,6 +1,7 @@
 import {
   completionSchema,
   criteriaSchema,
+  nullableInteger,
   nullableRoutineModeEnum,
   nullableRoutineStatusEnum,
   nullableString,
@@ -24,6 +25,7 @@ export interface RoutineBody {
   mode?: "weekly" | "daily" | null;
   completions?: DailyCompletion[];
   criteria?: DailyCriteria;
+  weeklyTarget?: number | null;
 }
 
 export const routineBodySchema = {
@@ -43,6 +45,7 @@ export const routineBodySchema = {
       items: completionSchema,
     },
     criteria: criteriaSchema,
+    weeklyTarget: nullableInteger,
   },
 } as const;
 
@@ -56,5 +59,6 @@ export function buildRoutineRow(body: RoutineBody, id: string) {
     mode: body.mode ?? "weekly",
     completions: body.completions ?? [],
     criteria: body.criteria ?? {},
+    weeklyTarget: body.weeklyTarget ?? null,
   };
 }
