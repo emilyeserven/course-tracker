@@ -20,6 +20,7 @@ import {
 import {
   DailiesActiveListView,
   DailiesViewModeToggle,
+  DailyCadenceBadge,
   DailyCommentPopover,
   DailyCourseIndicator,
   DailyLocationCell,
@@ -180,7 +181,7 @@ export function DashboardDailies() {
     <DashboardCard
       title={
         <span className="inline-flex items-center gap-2">
-          Dailies
+          Routines
           <TooManyDailiesWarning
             activeCount={activeCount}
             limit={settings.maxActiveDailies}
@@ -261,6 +262,7 @@ export function DashboardDailies() {
                   </button>
                 </th>
                 <th className="p-2 font-medium">Type</th>
+                <th className="p-2 font-medium">Cadence</th>
                 <th className="p-2 font-medium">Streak</th>
                 <th className="p-2 font-medium">Total</th>
                 <th className="p-2 font-medium" />
@@ -324,6 +326,9 @@ export function DashboardDailies() {
                         <DailyCourseIndicator daily={daily} />
                         <DailyTaskIndicator daily={daily} />
                       </span>
+                    </td>
+                    <td className="p-2">
+                      <DailyCadenceBadge daily={daily} />
                     </td>
                     <td className="p-2">
                       <span

@@ -189,12 +189,12 @@ export const fetchTopics = topicsApi.list;
 export const fetchProviders = providersApi.list;
 export const fetchResources = resourcesApi.list;
 export const fetchDomains = domainsApi.list;
-// Dailies are now daily-mode routines. These thin wrappers keep the existing
-// daily tracker / dashboard / detail components working unchanged: the server
-// projects daily-mode routines into the Daily shape, and writes inject
-// mode:"daily" so partial completion updates never lose the routine's mode.
+// Dailies are now routines projected into the Daily shape. `projected=true`
+// returns BOTH daily- and weekly-mode routines (each carrying its `mode`) so the
+// tracker / dashboard list weekly routines too. These thin wrappers keep the
+// existing daily tracker / dashboard / detail components working unchanged.
 export const fetchDailies = () =>
-  fetchJson<Daily[]>("/api/routines?mode=daily");
+  fetchJson<Daily[]>("/api/routines?projected=true");
 export const fetchRoutines = routinesApi.list;
 export const fetchTasks = tasksApi.list;
 export const fetchTaskTypes = taskTypesApi.list;

@@ -2,6 +2,7 @@ export { ActionableSentence } from "./ActionableSentence";
 export { DailiesActiveListView } from "./DailiesActiveListView";
 export { DailyCriteriaTemplateEditModal } from "./DailyCriteriaTemplateEditModal";
 export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
+export { DailyCadenceBadge } from "./DailyCadenceBadge";
 export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyCompletionsManager } from "./DailyCompletionsManager";
 export { DailyCourseIndicator } from "./DailyCourseIndicator";
