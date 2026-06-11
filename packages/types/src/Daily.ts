@@ -73,4 +73,8 @@ export interface Daily {
   weekly?: RoutineWeekly | null;
   // Routine mode. "weekly" means the `weekly` grid is meaningful per day.
   mode?: RoutineMode | null;
+  // Weekly target for daily-mode routines: how many days a week it needs doing.
+  // Null/absent means no target. Carried through the routine projection so the
+  // tracker can show a "nothing required today" note once the target is met.
+  weeklyTarget?: number | null;
 }

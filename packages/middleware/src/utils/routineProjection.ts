@@ -48,6 +48,7 @@ export interface RoutineRow {
   mode: RoutineMode;
   completions: DailyCompletion[];
   criteria: DailyCriteria;
+  weeklyTarget: number | null;
   connections?: RoutineConnection[];
 }
 
@@ -57,6 +58,7 @@ export interface RoutineRow {
 export type RoutineDaily = Daily & {
   mode: RoutineMode;
   weekly: RoutineWeekly;
+  weeklyTarget: number | null;
   connections: RoutineConnection[];
 };
 
@@ -119,6 +121,7 @@ export function mapRoutineToDaily(
     actionParts,
     mode: routine.mode,
     weekly: routine.weekly ?? {},
+    weeklyTarget: routine.weeklyTarget ?? null,
     connections: routine.connections ?? [],
   };
 }

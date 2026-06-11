@@ -90,6 +90,9 @@ const detailsSchema = z.object({
   status: z.enum(["active", "inactive", "complete", "paused"]),
   mode: z.enum(["weekly", "daily"]),
   weekly: z.array(weeklyRowSchema).length(7),
+  // Daily-mode only: how many days a week the routine needs doing. Null = no
+  // target (every day).
+  weeklyTarget: z.number().int().min(1).max(7).nullable(),
 });
 
 interface DetailsTabProps {
@@ -146,6 +149,7 @@ export function DetailsTab({
       status: routine.status ?? "active",
       mode: routine.mode ?? "weekly",
       weekly: weeklyToRows(routine.weekly),
+      weeklyTarget: routine.weeklyTarget ?? null,
     }),
     [routine],
   );
@@ -179,6 +183,9 @@ export function DetailsTab({
             value.mode === "daily"
               ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
               : rowsToWeekly(value.weekly),
+          // The weekly target only applies to daily routines; clear it for
+          // weekly schedules.
+          weeklyTarget: value.mode === "daily" ? value.weeklyTarget : null,
         });
         lastSavedRef.current = value;
         onChangeStateChange?.(false);
@@ -324,6 +331,24 @@ export function DetailsTab({
               </div>
             )}
       </form.Field>
+
+      {isDaily && (
+        <div className="flex flex-col gap-1">
+          <form.AppField name="weeklyTarget">
+            {field => (
+              <field.NumberField
+                label="Days per week"
+                min={1}
+              />
+            )}
+          </form.AppField>
+          <p className="text-sm text-muted-foreground">
+            Optional. How many days a week this needs doing — once you hit it
+            (counting days you reached your goal), the tracker shows “Nothing
+            required today.” Leave blank to require it every day.
+          </p>
+        </div>
+      )}
 
       <div>
         <Button

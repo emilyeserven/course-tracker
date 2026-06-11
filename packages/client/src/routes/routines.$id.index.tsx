@@ -22,6 +22,7 @@ import {
   DAY_ORDER,
 } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/hooks/useSettings";
 import {
   connectionEntityKind,
   fetchResources,
@@ -31,6 +32,7 @@ import {
   getCurrentChain,
   getTodayKey,
   getTotalCompletedDays,
+  isWeeklyTargetMet,
   upsertRoutine,
   withCompletion,
   withCompletionNote,
@@ -72,6 +74,9 @@ function SingleRoutine() {
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    settings,
+  } = useSettings();
   const search = Route.useSearch();
   const tab: DailyDetailTab = search.tab ?? "details";
 
@@ -189,6 +194,17 @@ function SingleRoutine() {
     ? dailyEntry
     : (weekly[todayKey as keyof typeof weekly] ?? null);
   const completions = data.completions ?? [];
+  // Daily-mode routines with a met weekly target need nothing more today.
+  const weekTargetMet
+    = isDaily
+      && isWeeklyTargetMet(
+        {
+          completions,
+          weeklyTarget: data.weeklyTarget ?? null,
+        },
+        todayDateKey,
+        settings.weekTargetWindow,
+      );
   const chain = getCurrentChain({
     completions,
   });
@@ -270,6 +286,11 @@ function SingleRoutine() {
                 Nothing, take a break!
               </p>
             )}
+          {weekTargetMet && (
+            <p className="mt-2 text-sm text-muted-foreground italic">
+              Nothing required today — weekly goal met.
+            </p>
+          )}
         </DashboardCard>
         <DailyDetailsPanel
           dailyId={id}

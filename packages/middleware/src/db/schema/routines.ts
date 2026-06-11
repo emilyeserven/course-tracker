@@ -25,6 +25,9 @@ export const routines = pgTable("routines", {
   mode: routineModeEnum().default("weekly").notNull(),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),
+  // For daily-mode routines: how many days a week the routine needs to be done.
+  // NULL means no target (do it every day). Days marked goal/exceeded count.
+  weeklyTarget: integer("weekly_target"),
 });
 
 // Polymorphic many-to-many link from a routine to Topics, Tasks, and/or
