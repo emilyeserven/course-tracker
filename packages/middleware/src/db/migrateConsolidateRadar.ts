@@ -20,7 +20,7 @@ export async function migrateConsolidateRadar() {
   const domainsTableExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_name = 'domains'
+      WHERE table_name = 'domains' AND table_schema = 'public'
     ) AS exists
   `);
   if (!domainsTableExists.rows[0]?.exists) {
@@ -39,7 +39,7 @@ export async function migrateConsolidateRadar() {
   const hasRadarColumn = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'domains' AND column_name = 'has_radar'
+      WHERE table_name = 'domains' AND column_name = 'has_radar' AND table_schema = 'public'
     ) AS exists
   `);
   if (!hasRadarColumn.rows[0]?.exists) {
@@ -50,13 +50,13 @@ export async function migrateConsolidateRadar() {
     const quadrantsTableExists = await tx.execute<ExistsRow>(sql`
       SELECT EXISTS (
         SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'radar_quadrants'
+        WHERE table_name = 'radar_quadrants' AND table_schema = 'public'
       ) AS exists
     `);
     const ringsTableExists = await tx.execute<ExistsRow>(sql`
       SELECT EXISTS (
         SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'radar_rings'
+        WHERE table_name = 'radar_rings' AND table_schema = 'public'
       ) AS exists
     `);
 
@@ -108,7 +108,7 @@ export async function migrateConsolidateRadar() {
     const ttdExists = await tx.execute<ExistsRow>(sql`
       SELECT EXISTS (
         SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'topics_to_domains'
+        WHERE table_name = 'topics_to_domains' AND table_schema = 'public'
       ) AS exists
     `);
     if (ttdExists.rows[0]?.exists) {

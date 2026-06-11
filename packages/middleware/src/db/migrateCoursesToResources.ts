@@ -22,7 +22,7 @@ async function columnExists(table: string, column: string): Promise<boolean> {
   const result = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = ${table} AND column_name = ${column}
+      WHERE table_name = ${table} AND column_name = ${column} AND table_schema = 'public'
     ) AS exists
   `);
   return result.rows[0]?.exists ?? false;

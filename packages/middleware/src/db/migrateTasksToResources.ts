@@ -13,7 +13,7 @@ async function migrateJunctionToUuidPk(tableName: string) {
   const tableExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_name = ${tableName}
+      WHERE table_name = ${tableName} AND table_schema = 'public'
     ) AS exists
   `);
   if (!tableExists.rows[0]?.exists) return;
@@ -21,7 +21,7 @@ async function migrateJunctionToUuidPk(tableName: string) {
   const idExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = ${tableName} AND column_name = 'id'
+      WHERE table_name = ${tableName} AND column_name = 'id' AND table_schema = 'public'
     ) AS exists
   `);
   if (idExists.rows[0]?.exists) return;
@@ -33,7 +33,7 @@ async function migrateJunctionToUuidPk(tableName: string) {
 
     const pkRow = await tx.execute<ConstraintRow>(sql`
       SELECT constraint_name FROM information_schema.table_constraints
-      WHERE table_name = ${tableName} AND constraint_type = 'PRIMARY KEY'
+      WHERE table_name = ${tableName} AND constraint_type = 'PRIMARY KEY' AND table_schema = 'public'
     `);
     for (const row of pkRow.rows) {
       await tx.execute(

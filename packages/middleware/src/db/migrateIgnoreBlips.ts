@@ -16,7 +16,7 @@ export async function migrateIgnoreBlips() {
   const blipsTableExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_name = 'radar_blips'
+      WHERE table_name = 'radar_blips' AND table_schema = 'public'
     ) AS exists
   `);
   if (!blipsTableExists.rows[0]?.exists) {
@@ -31,7 +31,7 @@ export async function migrateIgnoreBlips() {
   const excludedTableExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_name = 'domain_excluded_topics'
+      WHERE table_name = 'domain_excluded_topics' AND table_schema = 'public'
     ) AS exists
   `);
   if (!excludedTableExists.rows[0]?.exists) {
