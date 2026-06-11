@@ -1,4 +1,9 @@
-import type { Routine, RoutineConnectionType } from "@emstack/types";
+import type { RoutineTodayAction } from "@/components/boxes/RoutineBox";
+import type {
+  Routine,
+  RoutineConnectionType,
+  RoutineWeekday,
+} from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
@@ -18,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchRoutines } from "@/utils";
+import { fetchResources, fetchRoutines, fetchTasks } from "@/utils";
 
 export interface RoutinesSearch {
   // Legacy alias: `?topicId=` still prefilters by that topic connection.
@@ -79,6 +84,54 @@ function Routines() {
     queryKey: ["routines"],
     queryFn: () => fetchRoutines(),
   });
+
+  // Resolve scheduled task / resource names so a weekly routine can show today's
+  // entry in place of its name (freeform entries carry their own text in `id`).
+  const {
+    data: tasks,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+  });
+  const {
+    data: resources,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: () => fetchResources(),
+  });
+  const taskNames = useMemo(
+    () => new Map((tasks ?? []).map(t => [t.id, t.name])),
+    [tasks],
+  );
+  const resourceNames = useMemo(
+    () => new Map((resources ?? []).map(r => [r.id, r.name])),
+    [resources],
+  );
+  const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
+
+  // Today's scheduled entry for a weekly routine, resolved to a display name plus
+  // any prepend/append affixes. Daily routines and unscheduled weekdays return
+  // null, so the card keeps showing the routine name.
+  function resolveTodayAction(routine: Routine): RoutineTodayAction | null {
+    if ((routine.mode ?? "weekly") === "daily") {
+      return null;
+    }
+    const entry = routine.weekly?.[todayWeekday];
+    if (!entry || !entry.id) {
+      return null;
+    }
+    const name
+      = entry.type === "freeform"
+        ? entry.id
+        : entry.type === "task"
+          ? taskNames.get(entry.id) ?? entry.id
+          : resourceNames.get(entry.id) ?? entry.id;
+    return {
+      name,
+      prependText: entry.prependText,
+      appendText: entry.appendText,
+    };
+  }
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -280,6 +333,7 @@ function Routines() {
               <RoutineBox
                 key={routine.id}
                 {...routine}
+                todayAction={resolveTodayAction(routine)}
               />
             ))}
           </div>
