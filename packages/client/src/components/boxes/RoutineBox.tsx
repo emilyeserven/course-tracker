@@ -67,6 +67,11 @@ export function RoutineBox({
   const scheduledCount = weekly
     ? Object.values(weekly).filter(Boolean).length
     : 0;
+  // Weekly routines schedule a different entry per weekday; when today's
+  // weekday has no scheduled entry, surface that under the routine name.
+  const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
+  const hasTaskToday = !!weekly?.[todayWeekday];
+  const showNoTaskToday = !isDaily && !hasTaskToday;
   const isActive = status === "active";
   const chain = getCurrentChain({
     completions: completions ?? [],
@@ -137,6 +142,11 @@ export function RoutineBox({
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
+        {showNoTaskToday && (
+          <span className="text-xs text-muted-foreground italic">
+            No task for today
+          </span>
+        )}
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
