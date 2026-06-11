@@ -1,13 +1,20 @@
-// eslint-disable-next-line import/no-unassigned-import
-import "dotenv/config";
+import process from "node:process";
+
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+config();
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL must be set to run drizzle-kit");
+}
 
 export default defineConfig({
   out: "./drizzle",
   schema: "./src/db/schema/index.ts",
   dialect: "postgresql",
   dbCredentials: {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion,no-undef
-    url: process.env.DATABASE_URL!,
+    url: databaseUrl,
   },
 });
