@@ -7,32 +7,17 @@ import type {
 
 import { ActionableSentence } from "./ActionableSentence";
 
-// Date.getDay() order ("0" = Sunday … "6" = Saturday); mirrors the middleware's
-// representativeEntry scan so the "first scheduled day" fallback matches the API.
-const DAY_KEYS: RoutineWeekday[] = ["0", "1", "2", "3", "4", "5", "6"];
-
-// The first scheduled day's note, used as a fallback when today has no entry.
-function firstPopulatedNote(
-  weekly: RoutineWeekly | null | undefined,
-): string | null {
-  if (!weekly) {
-    return null;
-  }
-  for (const key of DAY_KEYS) {
-    const note = weekly[key]?.notes;
-    if (note) {
-      return note;
-    }
-  }
-  return null;
-}
+import { cn } from "@/lib/utils";
 
 // The action name (the assigned task/resource/freeform the routine points at,
 // with any prepend/append affixes) on top, and a smaller, de-emphasized subtitle
-// beneath it. The subtitle is the routine's description for daily-mode routines,
-// or the scheduled note (today's day-of-week entry, falling back to the first
-// scheduled day) for weekly-mode routines. It is omitted when empty, so a daily
-// with no description — or a weekly routine with no notes — stays a single line.
+// beneath it. For daily-mode routines the subtitle is the routine's description.
+// For weekly-mode routines the action title and subtitle both describe the
+// current day of week's entry (fed by the API's projection): the scheduled note
+// underneath when there is a task today, or a muted "Nothing scheduled today"
+// placeholder when the weekday is unscheduled. The subtitle is omitted when
+// empty, so a daily with no description — or a scheduled day with no note —
+// stays a single line.
 export function DailyTitle({
   daily,
 }: {
@@ -46,12 +31,18 @@ export function DailyTitle({
     weekly?: RoutineWeekly | null;
   };
 
+  const isWeekly = routineView.mode === "weekly";
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
-  const weeklyNote
-    = routineView.weekly?.[todayWeekday]?.notes
-      ?? firstPopulatedNote(routineView.weekly);
-  const subtitle
-    = routineView.mode === "weekly" ? weeklyNote : (daily.description ?? null);
+  const todayEntry = isWeekly ? routineView.weekly?.[todayWeekday] : null;
+  const hasTodayEntry = !!(todayEntry && todayEntry.id);
+
+  // Weekly: today's note when scheduled, else a placeholder. Daily: description.
+  const subtitle = isWeekly
+    ? hasTodayEntry
+      ? (todayEntry?.notes ?? null)
+      : "Nothing scheduled today"
+    : (daily.description ?? null);
+  const isPlaceholder = isWeekly && !hasTodayEntry;
   const showSubtitle = subtitle != null && subtitle !== "";
 
   return (
@@ -62,7 +53,12 @@ export function DailyTitle({
         name={daily.actionParts?.name ?? daily.name}
       />
       {showSubtitle && (
-        <span className="text-xs font-normal text-muted-foreground">
+        <span
+          className={cn(
+            "text-xs font-normal text-muted-foreground",
+            isPlaceholder && "italic",
+          )}
+        >
           {subtitle}
         </span>
       )}
