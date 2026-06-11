@@ -13,7 +13,7 @@ The layers, in dependency order. Skipping one is the classic source of "saves bu
 
 ## 1. Database (`packages/middleware/src/db/schema/`)
 
-- Add the column to the entity's table (file split by domain: `courses.ts` holds resources/providers/modules, `topics.ts`, `tasks.ts`, `routines.ts`, `dailies.ts`, `radar.ts`, `tags.ts`). New enums go in `enums.ts`.
+- Add the column to the entity's table (file split by domain: `courses.ts` holds resources/providers/modules, `topics.ts`, `tasks.ts`, `routines.ts`, `dailyCriteriaTemplates.ts`, `radar.ts`, `tags.ts`). New enums go in `enums.ts`.
 - Plain new nullable column → `pnpm push:dev` is enough. Rename / backfill / data move → **use the `add-db-migration` skill** for a runtime migration first.
 
 ## 2. Shared type (`packages/types/src/`)

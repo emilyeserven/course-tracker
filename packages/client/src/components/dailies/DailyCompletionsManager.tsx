@@ -37,6 +37,7 @@ import {
   withCompletion,
   withCompletionNote,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface DailyCompletionsManagerProps {
   daily: Daily;
@@ -161,7 +162,7 @@ export function DailyCompletionsManager({
   const {
     data: resources,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
     enabled: isWeekly,
   });

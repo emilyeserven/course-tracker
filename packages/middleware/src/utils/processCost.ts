@@ -14,24 +14,24 @@ export interface CostSource {
   } | null;
 }
 
-export function processCost(course: CostSource): CostData {
+export function processCost(resource: CostSource): CostData {
   let costData: CostData = {
     cost: null,
     isCostFromPlatform: false,
   };
-  if (course) {
-    if (course.courseProvider?.isCourseFeesShared === true) {
+  if (resource) {
+    if (resource.courseProvider?.isCourseFeesShared === true) {
       costData = {
-        cost: course.courseProvider.cost ?? null,
+        cost: resource.courseProvider.cost ?? null,
         isCostFromPlatform: true,
-        splitBy: course.courseProvider.resources
-          ? course.courseProvider.resources.length
+        splitBy: resource.courseProvider.resources
+          ? resource.courseProvider.resources.length
           : 1,
       };
     }
     else {
       costData = {
-        cost: course.cost ?? null,
+        cost: resource.cost ?? null,
         isCostFromPlatform: false,
       };
     }

@@ -24,6 +24,7 @@ import {
   toOptions,
   upsertTask,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export interface TaskEditSearch {
   topicId?: string;
@@ -65,7 +66,7 @@ function SingleTaskEdit() {
     isNew,
     queryKey: ["task", id],
     queryFn: () => fetchSingleTask(id),
-    relatedQueryKeys: [["tasks"]],
+    relatedQueryKeys: [queryKeys.tasks.list()],
   });
 
   const submitTask = makeSubmitHandler({

@@ -13,11 +13,12 @@ import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
-  deleteSinglePlatform,
+  deleteSingleProvider,
   fetchSingleProvider,
   formHasChanges,
   upsertProvider,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/providers/$id/edit")({
   component: SingleProviderEdit,
@@ -52,7 +53,7 @@ function SingleProviderEdit() {
     isNew,
     queryKey: ["provider", id],
     queryFn: () => fetchSingleProvider(id),
-    relatedQueryKeys: [["providers"]],
+    relatedQueryKeys: [queryKeys.providers.list()],
   });
 
   const submitProvider = makeSubmitHandler({
@@ -119,7 +120,7 @@ function SingleProviderEdit() {
   );
 
   const handleDelete = makeDeleteHandler({
-    deleteFn: deleteSinglePlatform,
+    deleteFn: deleteSingleProvider,
     entityLabel: "provider",
     navigateToList: () => navigate({
       to: "/providers",

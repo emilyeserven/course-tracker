@@ -18,16 +18,10 @@ let middlewareChild = null;
 
 // --- Schema push ---
 
-function pushSchema() {
+function runInMiddleware(label, command, args) {
   return new Promise((resolve, reject) => {
-    console.log("[gateway] pushing database schema with drizzle-kit...");
-    const drizzleKitBin = path.join(
-      MIDDLEWARE_DIR,
-      "node_modules",
-      ".bin",
-      "drizzle-kit",
-    );
-    const proc = spawn(drizzleKitBin, ["push"], {
+    console.log(`[gateway] ${label}...`);
+    const proc = spawn(command, args, {
       cwd: MIDDLEWARE_DIR,
       stdio: "inherit",
       env: process.env,
@@ -35,19 +29,50 @@ function pushSchema() {
     proc.on("error", reject);
     proc.on("exit", (code) => {
       if (code === 0) {
-        console.log("[gateway] schema push complete");
+        console.log(`[gateway] ${label} complete`);
         resolve();
       }
       else {
-        reject(new Error(`drizzle-kit push exited with code ${code}`));
+        reject(new Error(`${label} exited with code ${code}`));
       }
     });
   });
 }
 
+async function pushSchema() {
+  // Runtime migrations first, then push — same order as the middleware's
+  // push:prod script. Migrations transform/drop legacy tables so the
+  // subsequent diff never contains destructive statements, which drizzle-kit
+  // would otherwise stop and prompt about (and hang: this is a non-TTY).
+  await runInMiddleware(
+    "running runtime migrations",
+    "node",
+    ["dist/db/migrate.js"],
+  );
+  await runInMiddleware(
+    "pushing database schema with drizzle-kit",
+    path.join(MIDDLEWARE_DIR, "node_modules", ".bin", "drizzle-kit"),
+    ["push"],
+  );
+}
+
 // --- Child process management ---
 
+// Crash-loop protection: back off exponentially between restarts, and give up
+// (exit non-zero, so the orchestrator restarts the whole container) after too
+// many consecutive short-lived runs. Without this the old fixed 1s respawn
+// looped forever while /healthz kept reporting ok. A run that survives
+// HEALTHY_RUN_MS resets the counter and the backoff.
+const RESTART_BASE_DELAY_MS = 1000;
+const RESTART_MAX_DELAY_MS = 30000;
+const HEALTHY_RUN_MS = 60000;
+const MAX_CONSECUTIVE_CRASHES = 5;
+
+let restartDelay = RESTART_BASE_DELAY_MS;
+let consecutiveCrashes = 0;
+
 function startMiddleware() {
+  const startedAt = Date.now();
   middlewareChild = spawn("node", ["dist/app.js"], {
     cwd: MIDDLEWARE_DIR,
     stdio: "inherit",
@@ -55,10 +80,24 @@ function startMiddleware() {
   });
 
   middlewareChild.on("exit", (code) => {
+    if (Date.now() - startedAt >= HEALTHY_RUN_MS) {
+      consecutiveCrashes = 0;
+      restartDelay = RESTART_BASE_DELAY_MS;
+    }
+
+    consecutiveCrashes += 1;
+    if (consecutiveCrashes > MAX_CONSECUTIVE_CRASHES) {
+      console.error(
+        `[gateway] middleware crashed ${consecutiveCrashes} times in a row, giving up`,
+      );
+      process.exit(1);
+    }
+
     console.error(
-      `[gateway] middleware exited with code ${code}, restarting...`,
+      `[gateway] middleware exited with code ${code}, restarting in ${restartDelay}ms...`,
     );
-    setTimeout(startMiddleware, 1000);
+    setTimeout(startMiddleware, restartDelay);
+    restartDelay = Math.min(restartDelay * 2, RESTART_MAX_DELAY_MS);
   });
 
   return middlewareChild;
@@ -99,12 +138,24 @@ app.addHook("onSend", async (_request, reply) => {
   reply.header("X-Frame-Options", "DENY");
 });
 
-// Health check
-app.get("/healthz", async () => {
-  return {
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  };
+// Health check — probes the middleware so health reflects the whole stack,
+// not just this proxy shell. Any HTTP response means the process is up.
+app.get("/healthz", async (_request, reply) => {
+  try {
+    await fetch(`http://127.0.0.1:${MIDDLEWARE_PORT}/`, {
+      signal: AbortSignal.timeout(2000),
+    });
+    return {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    };
+  }
+  catch {
+    return reply.status(503).send({
+      status: "error",
+      message: "middleware unreachable",
+    });
+  }
 });
 
 // Proxy /api/* to middleware
@@ -135,12 +186,18 @@ app.setNotFoundHandler(async (_request, reply) => {
 function shutdown() {
   console.log("[gateway] Shutting down...");
 
-  if (middlewareChild) {
-    middlewareChild.removeAllListeners("exit");
-    middlewareChild.kill("SIGTERM");
-  }
+  // Let the middleware finish in-flight work before closing the proxy.
+  const middlewareExited = middlewareChild
+    ? new Promise((resolve) => {
+      middlewareChild.removeAllListeners("exit");
+      middlewareChild.once("exit", resolve);
+      middlewareChild.kill("SIGTERM");
+    })
+    : Promise.resolve();
 
-  app.close().then(() => process.exit(0));
+  middlewareExited
+    .then(() => app.close())
+    .then(() => process.exit(0));
 
   // Force exit after 10 seconds
   setTimeout(() => process.exit(1), 10000);

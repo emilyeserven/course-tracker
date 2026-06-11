@@ -11,7 +11,7 @@ description: >-
 
 This project uses `drizzle-kit push` (no drizzle migration files) plus **idempotent runtime migrations** in `packages/middleware/src/db/migrate*.ts`. They run on every server start (`app.ts` → `runMigrations()`) and at the front of `pnpm push:dev` / `push:prod`, so they must be safe to re-run forever.
 
-**Exemplar to copy:** `packages/middleware/src/db/migrateIgnoreBlips.ts`.
+**Exemplar to copy:** `packages/middleware/src/db/migrateDropDailies.ts`.
 
 ## Steps
 
@@ -26,7 +26,7 @@ This project uses `drizzle-kit push` (no drizzle migration files) plus **idempot
 
 3. **Register it in `runMigrations()`** in `packages/middleware/src/db/startup.ts`:
    - `try/catch` with a descriptive `console.error("Failed to …", err)` and re-`throw`, matching the existing blocks.
-   - **Order matters**: place it after every migration it depends on, with an ordering comment like the existing ones (e.g. "Runs after dailies → routines so every routine row exists first").
+   - **Order matters**: place it after every migration it depends on, with an ordering comment like the existing ones (e.g. "Runs after the dailies drop").
 
 4. **Verify**:
    ```bash

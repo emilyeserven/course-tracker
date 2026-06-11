@@ -33,6 +33,7 @@ import {
   fetchSingleDomain,
   fetchTopics,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const TAB_VALUES = ["details", "scope", "config", "blips", "llm"] as const;
 type EditTab = (typeof TAB_VALUES)[number];
@@ -187,7 +188,7 @@ function ExistingDomainEdit({
     isNew: false,
     queryKey: ["domain", id],
     queryFn: () => fetchSingleDomain(id),
-    relatedQueryKeys: [["domains"]],
+    relatedQueryKeys: [queryKeys.domains.list()],
   });
 
   const {

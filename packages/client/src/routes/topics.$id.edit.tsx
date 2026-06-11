@@ -27,6 +27,7 @@ import {
   tagGroupsToOptions,
   upsertTopic,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/topics/$id/edit")({
   component: SingleTopicEdit,
@@ -66,7 +67,7 @@ function SingleTopicEdit() {
     isNew,
     queryKey: ["topic", id],
     queryFn: () => fetchSingleTopic(id),
-    relatedQueryKeys: [["topics"], ["domains"]],
+    relatedQueryKeys: [queryKeys.topics.list(), queryKeys.domains.list()],
   });
 
   const {
@@ -86,7 +87,7 @@ function SingleTopicEdit() {
   const {
     data: courses,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

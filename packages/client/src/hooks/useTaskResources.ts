@@ -11,6 +11,7 @@ import {
   fetchResources,
   upsertTask,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface UseTaskResourcesOptions {
   task: Task;
@@ -39,7 +40,7 @@ export function useTaskResources({
   const {
     data: courses,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
   const {

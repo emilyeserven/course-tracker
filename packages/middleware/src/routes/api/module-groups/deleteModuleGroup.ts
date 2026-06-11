@@ -21,7 +21,7 @@ export default async function (server: FastifyInstance) {
       id,
     } = request.params;
 
-    // Orphan member modules up to the course level rather than cascading.
+    // Orphan member modules up to the resource level rather than cascading.
     await db
       .update(modules)
       .set({

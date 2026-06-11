@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
 import { fetchResources, fetchDailies } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 function ProgressIndicator({
   current,
@@ -64,7 +65,7 @@ export function DashboardCoursesInProgress() {
   const {
     data: courses, isPending, error,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
   const {

@@ -49,7 +49,7 @@ const updateableColumns = [
 ] as const;
 
 export default createUpsertHandler<CourseBody>({
-  description: "Create or update a course",
+  description: "Create or update a resource",
   table: resources,
   bodySchema: {
     type: "object",

@@ -11,6 +11,7 @@ export default createDeleteHandler({
   description: "Delete a task by ID",
   table: tasks,
   idColumn: tasks.id,
+  routineConnectionType: "task",
   junctions: [
     {
       table: tasksToTags,

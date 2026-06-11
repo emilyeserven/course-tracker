@@ -14,6 +14,7 @@ React 19 + Vite frontend. Read the root CLAUDE.md for commands and setup; this f
 - `client.ts` exports `fetchJson`/`postJson`/`putJson`/`deleteJson` and `createEntityClient<TEntity, TList>(endpoint, label)`, which returns `{ list, get, create, upsert, delete, duplicate }` against `/api/<endpoint>`.
 - Each entity has a file (`topics.ts`, `resources.ts`, `routines.ts`, …) exporting a `<name>Api` client plus named function re-exports (`upsertTopic`, `fetchSingleTopic`, …). Custom endpoints (e.g. `incrementResourceProgress`) are added as extra functions in the entity file.
 - Reuse `createEntityClient` and the JSON helpers rather than hand-rolling `fetch`.
+- **Query keys:** take TanStack Query keys from the factory in `src/utils/queryKeys.ts` (`queryKeys.resources.list()`, `queryKeys.topics.detail(id)`, …) instead of inlining string arrays — invalidation breaks silently when keys drift.
 - `src/utils/fetchFunctions.ts` is a legacy shim that re-exports `./api` — import from `@/utils/api` (or the barrel) in new code.
 
 ## Forms
@@ -40,8 +41,8 @@ Organized by purpose under `src/components/`:
 - Root-level primitives — `button.tsx`, `calendar.tsx`, `combobox.tsx`, `input.tsx`, `input-group.tsx`, `popover.tsx`, `radio-group.tsx`, `textarea.tsx`, `sonner.tsx`: vendored shadcn-derived files; keep edits minimal and preserve their scoped eslint-disable comments
 - `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, …)
 - `boxes/` / `boxElements/` — dashboard cards and their building blocks
-- `courses/` — resource/module components (directory predates the courses → resources rename)
-- `dailies/`, `routines/`, `radar/`, `tasks/` — feature components
+- `resources/` — resource/module components
+- `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)
 - `forms/` — field-composition primitives; `formFields/` — TanStack Form-aware fields
 
 Theme support via ThemeProvider context (`src/hooks/useTheme.ts`, dark/light mode).

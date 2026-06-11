@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Course Tracker ("emstack") — a full-stack TypeScript monorepo for tracking learning resources (courses/books/etc.), topics, routines, daily habits, and tasks. Built with pnpm workspaces.
+Course Tracker ("emstack") — a full-stack TypeScript monorepo for tracking learning resources (courses/books/etc.), topics, routines (including a daily habit tracker — "dailies" are a projection of routines, not a separate entity), and tasks. Built with pnpm workspaces.
 
 ## Tech Stack
 
@@ -72,6 +72,8 @@ curl http://localhost:3001/api/clearData
 curl http://localhost:3001/api/seed
 ```
 
+These endpoints are only registered when `NODE_ENV !== "production"`.
+
 Schema changes: edit `packages/middleware/src/db/schema/` and run `pnpm push:dev` (this project uses `drizzle-kit push` plus idempotent runtime migrations in `src/db/migrate*.ts` — see the middleware CLAUDE.md).
 
 ## Generated Files — Do Not Edit
@@ -100,5 +102,6 @@ See `packages/middleware/.env.example` for env templates.
 ## Deployment
 
 - **Gateway pattern:** `packages/gateway` is the single production entrypoint — a Fastify server (`@fastify/http-proxy` + `@fastify/static`) that spawns middleware as a child process, proxies `/api/*` to it, and serves the client's static build. Same-origin requests (no CORS) and a single container to deploy.
+- **Gateway startup & supervision:** on boot the gateway runs the middleware's runtime migrations and then `drizzle-kit push` (same order as `push:prod`) before spawning the middleware. Crashed middleware is respawned with exponential backoff; after too many consecutive short-lived runs the gateway exits non-zero so the container orchestrator restarts it. `GET /healthz` probes the middleware rather than always reporting ok.
 - **Containers:** Docker Compose for local multi-service; root `Dockerfile` builds everything and runs the gateway.
 - **Coolify:** Deploy the root Dockerfile. Only `DATABASE_URL` is needed as an env var.

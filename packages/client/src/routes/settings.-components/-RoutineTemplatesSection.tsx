@@ -17,6 +17,7 @@ import {
   toOptions,
   upsertRoutineTemplate,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const NEW_ROUTINE_TEMPLATE_ID = "__new__";
 
@@ -47,7 +48,7 @@ export function RoutineTemplatesSection() {
   });
 
   const resourcesQuery = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

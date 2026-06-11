@@ -8,10 +8,10 @@ import { PlusIcon } from "lucide-react";
 import { TopicList } from "@/components/boxElements/TopicList";
 import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
-import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
+import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
@@ -20,6 +20,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const TAB_VALUES = ["details", "modules", "routines", "interactions"] as const;
 type ResourceTab = (typeof TAB_VALUES)[number];
@@ -58,7 +59,7 @@ function SingleCourse() {
   const {
     data,
   } = useQuery({
-    queryKey: ["course", id],
+    queryKey: queryKeys.resources.detail(id),
     queryFn: () => fetchSingleResource(id),
   });
 
@@ -230,7 +231,7 @@ function SingleCourse() {
         </TabsContent>
 
         <TabsContent value="modules">
-          <CourseModulesAdmin
+          <ResourceModulesAdmin
             resourceId={id}
             modulesAreExhaustive={data?.modulesAreExhaustive}
           />
@@ -279,7 +280,7 @@ function SingleCourse() {
         </TabsContent>
 
         <TabsContent value="interactions">
-          <CourseInteractionsLog resourceId={id} />
+          <ResourceInteractionsLog resourceId={id} />
         </TabsContent>
       </Tabs>
       <ConfirmDialog
