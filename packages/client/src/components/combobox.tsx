@@ -1,4 +1,6 @@
-/* eslint-disable */
+/* eslint-disable @stylistic/indent -- vendored shadcn/base-ui file; the
+   indent fixer conflicts with JSX wrapping rules on nested render={...}
+   props (circular fixes) */
 "use client";
 
 import * as React from "react";
@@ -17,8 +19,15 @@ import { cn } from "@/lib/utils";
 
 const Combobox = ComboboxPrimitive.Root;
 
-function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
-  return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />;
+function ComboboxValue({
+  ...props
+}: ComboboxPrimitive.Value.Props) {
+  return (
+    <ComboboxPrimitive.Value
+      data-slot="combobox-value"
+      {...props}
+    />
+  );
 }
 
 function ComboboxTrigger({
@@ -41,11 +50,16 @@ function ComboboxTrigger({
   );
 }
 
-function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+function ComboboxClear({
+  className, ...props
+}: ComboboxPrimitive.Clear.Props) {
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear"
-      render={<InputGroupButton variant="ghost" size="icon-xs" />}
+      render={<InputGroupButton
+        variant="ghost"
+        size="icon-xs"
+              />}
       className={cn(className)}
       {...props}
     >
@@ -102,8 +116,8 @@ function ComboboxContent({
   alignOffset = 0,
   anchor,
   ...props
-}: ComboboxPrimitive.Popup.Props &
-  Pick<
+}: ComboboxPrimitive.Popup.Props
+  & Pick<
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
   >) {
@@ -151,7 +165,9 @@ function ComboboxContent({
   );
 }
 
-function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+function ComboboxList({
+  className, ...props
+}: ComboboxPrimitive.List.Props) {
   return (
     <ComboboxPrimitive.List
       data-slot="combobox-list"
@@ -212,7 +228,9 @@ function ComboboxItem({
   );
 }
 
-function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+function ComboboxGroup({
+  className, ...props
+}: ComboboxPrimitive.Group.Props) {
   return (
     <ComboboxPrimitive.Group
       data-slot="combobox-group"
@@ -241,13 +259,20 @@ function ComboboxLabel({
   );
 }
 
-function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
+function ComboboxCollection({
+  ...props
+}: ComboboxPrimitive.Collection.Props) {
   return (
-    <ComboboxPrimitive.Collection data-slot="combobox-collection" {...props} />
+    <ComboboxPrimitive.Collection
+      data-slot="combobox-collection"
+      {...props}
+    />
   );
 }
 
-function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+function ComboboxEmpty({
+  className, ...props
+}: ComboboxPrimitive.Empty.Props) {
   return (
     <ComboboxPrimitive.Empty
       data-slot="combobox-empty"
@@ -280,8 +305,8 @@ function ComboboxSeparator({
 function ComboboxChips({
   className,
   ...props
-}: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips> &
-  ComboboxPrimitive.Chips.Props) {
+}: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips>
+  & ComboboxPrimitive.Chips.Props) {
   return (
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
@@ -333,7 +358,10 @@ function ComboboxChip({
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
-          render={<Button variant="ghost" size="icon-xs" />}
+          render={<Button
+            variant="ghost"
+            size="icon-xs"
+                  />}
           className="
             -ml-1 opacity-50
             hover:opacity-100
@@ -381,5 +409,6 @@ export {
   ComboboxChipsInput,
   ComboboxTrigger,
   ComboboxValue,
+  // eslint-disable-next-line react-refresh/only-export-components -- vendored shadcn file exports its anchor hook alongside the components
   useComboboxAnchor,
 };

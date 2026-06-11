@@ -1,53 +1,22 @@
 import { domains, domainWithinScopeTopics } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import { nullableString } from "@/utils/schemas";
 import { syncDomainMembershipByDomain } from "@/utils/syncMembershipBlips";
 
-interface DomainBody {
-  title: string;
-  description?: string | null;
-  withinScopeDescription?: string | null;
-  outOfScopeDescription?: string | null;
-  topicIds?: string[];
-  withinScopeTopicIds?: string[];
-}
+import {
+  buildDomainRow,
+  buildWithinScopeTopicRows,
+  domainBodySchema,
+  validateDomainBody,
+} from "./domainRows";
+
+import type { DomainBody } from "./domainRows";
 
 export default createUpsertHandler<DomainBody>({
   description: "Create or update a domain",
   table: domains,
-  bodySchema: {
-    type: "object",
-    required: ["title"],
-    properties: {
-      title: {
-        type: "string",
-        minLength: 1,
-      },
-      description: nullableString,
-      withinScopeDescription: nullableString,
-      outOfScopeDescription: nullableString,
-      topicIds: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-      withinScopeTopicIds: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-    },
-  },
-  validate: body => (body.title.trim() ? null : "Title is required"),
-  buildRow: (body, id) => ({
-    id,
-    title: body.title.trim(),
-    description: body.description ?? null,
-    withinScopeDescription: body.withinScopeDescription ?? null,
-    outOfScopeDescription: body.outOfScopeDescription ?? null,
-  }),
+  bodySchema: domainBodySchema,
+  validate: validateDomainBody,
+  buildRow: buildDomainRow,
   updateableColumns: [
     "title",
     "description",
@@ -58,13 +27,7 @@ export default createUpsertHandler<DomainBody>({
     {
       table: domainWithinScopeTopics,
       foreignKey: domainWithinScopeTopics.domainId,
-      buildRows: (body, id) => {
-        if (body.withinScopeTopicIds === undefined) return undefined;
-        return Array.from(new Set(body.withinScopeTopicIds)).map(topicId => ({
-          topicId,
-          domainId: id,
-        }));
-      },
+      buildRows: (body, id) => buildWithinScopeTopicRows(body.withinScopeTopicIds, id),
     },
   ],
   afterUpsert: async (body, id) => {

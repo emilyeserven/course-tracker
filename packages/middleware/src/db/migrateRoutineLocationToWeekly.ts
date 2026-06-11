@@ -18,7 +18,7 @@ type RoutineLocationRow = {
 export async function migrateRoutineLocationToWeekly() {
   const routinesExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines'
+      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines' AND table_schema = 'public'
     ) AS exists
   `);
   if (!routinesExists.rows[0]?.exists) {
@@ -28,7 +28,7 @@ export async function migrateRoutineLocationToWeekly() {
   const locationColumnExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'routines' AND column_name = 'location'
+      WHERE table_name = 'routines' AND column_name = 'location' AND table_schema = 'public'
     ) AS exists
   `);
   if (!locationColumnExists.rows[0]?.exists) {

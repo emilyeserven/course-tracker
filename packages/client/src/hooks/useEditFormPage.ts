@@ -20,12 +20,22 @@ interface MakeDeleteHandlerOptions {
   navigateToList: () => void | Promise<void>;
 }
 
+interface MakeSubmitHandlerOptions<TPayload> {
+  createFn: (data: TPayload) => Promise<{ id: string }>;
+  upsertFn: (id: string, data: TPayload) => Promise<unknown>;
+  entityLabel: string;
+  navigateToEntity: (id: string) => void | Promise<void>;
+}
+
 /**
  * Shared boilerplate for entity edit pages:
  *   - fetches the entity via useQuery (skipped when isNew)
  *   - manages the "skip unsaved-changes blocker" ref
  *   - exposes invalidateRelated() to refresh list/detail caches
  *   - exposes makeDeleteHandler(...) that wires up delete + invalidate + nav
+ *   - exposes makeSubmitHandler(...) that wires up create/upsert + invalidate
+ *     + nav + error toast; call the returned function from the form's
+ *     onSubmit with the API payload
  *
  * Navigation stays in the route file so TanStack Router types are preserved.
  */
@@ -87,6 +97,38 @@ export function useEditFormPage<TData>({
     [id, invalidateRelated, skipBlock],
   );
 
+  const makeSubmitHandler = useCallback(
+    <TPayload>({
+      createFn,
+      upsertFn,
+      entityLabel,
+      navigateToEntity,
+    }: MakeSubmitHandlerOptions<TPayload>) =>
+      async (payload: TPayload) => {
+        try {
+          let entityId = id;
+          if (isNew) {
+            const result = await createFn(payload);
+            entityId = result.id;
+          }
+          else {
+            await upsertFn(id, payload);
+          }
+          await invalidateRelated();
+          skipBlock();
+          await navigateToEntity(entityId);
+        }
+        catch {
+          toast.error(
+            isNew
+              ? `Failed to create ${entityLabel}. Please try again.`
+              : `Failed to save ${entityLabel}. Please try again.`,
+          );
+        }
+      },
+    [id, isNew, invalidateRelated, skipBlock],
+  );
+
   return {
     data,
     queryClient,
@@ -94,5 +136,6 @@ export function useEditFormPage<TData>({
     invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeSubmitHandler,
   };
 }

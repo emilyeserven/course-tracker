@@ -3,7 +3,6 @@ import { processResourceLinks } from "@/utils/processResourceLinks";
 import type {
   CostData,
   Resource,
-  ResourceFromServer,
   Tag,
   TopicsToResources,
 } from "@emstack/types";
@@ -24,14 +23,18 @@ interface ResourceProjectionRow {
   easeOfStarting: Resource["easeOfStarting"];
   timeNeeded: Resource["timeNeeded"];
   interactivity: Resource["interactivity"];
+  cost: string | null;
   courseProvider: { id: string;
-    name: string | null; } | null;
+    name: string | null;
+    cost: string | null;
+    isCourseFeesShared: boolean | null;
+    resources: unknown[]; } | null;
   topicsToResources: TopicsToResources[];
   resourceTags: { tag: Tag }[];
 }
 
 export function mapResource(course: ResourceProjectionRow): Resource {
-  const cost: CostData = processCost(course as unknown as ResourceFromServer);
+  const cost: CostData = processCost(course);
   return {
     id: course.id,
     name: course.name,

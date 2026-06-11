@@ -41,7 +41,7 @@ function buildWeekly(
 export async function migrateDailiesToRoutines() {
   const routinesExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines'
+      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines' AND table_schema = 'public'
     ) AS exists
   `);
   if (!routinesExists.rows[0]?.exists) {
@@ -50,7 +50,7 @@ export async function migrateDailiesToRoutines() {
 
   const dailiesExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables WHERE table_name = 'dailies'
+      SELECT 1 FROM information_schema.tables WHERE table_name = 'dailies' AND table_schema = 'public'
     ) AS exists
   `);
   if (!dailiesExists.rows[0]?.exists) {

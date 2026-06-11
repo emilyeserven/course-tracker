@@ -1,7 +1,20 @@
 import type { CostData } from "@emstack/types";
-import { ResourceFromServer } from "@emstack/types";
 
-export function processCost(course: ResourceFromServer): CostData {
+/**
+ * The fields cost computation actually reads. Any resource row queried with
+ * its courseProvider (and the provider's resources, for fee splitting) is
+ * assignable here.
+ */
+export interface CostSource {
+  cost?: string | null;
+  courseProvider?: {
+    cost?: string | null;
+    isCourseFeesShared?: boolean | null;
+    resources?: unknown[] | null;
+  } | null;
+}
+
+export function processCost(course: CostSource): CostData {
   let costData: CostData = {
     cost: null,
     isCostFromPlatform: false,

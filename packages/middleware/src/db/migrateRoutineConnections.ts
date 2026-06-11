@@ -18,7 +18,7 @@ type ConnectionRow = { routine_id: string;
 export async function migrateRoutineConnections() {
   const routinesExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines'
+      SELECT 1 FROM information_schema.tables WHERE table_name = 'routines' AND table_schema = 'public'
     ) AS exists
   `);
   if (!routinesExists.rows[0]?.exists) {
@@ -41,7 +41,7 @@ export async function migrateRoutineConnections() {
   const topicColumnExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'routines' AND column_name = 'topic_id'
+      WHERE table_name = 'routines' AND column_name = 'topic_id' AND table_schema = 'public'
     ) AS exists
   `);
   if (!topicColumnExists.rows[0]?.exists) {

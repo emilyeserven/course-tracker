@@ -1,89 +1,32 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
-import { FastifyInstance } from "fastify";
-import { db } from "@/db";
-import {
-  domains,
-  domainWithinScopeTopics,
-} from "@/db/schema";
-import { sendBadRequest } from "@/utils/errors";
-import { nullableString } from "@/utils/schemas";
+import { domains, domainWithinScopeTopics } from "@/db/schema";
+import { createCreateHandler } from "@/utils/createCreateHandler";
 import { syncDomainMembershipByDomain } from "@/utils/syncMembershipBlips";
-import { v4 as uuidv4 } from "uuid";
 
-const createSchema = {
-  schema: {
-    description: "Create a new domain",
-    body: {
-      type: "object",
-      required: ["title"],
-      properties: {
-        title: {
-          type: "string",
-          minLength: 1,
-        },
-        description: nullableString,
-        withinScopeDescription: nullableString,
-        outOfScopeDescription: nullableString,
-        topicIds: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        withinScopeTopicIds: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-      },
+import {
+  buildDomainRow,
+  buildWithinScopeTopicRows,
+  domainBodySchema,
+  validateDomainBody,
+} from "./domainRows";
+
+import type { DomainBody } from "./domainRows";
+
+export default createCreateHandler<DomainBody>({
+  description: "Create a new domain",
+  table: domains,
+  bodySchema: domainBodySchema,
+  validate: validateDomainBody,
+  buildRow: buildDomainRow,
+  junctions: [
+    {
+      table: domainWithinScopeTopics,
+      buildRows: (body, id) => buildWithinScopeTopicRows(body.withinScopeTopicIds, id),
     },
+  ],
+  afterCreate: async (body, id) => {
+    const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));
+    if (uniqueTopicIds.length > 0) {
+      await syncDomainMembershipByDomain(id, uniqueTopicIds);
+    }
   },
-} as const;
-
-export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
-
-  fastify.post(
-    "/",
-    createSchema,
-    async function (request, reply) {
-      const body = request.body;
-      const title = body.title.trim();
-      if (!title) {
-        return sendBadRequest(reply, "Title is required");
-      }
-      const id = uuidv4();
-
-      await db.insert(domains).values({
-        id,
-        title,
-        description: body.description ?? null,
-        withinScopeDescription: body.withinScopeDescription ?? null,
-        outOfScopeDescription: body.outOfScopeDescription ?? null,
-      });
-
-      const uniqueTopicIds = Array.from(new Set(body.topicIds ?? []));
-      if (uniqueTopicIds.length > 0) {
-        await syncDomainMembershipByDomain(id, uniqueTopicIds);
-      }
-
-      const uniqueWithinScopeTopicIds = Array.from(
-        new Set(body.withinScopeTopicIds ?? []),
-      );
-      if (uniqueWithinScopeTopicIds.length > 0) {
-        await db.insert(domainWithinScopeTopics).values(
-          uniqueWithinScopeTopicIds.map(topicId => ({
-            topicId,
-            domainId: id,
-          })),
-        );
-      }
-
-      return {
-        status: "ok",
-        id,
-      };
-    },
-  );
-}
+});

@@ -28,7 +28,7 @@ export async function migrateRadarBlips() {
   const tableExistsResult = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
-      WHERE table_name = 'radar_blips'
+      WHERE table_name = 'radar_blips' AND table_schema = 'public'
     ) AS exists
   `);
   if (!tableExistsResult.rows[0]?.exists) {
@@ -38,7 +38,7 @@ export async function migrateRadarBlips() {
   const nameExistsResult = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'radar_blips' AND column_name = 'name'
+      WHERE table_name = 'radar_blips' AND column_name = 'name' AND table_schema = 'public'
     ) AS exists
   `);
   const nameExists = nameExistsResult.rows[0]?.exists ?? false;
@@ -85,7 +85,7 @@ export async function migrateRadarBlips() {
 
   const topicNullable = await db.execute<ColumnRow>(sql`
     SELECT is_nullable FROM information_schema.columns
-    WHERE table_name = 'radar_blips' AND column_name = 'topic_id'
+    WHERE table_name = 'radar_blips' AND column_name = 'topic_id' AND table_schema = 'public'
   `);
   if (topicNullable.rows[0]?.is_nullable === "YES") {
     await db.execute(sql`ALTER TABLE radar_blips ALTER COLUMN topic_id SET NOT NULL`);

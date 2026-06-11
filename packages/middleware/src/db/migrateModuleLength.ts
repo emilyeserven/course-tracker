@@ -10,13 +10,13 @@ export async function migrateModuleLength() {
   const lengthExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'modules' AND column_name = 'length'
+      WHERE table_name = 'modules' AND column_name = 'length' AND table_schema = 'public'
     ) AS exists
   `);
   const minutesExists = await db.execute<ExistsRow>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.columns
-      WHERE table_name = 'modules' AND column_name = 'minutes_length'
+      WHERE table_name = 'modules' AND column_name = 'minutes_length' AND table_schema = 'public'
     ) AS exists
   `);
   if (!lengthExists.rows[0]?.exists || !minutesExists.rows[0]?.exists) {
