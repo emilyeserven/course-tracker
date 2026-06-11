@@ -73,6 +73,7 @@ const weeklyRowSchema = z
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
     notes: z.string(),
+    location: z.string(),
     prependText: z.string(),
     appendText: z.string(),
   })
