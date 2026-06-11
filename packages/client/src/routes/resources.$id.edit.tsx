@@ -233,6 +233,7 @@ function SingleResourceEdit() {
         await upsertResource(courseId, courseData);
         await invalidateRelated();
         skipBlock();
+        toast.success(isNew ? "Resource created." : "Resource saved.");
 
         const becameActive
           = value.status === "active" && (isNew || previousStatus !== "active");
