@@ -1,69 +1,13 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
-import { FastifyInstance } from "fastify";
-import { db } from "@/db";
 import { courseProviders } from "@/db/schema";
-import {
-  nullableBoolean,
-  nullableInteger,
-  nullableString,
-} from "@/utils/schemas";
-import { v4 as uuidv4 } from "uuid";
+import { createCreateHandler } from "@/utils/createCreateHandler";
 
-const createSchema = {
-  schema: {
-    description: "Create a new provider",
-    body: {
-      type: "object",
-      required: ["name", "url"],
-      properties: {
-        name: {
-          type: "string",
-        },
-        description: nullableString,
-        url: {
-          type: "string",
-        },
-        cost: nullableString,
-        isRecurring: nullableBoolean,
-        recurDate: nullableString,
-        recurPeriodUnit: {
-          type: ["string", "null"],
-          enum: ["days", "months", "years", null],
-        },
-        recurPeriod: nullableInteger,
-        isCourseFeesShared: nullableBoolean,
-      },
-    },
-  },
-} as const;
+import { buildProviderRow, providerBodySchema } from "./providerRows";
 
-export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
+import type { ProviderBody } from "./providerRows";
 
-  fastify.post(
-    "/",
-    createSchema,
-    async function (request, reply) {
-      const body = request.body;
-      const id = uuidv4();
-
-      await db.insert(courseProviders).values({
-        id,
-        name: body.name,
-        description: body.description ?? null,
-        url: body.url,
-        cost: body.cost ?? null,
-        isRecurring: body.isRecurring ?? null,
-        recurDate: body.recurDate ?? null,
-        recurPeriodUnit: body.recurPeriodUnit as "days" | "months" | "years" | undefined,
-        recurPeriod: body.recurPeriod ?? null,
-        isCourseFeesShared: body.isCourseFeesShared ?? null,
-      });
-
-      return {
-        status: "ok",
-        id,
-      };
-    },
-  );
-}
+export default createCreateHandler<ProviderBody>({
+  description: "Create a new provider",
+  table: courseProviders,
+  bodySchema: providerBodySchema,
+  buildRow: buildProviderRow,
+});

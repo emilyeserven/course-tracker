@@ -1,8 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 
-// Pure row builders shared by the topic create and upsert handlers. Junction
-// builders return `undefined` when their input is absent (= leave existing
-// rows untouched) and `[]` to clear.
+import {
+  nullableString,
+  resourceLinksArraySchema,
+  tagIdsArraySchema,
+} from "../../../utils/schemas.ts";
+
+// Body schema and pure row builders shared by the topic create and upsert
+// handlers. Junction builders return `undefined` when their input is absent
+// (= leave existing rows untouched) and `[]` to clear.
 
 export interface TopicBodyFields {
   name: string;
@@ -15,6 +21,33 @@ export interface TopicResourceLinkInput {
   moduleGroupId?: string | null;
   moduleId?: string | null;
 }
+
+export interface TopicBody extends TopicBodyFields {
+  domainIds?: string[];
+  tagIds?: string[];
+  resourceLinks?: TopicResourceLinkInput[];
+}
+
+export const topicBodySchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    name: {
+      type: "string",
+      minLength: 1,
+    },
+    description: nullableString,
+    reason: nullableString,
+    domainIds: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    tagIds: tagIdsArraySchema,
+    resourceLinks: resourceLinksArraySchema,
+  },
+} as const;
 
 export function buildTopicRow(body: TopicBodyFields, id: string) {
   return {

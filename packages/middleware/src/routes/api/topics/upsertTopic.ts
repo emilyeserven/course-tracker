@@ -1,49 +1,20 @@
 import { topics, topicsToResources, topicsToTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import {
-  nullableString,
-  resourceLinksArraySchema,
-  tagIdsArraySchema,
-} from "@/utils/schemas";
 import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 
 import {
   buildTopicResourceLinkRows,
   buildTopicRow,
   buildTopicTagRows,
+  topicBodySchema,
 } from "./topicRows";
 
-import type { TopicBodyFields, TopicResourceLinkInput } from "./topicRows";
-
-interface TopicBody extends TopicBodyFields {
-  domainIds?: string[];
-  tagIds?: string[];
-  resourceLinks?: TopicResourceLinkInput[];
-}
+import type { TopicBody } from "./topicRows";
 
 export default createUpsertHandler<TopicBody>({
   description: "Update a topic",
   table: topics,
-  bodySchema: {
-    type: "object",
-    required: ["name"],
-    properties: {
-      name: {
-        type: "string",
-        minLength: 1,
-      },
-      description: nullableString,
-      reason: nullableString,
-      domainIds: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-      tagIds: tagIdsArraySchema,
-      resourceLinks: resourceLinksArraySchema,
-    },
-  },
+  bodySchema: topicBodySchema,
   buildRow: buildTopicRow,
   updateableColumns: ["name", "description", "reason"],
   junctions: [

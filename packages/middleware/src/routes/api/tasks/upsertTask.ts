@@ -1,12 +1,5 @@
 import { taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import {
-  nullableString,
-  resourceLinksArraySchema,
-  resourceSchema,
-  tagIdsArraySchema,
-  todoSchema,
-} from "@/utils/schemas";
 
 import {
   buildResourceLinkRows,
@@ -14,47 +7,15 @@ import {
   buildTaskResourceRows,
   buildTaskRow,
   buildTodoRows,
+  taskBodySchema,
 } from "./taskRows";
 
-import type {
-  ResourceLinkInput,
-  TaskBodyFields,
-  TaskResourceInput,
-  TodoInput,
-} from "./taskRows";
-
-interface TaskBody extends TaskBodyFields {
-  tagIds?: string[];
-  resourceLinks?: ResourceLinkInput[];
-  resources?: TaskResourceInput[];
-  todos?: TodoInput[];
-}
+import type { TaskBody } from "./taskRows";
 
 export default createUpsertHandler<TaskBody>({
   description: "Update a task and its resources",
   table: tasks,
-  bodySchema: {
-    type: "object",
-    required: ["name"],
-    properties: {
-      name: {
-        type: "string",
-      },
-      description: nullableString,
-      topicId: nullableString,
-      taskTypeId: nullableString,
-      tagIds: tagIdsArraySchema,
-      resourceLinks: resourceLinksArraySchema,
-      resources: {
-        type: "array",
-        items: resourceSchema,
-      },
-      todos: {
-        type: "array",
-        items: todoSchema,
-      },
-    },
-  },
+  bodySchema: taskBodySchema,
   buildRow: buildTaskRow,
   updateableColumns: ["name", "description", "topicId", "taskTypeId"],
   junctions: [
