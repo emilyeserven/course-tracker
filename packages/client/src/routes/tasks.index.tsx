@@ -4,12 +4,17 @@ import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 import { TaskBox } from "@/components/boxes/TaskBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  ClearFiltersButton,
+  ListEmptyStates,
+  ListSearchInput,
+} from "@/components/ListPageControls";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -126,27 +131,11 @@ function Tasks() {
       <div className="container flex flex-col gap-4">
         {data && data.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className="relative">
-              <SearchIcon
-                className="
-                  absolute top-1/2 left-2.5 size-4 -translate-y-1/2
-                  text-muted-foreground
-                "
-              />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="
-                  h-9 rounded-md border border-input bg-transparent pr-3 pl-8
-                  text-sm shadow-xs transition-[color,box-shadow] outline-none
-                  placeholder:text-muted-foreground
-                  focus-visible:border-ring focus-visible:ring-[3px]
-                  focus-visible:ring-ring/50
-                "
-              />
-            </div>
+            <ListSearchInput
+              placeholder="Search tasks..."
+              value={search}
+              onChange={setSearch}
+            />
             <Select
               value={filterTopic ?? "all"}
               onValueChange={v =>
@@ -182,31 +171,20 @@ function Tasks() {
               </SelectContent>
             </Select>
             {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
+              <ClearFiltersButton
                 onClick={() => {
                   setFilterTopic(undefined);
                 }}
-              >
-                <XIcon className="size-4" />
-                Clear filters
-              </Button>
+              />
             )}
           </div>
         )}
 
-        {(!data || data.length === 0) && (
-          <p className="text-sm text-muted-foreground">
-            <i>No tasks yet!</i>
-          </p>
-        )}
-
-        {data && data.length > 0 && filtered.length === 0 && (
-          <div className="text-muted-foreground">
-            <i>No tasks match your filters.</i>
-          </div>
-        )}
+        <ListEmptyStates
+          entityLabel="tasks"
+          total={totalTaskCount}
+          filteredCount={filtered.length}
+        />
 
         {filtered.length > 0 && (
           <div className="card-grid">
