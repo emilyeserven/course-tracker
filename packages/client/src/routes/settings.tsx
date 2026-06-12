@@ -3,6 +3,7 @@ import { MoonIcon, SunIcon } from "lucide-react";
 
 import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTemplatesSection";
 import { DataToolsSection } from "./settings.-components/-DataToolsSection";
+import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
 import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
 
@@ -33,6 +34,8 @@ function Settings() {
         <CriteriaTemplatesSection />
 
         <RoutineTemplatesSection />
+
+        <ReadwiseSection />
 
         <section className="flex flex-col gap-3">
           <h2 className="text-xl font-semibold">Appearance</h2>

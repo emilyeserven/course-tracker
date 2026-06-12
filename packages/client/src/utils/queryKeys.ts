@@ -57,4 +57,10 @@ export const queryKeys = {
   dailyCriteriaTemplates: {
     list: () => ["dailyCriteriaTemplates"] as const,
   },
+  settings: {
+    detail: () => ["settings"] as const,
+  },
+  readwise: {
+    readingList: () => ["readwise", "reading-list"] as const,
+  },
 };

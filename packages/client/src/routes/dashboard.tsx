@@ -4,6 +4,7 @@ import { DashboardCoursesByAmortization } from "./dashboard.-components/-Dashboa
 import { DashboardCoursesInProgress } from "./dashboard.-components/-DashboardCoursesInProgress";
 import { DashboardDailies } from "./dashboard.-components/-DashboardDailies";
 import { DashboardRadars } from "./dashboard.-components/-DashboardRadars";
+import { DashboardReadwise } from "./dashboard.-components/-DashboardReadwise";
 import { DashboardUnderutilizedProviders } from "./dashboard.-components/-DashboardUnderutilizedProviders";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -64,6 +65,21 @@ function Dashboard() {
             "
           >
             <DashboardRadars />
+          </div>
+        </div>
+        <div
+          className="
+            flex flex-col gap-3
+            md:flex-row md:items-start
+          "
+        >
+          <div
+            className="
+              min-w-0
+              md:flex-1
+            "
+          >
+            <DashboardReadwise />
           </div>
         </div>
       </div>
