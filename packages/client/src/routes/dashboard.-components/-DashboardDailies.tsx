@@ -1,6 +1,6 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -36,6 +36,7 @@ import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import {
+  classifyDaily,
   fetchDailies,
   findStatusForDate,
   getCurrentChain,
@@ -57,6 +58,248 @@ function formatMmDd(dateKey: string): string {
 
 type SortKey = "name" | "progress";
 type SortDir = "asc" | "desc";
+
+interface DailiesTableProps {
+  dailies: Daily[];
+  todayKey: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
+  onToggleSort: (key: SortKey) => void;
+  onChangeStatus: (daily: Daily, status: DailyCompletionStatus) => void;
+  mutationPending: boolean;
+}
+
+// The active-routines table, shared by both the "Do Now" and "Done for the Day"
+// cards. Each instance derives its own day-column headers from its first row.
+function DailiesTable({
+  dailies,
+  todayKey,
+  sortKey,
+  sortDir,
+  onToggleSort,
+  onChangeStatus,
+  mutationPending,
+}: DailiesTableProps) {
+  function sortIndicator(key: SortKey) {
+    if (sortKey !== key) {
+      return <ArrowUpDownIcon className="size-3 opacity-40" />;
+    }
+    return sortDir === "asc"
+      ? (
+        <ArrowUpIcon className="size-3" />
+      )
+      : (
+        <ArrowDownIcon className="size-3" />
+      );
+  }
+
+  const dayHeaders
+    = dailies.length > 0
+      ? getRecentDays(dailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
+        .slice(0, -1)
+        .reverse()
+        .map(d => ({
+          dateKey: d.dateKey,
+          label: formatMmDd(d.dateKey),
+          isToday: d.isToday,
+        }))
+      : [];
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="text-left text-xs text-muted-foreground">
+            <th className="p-2 font-medium">
+              <button
+                type="button"
+                onClick={() => onToggleSort("progress")}
+                className="
+                  inline-flex items-center gap-1
+                  hover:text-foreground
+                "
+                aria-label="Sort by progress"
+              >
+                Progress
+                {sortIndicator("progress")}
+              </button>
+            </th>
+            <th className="w-full p-2 font-medium">
+              <button
+                type="button"
+                onClick={() => onToggleSort("name")}
+                className="
+                  inline-flex items-center gap-1
+                  hover:text-foreground
+                "
+                aria-label="Sort by title"
+              >
+                Title
+                {sortIndicator("name")}
+              </button>
+            </th>
+            <th className="p-2 font-medium">Type</th>
+            <th className="p-2 font-medium">Cadence</th>
+            <th className="p-2 font-medium">Streak</th>
+            <th className="p-2 font-medium">Total</th>
+            <th className="p-2 font-medium" />
+            <th className="p-2 font-medium whitespace-nowrap">
+              Today&apos;s Status
+            </th>
+            {dayHeaders.map(d => (
+              <th
+                key={d.dateKey}
+                className={cn(
+                  "px-1 py-2 text-center font-medium",
+                  d.isToday && "text-foreground",
+                )}
+              >
+                {d.label}
+              </th>
+            ))}
+            <th className="p-2 font-medium whitespace-nowrap">Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dailies.map((daily) => {
+            const currentStatus = findStatusForDate(daily, todayKey);
+            const chain = getCurrentChain(daily, todayKey);
+            const total = getTotalCompletedDays(daily);
+            const days = getRecentDays(
+              daily,
+              RECENT_DAYS_COUNT + 1,
+              todayKey,
+              "mmdd",
+            )
+              .slice(0, -1)
+              .reverse();
+            return (
+              <tr
+                key={daily.id}
+                className="
+                  group border-t
+                  hover:bg-muted/40
+                "
+              >
+                <td className="p-2">
+                  <DailyProgressCell daily={daily} />
+                </td>
+                <td className="p-2">
+                  <Link
+                    to="/routines/$id"
+                    params={{
+                      id: daily.id,
+                    }}
+                    className="
+                      font-medium
+                      hover:text-blue-600
+                    "
+                  >
+                    <DailyTitle daily={daily} />
+                  </Link>
+                </td>
+                <td className="p-2">
+                  <span className="inline-flex items-center gap-1.5">
+                    <DailyResourceIndicator daily={daily} />
+                    <DailyTaskIndicator daily={daily} />
+                  </span>
+                </td>
+                <td className="p-2">
+                  <DailyCadenceBadge daily={daily} />
+                </td>
+                <td className="p-2">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 text-xs",
+                      currentStatus === null
+                      || currentStatus === "incomplete"
+                        ? "text-muted-foreground"
+                        : chain > 0
+                          ? "text-orange-600"
+                          : "text-muted-foreground",
+                    )}
+                    title={
+                      chain > 0 ? `${chain}-day chain` : "No active chain"
+                    }
+                  >
+                    <FlameIcon className="size-3.5" />
+                    {chain}
+                  </span>
+                </td>
+                <td className="p-2">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 text-xs",
+                      total > 0
+                        ? "text-emerald-600"
+                        : "text-muted-foreground",
+                    )}
+                    title={`${total} total day${total === 1 ? "" : "s"} completed`}
+                  >
+                    <LaughIcon className="size-3.5" />
+                    {total}
+                  </span>
+                </td>
+                <td className="p-2">
+                  {currentStatus !== null && (
+                    <DailyCommentPopover daily={daily} />
+                  )}
+                </td>
+                <td className="p-2">
+                  <TodayStatusCell
+                    daily={daily}
+                    currentStatus={currentStatus}
+                    disabled={mutationPending}
+                    onChange={status => onChangeStatus(daily, status)}
+                  />
+                </td>
+                {days.map((day, i) => {
+                  return (
+                    <td
+                      key={day.dateKey}
+                      className="relative px-1 py-2 align-middle"
+                    >
+                      {i === 0 && (
+                        <DailyStatusConnector
+                          left={currentStatus}
+                          right={day.status}
+                          className="
+                            absolute top-1/2 right-[calc(50%+12px)] -left-2 z-0
+                            -translate-y-1/2
+                          "
+                        />
+                      )}
+                      {i > 0 && (
+                        <DailyStatusConnector
+                          left={days[i - 1].status}
+                          right={day.status}
+                          className="
+                            absolute top-1/2 right-[calc(50%+12px)]
+                            left-[calc(-50%+12px)] z-0 w-auto -translate-y-1/2
+                          "
+                        />
+                      )}
+                      <div className="relative z-10 flex justify-center">
+                        <DailyStatusCircle
+                          status={day.status}
+                          size="sm"
+                          title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
+                        />
+                      </div>
+                    </td>
+                  );
+                })}
+                <td className="p-2 whitespace-nowrap">
+                  <DailyLocationCell location={daily.location} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function DashboardDailies() {
   const queryClient = useQueryClient();
@@ -120,12 +363,18 @@ export function DashboardDailies() {
     },
   });
 
-  const filtered = dailies
-    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
-    : undefined;
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    }
+    else {
+      setSortKey(key);
+      setSortDir(key === "progress" ? "desc" : "asc");
+    }
+  }
 
-  const sortedDailies = filtered
-    ? [...filtered].sort((a, b) => {
+  function sortDailies(list: Daily[]): Daily[] {
+    return [...list].sort((a, b) => {
       if (sortKey === "progress") {
         const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
         if (diff !== 0) return sortDir === "asc" ? diff : -diff;
@@ -138,295 +387,127 @@ export function DashboardDailies() {
         },
       );
       return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
-    })
+    });
+  }
+
+  const activeDailies = dailies
+    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
     : undefined;
-  const activeCount = sortedDailies?.length ?? 0;
 
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
-      setSortKey(key);
-      setSortDir(key === "progress" ? "desc" : "asc");
+  // Snapshot each routine's card the first time it's seen this mount, so
+  // changing a status doesn't immediately move a row between cards. The split
+  // only re-evaluates on reload/remount, when this ref starts empty again and
+  // re-classifies the freshly fetched data. Row contents still render from live
+  // query data, so a status change shows in place — only membership is frozen.
+  const partitionRef = useRef<Map<string, "now" | "done">>(new Map());
+  if (activeDailies) {
+    for (const d of activeDailies) {
+      if (!partitionRef.current.has(d.id)) {
+        partitionRef.current.set(
+          d.id,
+          classifyDaily(d, todayKey, settings.weekTargetWindow),
+        );
+      }
     }
   }
 
-  function sortIndicator(key: SortKey) {
-    if (sortKey !== key) {
-      return <ArrowUpDownIcon className="size-3 opacity-40" />;
-    }
-    return sortDir === "asc"
-      ? (
-        <ArrowUpIcon className="size-3" />
-      )
-      : (
-        <ArrowDownIcon className="size-3" />
-      );
-  }
+  const doNow = activeDailies
+    ? sortDailies(
+      activeDailies.filter(d => partitionRef.current.get(d.id) === "now"),
+    )
+    : [];
+  const doneForDay = activeDailies
+    ? sortDailies(
+      activeDailies.filter(d => partitionRef.current.get(d.id) === "done"),
+    )
+    : [];
+  const hasData = !!activeDailies;
+  const activeCount = activeDailies?.length ?? 0;
 
-  const dayHeaders
-    = sortedDailies && sortedDailies.length > 0
-      ? getRecentDays(sortedDailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
-        .slice(0, -1)
-        .reverse()
-        .map(d => ({
-          dateKey: d.dateKey,
-          label: formatMmDd(d.dateKey),
-          isToday: d.isToday,
-        }))
-      : [];
+  const handleStatusChange = (
+    daily: Daily,
+    status: DailyCompletionStatus,
+    note?: string | null,
+  ) => mutation.mutate({
+    daily,
+    status,
+    note,
+  });
 
-  return (
-    <DashboardCard
-      title={
-        <span className="inline-flex items-center gap-2">
-          Routines
-          <TooManyDailiesWarning
-            activeCount={activeCount}
-            limit={settings.maxActiveDailies}
-            size="sm"
-          />
-        </span>
-      }
-      action={
-        <>
-          <DailiesViewModeToggle
-            mode={mode}
-            onChange={setMode}
-          />
-          <Link
-            to="/routines/tracker"
-            className="
-              text-sm text-primary underline-offset-2
-              hover:underline
-            "
-          >
-            View all
-          </Link>
-        </>
-      }
-    >
-      <DashboardSectionStatus
-        isPending={isPending}
-        error={error}
-        isEmpty={!!sortedDailies && sortedDailies.length === 0}
-        entity="dailies"
-        emptyMessage="No dailies yet."
-      />
-      {sortedDailies && sortedDailies.length > 0 && mode === "list" && (
+  function renderBody(list: Daily[]) {
+    if (mode === "list") {
+      return (
         <DailiesActiveListView
-          dailies={sortedDailies}
+          dailies={list}
           todayKey={todayKey}
           mutationPending={mutation.isPending}
           recentDaysCount={RECENT_DAYS_COUNT}
-          onChangeStatus={(daily, status, note) =>
-            mutation.mutate({
-              daily,
-              status,
-              note,
-            })}
+          onChangeStatus={handleStatusChange}
         />
-      )}
-      {sortedDailies && sortedDailies.length > 0 && mode === "table" && (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-xs text-muted-foreground">
-                <th className="p-2 font-medium">
-                  <button
-                    type="button"
-                    onClick={() => toggleSort("progress")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                    aria-label="Sort by progress"
-                  >
-                    Progress
-                    {sortIndicator("progress")}
-                  </button>
-                </th>
-                <th className="w-full p-2 font-medium">
-                  <button
-                    type="button"
-                    onClick={() => toggleSort("name")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                    aria-label="Sort by title"
-                  >
-                    Title
-                    {sortIndicator("name")}
-                  </button>
-                </th>
-                <th className="p-2 font-medium">Type</th>
-                <th className="p-2 font-medium">Cadence</th>
-                <th className="p-2 font-medium">Streak</th>
-                <th className="p-2 font-medium">Total</th>
-                <th className="p-2 font-medium" />
-                <th className="p-2 font-medium whitespace-nowrap">
-                  Today&apos;s Status
-                </th>
-                {dayHeaders.map(d => (
-                  <th
-                    key={d.dateKey}
-                    className={cn(
-                      "px-1 py-2 text-center font-medium",
-                      d.isToday && "text-foreground",
-                    )}
-                  >
-                    {d.label}
-                  </th>
-                ))}
-                <th className="p-2 font-medium whitespace-nowrap">Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedDailies.map((daily) => {
-                const currentStatus = findStatusForDate(daily, todayKey);
-                const chain = getCurrentChain(daily, todayKey);
-                const total = getTotalCompletedDays(daily);
-                const days = getRecentDays(
-                  daily,
-                  RECENT_DAYS_COUNT + 1,
-                  todayKey,
-                  "mmdd",
-                )
-                  .slice(0, -1)
-                  .reverse();
-                return (
-                  <tr
-                    key={daily.id}
-                    className="
-                      group border-t
-                      hover:bg-muted/40
-                    "
-                  >
-                    <td className="p-2">
-                      <DailyProgressCell daily={daily} />
-                    </td>
-                    <td className="p-2">
-                      <Link
-                        to="/routines/$id"
-                        params={{
-                          id: daily.id,
-                        }}
-                        className="
-                          font-medium
-                          hover:text-blue-600
-                        "
-                      >
-                        <DailyTitle daily={daily} />
-                      </Link>
-                    </td>
-                    <td className="p-2">
-                      <span className="inline-flex items-center gap-1.5">
-                        <DailyResourceIndicator daily={daily} />
-                        <DailyTaskIndicator daily={daily} />
-                      </span>
-                    </td>
-                    <td className="p-2">
-                      <DailyCadenceBadge daily={daily} />
-                    </td>
-                    <td className="p-2">
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1 text-xs",
-                          currentStatus === null
-                          || currentStatus === "incomplete"
-                            ? "text-muted-foreground"
-                            : chain > 0
-                              ? "text-orange-600"
-                              : "text-muted-foreground",
-                        )}
-                        title={
-                          chain > 0 ? `${chain}-day chain` : "No active chain"
-                        }
-                      >
-                        <FlameIcon className="size-3.5" />
-                        {chain}
-                      </span>
-                    </td>
-                    <td className="p-2">
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1 text-xs",
-                          total > 0
-                            ? "text-emerald-600"
-                            : "text-muted-foreground",
-                        )}
-                        title={`${total} total day${total === 1 ? "" : "s"} completed`}
-                      >
-                        <LaughIcon className="size-3.5" />
-                        {total}
-                      </span>
-                    </td>
-                    <td className="p-2">
-                      {currentStatus !== null && (
-                        <DailyCommentPopover daily={daily} />
-                      )}
-                    </td>
-                    <td className="p-2">
-                      <TodayStatusCell
-                        daily={daily}
-                        currentStatus={currentStatus}
-                        disabled={mutation.isPending}
-                        onChange={status =>
-                          mutation.mutate({
-                            daily,
-                            status,
-                          })}
-                      />
-                    </td>
-                    {days.map((day, i) => {
-                      return (
-                        <td
-                          key={day.dateKey}
-                          className="relative px-1 py-2 align-middle"
-                        >
-                          {i === 0 && (
-                            <DailyStatusConnector
-                              left={currentStatus}
-                              right={day.status}
-                              className="
-                                absolute top-1/2 right-[calc(50%+12px)] -left-2
-                                z-0 -translate-y-1/2
-                              "
-                            />
-                          )}
-                          {i > 0 && (
-                            <DailyStatusConnector
-                              left={days[i - 1].status}
-                              right={day.status}
-                              className="
-                                absolute top-1/2 right-[calc(50%+12px)]
-                                left-[calc(-50%+12px)] z-0 w-auto
-                                -translate-y-1/2
-                              "
-                            />
-                          )}
-                          <div className="relative z-10 flex justify-center">
-                            <DailyStatusCircle
-                              status={day.status}
-                              size="sm"
-                              title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                            />
-                          </div>
-                        </td>
-                      );
-                    })}
-                    <td className="p-2 whitespace-nowrap">
-                      <DailyLocationCell location={daily.location} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </DashboardCard>
+      );
+    }
+    return (
+      <DailiesTable
+        dailies={list}
+        todayKey={todayKey}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onToggleSort={toggleSort}
+        onChangeStatus={handleStatusChange}
+        mutationPending={mutation.isPending}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <DashboardCard
+        title={
+          <span className="inline-flex items-center gap-2">
+            Do Now
+            <TooManyDailiesWarning
+              activeCount={activeCount}
+              limit={settings.maxActiveDailies}
+              size="sm"
+            />
+          </span>
+        }
+        action={
+          <>
+            <DailiesViewModeToggle
+              mode={mode}
+              onChange={setMode}
+            />
+            <Link
+              to="/routines/tracker"
+              className="
+                text-sm text-primary underline-offset-2
+                hover:underline
+              "
+            >
+              View all
+            </Link>
+          </>
+        }
+      >
+        <DashboardSectionStatus
+          isPending={isPending}
+          error={error}
+          isEmpty={hasData && doNow.length === 0}
+          entity="dailies"
+          emptyMessage="Nothing to do right now."
+        />
+        {doNow.length > 0 && renderBody(doNow)}
+      </DashboardCard>
+
+      <DashboardCard title="Done for the Day">
+        <DashboardSectionStatus
+          isEmpty={hasData && doneForDay.length === 0}
+          entity="dailies"
+          emptyMessage="Nothing done yet today."
+        />
+        {doneForDay.length > 0 && renderBody(doneForDay)}
+      </DashboardCard>
+    </div>
   );
 }

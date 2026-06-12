@@ -1,5 +1,5 @@
 import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
-import type { Daily, DailyCompletionStatus } from "@emstack/types";
+import type { Daily, DailyCompletionStatus, RoutineWeekday } from "@emstack/types";
 
 function getDateKey(date: Date = new Date()): string {
   const y = date.getFullYear();
@@ -19,7 +19,7 @@ export function shiftDateKey(key: string, deltaDays: number): string {
 }
 
 export function findStatusForDate(
-  daily: Daily,
+  daily: Pick<Daily, "completions">,
   dateKey: string,
 ): DailyCompletionStatus | null {
   return daily.completions.find(c => c.date === dateKey)?.status ?? null;
@@ -216,6 +216,68 @@ export function isWeeklyTargetMet(
     return false;
   }
   return getCompletedDaysThisWeek(daily, todayKey, window) >= target;
+}
+
+const DAY_KEYS: RoutineWeekday[] = ["0", "1", "2", "3", "4", "5", "6"];
+
+// Date.getDay() weekday key ("0" = Sunday … "6" = Saturday) for a date key,
+// read in local time to stay consistent with getTodayKey().
+function weekdayForKey(dateKey: string): RoutineWeekday {
+  return String(new Date(`${dateKey}T00:00:00`).getDay()) as RoutineWeekday;
+}
+
+// True when the routine has a weekly-grid entry that applies on the given day:
+// weekly-mode routines schedule per weekday, while daily-mode (or unset) ones
+// use the representative entry (the first populated day, mirrored to every day).
+// Mirrors the middleware activeEntry/representativeEntry projection helpers.
+export function isScheduledForDay(
+  daily: Pick<Daily, "weekly" | "mode">,
+  todayKey: string = getTodayKey(),
+): boolean {
+  const weekly = daily.weekly;
+  if (!weekly) {
+    return false;
+  }
+  if (daily.mode === "weekly") {
+    return Boolean(weekly[weekdayForKey(todayKey)]?.id);
+  }
+  return DAY_KEYS.some(key => Boolean(weekly[key]?.id));
+}
+
+// True when today already carries a "real" completion status. "incomplete" is
+// deliberately excluded — an explicitly-incomplete day still needs doing.
+export function hasStatusForDay(
+  daily: Pick<Daily, "completions">,
+  todayKey: string = getTodayKey(),
+): boolean {
+  const status = findStatusForDate(daily, todayKey);
+  return status !== null && status !== "incomplete";
+}
+
+// Whether a routine still has something to do today: scheduled for today and
+// its weekly target (if any) not yet met for the current window.
+export function hasTaskForDay(
+  daily: Pick<Daily, "weekly" | "mode" | "completions" | "weeklyTarget">,
+  todayKey: string,
+  window: WeekTargetWindow,
+): boolean {
+  return (
+    isScheduledForDay(daily, todayKey)
+    && !isWeeklyTargetMet(daily, todayKey, window)
+  );
+}
+
+// Split a routine into the dashboard's two buckets: "now" = has a task today
+// and not yet given a real status; "done" = everything else (already statused,
+// or nothing to do today).
+export function classifyDaily(
+  daily: Pick<Daily, "weekly" | "mode" | "completions" | "weeklyTarget">,
+  todayKey: string,
+  window: WeekTargetWindow,
+): "now" | "done" {
+  return hasTaskForDay(daily, todayKey, window) && !hasStatusForDay(daily, todayKey)
+    ? "now"
+    : "done";
 }
 
 export function getDailyProgressPercent(daily: Daily): number {
