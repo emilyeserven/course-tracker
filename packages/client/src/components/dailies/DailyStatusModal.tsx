@@ -77,7 +77,9 @@ export function DailyStatusModal({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="max-w-xl">
+      <DialogContent
+        className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto"
+      >
         <DialogHeader className="text-left">
           <DialogTitle>
             {daily.name}

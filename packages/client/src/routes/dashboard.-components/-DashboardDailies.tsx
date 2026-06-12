@@ -22,7 +22,7 @@ import {
   DailiesViewModeToggle,
   DailyCadenceBadge,
   DailyCommentPopover,
-  DailyCourseIndicator,
+  DailyResourceIndicator,
   DailyLocationCell,
   DailyProgressCell,
   DailyStatusCircle,
@@ -323,7 +323,7 @@ export function DashboardDailies() {
                     </td>
                     <td className="p-2">
                       <span className="inline-flex items-center gap-1.5">
-                        <DailyCourseIndicator daily={daily} />
+                        <DailyResourceIndicator daily={daily} />
                         <DailyTaskIndicator daily={daily} />
                       </span>
                     </td>

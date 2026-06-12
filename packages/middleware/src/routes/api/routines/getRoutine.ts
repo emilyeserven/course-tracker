@@ -1,6 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
@@ -24,7 +25,7 @@ export default async function (server: FastifyInstance) {
   fastify.get(
     "/:id",
     getSchema,
-    async function (request) {
+    async function (request, reply) {
       const {
         id,
       } = request.params;
@@ -39,7 +40,7 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!routine) {
-        return routine;
+        return sendNotFound(reply, "Routine");
       }
 
       const [resolved] = await resolveRoutineConnections([routine]);

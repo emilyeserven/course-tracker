@@ -1,22 +1,5 @@
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
-import { FastifyInstance } from "fastify";
-import { v4 as uuidv4 } from "uuid";
-
-import { db } from "@/db";
-import {
-  taskResources,
-  taskTodos,
-  tasks,
-  tasksToResources,
-  tasksToTags,
-} from "@/db/schema";
-import {
-  nullableString,
-  resourceLinksArraySchema,
-  resourceSchema,
-  tagIdsArraySchema,
-  todoSchema,
-} from "@/utils/schemas";
+import { taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
+import { createCreateHandler } from "@/utils/createCreateHandler";
 
 import {
   buildResourceLinkRows,
@@ -24,72 +7,32 @@ import {
   buildTaskResourceRows,
   buildTaskRow,
   buildTodoRows,
+  taskBodySchema,
 } from "./taskRows";
 
-const createSchema = {
-  schema: {
-    description: "Create a new task",
-    body: {
-      type: "object",
-      required: ["name"],
-      properties: {
-        name: {
-          type: "string",
-        },
-        description: nullableString,
-        topicId: nullableString,
-        taskTypeId: nullableString,
-        tagIds: tagIdsArraySchema,
-        resourceLinks: resourceLinksArraySchema,
-        resources: {
-          type: "array",
-          items: resourceSchema,
-        },
-        todos: {
-          type: "array",
-          items: todoSchema,
-        },
-      },
+import type { TaskBody } from "./taskRows";
+
+export default createCreateHandler<TaskBody>({
+  description: "Create a new task",
+  table: tasks,
+  bodySchema: taskBodySchema,
+  buildRow: buildTaskRow,
+  junctions: [
+    {
+      table: tasksToTags,
+      buildRows: (body, id) => buildTagRows(body.tagIds, id),
     },
-  },
-} as const;
-
-export default async function (server: FastifyInstance) {
-  const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
-
-  fastify.post(
-    "/",
-    createSchema,
-    async function (request) {
-      const body = request.body;
-      const id = uuidv4();
-
-      await db.insert(tasks).values(buildTaskRow(body, id));
-
-      const tagRows = buildTagRows(body.tagIds, id) ?? [];
-      if (tagRows.length > 0) {
-        await db.insert(tasksToTags).values(tagRows);
-      }
-
-      const linkRows = buildResourceLinkRows(body.resourceLinks, id) ?? [];
-      if (linkRows.length > 0) {
-        await db.insert(tasksToResources).values(linkRows);
-      }
-
-      const resourceRows = buildTaskResourceRows(body.resources, id) ?? [];
-      if (resourceRows.length > 0) {
-        await db.insert(taskResources).values(resourceRows);
-      }
-
-      const todoRows = buildTodoRows(body.todos, id) ?? [];
-      if (todoRows.length > 0) {
-        await db.insert(taskTodos).values(todoRows);
-      }
-
-      return {
-        status: "ok",
-        id,
-      };
+    {
+      table: tasksToResources,
+      buildRows: (body, id) => buildResourceLinkRows(body.resourceLinks, id),
     },
-  );
-}
+    {
+      table: taskResources,
+      buildRows: (body, id) => buildTaskResourceRows(body.resources, id),
+    },
+    {
+      table: taskTodos,
+      buildRows: (body, id) => buildTodoRows(body.todos, id),
+    },
+  ],
+});

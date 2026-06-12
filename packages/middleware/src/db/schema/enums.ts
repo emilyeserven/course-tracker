@@ -1,37 +1,20 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
-export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
-
-export interface DailyCompletion {
-  date: string;
-  status?: DailyCompletionStatus;
-  note?: string;
-}
-
-export interface DailyCriteria {
-  incomplete?: string;
-  touched?: string;
-  goal?: string;
-  exceeded?: string;
-}
-
-// Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
-// Declared locally (mirroring DailyCompletion/DailyCriteria) to avoid a
-// circular dependency on @emstack/types from the schema layer.
-export type RoutineWeekday = "0" | "1" | "2" | "3" | "4" | "5" | "6";
-
-export interface RoutineReferenceItem {
-  type: "task" | "resource" | "freeform";
-  id: string;
-  notes?: string | null;
-  location?: string | null;
-}
-
-export type RoutineWeekly = Partial<Record<RoutineWeekday, RoutineReferenceItem>>;
-
-// Declared locally (like the types above) to avoid a circular dependency on
-// @emstack/types from the schema layer.
-export type RoutineConnectionType = "topic" | "task" | "resource";
+// JSONB column shapes come from the shared types package — the single source
+// of truth the client uses too. Type-only re-exports are erased at build time,
+// so the schema layer gains no runtime dependency (drizzle-kit's bundler never
+// sees an import). The local copies these replace had already drifted
+// (DailyCriteria was missing `freeze`; RoutineReferenceItem was missing
+// prependText/appendText).
+export type {
+  DailyCompletion,
+  DailyCompletionStatus,
+  DailyCriteria,
+  RoutineConnectionType,
+  RoutineReferenceItem,
+  RoutineWeekday,
+  RoutineWeekly,
+} from "@emstack/types";
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);

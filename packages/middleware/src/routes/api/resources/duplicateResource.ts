@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const duplicateSchema = {
   schema: {
-    description: "Duplicate a course by ID",
+    description: "Duplicate a resource by ID",
     params: idParamSchema,
   },
 } as const;

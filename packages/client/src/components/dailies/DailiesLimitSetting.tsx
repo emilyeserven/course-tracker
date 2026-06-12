@@ -1,3 +1,5 @@
+import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
+
 import { useState } from "react";
 
 import { SettingsIcon } from "lucide-react";
@@ -9,11 +11,25 @@ import {
   PopoverTrigger,
 } from "@/components/popover";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { WEEK_TARGET_WINDOWS } from "@/context/SettingsProviderContext";
 import { useSettings } from "@/hooks/useSettings";
+
+const WEEK_WINDOW_LABELS: Record<WeekTargetWindow, string> = {
+  sunday: "Week starts Sunday",
+  monday: "Week starts Monday",
+  rolling7: "Rolling 7 days",
+};
 
 export function DailiesLimitSetting() {
   const {
-    settings, setMaxActiveDailies,
+    settings, setMaxActiveDailies, setWeekTargetWindow,
   } = useSettings();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(String(settings.maxActiveDailies));
@@ -41,8 +57,8 @@ export function DailiesLimitSetting() {
           type="button"
           variant="ghost"
           size="sm"
-          aria-label="Configure active dailies limit"
-          title="Configure active dailies limit"
+          aria-label="Routine tracker settings"
+          title="Routine tracker settings"
         >
           <SettingsIcon className="size-4" />
         </Button>
@@ -91,6 +107,39 @@ export function DailiesLimitSetting() {
             </Button>
           </div>
         </form>
+        <div className="mt-3 flex flex-col gap-2 border-t pt-3">
+          <label
+            className="text-sm font-medium"
+            htmlFor="week-target-window"
+          >
+            Weekly target reset
+          </label>
+          <p className="text-xs text-muted-foreground">
+            How a daily routine&apos;s “days per week” target counts a week.
+          </p>
+          <Select
+            value={settings.weekTargetWindow}
+            onValueChange={value =>
+              setWeekTargetWindow(value as WeekTargetWindow)}
+          >
+            <SelectTrigger
+              id="week-target-window"
+              className="w-full"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {WEEK_TARGET_WINDOWS.map(window => (
+                <SelectItem
+                  key={window}
+                  value={window}
+                >
+                  {WEEK_WINDOW_LABELS[window]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </PopoverContent>
     </Popover>
   );

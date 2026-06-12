@@ -6,6 +6,7 @@
       "@/*": ["./src/*"]
     },
 
+    "incremental": true,
     "tsBuildInfoFile": "./tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,

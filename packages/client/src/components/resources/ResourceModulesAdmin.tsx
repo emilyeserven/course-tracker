@@ -23,7 +23,7 @@ import { ModuleEditCard } from "./ModuleEditCard";
 import { ModuleSuggestDialog } from "./ModuleSuggestDialog";
 
 import { Button } from "@/components/ui/button";
-import { useCourseModules } from "@/hooks/useCourseModules";
+import { useResourceModules } from "@/hooks/useResourceModules";
 import { isHttpUrl } from "@/utils";
 
 interface Props {
@@ -31,7 +31,7 @@ interface Props {
   modulesAreExhaustive?: boolean;
 }
 
-export function CourseModulesAdmin({
+export function ResourceModulesAdmin({
   resourceId,
   modulesAreExhaustive,
 }: Props) {
@@ -54,7 +54,7 @@ export function CourseModulesAdmin({
     moveModule,
     moveGroup,
     isReordering,
-  } = useCourseModules(resourceId);
+  } = useResourceModules(resourceId);
 
   // Group state
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);

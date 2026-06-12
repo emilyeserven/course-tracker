@@ -7,14 +7,15 @@ import { toast } from "sonner";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { incrementResourceProgress } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
-interface DailyCourseIndicatorProps {
+interface DailyResourceIndicatorProps {
   daily: Daily;
 }
 
-export function DailyCourseIndicator({
+export function DailyResourceIndicator({
   daily,
-}: DailyCourseIndicatorProps) {
+}: DailyResourceIndicatorProps) {
   const queryClient = useQueryClient();
   const course = daily.resource;
 
@@ -22,14 +23,14 @@ export function DailyCourseIndicator({
     mutationFn: (courseId: string) => incrementResourceProgress(courseId),
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({
-        queryKey: ["courses"],
+        queryKey: queryKeys.resources.list(),
       });
       await queryClient.invalidateQueries({
         queryKey: ["dailies"],
       });
       if (course) {
         await queryClient.invalidateQueries({
-          queryKey: ["course", course.id],
+          queryKey: queryKeys.resources.detail(course.id),
         });
       }
       toast.success(

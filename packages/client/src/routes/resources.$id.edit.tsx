@@ -10,10 +10,10 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { CourseInteractionsLog } from "@/components/courses/CourseInteractionsLog";
-import { CourseModulesAdmin } from "@/components/courses/CourseModulesAdmin";
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
@@ -41,6 +41,7 @@ import {
   upsertResource,
   uuidv4,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 const TAB_VALUES = ["details", "modules", "interactions"] as const;
 type ResourceTab = (typeof TAB_VALUES)[number];
@@ -137,9 +138,9 @@ function SingleResourceEdit() {
   } = useEditFormPage({
     id,
     isNew,
-    queryKey: ["course", id],
+    queryKey: queryKeys.resources.detail(id),
     queryFn: () => fetchSingleResource(id),
-    relatedQueryKeys: [["courses"], ["topics"]],
+    relatedQueryKeys: [queryKeys.resources.list(), queryKeys.topics.list()],
   });
 
   const {
@@ -621,14 +622,14 @@ function SingleResourceEdit() {
             </TabsContent>
 
             <TabsContent value="modules">
-              <CourseModulesAdmin
+              <ResourceModulesAdmin
                 resourceId={id}
                 modulesAreExhaustive={data?.modulesAreExhaustive}
               />
             </TabsContent>
 
             <TabsContent value="interactions">
-              <CourseInteractionsLog resourceId={id} />
+              <ResourceInteractionsLog resourceId={id} />
             </TabsContent>
           </Tabs>
         )}

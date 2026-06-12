@@ -1,6 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { sendNotFound } from "@/utils/errors";
 import { mapTask } from "@/utils/taskProjection";
 import { idParamSchema } from "@/utils/schemas";
 
@@ -17,7 +18,7 @@ export default async function (server: FastifyInstance) {
   fastify.get(
     "/:id",
     getSchema,
-    async function (request) {
+    async function (request, reply) {
       const {
         id,
       } = request.params;
@@ -118,7 +119,7 @@ export default async function (server: FastifyInstance) {
       });
 
       if (!task) {
-        return null;
+        return sendNotFound(reply, "Task");
       }
 
       return mapTask(task);

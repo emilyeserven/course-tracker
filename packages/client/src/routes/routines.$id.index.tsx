@@ -1,60 +1,43 @@
 import type { DailyDetailTab } from "@/components/dailies/dailyStatusMeta";
+import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { useMemo } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EditIcon, FlameIcon, LaughIcon, MapPinIcon } from "lucide-react";
+import { EditIcon, FlameIcon, LaughIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DashboardCard } from "@/components/boxes/DashboardCard";
-import { ActionableSentence } from "@/components/dailies/ActionableSentence";
+import { TodayStatusCell } from "@/components/dailies";
 import { DailyDetailsPanel } from "@/components/dailies/DailyDetailsPanel";
 import { DAILY_DETAIL_TABS } from "@/components/dailies/dailyStatusMeta";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import {
   DAY_LABELS,
   DAY_ORDER,
 } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useSettings } from "@/hooks/useSettings";
 import {
   connectionEntityKind,
   fetchResources,
   fetchSingleRoutine,
   fetchTasks,
+  findStatusForDate,
   getCurrentChain,
+  getTodayKey,
   getTotalCompletedDays,
+  isWeeklyTargetMet,
   upsertRoutine,
+  withCompletion,
+  withCompletionNote,
 } from "@/utils";
-
-const STATUS_OPTIONS = [
-  {
-    value: "active",
-    label: "Active",
-  },
-  {
-    value: "inactive",
-    label: "Inactive",
-  },
-  {
-    value: "complete",
-    label: "Complete",
-  },
-  {
-    value: "paused",
-    label: "Paused",
-  },
-] as const;
+import { queryKeys } from "@/utils/queryKeys";
 
 export interface RoutineViewSearch {
   tab?: DailyDetailTab;
@@ -91,6 +74,9 @@ function SingleRoutine() {
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    settings,
+  } = useSettings();
   const search = Route.useSearch();
   const tab: DailyDetailTab = search.tab ?? "details";
 
@@ -124,7 +110,7 @@ function SingleRoutine() {
   const {
     data: resources,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 
@@ -137,19 +123,48 @@ function SingleRoutine() {
     [resources],
   );
 
+  const todayDateKey = getTodayKey();
+
+  // Marks today's completion status (incomplete/touched/goal/exceeded/freeze)
+  // for this routine — the same daily-status concept the dashboard table edits.
+  // Sends a partial body (name + completions), so the upsert preserves the
+  // routine's weekly grid, connections, criteria and overall status.
   const statusMutation = useMutation({
-    mutationFn: (vars: { name: string;
-      status: string; }) =>
-      upsertRoutine(id, {
-        name: vars.name,
-        status: vars.status,
-      }),
+    mutationFn: ({
+      daily,
+      status,
+      note,
+    }: {
+      daily: Daily;
+      status: DailyCompletionStatus;
+      note?: string | null;
+    }) => {
+      const withStatus = withCompletion(daily, todayDateKey, status);
+      const completions
+        = note === undefined
+          ? withStatus
+          : withCompletionNote(
+            {
+              ...daily,
+              completions: withStatus,
+            },
+            todayDateKey,
+            note,
+          );
+      return upsertRoutine(daily.id, {
+        name: daily.name,
+        completions,
+      });
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["routine", id],
       });
       await queryClient.invalidateQueries({
         queryKey: ["routines"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["dailies"],
       });
       toast.success("Status updated.");
     },
@@ -179,6 +194,17 @@ function SingleRoutine() {
     ? dailyEntry
     : (weekly[todayKey as keyof typeof weekly] ?? null);
   const completions = data.completions ?? [];
+  // Daily-mode routines with a met weekly target need nothing more today.
+  const weekTargetMet
+    = isDaily
+      && isWeeklyTargetMet(
+        {
+          completions,
+          weeklyTarget: data.weeklyTarget ?? null,
+        },
+        todayDateKey,
+        settings.weekTargetWindow,
+      );
   const chain = getCurrentChain({
     completions,
   });
@@ -186,112 +212,31 @@ function SingleRoutine() {
     completions,
   });
 
-  // The entry's name as a clickable link (task / resource) or plain text
-  // (freeform) — no type badge, so it can sit inside an actionable sentence.
-  function entryNameLink(entry: { type: string;
-    id: string; }) {
-    if (entry.type === "freeform") {
-      return entry.id;
-    }
-    return (
-      <Link
-        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-        params={{
-          id: entry.id,
-        }}
-        className="
-          text-blue-800
-          hover:text-blue-600
-          dark:text-blue-300
-        "
-      >
-        {entry.type === "task"
-          ? (taskNames.get(entry.id) ?? entry.id)
-          : (resourceNames.get(entry.id) ?? entry.id)}
-      </Link>
-    );
-  }
-
-  // prepend text + linked name + append text, forming the actionable sentence
-  // while keeping the name itself clickable. The affixes render a notch lighter
-  // than the name so the resource itself stands out.
-  function renderActionable(entry: { type: string;
-    id: string;
-    prependText?: string | null;
-    appendText?: string | null; }) {
-    return (
-      <ActionableSentence
-        prependText={entry.prependText}
-        appendText={entry.appendText}
-        name={entryNameLink(entry)}
-      />
-    );
-  }
-
-  function renderEntryLink(entry: { type: string;
-    id: string;
-    notes?: string | null;
-    location?: string | null;
-    prependText?: string | null;
-    appendText?: string | null; }) {
-    const main = (
-      <span className="text-sm">
-        <span className="mr-2 text-xs text-muted-foreground uppercase">
-          {entry.type}
-        </span>
-        {renderActionable(entry)}
-      </span>
-    );
-
-    if (!entry.notes && !entry.location) {
-      return main;
-    }
-
-    return (
-      <span className="flex flex-col gap-0.5">
-        {main}
-        {entry.notes && (
-          <span className="text-sm text-muted-foreground">{entry.notes}</span>
-        )}
-        {entry.location && (
-          <span
-            className="
-              inline-flex items-center gap-1 text-xs text-muted-foreground
-            "
-          >
-            <MapPinIcon className="size-3.5 shrink-0" />
-            {entry.location}
-          </span>
-        )}
-      </span>
-    );
-  }
-
-  const currentStatus = data.status ?? "active";
+  // A Daily-shaped view of this routine for the shared today's-status modal,
+  // which only reads name / completions / criteria / description.
+  const dailyForStatus: Daily = {
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    completions: data.completions ?? [],
+    criteria: data.criteria ?? null,
+    status: data.status,
+  };
+  const todayStatus = findStatusForDate(dailyForStatus, todayDateKey);
   const statusControl = (
-    <Select
-      value={currentStatus}
-      onValueChange={next =>
-        statusMutation.mutate({
-          name: data.name,
-          status: next,
-        })}
-      disabled={statusMutation.isPending}
-    >
-      <SelectTrigger size="sm">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent align="end">
-        {STATUS_OPTIONS.map(option => (
-          <SelectItem
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-40">
+      <TodayStatusCell
+        daily={dailyForStatus}
+        currentStatus={todayStatus}
+        disabled={statusMutation.isPending}
+        onChange={(status, note) =>
+          statusMutation.mutate({
+            daily: dailyForStatus,
+            status,
+            note,
+          })}
+      />
+    </div>
   );
 
   return (
@@ -322,7 +267,12 @@ function SingleRoutine() {
             ? (
               <>
                 <p className="text-lg font-medium">
-                  {renderActionable(todayEntry)}
+                  <RoutineEntryLabel
+                    entry={todayEntry}
+                    taskNames={taskNames}
+                    resourceNames={resourceNames}
+                    showMeta={false}
+                  />
                 </p>
                 {todayEntry.notes && (
                   <p className="text-sm text-muted-foreground">
@@ -336,6 +286,11 @@ function SingleRoutine() {
                 Nothing, take a break!
               </p>
             )}
+          {weekTargetMet && (
+            <p className="mt-2 text-sm text-muted-foreground italic">
+              Nothing required today — weekly goal met.
+            </p>
+          )}
         </DashboardCard>
         <DailyDetailsPanel
           dailyId={id}
@@ -467,7 +422,13 @@ function SingleRoutine() {
                             {DAY_LABELS[day]}
                           </span>
                           {entry
-                            ? renderEntryLink(entry)
+                            ? (
+                              <RoutineEntryLabel
+                                entry={entry}
+                                taskNames={taskNames}
+                                resourceNames={resourceNames}
+                              />
+                            )
                             : (
                               <span
                                 className="text-sm text-muted-foreground italic"

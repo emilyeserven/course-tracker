@@ -4,7 +4,6 @@ import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
@@ -28,6 +27,7 @@ import {
   tagGroupsToOptions,
   upsertTopic,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/topics/$id/edit")({
   component: SingleTopicEdit,
@@ -59,16 +59,15 @@ function SingleTopicEdit() {
 
   const {
     data,
-    skipBlock,
-    invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeSubmitHandler,
   } = useEditFormPage({
     id,
     isNew,
     queryKey: ["topic", id],
     queryFn: () => fetchSingleTopic(id),
-    relatedQueryKeys: [["topics"], ["domains"]],
+    relatedQueryKeys: [queryKeys.topics.list(), queryKeys.domains.list()],
   });
 
   const {
@@ -88,7 +87,7 @@ function SingleTopicEdit() {
   const {
     data: courses,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 
@@ -139,6 +138,18 @@ function SingleTopicEdit() {
     [data],
   );
 
+  const submitTopic = makeSubmitHandler({
+    createFn: createTopic,
+    upsertFn: upsertTopic,
+    entityLabel: "topic",
+    navigateToEntity: topicId => navigate({
+      to: "/topics/$id",
+      params: {
+        id: topicId,
+      },
+    }),
+  });
+
   const form = useAppForm({
     defaultValues: startingValues,
     validators: {
@@ -147,7 +158,7 @@ function SingleTopicEdit() {
     onSubmit: async ({
       value,
     }) => {
-      const topicData = {
+      await submitTopic({
         name: value.name,
         description: value.description || null,
         reason: value.reason || null,
@@ -160,34 +171,7 @@ function SingleTopicEdit() {
             moduleGroupId: l.moduleGroupId,
             moduleId: l.moduleId,
           })),
-      };
-
-      try {
-        let topicId: string;
-        if (isNew) {
-          const result = await createTopic(topicData);
-          topicId = result.id;
-        }
-        else {
-          await upsertTopic(id, topicData);
-          topicId = id;
-        }
-        await invalidateRelated();
-        skipBlock();
-        await navigate({
-          to: "/topics/$id",
-          params: {
-            id: topicId,
-          },
-        });
-      }
-      catch {
-        toast.error(
-          isNew
-            ? "Failed to create topic. Please try again."
-            : "Failed to save topic. Please try again.",
-        );
-      }
+      });
     },
   });
 

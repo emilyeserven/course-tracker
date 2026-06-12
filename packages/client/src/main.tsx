@@ -21,8 +21,10 @@ declare module "@tanstack/react-router" {
 
 const queryClient = new QueryClient();
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const rootElement = document.getElementById("root")!;
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element #root not found in index.html");
+}
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
 

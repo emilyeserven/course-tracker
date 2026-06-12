@@ -67,10 +67,10 @@ export const taskTodos = pgTable("task_todos", {
 
 // New junction so tasks can reference resources. Optionally narrowed to a
 // module group or single module within that resource. A task can hold
-// multiple rows per resource (e.g. whole-resource + a specific module);
-// uniqueness is enforced on the (taskId, resourceId, moduleGroupId, moduleId)
-// tuple via a runtime migration on startup, since drizzle-kit can't easily
-// express partial-unique on nullable columns.
+// multiple rows per resource (e.g. whole-resource + a specific module).
+// Uniqueness of the (taskId, resourceId, moduleGroupId, moduleId) tuple is
+// not enforced at the DB level (drizzle-kit can't easily express
+// partial-unique on nullable columns); handlers dedupe at write time.
 export const tasksToResources = pgTable("tasks_to_courses", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id")

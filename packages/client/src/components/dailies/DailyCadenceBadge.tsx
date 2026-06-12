@@ -1,5 +1,6 @@
 import type { Daily, RoutineMode } from "@emstack/types";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 // Dailies here come from the routine projection (mapRoutineToDaily), which
@@ -12,7 +13,7 @@ export function DailyCadenceBadge({
 }) {
   const mode = (daily as Daily & { mode?: RoutineMode }).mode;
   const isWeekly = mode === "weekly";
-  return (
+  const badge = (
     <span
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
@@ -26,5 +27,19 @@ export function DailyCadenceBadge({
     >
       {isWeekly ? "Weekly" : "Daily"}
     </span>
+  );
+
+  // A weekly routine's row shows today's scheduled action as its title, so the
+  // routine's own name never appears in the row. Surface it on hover/focus of
+  // the Weekly tag. Daily routines already title themselves, so they need none.
+  if (!isWeekly) {
+    return badge;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+      <TooltipContent>{daily.name}</TooltipContent>
+    </Tooltip>
   );
 }

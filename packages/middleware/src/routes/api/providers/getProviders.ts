@@ -1,6 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
+import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 
 const testSchema = {
@@ -21,40 +22,38 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
       const provider = await db.query.courseProviders.findFirst({
-        where: (resources, {
+        where: (providers, {
           eq,
-        }) => (eq(resources.id, id)),
+        }) => (eq(providers.id, id)),
         with: {
           resources: true,
         },
       });
 
-      if (provider) {
-        const courseCount = provider.resources?.length ?? 0;
-        const resources = provider.resources.map((course) => {
-          if (course) {
-            return {
-              name: course.name,
-              id: course.id,
-            };
-          }
-        });
-
-        return {
-          id: provider.id,
-          name: provider.name,
-          description: provider.description,
-          url: provider.url,
-          cost: provider.cost,
-          isRecurring: provider.isRecurring,
-          recurDate: provider.recurDate,
-          recurPeriodUnit: provider.recurPeriodUnit,
-          recurPeriod: provider.recurPeriod,
-          isCourseFeesShared: provider.isCourseFeesShared,
-          courseCount: courseCount,
-          resources: resources,
-        };
+      if (!provider) {
+        return sendNotFound(reply, "Provider");
       }
+
+      const courseCount = provider.resources?.length ?? 0;
+      const resources = provider.resources.map(resource => ({
+        name: resource.name,
+        id: resource.id,
+      }));
+
+      return {
+        id: provider.id,
+        name: provider.name,
+        description: provider.description,
+        url: provider.url,
+        cost: provider.cost,
+        isRecurring: provider.isRecurring,
+        recurDate: provider.recurDate,
+        recurPeriodUnit: provider.recurPeriodUnit,
+        recurPeriod: provider.recurPeriod,
+        isCourseFeesShared: provider.isCourseFeesShared,
+        courseCount: courseCount,
+        resources: resources,
+      };
     },
   );
 }

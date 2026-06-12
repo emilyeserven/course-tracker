@@ -6,9 +6,9 @@ import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
 import { DailyCommentPopover } from "./DailyCommentPopover";
-import { DailyCourseIndicator } from "./DailyCourseIndicator";
 import { DailyLocationCell } from "./DailyLocationCell";
 import { DailyProgressCell } from "./DailyProgressCell";
+import { DailyResourceIndicator } from "./DailyResourceIndicator";
 import { DailyStatusCircle } from "./DailyStatusCircle";
 import { DailyStatusConnector } from "./DailyStatusConnector";
 import { DailyTaskIndicator } from "./DailyTaskIndicator";
@@ -127,7 +127,7 @@ export function DailiesActiveListView({
                       [&_a>svg]:size-5
                     "
                   >
-                    <DailyCourseIndicator daily={daily} />
+                    <DailyResourceIndicator daily={daily} />
                     <DailyTaskIndicator daily={daily} />
                   </span>
                   <span

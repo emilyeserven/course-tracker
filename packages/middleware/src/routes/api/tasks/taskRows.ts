@@ -1,9 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
 
-// Pure row builders shared by the task create and upsert handlers. Each
-// junction builder returns `undefined` when its input is absent — callers
-// (createUpsertHandler junctions) treat that as "leave existing rows
-// untouched", while `[]` means "clear all rows".
+import {
+  nullableString,
+  resourceLinksArraySchema,
+  resourceSchema,
+  tagIdsArraySchema,
+  todoSchema,
+} from "../../../utils/schemas.ts";
+
+// Body schema and pure row builders shared by the task create and upsert
+// handlers. Each junction builder returns `undefined` when its input is
+// absent — callers (createUpsertHandler junctions) treat that as "leave
+// existing rows untouched", while `[]` means "clear all rows".
 
 export interface TaskBodyFields {
   name: string;
@@ -34,6 +42,36 @@ export interface TodoInput {
   isComplete?: boolean | null;
   url?: string | null;
 }
+
+export interface TaskBody extends TaskBodyFields {
+  tagIds?: string[];
+  resourceLinks?: ResourceLinkInput[];
+  resources?: TaskResourceInput[];
+  todos?: TodoInput[];
+}
+
+export const taskBodySchema = {
+  type: "object",
+  required: ["name"],
+  properties: {
+    name: {
+      type: "string",
+    },
+    description: nullableString,
+    topicId: nullableString,
+    taskTypeId: nullableString,
+    tagIds: tagIdsArraySchema,
+    resourceLinks: resourceLinksArraySchema,
+    resources: {
+      type: "array",
+      items: resourceSchema,
+    },
+    todos: {
+      type: "array",
+      items: todoSchema,
+    },
+  },
+} as const;
 
 export function buildTaskRow(body: TaskBodyFields, id: string) {
   return {

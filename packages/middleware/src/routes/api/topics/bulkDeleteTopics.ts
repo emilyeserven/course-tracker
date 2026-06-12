@@ -1,13 +1,15 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
   domainWithinScopeTopics,
   radarBlips,
+  routineConnections,
   topics,
   topicsToResources,
+  topicsToTags,
 } from "@/db/schema";
 
 const bulkDeleteSchema = {
@@ -40,8 +42,19 @@ export default async function (server: FastifyInstance) {
       .delete(topicsToResources)
       .where(inArray(topicsToResources.topicId, ids));
     await db
+      .delete(topicsToTags)
+      .where(inArray(topicsToTags.topicId, ids));
+    await db
       .delete(domainWithinScopeTopics)
       .where(inArray(domainWithinScopeTopics.topicId, ids));
+    // routine_connections has no FK on connected_id (polymorphic), so clean up
+    // the topics' rows explicitly — they'd dangle forever otherwise.
+    await db.delete(routineConnections).where(
+      and(
+        eq(routineConnections.connectedType, "topic"),
+        inArray(routineConnections.connectedId, ids),
+      ),
+    );
     await db.delete(topics).where(inArray(topics.id, ids));
 
     return {

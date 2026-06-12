@@ -4,7 +4,6 @@ import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
@@ -25,6 +24,7 @@ import {
   toOptions,
   upsertTask,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export interface TaskEditSearch {
   topicId?: string;
@@ -58,16 +58,27 @@ function SingleTaskEdit() {
 
   const {
     data,
-    skipBlock,
-    invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeSubmitHandler,
   } = useEditFormPage({
     id,
     isNew,
     queryKey: ["task", id],
     queryFn: () => fetchSingleTask(id),
-    relatedQueryKeys: [["tasks"]],
+    relatedQueryKeys: [queryKeys.tasks.list()],
+  });
+
+  const submitTask = makeSubmitHandler({
+    createFn: createTask,
+    upsertFn: upsertTask,
+    entityLabel: "task",
+    navigateToEntity: taskId => navigate({
+      to: "/tasks/$id",
+      params: {
+        id: taskId,
+      },
+    }),
   });
 
   const {
@@ -133,7 +144,7 @@ function SingleTaskEdit() {
         url: t.url ?? null,
       }));
 
-      const taskData = {
+      await submitTask({
         name: value.name,
         description: value.description || null,
         topicId: value.topicId || null,
@@ -141,34 +152,7 @@ function SingleTaskEdit() {
         tagIds: value.tagIds,
         resources: existingResources,
         todos: existingTodos,
-      };
-
-      try {
-        let taskId: string;
-        if (isNew) {
-          const result = await createTask(taskData);
-          taskId = result.id;
-        }
-        else {
-          await upsertTask(id, taskData);
-          taskId = id;
-        }
-        await invalidateRelated();
-        skipBlock();
-        await navigate({
-          to: "/tasks/$id",
-          params: {
-            id: taskId,
-          },
-        });
-      }
-      catch {
-        toast.error(
-          isNew
-            ? "Failed to create task. Please try again."
-            : "Failed to save task. Please try again.",
-        );
-      }
+      });
     },
   });
 

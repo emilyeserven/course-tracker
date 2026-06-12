@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
@@ -14,11 +13,12 @@ import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
-  deleteSinglePlatform,
+  deleteSingleProvider,
   fetchSingleProvider,
   formHasChanges,
   upsertProvider,
 } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/providers/$id/edit")({
   component: SingleProviderEdit,
@@ -45,16 +45,27 @@ function SingleProviderEdit() {
 
   const {
     data,
-    skipBlock,
-    invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeSubmitHandler,
   } = useEditFormPage({
     id,
     isNew,
     queryKey: ["provider", id],
     queryFn: () => fetchSingleProvider(id),
-    relatedQueryKeys: [["providers"]],
+    relatedQueryKeys: [queryKeys.providers.list()],
+  });
+
+  const submitProvider = makeSubmitHandler({
+    createFn: createProvider,
+    upsertFn: upsertProvider,
+    entityLabel: "provider",
+    navigateToEntity: providerId => navigate({
+      to: "/providers/$id",
+      params: {
+        id: providerId,
+      },
+    }),
   });
 
   const startingValues = useMemo(
@@ -80,7 +91,7 @@ function SingleProviderEdit() {
     onSubmit: async ({
       value,
     }) => {
-      const providerData = {
+      await submitProvider({
         name: value.name,
         description: value.description || null,
         url: value.url,
@@ -93,34 +104,7 @@ function SingleProviderEdit() {
           value.isRecurring === "true" ? value.recurPeriodUnit : null,
         recurPeriod: value.isRecurring === "true" ? value.recurPeriod : null,
         isCourseFeesShared: value.isCourseFeesShared === "true",
-      };
-
-      try {
-        let providerId: string;
-        if (isNew) {
-          const result = await createProvider(providerData);
-          providerId = result.id;
-        }
-        else {
-          await upsertProvider(id, providerData);
-          providerId = id;
-        }
-        await invalidateRelated();
-        skipBlock();
-        await navigate({
-          to: "/providers/$id",
-          params: {
-            id: providerId,
-          },
-        });
-      }
-      catch {
-        toast.error(
-          isNew
-            ? "Failed to create provider. Please try again."
-            : "Failed to save provider. Please try again.",
-        );
-      }
+      });
     },
   });
 
@@ -136,7 +120,7 @@ function SingleProviderEdit() {
   );
 
   const handleDelete = makeDeleteHandler({
-    deleteFn: deleteSinglePlatform,
+    deleteFn: deleteSingleProvider,
     entityLabel: "provider",
     navigateToList: () => navigate({
       to: "/providers",

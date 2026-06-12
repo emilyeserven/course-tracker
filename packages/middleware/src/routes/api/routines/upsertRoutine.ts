@@ -1,63 +1,16 @@
 import { routineConnections, routines } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { buildRoutineConnectionRows } from "@/utils/routineConnectionRows";
-import {
-  completionSchema,
-  criteriaSchema,
-  nullableRoutineModeEnum,
-  nullableRoutineStatusEnum,
-  nullableString,
-  routineConnectionsSchema,
-  weeklySchema,
-} from "@/utils/schemas";
 
-import type { RoutineConnectionInput } from "@/utils/routineConnectionRows";
-import type { RoutineWeekly } from "@/db/schema";
-import type { DailyCompletion, DailyCriteria } from "@emstack/types";
+import { buildRoutineRow, routineBodySchema } from "./routineRows";
 
-interface RoutineBody {
-  name: string;
-  description?: string | null;
-  connections?: RoutineConnectionInput[];
-  status?: "active" | "inactive" | "complete" | "paused" | null;
-  weekly?: RoutineWeekly;
-  mode?: "weekly" | "daily" | null;
-  completions?: DailyCompletion[];
-  criteria?: DailyCriteria;
-}
+import type { RoutineBody } from "./routineRows";
 
 export default createUpsertHandler<RoutineBody>({
   description: "Create or update a routine",
   table: routines,
-  bodySchema: {
-    type: "object",
-    required: ["name"],
-    properties: {
-      name: {
-        type: "string",
-      },
-      description: nullableString,
-      connections: routineConnectionsSchema,
-      status: nullableRoutineStatusEnum,
-      weekly: weeklySchema,
-      mode: nullableRoutineModeEnum,
-      completions: {
-        type: "array",
-        items: completionSchema,
-      },
-      criteria: criteriaSchema,
-    },
-  },
-  buildRow: (body, id) => ({
-    id,
-    name: body.name,
-    description: body.description ?? null,
-    status: body.status ?? "active",
-    weekly: body.weekly ?? {},
-    mode: body.mode ?? "weekly",
-    completions: body.completions ?? [],
-    criteria: body.criteria ?? {},
-  }),
+  bodySchema: routineBodySchema,
+  buildRow: buildRoutineRow,
   updateableColumns: [
     "name",
     "description",
@@ -66,6 +19,7 @@ export default createUpsertHandler<RoutineBody>({
     "mode",
     "completions",
     "criteria",
+    "weeklyTarget",
   ],
   // Partial merge: only the columns present in the request body are written
   // on update. The daily tracker / dashboard / comment popover send partial
@@ -93,6 +47,9 @@ export default createUpsertHandler<RoutineBody>({
     }
     if (body.criteria !== undefined) {
       set.criteria = body.criteria;
+    }
+    if (body.weeklyTarget !== undefined) {
+      set.weeklyTarget = body.weeklyTarget ?? null;
     }
     return set;
   },

@@ -1,11 +1,16 @@
-import type { DailiesViewMode } from "@/context/SettingsProviderContext";
+import type {
+  DailiesViewMode,
+  WeekTargetWindow,
+} from "@/context/SettingsProviderContext";
 import type { ReactNode } from "react";
 
 import { useEffect, useState } from "react";
 
 import {
   DEFAULT_MAX_ACTIVE_DAILIES,
+  DEFAULT_WEEK_TARGET_WINDOW,
   SettingsProviderContext,
+  WEEK_TARGET_WINDOWS,
 } from "@/context/SettingsProviderContext";
 
 const STORAGE_KEY = "emstack-settings";
@@ -13,6 +18,7 @@ const STORAGE_KEY = "emstack-settings";
 interface PersistedSettings {
   maxActiveDailies?: number;
   dailiesViewMode?: DailiesViewMode | null;
+  weekTargetWindow?: WeekTargetWindow | null;
 }
 
 function readPersistedSettings(): PersistedSettings {
@@ -57,6 +63,16 @@ export function SettingsProvider({
       return null;
     });
 
+  const [weekTargetWindow, setWeekTargetWindowState]
+    = useState<WeekTargetWindow>(() => {
+      const persisted = readPersistedSettings();
+      if (persisted.weekTargetWindow
+        && WEEK_TARGET_WINDOWS.includes(persisted.weekTargetWindow)) {
+        return persisted.weekTargetWindow;
+      }
+      return DEFAULT_WEEK_TARGET_WINDOW;
+    });
+
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -64,13 +80,14 @@ export function SettingsProvider({
         JSON.stringify({
           maxActiveDailies,
           dailiesViewMode,
+          weekTargetWindow,
         }),
       );
     }
     catch {
       // ignore quota errors
     }
-  }, [maxActiveDailies, dailiesViewMode]);
+  }, [maxActiveDailies, dailiesViewMode, weekTargetWindow]);
 
   const setMaxActiveDailies = (value: number) => {
     if (Number.isFinite(value) && value > 0) {
@@ -82,15 +99,21 @@ export function SettingsProvider({
     setDailiesViewModeState(value);
   };
 
+  const setWeekTargetWindow = (value: WeekTargetWindow) => {
+    setWeekTargetWindowState(value);
+  };
+
   return (
     <SettingsProviderContext.Provider
       value={{
         settings: {
           maxActiveDailies,
           dailiesViewMode,
+          weekTargetWindow,
         },
         setMaxActiveDailies,
         setDailiesViewMode,
+        setWeekTargetWindow,
       }}
     >
       {children}

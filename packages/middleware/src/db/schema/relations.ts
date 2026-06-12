@@ -5,7 +5,6 @@
 import { relations } from "drizzle-orm";
 
 import { courseProviders, interactions, moduleGroups, modules, resources } from "./courses";
-import { dailies } from "./dailies";
 import { domains, domainWithinScopeTopics, radarBlips } from "./radar";
 import { routineConnections, routines } from "./routines";
 import { moduleGroupTags, moduleTags, resourceTags, tagGroups, tags, tasksToTags, topicsToTags } from "./tags";
@@ -129,10 +128,6 @@ export const tasksRelations = relations(tasks, ({
   tasksToResources: many(tasksToResources),
   resources: many(taskResources),
   todos: many(taskTodos),
-  daily: one(dailies, {
-    fields: [tasks.id],
-    references: [dailies.taskId],
-  }),
 }));
 
 export const taskTypesRelations = relations(taskTypes, ({
@@ -175,32 +170,6 @@ export const courseProviderRelations = relations(courseProviders, ({
   many,
 }) => ({
   resources: many(resources),
-  dailies: many(dailies),
-}));
-
-export const dailiesRelations = relations(dailies, ({
-  one,
-}) => ({
-  courseProvider: one(courseProviders, {
-    fields: [dailies.courseProviderId],
-    references: [courseProviders.id],
-  }),
-  resource: one(resources, {
-    fields: [dailies.resourceId],
-    references: [resources.id],
-  }),
-  moduleGroup: one(moduleGroups, {
-    fields: [dailies.moduleGroupId],
-    references: [moduleGroups.id],
-  }),
-  module: one(modules, {
-    fields: [dailies.moduleId],
-    references: [modules.id],
-  }),
-  task: one(tasks, {
-    fields: [dailies.taskId],
-    references: [tasks.id],
-  }),
 }));
 
 export const routinesRelations = relations(routines, ({
@@ -230,7 +199,6 @@ export const resourcesRelations = relations(resources, ({
   moduleGroups: many(moduleGroups),
   modules: many(modules),
   interactions: many(interactions),
-  dailies: many(dailies),
   resourceTags: many(resourceTags),
 }));
 

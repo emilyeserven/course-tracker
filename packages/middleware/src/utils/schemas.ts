@@ -196,7 +196,6 @@ export const tagIdsArraySchema = {
   items: {
     type: "string",
   },
-  default: [],
 } as const;
 
 export const resourceLinkSchema = {
@@ -214,7 +213,6 @@ export const resourceLinkSchema = {
 export const resourceLinksArraySchema = {
   type: "array",
   items: resourceLinkSchema,
-  default: [],
 } as const;
 
 // Schema for a task's freeform resource entry. Ease/time/interactivity/tags

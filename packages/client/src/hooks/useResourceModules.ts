@@ -1,4 +1,4 @@
-import type { GroupDraft, ModuleDraft } from "@/components/courses/moduleDrafts";
+import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
 import type { Module, ModuleGroup } from "@emstack/types";
 
 import { useMemo } from "react";
@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { draftToLength, parseCount } from "@/components/courses/moduleDrafts";
+import { draftToLength, parseCount } from "@/components/resources/moduleDrafts";
 import {
   createModule,
   createModuleGroup,
@@ -19,16 +19,17 @@ import {
   upsertModule,
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
+import { queryKeys } from "@/utils/queryKeys";
 
-export function useCourseModules(resourceId: string) {
+export function useResourceModules(resourceId: string) {
   const queryClient = useQueryClient();
 
   const groupsQuery = useQuery({
-    queryKey: ["course-module-groups", resourceId],
+    queryKey: queryKeys.resources.moduleGroups(resourceId),
     queryFn: () => fetchModuleGroups(),
   });
   const allModulesQuery = useQuery({
-    queryKey: ["course-modules", resourceId],
+    queryKey: queryKeys.resources.modules(resourceId),
     queryFn: () => fetchModules(),
   });
   const tagGroupsQuery = useQuery({
@@ -36,7 +37,7 @@ export function useCourseModules(resourceId: string) {
     queryFn: () => fetchTagGroups(),
   });
   const resourceQuery = useQuery({
-    queryKey: ["course", resourceId],
+    queryKey: queryKeys.resources.detail(resourceId),
     queryFn: () => fetchSingleResource(resourceId),
   });
   const tagGroups = tagGroupsQuery.data ?? [];
@@ -92,13 +93,13 @@ export function useCourseModules(resourceId: string) {
 
   function invalidateAll() {
     queryClient.invalidateQueries({
-      queryKey: ["course-module-groups", resourceId],
+      queryKey: queryKeys.resources.moduleGroups(resourceId),
     });
     queryClient.invalidateQueries({
-      queryKey: ["course-modules", resourceId],
+      queryKey: queryKeys.resources.modules(resourceId),
     });
     queryClient.invalidateQueries({
-      queryKey: ["course", resourceId],
+      queryKey: queryKeys.resources.detail(resourceId),
     });
   }
 

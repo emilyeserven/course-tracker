@@ -14,6 +14,7 @@ import { Input } from "@/components/input";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { createInteraction } from "@/utils/fetchFunctions";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface Props {
   resourceId: string;
@@ -85,7 +86,7 @@ export function InteractionQuickLog({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["course-interactions", resourceId],
+        queryKey: queryKeys.resources.interactions(resourceId),
       });
       toast.success("Interaction logged");
       onSaved?.();

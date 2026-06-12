@@ -1,3 +1,4 @@
+import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 function getDateKey(date: Date = new Date()): string {
@@ -156,6 +157,65 @@ export function getRecentDays(
     });
   }
   return days;
+}
+
+// The inclusive [start, end] date-key range counted for a weekly target, given
+// the user's chosen window. Calendar weeks use JS getUTCDay (0 = Sunday); the
+// rolling window is simply the trailing 7 days ending today.
+function getWeekWindow(
+  todayKey: string,
+  window: WeekTargetWindow,
+): { start: string;
+  end: string; } {
+  if (window === "rolling7") {
+    return {
+      start: shiftDateKey(todayKey, -6),
+      end: todayKey,
+    };
+  }
+  const dow = new Date(`${todayKey}T00:00:00Z`).getUTCDay();
+  const offsetToStart = window === "monday" ? (dow === 0 ? 6 : dow - 1) : dow;
+  const start = shiftDateKey(todayKey, -offsetToStart);
+  return {
+    start,
+    end: shiftDateKey(start, 6),
+  };
+}
+
+// Only days the user actually hit their goal on count toward a weekly target —
+// a started-but-unfinished ("touched") or frozen day does not.
+function countsTowardTarget(
+  status: DailyCompletionStatus | undefined | null,
+): boolean {
+  return status === "goal" || status === "exceeded";
+}
+
+export function getCompletedDaysThisWeek(
+  daily: Pick<Daily, "completions">,
+  todayKey: string,
+  window: WeekTargetWindow,
+): number {
+  const {
+    start, end,
+  } = getWeekWindow(todayKey, window);
+  return daily.completions.filter(
+    c => countsTowardTarget(c.status) && c.date >= start && c.date <= end,
+  ).length;
+}
+
+// True for a daily-mode routine whose weekly target (N goal/exceeded days) has
+// already been reached or exceeded for the current window — i.e. nothing is
+// required today. No target (null / <= 0) is never "met".
+export function isWeeklyTargetMet(
+  daily: Pick<Daily, "completions" | "weeklyTarget">,
+  todayKey: string,
+  window: WeekTargetWindow,
+): boolean {
+  const target = daily.weeklyTarget;
+  if (!target || target <= 0) {
+    return false;
+  }
+  return getCompletedDaysThisWeek(daily, todayKey, window) >= target;
 }
 
 export function getDailyProgressPercent(daily: Daily): number {

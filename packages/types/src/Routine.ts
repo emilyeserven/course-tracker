@@ -53,4 +53,7 @@ export interface Routine {
   mode?: RoutineMode | null;
   completions?: DailyCompletion[] | null;
   criteria?: DailyCriteria | null;
+  // For daily-mode routines: how many days a week the routine needs to be done.
+  // Null/absent means no target (every day). Only goal/exceeded days count.
+  weeklyTarget?: number | null;
 }

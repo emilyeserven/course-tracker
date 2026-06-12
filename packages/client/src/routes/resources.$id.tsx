@@ -11,6 +11,7 @@ import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { fetchSingleResource } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/resources/$id")({
   component: SingleResourceLayout,
@@ -32,7 +33,7 @@ function SingleResourceLayout() {
   const {
     isPending, error, data,
   } = useQuery({
-    queryKey: ["course", id],
+    queryKey: queryKeys.resources.detail(id),
     queryFn: () => fetchSingleResource(id),
     enabled: !isNew,
   });

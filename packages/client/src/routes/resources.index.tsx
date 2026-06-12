@@ -31,15 +31,20 @@ import {
 } from "@/components/ui/select";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchResources, fetchProviders, fetchTopics } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
 type ViewMode = "grid" | "table";
 
-const VIEW_MODE_STORAGE_KEY = "courses:viewMode";
+const VIEW_MODE_STORAGE_KEY = "resources:viewMode";
+// Pre-rename key; fall back to it so existing preferences survive.
+const LEGACY_VIEW_MODE_STORAGE_KEY = "courses:viewMode";
 
 function getInitialViewMode(): ViewMode {
   if (typeof window === "undefined") return "grid";
-  const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+  const stored
+    = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+      ?? window.localStorage.getItem(LEGACY_VIEW_MODE_STORAGE_KEY);
   return stored === "table" ? "table" : "grid";
 }
 
@@ -113,7 +118,7 @@ function Courses() {
   const {
     data,
   } = useQuery({
-    queryKey: ["courses"],
+    queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
 

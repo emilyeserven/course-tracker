@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "incremental": true,
     "tsBuildInfoFile": "./tsconfig.node.tsbuildinfo",
     "target": "ES2023",
     "useDefineForClassFields": true,

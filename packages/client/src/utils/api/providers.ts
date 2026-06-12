@@ -11,4 +11,4 @@ export const fetchProviders = providersApi.list;
 export const fetchSingleProvider = providersApi.get;
 export const upsertProvider = providersApi.upsert;
 export const createProvider = providersApi.create;
-export const deleteSinglePlatform = providersApi.delete;
+export const deleteSingleProvider = providersApi.delete;
