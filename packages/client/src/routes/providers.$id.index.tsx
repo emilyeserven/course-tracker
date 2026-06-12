@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
 import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ResourceLinksSection } from "@/components/layout/ResourceLinksSection";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils";
 
@@ -53,18 +55,14 @@ function SingleProviders() {
               </Button>
             </a>
           )}
-          <Link
+          <EntityHeaderButton
             to="/providers/$id/edit"
             params={{
               id: data?.id + "",
             }}
-          >
-            <Button variant="secondary">
-              Edit Provider
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
+            label="Edit Provider"
+            icon={<EditIcon />}
+          />
         </div>
       </PageHeader>
       <div className="container flex flex-col gap-12">
@@ -101,33 +99,10 @@ function SingleProviders() {
             </span>
           </InfoArea>
         </InfoRow>
-        <div>
-          <InfoArea
-            header="Resources"
-            condition={!!data?.resourceCount && data.resourceCount > 0}
-          >
-            <ul className="ml-5 list-disc">
-              {data?.resources
-                && data.resources.map(course => (
-                  <li key={course.id}>
-                    <Link
-                      to="/resources/$id"
-                      from="/topics/$id"
-                      params={{
-                        id: course.id + "",
-                      }}
-                      className={`
-                        font-bold text-blue-800
-                        hover:text-blue-600
-                      `}
-                    >
-                      {course.name}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-          </InfoArea>
-        </div>
+        <ResourceLinksSection
+          resources={data?.resources}
+          resourceCount={data?.resourceCount}
+        />
       </div>
     </div>
   );

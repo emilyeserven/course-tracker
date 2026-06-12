@@ -49,6 +49,8 @@ export function ComboboxField({
     creating,
     openCreate,
     handleCreateSubmit,
+    // Field-shell wiring shared with MultiComboboxField (single vs multi value).
+    // fallow-ignore-next-line code-duplication
   } = useComboboxCreate({
     create,
     options,
@@ -86,14 +88,18 @@ export function ComboboxField({
           )}
           <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>
-            {(value: string) => (
-              <ComboboxItem
-                key={value}
-                value={value}
-              >
-                {optionsMap.get(value) ?? value}
-              </ComboboxItem>
-            )}
+            {
+              // Item render + create-panel tail shared with MultiComboboxField.
+              // fallow-ignore-next-line code-duplication
+              (value: string) => (
+                <ComboboxItem
+                  key={value}
+                  value={value}
+                >
+                  {optionsMap.get(value) ?? value}
+                </ComboboxItem>
+              )
+            }
           </ComboboxList>
         </ComboboxContent>
       </Combobox>

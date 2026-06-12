@@ -1,3 +1,5 @@
+import type { DomainTopic } from "@emstack/types";
+
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
@@ -12,6 +14,41 @@ import { fetchRadar, fetchSingleDomain } from "@/utils";
 export const Route = createFileRoute("/domains/$id/")({
   component: SingleDomain,
 });
+
+/** Bulleted list of topic links with an optional course count. */
+function TopicLinkList({
+  topics,
+}: { topics: DomainTopic[] }) {
+  return (
+    <ul className="ml-5 list-disc">
+      {topics.map(topic => (
+        <li key={topic.id}>
+          <Link
+            to="/topics/$id"
+            params={{
+              id: topic.id + "",
+            }}
+            className={`
+              font-bold text-blue-800
+              hover:text-blue-600
+            `}
+          >
+            {topic.name}
+          </Link>
+          {topic.courses && topic.courses.length > 0 && (
+            <span className="ml-2 text-xs text-muted-foreground">
+              (
+              {topic.courses.length}
+              {" course"}
+              {topic.courses.length === 1 ? "" : "s"}
+              )
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function SingleDomain() {
   const {
@@ -146,65 +183,13 @@ function SingleDomain() {
             header="Topics not on Radar"
             condition={topicsNotOnRadar.length > 0}
           >
-            <ul className="ml-5 list-disc">
-              {topicsNotOnRadar.map(topic => (
-                <li key={topic.id}>
-                  <Link
-                    to="/topics/$id"
-                    params={{
-                      id: topic.id + "",
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >
-                    {topic.name}
-                  </Link>
-                  {topic.courses && topic.courses.length > 0 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (
-                      {topic.courses.length}
-                      {" course"}
-                      {topic.courses.length === 1 ? "" : "s"}
-                      )
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <TopicLinkList topics={topicsNotOnRadar} />
           </InfoArea>
           <InfoArea
             header="Topics on Radar"
             condition={topicsOnRadar.length > 0}
           >
-            <ul className="ml-5 list-disc">
-              {topicsOnRadar.map(topic => (
-                <li key={topic.id}>
-                  <Link
-                    to="/topics/$id"
-                    params={{
-                      id: topic.id + "",
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >
-                    {topic.name}
-                  </Link>
-                  {topic.courses && topic.courses.length > 0 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      (
-                      {topic.courses.length}
-                      {" course"}
-                      {topic.courses.length === 1 ? "" : "s"}
-                      )
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <TopicLinkList topics={topicsOnRadar} />
           </InfoArea>
         </div>
         <InfoArea

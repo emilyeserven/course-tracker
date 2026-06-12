@@ -2,6 +2,7 @@ import type { RadarBlip, TopicForTopicsPage } from "@emstack/types";
 
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
+import { BlipPlacementSelect } from "@/components/radar/BlipPlacementSelect";
 import { BlipTable } from "@/components/radar/BlipTable";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
@@ -194,50 +195,22 @@ export function BlipsTab({
                         : null}
                   </div>
                   <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs uppercase">Slice</label>
-                      <Select
-                        value={blip.quadrantId}
-                        onValueChange={value =>
-                          onChangeBlipQuadrant(blip.localKey, value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose slice" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {persistedQuadrants.map(q => (
-                            <SelectItem
-                              key={q.id}
-                              value={q.id}
-                            >
-                              {q.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs uppercase">Ring</label>
-                      <Select
-                        value={blip.ringId}
-                        onValueChange={value =>
-                          onChangeBlipRing(blip.localKey, value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose ring" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {persistedRings.map(r => (
-                            <SelectItem
-                              key={r.id}
-                              value={r.id}
-                            >
-                              {r.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <BlipPlacementSelect
+                      label="Slice"
+                      value={blip.quadrantId}
+                      placeholder="Choose slice"
+                      options={persistedQuadrants}
+                      onValueChange={value =>
+                        onChangeBlipQuadrant(blip.localKey, value)}
+                    />
+                    <BlipPlacementSelect
+                      label="Ring"
+                      value={blip.ringId}
+                      placeholder="Choose ring"
+                      options={persistedRings}
+                      onValueChange={value =>
+                        onChangeBlipRing(blip.localKey, value)}
+                    />
                     <div className="flex flex-col gap-1">
                       <label className="text-xs uppercase">Radar Note</label>
                       <Textarea

@@ -1,4 +1,6 @@
 /* eslint-disable import/max-dependencies */
+import type { Resource } from "@emstack/types";
+
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
@@ -75,8 +77,6 @@ function SingleCourse() {
     data?.progressTotal,
   );
 
-  const topics = data?.topics ?? null;
-
   // A resource → routine link is either a weekly-grid entry or a connection.
   const linkedRoutines = (routines ?? []).filter(r =>
     Object.values(r.weekly ?? {}).some(
@@ -112,122 +112,12 @@ function SingleCourse() {
         </TabsList>
 
         <TabsContent value="details">
-          <div className="flex flex-col gap-12">
-            <InfoArea
-              header="About"
-              condition={!!data?.description}
-            >
-              <p>{data?.description}</p>
-            </InfoArea>
-            <InfoRow header="Basic Info">
-              <InfoArea
-                header="Provider"
-                condition={!!data?.provider}
-              >
-                {data?.provider && data.provider.name && (
-                  <Link
-                    to="/providers/$id"
-                    from="/resources/$id"
-                    params={{
-                      id: data.provider.id + "",
-                    }}
-                    className={`
-                      text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >
-                    {data?.provider?.name}
-                  </Link>
-                )}
-              </InfoArea>
-              <InfoArea
-                header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
-                condition={!!topics}
-              >
-                <TopicList
-                  topics={data?.topics}
-                  isPills={false}
-                />
-              </InfoArea>
-            </InfoRow>
-            <InfoRow header="Progress">
-              <InfoArea
-                header="Current Progress"
-                condition={!!data?.progressCurrent}
-              >
-                <p>{data?.progressCurrent}</p>
-              </InfoArea>
-              <InfoArea
-                header="Total Modules"
-                condition={!!data?.progressTotal}
-              >
-                <p>{data?.progressTotal}</p>
-              </InfoArea>
-              <InfoArea
-                header="% Complete"
-                condition={!!data?.progressTotal && !!data?.progressCurrent}
-              >
-                <p>{percentComplete}%</p>
-              </InfoArea>
-              {!data?.progressCurrent && !data?.progressTotal && (
-                <span>No progress information given.</span>
-              )}
-            </InfoRow>
-            <InfoRow
-              header="Effort & Engagement"
-              condition={
-                !!data?.easeOfStarting
-                || !!data?.timeNeeded
-                || !!data?.interactivity
-              }
-            >
-              <InfoArea
-                header="Ease of Starting"
-                condition={!!data?.easeOfStarting}
-              >
-                <p className="capitalize">{data?.easeOfStarting}</p>
-              </InfoArea>
-              <InfoArea
-                header="Time Needed"
-                condition={!!data?.timeNeeded}
-              >
-                <p className="capitalize">{data?.timeNeeded}</p>
-              </InfoArea>
-              <InfoArea
-                header="Interactivity"
-                condition={!!data?.interactivity}
-              >
-                <p className="capitalize">{data?.interactivity}</p>
-              </InfoArea>
-            </InfoRow>
-            <InfoRow
-              condition={data?.cost?.cost != null}
-              header="Money Things"
-            >
-              <div className="flex flex-row gap-1">
-                <InfoArea
-                  header="Resource Cost"
-                  condition={!percentComplete}
-                >
-                  <p>{data?.cost.cost}</p>
-                </InfoArea>
-                <InfoArea
-                  header="Cost per Unit"
-                  condition={!!percentComplete}
-                >
-                  <p>
-                    <span>
-                      $
-                      {Number(
-                        Number(data?.cost.cost) / Number(percentComplete),
-                      ).toFixed(2)}{" "}
-                      out of ${data?.cost.cost}
-                    </span>
-                  </p>
-                </InfoArea>
-              </div>
-            </InfoRow>
-          </div>
+          {data && (
+            <ResourceDetailsTab
+              data={data}
+              percentComplete={percentComplete}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="modules">
@@ -315,6 +205,137 @@ function SingleCourse() {
           });
         }}
       />
+    </div>
+  );
+}
+
+// "Details" tab body. Receives a resolved resource so the many fields read
+// without optional chaining; each section self-hides via InfoArea/InfoRow
+// `condition`.
+function ResourceDetailsTab({
+  data,
+  percentComplete,
+}: {
+  data: Resource;
+  percentComplete: string | undefined;
+}) {
+  const topics = data.topics ?? null;
+  return (
+    <div className="flex flex-col gap-12">
+      <InfoArea
+        header="About"
+        condition={!!data.description}
+      >
+        <p>{data.description}</p>
+      </InfoArea>
+      <InfoRow header="Basic Info">
+        <InfoArea
+          header="Provider"
+          condition={!!data.provider}
+        >
+          {data.provider && data.provider.name && (
+            <Link
+              to="/providers/$id"
+              from="/resources/$id"
+              params={{
+                id: data.provider.id + "",
+              }}
+              className={`
+                text-blue-800
+                hover:text-blue-600
+              `}
+            >
+              {data.provider.name}
+            </Link>
+          )}
+        </InfoArea>
+        <InfoArea
+          header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
+          condition={!!topics}
+        >
+          <TopicList
+            topics={data.topics}
+            isPills={false}
+          />
+        </InfoArea>
+      </InfoRow>
+      <InfoRow header="Progress">
+        <InfoArea
+          header="Current Progress"
+          condition={!!data.progressCurrent}
+        >
+          <p>{data.progressCurrent}</p>
+        </InfoArea>
+        <InfoArea
+          header="Total Modules"
+          condition={!!data.progressTotal}
+        >
+          <p>{data.progressTotal}</p>
+        </InfoArea>
+        <InfoArea
+          header="% Complete"
+          condition={!!data.progressTotal && !!data.progressCurrent}
+        >
+          <p>{percentComplete}%</p>
+        </InfoArea>
+        {!data.progressCurrent && !data.progressTotal && (
+          <span>No progress information given.</span>
+        )}
+      </InfoRow>
+      <InfoRow
+        header="Effort & Engagement"
+        condition={
+          !!data.easeOfStarting
+          || !!data.timeNeeded
+          || !!data.interactivity
+        }
+      >
+        <InfoArea
+          header="Ease of Starting"
+          condition={!!data.easeOfStarting}
+        >
+          <p className="capitalize">{data.easeOfStarting}</p>
+        </InfoArea>
+        <InfoArea
+          header="Time Needed"
+          condition={!!data.timeNeeded}
+        >
+          <p className="capitalize">{data.timeNeeded}</p>
+        </InfoArea>
+        <InfoArea
+          header="Interactivity"
+          condition={!!data.interactivity}
+        >
+          <p className="capitalize">{data.interactivity}</p>
+        </InfoArea>
+      </InfoRow>
+      <InfoRow
+        condition={data.cost?.cost != null}
+        header="Money Things"
+      >
+        <div className="flex flex-row gap-1">
+          <InfoArea
+            header="Resource Cost"
+            condition={!percentComplete}
+          >
+            <p>{data.cost?.cost}</p>
+          </InfoArea>
+          <InfoArea
+            header="Cost per Unit"
+            condition={!!percentComplete}
+          >
+            <p>
+              <span>
+                $
+                {Number(
+                  Number(data.cost?.cost) / Number(percentComplete),
+                ).toFixed(2)}{" "}
+                out of ${data.cost?.cost}
+              </span>
+            </p>
+          </InfoArea>
+        </div>
+      </InfoRow>
     </div>
   );
 }

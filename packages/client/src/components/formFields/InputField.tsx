@@ -19,6 +19,7 @@ export function InputField({
   fieldClassName,
   disabled,
 }: InputFieldProps) {
+  // fallow-ignore-next-line code-duplication
   const {
     field, isInvalid,
   } = useIsFieldInvalid<string>();

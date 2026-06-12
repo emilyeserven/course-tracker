@@ -6,13 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRightIcon,
-  LayoutGridIcon,
-  ListIcon,
   PlusIcon,
-  SearchIcon,
   Trash2Icon,
-  XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,8 +16,14 @@ import { TopicBox } from "@/components/boxes/TopicBox";
 import { TopicsTable } from "@/components/boxes/TopicsTable";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { FilterOptionCount } from "@/components/FilterOptionCount";
+import { OnboardingEmptyState } from "@/components/layout/OnboardingEmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ViewModeToggle } from "@/components/layout/ViewModeToggle";
+import {
+  ClearFiltersButton,
+  FilterSelect,
+  ListSearchInput,
+} from "@/components/ListPageControls";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -232,6 +233,8 @@ function Topics() {
     if (changed) setSelectedIds(next);
   }, [filteredIds, selectedIds]);
 
+  // Local selection state predates the shared useRowSelection hook.
+  // fallow-ignore-next-line code-duplication
   const handleToggleSelected = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -301,71 +304,37 @@ function Topics() {
               className="mb-4 flex flex-wrap items-center justify-between gap-3"
             >
               <div className="flex flex-wrap items-center gap-3">
-                <div className="relative">
-                  <SearchIcon
-                    className="
-                      absolute top-1/2 left-2.5 size-4 -translate-y-1/2
-                      text-muted-foreground
-                    "
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search topics..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="
-                      h-9 rounded-md border border-input bg-transparent pr-3
-                      pl-8 text-sm shadow-xs transition-[color,box-shadow]
-                      outline-none
-                      placeholder:text-muted-foreground
-                      focus-visible:border-ring focus-visible:ring-[3px]
-                      focus-visible:ring-ring/50
-                    "
-                  />
-                </div>
+                <ListSearchInput
+                  placeholder="Search topics..."
+                  value={search}
+                  onChange={setSearch}
+                />
 
-                <Select
-                  value={filterDomain ?? "all"}
-                  onValueChange={v =>
-                    setFilterDomain(v === "all" ? undefined : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Domain" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <span>All Domains</span>
-                      <FilterOptionCount count={totalTopicCount} />
-                    </SelectItem>
-                    {noDomainCount > 0 && (
-                      <SelectItem value="none">
-                        <span>No Domain</span>
-                        <FilterOptionCount count={noDomainCount} />
-                      </SelectItem>
-                    )}
-                    {domains?.filter(d => (d.topicCount ?? 0) > 0).map(d => (
-                      <SelectItem
-                        key={d.id}
-                        value={d.id}
-                      >
-                        <span>{d.title}</span>
-                        <FilterOptionCount count={d.topicCount ?? 0} />
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FilterSelect
+                  placeholder="Domain"
+                  value={filterDomain}
+                  onChange={setFilterDomain}
+                  allLabel="All Domains"
+                  totalCount={totalTopicCount}
+                  noneLabel="No Domain"
+                  noneCount={noDomainCount}
+                  options={
+                    domains
+                      ?.filter(d => (d.topicCount ?? 0) > 0)
+                      .map(d => ({
+                        value: d.id,
+                        label: d.title,
+                        count: d.topicCount ?? 0,
+                      })) ?? []
+                  }
+                />
 
                 {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <ClearFiltersButton
                     onClick={() => {
                       setFilterDomain(undefined);
                     }}
-                  >
-                    <XIcon className="size-4" />
-                    Clear filters
-                  </Button>
+                  />
                 )}
               </div>
 
@@ -399,54 +368,17 @@ function Topics() {
                     )}
                   </SelectContent>
                 </Select>
-                <div
-                  className="
-                    ml-2 flex items-center rounded-md border border-input
-                    bg-transparent
-                  "
-                  role="group"
-                  aria-label="View mode"
-                >
-                  <Button
-                    type="button"
-                    variant={viewMode === "grid" ? "secondary" : "ghost"}
-                    size="icon"
-                    aria-label="Card view"
-                    aria-pressed={viewMode === "grid"}
-                    onClick={() => updateViewMode("grid")}
-                  >
-                    <LayoutGridIcon className="size-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={viewMode === "table" ? "secondary" : "ghost"}
-                    size="icon"
-                    aria-label="Table view"
-                    aria-pressed={viewMode === "table"}
-                    onClick={() => updateViewMode("table")}
-                  >
-                    <ListIcon className="size-4" />
-                  </Button>
-                </div>
+                <ViewModeToggle
+                  viewMode={viewMode}
+                  onChange={updateViewMode}
+                  gridLabel="Card view"
+                />
               </div>
             </div>
           )}
         </div>
         {(!data || data.length === 0) && (
-          <div className="flex flex-col gap-6">
-            <i>No courses yet!</i>
-
-            <Link
-              to="/onboard"
-              className=""
-            >
-              <Button>
-                Go to onboarding
-                {" "}
-                <ArrowRightIcon />
-              </Button>
-            </Link>
-          </div>
+          <OnboardingEmptyState message="No courses yet!" />
         )}
 
         {data && data.length > 0 && filteredAndSorted.length === 0 && (

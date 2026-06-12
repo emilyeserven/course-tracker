@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/input";
+import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { createInteraction } from "@/utils/fetchFunctions";
@@ -154,56 +155,18 @@ export function InteractionQuickLog({
           md:grid-cols-2
         "
       >
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Difficulty (optional)
-          </label>
-          <select
-            value={difficulty}
-            onChange={e =>
-              setDifficulty(
-                (e.target.value || "") as InteractionDifficulty | "",
-              )}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
-            "
-          >
-            <option value="">—</option>
-            {DIFFICULTY_OPTIONS.map(d => (
-              <option
-                key={d}
-                value={d}
-              >
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Understanding (optional)
-          </label>
-          <select
-            value={understanding}
-            onChange={e =>
-              setUnderstanding(
-                (e.target.value || "") as InteractionUnderstanding | "",
-              )}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
-            "
-          >
-            <option value="">—</option>
-            {UNDERSTANDING_OPTIONS.map(u => (
-              <option
-                key={u}
-                value={u}
-              >
-                {u}
-              </option>
-            ))}
-          </select>
-        </div>
+        <OptionalSelectField
+          label="Difficulty (optional)"
+          value={difficulty}
+          options={DIFFICULTY_OPTIONS}
+          onValueChange={setDifficulty}
+        />
+        <OptionalSelectField
+          label="Understanding (optional)"
+          value={understanding}
+          options={UNDERSTANDING_OPTIONS}
+          onValueChange={setUnderstanding}
+        />
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">

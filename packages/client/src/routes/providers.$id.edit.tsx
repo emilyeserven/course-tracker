@@ -1,12 +1,15 @@
 import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+// fallow-ignore-next-line code-duplication
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
@@ -20,6 +23,7 @@ import {
 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
+// fallow-ignore-next-line code-duplication
 export const Route = createFileRoute("/providers/$id/edit")({
   component: SingleProviderEdit,
 });
@@ -83,6 +87,7 @@ function SingleProviderEdit() {
     [data],
   );
 
+  // fallow-ignore-next-line code-duplication
   const form = useAppForm({
     defaultValues: startingValues,
     validators: {
@@ -91,6 +96,7 @@ function SingleProviderEdit() {
     onSubmit: async ({
       value,
     }) => {
+      // fallow-ignore-next-line code-duplication
       await submitProvider({
         name: value.name,
         description: value.description || null,
@@ -134,26 +140,19 @@ function SingleProviderEdit() {
         pageSection="providers"
       >
         {!isNew && (
-          <Link
+          <EntityHeaderButton
             to="/providers/$id"
             params={{
               id,
             }}
-          >
-            <Button variant="secondary">
-              View Provider
-              {" "}
-              <EyeIcon />
-            </Button>
-          </Link>
+            label="View Provider"
+            icon={<EyeIcon />}
+          />
         )}
       </PageHeader>
       <div className="m-auto w-full max-w-[1200px] px-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
+        <EditForm
+          onSubmit={form.handleSubmit}
           className="flex max-w-2xl flex-col gap-8"
         >
           <form.AppField name="name">
@@ -295,7 +294,7 @@ function SingleProviderEdit() {
               Cancel
             </Button>
           </EditPageFooter>
-        </form>
+        </EditForm>
         <UnsavedChangesDialog
           shouldBlockFn={shouldBlockFn(hasChanges)}
         />

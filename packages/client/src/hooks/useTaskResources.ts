@@ -107,6 +107,24 @@ export function useTaskResources({
     },
   });
 
+  // Persist the next resource list, invalidate the task/tasks queries, then run
+  // the row-level callback. Shared by the edit/create/delete row handlers.
+  function mutateAndNotify(next: TaskResource[], onDone: () => void) {
+    mutation.mutate(next, {
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ["task", task.id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["tasks"],
+          }),
+        ]);
+        onDone();
+      },
+    });
+  }
+
   function handleToggleUsed(resourceId: string, nextUsed: boolean) {
     const next = resources.map(r =>
       r.id === resourceId
@@ -120,53 +138,17 @@ export function useTaskResources({
 
   function handleSaveEdit(updated: TaskResource) {
     const next = resources.map(r => (r.id === updated.id ? updated : r));
-    mutation.mutate(next, {
-      onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: ["task", task.id],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["tasks"],
-          }),
-        ]);
-        onEditSaved();
-      },
-    });
+    mutateAndNotify(next, onEditSaved);
   }
 
   function handleSaveNew(created: TaskResource) {
     const next = [...resources, created];
-    mutation.mutate(next, {
-      onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: ["task", task.id],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["tasks"],
-          }),
-        ]);
-        onNewSaved();
-      },
-    });
+    mutateAndNotify(next, onNewSaved);
   }
 
   function handleDelete(id: string) {
     const next = resources.filter(r => r.id !== id);
-    mutation.mutate(next, {
-      onSuccess: async () => {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: ["task", task.id],
-          }),
-          queryClient.invalidateQueries({
-            queryKey: ["tasks"],
-          }),
-        ]);
-        onDeleted();
-      },
-    });
+    mutateAndNotify(next, onDeleted);
   }
 
   return {

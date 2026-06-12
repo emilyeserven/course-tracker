@@ -170,7 +170,13 @@ function SingleResourceEdit() {
 
   const tagOptions = tagGroupsToOptions(tagGroups);
 
+  // An exhaustive field-by-field mapping of the resource onto the form's
+  // default values. Its high cyclomatic score is an artifact of per-field
+  // `?? default` coalescing, not branching logic; splitting it fights TanStack
+  // Form's value-type inference (the form keys off this object's shape), so it
+  // reads clearer kept whole.
   const startingValues = useMemo(
+    // fallow-ignore-next-line complexity
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",

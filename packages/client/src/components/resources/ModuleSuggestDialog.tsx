@@ -391,50 +391,38 @@ export function ModuleSuggestDialog({
         const g = suggestion.moduleGroups[gi];
         const sel = selection.groups[gi];
         if (!sel) continue;
-        const wantsGroup = sel.selected;
         const selectedModules = g.modules.filter((_, mi) => sel.modules[mi]);
-        if (!wantsGroup && selectedModules.length === 0) continue;
+        if (!sel.selected && selectedModules.length === 0) continue;
 
         let groupId: string | null = null;
-        if (wantsGroup) {
-          try {
-            const result = await createModuleGroup(groupPayload(resourceId, g));
-            groupId = result.id;
-            groupsCreated += 1;
-          }
-          catch (err) {
-            errors.push(
-              `Failed to create group "${g.name}": ${err instanceof Error ? err.message : String(err)}`,
-            );
-            continue;
-          }
+        if (sel.selected) {
+          const createdGroupId = await createSuggestedGroup(
+            resourceId,
+            g,
+            errors,
+          );
+          // Group creation failed — skip its modules too.
+          if (createdGroupId === undefined) continue;
+          groupId = createdGroupId;
+          groupsCreated += 1;
         }
 
         for (const m of selectedModules) {
-          try {
-            await createModule(modulePayload(resourceId, m, groupId));
+          if (await createSuggestedModule(resourceId, m, groupId, errors)) {
             modulesCreated += 1;
-          }
-          catch (err) {
-            errors.push(
-              `Failed to create module "${m.name}": ${err instanceof Error ? err.message : String(err)}`,
-            );
           }
         }
       }
 
       for (let mi = 0; mi < suggestion.ungroupedModules.length; mi++) {
         if (!selection.ungrouped[mi]) continue;
-        const m = suggestion.ungroupedModules[mi];
-        try {
-          await createModule(modulePayload(resourceId, m, null));
-          modulesCreated += 1;
-        }
-        catch (err) {
-          errors.push(
-            `Failed to create module "${m.name}": ${err instanceof Error ? err.message : String(err)}`,
-          );
-        }
+        const created = await createSuggestedModule(
+          resourceId,
+          suggestion.ungroupedModules[mi],
+          null,
+          errors,
+        );
+        if (created) modulesCreated += 1;
       }
 
       return {
@@ -749,6 +737,45 @@ export function ModuleSuggestDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+// Create one module from a suggestion, recording a message on failure.
+// Returns true when the module was created.
+async function createSuggestedModule(
+  resourceId: string,
+  m: SuggestedModule,
+  groupId: string | null,
+  errors: string[],
+): Promise<boolean> {
+  try {
+    await createModule(modulePayload(resourceId, m, groupId));
+    return true;
+  }
+  catch (err) {
+    errors.push(
+      `Failed to create module "${m.name}": ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return false;
+  }
+}
+
+// Create a suggested group. Returns its new id, or undefined when creation
+// failed (the caller then skips the group's modules).
+async function createSuggestedGroup(
+  resourceId: string,
+  g: SuggestedModuleGroup,
+  errors: string[],
+): Promise<string | undefined> {
+  try {
+    const result = await createModuleGroup(groupPayload(resourceId, g));
+    return result.id;
+  }
+  catch (err) {
+    errors.push(
+      `Failed to create group "${g.name}": ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return undefined;
+  }
 }
 
 function groupPayload(

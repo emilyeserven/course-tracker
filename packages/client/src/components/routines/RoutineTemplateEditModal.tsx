@@ -4,16 +4,13 @@ import type { RoutineTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
-import { Loader2, Trash2Icon } from "lucide-react";
-
+import { EditModalFooter } from "@/components/EditModalFooter";
 import { Input } from "@/components/input";
 import { rowsToWeekly, weeklyToRows } from "@/components/routines/weekly";
 import { WeeklyScheduleField } from "@/components/routines/WeeklyScheduleField";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -107,44 +104,13 @@ export function RoutineTemplateEditModal({
               resourceOptions={resourceOptions}
             />
           </div>
-          <DialogFooter className="sm:justify-between">
-            {onDelete && !isNew
-              ? (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={onDelete}
-                  disabled={isSaving || deleteDisabled}
-                >
-                  <Trash2Icon className="size-4" />
-                  Remove
-                </Button>
-              )
-              : (
-                <span />
-              )}
-            <div
-              className="
-                flex flex-col-reverse gap-2
-                sm:flex-row
-              "
-            >
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSaving}
-              >
-                {isSaving && <Loader2 className="animate-spin" />}
-                Save
-              </Button>
-            </div>
-          </DialogFooter>
+          <EditModalFooter
+            isNew={isNew}
+            isSaving={isSaving}
+            deleteDisabled={deleteDisabled}
+            onDelete={onDelete}
+            onCancel={() => onOpenChange(false)}
+          />
         </form>
       </DialogContent>
     </Dialog>

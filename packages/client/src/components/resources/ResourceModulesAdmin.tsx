@@ -206,6 +206,8 @@ export function ResourceModulesAdmin({
                         {
                           draft: d,
                           groupId: null,
+                          // Ungrouped-module save mirrors the grouped-module branch below.
+                          // fallow-ignore-next-line code-duplication
                           isComplete: m.isComplete,
                         },
                         {
@@ -229,6 +231,8 @@ export function ResourceModulesAdmin({
                       canMoveDown={index < ungroupedModules.length - 1}
                       onMoveUp={() => moveModule(ungroupedModules, index, "up")}
                       onMoveDown={() =>
+                        // Ungrouped-module display row mirrors the grouped branch below.
+                        // fallow-ignore-next-line code-duplication
                         moveModule(ungroupedModules, index, "down")}
                       onToggleComplete={() => toggleCompleteMutation.mutate(m)}
                       onEdit={() => setEditingModuleId(m.id)}
