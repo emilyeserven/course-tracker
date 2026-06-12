@@ -1,6 +1,7 @@
 import { db } from "@/db/index";
 import { resources } from "@/db/schema";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
+import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
 import { seed } from "./seed.ts";
 
@@ -19,6 +20,20 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to drop legacy dailies table:", err);
+    throw err;
+  }
+
+  // Drop the legacy `routines.topic_id` / `routines.location` columns (backfilled
+  // into routine_connections / weekly entries by now-pruned migrations, but left
+  // in place). Must run before drizzle-kit push: while they linger, adding any
+  // new routines column makes push see add+drop in one table and prompt for a
+  // rename, which hangs in the non-TTY deploy. Runs before the orphan sweep so a
+  // backfilled topic link to a deleted topic gets cleaned up.
+  try {
+    await migrateDropLegacyRoutineColumns();
+  }
+  catch (err) {
+    console.error("Failed to drop legacy routine columns:", err);
     throw err;
   }
 
