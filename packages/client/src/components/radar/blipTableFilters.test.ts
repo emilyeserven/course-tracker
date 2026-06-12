@@ -42,6 +42,8 @@ const quadrants: QuadrantInfo[] = [
   },
 ];
 
+// Test fixture data; incidental overlap with the production Map-building code.
+// fallow-ignore-next-line code-duplication
 const rings: RingInfo[] = [
   {
     id: "r1",

@@ -6,15 +6,9 @@ import type { RadarBlip } from "@emstack/types";
 
 import { Loader2, XIcon } from "lucide-react";
 
+import { BlipPlacementSelect } from "@/components/radar/BlipPlacementSelect";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 export interface EditDraft {
@@ -98,58 +92,28 @@ export function BlipEditRow({
             </label>
             {!draft.isIgnored && (
               <>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs uppercase">
-                    Slice
-                  </label>
-                  <Select
-                    value={draft.quadrantId}
-                    onValueChange={value =>
-                      onDraftChange({
-                        ...draft,
-                        quadrantId: value,
-                      })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose slice" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {quadrants.map(q => (
-                        <SelectItem
-                          key={q.id}
-                          value={q.id}
-                        >
-                          {q.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs uppercase">Ring</label>
-                  <Select
-                    value={draft.ringId}
-                    onValueChange={value =>
-                      onDraftChange({
-                        ...draft,
-                        ringId: value,
-                      })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose ring" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rings.map(r => (
-                        <SelectItem
-                          key={r.id}
-                          value={r.id}
-                        >
-                          {r.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <BlipPlacementSelect
+                  label="Slice"
+                  value={draft.quadrantId}
+                  placeholder="Choose slice"
+                  options={quadrants}
+                  onValueChange={value =>
+                    onDraftChange({
+                      ...draft,
+                      quadrantId: value,
+                    })}
+                />
+                <BlipPlacementSelect
+                  label="Ring"
+                  value={draft.ringId}
+                  placeholder="Choose ring"
+                  options={rings}
+                  onValueChange={value =>
+                    onDraftChange({
+                      ...draft,
+                      ringId: value,
+                    })}
+                />
               </>
             )}
             <div className="flex flex-col gap-1">

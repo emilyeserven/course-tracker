@@ -6,10 +6,8 @@ import type {
 
 import { useState } from "react";
 
-import { Loader2, Trash2Icon } from "lucide-react";
-
+import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
-import { Button } from "@/components/ui/button";
 
 export const COLUMN_COUNT = 8;
 
@@ -242,41 +240,12 @@ export function EditingRow({
             />
             <span>Used yet?</span>
           </label>
-          <div
-            className="
-              flex flex-row flex-wrap items-center justify-between gap-2
-            "
-          >
-            <div className="flex flex-row gap-2">
-              <Button
-                type="submit"
-                disabled={isSaving}
-              >
-                {isSaving && <Loader2 className="animate-spin" />}
-                Save
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
-            </div>
-            {onDelete && !isNew && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={onDelete}
-                disabled={isSaving}
-              >
-                <Trash2Icon className="size-4" />
-                Remove
-              </Button>
-            )}
-          </div>
+          <EditFormActions
+            isSaving={isSaving}
+            onCancel={onCancel}
+            onDelete={onDelete}
+            isNew={isNew}
+          />
         </form>
       </td>
     </tr>

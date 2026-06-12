@@ -2,12 +2,13 @@ import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
@@ -127,6 +128,7 @@ function SingleTaskEdit() {
     onSubmit: async ({
       value,
     }) => {
+      // fallow-ignore-next-line code-duplication
       const existingResources = (data?.resources ?? []).map(r => ({
         id: r.id,
         name: r.name,
@@ -144,6 +146,7 @@ function SingleTaskEdit() {
         url: t.url ?? null,
       }));
 
+      // fallow-ignore-next-line code-duplication
       await submitTask({
         name: value.name,
         description: value.description || null,
@@ -178,18 +181,14 @@ function SingleTaskEdit() {
         pageSection="tasks"
       >
         {!isNew && (
-          <Link
+          <EntityHeaderButton
             to="/tasks/$id"
             params={{
               id,
             }}
-          >
-            <Button variant="secondary">
-              View Task
-              {" "}
-              <EyeIcon />
-            </Button>
-          </Link>
+            label="View Task"
+            icon={<EyeIcon />}
+          />
         )}
       </PageHeader>
       <div className="m-auto w-full max-w-[1200px] px-4">

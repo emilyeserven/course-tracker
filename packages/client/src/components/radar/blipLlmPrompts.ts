@@ -101,19 +101,25 @@ export function formatTopicNameList(names: string[] | undefined): string {
   return names.map(n => `- ${n}`).join("\n");
 }
 
-export function buildLlmPrompt(args: BuildPromptArgs): string {
+/**
+ * The quadrant/ring/domain/scope prose blocks shared by the setup and cleanup
+ * prompt builders, derived from the fields both arg shapes have in common.
+ */
+function buildSharedPromptParts(args: {
+  domainTitle: string;
+  domainDescription?: string | null;
+  withinScopeDescription?: string | null;
+  outOfScopeDescription?: string | null;
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
+}) {
   const {
     domainTitle,
     domainDescription,
-    domainTopics,
-    excludedTopics,
     withinScopeDescription,
     outOfScopeDescription,
-    withinScopeTopicNames,
-    outOfScopeTopicNames,
     quadrants,
     rings,
-    existingBlips,
   } = args;
 
   const adoptedRing = rings.find(r => r.isAdopted);
@@ -128,6 +134,42 @@ export function buildLlmPrompt(args: BuildPromptArgs): string {
   const descriptionBlock = domainDescription?.trim()
     ? domainDescription.trim()
     : "(no description provided)";
+  const withinScopeBlock = withinScopeDescription?.trim()
+    ? withinScopeDescription.trim()
+    : "(no within-scope description provided)";
+  const outOfScopeBlock = outOfScopeDescription?.trim()
+    ? outOfScopeDescription.trim()
+    : "(no out-of-scope description provided)";
+
+  return {
+    adoptedRing,
+    quadrantList,
+    ringList,
+    domainLabel,
+    descriptionBlock,
+    withinScopeBlock,
+    outOfScopeBlock,
+  };
+}
+
+export function buildLlmPrompt(args: BuildPromptArgs): string {
+  const {
+    domainTopics,
+    excludedTopics,
+    withinScopeTopicNames,
+    outOfScopeTopicNames,
+    existingBlips,
+  } = args;
+
+  const {
+    adoptedRing,
+    quadrantList,
+    ringList,
+    domainLabel,
+    descriptionBlock,
+    withinScopeBlock,
+    outOfScopeBlock,
+  } = buildSharedPromptParts(args);
   const existingList = existingBlips.length > 0
     ? existingBlips
       .map((b) => {
@@ -156,13 +198,6 @@ You may suggest moving topics into or out of "${adoptedRing.name}" when that
 matches the topic's maturity. A slice is still meaningful for "${adoptedRing.name}"
 topics (it groups them by category), so include both quadrant and ring.`
     : "";
-
-  const withinScopeBlock = withinScopeDescription?.trim()
-    ? withinScopeDescription.trim()
-    : "(no within-scope description provided)";
-  const outOfScopeBlock = outOfScopeDescription?.trim()
-    ? outOfScopeDescription.trim()
-    : "(no out-of-scope description provided)";
 
   // The JSON key below stays "quadrant" for parser compatibility with
   // existing pasted responses; only the surrounding prose says "slice".
@@ -247,33 +282,18 @@ from the excluded list above.
 
 export function buildCleanupPrompt(args: BuildCleanupPromptArgs): string {
   const {
-    domainTitle,
-    domainDescription,
-    withinScopeDescription,
-    outOfScopeDescription,
-    quadrants,
-    rings,
     unassignedBlips,
   } = args;
 
-  const adoptedRing = rings.find(r => r.isAdopted);
-  const quadrantList = quadrants.map(q => `- ${q.name}`).join("\n");
-  const ringList = rings.map((r) => {
-    if (r.isAdopted) {
-      return `- ${r.name} (use for foundational topics that are fully established and no longer being actively evaluated; a slice is still meaningful for grouping)`;
-    }
-    return `- ${r.name}`;
-  }).join("\n");
-  const domainLabel = domainTitle.trim() || "(unnamed domain)";
-  const descriptionBlock = domainDescription?.trim()
-    ? domainDescription.trim()
-    : "(no description provided)";
-  const withinScopeBlock = withinScopeDescription?.trim()
-    ? withinScopeDescription.trim()
-    : "(no within-scope description provided)";
-  const outOfScopeBlock = outOfScopeDescription?.trim()
-    ? outOfScopeDescription.trim()
-    : "(no out-of-scope description provided)";
+  const {
+    adoptedRing,
+    quadrantList,
+    ringList,
+    domainLabel,
+    descriptionBlock,
+    withinScopeBlock,
+    outOfScopeBlock,
+  } = buildSharedPromptParts(args);
 
   const blipList = unassignedBlips.length > 0
     ? unassignedBlips

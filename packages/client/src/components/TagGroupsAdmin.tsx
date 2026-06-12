@@ -3,9 +3,10 @@ import type { Tag, TagGroup } from "@emstack/types";
 import { useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
@@ -354,40 +355,14 @@ function GroupEditRow({
             placeholder="e.g. blue, #34d"
           />
         </div>
-        <div
-          className="flex flex-row flex-wrap items-center justify-between gap-2"
-        >
-          <div className="flex flex-row gap-2">
-            <Button
-              type="submit"
-              disabled={isSaving}
-            >
-              {isSaving && <Loader2 className="animate-spin" />}
-              Save
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
-          </div>
-          {onDelete && !isNew && (
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={onDelete}
-              disabled={isSaving || deleteDisabled}
-              title={deleteDisabled ? deleteDisabledReason : undefined}
-            >
-              <Trash2Icon className="size-4" />
-              Remove
-            </Button>
-          )}
-        </div>
+        <EditFormActions
+          isSaving={isSaving}
+          onCancel={onCancel}
+          onDelete={onDelete}
+          isNew={isNew}
+          deleteDisabled={deleteDisabled}
+          deleteDisabledReason={deleteDisabledReason}
+        />
       </form>
     </li>
   );
@@ -603,41 +578,14 @@ function TagEditRow({
             placeholder="e.g. blue, #34d"
           />
         </div>
-        <div
-          className="flex flex-row flex-wrap items-center justify-between gap-2"
-        >
-          <div className="flex flex-row gap-2">
-            <Button
-              size="sm"
-              type="submit"
-              disabled={isSaving}
-            >
-              {isSaving && <Loader2 className="animate-spin" />}
-              Save
-            </Button>
-            <Button
-              size="sm"
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
-          </div>
-          {onDelete && !isNew && (
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={onDelete}
-              disabled={isSaving}
-            >
-              <Trash2Icon className="size-3.5" />
-              Remove
-            </Button>
-          )}
-        </div>
+        <EditFormActions
+          isSaving={isSaving}
+          onCancel={onCancel}
+          onDelete={onDelete}
+          isNew={isNew}
+          size="sm"
+          trashIconClassName="size-3.5"
+        />
       </form>
     </li>
   );

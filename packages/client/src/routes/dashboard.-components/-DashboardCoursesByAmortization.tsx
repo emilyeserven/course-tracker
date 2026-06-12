@@ -126,30 +126,44 @@ function buildProviderRows(
   });
 }
 
-function compareCourseRows(
-  a: CourseRow,
-  b: CourseRow,
-  key: CourseSortKey,
+/**
+ * Compare two amortization rows by name or cost-per-unit (unstarted rows, with
+ * a null cost-per-unit, sort highest), honoring sort direction and falling back
+ * to name order on ties. `getName` adapts this to the course vs provider shape.
+ */
+function compareAmortizationRows<T extends { costPerUnit: number | null }>(
+  a: T,
+  b: T,
+  key: "name" | "costPerUnit",
   dir: SortDir,
+  getName: (row: T) => string,
 ): number {
   const direction = dir === "asc" ? 1 : -1;
   let av: number | string;
   let bv: number | string;
   switch (key) {
     case "name":
-      av = a.resource.name.toLowerCase();
-      bv = b.resource.name.toLowerCase();
+      av = getName(a).toLowerCase();
+      bv = getName(b).toLowerCase();
       break;
     case "costPerUnit":
     default:
-      // Treat unstarted (null) as the highest cost-per-unit.
       av = a.costPerUnit ?? Number.POSITIVE_INFINITY;
       bv = b.costPerUnit ?? Number.POSITIVE_INFINITY;
       break;
   }
   if (av < bv) return -1 * direction;
   if (av > bv) return 1 * direction;
-  return a.resource.name.localeCompare(b.resource.name);
+  return getName(a).localeCompare(getName(b));
+}
+
+function compareCourseRows(
+  a: CourseRow,
+  b: CourseRow,
+  key: CourseSortKey,
+  dir: SortDir,
+): number {
+  return compareAmortizationRows(a, b, key, dir, row => row.resource.name);
 }
 
 function compareProviderRows(
@@ -158,23 +172,7 @@ function compareProviderRows(
   key: ProviderSortKey,
   dir: SortDir,
 ): number {
-  const direction = dir === "asc" ? 1 : -1;
-  let av: number | string;
-  let bv: number | string;
-  switch (key) {
-    case "name":
-      av = a.provider.name.toLowerCase();
-      bv = b.provider.name.toLowerCase();
-      break;
-    case "costPerUnit":
-    default:
-      av = a.costPerUnit ?? Number.POSITIVE_INFINITY;
-      bv = b.costPerUnit ?? Number.POSITIVE_INFINITY;
-      break;
-  }
-  if (av < bv) return -1 * direction;
-  if (av > bv) return 1 * direction;
-  return a.provider.name.localeCompare(b.provider.name);
+  return compareAmortizationRows(a, b, key, dir, row => row.provider.name);
 }
 
 export function DashboardCoursesByAmortization() {

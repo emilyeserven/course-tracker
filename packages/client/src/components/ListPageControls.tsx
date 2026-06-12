@@ -1,6 +1,14 @@
 import { SearchIcon, XIcon } from "lucide-react";
 
+import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Search box for a list page's filter bar.
 export function ListSearchInput({
@@ -34,6 +42,74 @@ export function ListSearchInput({
         "
       />
     </div>
+  );
+}
+
+export interface FilterSelectOption {
+  value: string;
+  label: string;
+  count: number;
+  // Optional uppercase tag shown before the label (e.g. a routine's type).
+  prefix?: string;
+}
+
+// Topic/provider/domain/connection filter dropdown for a list page's filter
+// bar: an "All" item with the total, an optional "None" item, then the options,
+// each with a trailing count. Maps the sentinel "all" value to `undefined`.
+export function FilterSelect({
+  placeholder,
+  value,
+  onChange,
+  allLabel,
+  totalCount,
+  noneLabel,
+  noneCount,
+  options,
+}: {
+  placeholder: string;
+  value: string | undefined;
+  onChange: (value: string | undefined) => void;
+  allLabel: string;
+  totalCount: number;
+  noneLabel?: string;
+  noneCount?: number;
+  options: FilterSelectOption[];
+}) {
+  return (
+    <Select
+      value={value ?? "all"}
+      onValueChange={v => onChange(v === "all" ? undefined : v)}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">
+          <span>{allLabel}</span>
+          <FilterOptionCount count={totalCount} />
+        </SelectItem>
+        {noneLabel && (noneCount ?? 0) > 0 && (
+          <SelectItem value="none">
+            <span>{noneLabel}</span>
+            <FilterOptionCount count={noneCount ?? 0} />
+          </SelectItem>
+        )}
+        {options.map(opt => (
+          <SelectItem
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.prefix && (
+              <span className="mr-1 text-xs text-muted-foreground uppercase">
+                {opt.prefix}
+              </span>
+            )}
+            <span>{opt.label}</span>
+            <FilterOptionCount count={opt.count} />
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

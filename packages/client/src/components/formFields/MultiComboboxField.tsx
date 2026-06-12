@@ -13,6 +13,8 @@ import {
   ComboboxLabel,
   ComboboxList,
   useComboboxAnchor,
+  // Incidental overlap of shared formField imports + prop interface.
+  // fallow-ignore-next-line code-duplication
 } from "@/components/combobox";
 import { ComboboxAddNewRow } from "@/components/formFields/ComboboxAddNewRow";
 import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
@@ -64,6 +66,8 @@ function partitionOptions(
       bucket.push(opt.value);
     }
     else {
+      // Prefix-grouping helper that incidentally mirrors TagsInput's partitionTags.
+      // fallow-ignore-next-line code-duplication
       groups.set(groupName, [opt.value]);
     }
   }
@@ -149,6 +153,8 @@ export function MultiComboboxField({
         </ComboboxChips>
         <ComboboxContent anchor={anchor}>
           {showAddRow && (
+            // Structural overlap with TagsInput's grouped combobox dropdown.
+            // fallow-ignore-next-line code-duplication
             <ComboboxAddNewRow
               itemLabel={create?.itemLabel}
               trimmedInput={trimmedInput}

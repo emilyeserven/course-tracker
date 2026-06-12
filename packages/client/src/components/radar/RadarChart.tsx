@@ -4,6 +4,7 @@ import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { RadarBlipDot } from "@/components/radar/RadarBlipDot";
+import { RadarBlipDotLayer } from "@/components/radar/RadarBlipDotLayer";
 import {
   ADOPTED_AREA_BOTTOM_PAD,
   ADOPTED_AREA_HEIGHT,
@@ -37,6 +38,18 @@ interface RadarChartProps {
   onDescriptionChange?: (blipId: string, description: string) => void;
   showLegend?: boolean;
   initialSelectedBlipId?: string | null;
+}
+
+/**
+ * Comparator that renders the active blip last (on top) so its halo isn't
+ * occluded by neighbouring dots.
+ */
+function byActiveLast(activeBlipId: string | null) {
+  return (a: PositionedBlip, b: PositionedBlip) => {
+    const aActive = activeBlipId === a.blip.id ? 1 : 0;
+    const bActive = activeBlipId === b.blip.id ? 1 : 0;
+    return aActive - bActive;
+  };
 }
 
 export function RadarChart({
@@ -325,45 +338,24 @@ export function RadarChart({
                 </text>
               );
             })}
-            {[...positionedBlips]
-              .sort((a, b) => {
-                const aActive = activeBlipId === a.blip.id ? 1 : 0;
-                const bActive = activeBlipId === b.blip.id ? 1 : 0;
-                return aActive - bActive;
-              })
-              .map(({
-                blip, x, y, index,
-              }) => {
-                const quadrantIndex = sortedQuadrants.findIndex(
-                  q => q.id === blip.quadrantId,
-                );
-                const color
-                  = QUADRANT_PALETTE[quadrantIndex % QUADRANT_PALETTE.length];
-                return (
-                  <RadarBlipDot
-                    key={blip.id}
-                    blip={blip}
-                    x={x}
-                    y={y}
-                    index={index}
-                    color={color}
-                    dotRadius={10}
-                    haloRadius={16}
-                    fontSize={10}
-                    subtitle={(
-                      <>
-                        {sortedQuadrants[quadrantIndex]?.name}
-                        {" · "}
-                        {ringNameById[blip.ringId ?? ""]}
-                      </>
-                    )}
-                    isActive={activeBlipId === blip.id}
-                    isSelected={selectedBlipId === blip.id}
-                    onHover={setHoveredBlipId}
-                    onClick={handleBlipClick}
-                  />
-                );
-              })}
+            <RadarBlipDotLayer
+              positioned={positionedBlips}
+              sortedQuadrants={sortedQuadrants}
+              activeBlipId={activeBlipId}
+              selectedBlipId={selectedBlipId}
+              dotRadius={10}
+              haloRadius={16}
+              fontSize={10}
+              renderSubtitle={(quadrantName, blip) => (
+                <>
+                  {quadrantName}
+                  {" · "}
+                  {ringNameById[blip.ringId ?? ""]}
+                </>
+              )}
+              onHover={setHoveredBlipId}
+              onClick={handleBlipClick}
+            />
             {showAdoptedInChart && (
               <>
                 <text
@@ -376,47 +368,26 @@ export function RadarChart({
                 >
                   {adoptedSectionName}
                 </text>
-                {[...positionedAdoptedBlips]
-                  .sort((a, b) => {
-                    const aActive = activeBlipId === a.blip.id ? 1 : 0;
-                    const bActive = activeBlipId === b.blip.id ? 1 : 0;
-                    return aActive - bActive;
-                  })
-                  .map(({
-                    blip, x, y, index,
-                  }) => {
-                    const quadrantIndex = sortedQuadrants.findIndex(
-                      q => q.id === blip.quadrantId,
-                    );
-                    const color
-                      = QUADRANT_PALETTE[
-                        Math.max(0, quadrantIndex) % QUADRANT_PALETTE.length
-                      ];
-                    return (
-                      <RadarBlipDot
-                        key={`adopted-${blip.id}`}
-                        blip={blip}
-                        x={x}
-                        y={y}
-                        index={index}
-                        color={color}
-                        dotRadius={ADOPTED_DOT_RADIUS}
-                        haloRadius={ADOPTED_DOT_RADIUS + 5}
-                        fontSize={9}
-                        subtitle={(
-                          <>
-                            {sortedQuadrants[quadrantIndex]?.name}
-                            {" · "}
-                            {adoptedSectionName}
-                          </>
-                        )}
-                        isActive={activeBlipId === blip.id}
-                        isSelected={selectedBlipId === blip.id}
-                        onHover={setHoveredBlipId}
-                        onClick={handleBlipClick}
-                      />
-                    );
-                  })}
+                <RadarBlipDotLayer
+                  positioned={positionedAdoptedBlips}
+                  sortedQuadrants={sortedQuadrants}
+                  activeBlipId={activeBlipId}
+                  selectedBlipId={selectedBlipId}
+                  keyPrefix="adopted-"
+                  dotRadius={ADOPTED_DOT_RADIUS}
+                  haloRadius={ADOPTED_DOT_RADIUS + 5}
+                  fontSize={9}
+                  clampQuadrantIndex
+                  renderSubtitle={quadrantName => (
+                    <>
+                      {quadrantName}
+                      {" · "}
+                      {adoptedSectionName}
+                    </>
+                  )}
+                  onHover={setHoveredBlipId}
+                  onClick={handleBlipClick}
+                />
               </>
             )}
             {showIgnoredInChart && (
@@ -432,11 +403,7 @@ export function RadarChart({
                   Ignored
                 </text>
                 {[...positionedIgnoredBlips]
-                  .sort((a, b) => {
-                    const aActive = activeBlipId === a.blip.id ? 1 : 0;
-                    const bActive = activeBlipId === b.blip.id ? 1 : 0;
-                    return aActive - bActive;
-                  })
+                  .sort(byActiveLast(activeBlipId))
                   .map(({
                     blip, x, y, index,
                   }) => (

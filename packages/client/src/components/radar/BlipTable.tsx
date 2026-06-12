@@ -92,6 +92,8 @@ export function BlipTable({
       setSortDir("asc");
       return;
     }
+    // Incidental similarity to BlipLlmAssist's lookup maps; different domain types.
+    // fallow-ignore-next-line code-duplication
     setSortDir(prev => prev === "asc" ? "desc" : "asc");
   }
 

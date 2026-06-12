@@ -13,6 +13,7 @@ import { DetailsTab } from "./routines.$id.edit.-components/-DetailsTab";
 import { EntriesTab } from "./routines.$id.edit.-components/-EntriesTab";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { fillAllDays, rowsToWeekly } from "@/components/routines/weekly";
@@ -191,11 +192,8 @@ function NewRoutine() {
         pageSection="routines"
       />
       <div className="m-auto w-full max-w-[1200px] px-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
+        <EditForm
+          onSubmit={form.handleSubmit}
           className="flex max-w-3xl flex-col gap-8"
         >
           <form.AppField name="name">
@@ -232,7 +230,7 @@ function NewRoutine() {
               Cancel
             </Button>
           </EditPageFooter>
-        </form>
+        </EditForm>
       </div>
     </div>
   );

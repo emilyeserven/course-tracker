@@ -2,11 +2,12 @@ import type { CourseProvider } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { ProviderBox } from "@/components/boxes/ProviderBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { OnboardingEmptyState } from "@/components/layout/OnboardingEmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
@@ -56,20 +57,7 @@ function Providers() {
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (
-            <div className="flex flex-col gap-6">
-              <i>No courses yet!</i>
-
-              <Link
-                to="/onboard"
-                className=""
-              >
-                <Button>
-                  Go to onboarding
-                  {" "}
-                  <ArrowRightIcon />
-                </Button>
-              </Link>
-            </div>
+            <OnboardingEmptyState message="No courses yet!" />
           )}
 
           {data

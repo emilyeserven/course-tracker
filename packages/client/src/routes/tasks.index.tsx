@@ -8,21 +8,14 @@ import { PlusIcon } from "lucide-react";
 
 import { TaskBox } from "@/components/boxes/TaskBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   ClearFiltersButton,
+  FilterSelect,
   ListEmptyStates,
   ListSearchInput,
 } from "@/components/ListPageControls";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchTasks, fetchTopics } from "@/utils";
 
@@ -136,40 +129,24 @@ function Tasks() {
               value={search}
               onChange={setSearch}
             />
-            <Select
-              value={filterTopic ?? "all"}
-              onValueChange={v =>
-                setFilterTopic(v === "all" ? undefined : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Topic" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  <span>All Topics</span>
-                  <FilterOptionCount count={totalTaskCount} />
-                </SelectItem>
-                {noTopicCount > 0 && (
-                  <SelectItem value="none">
-                    <span>No Topic</span>
-                    <FilterOptionCount count={noTopicCount} />
-                  </SelectItem>
-                )}
-                {topics
+            <FilterSelect
+              placeholder="Topic"
+              value={filterTopic}
+              onChange={setFilterTopic}
+              allLabel="All Topics"
+              totalCount={totalTaskCount}
+              noneLabel="No Topic"
+              noneCount={noTopicCount}
+              options={
+                topics
                   ?.filter(t => (taskCountByTopic.get(t.id) ?? 0) > 0)
-                  .map(t => (
-                    <SelectItem
-                      key={t.id}
-                      value={t.id}
-                    >
-                      <span>{t.name}</span>
-                      <FilterOptionCount
-                        count={taskCountByTopic.get(t.id) ?? 0}
-                      />
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+                  .map(t => ({
+                    value: t.id,
+                    label: t.name,
+                    count: taskCountByTopic.get(t.id) ?? 0,
+                  })) ?? []
+              }
+            />
             {hasActiveFilters && (
               <ClearFiltersButton
                 onClick={() => {

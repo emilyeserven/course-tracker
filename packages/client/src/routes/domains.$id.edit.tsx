@@ -14,6 +14,7 @@ import { LlmTabContainer } from "./domains.$id.edit.-components/-LlmTab";
 import { ScopeTab } from "./domains.$id.edit.-components/-ScopeTab";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -118,11 +119,8 @@ function NewDomain() {
         pageSection="domains"
       />
       <div className="m-auto w-full max-w-[1200px] px-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
+        <EditForm
+          onSubmit={form.handleSubmit}
           className="flex max-w-2xl flex-col gap-8"
         >
           <form.AppField name="title">
@@ -159,7 +157,7 @@ function NewDomain() {
               Cancel
             </Button>
           </EditPageFooter>
-        </form>
+        </EditForm>
       </div>
     </div>
   );
