@@ -1,7 +1,7 @@
 import type { Routine, RoutineWeekday } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
-import { FlameIcon } from "lucide-react";
+import { AlertTriangleIcon, FlameIcon } from "lucide-react";
 
 import { Description } from "@/components/boxElements/Description";
 import { EntityLink } from "@/components/boxElements/EntityLink";
@@ -14,6 +14,7 @@ import {
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   connectionEntityKind,
@@ -75,6 +76,12 @@ export function RoutineBox({
   todayAction,
 }: Routine & { todayAction?: RoutineTodayAction | null }) {
   const isDaily = mode === "daily";
+  // A daily routine mirrors the same entry on every weekday, so "no task
+  // assigned" means none of the grid's entries is a task (it may be a
+  // resource, freeform, or empty). Flag it so the card can caution the user.
+  const dailyHasNoTask
+    = isDaily
+      && !Object.values(weekly ?? {}).some(entry => entry?.type === "task");
   const scheduledCount = weekly
     ? Object.values(weekly).filter(Boolean).length
     : 0;
@@ -119,9 +126,17 @@ export function RoutineBox({
           </div>
           <div className="flex flex-row items-center gap-2">
             <span
-              className="
-                rounded-sm border px-2 py-0.5 text-xs text-muted-foreground
-              "
+              className={cn(
+                "rounded-sm border px-2 py-0.5 text-xs",
+                dailyHasNoTask
+                  ? `
+                    border-amber-400 bg-amber-100 text-amber-900
+                    dark:border-amber-500/50 dark:bg-amber-900/40
+                    dark:text-amber-100
+                  `
+                  : "text-muted-foreground",
+              )}
+              title={dailyHasNoTask ? "No task assigned" : undefined}
             >
               {isDaily ? "Daily" : "Weekly"}
             </span>
@@ -138,7 +153,7 @@ export function RoutineBox({
           </div>
         </ContentBoxHeaderBar>
         <ContentBoxTitle>
-          <h3 className="text-xl">
+          <h3 className="flex items-center gap-1.5 text-xl">
             <Link
               to="/routines/$id"
               params={{
@@ -156,6 +171,19 @@ export function RoutineBox({
                 )
                 : name}
             </Link>
+            {dailyHasNoTask && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="inline-flex shrink-0 text-amber-500"
+                    aria-label="No task assigned"
+                  >
+                    <AlertTriangleIcon className="size-4" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>No task assigned</TooltipContent>
+              </Tooltip>
+            )}
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
