@@ -6,7 +6,7 @@ import { PlusIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export interface ResourceLinkInput {
+interface ResourceLinkInput {
   // Stable per-row key. Existing rows keep their server-assigned id;
   // new rows get a local key so React reconciles correctly.
   key: string;

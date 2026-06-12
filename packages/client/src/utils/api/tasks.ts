@@ -2,8 +2,8 @@ import type { Task, TaskType } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const tasksApi = createEntityClient<Task>("tasks", "task");
-export const taskTypesApi = createEntityClient<TaskType>(
+const tasksApi = createEntityClient<Task>("tasks", "task");
+const taskTypesApi = createEntityClient<TaskType>(
   "task-types",
   "task type",
 );

@@ -22,3 +22,6 @@ appout
 .env.production
 # Claude Code temporary agent worktrees
 .claude/worktrees/
+
+# fallow cache and local data
+.fallow/

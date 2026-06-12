@@ -14,12 +14,12 @@ export type Resolution
     | "removeBlip"
     | "skip";
 
-export function isNoChangeSentinel(value: string): boolean {
+function isNoChangeSentinel(value: string): boolean {
   const v = value.trim().toLowerCase();
   return v === "no change" || v === "no-change" || v === "nochange";
 }
 
-export interface LlmEntry {
+interface LlmEntry {
   topic?: unknown;
   quadrant?: unknown;
   ring?: unknown;
@@ -115,7 +115,7 @@ export function computeProblems(
   return problems;
 }
 
-export function valuesEqual(a: string | null, b: string | null): boolean {
+function valuesEqual(a: string | null, b: string | null): boolean {
   return (a ?? "") === (b ?? "");
 }
 
@@ -181,10 +181,76 @@ export type ParseLlmEntriesResult
     | { entries: null;
       error: string; };
 
-export function parseLlmEntries(
-  jsonText: string,
+function asTrimmedString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeAction(value: unknown): string | null {
+  return typeof value === "string"
+    ? value.trim().toLowerCase() || null
+    : null;
+}
+
+function lookupByLowerName<T>(
+  map: Map<string, T>,
+  name: string,
+): T | undefined {
+  return name ? map.get(name.toLowerCase()) : undefined;
+}
+
+// "no change" sentinel preserves the existing value. null in JSON
+// explicitly erases. Anything else is the new value.
+function resolveTextField(
+  value: unknown,
+  noChangeFallback: string | null,
+): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  if (isNoChangeSentinel(value)) {
+    return noChangeFallback;
+  }
+  return value.trim() || null;
+}
+
+function existingBlipState(blip: RadarBlip | null) {
+  return blip
+    ? {
+      existingBlipId: blip.id,
+      existingQuadrantId: blip.quadrantId,
+      existingRingId: blip.ringId,
+      existingRadarNote: blip.description ?? null,
+    }
+    : {
+      existingBlipId: null,
+      existingQuadrantId: null,
+      existingRingId: null,
+      existingRadarNote: null,
+    };
+}
+
+function matchedTopicState(topic: TopicForTopicsPage | undefined) {
+  return topic
+    ? {
+      matchedTopicId: topic.id,
+      existingTopicDescription: topic.description ?? null,
+      topicCourseCount: topic.resourceCount ?? 0,
+      topicTaskCount: topic.taskCount ?? 0,
+      topicDailyCount: topic.dailyCount ?? 0,
+    }
+    : {
+      matchedTopicId: null,
+      existingTopicDescription: null,
+      topicCourseCount: 0,
+      topicTaskCount: 0,
+      topicDailyCount: 0,
+    };
+}
+
+function resolveLlmEntry(
+  entry: LlmEntry,
   lookups: ParseLlmLookups,
-): ParseLlmEntriesResult {
+): ResolvedLlmEntry {
   const {
     topicByLowerName,
     quadrantByLowerName,
@@ -193,6 +259,73 @@ export function parseLlmEntries(
     excludedNamesLower,
   } = lookups;
 
+  const topicName = asTrimmedString(entry.topic);
+  const quadrantInput = asTrimmedString(entry.quadrant);
+  const ringInput = asTrimmedString(entry.ring);
+  const llmAction = normalizeAction(entry.action);
+
+  const quadrantMatch = lookupByLowerName(quadrantByLowerName, quadrantInput);
+  const ringMatch = lookupByLowerName(ringByLowerName, ringInput);
+  const topicMatch = lookupByLowerName(topicByLowerName, topicName);
+  const existingBlip = topicMatch
+    ? existingBlipByTopicId.get(topicMatch.id) ?? null
+    : null;
+
+  const blipState = existingBlipState(existingBlip);
+  const topicState = matchedTopicState(topicMatch);
+  const quadrantId = quadrantMatch ? quadrantMatch.id : null;
+  const ringId = ringMatch ? ringMatch.id : null;
+
+  const llmDescription = resolveTextField(
+    entry.description,
+    topicState.existingTopicDescription,
+  );
+  const llmRadarNote = resolveTextField(
+    entry.radarNote,
+    blipState.existingRadarNote,
+  );
+
+  const isExcluded = excludedNamesLower.has(topicName.toLowerCase());
+  const resolution = defaultResolution({
+    isExcluded,
+    llmAction,
+    existingBlipId: blipState.existingBlipId,
+  });
+
+  const partial = {
+    topicName,
+    quadrantInput,
+    quadrantId,
+    ringInput,
+    ringId,
+    resolution,
+    existingBlipId: blipState.existingBlipId,
+  };
+
+  return {
+    topicName,
+    willCreateTopic: !!topicName && !topicMatch,
+    quadrantInput,
+    ringInput,
+    description: llmDescription,
+    radarNote: llmRadarNote,
+    quadrantId,
+    ringId,
+    ...blipState,
+    ...topicState,
+    resolution,
+    deleteTopicOnRemove: false,
+    editing: false,
+    editDraft: null,
+    selected: false,
+    problems: computeProblems(partial, excludedNamesLower),
+  };
+}
+
+export function parseLlmEntries(
+  jsonText: string,
+  lookups: ParseLlmLookups,
+): ParseLlmEntriesResult {
   let parsed: unknown;
   try {
     parsed = JSON.parse(stripCodeFence(jsonText));
@@ -212,86 +345,8 @@ export function parseLlmEntries(
   }
 
   const entries = parsed as LlmEntry[];
-  const out: ResolvedLlmEntry[] = entries.map((entry) => {
-    const topicName = typeof entry.topic === "string" ? entry.topic.trim() : "";
-    const quadrantInput
-      = typeof entry.quadrant === "string" ? entry.quadrant.trim() : "";
-    const ringInput = typeof entry.ring === "string" ? entry.ring.trim() : "";
-    const llmAction = typeof entry.action === "string"
-      ? entry.action.trim().toLowerCase() || null
-      : null;
-
-    const quadrantMatch = quadrantInput
-      ? quadrantByLowerName.get(quadrantInput.toLowerCase())
-      : undefined;
-    const ringMatch = ringInput
-      ? ringByLowerName.get(ringInput.toLowerCase())
-      : undefined;
-    const topicMatch = topicName
-      ? topicByLowerName.get(topicName.toLowerCase())
-      : undefined;
-    const existingBlip = topicMatch
-      ? existingBlipByTopicId.get(topicMatch.id) ?? null
-      : null;
-
-    // "no change" sentinel preserves the existing value. null in JSON
-    // explicitly erases. Anything else is the new value.
-    const llmDescription = typeof entry.description === "string"
-      ? (isNoChangeSentinel(entry.description)
-        ? topicMatch?.description ?? null
-        : entry.description.trim() || null)
-      : null;
-    const llmRadarNote = typeof entry.radarNote === "string"
-      ? (isNoChangeSentinel(entry.radarNote)
-        ? existingBlip?.description ?? null
-        : entry.radarNote.trim() || null)
-      : null;
-
-    const isExcluded = excludedNamesLower.has(topicName.toLowerCase());
-    const resolution = defaultResolution({
-      isExcluded,
-      llmAction,
-      existingBlipId: existingBlip?.id ?? null,
-    });
-
-    const partial = {
-      topicName,
-      quadrantInput,
-      quadrantId: quadrantMatch?.id ?? null,
-      ringInput,
-      ringId: ringMatch?.id ?? null,
-      resolution,
-      existingBlipId: existingBlip?.id ?? null,
-    };
-
-    return {
-      topicName,
-      matchedTopicId: topicMatch?.id ?? null,
-      willCreateTopic: !!topicName && !topicMatch,
-      quadrantInput,
-      ringInput,
-      description: llmDescription,
-      radarNote: llmRadarNote,
-      quadrantId: quadrantMatch?.id ?? null,
-      ringId: ringMatch?.id ?? null,
-      existingBlipId: existingBlip?.id ?? null,
-      existingQuadrantId: existingBlip?.quadrantId ?? null,
-      existingRingId: existingBlip?.ringId ?? null,
-      existingRadarNote: existingBlip?.description ?? null,
-      existingTopicDescription: topicMatch?.description ?? null,
-      topicCourseCount: topicMatch?.resourceCount ?? 0,
-      topicTaskCount: topicMatch?.taskCount ?? 0,
-      topicDailyCount: topicMatch?.dailyCount ?? 0,
-      resolution,
-      deleteTopicOnRemove: false,
-      editing: false,
-      editDraft: null,
-      selected: false,
-      problems: computeProblems(partial, excludedNamesLower),
-    };
-  });
   return {
-    entries: out,
+    entries: entries.map(entry => resolveLlmEntry(entry, lookups)),
     error: null,
   };
 }

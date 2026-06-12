@@ -1,4 +1,9 @@
-import type { RoutineWeekday, RoutineWeekly } from "@emstack/types";
+import type {
+  RoutineReferenceItem,
+  RoutineReferenceType,
+  RoutineWeekday,
+  RoutineWeekly,
+} from "@emstack/types";
 
 export type WeeklyRowType = "" | "task" | "resource" | "freeform";
 
@@ -52,38 +57,40 @@ export function weeklyToRows(
   });
 }
 
+// A row's reference item, persisting optional text only when present to keep
+// the stored JSON clean.
+function referenceItemFromRow(
+  row: WeeklyRow,
+  type: RoutineReferenceType,
+): RoutineReferenceItem {
+  const item: RoutineReferenceItem = {
+    type,
+    id: row.id,
+  };
+  if (row.notes) {
+    item.notes = row.notes;
+  }
+  if (row.location) {
+    item.location = row.location;
+  }
+  if (row.prependText) {
+    item.prependText = row.prependText;
+  }
+  if (row.appendText) {
+    item.appendText = row.appendText;
+  }
+  return item;
+}
+
 // Serialize rows back to the weekly object, dropping days without a complete
 // {type, id} pair.
 export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
   const weekly: RoutineWeekly = {};
   for (const row of rows) {
-    if ((row.type === "task" || row.type === "resource" || row.type === "freeform") && row.id) {
-      weekly[row.day] = {
-        type: row.type,
-        id: row.id,
-        // Only persist optional text when present, keeping the stored JSON clean.
-        ...(row.notes
-          ? {
-            notes: row.notes,
-          }
-          : {}),
-        ...(row.location
-          ? {
-            location: row.location,
-          }
-          : {}),
-        ...(row.prependText
-          ? {
-            prependText: row.prependText,
-          }
-          : {}),
-        ...(row.appendText
-          ? {
-            appendText: row.appendText,
-          }
-          : {}),
-      };
+    if (row.type === "" || !row.id) {
+      continue;
     }
+    weekly[row.day] = referenceItemFromRow(row, row.type);
   }
   return weekly;
 }
@@ -139,4 +146,19 @@ export function fillAllDays(entry: {
     prependText: entry.prependText ?? "",
     appendText: entry.appendText ?? "",
   }));
+}
+
+// Display name for a weekly entry: freeform entries carry their own text in
+// `id`; task / resource entries resolve through the id → name maps and fall
+// back to the raw id when the lookup misses.
+export function weeklyEntryName(
+  entry: RoutineReferenceItem,
+  taskNames: Map<string, string>,
+  resourceNames: Map<string, string>,
+): string {
+  if (entry.type === "freeform") {
+    return entry.id;
+  }
+  const names = entry.type === "task" ? taskNames : resourceNames;
+  return names.get(entry.id) ?? entry.id;
 }

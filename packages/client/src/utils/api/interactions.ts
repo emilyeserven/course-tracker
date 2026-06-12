@@ -2,7 +2,7 @@ import type { Interaction } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const interactionsApi = createEntityClient<Interaction>(
+const interactionsApi = createEntityClient<Interaction>(
   "interactions",
   "interaction",
 );

@@ -3,12 +3,6 @@ import type { RoutineConnectionType } from "@emstack/types";
 
 import { toOptions } from "./selectOptions";
 
-export const ROUTINE_CONNECTION_TYPES: RoutineConnectionType[] = [
-  "topic",
-  "task",
-  "resource",
-];
-
 // EntityLink's entity kind (plural route segment) for each connection type.
 const ENTITY_KIND_BY_TYPE = {
   topic: "topics",

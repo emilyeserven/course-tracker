@@ -2,7 +2,7 @@ import type { Resource, ResourceInResources } from "@emstack/types";
 
 import { createEntityClient, postJson } from "./client";
 
-export const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
+const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
   "resources",
   "resource",
 );

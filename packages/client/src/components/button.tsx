@@ -115,5 +115,4 @@ function Button({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- vendored shadcn file exports its cva variants alongside the component
-export { Button, buttonVariants };
+export { Button };

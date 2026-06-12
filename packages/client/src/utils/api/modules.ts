@@ -2,11 +2,11 @@ import type { Module, ModuleGroup } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const moduleGroupsApi = createEntityClient<ModuleGroup>(
+const moduleGroupsApi = createEntityClient<ModuleGroup>(
   "module-groups",
   "module group",
 );
-export const modulesApi = createEntityClient<Module>("modules", "module");
+const modulesApi = createEntityClient<Module>("modules", "module");
 
 export const fetchModuleGroups = moduleGroupsApi.list;
 export const upsertModuleGroup = moduleGroupsApi.upsert;

@@ -19,17 +19,6 @@ import { cn } from "@/lib/utils";
 
 const Combobox = ComboboxPrimitive.Root;
 
-function ComboboxValue({
-  ...props
-}: ComboboxPrimitive.Value.Props) {
-  return (
-    <ComboboxPrimitive.Value
-      data-slot="combobox-value"
-      {...props}
-    />
-  );
-}
-
 function ComboboxTrigger({
   className,
   children,
@@ -289,19 +278,6 @@ function ComboboxEmpty({
   );
 }
 
-function ComboboxSeparator({
-  className,
-  ...props
-}: ComboboxPrimitive.Separator.Props) {
-  return (
-    <ComboboxPrimitive.Separator
-      data-slot="combobox-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
-      {...props}
-    />
-  );
-}
-
 function ComboboxChips({
   className,
   ...props
@@ -403,12 +379,9 @@ export {
   ComboboxLabel,
   ComboboxCollection,
   ComboboxEmpty,
-  ComboboxSeparator,
   ComboboxChips,
   ComboboxChip,
   ComboboxChipsInput,
-  ComboboxTrigger,
-  ComboboxValue,
   // eslint-disable-next-line react-refresh/only-export-components -- vendored shadcn file exports its anchor hook alongside the components
   useComboboxAnchor,
 };
