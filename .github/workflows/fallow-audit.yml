@@ -1,0 +1,27 @@
+name: Fallow Audit
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  fallow-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history so the action can diff against the PR base ref
+          fetch-depth: 0
+
+      - name: Run fallow audit
+        uses: fallow-rs/fallow@v2
+        with:
+          command: audit
+          # Gate on every finding in changed files, not just ones the PR introduced
+          gate: all
+          comment: true
