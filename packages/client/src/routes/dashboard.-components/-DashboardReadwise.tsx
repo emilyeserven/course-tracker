@@ -8,6 +8,7 @@ import {
   DashboardCard,
   DashboardSectionStatus,
 } from "@/components/boxes/DashboardCard";
+import { Button } from "@/components/ui/button";
 import { RadialProgress } from "@/components/ui/RadialProgress";
 import {
   Tabs,
@@ -114,15 +115,31 @@ export function DashboardReadwise() {
     <DashboardCard
       title="Readwise"
       action={(
-        <Link
-          to="/settings"
-          className="
-            text-sm text-primary underline-offset-2
-            hover:underline
-          "
-        >
-          Settings
-        </Link>
+        <>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+          >
+            <a
+              href="https://read.readwise.io"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Reader
+              <ExternalLink />
+            </a>
+          </Button>
+          <Link
+            to="/settings"
+            className="
+              text-sm text-primary underline-offset-2
+              hover:underline
+            "
+          >
+            Settings
+          </Link>
+        </>
       )}
     >
       {!isPending && !error && !configured
