@@ -7,6 +7,7 @@ export * from "./enums";
 export * from "./radar";
 export * from "./relations";
 export * from "./routines";
+export * from "./settings";
 export * from "./tags";
 export * from "./tasks";
 export * from "./topics";
