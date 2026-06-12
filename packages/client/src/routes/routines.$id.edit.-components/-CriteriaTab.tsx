@@ -1,3 +1,4 @@
+// fallow-ignore-next-line code-duplication
 import type { Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";

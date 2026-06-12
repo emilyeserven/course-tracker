@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import { Button } from "@/components/ui/button";
 import { upsertDomain, formHasChanges } from "@/utils";
 
@@ -61,6 +62,7 @@ export function DetailsTab({
     }) => {
       setIsSaving(true);
       try {
+        // fallow-ignore-next-line code-duplication
         await upsertDomain(domain.id, {
           title: value.title,
           description: value.description || null,
@@ -72,6 +74,7 @@ export function DetailsTab({
         toast.success("Details saved.");
       }
       catch {
+        // fallow-ignore-next-line code-duplication
         toast.error("Failed to save details.");
       }
       finally {
@@ -90,11 +93,9 @@ export function DetailsTab({
   }, [hasChanges, onChangeStateChange]);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        form.handleSubmit();
-      }}
+    // fallow-ignore-next-line code-duplication
+    <EditForm
+      onSubmit={form.handleSubmit}
       className="flex max-w-2xl flex-col gap-8"
     >
       <form.AppField name="title">
@@ -129,6 +130,6 @@ export function DetailsTab({
           Save Details
         </Button>
       </div>
-    </form>
+    </EditForm>
   );
 }

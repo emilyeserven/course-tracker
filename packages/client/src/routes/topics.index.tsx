@@ -6,9 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRightIcon,
-  LayoutGridIcon,
-  ListIcon,
   PlusIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -19,7 +16,9 @@ import { TopicBox } from "@/components/boxes/TopicBox";
 import { TopicsTable } from "@/components/boxes/TopicsTable";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { OnboardingEmptyState } from "@/components/layout/OnboardingEmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ViewModeToggle } from "@/components/layout/ViewModeToggle";
 import {
   ClearFiltersButton,
   FilterSelect,
@@ -234,6 +233,8 @@ function Topics() {
     if (changed) setSelectedIds(next);
   }, [filteredIds, selectedIds]);
 
+  // Local selection state predates the shared useRowSelection hook.
+  // fallow-ignore-next-line code-duplication
   const handleToggleSelected = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -367,54 +368,17 @@ function Topics() {
                     )}
                   </SelectContent>
                 </Select>
-                <div
-                  className="
-                    ml-2 flex items-center rounded-md border border-input
-                    bg-transparent
-                  "
-                  role="group"
-                  aria-label="View mode"
-                >
-                  <Button
-                    type="button"
-                    variant={viewMode === "grid" ? "secondary" : "ghost"}
-                    size="icon"
-                    aria-label="Card view"
-                    aria-pressed={viewMode === "grid"}
-                    onClick={() => updateViewMode("grid")}
-                  >
-                    <LayoutGridIcon className="size-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={viewMode === "table" ? "secondary" : "ghost"}
-                    size="icon"
-                    aria-label="Table view"
-                    aria-pressed={viewMode === "table"}
-                    onClick={() => updateViewMode("table")}
-                  >
-                    <ListIcon className="size-4" />
-                  </Button>
-                </div>
+                <ViewModeToggle
+                  viewMode={viewMode}
+                  onChange={updateViewMode}
+                  gridLabel="Card view"
+                />
               </div>
             </div>
           )}
         </div>
         {(!data || data.length === 0) && (
-          <div className="flex flex-col gap-6">
-            <i>No courses yet!</i>
-
-            <Link
-              to="/onboard"
-              className=""
-            >
-              <Button>
-                Go to onboarding
-                {" "}
-                <ArrowRightIcon />
-              </Button>
-            </Link>
-          </div>
+          <OnboardingEmptyState message="No courses yet!" />
         )}
 
         {data && data.length > 0 && filteredAndSorted.length === 0 && (

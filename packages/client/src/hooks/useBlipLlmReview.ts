@@ -148,12 +148,18 @@ export function useBlipLlmReview({
     });
   }
 
-  function bulkSetQuadrant(quadrantId: string) {
+  // Apply a placement field (slice or ring) to every selected, resolvable
+  // entry once a matching option is found.
+  function bulkApplyPlacement(
+    match: { id: string;
+      name: string; } | undefined,
+    toFields: (match: { id: string;
+      name: string; }) => Partial<ResolvedLlmEntry>,
+  ) {
     setResolved((prev) => {
       if (!prev) {
         return prev;
       }
-      const match = quadrants.find(q => q.id === quadrantId);
       if (!match) {
         return prev;
       }
@@ -166,8 +172,7 @@ export function useBlipLlmReview({
         }
         const next: ResolvedLlmEntry = {
           ...entry,
-          quadrantId: match.id,
-          quadrantInput: match.name,
+          ...toFields(match),
         };
         return {
           ...next,
@@ -177,33 +182,24 @@ export function useBlipLlmReview({
     });
   }
 
+  function bulkSetQuadrant(quadrantId: string) {
+    bulkApplyPlacement(
+      quadrants.find(q => q.id === quadrantId),
+      match => ({
+        quadrantId: match.id,
+        quadrantInput: match.name,
+      }),
+    );
+  }
+
   function bulkSetRing(ringId: string) {
-    setResolved((prev) => {
-      if (!prev) {
-        return prev;
-      }
-      const match = rings.find(r => r.id === ringId);
-      if (!match) {
-        return prev;
-      }
-      return prev.map((entry) => {
-        if (!entry.selected) {
-          return entry;
-        }
-        if (entry.resolution === "skip" || entry.resolution === "removeBlip") {
-          return entry;
-        }
-        const next: ResolvedLlmEntry = {
-          ...entry,
-          ringId: match.id,
-          ringInput: match.name,
-        };
-        return {
-          ...next,
-          problems: computeProblems(next, excludedNamesLower),
-        };
-      });
-    });
+    bulkApplyPlacement(
+      rings.find(r => r.id === ringId),
+      match => ({
+        ringId: match.id,
+        ringInput: match.name,
+      }),
+    );
   }
 
   function bulkSetResolution(resolution: Resolution) {

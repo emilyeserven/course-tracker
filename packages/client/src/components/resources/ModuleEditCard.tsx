@@ -7,13 +7,10 @@ import {
   MODULE_DURATION_BUCKETS,
   MODULE_DURATION_LABELS,
 } from "@emstack/types";
-import { Loader2, Trash2Icon } from "lucide-react";
 
-import { LevelTriad } from "./LevelTriad";
-import { lookupTagsByIds } from "./moduleDrafts";
-
+import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
-import { TagPicker } from "@/components/tasks/TagPicker";
+import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 
@@ -167,65 +164,19 @@ export function ModuleEditCard({
             })}
         />
       </div>
-      <LevelTriad
-        easeOfStarting={draft.easeOfStarting}
-        timeNeeded={draft.timeNeeded}
-        interactivity={draft.interactivity}
-        onChange={patch => update(patch)}
+      <LevelAndTagsFields
+        draft={draft}
+        tagGroups={tagGroups}
+        onChange={update}
       />
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          Tags
-        </label>
-        <TagPicker
-          value={draft.tagIds}
-          onChange={ids =>
-            update({
-              tagIds: lookupTagsByIds(ids, tagGroups).map(t => t.id),
-            })}
-          tagGroups={tagGroups}
-          placeholder={
-            tagGroups.length > 0
-              ? "Pick tags..."
-              : "No tags configured. Add some on the Settings page."
-          }
-        />
-      </div>
-      <div
-        className="flex flex-row flex-wrap items-center justify-between gap-2"
-      >
-        <div className="flex flex-row gap-2">
-          <Button
-            size="sm"
-            type="submit"
-            disabled={isSaving}
-          >
-            {isSaving && <Loader2 className="animate-spin" />}
-            Save
-          </Button>
-          <Button
-            size="sm"
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSaving}
-          >
-            Cancel
-          </Button>
-        </div>
-        {onDelete && !isNew && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={onDelete}
-            disabled={isSaving}
-          >
-            <Trash2Icon className="size-3.5" />
-            Remove
-          </Button>
-        )}
-      </div>
+      <EditFormActions
+        isSaving={isSaving}
+        onCancel={onCancel}
+        onDelete={onDelete}
+        isNew={isNew}
+        size="sm"
+        trashIconClassName="size-3.5"
+      />
     </form>
   );
 }

@@ -1,59 +1,44 @@
-import type { Daily, DailyCompletionStatus } from "@emstack/types";
+import { useMemo } from "react";
 
-import { useMemo, useState } from "react";
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ArrowUpDownIcon,
-  FlameIcon,
-  LaughIcon,
-  PlusIcon,
-} from "lucide-react";
-import { toast } from "sonner";
+import { PlusIcon } from "lucide-react";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 import {
   DailiesActiveListView,
   DailiesLimitSetting,
   DailiesViewModeToggle,
-  DailyCadenceBadge,
-  DailyCommentPopover,
   DailyResourceIndicator,
-  DailyLocationCell,
-  DailyProgressCell,
-  DailyStatusCircle,
-  DailyStatusConnector,
   DailyTaskIndicator,
   DailyTitle,
-  TodayStatusCell,
   TooManyDailiesWarning,
 } from "@/components/dailies";
+import {
+  DailyTrackerHeadColumns,
+  DailyTrackerRow,
+} from "@/components/dailies/DailyTrackerRow";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
+import {
+  buildDailyDayHeaders,
+  compareDailies,
+  useDailySort,
+  useDailyStatusMutation,
+} from "@/hooks/useDailyTracker";
 import { useSettings } from "@/hooks/useSettings";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-import { cn } from "@/lib/utils";
 import {
   fetchResources,
   fetchDailies,
   fetchTasks,
-  findStatusForDate,
-  getCurrentChain,
-  getDailyProgressPercent,
   getDaysBetweenFirstAndLastEntry,
   getLastEntryDate,
   getLongestStreak,
-  getRecentDays,
   getTodayKey,
   getTotalCompletedDays,
-  upsertDaily,
-  withCompletion,
-  withCompletionNote,
 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -83,16 +68,7 @@ function TrackerError() {
   return <EntityError entity="dailies" />;
 }
 
-function formatMmDd(dateKey: string): string {
-  const d = new Date(`${dateKey}T00:00:00Z`);
-  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
-}
-
-type SortKey = "name" | "progress";
-type SortDir = "asc" | "desc";
-
 function DailyTracker() {
-  const queryClient = useQueryClient();
   const urlSearch = Route.useSearch();
   const filterTopicId = urlSearch.topicId;
   const todayKey = getTodayKey();
@@ -102,31 +78,9 @@ function DailyTracker() {
   const {
     mode, setMode,
   } = useDailiesViewMode();
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
-      setSortKey(key);
-      setSortDir(key === "progress" ? "desc" : "asc");
-    }
-  }
-
-  function sortIndicator(key: SortKey) {
-    if (sortKey !== key) {
-      return <ArrowUpDownIcon className="size-3 opacity-40" />;
-    }
-    return sortDir === "asc"
-      ? (
-        <ArrowUpIcon className="size-3" />
-      )
-      : (
-        <ArrowDownIcon className="size-3" />
-      );
-  }
+  const {
+    sortKey, sortDir, toggleSort, sortIndicator,
+  } = useDailySort();
 
   const {
     data: dailies,
@@ -186,46 +140,7 @@ function DailyTracker() {
     });
   }, [dailies, filterTopicId, topicMatchedTaskIds, topicMatchedCourseIds]);
 
-  const mutation = useMutation({
-    mutationFn: ({
-      daily,
-      status,
-      note,
-    }: {
-      daily: Daily;
-      status: DailyCompletionStatus;
-      note?: string | null;
-    }) => {
-      const withStatus = withCompletion(daily, todayKey, status);
-      const completions
-        = note === undefined
-          ? withStatus
-          : withCompletionNote(
-            {
-              ...daily,
-              completions: withStatus,
-            },
-            todayKey,
-            note,
-          );
-      return upsertDaily(daily.id, {
-        name: daily.name,
-        location: daily.location ?? null,
-        description: daily.description ?? null,
-        completions,
-        courseProviderId: daily.provider?.id ?? null,
-        resourceId: daily.resource?.id ?? null,
-      });
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["dailies"],
-      });
-    },
-    onError: () => {
-      toast.error("Failed to update daily.");
-    },
-  });
+  const mutation = useDailyStatusMutation(todayKey);
 
   const baseSorted = topicFilteredDailies
     ? [...topicFilteredDailies].sort((a, b) =>
@@ -244,35 +159,16 @@ function DailyTracker() {
     ) ?? []
   )
     .slice()
-    .sort((a, b) => {
-      if (sortKey === "progress") {
-        const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
-        if (diff !== 0) return sortDir === "asc" ? diff : -diff;
-      }
-      const cmp = (a.actionLabel ?? a.name).localeCompare(
-        b.actionLabel ?? b.name,
-        undefined,
-        {
-          sensitivity: "base",
-        },
-      );
-      return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
-    });
+    .sort((a, b) => compareDailies(a, b, sortKey, sortDir));
   const pausedDailies = baseSorted?.filter(d => d.status === "paused") ?? [];
   const completedDailies
     = baseSorted?.filter(d => d.status === "complete") ?? [];
 
-  const dayHeaders
-    = activeDailies.length > 0
-      ? getRecentDays(activeDailies[0], RECENT_DAYS_COUNT + 1, todayKey, "mmdd")
-        .slice(0, -1)
-        .reverse()
-        .map(d => ({
-          dateKey: d.dateKey,
-          label: formatMmDd(d.dateKey),
-          isToday: d.isToday,
-        }))
-      : [];
+  const dayHeaders = buildDailyDayHeaders(
+    activeDailies,
+    RECENT_DAYS_COUNT,
+    todayKey,
+  );
 
   return (
     <div>
@@ -385,172 +281,37 @@ function DailyTracker() {
                         Total
                       </th>
                       <th className="p-2 font-medium" />
-                      <th className="w-36 p-2 font-medium whitespace-nowrap">
-                        Today&apos;s Status
-                      </th>
-                      {dayHeaders.map(d => (
-                        <th
-                          key={d.dateKey}
-                          className={cn(
-                            "px-1 py-2 text-center font-medium",
-                            d.isToday && "text-foreground",
-                          )}
-                        >
-                          {d.label}
-                        </th>
-                      ))}
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Location
-                      </th>
+                      <DailyTrackerHeadColumns
+                        dayHeaders={dayHeaders}
+                        statusThClassName="w-36 p-2 font-medium whitespace-nowrap"
+                      />
                     </tr>
                   </thead>
                   <tbody>
-                    {activeDailies.map((daily) => {
-                      const currentStatus = findStatusForDate(daily, todayKey);
-                      const chain = getCurrentChain(daily, todayKey);
-                      const total = getTotalCompletedDays(daily);
-                      const days = getRecentDays(
-                        daily,
-                        RECENT_DAYS_COUNT + 1,
-                        todayKey,
-                        "mmdd",
-                      )
-                        .slice(0, -1)
-                        .reverse();
-                      return (
-                        <tr
-                          key={daily.id}
-                          className="
-                            group border-t align-middle
-                            hover:bg-muted/40
-                          "
-                        >
-                          <td className="p-2">
-                            <DailyProgressCell daily={daily} />
-                          </td>
-                          <td className="p-2">
-                            <Link
-                              to="/routines/$id"
-                              params={{
-                                id: daily.id,
-                              }}
-                              className="
-                                font-medium
-                                hover:text-blue-600
-                              "
-                            >
-                              <DailyTitle daily={daily} />
-                            </Link>
-                          </td>
-                          <td className="p-2">
-                            <span className="inline-flex items-center gap-1.5">
-                              <DailyResourceIndicator daily={daily} />
-                              <DailyTaskIndicator daily={daily} />
-                            </span>
-                          </td>
-                          <td className="p-2">
-                            <DailyCadenceBadge daily={daily} />
-                          </td>
-                          <td className="p-2">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 text-xs",
-                                currentStatus === null
-                                || currentStatus === "incomplete"
-                                  ? "text-muted-foreground"
-                                  : chain > 0
-                                    ? "text-orange-600"
-                                    : "text-muted-foreground",
-                              )}
-                              title={
-                                chain > 0
-                                  ? `${chain}-day chain`
-                                  : "No active chain"
-                              }
-                            >
-                              <FlameIcon className="size-3.5" />
-                              {chain}
-                            </span>
-                          </td>
-                          <td className="p-2">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 text-xs",
-                                total > 0
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground",
-                              )}
-                              title={`${total} total day${total === 1 ? "" : "s"} completed`}
-                            >
-                              <LaughIcon className="size-3.5" />
-                              {total}
-                            </span>
-                          </td>
-                          <td className="p-2">
-                            {currentStatus !== null && (
-                              <DailyCommentPopover daily={daily} />
-                            )}
-                          </td>
-                          <td className="w-36 p-2">
-                            <TodayStatusCell
-                              daily={daily}
-                              currentStatus={currentStatus}
-                              disabled={mutation.isPending}
-                              onChange={status =>
-                                mutation.mutate({
-                                  daily,
-                                  status,
-                                })}
-                            />
-                          </td>
-                          {days.map((day, i) => {
-                            return (
-                              <td
-                                key={day.dateKey}
-                                className="relative px-1 py-2 align-middle"
-                              >
-                                {i === 0 && (
-                                  <DailyStatusConnector
-                                    left={currentStatus}
-                                    right={day.status}
-                                    className="
-                                      absolute top-1/2 right-[calc(50%+12px)]
-                                      -left-2 z-0 w-auto -translate-y-1/2
-                                    "
-                                  />
-                                )}
-                                {i > 0 && (
-                                  <DailyStatusConnector
-                                    left={days[i - 1].status}
-                                    right={day.status}
-                                    className="
-                                      absolute top-1/2 right-[calc(50%+12px)]
-                                      left-[calc(-50%+12px)] z-0 w-auto
-                                      -translate-y-1/2
-                                    "
-                                  />
-                                )}
-                                <div
-                                  className="relative z-10 flex justify-center"
-                                >
-                                  <DailyStatusCircle
-                                    status={day.status}
-                                    size="sm"
-                                    title={`${day.dateKey}${day.status ? ` — ${day.status}` : " — no entry"}`}
-                                  />
-                                </div>
-                              </td>
-                            );
+                    {activeDailies.map(daily => (
+                      <DailyTrackerRow
+                        key={daily.id}
+                        daily={daily}
+                        todayKey={todayKey}
+                        recentDaysCount={RECENT_DAYS_COUNT}
+                        mutationPending={mutation.isPending}
+                        onChangeStatus={(d, status) =>
+                          mutation.mutate({
+                            daily: d,
+                            status,
                           })}
-                          <td className="p-2 whitespace-nowrap">
-                            <DailyLocationCell
-                              location={daily.location}
-                              taskId={daily.taskId ?? daily.task?.id ?? null}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                        rowClassName="
+                          group border-t align-middle
+                          hover:bg-muted/40
+                        "
+                        statusCellClassName="w-36 p-2"
+                        firstConnectorClassName="
+                          absolute top-1/2 right-[calc(50%+12px)]
+                          -left-2 z-0 w-auto -translate-y-1/2
+                        "
+                        taskId={daily.taskId ?? daily.task?.id ?? null}
+                      />
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -576,6 +337,9 @@ function DailyTracker() {
                 <tbody>
                   {pausedDailies.map((daily) => {
                     const lastEntry = getLastEntryDate(daily);
+                    // Paused/completed rows share the name + last-entry cells but
+                    // differ in their trailing stat columns.
+                    // fallow-ignore-next-line code-duplication
                     const totalDays = getTotalCompletedDays(daily);
                     return (
                       <tr

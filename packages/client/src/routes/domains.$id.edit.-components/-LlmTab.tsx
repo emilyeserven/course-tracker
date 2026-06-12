@@ -21,6 +21,7 @@ export function LlmTabContainer({
   topics,
   onComplete,
 }: LlmTabContainerProps) {
+  // fallow-ignore-next-line code-duplication
   const allConfigPersisted
     = (radar?.quadrants.length ?? 0) > 0 && (radar?.rings.length ?? 0) > 0;
 

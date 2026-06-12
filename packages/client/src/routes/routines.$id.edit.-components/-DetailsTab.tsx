@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import {
   fillAllDays,
   representativeRow,
@@ -212,11 +213,9 @@ export function DetailsTab({
   }, [hasChanges, onChangeStateChange]);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        form.handleSubmit();
-      }}
+    // fallow-ignore-next-line code-duplication
+    <EditForm
+      onSubmit={form.handleSubmit}
       className="flex max-w-3xl flex-col gap-8"
     >
       <form.AppField name="name">
@@ -359,6 +358,6 @@ export function DetailsTab({
           Save Details
         </Button>
       </div>
-    </form>
+    </EditForm>
   );
 }

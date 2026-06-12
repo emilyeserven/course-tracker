@@ -6,12 +6,9 @@ import { buildActionableSentence } from "@emstack/types";
 
 import {
   Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
   ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
 } from "@/components/combobox";
+import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 
 interface ItemOption {
   value: string;
@@ -147,19 +144,7 @@ export function WeeklyEntryEditor({
                 showClear
                 disabled={!type}
               />
-              <ComboboxContent>
-                <ComboboxEmpty>No items found.</ComboboxEmpty>
-                <ComboboxList>
-                  {(val: string) => (
-                    <ComboboxItem
-                      key={val}
-                      value={val}
-                    >
-                      {optionsMap.get(val) ?? val}
-                    </ComboboxItem>
-                  )}
-                </ComboboxList>
-              </ComboboxContent>
+              <TaskResourceComboboxContent optionsMap={optionsMap} />
             </Combobox>
           )}
       </div>

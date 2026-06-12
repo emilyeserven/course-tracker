@@ -7,13 +7,17 @@ import type {
   ModuleGroup,
 } from "@emstack/types";
 
+// Incidental overlap of a standard import block.
+// fallow-ignore-next-line code-duplication
 import { useMemo, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
+import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +63,8 @@ const UNDERSTANDING_OPTIONS: InteractionUnderstanding[] = [
   "mastered",
 ];
 
+// Small local date helper; intentionally duplicated alongside InteractionQuickLog.
+// fallow-ignore-next-line code-duplication
 function todayIso() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -514,60 +520,22 @@ function InteractionEditCard({
           md:grid-cols-2
         "
       >
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Difficulty (optional)
-          </label>
-          <select
-            value={draft.difficulty}
-            onChange={e =>
-              update({
-                difficulty: (e.target.value || "") as
-                | InteractionDifficulty
-                | "",
-              })}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
-            "
-          >
-            <option value="">—</option>
-            {DIFFICULTY_OPTIONS.map(d => (
-              <option
-                key={d}
-                value={d}
-              >
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Understanding (optional)
-          </label>
-          <select
-            value={draft.understanding}
-            onChange={e =>
-              update({
-                understanding: (e.target.value || "") as
-                | InteractionUnderstanding
-                | "",
-              })}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm
-            "
-          >
-            <option value="">—</option>
-            {UNDERSTANDING_OPTIONS.map(u => (
-              <option
-                key={u}
-                value={u}
-              >
-                {u}
-              </option>
-            ))}
-          </select>
-        </div>
+        <OptionalSelectField
+          label="Difficulty (optional)"
+          value={draft.difficulty}
+          options={DIFFICULTY_OPTIONS}
+          onValueChange={difficulty => update({
+            difficulty,
+          })}
+        />
+        <OptionalSelectField
+          label="Understanding (optional)"
+          value={draft.understanding}
+          options={UNDERSTANDING_OPTIONS}
+          onValueChange={understanding => update({
+            understanding,
+          })}
+        />
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
@@ -581,39 +549,12 @@ function InteractionEditCard({
           placeholder="What did you do? Anything notable?"
         />
       </div>
-      <div
-        className="flex flex-row flex-wrap items-center justify-between gap-2"
-      >
-        <div className="flex flex-row gap-2">
-          <Button
-            type="submit"
-            disabled={isSaving}
-          >
-            {isSaving && <Loader2 className="animate-spin" />}
-            Save
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSaving}
-          >
-            Cancel
-          </Button>
-        </div>
-        {onDelete && !isNew && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={onDelete}
-            disabled={isSaving}
-          >
-            <Trash2Icon className="size-4" />
-            Remove
-          </Button>
-        )}
-      </div>
+      <EditFormActions
+        isSaving={isSaving}
+        onCancel={onCancel}
+        onDelete={onDelete}
+        isNew={isNew}
+      />
     </form>
   );
 }

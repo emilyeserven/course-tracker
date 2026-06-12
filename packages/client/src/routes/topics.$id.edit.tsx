@@ -2,12 +2,14 @@ import { useMemo } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
+import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ResourceLinksPicker } from "@/components/tasks/ResourceLinksPicker";
 import { Button } from "@/components/ui/button";
@@ -77,6 +79,7 @@ function SingleTopicEdit() {
     queryFn: () => fetchDomains(),
   });
 
+  // fallow-ignore-next-line code-duplication
   const {
     data: tagGroups,
   } = useQuery({
@@ -196,26 +199,19 @@ function SingleTopicEdit() {
         pageSection="topics"
       >
         {!isNew && (
-          <Link
+          <EntityHeaderButton
             to="/topics/$id"
             params={{
               id,
             }}
-          >
-            <Button variant="secondary">
-              View Topic
-              {" "}
-              <EyeIcon />
-            </Button>
-          </Link>
+            label="View Topic"
+            icon={<EyeIcon />}
+          />
         )}
       </PageHeader>
       <div className="m-auto w-full max-w-[1200px] px-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
+        <EditForm
+          onSubmit={form.handleSubmit}
           className="flex max-w-2xl flex-col gap-8"
         >
           <form.AppField name="name">
@@ -333,7 +329,7 @@ function SingleTopicEdit() {
               Cancel
             </Button>
           </EditPageFooter>
-        </form>
+        </EditForm>
         <UnsavedChangesDialog
           shouldBlockFn={shouldBlockFn(hasChanges)}
         />

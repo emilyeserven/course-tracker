@@ -1,18 +1,16 @@
 import type { PositionedBlip } from "@/components/radar/radarLayout";
 import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import { Link } from "@tanstack/react-router";
-import { ArrowRightIcon } from "lucide-react";
-
-import { BlipDescriptionPopover } from "@/components/radar/BlipDescriptionPopover";
 import {
   QUADRANT_PALETTE,
 
 } from "@/components/radar/radarLayout";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import {
+  BlipLegendItem,
+  SimpleBlipLegendSection,
+} from "@/components/radar/radarLegendItem";
 
 interface RadarLegendProps {
   quadrants: RadarQuadrant[];
@@ -51,6 +49,15 @@ export function RadarLegend({
 
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const registerRef = useCallback((id: string, el: HTMLLIElement | null) => {
+    if (el) {
+      itemRefs.current.set(id, el);
+    }
+    else {
+      itemRefs.current.delete(id);
+    }
+  }, []);
 
   // Gently scroll the hovered/selected list item into view inside the side
   // panel.
@@ -107,285 +114,66 @@ export function RadarLegend({
             <ul className="flex flex-col gap-0.5">
               {items.map(({
                 blip, index,
-              }) => {
-                const isActive = activeBlipId === blip.id;
-                const isSelected = selectedBlipId === blip.id;
-                const description = blip.description ?? "";
-                return (
-                  <li
-                    key={blip.id}
-                    ref={(el) => {
-                      if (el) {
-                        itemRefs.current.set(blip.id, el);
-                      }
-                      else {
-                        itemRefs.current.delete(blip.id);
-                      }
-                    }}
-                    onMouseEnter={() => onHover(blip.id)}
-                    onMouseLeave={() => onHover(null)}
-                    className={cn(
-                      `
-                        group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                        transition-colors
-                      `,
-                      isActive && "bg-gray-200",
-                      isSelected && "ring-1 ring-gray-400",
-                    )}
-                  >
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onBlipClick(blip);
+              }) => (
+                <BlipLegendItem
+                  key={blip.id}
+                  blip={blip}
+                  isActive={activeBlipId === blip.id}
+                  isSelected={selectedBlipId === blip.id}
+                  registerRef={registerRef}
+                  onHover={onHover}
+                  onBlipClick={onBlipClick}
+                  onDescriptionChange={onDescriptionChange}
+                  label={(
+                    <>
+                      <span
+                        className="mr-1 inline-block font-mono text-xs"
+                        style={{
+                          color,
                         }}
-                        className="flex-1 cursor-pointer text-left"
                       >
-                        <span
-                          className="mr-1 inline-block font-mono text-xs"
-                          style={{
-                            color,
-                          }}
-                        >
-                          {index}
-                          .
-                        </span>
-                        <span className="font-medium">{blip.topicName}</span>
-                        <span className="ml-1 text-xs text-muted-foreground">
-                          (
-                          {ringNameById[blip.ringId ?? ""]}
-                          )
-                        </span>
-                      </button>
-                      <div
-                        className={cn(
-                          `
-                            flex items-center gap-0.5 opacity-0
-                            transition-opacity
-                            group-hover:opacity-100
-                            focus-within:opacity-100
-                          `,
-                          isSelected && "opacity-100",
-                        )}
-                      >
-                        <BlipDescriptionPopover
-                          value={description}
-                          onChange={value => onDescriptionChange(blip.id, value)}
-                        />
-                        <Link
-                          to="/topics/$id"
-                          params={{
-                            id: blip.topicId,
-                          }}
-                          aria-label={`Go to topic ${blip.topicName}`}
-                        >
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="size-6 p-0"
-                          >
-                            <ArrowRightIcon className="size-3.5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                    {description && (
-                      <p
-                        className={`
-                          mt-0.5 ml-4 text-xs text-muted-foreground italic
-                        `}
-                      >
-                        {description}
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
+                        {index}
+                        .
+                      </span>
+                      <span className="font-medium">{blip.topicName}</span>
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        (
+                        {ringNameById[blip.ringId ?? ""]}
+                        )
+                      </span>
+                    </>
+                  )}
+                />
+              ))}
             </ul>
           </div>
         );
       })}
       {adoptedBlips.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <h4 className="text-sm font-semibold text-amber-700 uppercase">
-            {adoptedSectionName}
-          </h4>
-          <ul className="flex flex-col gap-0.5">
-            {adoptedBlips.map((blip) => {
-              const isActive = activeBlipId === blip.id;
-              const isSelected = selectedBlipId === blip.id;
-              const description = blip.description ?? "";
-              return (
-                <li
-                  key={blip.id}
-                  ref={(el) => {
-                    if (el) {
-                      itemRefs.current.set(blip.id, el);
-                    }
-                    else {
-                      itemRefs.current.delete(blip.id);
-                    }
-                  }}
-                  onMouseEnter={() => onHover(blip.id)}
-                  onMouseLeave={() => onHover(null)}
-                  className={cn(
-                    `
-                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                      transition-colors
-                    `,
-                    isActive && "bg-gray-200",
-                    isSelected && "ring-1 ring-gray-400",
-                  )}
-                >
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlipClick(blip);
-                      }}
-                      className="flex-1 cursor-pointer text-left"
-                    >
-                      <span className="font-medium">{blip.topicName}</span>
-                    </button>
-                    <div
-                      className={cn(
-                        `
-                          flex items-center gap-0.5 opacity-0 transition-opacity
-                          group-hover:opacity-100
-                          focus-within:opacity-100
-                        `,
-                        isSelected && "opacity-100",
-                      )}
-                    >
-                      <BlipDescriptionPopover
-                        value={description}
-                        onChange={value => onDescriptionChange(blip.id, value)}
-                      />
-                      <Link
-                        to="/topics/$id"
-                        params={{
-                          id: blip.topicId,
-                        }}
-                        aria-label={`Go to topic ${blip.topicName}`}
-                      >
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="size-6 p-0"
-                        >
-                          <ArrowRightIcon className="size-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  {description && (
-                    <p
-                      className={`
-                        mt-0.5 ml-4 text-xs text-muted-foreground italic
-                      `}
-                    >
-                      {description}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <SimpleBlipLegendSection
+          title={adoptedSectionName}
+          headingClassName="text-sm font-semibold text-amber-700 uppercase"
+          blips={adoptedBlips}
+          activeBlipId={activeBlipId}
+          selectedBlipId={selectedBlipId}
+          registerRef={registerRef}
+          onHover={onHover}
+          onBlipClick={onBlipClick}
+          onDescriptionChange={onDescriptionChange}
+        />
       )}
       {ignoredBlips.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <h4 className="text-sm font-semibold text-gray-600 uppercase">
-            Ignored
-          </h4>
-          <ul className="flex flex-col gap-0.5">
-            {ignoredBlips.map((blip) => {
-              const isActive = activeBlipId === blip.id;
-              const isSelected = selectedBlipId === blip.id;
-              const description = blip.description ?? "";
-              return (
-                <li
-                  key={blip.id}
-                  ref={(el) => {
-                    if (el) {
-                      itemRefs.current.set(blip.id, el);
-                    }
-                    else {
-                      itemRefs.current.delete(blip.id);
-                    }
-                  }}
-                  onMouseEnter={() => onHover(blip.id)}
-                  onMouseLeave={() => onHover(null)}
-                  className={cn(
-                    `
-                      group flex flex-col rounded-sm px-1 py-0.5 text-sm
-                      transition-colors
-                    `,
-                    isActive && "bg-gray-200",
-                    isSelected && "ring-1 ring-gray-400",
-                  )}
-                >
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlipClick(blip);
-                      }}
-                      className="flex-1 cursor-pointer text-left"
-                    >
-                      <span className="font-medium">{blip.topicName}</span>
-                    </button>
-                    <div
-                      className={cn(
-                        `
-                          flex items-center gap-0.5 opacity-0 transition-opacity
-                          group-hover:opacity-100
-                          focus-within:opacity-100
-                        `,
-                        isSelected && "opacity-100",
-                      )}
-                    >
-                      <BlipDescriptionPopover
-                        value={description}
-                        onChange={value => onDescriptionChange(blip.id, value)}
-                      />
-                      <Link
-                        to="/topics/$id"
-                        params={{
-                          id: blip.topicId,
-                        }}
-                        aria-label={`Go to topic ${blip.topicName}`}
-                      >
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="size-6 p-0"
-                        >
-                          <ArrowRightIcon className="size-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  {description && (
-                    <p
-                      className={`
-                        mt-0.5 ml-4 text-xs text-muted-foreground italic
-                      `}
-                    >
-                      {description}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <SimpleBlipLegendSection
+          title="Ignored"
+          headingClassName="text-sm font-semibold text-gray-600 uppercase"
+          blips={ignoredBlips}
+          activeBlipId={activeBlipId}
+          selectedBlipId={selectedBlipId}
+          registerRef={registerRef}
+          onHover={onHover}
+          onBlipClick={onBlipClick}
+          onDescriptionChange={onDescriptionChange}
+        />
       )}
     </div>
   );

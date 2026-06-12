@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { HomeIcon, MenuIcon } from "lucide-react";
 
+import { DropdownNavItem } from "@/components/layout/DropdownNavItem";
 import { NavDropdown } from "@/components/layout/NavDropdown";
 import { Toaster } from "@/components/sonner";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -103,54 +103,24 @@ const RootComponent: React.FunctionComponent = () => {
             label="Records"
             to="/records"
           >
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/providers">Providers</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/resources">Resources</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/topics">Topics</Link>
-            </DropdownMenuItem>
+            <DropdownNavItem to="/providers">Providers</DropdownNavItem>
+            <DropdownNavItem to="/resources">Resources</DropdownNavItem>
+            <DropdownNavItem to="/topics">Topics</DropdownNavItem>
           </NavDropdown>
 
           <NavDropdown
             label="Plans"
             to="/plans"
           >
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/domains">Domains</Link>
-            </DropdownMenuItem>
+            <DropdownNavItem to="/domains">Domains</DropdownNavItem>
           </NavDropdown>
 
           <NavDropdown
             label="Actions"
             to="/actions"
           >
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/routines">Routines</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              asChild
-              className="cursor-pointer"
-            >
-              <Link to="/tasks">Tasks</Link>
-            </DropdownMenuItem>
+            <DropdownNavItem to="/routines">Routines</DropdownNavItem>
+            <DropdownNavItem to="/tasks">Tasks</DropdownNavItem>
           </NavDropdown>
         </div>
         <div
@@ -191,92 +161,47 @@ const RootComponent: React.FunctionComponent = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/dashboard">Dashboard</Link>
-                </DropdownMenuItem>
+                <DropdownNavItem to="/dashboard">Dashboard</DropdownNavItem>
                 {showOnboard && (
-                  <DropdownMenuItem
-                    asChild
-                    className="cursor-pointer"
-                  >
-                    <Link to="/onboard">Onboard</Link>
-                  </DropdownMenuItem>
+                  <DropdownNavItem to="/onboard">Onboard</DropdownNavItem>
                 )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  asChild
+                <DropdownNavItem
+                  to="/records"
                   className="cursor-pointer font-semibold"
                 >
-                  <Link to="/records">Records</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/providers">Providers</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/resources">Resources</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/topics">Topics</Link>
-                </DropdownMenuItem>
+                  Records
+                </DropdownNavItem>
+                <DropdownNavItem to="/providers">Providers</DropdownNavItem>
+                <DropdownNavItem to="/resources">Resources</DropdownNavItem>
+                <DropdownNavItem to="/topics">Topics</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  asChild
+                <DropdownNavItem
+                  to="/plans"
                   className="cursor-pointer font-semibold"
                 >
-                  <Link to="/plans">Plans</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/domains">Domains</Link>
-                </DropdownMenuItem>
+                  Plans
+                </DropdownNavItem>
+                <DropdownNavItem to="/domains">Domains</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  asChild
+                <DropdownNavItem
+                  to="/actions"
                   className="cursor-pointer font-semibold"
                 >
-                  <Link to="/actions">Actions</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/routines">Routines</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/tasks">Tasks</Link>
-                </DropdownMenuItem>
+                  Actions
+                </DropdownNavItem>
+                <DropdownNavItem to="/routines">Routines</DropdownNavItem>
+                <DropdownNavItem to="/tasks">Tasks</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link to="/settings">Settings</Link>
-                </DropdownMenuItem>
+                <DropdownNavItem to="/settings">Settings</DropdownNavItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

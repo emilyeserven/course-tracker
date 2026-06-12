@@ -3,9 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
+import { ResourceLinksSection } from "@/components/layout/ResourceLinksSection";
 import { fetchRoutines, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({
@@ -49,18 +50,14 @@ function SingleTopic() {
         pageSection="topics"
       >
         <div className="flex flex-row gap-2">
-          <Link
+          <EntityHeaderButton
             to="/topics/$id/edit"
             params={{
               id: data?.id + "",
             }}
-          >
-            <Button variant="secondary">
-              Edit Topic
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
+            label="Edit Topic"
+            icon={<EditIcon />}
+          />
         </div>
       </PageHeader>
       <div className="container flex flex-col gap-12">
@@ -104,33 +101,10 @@ function SingleTopic() {
             </ul>
           </InfoArea>
         </div>
-        <div>
-          <InfoArea
-            header="Resources"
-            condition={!!data?.resourceCount && data.resourceCount > 0}
-          >
-            <ul className="ml-5 list-disc">
-              {data?.resources
-                && data.resources.map(course => (
-                  <li key={course.id}>
-                    <Link
-                      to="/resources/$id"
-                      from="/topics/$id"
-                      params={{
-                        id: course.id + "",
-                      }}
-                      className={`
-                        font-bold text-blue-800
-                        hover:text-blue-600
-                      `}
-                    >
-                      {course.name}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-          </InfoArea>
-        </div>
+        <ResourceLinksSection
+          resources={data?.resources}
+          resourceCount={data?.resourceCount}
+        />
         <div>
           <InfoArea
             header="Routines"

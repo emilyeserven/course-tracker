@@ -1,15 +1,9 @@
 export { DailiesActiveListView } from "./DailiesActiveListView";
 export { DailyCriteriaTemplateEditModal } from "./DailyCriteriaTemplateEditModal";
 export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
-export { DailyCadenceBadge } from "./DailyCadenceBadge";
-export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyResourceIndicator } from "./DailyResourceIndicator";
-export { DailyLocationCell } from "./DailyLocationCell";
-export { DailyProgressCell } from "./DailyProgressCell";
 export { DailyTaskIndicator } from "./DailyTaskIndicator";
 export { DailyTitle } from "./DailyTitle";
-export { DailyStatusCircle } from "./DailyStatusCircle";
-export { DailyStatusConnector } from "./DailyStatusConnector";
 export { TodayStatusCell } from "./TodayStatusCell";
 export { TooManyDailiesWarning } from "./TooManyDailiesWarning";
 export { DailiesLimitSetting } from "./DailiesLimitSetting";

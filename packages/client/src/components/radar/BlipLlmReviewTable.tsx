@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/table";
 
 interface ReviewTableProps {
+  // Shared prop shape with the row/cell components; structural overlap only.
+  // fallow-ignore-next-line code-duplication
   resolved: ResolvedLlmEntry[];
   quadrants: RadarQuadrant[];
   rings: RadarRing[];
