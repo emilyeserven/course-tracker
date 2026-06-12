@@ -4,6 +4,15 @@
 **/coverage
 **/storybook-static
 **/.env*
+
+# Test / story / dev-tooling files — not needed to build or run the app, and
+# excluding them keeps the build-* stage cache warm when only tests change
+**/*.test.*
+**/*.spec.*
+**/*.stories.*
+**/setupTests.*
+**/playwright.config.*
+**/.storybook
 .git
 .gitignore
 .github
