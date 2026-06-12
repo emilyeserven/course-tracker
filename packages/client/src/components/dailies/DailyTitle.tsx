@@ -16,7 +16,7 @@ import { getTodayKey, isWeeklyTargetMet } from "@/utils";
 // beneath it. For daily-mode routines the subtitle is the routine's description.
 // For weekly-mode routines the action title and subtitle both describe the
 // current day of week's entry (fed by the API's projection): the scheduled note
-// underneath when there is a task today, or a muted "Nothing scheduled today"
+// underneath when there is a task today, or a muted "No task for today"
 // placeholder when the weekday is unscheduled. The subtitle is omitted when
 // empty, so a daily with no description — or a scheduled day with no note —
 // stays a single line.

@@ -13,6 +13,7 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
+import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { cn } from "@/lib/utils";
 import {
   connectionEntityKind,
@@ -53,6 +54,15 @@ const DAY_STRIP: { day: RoutineWeekday;
   },
 ];
 
+// The resolved entry a weekly routine schedules for today (task / resource /
+// freeform name plus any affixes), computed by the parent so the card can show
+// today's task in place of the routine name.
+export interface RoutineTodayAction {
+  name: string;
+  prependText?: string | null;
+  appendText?: string | null;
+}
+
 export function RoutineBox({
   id,
   name,
@@ -62,16 +72,16 @@ export function RoutineBox({
   weekly,
   mode,
   completions,
-}: Routine) {
+  todayAction,
+}: Routine & { todayAction?: RoutineTodayAction | null }) {
   const isDaily = mode === "daily";
   const scheduledCount = weekly
     ? Object.values(weekly).filter(Boolean).length
     : 0;
-  // Weekly routines schedule a different entry per weekday; when today's
-  // weekday has no scheduled entry, surface that under the routine name.
-  const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
-  const hasTaskToday = !!weekly?.[todayWeekday];
-  const showNoTaskToday = !isDaily && !hasTaskToday;
+  // Weekly routines schedule a different entry per weekday: show today's
+  // scheduled task in place of the routine name, or a "No task for today"
+  // placeholder beneath the name when today's weekday is unscheduled.
+  const showNoTaskToday = !isDaily && !todayAction;
   const isActive = status === "active";
   const chain = getCurrentChain({
     completions: completions ?? [],
@@ -136,7 +146,15 @@ export function RoutineBox({
               }}
               className="hover:text-blue-600"
             >
-              {name}
+              {todayAction
+                ? (
+                  <ActionableSentence
+                    prependText={todayAction.prependText}
+                    appendText={todayAction.appendText}
+                    name={todayAction.name}
+                  />
+                )
+                : name}
             </Link>
           </h3>
         </ContentBoxTitle>
