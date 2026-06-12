@@ -13,10 +13,10 @@ import { CalendarCheckIcon, PlusIcon } from "lucide-react";
 
 import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   ClearFiltersButton,
+  FilterSelect,
   ListEmptyStates,
   ListSearchInput,
 } from "@/components/ListPageControls";
@@ -222,41 +222,21 @@ function Routines() {
               value={search}
               onChange={setSearch}
             />
-            <Select
-              value={filterConnection ?? "all"}
-              onValueChange={v =>
-                setFilterConnection(v === "all" ? undefined : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Connection" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  <span>All Connections</span>
-                  <FilterOptionCount count={totalRoutineCount} />
-                </SelectItem>
-                {noConnectionCount > 0 && (
-                  <SelectItem value="none">
-                    <span>No Connection</span>
-                    <FilterOptionCount count={noConnectionCount} />
-                  </SelectItem>
-                )}
-                {connectionFilterOptions.map(opt => (
-                  <SelectItem
-                    key={opt.value}
-                    value={opt.value}
-                  >
-                    <span
-                      className="mr-1 text-xs text-muted-foreground uppercase"
-                    >
-                      {opt.type}
-                    </span>
-                    <span>{opt.name}</span>
-                    <FilterOptionCount count={opt.count} />
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FilterSelect
+              placeholder="Connection"
+              value={filterConnection}
+              onChange={setFilterConnection}
+              allLabel="All Connections"
+              totalCount={totalRoutineCount}
+              noneLabel="No Connection"
+              noneCount={noConnectionCount}
+              options={connectionFilterOptions.map(opt => ({
+                value: opt.value,
+                label: opt.name,
+                count: opt.count,
+                prefix: opt.type,
+              }))}
+            />
             <Select
               value={filterMode ?? "all"}
               onValueChange={v =>

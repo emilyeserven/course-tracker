@@ -11,16 +11,18 @@ import {
   LayoutGridIcon,
   ListIcon,
   PlusIcon,
-  SearchIcon,
-  XIcon,
 } from "lucide-react";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
 import { CoursesTable } from "@/components/boxes/CoursesTable";
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { FilterOptionCount } from "@/components/FilterOptionCount";
 import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  ClearFiltersButton,
+  FilterSelect,
+  ListSearchInput,
+} from "@/components/ListPageControls";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -203,102 +205,56 @@ function Courses() {
               className="mb-4 flex flex-wrap items-center justify-between gap-3"
             >
               <div className="flex flex-wrap items-center gap-3">
-                <div className="relative">
-                  <SearchIcon
-                    className="
-                      absolute top-1/2 left-2.5 size-4 -translate-y-1/2
-                      text-muted-foreground
-                    "
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search resources..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="
-                      h-9 rounded-md border border-input bg-transparent pr-3
-                      pl-8 text-sm shadow-xs transition-[color,box-shadow]
-                      outline-none
-                      placeholder:text-muted-foreground
-                      focus-visible:border-ring focus-visible:ring-[3px]
-                      focus-visible:ring-ring/50
-                    "
-                  />
-                </div>
-                <Select
-                  value={filterProvider ?? "all"}
-                  onValueChange={v =>
-                    setFilterProvider(v === "all" ? undefined : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <span>All Providers</span>
-                      <FilterOptionCount count={totalCourseCount} />
-                    </SelectItem>
-                    {noProviderCount > 0 && (
-                      <SelectItem value="none">
-                        <span>No Provider</span>
-                        <FilterOptionCount count={noProviderCount} />
-                      </SelectItem>
-                    )}
-                    {providers?.filter(p => (p.resourceCount ?? 0) > 0).map(p => (
-                      <SelectItem
-                        key={p.id}
-                        value={p.id}
-                      >
-                        <span>{p.name}</span>
-                        <FilterOptionCount count={p.resourceCount ?? 0} />
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ListSearchInput
+                  placeholder="Search resources..."
+                  value={search}
+                  onChange={setSearch}
+                />
+                <FilterSelect
+                  placeholder="Provider"
+                  value={filterProvider}
+                  onChange={setFilterProvider}
+                  allLabel="All Providers"
+                  totalCount={totalCourseCount}
+                  noneLabel="No Provider"
+                  noneCount={noProviderCount}
+                  options={
+                    providers
+                      ?.filter(p => (p.resourceCount ?? 0) > 0)
+                      .map(p => ({
+                        value: p.id,
+                        label: p.name,
+                        count: p.resourceCount ?? 0,
+                      })) ?? []
+                  }
+                />
 
-                <Select
-                  value={filterTopic ?? "all"}
-                  onValueChange={v =>
-                    setFilterTopic(v === "all" ? undefined : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <span>All Topics</span>
-                      <FilterOptionCount count={totalCourseCount} />
-                    </SelectItem>
-                    {noTopicCount > 0 && (
-                      <SelectItem value="none">
-                        <span>No Topic</span>
-                        <FilterOptionCount count={noTopicCount} />
-                      </SelectItem>
-                    )}
-                    {topics?.filter(t => (t.resourceCount ?? 0) > 0).map(t => (
-                      <SelectItem
-                        key={t.id}
-                        value={t.id}
-                      >
-                        <span>{t.name}</span>
-                        <FilterOptionCount count={t.resourceCount ?? 0} />
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FilterSelect
+                  placeholder="Topic"
+                  value={filterTopic}
+                  onChange={setFilterTopic}
+                  allLabel="All Topics"
+                  totalCount={totalCourseCount}
+                  noneLabel="No Topic"
+                  noneCount={noTopicCount}
+                  options={
+                    topics
+                      ?.filter(t => (t.resourceCount ?? 0) > 0)
+                      .map(t => ({
+                        value: t.id,
+                        label: t.name,
+                        count: t.resourceCount ?? 0,
+                      })) ?? []
+                  }
+                />
 
                 {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <ClearFiltersButton
                     onClick={() => {
                       setFilterProvider(undefined);
                       setFilterTopic(undefined);
                     }}
-                  >
-                    <XIcon className="size-4" />
-                    Clear filters
-                  </Button>
+                  />
                 )}
               </div>
 
