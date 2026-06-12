@@ -38,6 +38,7 @@ pnpm test             # Run all tests
 pnpm typecheck        # Type-check all buildable packages (no emit)
 pnpm lint             # Lint all files (ESLint flat config, cached)
 pnpm lint:fix         # Auto-fix lint issues
+pnpm fallow <cmd>     # Codebase analysis (dead-code, audit --base main, dupes, health)
 pnpm storybook        # Run Storybook on port 6006
 pnpm studio           # Drizzle ORM database GUI
 pnpm push:dev         # Run runtime migrations + push DB schema to dev
@@ -85,7 +86,8 @@ Schema changes: edit `packages/middleware/src/db/schema/` and run `pnpm push:dev
 
 - **ESLint:** Flat config (`eslint.config.js`) extending the external `@emilyeserven/eslint-config` package; caching enabled via `--cache` in the lint scripts
 - **Git hooks:** Husky pre-commit runs lint-staged (`eslint --fix` on staged files)
-- **Dependency checks:** knip for unused dependencies, syncpack for version consistency
+- **Codebase analysis:** fallow for dead code, duplication, complexity, and unused dependencies — config in `.fallowrc.json`. Installed as a root devDependency, so invoke via `pnpm exec fallow <cmd>` (bare `fallow` is not on PATH; `pnpm fallow <cmd>` also works but pnpm's script banner pollutes stdout, so always use `pnpm exec` when parsing `--format json` output). The `.claude/skills/fallow/` skill is vendored from the npm package — don't hand-edit it; after a fallow version bump, re-sync with `pnpm fallow:sync-skill`
+- **Dependency checks:** syncpack for version consistency
 - **TypeScript:** Strict mode, ES2022 target, incremental typecheck
 
 ## Environment Variables

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  // Migrated from knip.json
+  "entry": [
+    // node --test auto-discovers these; nothing imports them
+    "packages/middleware/src/tests/**/*.test.{js,ts}",
+    // vitest setupFiles in packages/client/vite.config.ts
+    "packages/client/setupTests.js"
+  ],
+  "ignoreDependencies": [
+    "syncpack",
+    // runtime peer driver of drizzle-orm/node-postgres, never imported directly
+    "pg",
+    // pulled in via @emilyeserven/eslint-config (carried over from knip config)
+    "eslint-plugin-storybook"
+  ]
+}
