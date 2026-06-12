@@ -2,7 +2,7 @@ import type { CourseProvider } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const providersApi = createEntityClient<CourseProvider>(
+const providersApi = createEntityClient<CourseProvider>(
   "providers",
   "provider",
 );

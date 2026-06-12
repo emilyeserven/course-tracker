@@ -15,4 +15,3 @@ export const fetchSingleDaily = (id: string) =>
 // preserves the row's existing mode. This keeps completion edits safe on both
 // daily- and weekly-mode routines (a weekly routine is never flipped to daily).
 export const upsertDaily = routinesApi.upsert;
-export const deleteSingleDaily = routinesApi.delete;

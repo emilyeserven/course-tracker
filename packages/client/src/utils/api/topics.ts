@@ -2,7 +2,7 @@ import type { Topic, TopicForTopicsPage } from "@emstack/types";
 
 import { createEntityClient, postJson } from "./client";
 
-export const topicsApi = createEntityClient<Topic, TopicForTopicsPage[]>(
+const topicsApi = createEntityClient<Topic, TopicForTopicsPage[]>(
   "topics",
   "topic",
 );

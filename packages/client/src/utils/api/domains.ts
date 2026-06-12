@@ -2,7 +2,7 @@ import type { Domain } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const domainsApi = createEntityClient<Domain>("domains", "domain");
+const domainsApi = createEntityClient<Domain>("domains", "domain");
 
 export const fetchDomains = domainsApi.list;
 export const fetchSingleDomain = domainsApi.get;

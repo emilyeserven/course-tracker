@@ -39,7 +39,7 @@ export interface ModuleDraft {
   tagIds: string[];
 }
 
-export const NEW_ID = "__new__";
+const NEW_ID = "__new__";
 
 export function emptyGroupDraft(): GroupDraft {
   return {

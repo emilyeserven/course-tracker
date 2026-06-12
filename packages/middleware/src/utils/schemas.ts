@@ -25,11 +25,6 @@ export const courseStatusEnum = {
   enum: ["active", "inactive", "complete"],
 } as const;
 
-export const nullableDailyStatusEnum = {
-  type: ["string", "null"],
-  enum: ["active", "complete", "paused", null],
-} as const;
-
 export const nullableResourceLevelEnum = {
   type: ["string", "null"],
   enum: ["low", "medium", "high", null],
@@ -49,7 +44,7 @@ export const nullableRoutineModeEnum = {
   enum: ["weekly", "daily", null],
 } as const;
 
-export const routineReferenceItemSchema = {
+const routineReferenceItemSchema = {
   type: "object",
   required: ["type", "id"],
   properties: {
@@ -86,12 +81,12 @@ export const weeklySchema = {
 
 // A routine's polymorphic connection to a topic / task / resource. `id` is the
 // connected entity's id; the resolved name is added on read, not accepted here.
-export const routineConnectionTypeEnum = {
+const routineConnectionTypeEnum = {
   type: "string",
   enum: ["topic", "task", "resource"],
 } as const;
 
-export const routineConnectionItemSchema = {
+const routineConnectionItemSchema = {
   type: "object",
   required: ["type", "id"],
   additionalProperties: false,
@@ -108,22 +103,22 @@ export const routineConnectionsSchema = {
   items: routineConnectionItemSchema,
 } as const;
 
-export const dailyCompletionStatusEnum = {
+const dailyCompletionStatusEnum = {
   type: "string",
   enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
 } as const;
 
-export const interactionProgressEnum = {
+const interactionProgressEnum = {
   type: "string",
   enum: ["incomplete", "started", "complete"],
 } as const;
 
-export const nullableInteractionDifficultyEnum = {
+const nullableInteractionDifficultyEnum = {
   type: ["string", "null"],
   enum: ["easy", "medium", "hard", null],
 } as const;
 
-export const nullableInteractionUnderstandingEnum = {
+const nullableInteractionUnderstandingEnum = {
   type: ["string", "null"],
   enum: ["none", "basic", "comfortable", "proficient", "mastered", null],
 } as const;
@@ -198,7 +193,7 @@ export const tagIdsArraySchema = {
   },
 } as const;
 
-export const resourceLinkSchema = {
+const resourceLinkSchema = {
   type: "object",
   required: ["resourceId"],
   properties: {

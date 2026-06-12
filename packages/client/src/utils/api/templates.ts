@@ -2,11 +2,11 @@ import type { DailyCriteriaTemplate, RoutineTemplate } from "@emstack/types";
 
 import { createEntityClient } from "./client";
 
-export const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplate>(
+const dailyCriteriaTemplatesApi = createEntityClient<DailyCriteriaTemplate>(
   "daily-criteria-templates",
   "criteria template",
 );
-export const routineTemplatesApi = createEntityClient<RoutineTemplate>(
+const routineTemplatesApi = createEntityClient<RoutineTemplate>(
   "routine-templates",
   "routine template",
 );
