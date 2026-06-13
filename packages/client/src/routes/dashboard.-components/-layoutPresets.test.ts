@@ -2,7 +2,7 @@ import type { DashboardLayoutTile } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import { TILE_META } from "./-dashboardTileMeta";
+import { TILE_META } from "@/lib/dashboardTiles";
 import { LAYOUT_PRESETS } from "./-layoutPresets";
 
 function overlaps(a: DashboardLayoutTile, b: DashboardLayoutTile): boolean {

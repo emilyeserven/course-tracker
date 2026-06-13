@@ -1,4 +1,4 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { ExploreItem } from "@emstack/types";
 
 import { useState } from "react";

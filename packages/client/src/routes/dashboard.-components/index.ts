@@ -12,7 +12,7 @@ export {
   normalizeTiles,
   tilesEqual,
   toggleTile,
-} from "./-dashboardTileMeta";
+} from "@/lib/dashboardTiles";
 export { ConfirmDialog } from "@/components/ConfirmDialog";
 export { LayoutNameDialog } from "@/components/LayoutNameDialog";
 export { PageHeader } from "@/components/layout/PageHeader";

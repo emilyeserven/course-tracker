@@ -1,5 +1,5 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { SortDirection } from "@/components/ui/manualSort";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { ResourceInResources, CourseProvider } from "@emstack/types";
 import type { ColumnDef } from "@tanstack/react-table";
 

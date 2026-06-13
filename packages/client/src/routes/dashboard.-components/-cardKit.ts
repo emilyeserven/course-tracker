@@ -7,7 +7,7 @@ export {
   DashboardSectionStatus,
 } from "@/components/contentBoxComponents/DashboardCard";
 export { CardSettingsFlyout, SettingToggle } from "./-DashboardCardSettings";
-export { isAutoHeight } from "./-dashboardTileMeta";
+export { isAutoHeight } from "@/lib/dashboardTiles";
 export { Button } from "@/components/ui/button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 export { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";

@@ -1,4 +1,4 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { DashboardTileId } from "@emstack/types";
 
 import { DashboardChangelog } from "./-DashboardChangelog";

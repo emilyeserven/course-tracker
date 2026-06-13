@@ -1,4 +1,4 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { TileHeightMode } from "@emstack/types";
 import type * as React from "react";
 
@@ -6,8 +6,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { SettingsIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
-
-import { MAX_TILE_ROWS, TILE_META } from "./-dashboardTileMeta";
 
 import { Input } from "@/components/input";
 import {
@@ -17,6 +15,7 @@ import {
 } from "@/components/popover";
 import { RadioGroupItem } from "@/components/radio-group";
 import { Button } from "@/components/ui/button";
+import { MAX_TILE_ROWS, TILE_META } from "@/lib/dashboardTiles";
 import { cn } from "@/lib/utils";
 
 /** Auto / Fixed height chooser shared by every card's settings flyout. When

@@ -1,10 +1,13 @@
-import type { GridLayoutItem } from "./-dashboardTileMeta";
+import type { GridLayoutItem } from "@/lib/dashboardTiles";
 import type { DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DndGrid } from "@dnd-grid/react";
 
+import { TILE_COMPONENTS } from "./-tileComponents";
+
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   GRID_EM_PER_ROW,
   GRID_GAP,
@@ -14,10 +17,7 @@ import {
   sortTilesForMobile,
   TILE_META,
   tilesToLayoutItems,
-} from "./-dashboardTileMeta";
-import { TILE_COMPONENTS } from "./-tileComponents";
-
-import { useIsMobile } from "@/hooks/useIsMobile";
+} from "@/lib/dashboardTiles";
 import { cn } from "@/lib/utils";
 
 interface DashboardGridProps {

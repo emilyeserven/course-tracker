@@ -1,4 +1,4 @@
-import type { DashboardLayoutTile } from "@emstack/types";
+import type { DashboardLayout, DashboardLayoutTile } from "@emstack/types";
 
 import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import { describe, expect, test } from "vitest";
@@ -12,24 +12,23 @@ import {
   sortTilesForMobile,
   tilesEqual,
   tilesToLayoutItems,
+  tileVisibilityItems,
   TILE_META,
   toggleTile,
-} from "./-dashboardTileMeta";
+} from "./dashboardTiles";
 
 function overlaps(a: DashboardLayoutTile, b: DashboardLayoutTile): boolean {
   return (
-    a.x < b.x + b.w
-    && b.x < a.x + a.w
-    && a.y < b.y + b.h
-    && b.y < a.y + a.h
+    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
   );
 }
 
 describe("buildDefaultTiles", () => {
   test("contains every tile exactly once", () => {
     const tiles = buildDefaultTiles();
-    expect(tiles.map(t => t.tileId).sort())
-      .toEqual([...DASHBOARD_TILE_IDS].sort());
+    expect(tiles.map(t => t.tileId).sort()).toEqual(
+      [...DASHBOARD_TILE_IDS].sort(),
+    );
   });
 
   test("puts Do Now full-width at the top", () => {
@@ -307,14 +306,52 @@ describe("needsNormalization", () => {
 describe("resizeHandlesForTile", () => {
   test("auto-height tiles get only the width (east) handle", () => {
     expect(resizeHandlesForTile({})).toEqual(["e"]);
-    expect(resizeHandlesForTile({
-      heightMode: "auto",
-    })).toEqual(["e"]);
+    expect(
+      resizeHandlesForTile({
+        heightMode: "auto",
+      }),
+    ).toEqual(["e"]);
   });
 
   test("fixed-height tiles also get the SE corner for height", () => {
-    expect(resizeHandlesForTile({
-      heightMode: "fixed",
-    })).toEqual(["e", "se"]);
+    expect(
+      resizeHandlesForTile({
+        heightMode: "fixed",
+      }),
+    ).toEqual(["e", "se"]);
+  });
+});
+
+describe("tileVisibilityItems", () => {
+  const layout = {
+    id: "l1",
+    name: "Layout",
+    position: 0,
+    isTemplate: false,
+    tiles: [
+      {
+        tileId: "doNow",
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 6,
+      },
+    ],
+  } as DashboardLayout;
+
+  test("returns one item per known tile id", () => {
+    expect(tileVisibilityItems(layout)).toHaveLength(DASHBOARD_TILE_IDS.length);
+  });
+
+  test("marks present tiles checked and uses TILE_META titles", () => {
+    const items = tileVisibilityItems(layout);
+    const doNow = items.find(i => i.tileId === "doNow");
+    const changelog = items.find(i => i.tileId === "changelog");
+    expect(doNow).toEqual({
+      tileId: "doNow",
+      title: TILE_META.doNow.title,
+      checked: true,
+    });
+    expect(changelog?.checked).toBe(false);
   });
 });

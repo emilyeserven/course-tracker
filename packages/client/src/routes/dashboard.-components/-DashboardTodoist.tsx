@@ -1,4 +1,4 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { TodoistTask, TodoistTasks } from "@emstack/types";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
