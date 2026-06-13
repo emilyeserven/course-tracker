@@ -74,15 +74,13 @@ function ItemList({
   return (
     <ul
       className="
-        grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),300px))] gap-2
+        grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-2
       "
     >
       {items.map(item => (
         <li
           key={`${item.domainId}:${item.topicId}`}
-          className="
-            flex max-w-[300px] min-w-0 flex-col gap-1 rounded-md border p-2
-          "
+          className="flex min-w-0 flex-col gap-1 rounded-md border p-2"
         >
           <div className="flex min-w-0 flex-col">
             <Link
