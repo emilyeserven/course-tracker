@@ -97,6 +97,9 @@ export function useEditFormPage<TData>({
           await invalidateRelated();
           skipBlock();
           await navigateToList();
+          toast.success(
+            `${entityLabel.charAt(0).toUpperCase()}${entityLabel.slice(1)} deleted.`,
+          );
         }
         catch {
           toast.error(`Failed to delete ${entityLabel}. Please try again.`);
