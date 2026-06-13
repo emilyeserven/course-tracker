@@ -14,7 +14,7 @@ import type {
  * they line up with the `resourceId` the stories seed their query cache against.
  */
 
-export function makeTag(overrides: Partial<Tag> = {}): Tag {
+function makeTag(overrides: Partial<Tag> = {}): Tag {
   return {
     id: "tag-1",
     groupId: "tag-group-1",
@@ -25,7 +25,7 @@ export function makeTag(overrides: Partial<Tag> = {}): Tag {
   };
 }
 
-export function makeTagGroup(overrides: Partial<TagGroup> = {}): TagGroup {
+function makeTagGroup(overrides: Partial<TagGroup> = {}): TagGroup {
   return {
     id: "tag-group-1",
     name: "Topics",
