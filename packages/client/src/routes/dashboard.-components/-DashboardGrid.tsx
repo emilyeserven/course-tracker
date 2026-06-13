@@ -19,6 +19,7 @@ import {
   GRID_EM_PER_ROW,
   GRID_GAP,
   isAutoHeight,
+  resizeHandlesForTile,
   rowsForContent,
   sortTilesForMobile,
   TILE_META,
@@ -65,9 +66,10 @@ function rootFontSizePx(): number {
 }
 
 /**
- * Builds the layout fed to the grid: auto-height tiles take their measured row
- * count and lose the resize handle; fixed tiles keep their stored height and
- * stay resizable.
+ * Builds the layout fed to the grid. Every tile is resizable and carries its own
+ * handles (see `resizeHandlesForTile`): all tiles get a width-only east edge, and
+ * fixed tiles also get the SE corner for height. Auto-height tiles take their
+ * measured row count so the east-edge drag only ever changes their width.
  */
 function buildDisplayLayout(
   tiles: DashboardLayoutTile[],
@@ -78,12 +80,14 @@ function buildDisplayLayout(
       return {
         ...item,
         resizable: true,
+        resizeHandles: resizeHandlesForTile(item),
       };
     }
     return {
       ...item,
       h: measured.get(item.id) ?? item.h,
-      resizable: false,
+      resizable: true,
+      resizeHandles: resizeHandlesForTile(item),
     };
   });
 }
@@ -197,8 +201,9 @@ export function GridTile({
 
 /**
  * The 4-column drag-and-drop tile grid. Dragging is restricted to the card
- * headers; fixed-height tiles resize via the SE handle while auto-height tiles
- * grow to fit their content. On mobile the tiles render as a plain stack.
+ * headers; every tile resizes its width via a right-edge handle, and fixed-height
+ * tiles additionally resize their height via the SE corner. Auto-height tiles
+ * still grow to fit their content. On mobile the tiles render as a plain stack.
  */
 export function DashboardGrid({
   tiles,
