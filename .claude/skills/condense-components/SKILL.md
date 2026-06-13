@@ -127,9 +127,12 @@ render story. A render-only story (no `play`) still smoke-tests rendering.
 
 - **Story** — mirror `components/Text.stories.tsx`: `Meta`/`StoryObj` from
   `@storybook/react-vite`, `within`/`expect`/`fn`/`userEvent` from
-  `@storybook/test`, an optional `play` assertion. Stories run as browser
-  interaction tests via the `storybook` vitest project, so each one also
-  smoke-tests rendering.
+  `storybook/test` (the bare package, **not** the old `@storybook/test` —
+  Storybook 10 dropped that scoped package; importing it still passes a local
+  typecheck/storybook run if stale `node_modules` has it, but CI fails with
+  `Cannot find module '@storybook/test'` + `Failed to resolve import`), an
+  optional `play` assertion. Stories run as browser interaction tests via the
+  `storybook` vitest project, so each one also smoke-tests rendering.
 - **Test** — Vitest + Testing Library (`render`/`screen`/`fireEvent` from
   `@testing-library/react`; no `user-event` dep). jsdom env + jest-dom matchers
   are set up in `setupTests.js`. The first component test in a package may need
