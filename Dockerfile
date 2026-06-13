@@ -55,14 +55,6 @@ COPY CHANGELOG.md ./
 RUN pnpm --filter @emstack/client build
 
 
-# One-shot stage for pushing the Drizzle schema (compose `db-push` service).
-# DATABASE_URL comes from the environment; no .env file needed.
-FROM build-middleware AS db-push
-
-WORKDIR /app/packages/middleware
-CMD ["pnpm", "push:prod"]
-
-
 # Production stage — fresh install with only production deps (client ships as static files)
 FROM base AS prod-deps
 
