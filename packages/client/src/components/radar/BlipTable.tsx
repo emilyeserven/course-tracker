@@ -1,13 +1,13 @@
-import type { EditDraft } from "@/components/radar/BlipEditRow";
+import type { BlipEditDraft } from "@/components/radar/BlipEditRow";
 import type {
   BulkPatch,
-  QuadrantInfo,
-  RingInfo,
   SortDir,
   SortKey,
 } from "@/components/radar/blipTableFilters";
 import type {
   RadarBlip,
+  RadarQuadrant,
+  RadarRing,
   TopicForTopicsPage,
 } from "@emstack/types";
 
@@ -50,15 +50,17 @@ import { useRowSelection } from "@/hooks/useRowSelection";
 
 interface BlipTableProps {
   blips: RadarBlip[];
-  quadrants: QuadrantInfo[];
-  rings: RingInfo[];
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
   topics: TopicForTopicsPage[];
   onSave: (
     blip: RadarBlip,
-    patch: { quadrantId: string | null;
+    patch: {
+      quadrantId: string | null;
       ringId: string | null;
       description: string | null;
-      isIgnored: boolean; },
+      isIgnored: boolean;
+    },
   ) => Promise<void>;
   onRemove: (blip: RadarBlip) => Promise<void>;
   onBulkSave: (ids: string[], patch: BulkPatch) => Promise<void>;
@@ -79,7 +81,7 @@ export function BlipTable({
   const [sortKey, setSortKey] = useState<SortKey>("slice");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
+  const [editDraft, setEditDraft] = useState<BlipEditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [showItemsColumn, setShowItemsColumn] = useState(false);
   const [bulkQuadrantId, setBulkQuadrantId] = useState<string>(NO_CHANGE);
@@ -94,17 +96,17 @@ export function BlipTable({
     }
     // Incidental similarity to BlipLlmAssist's lookup maps; different domain types.
     // fallow-ignore-next-line code-duplication
-    setSortDir(prev => prev === "asc" ? "desc" : "asc");
+    setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
   }
 
   const quadrantById = useMemo(() => {
-    const map = new Map<string, QuadrantInfo>();
+    const map = new Map<string, RadarQuadrant>();
     quadrants.forEach(q => map.set(q.id, q));
     return map;
   }, [quadrants]);
 
   const ringById = useMemo(() => {
-    const map = new Map<string, RingInfo>();
+    const map = new Map<string, RadarRing>();
     rings.forEach(r => map.set(r.id, r));
     return map;
   }, [rings]);
@@ -115,15 +117,9 @@ export function BlipTable({
     return map;
   }, [topics]);
 
-  const sliceCounts = useMemo(
-    () => countByField(blips, "quadrantId"),
-    [blips],
-  );
+  const sliceCounts = useMemo(() => countByField(blips, "quadrantId"), [blips]);
 
-  const ringCounts = useMemo(
-    () => countByField(blips, "ringId"),
-    [blips],
-  );
+  const ringCounts = useMemo(() => countByField(blips, "ringId"), [blips]);
 
   const topicItemCount = useCallback(
     (topicId: string): number => {
@@ -190,8 +186,12 @@ export function BlipTable({
       return <ChevronsUpDownIcon className="size-3 opacity-50" />;
     }
     return sortDir === "asc"
-      ? <ChevronUpIcon className="size-3" />
-      : <ChevronDownIcon className="size-3" />;
+      ? (
+        <ChevronUpIcon className="size-3" />
+      )
+      : (
+        <ChevronDownIcon className="size-3" />
+      );
   }
 
   function startEdit(blip: RadarBlip) {
@@ -315,15 +315,9 @@ export function BlipTable({
             <SelectValue placeholder="Slice" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>
-              All Slices (
-              {blips.length}
-              )
-            </SelectItem>
+            <SelectItem value={ALL}>All Slices ({blips.length})</SelectItem>
             <SelectItem value={UNASSIGNED}>
-              Unassigned (
-              {sliceCounts.unassigned}
-              )
+              Unassigned ({sliceCounts.unassigned})
             </SelectItem>
             {quadrants.map(q => (
               <SelectItem
@@ -332,8 +326,7 @@ export function BlipTable({
               >
                 {q.name}
                 {" ("}
-                {sliceCounts.counts.get(q.id) ?? 0}
-                )
+                {sliceCounts.counts.get(q.id) ?? 0})
               </SelectItem>
             ))}
           </SelectContent>
@@ -346,15 +339,9 @@ export function BlipTable({
             <SelectValue placeholder="Ring" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>
-              All Rings (
-              {blips.length}
-              )
-            </SelectItem>
+            <SelectItem value={ALL}>All Rings ({blips.length})</SelectItem>
             <SelectItem value={UNASSIGNED}>
-              Unassigned (
-              {ringCounts.unassigned}
-              )
+              Unassigned ({ringCounts.unassigned})
             </SelectItem>
             {rings.map(r => (
               <SelectItem
@@ -363,15 +350,12 @@ export function BlipTable({
               >
                 {r.name}
                 {" ("}
-                {ringCounts.counts.get(r.id) ?? 0}
-                )
+                {ringCounts.counts.get(r.id) ?? 0})
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <label
-          className="flex flex-row items-center gap-2 text-sm"
-        >
+        <label className="flex flex-row items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={showItemsColumn}

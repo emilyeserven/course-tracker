@@ -1,4 +1,8 @@
-import type { EditDraft, Resolution, ResolvedLlmEntry } from "./blipLlmReview";
+import type {
+  LlmEditDraft,
+  Resolution,
+  ResolvedLlmEntry,
+} from "./blipLlmReview";
 import type {
   RadarQuadrant,
   RadarRing,
@@ -46,7 +50,7 @@ interface ReviewTableProps {
   startEdit: (idx: number) => void;
   commitEdit: (idx: number) => void;
   cancelEdit: (idx: number) => void;
-  updateDraft: (idx: number, patch: Partial<EditDraft>) => void;
+  updateDraft: (idx: number, patch: Partial<LlmEditDraft>) => void;
   setRowSelected: (idx: number, selected: boolean) => void;
   setAllSelected: (selected: boolean) => void;
 }
@@ -130,7 +134,7 @@ interface ReviewRowProps {
   startEdit: (idx: number) => void;
   commitEdit: (idx: number) => void;
   cancelEdit: (idx: number) => void;
-  updateDraft: (idx: number, patch: Partial<EditDraft>) => void;
+  updateDraft: (idx: number, patch: Partial<LlmEditDraft>) => void;
   setRowSelected: (idx: number, selected: boolean) => void;
 }
 
@@ -189,9 +193,10 @@ function ReviewRow({
           showDiff={descriptionChanged(r)}
           editing={r.editing && !isSkipped}
           draftValue={r.editDraft?.description ?? ""}
-          onDraftChange={value => updateDraft(idx, {
-            description: value,
-          })}
+          onDraftChange={value =>
+            updateDraft(idx, {
+              description: value,
+            })}
           multiline
         />
       </TableCell>
@@ -206,9 +211,10 @@ function ReviewRow({
         options={quadrants}
         showDiff={quadrantChanged(r)}
         draftId={r.editDraft?.quadrantId ?? ""}
-        onDraftChange={value => updateDraft(idx, {
-          quadrantId: value,
-        })}
+        onDraftChange={value =>
+          updateDraft(idx, {
+            quadrantId: value,
+          })}
       />
 
       <PlacementTableCell
@@ -221,9 +227,10 @@ function ReviewRow({
         options={rings}
         showDiff={ringChanged(r)}
         draftId={r.editDraft?.ringId ?? ""}
-        onDraftChange={value => updateDraft(idx, {
-          ringId: value,
-        })}
+        onDraftChange={value =>
+          updateDraft(idx, {
+            ringId: value,
+          })}
       />
 
       <TableCell className="align-top">
@@ -233,9 +240,10 @@ function ReviewRow({
           showDiff={radarNoteChanged(r)}
           editing={r.editing && !isSkipped && !isRemove}
           draftValue={r.editDraft?.radarNote ?? ""}
-          onDraftChange={value => updateDraft(idx, {
-            radarNote: value,
-          })}
+          onDraftChange={value =>
+            updateDraft(idx, {
+              radarNote: value,
+            })}
           multiline
         />
       </TableCell>
@@ -350,8 +358,8 @@ function PlacementTableCell({
       </TableCell>
     );
   }
-  const existingName = existingId ? byId.get(existingId)?.name ?? "?" : null;
-  const newName = newId ? byId.get(newId)?.name ?? newInput : newInput;
+  const existingName = existingId ? (byId.get(existingId)?.name ?? "?") : null;
+  const newName = newId ? (byId.get(newId)?.name ?? newInput) : newInput;
   return (
     <TableCell className="align-top">
       <PlacementCell
@@ -495,16 +503,14 @@ function ResolutionCell({
               type="checkbox"
               checked={r.deleteTopicOnRemove}
               disabled={!canDeleteTopic}
-              onChange={e => updateEntry(idx, {
-                deleteTopicOnRemove: e.target.checked,
-              })}
+              onChange={e =>
+                updateEntry(idx, {
+                  deleteTopicOnRemove: e.target.checked,
+                })}
             />
             Also delete topic
             {!canDeleteTopic && topic && (
-              <span className="text-[10px]">
-                {" "}
-                (in use)
-              </span>
+              <span className="text-[10px]"> (in use)</span>
             )}
           </label>
         )}
@@ -544,8 +550,8 @@ function DiffCell({
           <span className="text-muted-foreground italic">(none)</span>
         )}
       </span>
-      {editing && (
-        multiline
+      {editing
+        && (multiline
           ? (
             <Textarea
               value={draftValue}
@@ -559,8 +565,7 @@ function DiffCell({
               onChange={e => onDraftChange(e.target.value)}
               className="mt-1"
             />
-          )
-      )}
+          ))}
     </div>
   );
 }
@@ -617,7 +622,8 @@ function PlacementCell({
               <SelectItem
                 key={o.id}
                 value={o.id}
-              >{o.name}
+              >
+                {o.name}
               </SelectItem>
             ))}
           </SelectContent>

@@ -1,17 +1,4 @@
-import type { RadarBlip } from "@emstack/types";
-
-export interface QuadrantInfo {
-  id: string;
-  name: string;
-  position: number;
-}
-
-export interface RingInfo {
-  id: string;
-  name: string;
-  position: number;
-  isAdopted?: boolean;
-}
+import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 export type SortKey = "topic" | "slice" | "ring" | "items";
 export type SortDir = "asc" | "desc";
@@ -34,8 +21,8 @@ export interface BlipFilterCriteria {
 }
 
 export interface BlipFilterLookups {
-  quadrantById: Map<string, QuadrantInfo>;
-  ringById: Map<string, RingInfo>;
+  quadrantById: Map<string, RadarQuadrant>;
+  ringById: Map<string, RadarRing>;
   topicItemCount: (topicId: string) => number;
 }
 
@@ -82,8 +69,12 @@ export function filterAndSortBlips(
       bv = (b.topicName ?? "").toLowerCase();
     }
     else if (sortKey === "slice") {
-      av = quadrantById.get(a.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
-      bv = quadrantById.get(b.quadrantId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
+      av
+        = quadrantById.get(a.quadrantId ?? "")?.position
+          ?? Number.MAX_SAFE_INTEGER;
+      bv
+        = quadrantById.get(b.quadrantId ?? "")?.position
+          ?? Number.MAX_SAFE_INTEGER;
     }
     else if (sortKey === "items") {
       av = topicItemCount(a.topicId);

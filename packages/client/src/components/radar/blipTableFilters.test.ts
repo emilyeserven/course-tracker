@@ -1,13 +1,8 @@
-import type { RadarBlip } from "@emstack/types";
+import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import type {
-  BlipFilterCriteria,
-  BlipFilterLookups,
-  QuadrantInfo,
-  RingInfo,
-} from "./blipTableFilters";
+import type { BlipFilterCriteria, BlipFilterLookups } from "./blipTableFilters";
 
 import {
   ALL,
@@ -29,7 +24,7 @@ function makeBlip(overrides: Partial<RadarBlip> & { id: string }): RadarBlip {
   };
 }
 
-const quadrants: QuadrantInfo[] = [
+const quadrants: RadarQuadrant[] = [
   {
     id: "q1",
     name: "Languages",
@@ -44,7 +39,7 @@ const quadrants: QuadrantInfo[] = [
 
 // Test fixture data; incidental overlap with the production Map-building code.
 // fallow-ignore-next-line code-duplication
-const rings: RingInfo[] = [
+const rings: RadarRing[] = [
   {
     id: "r1",
     name: "Adopt",
