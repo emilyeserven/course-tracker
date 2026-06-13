@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon } from "lucide-react";
 
 import { Description } from "@/components/boxElements/Description";
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink, PILL_LINK_CLASS } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -100,10 +100,7 @@ export function RoutineBox({
                     key={`${c.type}:${c.id}`}
                     entity={connectionEntityKind(c.type)}
                     id={c.id}
-                    className={`
-                      rounded-sm bg-gray-50 px-2 py-0.5 text-xs
-                      hover:bg-gray-900 hover:text-white
-                    `}
+                    className={PILL_LINK_CLASS}
                   >
                     {c.name ?? c.id}
                   </EntityLink>
