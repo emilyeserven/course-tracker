@@ -11,3 +11,4 @@ export const fetchDashboardLayouts = dashboardLayoutsApi.list;
 export const createDashboardLayout = dashboardLayoutsApi.create;
 export const upsertDashboardLayout = dashboardLayoutsApi.upsert;
 export const deleteSingleDashboardLayout = dashboardLayoutsApi.delete;
+export const duplicateDashboardLayout = dashboardLayoutsApi.duplicate;

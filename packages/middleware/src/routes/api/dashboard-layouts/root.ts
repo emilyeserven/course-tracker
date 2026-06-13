@@ -4,7 +4,11 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "@/db";
 import { dashboardLayouts } from "@/db/schema";
 import type { DashboardLayoutTile } from "@/db/schema";
-import { dashboardLayoutTilesSchema, nullableInteger } from "@/utils/schemas";
+import {
+  dashboardLayoutTilesSchema,
+  nullableBoolean,
+  nullableInteger,
+} from "@/utils/schemas";
 
 const createSchema = {
   schema: {
@@ -19,6 +23,7 @@ const createSchema = {
         },
         position: nullableInteger,
         tiles: dashboardLayoutTilesSchema,
+        isTemplate: nullableBoolean,
       },
     },
   },
@@ -51,6 +56,7 @@ export default async function (server: FastifyInstance) {
         name: body.name,
         position: body.position ?? null,
         tiles: (body.tiles ?? []) as DashboardLayoutTile[],
+        isTemplate: body.isTemplate ?? false,
       });
 
       return {
