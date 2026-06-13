@@ -1,4 +1,4 @@
-import type { ResourceLinkOption } from "./resourceMeta";
+import type { ResourceSelectOption } from "./resourceMeta";
 import type {
   Module,
   ModuleGroup,
@@ -24,7 +24,7 @@ export function EditingRow({
   onDelete,
 }: {
   resource: TaskResource;
-  resourceOptions: ResourceLinkOption[];
+  resourceOptions: ResourceSelectOption[];
   allModuleGroups: ModuleGroup[];
   allModules: Module[];
   isNew?: boolean;

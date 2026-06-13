@@ -48,9 +48,9 @@ export function getResourceLevelClass(
 export type ResourceLevelKey
   = "easeOfStarting" | "timeNeeded" | "interactivity";
 
-// A Resource reduced to its identity ({ id, name }) for a resource-link
+// A Resource reduced to its identity ({ id, name }) for a resource
 // <select> option.
-export interface ResourceLinkOption {
+export interface ResourceSelectOption {
   id: string;
   name: string;
 }
