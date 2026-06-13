@@ -24,6 +24,7 @@ import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { EmptyDash } from "@/components/ui/EmptyDash";
 import {
   Select,
   SelectContent,
@@ -396,7 +397,7 @@ function PlacementTableCell({
   if (isRemove) {
     return (
       <TableCell className="align-top">
-        <span className="text-xs text-muted-foreground">—</span>
+        <EmptyDash className="text-xs" />
       </TableCell>
     );
   }

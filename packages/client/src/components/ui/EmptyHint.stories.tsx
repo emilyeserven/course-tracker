@@ -23,3 +23,18 @@ export const Default: Story = {
     await expect(canvas.getByText("No connections")).toBeInTheDocument();
   },
 };
+
+export const AsChild: Story = {
+  args: {
+    asChild: true,
+    className: "mt-0.5 ml-4",
+    children: <p>Rendered as a block paragraph</p>,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    const hint = canvas.getByText("Rendered as a block paragraph");
+    await expect(hint.tagName).toBe("P");
+  },
+};

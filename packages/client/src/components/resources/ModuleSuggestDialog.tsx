@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmptyHint } from "@/components/ui/EmptyHint";
 import { copyTextToClipboard, stripCodeFence } from "@/utils";
 import { createModule, createModuleGroup } from "@/utils/fetchFunctions";
 
@@ -850,10 +851,10 @@ function SuggestionGroupCard({
             </span>
           )}
           {!groupSelected && (
-            <span className="text-xs text-muted-foreground italic">
+            <EmptyHint>
               Group skipped — selected modules below will be created without
               this group.
-            </span>
+            </EmptyHint>
           )}
         </span>
       </label>

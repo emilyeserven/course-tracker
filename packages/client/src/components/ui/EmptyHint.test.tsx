@@ -16,4 +16,20 @@ describe("EmptyHint", () => {
     expect(hint).toHaveClass("italic");
     expect(hint).toHaveClass("ml-4");
   });
+
+  test("asChild renders the styling onto the provided element", () => {
+    render(
+      <EmptyHint
+        asChild
+        className="mt-0.5"
+      >
+        <p>No connections</p>
+      </EmptyHint>,
+    );
+    const hint = screen.getByText("No connections");
+    expect(hint.tagName).toBe("P");
+    expect(hint).toHaveClass("text-muted-foreground");
+    expect(hint).toHaveClass("italic");
+    expect(hint).toHaveClass("mt-0.5");
+  });
 });

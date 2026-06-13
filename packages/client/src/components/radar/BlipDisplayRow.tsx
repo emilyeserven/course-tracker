@@ -34,6 +34,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { EmptyDash } from "@/components/ui/EmptyDash";
+import { EmptyHint } from "@/components/ui/EmptyHint";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
@@ -94,9 +96,7 @@ export function BlipDisplayRow({
             : undefined;
           if (!q) {
             return (
-              <span className="text-xs text-muted-foreground italic">
-                unassigned
-              </span>
+              <EmptyHint>unassigned</EmptyHint>
             );
           }
           return (
@@ -114,14 +114,12 @@ export function BlipDisplayRow({
       <TableCell>
         {(() => {
           if (blip.isIgnored) {
-            return <span className="text-xs text-muted-foreground">—</span>;
+            return <EmptyDash className="text-xs" />;
           }
           const r = blip.ringId ? ringById.get(blip.ringId) : undefined;
           if (!r) {
             return (
-              <span className="text-xs text-muted-foreground italic">
-                unassigned
-              </span>
+              <EmptyHint>unassigned</EmptyHint>
             );
           }
           return (
