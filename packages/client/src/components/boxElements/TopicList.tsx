@@ -2,8 +2,7 @@ import type { Topic } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 
-import { PILL_LINK_CLASS } from "./EntityLink";
-
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface TopicListProps {
@@ -30,29 +29,40 @@ export function TopicList({
         if (!topic) {
           return <></>;
         }
+        const link = (
+          <Link
+            to="/topics/$id"
+            from="/resources"
+            params={{
+              id: topic.id + "",
+            }}
+            className={cn(!isPills && `
+              text-sm text-blue-800
+              hover:text-blue-600
+            `)}
+          >
+            {topic.name}
+          </Link>
+        );
         return (
           <span
             key={topic.id}
             className="flex flex-row items-center"
           >
-            <Link
-              to="/topics/$id"
-              from="/resources"
-              params={{
-                id: topic.id + "",
-              }}
-              className={cn(
-                isPills
-                  ? PILL_LINK_CLASS
-                  : `
-                    text-sm text-blue-800
-                    hover:text-blue-600
-                  `,
-              )}
-              key={topic.id}
-            >
-              {topic.name}
-            </Link>
+            {isPills
+              ? (
+                <Badge
+                  asChild
+                  variant="secondary"
+                  className="
+                    bg-gray-50
+                    hover:bg-gray-900 hover:text-white
+                  "
+                >
+                  {link}
+                </Badge>
+              )
+              : link}
             {!isPills && i !== topics.length - 1 && ", "}
           </span>
         );

@@ -28,7 +28,7 @@ describe("DailyCadenceBadge", () => {
     expect(screen.getByText("Weekly")).toBeInTheDocument();
   });
 
-  test("renders via Pill, keeping the rounded-full base", () => {
+  test("renders via Badge, with the rounded-md base", () => {
     render(
       <DailyCadenceBadge
         daily={makeDaily({
@@ -36,6 +36,6 @@ describe("DailyCadenceBadge", () => {
         })}
       />,
     );
-    expect(screen.getByText("Daily").className).toContain("rounded-full");
+    expect(screen.getByText("Daily").className).toContain("rounded-md");
   });
 });

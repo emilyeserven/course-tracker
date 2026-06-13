@@ -32,7 +32,7 @@ describe("TopicList", () => {
     const link = await screen.findByRole("link", {
       name: "React",
     });
-    expect(link.className).toContain("rounded-sm");
+    expect(link.className).toContain("rounded-md");
     expect(screen.getByRole("link", {
       name: "Vue",
     })).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("TopicList", () => {
     const link = await screen.findByRole("link", {
       name: "React",
     });
-    expect(link.className).not.toContain("rounded-sm");
+    expect(link.className).not.toContain("rounded-md");
     // The non-pill branch joins all but the last item with a comma.
     expect(screen.getByText(",", {
       exact: false,

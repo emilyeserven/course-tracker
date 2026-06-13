@@ -1,6 +1,6 @@
 import { AlertTriangleIcon } from "lucide-react";
 
-import { Pill } from "@/components/ui/Pill";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -26,30 +26,33 @@ export function TooManyDailiesWarning({
     return null;
   }
 
-  const iconSize = size === "sm" ? "size-4" : "size-5";
+  // Override the Badge base's `[&>svg]:size-3` so the warning icon keeps its
+  // larger size.
+  const iconSize = size === "sm" ? "[&>svg]:size-4" : "[&>svg]:size-5";
 
   return (
     <TooltipProvider delayDuration={150}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Pill
+          <Badge
+            variant="outline"
             className={cn(
               `
-                gap-1 rounded-md border border-amber-400 bg-amber-100
-                text-amber-900
+                border-amber-400 bg-amber-100 text-amber-900
                 dark:border-amber-500/50 dark:bg-amber-900/40
                 dark:text-amber-100
               `,
+              iconSize,
               className,
             )}
             role="status"
             aria-label="Too many active dailies"
           >
-            <AlertTriangleIcon className={iconSize} />
+            <AlertTriangleIcon />
             {activeCount}
             {" / "}
             {limit}
-          </Pill>
+          </Badge>
         </TooltipTrigger>
         <TooltipContent side="top">
           <span className="block max-w-xs">

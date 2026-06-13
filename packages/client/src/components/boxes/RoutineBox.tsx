@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon } from "lucide-react";
 
 import { Description } from "@/components/boxElements/Description";
-import { EntityLink, PILL_LINK_CLASS } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -14,6 +14,7 @@ import {
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
+import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
@@ -96,14 +97,22 @@ export function RoutineBox({
             {connections && connections.length > 0
               ? (
                 connections.map(c => (
-                  <EntityLink
+                  <Badge
                     key={`${c.type}:${c.id}`}
-                    entity={connectionEntityKind(c.type)}
-                    id={c.id}
-                    className={PILL_LINK_CLASS}
+                    asChild
+                    variant="secondary"
+                    className="
+                      bg-gray-50
+                      hover:bg-gray-900 hover:text-white
+                    "
                   >
-                    {c.name ?? c.id}
-                  </EntityLink>
+                    <EntityLink
+                      entity={connectionEntityKind(c.type)}
+                      id={c.id}
+                    >
+                      {c.name ?? c.id}
+                    </EntityLink>
+                  </Badge>
                 ))
               )
               : (
