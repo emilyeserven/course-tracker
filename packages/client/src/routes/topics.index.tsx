@@ -236,21 +236,6 @@ function Topics() {
     if (changed) setSelectedIds(next);
   }, [filteredIds, selectedIds]);
 
-  // Local selection state predates the shared useRowSelection hook.
-  // fallow-ignore-next-line code-duplication
-  const handleToggleSelected = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleToggleAll = (selectAll: boolean) => {
-    setSelectedIds(selectAll ? new Set(filteredIds) : new Set());
-  };
-
   const handleBulkDelete = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
@@ -459,8 +444,7 @@ function Topics() {
                   topics={filteredAndSorted}
                   selection={{
                     selectedIds,
-                    onToggleSelected: handleToggleSelected,
-                    onToggleAll: handleToggleAll,
+                    onSelectionChange: setSelectedIds,
                   }}
                   sort={sort}
                   onSortChange={setSort}

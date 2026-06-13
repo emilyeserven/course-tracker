@@ -1,23 +1,22 @@
 import type { BlipEditDraft } from "@/components/radar/BlipEditRow";
 import type {
   BulkPatch,
-  SortDir,
   SortKey,
 } from "@/components/radar/blipTableFilters";
+import type { SortDirection } from "@/components/ui/manualSort";
 import type {
   RadarBlip,
   RadarQuadrant,
   RadarRing,
   TopicForTopicsPage,
 } from "@emstack/types";
+import type {
+  ColumnDef,
+  RowSelectionState,
+} from "@tanstack/react-table";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ChevronsUpDownIcon,
-} from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/input";
@@ -31,6 +30,9 @@ import {
   NO_CHANGE,
   UNASSIGNED,
 } from "@/components/radar/blipTableFilters";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import {
   Select,
   SelectContent,
@@ -40,14 +42,9 @@ import {
 } from "@/components/ui/select";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
-  Table,
-  TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRowSelection } from "@/hooks/useRowSelection";
 
 interface BlipTableProps {
   blips: RadarBlip[];
@@ -80,7 +77,7 @@ export function BlipTable({
   const [filterQuadrant, setFilterQuadrant] = useState<string>(ALL);
   const [filterRing, setFilterRing] = useState<string>(ALL);
   const [sortKey, setSortKey] = useState<SortKey>("slice");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<BlipEditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -88,17 +85,7 @@ export function BlipTable({
   const [bulkQuadrantId, setBulkQuadrantId] = useState<string>(NO_CHANGE);
   const [bulkRingId, setBulkRingId] = useState<string>(NO_CHANGE);
   const [bulkPending, setBulkPending] = useState(false);
-
-  function toggleSort(key: SortKey) {
-    if (sortKey !== key) {
-      setSortKey(key);
-      setSortDir("asc");
-      return;
-    }
-    // Incidental similarity to BlipLlmAssist's lookup maps; different domain types.
-    // fallow-ignore-next-line code-duplication
-    setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-  }
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const quadrantById = useMemo(() => {
     const map = new Map<string, RadarQuadrant>();
@@ -161,38 +148,37 @@ export function BlipTable({
     ],
   );
 
-  const visibleIds = useMemo(
-    () => filteredBlips.map(b => b.id),
-    [filteredBlips],
+  // Drop selections that scroll out of the filtered view (mirrors the old
+  // useRowSelection prune so bulk ops never touch hidden blips).
+  useEffect(() => {
+    const visible = new Set(filteredBlips.map(b => b.id));
+    setRowSelection((prev) => {
+      let changed = false;
+      const next: RowSelectionState = {};
+      for (const id of Object.keys(prev)) {
+        if (!prev[id]) continue;
+        if (visible.has(id)) next[id] = true;
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [filteredBlips]);
+
+  const selectedIds = useMemo(
+    () => new Set(Object.keys(rowSelection).filter(id => rowSelection[id])),
+    [rowSelection],
   );
 
-  const {
-    selectedIds,
-    setSelectedIds,
-    allVisibleSelected,
-    someVisibleSelected,
-    toggleSelected,
-    toggleSelectAllVisible,
-    clearSelection,
-  } = useRowSelection(visibleIds);
+  const sorting = toSortingState(sortKey, sortDir);
+  const handleSortingChange = makeManualSortHandler(sorting, (id, dir) => {
+    setSortKey(id as SortKey);
+    setSortDir(dir);
+  });
 
   function handleClearSelection() {
-    clearSelection();
+    setRowSelection({});
     setBulkQuadrantId(NO_CHANGE);
     setBulkRingId(NO_CHANGE);
-  }
-
-  function sortIcon(key: SortKey) {
-    if (sortKey !== key) {
-      return <ChevronsUpDownIcon className="size-3 opacity-50" />;
-    }
-    return sortDir === "asc"
-      ? (
-        <ChevronUpIcon className="size-3" />
-      )
-      : (
-        <ChevronDownIcon className="size-3" />
-      );
   }
 
   function startEdit(blip: RadarBlip) {
@@ -260,10 +246,12 @@ export function BlipTable({
         setEditingId(null);
         setEditDraft(null);
       }
-      setSelectedIds((prev) => {
-        if (!prev.has(blip.id)) return prev;
-        const next = new Set(prev);
-        next.delete(blip.id);
+      setRowSelection((prev) => {
+        if (!prev[blip.id]) return prev;
+        const next: RowSelectionState = {};
+        for (const id of Object.keys(prev)) {
+          if (id !== blip.id && prev[id]) next[id] = true;
+        }
         return next;
       });
     }
@@ -286,7 +274,7 @@ export function BlipTable({
       await onBulkSave(Array.from(selectedIds), patch);
       setBulkQuadrantId(NO_CHANGE);
       setBulkRingId(NO_CHANGE);
-      clearSelection();
+      setRowSelection({});
     }
     finally {
       setBulkPending(false);
@@ -294,6 +282,97 @@ export function BlipTable({
   }
 
   const colCount = (showItemsColumn ? 6 : 5) + 1;
+
+  const columns = useMemo<ColumnDef<RadarBlip>[]>(() => {
+    const cols: ColumnDef<RadarBlip>[] = [
+      {
+        id: "select",
+        enableSorting: false,
+        meta: {
+          headClassName: "w-1",
+        },
+        header: ({
+          table,
+        }) => (
+          <SelectAllCheckbox
+            aria-label="Select all visible"
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onCheckedChange={value => table.toggleAllRowsSelected(value)}
+            disabled={table.getRowModel().rows.length === 0}
+          />
+        ),
+      },
+      {
+        id: "topic",
+        sortDescFirst: false,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Topic"
+          />
+        ),
+      },
+      {
+        id: "slice",
+        sortDescFirst: false,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Slice"
+          />
+        ),
+      },
+      {
+        id: "ring",
+        sortDescFirst: false,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Ring"
+          />
+        ),
+      },
+      {
+        id: "radarNote",
+        enableSorting: false,
+        header: "Radar Note",
+      },
+    ];
+
+    if (showItemsColumn) {
+      cols.push({
+        id: "items",
+        sortDescFirst: false,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Topic Items"
+          />
+        ),
+      });
+    }
+
+    cols.push({
+      id: "actions",
+      enableSorting: false,
+      meta: {
+        align: "right",
+        headClassName: "w-1",
+      },
+      header: "Actions",
+    });
+
+    return cols;
+  }, [showItemsColumn]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -381,132 +460,67 @@ export function BlipTable({
         />
       )}
 
-      <div className="rounded-sm border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1">
-                <SelectAllCheckbox
-                  aria-label="Select all visible"
-                  checked={allVisibleSelected}
-                  indeterminate={someVisibleSelected}
-                  onCheckedChange={toggleSelectAllVisible}
-                  disabled={filteredBlips.length === 0}
-                />
-              </TableHead>
-              <TableHead>
-                <button
-                  type="button"
-                  onClick={() => toggleSort("topic")}
-                  className={`
-                    inline-flex items-center gap-1
-                    hover:text-foreground
-                  `}
-                >
-                  Topic
-                  {sortIcon("topic")}
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  type="button"
-                  onClick={() => toggleSort("slice")}
-                  className={`
-                    inline-flex items-center gap-1
-                    hover:text-foreground
-                  `}
-                >
-                  Slice
-                  {sortIcon("slice")}
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  type="button"
-                  onClick={() => toggleSort("ring")}
-                  className={`
-                    inline-flex items-center gap-1
-                    hover:text-foreground
-                  `}
-                >
-                  Ring
-                  {sortIcon("ring")}
-                </button>
-              </TableHead>
-              <TableHead>Radar Note</TableHead>
-              {showItemsColumn && (
-                <TableHead>
-                  <button
-                    type="button"
-                    onClick={() => toggleSort("items")}
-                    className={`
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    `}
-                  >
-                    Topic Items
-                    {sortIcon("items")}
-                  </button>
-                </TableHead>
-              )}
-              <TableHead className="w-1 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredBlips.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={colCount}
-                  className="text-center text-muted-foreground"
-                >
-                  {blips.length === 0
-                    ? "No blips yet."
-                    : "No blips match the current filters."}
-                </TableCell>
-              </TableRow>
-            )}
-            {filteredBlips.map((blip) => {
-              const isEditing = editingId === blip.id && editDraft !== null;
-              const isPending = pendingId === blip.id;
-              const isSelected = selectedIds.has(blip.id);
-              const topic = topicById.get(blip.topicId);
-              return isEditing
-                ? (
-                  <BlipEditRow
-                    key={blip.id}
-                    blip={blip}
-                    topicDescription={topic?.description ?? null}
-                    draft={editDraft}
-                    onDraftChange={setEditDraft}
-                    quadrants={quadrants}
-                    rings={rings}
-                    isPending={isPending}
-                    onCommit={() => commitEdit(blip)}
-                    onCancel={cancelEdit}
-                    colCount={colCount}
-                  />
-                )
-                : (
-                  <BlipDisplayRow
-                    key={blip.id}
-                    blip={blip}
-                    topic={topic}
-                    quadrantById={quadrantById}
-                    ringById={ringById}
-                    isSelected={isSelected}
-                    isPending={isPending}
-                    editingLocked={editingId !== null}
-                    showItemsColumn={showItemsColumn}
-                    onToggleSelected={() => toggleSelected(blip.id)}
-                    onStartEdit={() => startEdit(blip)}
-                    onToggleIgnore={() => toggleIgnore(blip)}
-                    onRemove={() => handleRemove(blip)}
-                  />
-                );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={filteredBlips}
+        getRowId={blip => blip.id}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        enableRowSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        containerClassName="rounded-sm border"
+        renderEmpty={() => (
+          <TableRow>
+            <TableCell
+              colSpan={colCount}
+              className="text-center text-muted-foreground"
+            >
+              {blips.length === 0
+                ? "No blips yet."
+                : "No blips match the current filters."}
+            </TableCell>
+          </TableRow>
+        )}
+        renderRow={(row) => {
+          const blip = row.original;
+          const isEditing = editingId === blip.id && editDraft !== null;
+          const isPending = pendingId === blip.id;
+          const topic = topicById.get(blip.topicId);
+          return isEditing
+            ? (
+              <BlipEditRow
+                blip={blip}
+                topicDescription={topic?.description ?? null}
+                draft={editDraft}
+                onDraftChange={setEditDraft}
+                quadrants={quadrants}
+                rings={rings}
+                isPending={isPending}
+                onCommit={() => commitEdit(blip)}
+                onCancel={cancelEdit}
+                colCount={colCount}
+              />
+            )
+            : (
+              <BlipDisplayRow
+                blip={blip}
+                topic={topic}
+                quadrantById={quadrantById}
+                ringById={ringById}
+                isSelected={row.getIsSelected()}
+                isPending={isPending}
+                editingLocked={editingId !== null}
+                showItemsColumn={showItemsColumn}
+                onToggleSelected={() => row.toggleSelected()}
+                onStartEdit={() => startEdit(blip)}
+                onToggleIgnore={() => toggleIgnore(blip)}
+                onRemove={() => handleRemove(blip)}
+              />
+            );
+        }}
+      />
     </div>
   );
 }

@@ -31,7 +31,7 @@ export function useDashboardDailies() {
     mode, setMode,
   } = useDailiesViewMode();
   const {
-    sortKey, sortDir, toggleSort, sortIndicator,
+    sortKey, sortDir, sorting, onSortingChange,
   } = useDailySort();
 
   const {
@@ -82,8 +82,8 @@ export function useDashboardDailies() {
     todayKey,
     mode,
     setMode,
-    toggleSort,
-    sortIndicator,
+    sorting,
+    onSortingChange,
     mutation,
     maxActiveDailies: settings.maxActiveDailies,
   };

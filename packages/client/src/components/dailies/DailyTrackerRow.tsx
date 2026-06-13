@@ -1,4 +1,3 @@
-import type { DailyDayHeader } from "@/hooks/useDailyTracker";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
@@ -170,38 +169,5 @@ export function DailyTrackerRow({
         />
       </td>
     </tr>
-  );
-}
-
-interface DailyTrackerHeadColumnsProps {
-  dayHeaders: DailyDayHeader[];
-  /** Today-status header cell className — the wider table adds `w-36`. */
-  statusThClassName: string;
-}
-
-/**
- * The trailing header cells (today's status, the recent-day columns, location)
- * shared by the dashboard card and routine tracker tables.
- */
-export function DailyTrackerHeadColumns({
-  dayHeaders,
-  statusThClassName,
-}: DailyTrackerHeadColumnsProps) {
-  return (
-    <>
-      <th className={statusThClassName}>Today&apos;s Status</th>
-      {dayHeaders.map(d => (
-        <th
-          key={d.dateKey}
-          className={cn(
-            "px-1 py-2 text-center font-medium",
-            d.isToday && "text-foreground",
-          )}
-        >
-          {d.label}
-        </th>
-      ))}
-      <th className="p-2 font-medium whitespace-nowrap">Location</th>
-    </>
   );
 }

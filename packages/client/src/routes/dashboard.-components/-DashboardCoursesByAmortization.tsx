@@ -1,16 +1,13 @@
 import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { ResourceInResources, CourseProvider } from "@emstack/types";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import {
-  ChevronDownIcon,
-  ChevronsUpDownIcon,
-  ChevronUpIcon,
-  ExternalLink,
-} from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { CardSettingsFlyout } from "./-DashboardCardSettings";
 import { isAutoHeight } from "./-dashboardTileMeta";
@@ -25,14 +22,9 @@ import {
   PopoverTrigger,
 } from "@/components/popover";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
@@ -45,9 +37,7 @@ import { queryKeys } from "@/utils/queryKeys";
 
 type ViewMode = "courses" | "providers";
 
-type CourseSortKey = "name" | "costPerUnit";
-type ProviderSortKey = "name" | "costPerUnit";
-type SortDir = "asc" | "desc";
+type SortKey = "name" | "costPerUnit";
 
 interface CourseRow {
   resource: ResourceInResources;
@@ -138,8 +128,8 @@ function buildProviderRows(
 function compareAmortizationRows<T extends { costPerUnit: number | null }>(
   a: T,
   b: T,
-  key: "name" | "costPerUnit",
-  dir: SortDir,
+  key: SortKey,
+  dir: SortDirection,
   getName: (row: T) => string,
 ): number {
   const direction = dir === "asc" ? 1 : -1;
@@ -164,8 +154,8 @@ function compareAmortizationRows<T extends { costPerUnit: number | null }>(
 function compareCourseRows(
   a: CourseRow,
   b: CourseRow,
-  key: CourseSortKey,
-  dir: SortDir,
+  key: SortKey,
+  dir: SortDirection,
 ): number {
   return compareAmortizationRows(a, b, key, dir, row => row.resource.name);
 }
@@ -173,11 +163,247 @@ function compareCourseRows(
 function compareProviderRows(
   a: ProviderRow,
   b: ProviderRow,
-  key: ProviderSortKey,
-  dir: SortDir,
+  key: SortKey,
+  dir: SortDirection,
 ): number {
   return compareAmortizationRows(a, b, key, dir, row => row.provider.name);
 }
+
+const courseColumns: ColumnDef<CourseRow>[] = [
+  {
+    id: "name",
+    // name sorts ascending on first click, cost-per-unit descending.
+    sortDescFirst: false,
+    header: ({
+      column,
+    }) => (
+      <DataTableColumnHeader
+        column={column}
+        label="Course"
+      />
+    ),
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "font-medium whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => (
+      <Link
+        to="/resources/$id"
+        params={{
+          id: row.original.resource.id,
+        }}
+        className="hover:text-blue-600"
+      >
+        {row.original.resource.name}
+      </Link>
+    ),
+  },
+  {
+    id: "costPerUnit",
+    sortDescFirst: true,
+    header: ({
+      column,
+    }) => (
+      <DataTableColumnHeader
+        column={column}
+        label="Cost per Unit"
+        align="right"
+      />
+    ),
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => {
+      const {
+        effectiveCost,
+        progressCurrent,
+        progressTotal,
+        costPerUnit,
+        isUnstarted,
+      } = row.original;
+      return (
+        <Popover>
+          <PopoverTrigger
+            className={cn(
+              `
+                cursor-pointer underline-offset-2
+                hover:underline
+              `,
+              isUnstarted && "text-muted-foreground",
+            )}
+          >
+            {costPerUnit === null ? "—" : formatCurrency(costPerUnit)}
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="w-56"
+          >
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+              <dt className="text-muted-foreground">Cost</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {formatCurrency(effectiveCost)}
+              </dd>
+              <dt className="text-muted-foreground">Progress</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {progressTotal > 0
+                  ? `${progressCurrent} / ${progressTotal}`
+                  : progressCurrent}
+              </dd>
+              {isUnstarted && (
+                <dd className="col-span-2 text-xs text-muted-foreground">
+                  Unstarted — no progress yet
+                </dd>
+              )}
+            </dl>
+          </PopoverContent>
+        </Popover>
+      );
+    },
+  },
+  {
+    id: "go",
+    enableSorting: false,
+    header: () => <span className="sr-only">Go</span>,
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) =>
+      row.original.resource.url
+        ? (
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+          >
+            <a
+              href={row.original.resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Go
+              <ExternalLink />
+            </a>
+          </Button>
+        )
+        : (
+          <span className="text-muted-foreground">—</span>
+        ),
+  },
+];
+
+const providerColumns: ColumnDef<ProviderRow>[] = [
+  {
+    id: "name",
+    sortDescFirst: false,
+    header: ({
+      column,
+    }) => (
+      <DataTableColumnHeader
+        column={column}
+        label="Provider"
+      />
+    ),
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "font-medium whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => (
+      <Link
+        to="/providers/$id"
+        params={{
+          id: row.original.provider.id,
+        }}
+        className="hover:text-blue-600"
+      >
+        {row.original.provider.name}
+      </Link>
+    ),
+  },
+  {
+    id: "costPerUnit",
+    sortDescFirst: true,
+    header: ({
+      column,
+    }) => (
+      <DataTableColumnHeader
+        column={column}
+        label="Cost per Unit"
+        align="right"
+      />
+    ),
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => {
+      const {
+        courseCount,
+        completedUnits,
+        totalUnits,
+        cost,
+        costPerUnit,
+      } = row.original;
+      return (
+        <Popover>
+          <PopoverTrigger
+            className={cn(
+              `
+                cursor-pointer underline-offset-2
+                hover:underline
+              `,
+              costPerUnit === null && "text-muted-foreground",
+            )}
+          >
+            {costPerUnit === null ? "—" : formatCurrency(costPerUnit)}
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="w-56"
+          >
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+              <dt className="text-muted-foreground">Courses</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {courseCount}
+              </dd>
+              <dt className="text-muted-foreground">Completed Units</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {completedUnits}
+              </dd>
+              <dt className="text-muted-foreground">Total Units</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {totalUnits}
+              </dd>
+              <dt className="text-muted-foreground">Cost</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {formatCurrency(cost)}
+              </dd>
+              {costPerUnit === null && (
+                <dd className="col-span-2 text-xs text-muted-foreground">
+                  No course progress yet
+                </dd>
+              )}
+            </dl>
+          </PopoverContent>
+        </Popover>
+      );
+    },
+  },
+];
 
 export function DashboardCoursesByAmortization({
   tile,
@@ -203,56 +429,10 @@ export function DashboardCoursesByAmortization({
 
   const [viewMode, setViewMode] = useState<ViewMode>("courses");
   const [showUnstarted, setShowUnstarted] = useState(false);
-  const [courseSortKey, setCourseSortKey]
-    = useState<CourseSortKey>("costPerUnit");
-  const [courseSortDir, setCourseSortDir] = useState<SortDir>("desc");
-  const [providerSortKey, setProviderSortKey]
-    = useState<ProviderSortKey>("costPerUnit");
-  const [providerSortDir, setProviderSortDir] = useState<SortDir>("desc");
-
-  function toggleCourseSort(key: CourseSortKey) {
-    if (courseSortKey !== key) {
-      setCourseSortKey(key);
-      setCourseSortDir(key === "name" ? "asc" : "desc");
-      return;
-    }
-    setCourseSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-  }
-
-  function toggleProviderSort(key: ProviderSortKey) {
-    if (providerSortKey !== key) {
-      setProviderSortKey(key);
-      setProviderSortDir(key === "name" ? "asc" : "desc");
-      return;
-    }
-    setProviderSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-  }
-
-  function courseSortIcon(key: CourseSortKey) {
-    if (courseSortKey !== key) {
-      return <ChevronsUpDownIcon className="size-3 opacity-50" />;
-    }
-    return courseSortDir === "asc"
-      ? (
-        <ChevronUpIcon className="size-3" />
-      )
-      : (
-        <ChevronDownIcon className="size-3" />
-      );
-  }
-
-  function providerSortIcon(key: ProviderSortKey) {
-    if (providerSortKey !== key) {
-      return <ChevronsUpDownIcon className="size-3 opacity-50" />;
-    }
-    return providerSortDir === "asc"
-      ? (
-        <ChevronUpIcon className="size-3" />
-      )
-      : (
-        <ChevronDownIcon className="size-3" />
-      );
-  }
+  const [courseSortKey, setCourseSortKey] = useState<SortKey>("costPerUnit");
+  const [courseSortDir, setCourseSortDir] = useState<SortDirection>("desc");
+  const [providerSortKey, setProviderSortKey] = useState<SortKey>("costPerUnit");
+  const [providerSortDir, setProviderSortDir] = useState<SortDirection>("desc");
 
   const courseRows = useMemo(() => {
     const all = buildCourseRows(courses);
@@ -269,6 +449,9 @@ export function DashboardCoursesByAmortization({
       .sort((a, b) =>
         compareProviderRows(a, b, providerSortKey, providerSortDir));
   }, [providers, courses, providerSortKey, providerSortDir]);
+
+  const courseSorting = toSortingState(courseSortKey, courseSortDir);
+  const providerSorting = toSortingState(providerSortKey, providerSortDir);
 
   const isPending
     = viewMode === "providers"
@@ -371,260 +554,34 @@ export function DashboardCoursesByAmortization({
           : "No courses to show."}
       />
       {viewMode === "courses" && courseRows.length > 0 && (
-        <div
-          className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
-        >
-          <Table className="w-auto min-w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleCourseSort("name")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Course
-                    {courseSortIcon("name")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleCourseSort("costPerUnit")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Cost per Unit
-                    {courseSortIcon("costPerUnit")}
-                  </button>
-                </TableHead>
-                <TableHead
-                  className="text-right whitespace-nowrap"
-                  aria-label="Go"
-                >
-                  <span className="sr-only">Go</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {courseRows.map(
-                ({
-                  resource: course,
-                  effectiveCost,
-                  progressCurrent,
-                  progressTotal,
-                  costPerUnit,
-                  isUnstarted,
-                }) => (
-                  <TableRow key={course.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
-                      <Link
-                        to="/resources/$id"
-                        params={{
-                          id: course.id,
-                        }}
-                        className="hover:text-blue-600"
-                      >
-                        {course.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      <Popover>
-                        <PopoverTrigger
-                          className={cn(
-                            `
-                              cursor-pointer underline-offset-2
-                              hover:underline
-                            `,
-                            isUnstarted && "text-muted-foreground",
-                          )}
-                        >
-                          {costPerUnit === null
-                            ? "—"
-                            : formatCurrency(costPerUnit)}
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align="end"
-                          className="w-56"
-                        >
-                          <dl
-                            className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm"
-                          >
-                            <dt className="text-muted-foreground">Cost</dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {formatCurrency(effectiveCost)}
-                            </dd>
-                            <dt className="text-muted-foreground">Progress</dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {progressTotal > 0
-                                ? `${progressCurrent} / ${progressTotal}`
-                                : progressCurrent}
-                            </dd>
-                            {isUnstarted && (
-                              <dd
-                                className="
-                                  col-span-2 text-xs text-muted-foreground
-                                "
-                              >
-                                Unstarted — no progress yet
-                              </dd>
-                            )}
-                          </dl>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {course.url
-                        ? (
-                          <Button
-                            asChild
-                            size="sm"
-                            variant="outline"
-                          >
-                            <a
-                              href={course.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Go
-                              <ExternalLink />
-                            </a>
-                          </Button>
-                        )
-                        : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={courseColumns}
+          data={courseRows}
+          getRowId={row => row.resource.id}
+          manualSorting
+          sorting={courseSorting}
+          onSortingChange={makeManualSortHandler(courseSorting, (id, dir) => {
+            setCourseSortKey(id as SortKey);
+            setCourseSortDir(dir);
+          })}
+          className="w-auto min-w-full"
+          containerClassName="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
+        />
       )}
       {viewMode === "providers" && providerRows.length > 0 && (
-        <div
-          className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
-        >
-          <Table className="w-auto min-w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleProviderSort("name")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Provider
-                    {providerSortIcon("name")}
-                  </button>
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => toggleProviderSort("costPerUnit")}
-                    className="
-                      inline-flex items-center gap-1
-                      hover:text-foreground
-                    "
-                  >
-                    Cost per Unit
-                    {providerSortIcon("costPerUnit")}
-                  </button>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {providerRows.map(
-                ({
-                  provider,
-                  courseCount,
-                  completedUnits,
-                  totalUnits,
-                  cost,
-                  costPerUnit,
-                }) => (
-                  <TableRow key={provider.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
-                      <Link
-                        to="/providers/$id"
-                        params={{
-                          id: provider.id,
-                        }}
-                        className="hover:text-blue-600"
-                      >
-                        {provider.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      <Popover>
-                        <PopoverTrigger
-                          className={cn(
-                            `
-                              cursor-pointer underline-offset-2
-                              hover:underline
-                            `,
-                            costPerUnit === null && "text-muted-foreground",
-                          )}
-                        >
-                          {costPerUnit === null
-                            ? "—"
-                            : formatCurrency(costPerUnit)}
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align="end"
-                          className="w-56"
-                        >
-                          <dl
-                            className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm"
-                          >
-                            <dt className="text-muted-foreground">Courses</dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {courseCount}
-                            </dd>
-                            <dt className="text-muted-foreground">
-                              Completed Units
-                            </dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {completedUnits}
-                            </dd>
-                            <dt className="text-muted-foreground">
-                              Total Units
-                            </dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {totalUnits}
-                            </dd>
-                            <dt className="text-muted-foreground">Cost</dt>
-                            <dd className="text-right font-medium tabular-nums">
-                              {formatCurrency(cost)}
-                            </dd>
-                            {costPerUnit === null && (
-                              <dd
-                                className="
-                                  col-span-2 text-xs text-muted-foreground
-                                "
-                              >
-                                No course progress yet
-                              </dd>
-                            )}
-                          </dl>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={providerColumns}
+          data={providerRows}
+          getRowId={row => row.provider.id}
+          manualSorting
+          sorting={providerSorting}
+          onSortingChange={makeManualSortHandler(providerSorting, (id, dir) => {
+            setProviderSortKey(id as SortKey);
+            setProviderSortDir(dir);
+          })}
+          className="w-auto min-w-full"
+          containerClassName="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
+        />
       )}
     </DashboardCard>
   );

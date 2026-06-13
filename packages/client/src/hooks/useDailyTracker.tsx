@@ -1,11 +1,12 @@
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import {
   getDailyProgressPercent,
   getRecentDays,
@@ -15,7 +16,6 @@ import {
 } from "@/utils";
 
 export type SortKey = "name" | "progress";
-export type SortDir = "asc" | "desc";
 
 /** Render a `MM/DD` label for a `YYYY-MM-DD` date key, in UTC. */
 function formatMmDd(dateKey: string): string {
@@ -31,7 +31,7 @@ export function compareDailies(
   a: Daily,
   b: Daily,
   sortKey: SortKey,
-  sortDir: SortDir,
+  sortDir: SortDirection,
 ): number {
   if (sortKey === "progress") {
     const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
@@ -47,39 +47,26 @@ export function compareDailies(
   return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
 }
 
-/** Sort state plus the toggle handler and header indicator used by both tracker tables. */
+/**
+ * Sort state for the tracker tables, exposed as a TanStack `SortingState` plus a
+ * change handler so the tables can drive `DataTable` / `DataTableColumnHeader`.
+ * `sortKey`/`sortDir` remain for `compareDailies`.
+ */
 export function useDailySort() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
 
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
-      setSortKey(key);
-      setSortDir(key === "progress" ? "desc" : "asc");
-    }
-  }
-
-  function sortIndicator(key: SortKey) {
-    if (sortKey !== key) {
-      return <ArrowUpDownIcon className="size-3 opacity-40" />;
-    }
-    return sortDir === "asc"
-      ? (
-        <ArrowUpIcon className="size-3" />
-      )
-      : (
-        <ArrowDownIcon className="size-3" />
-      );
-  }
+  const sorting = toSortingState(sortKey, sortDir);
+  const onSortingChange = makeManualSortHandler(sorting, (id, dir) => {
+    setSortKey(id as SortKey);
+    setSortDir(dir);
+  });
 
   return {
     sortKey,
     sortDir,
-    toggleSort,
-    sortIndicator,
+    sorting,
+    onSortingChange,
   };
 }
 

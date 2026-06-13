@@ -8,6 +8,7 @@ import type {
   RadarRing,
   TopicForTopicsPage,
 } from "@emstack/types";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { CheckIcon, PencilIcon, XIcon } from "lucide-react";
 
@@ -22,6 +23,7 @@ import { Input } from "@/components/input";
 import { Pill } from "@/components/radar/Pill";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
@@ -31,11 +33,7 @@ import {
 } from "@/components/ui/select";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
-  Table,
-  TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table";
 
@@ -74,48 +72,96 @@ export function ReviewTable({
 }: ReviewTableProps) {
   const allSelected = resolved.length > 0 && resolved.every(r => r.selected);
   const someSelected = resolved.some(r => r.selected);
+
+  const columns: ColumnDef<ResolvedLlmEntry>[] = [
+    {
+      id: "select",
+      meta: {
+        headClassName: "w-8",
+      },
+      header: () => (
+        <SelectAllCheckbox
+          aria-label={allSelected ? "Deselect all" : "Select all"}
+          checked={allSelected}
+          indeterminate={!allSelected && someSelected}
+          onCheckedChange={setAllSelected}
+        />
+      ),
+    },
+    {
+      id: "topic",
+      header: "Topic",
+      meta: {
+        headClassName: "min-w-32",
+      },
+    },
+    {
+      id: "description",
+      header: "Description",
+      meta: {
+        headClassName: "min-w-56",
+      },
+    },
+    {
+      id: "slice",
+      header: "Slice",
+      meta: {
+        headClassName: "min-w-32",
+      },
+    },
+    {
+      id: "ring",
+      header: "Ring",
+      meta: {
+        headClassName: "min-w-32",
+      },
+    },
+    {
+      id: "radarNote",
+      header: "Radar Note",
+      meta: {
+        headClassName: "min-w-56",
+      },
+    },
+    {
+      id: "edit",
+      header: "Edit",
+      meta: {
+        headClassName: "w-24",
+      },
+    },
+    {
+      id: "action",
+      header: "Action",
+      meta: {
+        headClassName: "min-w-44",
+      },
+    },
+  ];
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-8">
-            <SelectAllCheckbox
-              aria-label={allSelected ? "Deselect all" : "Select all"}
-              checked={allSelected}
-              indeterminate={!allSelected && someSelected}
-              onCheckedChange={setAllSelected}
-            />
-          </TableHead>
-          <TableHead className="min-w-32">Topic</TableHead>
-          <TableHead className="min-w-56">Description</TableHead>
-          <TableHead className="min-w-32">Slice</TableHead>
-          <TableHead className="min-w-32">Ring</TableHead>
-          <TableHead className="min-w-56">Radar Note</TableHead>
-          <TableHead className="w-24">Edit</TableHead>
-          <TableHead className="min-w-44">Action</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {resolved.map((r, idx) => (
-          <ReviewRow
-            key={idx}
-            idx={idx}
-            r={r}
-            quadrants={quadrants}
-            rings={rings}
-            quadrantById={quadrantById}
-            ringById={ringById}
-            topicById={topicById}
-            updateEntry={updateEntry}
-            startEdit={startEdit}
-            commitEdit={commitEdit}
-            cancelEdit={cancelEdit}
-            updateDraft={updateDraft}
-            setRowSelected={setRowSelected}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      columns={columns}
+      data={resolved}
+      getRowId={(_r, idx) => String(idx)}
+      renderRow={row => (
+        <ReviewRow
+          idx={row.index}
+          r={row.original}
+          quadrants={quadrants}
+          rings={rings}
+          quadrantById={quadrantById}
+          ringById={ringById}
+          topicById={topicById}
+          updateEntry={updateEntry}
+          startEdit={startEdit}
+          commitEdit={commitEdit}
+          cancelEdit={cancelEdit}
+          updateDraft={updateDraft}
+          setRowSelected={setRowSelected}
+        />
+      )}
+    />
   );
 }
 

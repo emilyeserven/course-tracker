@@ -1,3 +1,6 @@
+import type { Daily } from "@emstack/types";
+import type { ColumnDef } from "@tanstack/react-table";
+
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
@@ -14,13 +17,12 @@ import {
   DailyTitle,
   TooManyDailiesWarning,
 } from "@/components/dailies";
-import {
-  DailyTrackerHeadColumns,
-  DailyTrackerRow,
-} from "@/components/dailies/DailyTrackerRow";
+import { buildDailyTrackerColumns } from "@/components/dailies/dailyTrackerColumns";
+import { DailyTrackerRow } from "@/components/dailies/DailyTrackerRow";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { useDailiesViewMode } from "@/hooks/useDailiesViewMode";
 import {
   buildDailyDayHeaders,
@@ -60,6 +62,126 @@ export const Route = createFileRoute("/routines/tracker")({
 
 const RECENT_DAYS_COUNT = 6;
 
+/** Title link + resource/task indicators, shared by the paused & completed tables. */
+function DailyNameCell({
+  daily,
+}: {
+  daily: Daily;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Link
+        to="/routines/$id"
+        params={{
+          id: daily.id,
+        }}
+        className="
+          font-medium
+          hover:text-blue-600
+        "
+      >
+        <DailyTitle daily={daily} />
+      </Link>
+      <DailyResourceIndicator daily={daily} />
+      <DailyTaskIndicator daily={daily} />
+    </span>
+  );
+}
+
+function lastEntryCell(daily: Daily) {
+  return (
+    getLastEntryDate(daily) ?? (
+      <span className="text-muted-foreground/70">—</span>
+    )
+  );
+}
+
+const pausedColumns: ColumnDef<Daily>[] = [
+  {
+    id: "name",
+    header: "Name",
+    cell: ({
+      row,
+    }) => <DailyNameCell daily={row.original} />,
+  },
+  {
+    id: "lastEntry",
+    header: "Last Entry",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => lastEntryCell(row.original),
+  },
+  {
+    id: "daysCompleted",
+    header: "Days Completed",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => getTotalCompletedDays(row.original),
+  },
+];
+
+const completedColumns: ColumnDef<Daily>[] = [
+  {
+    id: "name",
+    header: "Name",
+    cell: ({
+      row,
+    }) => <DailyNameCell daily={row.original} />,
+  },
+  {
+    id: "lastEntry",
+    header: "Last Entry",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => lastEntryCell(row.original),
+  },
+  {
+    id: "longestStreak",
+    header: "Longest Streak",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => getLongestStreak(row.original),
+  },
+  {
+    id: "daysCompleted",
+    header: "Days Completed",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => getTotalCompletedDays(row.original),
+  },
+  {
+    id: "span",
+    header: "Span (days)",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => getDaysBetweenFirstAndLastEntry(row.original),
+  },
+];
+
 function TrackerPending() {
   return <EntityPending entity="dailies" />;
 }
@@ -79,7 +201,7 @@ function DailyTracker() {
     mode, setMode,
   } = useDailiesViewMode();
   const {
-    sortKey, sortDir, toggleSort, sortIndicator,
+    sortKey, sortDir, sorting, onSortingChange,
   } = useDailySort();
 
   const {
@@ -236,215 +358,66 @@ function DailyTracker() {
               />
             )}
             {mode === "table" && (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-muted-foreground">
-                      <th className="p-2 font-medium">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort("progress")}
-                          className="
-                            inline-flex items-center gap-1
-                            hover:text-foreground
-                          "
-                          aria-label="Sort by progress"
-                          title="Sort by progress"
-                        >
-                          {sortIndicator("progress")}
-                        </button>
-                      </th>
-                      <th className="p-2 font-medium">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort("name")}
-                          className="
-                            inline-flex items-center gap-1
-                            hover:text-foreground
-                          "
-                          aria-label="Sort by title"
-                        >
-                          Title
-                          {sortIndicator("name")}
-                        </button>
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Type
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Cadence
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Streak
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Total
-                      </th>
-                      <th className="p-2 font-medium" />
-                      <DailyTrackerHeadColumns
-                        dayHeaders={dayHeaders}
-                        statusThClassName="w-36 p-2 font-medium whitespace-nowrap"
-                      />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeDailies.map(daily => (
-                      <DailyTrackerRow
-                        key={daily.id}
-                        daily={daily}
-                        todayKey={todayKey}
-                        recentDaysCount={RECENT_DAYS_COUNT}
-                        mutationPending={mutation.isPending}
-                        onChangeStatus={(d, status) =>
-                          mutation.mutate({
-                            daily: d,
-                            status,
-                          })}
-                        rowClassName="
-                          group border-t align-middle
-                          hover:bg-muted/40
-                        "
-                        statusCellClassName="w-36 p-2"
-                        firstConnectorClassName="
-                          absolute top-1/2 right-[calc(50%+12px)]
-                          -left-2 z-0 w-auto -translate-y-1/2
-                        "
-                        taskId={daily.taskId ?? daily.task?.id ?? null}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={buildDailyTrackerColumns({
+                  dayHeaders,
+                  progressHideLabel: true,
+                  statusHeadClassName: "w-36 p-2 font-medium whitespace-nowrap",
+                })}
+                data={activeDailies}
+                getRowId={daily => daily.id}
+                enableSorting
+                manualSorting
+                sorting={sorting}
+                onSortingChange={onSortingChange}
+                className="border-collapse"
+                renderRow={row => (
+                  <DailyTrackerRow
+                    daily={row.original}
+                    todayKey={todayKey}
+                    recentDaysCount={RECENT_DAYS_COUNT}
+                    mutationPending={mutation.isPending}
+                    onChangeStatus={(d, status) =>
+                      mutation.mutate({
+                        daily: d,
+                        status,
+                      })}
+                    rowClassName="
+                      group border-t align-middle
+                      hover:bg-muted/40
+                    "
+                    statusCellClassName="w-36 p-2"
+                    firstConnectorClassName="
+                      absolute top-1/2 right-[calc(50%+12px)]
+                      -left-2 z-0 w-auto -translate-y-1/2
+                    "
+                    taskId={row.original.taskId ?? row.original.task?.id ?? null}
+                  />
+                )}
+              />
             )}
           </DashboardCard>
         )}
 
         {pausedDailies.length > 0 && (
           <DashboardCard title="Paused Routines">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
-                    <th className="p-2 font-medium">Name</th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Last Entry
-                    </th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Days Completed
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pausedDailies.map((daily) => {
-                    const lastEntry = getLastEntryDate(daily);
-                    // Paused/completed rows share the name + last-entry cells but
-                    // differ in their trailing stat columns.
-                    // fallow-ignore-next-line code-duplication
-                    const totalDays = getTotalCompletedDays(daily);
-                    return (
-                      <tr
-                        key={daily.id}
-                        className="border-t align-middle opacity-90"
-                      >
-                        <td className="p-2">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Link
-                              to="/routines/$id"
-                              params={{
-                                id: daily.id,
-                              }}
-                              className="
-                                font-medium
-                                hover:text-blue-600
-                              "
-                            >
-                              <DailyTitle daily={daily} />
-                            </Link>
-                            <DailyResourceIndicator daily={daily} />
-                            <DailyTaskIndicator daily={daily} />
-                          </span>
-                        </td>
-                        <td className="p-2 whitespace-nowrap">
-                          {lastEntry ?? (
-                            <span className="text-muted-foreground/70">—</span>
-                          )}
-                        </td>
-                        <td className="p-2 whitespace-nowrap">{totalDays}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={pausedColumns}
+              data={pausedDailies}
+              getRowId={daily => daily.id}
+              className="opacity-90"
+            />
           </DashboardCard>
         )}
 
         {completedDailies.length > 0 && (
           <DashboardCard title="Completed Routines">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-muted-foreground">
-                    <th className="p-2 font-medium">Name</th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Last Entry
-                    </th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Longest Streak
-                    </th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Days Completed
-                    </th>
-                    <th className="p-2 font-medium whitespace-nowrap">
-                      Span (days)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {completedDailies.map((daily) => {
-                    const lastEntry = getLastEntryDate(daily);
-                    const longestStreak = getLongestStreak(daily);
-                    const totalDays = getTotalCompletedDays(daily);
-                    const spanDays = getDaysBetweenFirstAndLastEntry(daily);
-                    return (
-                      <tr
-                        key={daily.id}
-                        className="border-t align-middle opacity-90"
-                      >
-                        <td className="p-2">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Link
-                              to="/routines/$id"
-                              params={{
-                                id: daily.id,
-                              }}
-                              className="
-                                font-medium
-                                hover:text-blue-600
-                              "
-                            >
-                              <DailyTitle daily={daily} />
-                            </Link>
-                            <DailyResourceIndicator daily={daily} />
-                            <DailyTaskIndicator daily={daily} />
-                          </span>
-                        </td>
-                        <td className="p-2 whitespace-nowrap">
-                          {lastEntry ?? (
-                            <span className="text-muted-foreground/70">—</span>
-                          )}
-                        </td>
-                        <td className="p-2 whitespace-nowrap">
-                          {longestStreak}
-                        </td>
-                        <td className="p-2 whitespace-nowrap">{totalDays}</td>
-                        <td className="p-2 whitespace-nowrap">{spanDays}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={completedColumns}
+              data={completedDailies}
+              getRowId={daily => daily.id}
+              className="opacity-90"
+            />
           </DashboardCard>
         )}
       </div>
