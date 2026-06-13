@@ -77,6 +77,9 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
 export const GRID_EM_PER_ROW = 4;
 export const GRID_GAP = 12;
 
+/** Upper bound for a manually-entered fixed tile height, in grid rows. */
+export const MAX_TILE_ROWS = 40;
+
 function isDashboardTileId(id: string): id is DashboardTileId {
   return (DASHBOARD_TILE_IDS as readonly string[]).includes(id);
 }

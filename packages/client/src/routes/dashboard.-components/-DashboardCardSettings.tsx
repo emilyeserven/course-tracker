@@ -2,9 +2,14 @@ import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { TileHeightMode } from "@emstack/types";
 import type * as React from "react";
 
+import { useEffect, useRef, useState } from "react";
+
 import { SettingsIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 
+import { MAX_TILE_ROWS, TILE_META } from "./-dashboardTileMeta";
+
+import { Input } from "@/components/input";
 import {
   Popover,
   PopoverContent,
@@ -14,14 +19,44 @@ import { RadioGroupItem } from "@/components/radio-group";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/** Auto / Fixed height chooser shared by every card's settings flyout. */
+/** Auto / Fixed height chooser shared by every card's settings flyout. When
+ * "Fixed" is selected, a numeric input lets the user set the height (in grid
+ * rows) directly, as a precise alternative to the resize handle. */
 function TileHeightSettings({
   mode,
   onChange,
+  h,
+  minH,
+  maxH,
+  onHeightChange,
 }: {
   mode: TileHeightMode;
   onChange: (mode: TileHeightMode) => void;
+  h: number;
+  minH: number;
+  maxH: number;
+  onHeightChange: (h: number) => void;
 }) {
+  // Hold the field as a string so the user can clear it / type a partial value
+  // without pushing a bad height. The committed value flows back on blur/Enter.
+  const [draft, setDraft] = useState(String(h));
+  const focusedRef = useRef(false);
+
+  // Reflect external height changes (e.g. dragging the resize handle) unless the
+  // user is mid-edit, so we never clobber what they're typing.
+  useEffect(() => {
+    if (!focusedRef.current) setDraft(String(h));
+  }, [h]);
+
+  const commit = () => {
+    const parsed = Math.round(Number(draft));
+    const next = Number.isFinite(parsed)
+      ? Math.min(maxH, Math.max(minH, parsed))
+      : h;
+    if (next !== h) onHeightChange(next);
+    setDraft(String(next));
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <span
@@ -45,6 +80,30 @@ function TileHeightSettings({
           Fixed (resize handle)
         </label>
       </RadioGroupPrimitive.Root>
+      {mode === "fixed" && (
+        <label className="flex items-center gap-2 text-sm">
+          <Input
+            type="number"
+            min={minH}
+            max={maxH}
+            step={1}
+            value={draft}
+            className="h-8 w-20"
+            onFocus={() => {
+              focusedRef.current = true;
+            }}
+            onChange={e => setDraft(e.target.value)}
+            onBlur={() => {
+              focusedRef.current = false;
+              commit();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+            }}
+          />
+          <span className="text-xs text-muted-foreground">rows</span>
+        </label>
+      )}
     </div>
   );
 }
@@ -122,6 +181,12 @@ function CardSettingsFlyout({
           mode={mode}
           onChange={heightMode => onUpdateTile({
             heightMode,
+          })}
+          h={tile.h}
+          minH={TILE_META[tile.tileId].minH}
+          maxH={MAX_TILE_ROWS}
+          onHeightChange={h => onUpdateTile({
+            h,
           })}
         />
         {children}
