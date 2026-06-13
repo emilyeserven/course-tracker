@@ -1,5 +1,6 @@
 import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { CourseProvider } from "@emstack/types";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -13,14 +14,7 @@ import {
   DashboardSectionStatus,
 } from "@/components/boxes/DashboardCard";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
 import { fetchProviders, formatCurrency, parseCost } from "@/utils";
 
 interface UnderutilizedProvider {
@@ -61,6 +55,105 @@ function buildUnderutilized(
   });
   return rows;
 }
+
+const columns: ColumnDef<UnderutilizedProvider>[] = [
+  {
+    id: "provider",
+    header: "Provider",
+    meta: {
+      headClassName: "whitespace-nowrap",
+      cellClassName: "font-medium whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => (
+      <Link
+        to="/providers/$id"
+        params={{
+          id: row.original.provider.id,
+        }}
+        className="hover:text-blue-600"
+      >
+        {row.original.provider.name}
+      </Link>
+    ),
+  },
+  {
+    id: "costPerUnit",
+    header: "Cost per Unit",
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => (
+      <span
+        title={
+          row.original.amortization === null
+            ? "No completed courses yet"
+            : undefined
+        }
+      >
+        {row.original.amortization === null
+          ? "—"
+          : formatCurrency(row.original.amortization)}
+      </span>
+    ),
+  },
+  {
+    id: "inactive",
+    header: "Inactive",
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => row.original.inactiveCount,
+  },
+  {
+    id: "complete",
+    header: "Complete",
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => row.original.completeCount,
+  },
+  {
+    id: "go",
+    header: "Go",
+    meta: {
+      align: "right",
+      headClassName: "whitespace-nowrap",
+      cellClassName: "whitespace-nowrap",
+    },
+    cell: ({
+      row,
+    }) => (
+      <Button
+        variant="outline"
+        size="sm"
+        asChild
+      >
+        <a
+          href={row.original.provider.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Go
+          <ExternalLink />
+        </a>
+      </Button>
+    ),
+  },
+];
 
 export function DashboardUnderutilizedProviders({
   tile,
@@ -107,84 +200,13 @@ export function DashboardUnderutilizedProviders({
         emptyMessage="No underutilized providers."
       />
       {rows.length > 0 && (
-        <div
-          className="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
-        >
-          <Table className="w-auto min-w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="whitespace-nowrap">Provider</TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  Cost per Unit
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  Inactive
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  Complete
-                </TableHead>
-                <TableHead className="text-right whitespace-nowrap">
-                  Go
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map(
-                ({
-                  provider, amortization, inactiveCount, completeCount,
-                }) => (
-                  <TableRow key={provider.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
-                      <Link
-                        to="/providers/$id"
-                        params={{
-                          id: provider.id,
-                        }}
-                        className="hover:text-blue-600"
-                      >
-                        {provider.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell
-                      className="text-right whitespace-nowrap"
-                      title={
-                        amortization === null
-                          ? "No completed courses yet"
-                          : undefined
-                      }
-                    >
-                      {amortization === null
-                        ? "—"
-                        : formatCurrency(amortization)}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {inactiveCount}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      {completeCount}
-                    </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                      >
-                        <a
-                          href={provider.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Go
-                          <ExternalLink />
-                        </a>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={rows}
+          getRowId={row => row.provider.id}
+          className="w-auto min-w-full"
+          containerClassName="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
+        />
       )}
     </DashboardCard>
   );
