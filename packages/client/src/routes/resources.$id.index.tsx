@@ -12,15 +12,10 @@ import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
+import { PageTabs } from "@/components/layout/PageTabs";
 import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
 import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -100,80 +95,79 @@ function SingleCourse() {
 
   return (
     <div className="container flex flex-col gap-6">
-      <Tabs
-        orientation="vertical"
+      <PageTabs
         value={tab}
-        onValueChange={value => changeTab(value as ResourceTab)}
-      >
-        <TabsList>
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="modules">Modules</TabsTrigger>
-          <TabsTrigger value="routines">Routines</TabsTrigger>
-          <TabsTrigger value="interactions">Interactions</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="details">
-          {data && (
-            <ResourceDetailsTab
-              data={data}
-              percentComplete={percentComplete}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="modules">
-          <ResourceModulesAdmin
-            resourceId={id}
-            modulesAreExhaustive={data?.modulesAreExhaustive}
-          />
-        </TabsContent>
-
-        <TabsContent value="routines">
-          <InfoArea
-            header="Routines"
-            condition={true}
-          >
-            <div className="flex flex-col gap-3">
-              {linkedRoutines.length === 0 && (
-                <span className="text-sm text-muted-foreground">
-                  No routines include this resource yet.
-                </span>
-              )}
-              {linkedRoutines.map(r => (
-                <RoutineBox
-                  key={r.id}
-                  {...r}
+        onValueChange={changeTab}
+        tabs={[
+          {
+            value: "details",
+            label: "Details",
+            content: data
+              ? (
+                <ResourceDetailsTab
+                  data={data}
+                  percentComplete={percentComplete}
                 />
-              ))}
-              <div>
-                <Link
-                  to="/routines/$id/edit"
-                  params={{
-                    id: "new",
-                  }}
-                  search={{
-                    mode: "daily",
-                    entryType: "resource",
-                    entryId: id,
-                  }}
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
+              )
+              : null,
+          },
+          {
+            value: "modules",
+            label: "Modules",
+            content: (
+              <ResourceModulesAdmin
+                resourceId={id}
+                modulesAreExhaustive={data?.modulesAreExhaustive}
+              />
+            ),
+          },
+          {
+            value: "routines",
+            label: "Routines",
+            content: (
+              <div className="flex flex-col gap-3">
+                {linkedRoutines.length === 0 && (
+                  <span className="text-sm text-muted-foreground">
+                    No routines include this resource yet.
+                  </span>
+                )}
+                {linkedRoutines.map(r => (
+                  <RoutineBox
+                    key={r.id}
+                    {...r}
+                  />
+                ))}
+                <div>
+                  <Link
+                    to="/routines/$id/edit"
+                    params={{
+                      id: "new",
+                    }}
+                    search={{
+                      mode: "daily",
+                      entryType: "resource",
+                      entryId: id,
+                    }}
                   >
-                    <PlusIcon />
-                    New Routine
-                  </Button>
-                </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                    >
+                      <PlusIcon />
+                      New Routine
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </InfoArea>
-        </TabsContent>
-
-        <TabsContent value="interactions">
-          <ResourceInteractionsLog resourceId={id} />
-        </TabsContent>
-      </Tabs>
+            ),
+          },
+          {
+            value: "interactions",
+            label: "Interactions",
+            content: <ResourceInteractionsLog resourceId={id} />,
+          },
+        ]}
+      />
       <ConfirmDialog
         open={dailyPromptOpen}
         title="Create a Routine for this resource?"

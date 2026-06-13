@@ -17,13 +17,8 @@ import { useAppForm } from "@/components/formFields";
 import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageTabs } from "@/components/layout/PageTabs";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
@@ -303,67 +298,75 @@ function ExistingDomainEdit({
         </div>
       </PageHeader>
       <div className="container flex flex-col gap-6">
-        <Tabs
-          orientation="vertical"
+        <PageTabs
           value={tab}
-          onValueChange={value => changeTab(value as EditTab)}
-        >
-          <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="scope">Scope</TabsTrigger>
-            <TabsTrigger value="config">Radar Config</TabsTrigger>
-            <TabsTrigger value="blips">Blips</TabsTrigger>
-            <TabsTrigger value="llm">LLM Edit</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="details">
-            <DetailsTab
-              domain={domain}
-              topics={topics ?? []}
-              onSaved={handleSaved}
-              onChangeStateChange={setDetailsHasChanges}
-            />
-          </TabsContent>
-
-          <TabsContent value="scope">
-            <ScopeTab
-              domain={domain}
-              radar={radar}
-              topics={topics ?? []}
-              onSaved={handleSaved}
-              onChangeStateChange={setScopeHasChanges}
-            />
-          </TabsContent>
-
-          <TabsContent value="config">
-            <ConfigTab
-              radar={radar}
-              domainId={id}
-              onSaved={handleSaved}
-            />
-          </TabsContent>
-
-          <TabsContent value="blips">
-            <BlipsTabContainer
-              radar={radar}
-              topics={topics ?? []}
-              domainId={id}
-              onSaved={handleSaved}
-            />
-          </TabsContent>
-
-          <TabsContent value="llm">
-            <LlmTabContainer
-              radar={radar}
-              domain={domain}
-              topics={topics ?? []}
-              onComplete={async () => {
-                await handleSaved();
-                changeTab("blips");
-              }}
-            />
-          </TabsContent>
-        </Tabs>
+          onValueChange={changeTab}
+          tabs={[
+            {
+              value: "details",
+              label: "Details",
+              content: (
+                <DetailsTab
+                  domain={domain}
+                  topics={topics ?? []}
+                  onSaved={handleSaved}
+                  onChangeStateChange={setDetailsHasChanges}
+                />
+              ),
+            },
+            {
+              value: "scope",
+              label: "Scope",
+              content: (
+                <ScopeTab
+                  domain={domain}
+                  radar={radar}
+                  topics={topics ?? []}
+                  onSaved={handleSaved}
+                  onChangeStateChange={setScopeHasChanges}
+                />
+              ),
+            },
+            {
+              value: "config",
+              label: "Radar Config",
+              content: (
+                <ConfigTab
+                  radar={radar}
+                  domainId={id}
+                  onSaved={handleSaved}
+                />
+              ),
+            },
+            {
+              value: "blips",
+              label: "Blips",
+              content: (
+                <BlipsTabContainer
+                  radar={radar}
+                  topics={topics ?? []}
+                  domainId={id}
+                  onSaved={handleSaved}
+                />
+              ),
+            },
+            {
+              value: "llm",
+              label: "LLM Edit",
+              content: (
+                <LlmTabContainer
+                  radar={radar}
+                  domain={domain}
+                  topics={topics ?? []}
+                  onComplete={async () => {
+                    await handleSaved();
+                    changeTab("blips");
+                  }}
+                />
+              ),
+            },
+          ]}
+        />
 
         <EditPageFooter
           isNew={false}
