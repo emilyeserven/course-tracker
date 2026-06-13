@@ -1,3 +1,4 @@
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import { Field, FieldLabel } from "@/components/forms/field";
@@ -10,10 +11,8 @@ import {
 } from "@/utils/fieldChangeHighlight";
 import { useFieldContext } from "@/utils/fieldContext";
 
-interface RadioGroupFieldProps {
-  label: string;
+interface RadioGroupFieldProps extends BaseFieldProps {
   options: SelectOption[];
-  className?: string;
   labelClassName?: string;
 }
 

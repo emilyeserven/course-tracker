@@ -1,3 +1,5 @@
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+
 import { CalendarIcon } from "lucide-react";
 
 import { Calendar } from "@/components/calendar";
@@ -5,14 +7,15 @@ import { Field, FieldLabel } from "@/components/forms/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
+import {
+  changedFieldClass,
+  useFieldChangeHighlight,
+} from "@/utils/fieldChangeHighlight";
 import { useFieldContext } from "@/utils/fieldContext";
 
-interface DatePickerFieldProps {
-  label: string;
+interface DatePickerFieldProps extends BaseFieldProps {
   placeholder?: string;
   clearLabel?: string;
-  className?: string;
 }
 
 export function DatePickerField({

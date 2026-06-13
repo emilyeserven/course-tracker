@@ -1,4 +1,5 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import {
@@ -28,11 +29,9 @@ import {
 } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
-interface MultiComboboxFieldProps {
-  label: string;
+interface MultiComboboxFieldProps extends BaseFieldProps {
   options: SelectOption[];
   placeholder?: string;
-  className?: string;
   create?: CreateConfig;
   /**
    * When true, options are rendered under group headers (and the dropdown filters

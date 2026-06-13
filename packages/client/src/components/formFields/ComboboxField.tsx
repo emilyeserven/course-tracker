@@ -1,4 +1,5 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import {
@@ -20,11 +21,9 @@ import {
 } from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
-interface ComboboxFieldProps {
-  label: string;
+interface ComboboxFieldProps extends BaseFieldProps {
   options: SelectOption[];
   placeholder?: string;
-  className?: string;
   disabled?: boolean;
   create?: CreateConfig;
 }
