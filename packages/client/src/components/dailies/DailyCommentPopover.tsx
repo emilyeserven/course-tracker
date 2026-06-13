@@ -1,6 +1,6 @@
 import type { Daily } from "@emstack/types";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
@@ -13,6 +13,7 @@ import {
 } from "@/components/popover";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { useHoverPopover } from "@/hooks/useHoverPopover";
 import { cn } from "@/lib/utils";
 import {
   getTodayKey,
@@ -35,10 +36,12 @@ export function DailyCommentPopover({
     = daily.completions.find(c => c.date === todayKey)?.note?.trim() || "";
   const hasNote = note.length > 0;
 
-  const [open, setOpen] = useState(false);
+  const {
+    open, setOpen, cancelClose, handleOpen, handleClose,
+  }
+    = useHoverPopover();
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(note);
-  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -48,37 +51,18 @@ export function DailyCommentPopover({
     setDraft(note);
   }, [open, hasNote, note]);
 
-  useEffect(() => {
-    return () => {
-      if (hoverCloseTimer.current) {
-        clearTimeout(hoverCloseTimer.current);
-      }
-    };
-  }, []);
-
-  const cancelHoverClose = () => {
-    if (hoverCloseTimer.current) {
-      clearTimeout(hoverCloseTimer.current);
-      hoverCloseTimer.current = null;
-    }
-  };
-
   const handleHoverOpen = () => {
     if (!hasNote || isEditing) {
       return;
     }
-    cancelHoverClose();
-    setOpen(true);
+    handleOpen();
   };
 
   const handleHoverClose = () => {
     if (isEditing) {
       return;
     }
-    cancelHoverClose();
-    hoverCloseTimer.current = setTimeout(() => {
-      setOpen(false);
-    }, 120);
+    handleClose();
   };
 
   const mutation = useMutation({
@@ -139,7 +123,7 @@ export function DailyCommentPopover({
           aria-expanded={open}
           title={hasNote ? "View comment" : "Add comment"}
           onClick={() => {
-            cancelHoverClose();
+            cancelClose();
             if (!hasNote) {
               setIsEditing(true);
             }
@@ -162,7 +146,7 @@ export function DailyCommentPopover({
       <PopoverContent
         className="w-80 p-3"
         align="end"
-        onMouseEnter={cancelHoverClose}
+        onMouseEnter={cancelClose}
         onMouseLeave={handleHoverClose}
         onOpenAutoFocus={(e) => {
           if (!isEditing) {
