@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, EditIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { RadarChart } from "./domains.$id.-components/-RadarChart";
+
 import { InfoArea, PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, upsertRadarBlip } from "@/utils";
-
-import { RadarChart } from "./domains.$id.-components/-RadarChart";
 
 export interface RadarSearch {
   blipId?: string;
