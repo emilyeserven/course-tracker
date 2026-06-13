@@ -1,3 +1,4 @@
+import type { EditRowBaseProps } from "@/components/editRowProps";
 import type { TaskType } from "@emstack/types";
 
 import { useState } from "react";
@@ -7,13 +8,9 @@ import { Input } from "@/components/input";
 import { TagsInput } from "@/components/tasks/TagsInput";
 import { Textarea } from "@/components/textarea";
 
-interface TaskTypeEditRowProps {
+interface TaskTypeEditRowProps extends EditRowBaseProps {
   taskType: TaskType;
-  isNew?: boolean;
-  isSaving?: boolean;
   onSave: (next: TaskType) => void;
-  onCancel: () => void;
-  onDelete?: () => void;
   deleteDisabled?: boolean;
   deleteDisabledReason?: string;
 }

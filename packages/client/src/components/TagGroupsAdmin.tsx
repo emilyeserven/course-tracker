@@ -1,3 +1,4 @@
+import type { EditRowBaseProps } from "@/components/editRowProps";
 import type { Tag, TagGroup } from "@emstack/types";
 
 import { useState } from "react";
@@ -262,13 +263,9 @@ export function TagGroupsAdmin() {
   );
 }
 
-interface GroupEditRowProps {
+interface GroupEditRowProps extends EditRowBaseProps {
   draft: TagGroupDraft;
-  isNew?: boolean;
-  isSaving?: boolean;
   onSave: (draft: TagGroupDraft) => void;
-  onCancel: () => void;
-  onDelete?: () => void;
   deleteDisabled?: boolean;
   deleteDisabledReason?: string;
 }
@@ -505,13 +502,9 @@ function TagDisplayRow({
   );
 }
 
-interface TagEditRowProps {
+interface TagEditRowProps extends EditRowBaseProps {
   draft: TagDraft;
-  isNew?: boolean;
-  isSaving?: boolean;
   onSave: (draft: TagDraft) => void;
-  onCancel: () => void;
-  onDelete?: () => void;
 }
 
 function TagEditRow({
