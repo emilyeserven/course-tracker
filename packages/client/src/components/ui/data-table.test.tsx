@@ -218,4 +218,45 @@ describe("DataTable", () => {
     // Despite sorting state saying name-asc, manual mode preserves data order.
     expect(bodyRowNames()[0]).toContain("Banana");
   });
+
+  test("display columns (no accessor) are still sortable when sorting is on", () => {
+    // TanStack's getCanSort requires an accessor, so DataTable injects a no-op
+    // one for display columns. Without it, manual-sort tables (Topics, Blip,
+    // amortization, daily tracker) render dead headers.
+    const displayColumns: ColumnDef<Item>[] = [
+      {
+        id: "name",
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Name"
+          />
+        ),
+        cell: ({
+          row,
+        }) => row.original.name,
+      },
+    ];
+
+    const onSortingChange = vi.fn();
+    render(
+      <DataTable
+        columns={displayColumns}
+        data={data}
+        getRowId={r => r.id}
+        enableSorting
+        manualSorting
+        sorting={[]}
+        onSortingChange={onSortingChange}
+      />,
+    );
+
+    const sortButton = screen.getByRole("button", {
+      name: /name/i,
+    });
+    fireEvent.click(sortButton);
+    expect(onSortingChange).toHaveBeenCalled();
+  });
 });

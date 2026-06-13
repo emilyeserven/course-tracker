@@ -10,7 +10,7 @@ import type {
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 import {
   flexRender,
@@ -131,9 +131,26 @@ export function DataTable<TData>({
   const filteringEnabled
     = globalFilter != null || onGlobalFilterChange != null;
 
+  // TanStack's `getCanSort` requires an accessor, so a display column (id +
+  // cell, no accessor) can't sort even in `manualSorting` mode. When sorting is
+  // on, give such columns — unless they opt out with `enableSorting: false` — a
+  // no-op accessor so `DataTableColumnHeader`'s toggle works. Ordering itself is
+  // the table's (or, under `manualSorting`, the caller's pre-sorted data's) job.
+  const preparedColumns = useMemo(() => {
+    if (!sortingEnabled) return columns;
+    return columns.map((column) => {
+      const hasAccessor = "accessorKey" in column || "accessorFn" in column;
+      if (hasAccessor || column.enableSorting === false) return column;
+      return {
+        ...column,
+        accessorFn: () => undefined,
+      };
+    });
+  }, [columns, sortingEnabled]);
+
   const table = useReactTable<TData>({
     data,
-    columns,
+    columns: preparedColumns,
     getRowId,
     state: {
       sorting: sortingState,
