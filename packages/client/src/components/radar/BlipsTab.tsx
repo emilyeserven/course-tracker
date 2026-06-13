@@ -94,8 +94,7 @@ export function BlipsTab({
 }: BlipsTabProps) {
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-row items-center justify-between gap-2">
-        <h2 className="text-2xl">Blips</h2>
+      <div className="flex flex-row items-center justify-end gap-2">
         <Button
           type="button"
           onClick={onAddBlip}
