@@ -1,4 +1,5 @@
 import type { Task, TaskResource } from "@emstack/types";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { useMemo, useState } from "react";
 
@@ -10,6 +11,7 @@ import { TaskResourceRow } from "./TaskResourceRow";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
 import { useTaskResources } from "@/hooks/useTaskResources";
 import { uuidv4 } from "@/utils/uuid";
 
@@ -25,6 +31,63 @@ interface ResourcesTableProps {
 }
 
 const ANY_VALUE = "__any";
+
+// Header layout only — rows render via `DataTable`'s `renderRow` (the display
+// rows and the full-width inline editor don't map to per-column cells).
+const columns: ColumnDef<TaskResource>[] = [
+  {
+    id: "name",
+    enableSorting: false,
+    header: "Name",
+  },
+  {
+    id: "ease",
+    enableSorting: false,
+    header: "Ease of Starting",
+    meta: {
+      headClassName: "whitespace-nowrap",
+    },
+  },
+  {
+    id: "time",
+    enableSorting: false,
+    header: "Time Needed",
+    meta: {
+      headClassName: "whitespace-nowrap",
+    },
+  },
+  {
+    id: "interactivity",
+    enableSorting: false,
+    header: "Interactivity",
+  },
+  {
+    id: "used",
+    enableSorting: false,
+    header: "Used yet?",
+    meta: {
+      headClassName: "whitespace-nowrap",
+    },
+  },
+  {
+    id: "location",
+    enableSorting: false,
+    header: "Location",
+  },
+  {
+    id: "logAction",
+    enableSorting: false,
+    header: () => null,
+    meta: {
+      headClassName: "w-24",
+    },
+  },
+  {
+    id: "editAction",
+    enableSorting: false,
+    header: () => null,
+  },
+];
 
 export function ResourcesTable({
   task,
@@ -71,6 +134,12 @@ export function ResourcesTable({
       return true;
     });
   }, [resources, search, usedFilter]);
+
+  // The draft "new" row renders above the existing rows, so feed it into the
+  // table as the first row when present.
+  const tableData = draftNewResource
+    ? [draftNewResource, ...filtered]
+    : filtered;
 
   function startCreate() {
     setEditingId(null);
@@ -184,28 +253,26 @@ export function ResourcesTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th className="p-2 font-medium">Name</th>
-              <th className="p-2 font-medium whitespace-nowrap">
-                Ease of Starting
-              </th>
-              <th className="p-2 font-medium whitespace-nowrap">Time Needed</th>
-              <th className="p-2 font-medium">Interactivity</th>
-              <th className="p-2 font-medium whitespace-nowrap">Used yet?</th>
-              <th className="p-2 font-medium">Location</th>
-              <th
-                className="w-24 p-2"
-                colSpan={2}
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {draftNewResource && (
+      <DataTable
+        columns={columns}
+        data={tableData}
+        getRowId={r => r.id}
+        className="border-collapse"
+        renderEmpty={() => (
+          <TableRow>
+            <TableCell
+              colSpan={COLUMN_COUNT}
+              className="p-4 text-center text-muted-foreground"
+            >
+              <i>No resources match these filters.</i>
+            </TableCell>
+          </TableRow>
+        )}
+        renderRow={(row) => {
+          const r = row.original;
+          if (draftNewResource && r.id === draftNewResource.id) {
+            return (
               <EditingRow
-                key={draftNewResource.id}
                 resource={draftNewResource}
                 resourceOptions={resourceOptions}
                 allModuleGroups={allModuleGroups ?? []}
@@ -215,71 +282,47 @@ export function ResourcesTable({
                 onSave={handleSaveNew}
                 onCancel={() => setDraftNewResource(null)}
               />
-            )}
-            {filtered.length === 0 && !draftNewResource && (
-              <tr>
-                <td
-                  colSpan={COLUMN_COUNT}
-                  className="p-4 text-center text-muted-foreground"
-                >
-                  <i>No resources match these filters.</i>
-                </td>
-              </tr>
-            )}
-            {filtered.map((r) => {
-              if (r.id === editingId && editingResource) {
-                return (
-                  <EditingRow
-                    key={r.id}
-                    resource={editingResource}
-                    resourceOptions={resourceOptions}
-                    allModuleGroups={allModuleGroups ?? []}
-                    allModules={allModules ?? []}
-                    isSaving={mutation.isPending}
-                    onSave={handleSaveEdit}
-                    onCancel={() => setEditingId(null)}
-                    onDelete={() => handleDelete(r.id)}
-                  />
-                );
-              }
-              const modulesList = allModules ?? [];
-              const groupsList = allModuleGroups ?? [];
-              return (
-                <TaskResourceRow
-                  key={r.id}
-                  resource={r}
-                  ease={inheritedLevel(
-                    r,
-                    "easeOfStarting",
-                    modulesList,
-                    groupsList,
-                  )}
-                  time={inheritedLevel(
-                    r,
-                    "timeNeeded",
-                    modulesList,
-                    groupsList,
-                  )}
-                  interactivity={inheritedLevel(
-                    r,
-                    "interactivity",
-                    modulesList,
-                    groupsList,
-                  )}
-                  linkedLabel={linkedResourceLabel(r)}
-                  isAnyEditing={isAnyEditing}
-                  isMutationPending={mutation.isPending}
-                  isLogging={loggingFor === r.id}
-                  onToggleUsed={handleToggleUsed}
-                  onStartEdit={() => startEdit(r.id)}
-                  onLogInteraction={() => setLoggingFor(r.id)}
-                  onCloseLog={() => setLoggingFor(null)}
-                />
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+            );
+          }
+          if (r.id === editingId && editingResource) {
+            return (
+              <EditingRow
+                resource={editingResource}
+                resourceOptions={resourceOptions}
+                allModuleGroups={allModuleGroups ?? []}
+                allModules={allModules ?? []}
+                isSaving={mutation.isPending}
+                onSave={handleSaveEdit}
+                onCancel={() => setEditingId(null)}
+                onDelete={() => handleDelete(r.id)}
+              />
+            );
+          }
+          const modulesList = allModules ?? [];
+          const groupsList = allModuleGroups ?? [];
+          return (
+            <TaskResourceRow
+              resource={r}
+              ease={inheritedLevel(r, "easeOfStarting", modulesList, groupsList)}
+              time={inheritedLevel(r, "timeNeeded", modulesList, groupsList)}
+              interactivity={inheritedLevel(
+                r,
+                "interactivity",
+                modulesList,
+                groupsList,
+              )}
+              linkedLabel={linkedResourceLabel(r)}
+              isAnyEditing={isAnyEditing}
+              isMutationPending={mutation.isPending}
+              isLogging={loggingFor === r.id}
+              onToggleUsed={handleToggleUsed}
+              onStartEdit={() => startEdit(r.id)}
+              onLogInteraction={() => setLoggingFor(r.id)}
+              onCloseLog={() => setLoggingFor(null)}
+            />
+          );
+        }}
+      />
     </div>
   );
 }
