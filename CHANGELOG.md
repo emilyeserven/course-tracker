@@ -2,6 +2,51 @@
 
 All notable changes to this project are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-06-13
+
+### Features
+
+- Introduce DataTable component and migrate tables to TanStack Table (#300)
+- Add tile settings and auto-height to changelog card (#303)
+- Add calendar dashboard card backed by iCal feeds (#287)
+- Extract tile visibility picker into modal dialog (#294)
+- Add numeric input for fixed tile height in dashboard settings (#281)
+- Add changelog dashboard tile (#276)
+- Split dailies into Do Now and Done for the Day cards with per-card settings (#272)
+- Improve Explore Something card with grid, descriptions, and focus hint (#271)
+- Add Quick Add menu for rapid record creation (#273)
+
+### Bug Fixes
+
+- Patch dependabot security advisories and prune stale overrides (#288)
+- Prevent auto-height tiles from clamping to layout height (#280)
+- Forward grid props to GridTile to enable positioning and dragging (#279)
+
+### Changed
+
+- Upgrade Storybook to 10.4.4 and drop @storybook/test (#314)
+- Reduce minimum width for dashboard tiles (#313)
+- Consolidate duplicated radar UI and add full Storybook coverage (#302)
+- Share resource-progress prop slice across ProgressBar and PageHeader (#301)
+- Condense redundant types in routines components (#298)
+- Extract EditRowBaseProps base for edit-row props (#297)
+- Remove db-push service from compose and Dockerfile (#299)
+- Expose resize handles per tile instead of global resizable flag (#296)
+- Condense layout component types (#291)
+- Consolidate formField prop types onto SelectOption and a shared base (#292)
+- Extract BaseModuleEditDraft base for resource drafts (#293)
+- Improve dashboard grid layout responsiveness (#295)
+- Condense types in client boxes folder (#290)
+- Extract DailyStatusChangeProps base (#289)
+- Consolidate controlled-dialog props into a shared base (#285)
+- Consolidate EntityKind route-segment union (#283)
+- Dedupe resource link-option type in tasks components (#282)
+- Gitignore and untrack .eslintcache (#284)
+- Consolidate duplicate radar types and add condense-types skill (#278)
+- Include CHANGELOG.md in Docker build for client bundling (#277)
+- Reorganize settings into tabbed interface (#275)
+- Document Conventional Commits and PR title requirements (#274)
+
 ## [1.0.0] - 2026-06-13
 
 ### Bug Fixes
