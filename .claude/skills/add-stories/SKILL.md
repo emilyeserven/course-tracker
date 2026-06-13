@@ -240,3 +240,22 @@ primitives are pure Tier A; `CourseFields` takes a whole `form`, so its story us
 a tiny inline wrapper that builds the form and casts it
 (`as unknown as ReturnType<typeof useAppForm>`, mirroring the onboarding route)
 and types the meta against the wrapper to keep the required `form` out of args.
+
+### resources (#355)
+All 10 covered. New fixture file `test-utils/resourceModulesFixtures.ts`
+(`makeTag`/`makeTagGroup`/`makeTagGroups`/`makeModule`/`makeModuleGroup`/
+`makeInteraction`, defaults keyed to `resourceId: "resource-1"`). Reuse the
+draft factories from `resources/moduleDrafts` (`emptyGroupDraft`, `groupToDraft`,
+`emptyModuleDraft`, `moduleToDraft`) for the edit-card drafts — don't hand-roll.
+Tier A (no decorator): `OptionalSelectField`, `LevelTriad`, `ModuleDisplayRow`
+(host in a `<ul>`), `LevelAndTagsFields`, `GroupEditCard`, `ModuleEditCard` — the
+last three pull in `TagPicker` (Base UI `Combobox`), which is self-contained, so
+just don't open the combobox in `play`. Tier B: `InteractionQuickLog` +
+`ModuleSuggestDialog` need only a bare `QueryStub` (mutations, no reads — don't
+fire the submit so the real network mutation never runs); `ModuleSuggestDialog`
+is a Radix `Dialog` so set `open: true` and assert via `within(document.body)`.
+`ResourceInteractionsLog` and `ResourceModulesAdmin` read through hooks
+(`useInteractionsLog` / `useResourceModules`), so seed a `QueryClient`
+(`staleTime: Infinity`) for their keys — interactions/moduleGroups/modules, plus
+`tagGroups.list()` and `resources.detail()` for the admin — and pass it as the
+`QueryStub client`. Neither renders a `<Link>` (plain `<a>`), so no `RouterStub`.
