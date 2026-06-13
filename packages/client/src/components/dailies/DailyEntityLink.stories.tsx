@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, userEvent, within } from "@storybook/test";
 import { CheckSquareIcon, GraduationCapIcon } from "lucide-react";
+import { expect, userEvent, within } from "storybook/test";
 
 import { DailyEntityLink } from "./DailyEntityLink";
 
