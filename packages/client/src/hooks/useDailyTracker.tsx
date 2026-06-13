@@ -1,11 +1,12 @@
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
-import type { SortingState, Updater } from "@tanstack/react-table";
 
 import { useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import {
   getDailyProgressPercent,
   getRecentDays,
@@ -15,7 +16,6 @@ import {
 } from "@/utils";
 
 export type SortKey = "name" | "progress";
-export type SortDir = "asc" | "desc";
 
 /** Render a `MM/DD` label for a `YYYY-MM-DD` date key, in UTC. */
 function formatMmDd(dateKey: string): string {
@@ -31,7 +31,7 @@ export function compareDailies(
   a: Daily,
   b: Daily,
   sortKey: SortKey,
-  sortDir: SortDir,
+  sortDir: SortDirection,
 ): number {
   if (sortKey === "progress") {
     const diff = getDailyProgressPercent(a) - getDailyProgressPercent(b);
@@ -54,22 +54,13 @@ export function compareDailies(
  */
 export function useDailySort() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
 
-  const sorting: SortingState = [
-    {
-      id: sortKey,
-      desc: sortDir === "desc",
-    },
-  ];
-
-  function onSortingChange(updater: Updater<SortingState>) {
-    const next = typeof updater === "function" ? updater(sorting) : updater;
-    const first = next[0];
-    if (!first) return;
-    setSortKey(first.id as SortKey);
-    setSortDir(first.desc ? "desc" : "asc");
-  }
+  const sorting = toSortingState(sortKey, sortDir);
+  const onSortingChange = makeManualSortHandler(sorting, (id, dir) => {
+    setSortKey(id as SortKey);
+    setSortDir(dir);
+  });
 
   return {
     sortKey,

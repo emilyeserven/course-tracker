@@ -1,6 +1,7 @@
 import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { ResourceInResources, CourseProvider } from "@emstack/types";
-import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { useMemo, useState } from "react";
 
@@ -23,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
@@ -36,7 +38,6 @@ import { queryKeys } from "@/utils/queryKeys";
 type ViewMode = "courses" | "providers";
 
 type SortKey = "name" | "costPerUnit";
-type SortDir = "asc" | "desc";
 
 interface CourseRow {
   resource: ResourceInResources;
@@ -128,7 +129,7 @@ function compareAmortizationRows<T extends { costPerUnit: number | null }>(
   a: T,
   b: T,
   key: SortKey,
-  dir: SortDir,
+  dir: SortDirection,
   getName: (row: T) => string,
 ): number {
   const direction = dir === "asc" ? 1 : -1;
@@ -154,7 +155,7 @@ function compareCourseRows(
   a: CourseRow,
   b: CourseRow,
   key: SortKey,
-  dir: SortDir,
+  dir: SortDirection,
 ): number {
   return compareAmortizationRows(a, b, key, dir, row => row.resource.name);
 }
@@ -163,33 +164,9 @@ function compareProviderRows(
   a: ProviderRow,
   b: ProviderRow,
   key: SortKey,
-  dir: SortDir,
+  dir: SortDirection,
 ): number {
   return compareAmortizationRows(a, b, key, dir, row => row.provider.name);
-}
-
-/** Single-element sort state ↔ the key/dir pair the comparators expect. */
-function toSorting(key: SortKey, dir: SortDir): SortingState {
-  return [
-    {
-      id: key,
-      desc: dir === "desc",
-    },
-  ];
-}
-
-function makeSortingChangeHandler(
-  current: SortingState,
-  setKey: (key: SortKey) => void,
-  setDir: (dir: SortDir) => void,
-) {
-  return (updater: Updater<SortingState>) => {
-    const next = typeof updater === "function" ? updater(current) : updater;
-    const first = next[0];
-    if (!first) return;
-    setKey(first.id as SortKey);
-    setDir(first.desc ? "desc" : "asc");
-  };
 }
 
 const courseColumns: ColumnDef<CourseRow>[] = [
@@ -453,9 +430,9 @@ export function DashboardCoursesByAmortization({
   const [viewMode, setViewMode] = useState<ViewMode>("courses");
   const [showUnstarted, setShowUnstarted] = useState(false);
   const [courseSortKey, setCourseSortKey] = useState<SortKey>("costPerUnit");
-  const [courseSortDir, setCourseSortDir] = useState<SortDir>("desc");
+  const [courseSortDir, setCourseSortDir] = useState<SortDirection>("desc");
   const [providerSortKey, setProviderSortKey] = useState<SortKey>("costPerUnit");
-  const [providerSortDir, setProviderSortDir] = useState<SortDir>("desc");
+  const [providerSortDir, setProviderSortDir] = useState<SortDirection>("desc");
 
   const courseRows = useMemo(() => {
     const all = buildCourseRows(courses);
@@ -473,8 +450,8 @@ export function DashboardCoursesByAmortization({
         compareProviderRows(a, b, providerSortKey, providerSortDir));
   }, [providers, courses, providerSortKey, providerSortDir]);
 
-  const courseSorting = toSorting(courseSortKey, courseSortDir);
-  const providerSorting = toSorting(providerSortKey, providerSortDir);
+  const courseSorting = toSortingState(courseSortKey, courseSortDir);
+  const providerSorting = toSortingState(providerSortKey, providerSortDir);
 
   const isPending
     = viewMode === "providers"
@@ -583,11 +560,10 @@ export function DashboardCoursesByAmortization({
           getRowId={row => row.resource.id}
           manualSorting
           sorting={courseSorting}
-          onSortingChange={makeSortingChangeHandler(
-            courseSorting,
-            setCourseSortKey,
-            setCourseSortDir,
-          )}
+          onSortingChange={makeManualSortHandler(courseSorting, (id, dir) => {
+            setCourseSortKey(id as SortKey);
+            setCourseSortDir(dir);
+          })}
           className="w-auto min-w-full"
           containerClassName="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
         />
@@ -599,11 +575,10 @@ export function DashboardCoursesByAmortization({
           getRowId={row => row.provider.id}
           manualSorting
           sorting={providerSorting}
-          onSortingChange={makeSortingChangeHandler(
-            providerSorting,
-            setProviderSortKey,
-            setProviderSortDir,
-          )}
+          onSortingChange={makeManualSortHandler(providerSorting, (id, dir) => {
+            setProviderSortKey(id as SortKey);
+            setProviderSortDir(dir);
+          })}
           className="w-auto min-w-full"
           containerClassName="max-h-80 w-full overflow-auto [scrollbar-width:thin]"
         />

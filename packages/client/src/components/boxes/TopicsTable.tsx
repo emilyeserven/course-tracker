@@ -1,8 +1,8 @@
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { TopicForTopicsPage } from "@emstack/types";
 import type {
   ColumnDef,
   RowSelectionState,
-  SortingState,
   Updater,
 } from "@tanstack/react-table";
 
@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 
 export type TopicsTableSortColumn
@@ -19,7 +20,7 @@ export type TopicsTableSortColumn
     | "resources"
     | "tasks"
     | "dailies";
-export type TopicsTableSortDirection = "asc" | "desc";
+export type TopicsTableSortDirection = SortDirection;
 
 export interface TopicsTableSort {
   column: TopicsTableSortColumn;
@@ -77,25 +78,14 @@ export function TopicsTable({
 }: TopicsTableProps) {
   const sortingEnabled = !!onSortChange;
 
-  const sorting: SortingState = sort
-    ? [
-      {
-        id: sort.column,
-        desc: sort.direction === "desc",
-      },
-    ]
-    : [];
+  const sorting = sort ? toSortingState(sort.column, sort.direction) : [];
 
-  function handleSortingChange(updater: Updater<SortingState>) {
-    if (!onSortChange) return;
-    const next = typeof updater === "function" ? updater(sorting) : updater;
-    const first = next[0];
-    if (!first) return;
-    onSortChange({
-      column: first.id as TopicsTableSortColumn,
-      direction: first.desc ? "desc" : "asc",
+  const handleSortingChange = makeManualSortHandler(sorting, (id, dir) => {
+    onSortChange?.({
+      column: id as TopicsTableSortColumn,
+      direction: dir,
     });
-  }
+  });
 
   const selectedIds = selection?.selectedIds;
 

@@ -1,9 +1,9 @@
 import type { BlipEditDraft } from "@/components/radar/BlipEditRow";
 import type {
   BulkPatch,
-  SortDir,
   SortKey,
 } from "@/components/radar/blipTableFilters";
+import type { SortDirection } from "@/components/ui/manualSort";
 import type {
   RadarBlip,
   RadarQuadrant,
@@ -13,8 +13,6 @@ import type {
 import type {
   ColumnDef,
   RowSelectionState,
-  SortingState,
-  Updater,
 } from "@tanstack/react-table";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -34,6 +32,7 @@ import {
 } from "@/components/radar/blipTableFilters";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import {
   Select,
   SelectContent,
@@ -78,7 +77,7 @@ export function BlipTable({
   const [filterQuadrant, setFilterQuadrant] = useState<string>(ALL);
   const [filterRing, setFilterRing] = useState<string>(ALL);
   const [sortKey, setSortKey] = useState<SortKey>("slice");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<BlipEditDraft | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -170,20 +169,11 @@ export function BlipTable({
     [rowSelection],
   );
 
-  const sorting: SortingState = [
-    {
-      id: sortKey,
-      desc: sortDir === "desc",
-    },
-  ];
-
-  function handleSortingChange(updater: Updater<SortingState>) {
-    const next = typeof updater === "function" ? updater(sorting) : updater;
-    const first = next[0];
-    if (!first) return;
-    setSortKey(first.id as SortKey);
-    setSortDir(first.desc ? "desc" : "asc");
-  }
+  const sorting = toSortingState(sortKey, sortDir);
+  const handleSortingChange = makeManualSortHandler(sorting, (id, dir) => {
+    setSortKey(id as SortKey);
+    setSortDir(dir);
+  });
 
   function handleClearSelection() {
     setRowSelection({});

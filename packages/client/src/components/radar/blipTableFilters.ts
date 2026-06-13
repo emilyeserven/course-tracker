@@ -1,7 +1,7 @@
+import type { SortDirection } from "@/components/ui/manualSort";
 import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 export type SortKey = "topic" | "slice" | "ring" | "items";
-export type SortDir = "asc" | "desc";
 
 export interface BulkPatch {
   quadrantId?: string;
@@ -17,7 +17,7 @@ export interface BlipFilterCriteria {
   filterQuadrant: string;
   filterRing: string;
   sortKey: SortKey;
-  sortDir: SortDir;
+  sortDir: SortDirection;
 }
 
 export interface BlipFilterLookups {
