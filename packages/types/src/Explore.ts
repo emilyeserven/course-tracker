@@ -11,6 +11,9 @@ export interface ExploreItem {
   // Resolved ring name (null when the blip has no ring assigned, or its ringId
   // no longer matches a ring in the domain's config).
   ringName: string | null;
+  // Blip reasoning if present, else the topic's own description; null when
+  // neither is set.
+  description: string | null;
 }
 
 // Response shape for GET /api/domains/explore.

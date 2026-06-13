@@ -25,6 +25,7 @@ export default async function (server: FastifyInstance) {
                 columns: {
                   id: true,
                   name: true,
+                  description: true,
                 },
               },
             },
@@ -56,6 +57,10 @@ export default async function (server: FastifyInstance) {
             domainId: domain.id,
             domainTitle: domain.title,
             ringName: blip.ringId ? ringNameById.get(blip.ringId) ?? null : null,
+            // Prefer the blip's reasoning; fall back to the topic's own
+            // description. `||` (not `??`) so an empty-string blip description
+            // also falls through to the topic description.
+            description: blip.description || blip.topic?.description || null,
           });
         }
       }
