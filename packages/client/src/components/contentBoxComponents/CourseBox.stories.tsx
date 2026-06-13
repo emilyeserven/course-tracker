@@ -4,24 +4,16 @@ import { expect, within } from "storybook/test";
 
 import { CourseBox } from "./CourseBox";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { makeResource } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof CourseBox> = {
   component: CourseBox,
   args: makeResource(),
-  decorators: [
-    Story => (
-      <RouterStub>
-        <TooltipProvider>
-          <div className="max-w-sm">
-            <Story />
-          </div>
-        </TooltipProvider>
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator({
+    tooltip: true,
+    constrained: true,
+  })],
 };
 
 export default meta;

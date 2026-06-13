@@ -4,24 +4,17 @@ import { expect, within } from "storybook/test";
 
 import { CoursesTable } from "./CoursesTable";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { makeResources } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof CoursesTable> = {
   component: CoursesTable,
   args: {
     courses: makeResources(3),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <TooltipProvider>
-          <Story />
-        </TooltipProvider>
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator({
+    tooltip: true,
+  })],
 };
 
 export default meta;

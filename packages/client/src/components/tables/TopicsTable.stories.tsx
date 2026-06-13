@@ -5,20 +5,14 @@ import { expect, fn, within } from "storybook/test";
 import { TopicsTable } from "./TopicsTable";
 
 import { makeTopicRows } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof TopicsTable> = {
   component: TopicsTable,
   args: {
     topics: makeTopicRows(3),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator()],
 };
 
 export default meta;
