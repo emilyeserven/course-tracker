@@ -1,19 +1,12 @@
 import type { WeeklyRowType } from "@/components/routines/weekly";
+import type { SelectOption } from "@/utils";
 
 import { useMemo } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
-import {
-  Combobox,
-  ComboboxInput,
-} from "@/components/combobox";
+import { Combobox, ComboboxInput } from "@/components/combobox";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
-
-interface ItemOption {
-  value: string;
-  label: string;
-}
 
 interface EntryValue {
   type: WeeklyRowType;
@@ -26,8 +19,8 @@ interface EntryValue {
 
 interface WeeklyEntryEditorProps extends EntryValue {
   onChange: (next: EntryValue) => void;
-  taskOptions: ItemOption[];
-  resourceOptions: ItemOption[];
+  taskOptions: SelectOption[];
+  resourceOptions: SelectOption[];
 }
 
 // A single task / resource / freeform picker — the same control the weekly grid
@@ -46,11 +39,7 @@ export function WeeklyEntryEditor({
   resourceOptions,
 }: WeeklyEntryEditorProps) {
   const itemOptions
-    = type === "task"
-      ? taskOptions
-      : type === "resource"
-        ? resourceOptions
-        : [];
+    = type === "task" ? taskOptions : type === "resource" ? resourceOptions : [];
   const optionsMap = useMemo(
     () => new Map(itemOptions.map(o => [o.value, o.label])),
     [itemOptions],
@@ -68,7 +57,7 @@ export function WeeklyEntryEditor({
     });
   }
 
-  const itemName = type === "freeform" ? id : optionsMap.get(id) ?? "";
+  const itemName = type === "freeform" ? id : (optionsMap.get(id) ?? "");
   const showPreview
     = !!itemName && (!!prependText.trim() || !!appendText.trim());
   const preview = buildActionableSentence({

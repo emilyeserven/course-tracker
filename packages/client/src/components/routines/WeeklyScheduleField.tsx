@@ -1,27 +1,20 @@
 import type { WeeklyRow, WeeklyRowType } from "@/components/routines/weekly";
+import type { SelectOption } from "@/utils";
 import type { RoutineWeekday } from "@emstack/types";
 
 import { useMemo } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
-import {
-  Combobox,
-  ComboboxInput,
-} from "@/components/combobox";
+import { Combobox, ComboboxInput } from "@/components/combobox";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 import { DAY_LABELS, DAY_ORDER } from "@/components/routines/weekly";
-
-interface ItemOption {
-  value: string;
-  label: string;
-}
 
 interface WeeklyScheduleFieldProps {
   value: WeeklyRow[];
   onChange: (next: WeeklyRow[]) => void;
-  taskOptions: ItemOption[];
-  resourceOptions: ItemOption[];
+  taskOptions: SelectOption[];
+  resourceOptions: SelectOption[];
 }
 
 export function WeeklyScheduleField({
@@ -36,12 +29,15 @@ export function WeeklyScheduleField({
   );
 
   function update(day: RoutineWeekday, patch: Partial<WeeklyRow>) {
-    onChange(value.map(r => (r.day === day
-      ? {
-        ...r,
-        ...patch,
-      }
-      : r)));
+    onChange(
+      value.map(r =>
+        r.day === day
+          ? {
+            ...r,
+            ...patch,
+          }
+          : r),
+    );
   }
 
   return (
@@ -63,12 +59,13 @@ export function WeeklyScheduleField({
               : row.type === "resource"
                 ? resourceOptions
                 : [];
-          const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
+          const optionsMap = new Map(
+            itemOptions.map(o => [o.value, o.label]),
+          );
           const itemName
-            = row.type === "freeform" ? row.id : optionsMap.get(row.id) ?? "";
+            = row.type === "freeform" ? row.id : (optionsMap.get(row.id) ?? "");
           const showPreview
-            = !!itemName
-              && (!!row.prependText.trim() || !!row.appendText.trim());
+            = !!itemName && (!!row.prependText.trim() || !!row.appendText.trim());
           const preview = buildActionableSentence({
             prependText: row.prependText,
             name: itemName,
@@ -116,9 +113,10 @@ export function WeeklyScheduleField({
                     <input
                       aria-label={`${DAY_LABELS[day]} description`}
                       value={row.id}
-                      onChange={e => update(day, {
-                        id: e.target.value,
-                      })}
+                      onChange={e =>
+                        update(day, {
+                          id: e.target.value,
+                        })}
                       placeholder="Describe the activity…"
                       className="
                         flex h-9 w-full rounded-md border bg-background px-2
@@ -130,10 +128,12 @@ export function WeeklyScheduleField({
                     <Combobox
                       items={itemOptions.map(o => o.value)}
                       value={row.id || null}
-                      onValueChange={val => update(day, {
-                        id: val ?? "",
-                      })}
-                      itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+                      onValueChange={val =>
+                        update(day, {
+                          id: val ?? "",
+                        })}
+                      itemToStringLabel={(val: string) =>
+                        optionsMap.get(val) ?? ""}
                     >
                       <ComboboxInput
                         placeholder={
@@ -156,9 +156,10 @@ export function WeeklyScheduleField({
                   <input
                     aria-label={`${DAY_LABELS[day]} notes`}
                     value={row.notes}
-                    onChange={e => update(day, {
-                      notes: e.target.value,
-                    })}
+                    onChange={e =>
+                      update(day, {
+                        notes: e.target.value,
+                      })}
                     placeholder="Notes (optional)…"
                     className="
                       flex h-9 w-full rounded-md border bg-background px-2
@@ -168,9 +169,10 @@ export function WeeklyScheduleField({
                   <input
                     aria-label={`${DAY_LABELS[day]} location`}
                     value={row.location}
-                    onChange={e => update(day, {
-                      location: e.target.value,
-                    })}
+                    onChange={e =>
+                      update(day, {
+                        location: e.target.value,
+                      })}
                     placeholder="Location (e.g. gym, Spanish app, or a URL)…"
                     className="
                       flex h-9 w-full rounded-md border bg-background px-2
@@ -186,9 +188,10 @@ export function WeeklyScheduleField({
                     <input
                       aria-label={`${DAY_LABELS[day]} prepend text`}
                       value={row.prependText}
-                      onChange={e => update(day, {
-                        prependText: e.target.value,
-                      })}
+                      onChange={e =>
+                        update(day, {
+                          prependText: e.target.value,
+                        })}
                       placeholder="Prepend text (e.g. Review)…"
                       className="
                         flex h-9 w-full rounded-md border bg-background px-2
@@ -198,9 +201,10 @@ export function WeeklyScheduleField({
                     <input
                       aria-label={`${DAY_LABELS[day]} append text`}
                       value={row.appendText}
-                      onChange={e => update(day, {
-                        appendText: e.target.value,
-                      })}
+                      onChange={e =>
+                        update(day, {
+                          appendText: e.target.value,
+                        })}
                       placeholder="Append text (e.g. for 10 minutes)…"
                       className="
                         flex h-9 w-full rounded-md border bg-background px-2
