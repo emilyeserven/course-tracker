@@ -102,7 +102,10 @@ export function DailyDetailsPanel({
     };
 
   return (
-    <Tabs {...tabsProps}>
+    <Tabs
+      orientation="vertical"
+      {...tabsProps}
+    >
       <TabsList>
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="entries">
