@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
+import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
   Table,
   TableBody,
@@ -155,15 +156,12 @@ export function TopicsTable({
           <TableRow>
             {selection && (
               <TableHead className="w-10">
-                <input
-                  type="checkbox"
+                <SelectAllCheckbox
                   className="size-4"
                   aria-label="Select all topics"
                   checked={allSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = !allSelected && someSelected;
-                  }}
-                  onChange={e => selection.onToggleAll(e.target.checked)}
+                  indeterminate={!allSelected && someSelected}
+                  onCheckedChange={selection.onToggleAll}
                 />
               </TableHead>
             )}

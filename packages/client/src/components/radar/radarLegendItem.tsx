@@ -1,5 +1,5 @@
 import type { RadarBlip } from "@emstack/types";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
@@ -24,35 +24,59 @@ interface BlipLegendItemProps extends BlipLegendHandlers {
   isSelected: boolean;
 }
 
-interface SimpleBlipLegendSectionProps extends BlipLegendHandlers {
+/** A blip plus its pre-built legend label, ready to render in a section. */
+export interface BlipLegendSectionItem {
+  blip: RadarBlip;
+  /** Inner content of the row's clickable title button. */
+  label: ReactNode;
+}
+
+interface BlipLegendSectionProps extends BlipLegendHandlers {
   title: string;
   /** className for the section heading (color varies by section). */
   headingClassName: string;
-  blips: RadarBlip[];
+  /** Inline heading styles — quadrant headings colour themselves this way. */
+  headingStyle?: CSSProperties;
+  items: BlipLegendSectionItem[];
+  /** Shown in place of the list when there are no items (e.g. quadrants). */
+  emptyMessage?: string;
   activeBlipId: string | null;
   selectedBlipId: string | null;
 }
 
 /**
- * A legend section that lists blips by topic name only (used by the adopted and
- * ignored groups, which differ solely by their heading text and color).
+ * A legend section: a coloured heading over a list of blip rows. Callers
+ * pre-build each row's `label`, so this renders the quadrant lists (index +
+ * name + ring), the adopted group, and the ignored group from one definition.
  */
-export function SimpleBlipLegendSection({
+export function BlipLegendSection({
   title,
   headingClassName,
-  blips,
+  headingStyle,
+  items,
+  emptyMessage,
   activeBlipId,
   selectedBlipId,
   registerRef,
   onHover,
   onBlipClick,
   onDescriptionChange,
-}: SimpleBlipLegendSectionProps) {
+}: BlipLegendSectionProps) {
   return (
     <div className="flex flex-col gap-1">
-      <h4 className={headingClassName}>{title}</h4>
+      <h4
+        className={headingClassName}
+        style={headingStyle}
+      >
+        {title}
+      </h4>
+      {items.length === 0 && emptyMessage !== undefined && (
+        <p className="text-xs text-muted-foreground italic">{emptyMessage}</p>
+      )}
       <ul className="flex flex-col gap-0.5">
-        {blips.map(blip => (
+        {items.map(({
+          blip, label,
+        }) => (
           <BlipLegendItem
             key={blip.id}
             blip={blip}
@@ -62,7 +86,7 @@ export function SimpleBlipLegendSection({
             onHover={onHover}
             onBlipClick={onBlipClick}
             onDescriptionChange={onDescriptionChange}
-            label={<span className="font-medium">{blip.topicName}</span>}
+            label={label}
           />
         ))}
       </ul>

@@ -19,6 +19,7 @@ import {
 } from "./blipLlmReview";
 
 import { Input } from "@/components/input";
+import { Pill } from "@/components/radar/Pill";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
   Table,
   TableBody,
@@ -77,16 +79,11 @@ export function ReviewTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-8">
-            <input
-              type="checkbox"
+            <SelectAllCheckbox
               aria-label={allSelected ? "Deselect all" : "Select all"}
               checked={allSelected}
-              ref={(el) => {
-                if (el) {
-                  el.indeterminate = !allSelected && someSelected;
-                }
-              }}
-              onChange={e => setAllSelected(e.target.checked)}
+              indeterminate={!allSelected && someSelected}
+              onCheckedChange={setAllSelected}
             />
           </TableHead>
           <TableHead className="min-w-32">Topic</TableHead>
@@ -286,32 +283,31 @@ function TopicCell({
         <span className="font-medium">{r.topicName || "(no topic)"}</span>
         <div className="flex flex-row flex-wrap gap-1">
           {r.willCreateTopic && (
-            <span
-              className={`
-                rounded-sm bg-emerald-100 px-1.5 py-0.5 text-[10px]
-                text-emerald-800
-              `}
+            <Pill
+              className="
+                rounded-sm bg-emerald-100 px-1.5 text-[10px] text-emerald-800
+              "
             >
               New topic
-            </span>
+            </Pill>
           )}
           {!r.willCreateTopic && r.matchedTopicId && (
-            <span
-              className={`
-                rounded-sm bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-800
-              `}
+            <Pill
+              className="
+                rounded-sm bg-blue-100 px-1.5 text-[10px] text-blue-800
+              "
             >
               Existing topic
-            </span>
+            </Pill>
           )}
           {conflicts && (
-            <span
-              className={`
-                rounded-sm bg-amber-200 px-1.5 py-0.5 text-[10px] text-amber-900
-              `}
+            <Pill
+              className="
+                rounded-sm bg-amber-200 px-1.5 text-[10px] text-amber-900
+              "
             >
               On radar
-            </span>
+            </Pill>
           )}
         </div>
         {r.problems.length > 0 && !isSkipped && (
