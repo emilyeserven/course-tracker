@@ -1,20 +1,17 @@
 import type { TopicForTopicsPage } from "@emstack/types";
+import type {
+  ColumnDef,
+  RowSelectionState,
+  SortingState,
+  Updater,
+} from "@tanstack/react-table";
 
 import { useMemo } from "react";
 
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
-
 import { EntityLink } from "@/components/boxElements/EntityLink";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 export type TopicsTableSortColumn
   = | "name"
@@ -31,8 +28,7 @@ export interface TopicsTableSort {
 
 interface TopicsTableSelection {
   selectedIds: Set<string>;
-  onToggleSelected: (id: string) => void;
-  onToggleAll: (selectAll: boolean) => void;
+  onSelectionChange: (next: Set<string>) => void;
 }
 
 interface TopicsTableSortControl {
@@ -45,89 +41,31 @@ interface TopicsTableProps extends TopicsTableSortControl {
   selection?: TopicsTableSelection;
 }
 
-interface SortableHeaderProps extends TopicsTableSortControl {
-  column: TopicsTableSortColumn;
-  label: string;
-  align?: "left" | "right";
-}
+// name/domains sort ascending on first click; the count columns sort descending.
+const SORT_DESC_FIRST: Record<TopicsTableSortColumn, boolean> = {
+  name: false,
+  domains: false,
+  resources: true,
+  tasks: true,
+  dailies: true,
+};
 
-function SortableHeader({
-  column,
-  label,
-  sort,
-  onSortChange,
-  align = "left",
-}: SortableHeaderProps) {
-  const headClassName = cn(
-    "whitespace-nowrap",
-    align === "right" ? "text-right" : undefined,
-  );
-
-  if (!onSortChange) {
-    return <TableHead className={headClassName}>{label}</TableHead>;
+function domainsCell(topic: TopicForTopicsPage) {
+  const domains = topic.domains?.filter(d => d.id !== undefined) ?? [];
+  if (domains.length === 0) {
+    return <span className="text-muted-foreground">—</span>;
   }
-
-  const isActive = sort?.column === column;
-  const direction = isActive ? sort.direction : undefined;
-  const ariaSort = isActive
-    ? direction === "asc" ? "ascending" : "descending"
-    : "none";
-
-  const handleClick = () => {
-    if (isActive) {
-      onSortChange({
-        column,
-        direction: direction === "asc" ? "desc" : "asc",
-      });
-    }
-    else {
-      onSortChange({
-        column,
-        direction: column === "name" || column === "domains" ? "asc" : "desc",
-      });
-    }
-  };
-
   return (
-    <TableHead
-      aria-sort={ariaSort}
-      className={headClassName}
-    >
-      <button
-        type="button"
-        onClick={handleClick}
-        className={cn(
-          `
-            inline-flex items-center gap-1 text-xs font-semibold
-            text-muted-foreground uppercase transition-colors
-            hover:text-foreground
-            focus-visible:rounded-sm focus-visible:outline-2
-            focus-visible:outline-offset-2 focus-visible:outline-ring
-          `,
-          align === "right" ? "justify-end" : "justify-start",
-        )}
-      >
-        <span>{label}</span>
-        {isActive && direction === "asc" && (
-          <ArrowUpIcon
-            className="size-3.5"
-            aria-hidden="true"
-          />
-        )}
-        {isActive && direction === "desc" && (
-          <ArrowDownIcon
-            className="size-3.5"
-            aria-hidden="true"
-          />
-        )}
-        {!isActive && (
-          <ArrowUpDownIcon
-            className="size-3.5 opacity-40"
-            aria-hidden="true"
-          />
-        )}
-      </button>
-    </TableHead>
+    <div className="flex flex-wrap gap-1">
+      {domains.map(domain => (
+        <span
+          key={domain.id}
+          className="rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
+        >
+          {domain.title}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -137,147 +75,232 @@ export function TopicsTable({
   sort,
   onSortChange,
 }: TopicsTableProps) {
+  const sortingEnabled = !!onSortChange;
+
+  const sorting: SortingState = sort
+    ? [
+      {
+        id: sort.column,
+        desc: sort.direction === "desc",
+      },
+    ]
+    : [];
+
+  function handleSortingChange(updater: Updater<SortingState>) {
+    if (!onSortChange) return;
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    if (!first) return;
+    onSortChange({
+      column: first.id as TopicsTableSortColumn,
+      direction: first.desc ? "desc" : "asc",
+    });
+  }
+
   const selectedIds = selection?.selectedIds;
 
-  const allSelected = useMemo(() => {
-    if (!selectedIds || topics.length === 0) return false;
-    return topics.every(t => selectedIds.has(t.id));
-  }, [topics, selectedIds]);
+  const rowSelection: RowSelectionState = useMemo(() => {
+    const rec: RowSelectionState = {};
+    selectedIds?.forEach((id) => {
+      rec[id] = true;
+    });
+    return rec;
+  }, [selectedIds]);
 
-  const someSelected = useMemo(() => {
-    if (!selectedIds) return false;
-    return topics.some(t => selectedIds.has(t.id));
-  }, [topics, selectedIds]);
+  function handleRowSelectionChange(updater: Updater<RowSelectionState>) {
+    if (!selection) return;
+    const next
+      = typeof updater === "function" ? updater(rowSelection) : updater;
+    selection.onSelectionChange(
+      new Set(Object.keys(next).filter(id => next[id])),
+    );
+  }
+
+  const columns: ColumnDef<TopicForTopicsPage>[] = useMemo(() => {
+    const cols: ColumnDef<TopicForTopicsPage>[] = [];
+
+    if (selection) {
+      cols.push({
+        id: "select",
+        enableSorting: false,
+        meta: {
+          headClassName: "w-10",
+          cellClassName: "w-10",
+        },
+        header: ({
+          table,
+        }) => (
+          <SelectAllCheckbox
+            className="size-4"
+            aria-label="Select all topics"
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onCheckedChange={value => table.toggleAllRowsSelected(value)}
+          />
+        ),
+        cell: ({
+          row,
+        }) => (
+          <input
+            type="checkbox"
+            className="size-4"
+            aria-label={`Select ${row.original.name}`}
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+          />
+        ),
+      });
+    }
+
+    cols.push(
+      {
+        id: "name",
+        sortDescFirst: SORT_DESC_FIRST.name,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Name"
+          />
+        ),
+        meta: {
+          headClassName: "whitespace-nowrap",
+          cellClassName: "font-medium whitespace-nowrap",
+        },
+        cell: ({
+          row,
+        }) => (
+          <EntityLink
+            entity="topics"
+            id={row.original.id}
+            className="hover:text-blue-600"
+          >
+            {row.original.name}
+          </EntityLink>
+        ),
+      },
+      {
+        id: "domains",
+        sortDescFirst: SORT_DESC_FIRST.domains,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Domains"
+          />
+        ),
+        meta: {
+          headClassName: "whitespace-nowrap",
+          cellClassName: "whitespace-nowrap",
+        },
+        cell: ({
+          row,
+        }) => domainsCell(row.original),
+      },
+      {
+        id: "description",
+        enableSorting: false,
+        header: "Description",
+        meta: {
+          cellClassName: "max-w-md",
+        },
+        cell: ({
+          row,
+        }) =>
+          row.original.description
+            ? (
+              <span className="line-clamp-2 text-sm">
+                {row.original.description}
+              </span>
+            )
+            : (
+              <span className="text-muted-foreground">—</span>
+            ),
+      },
+      {
+        id: "resources",
+        sortDescFirst: SORT_DESC_FIRST.resources,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Resources"
+            align="right"
+          />
+        ),
+        meta: {
+          align: "right",
+          headClassName: "whitespace-nowrap",
+          cellClassName: "tabular-nums",
+        },
+        cell: ({
+          row,
+        }) => row.original.resourceCount ?? 0,
+      },
+      {
+        id: "tasks",
+        sortDescFirst: SORT_DESC_FIRST.tasks,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Tasks"
+            align="right"
+          />
+        ),
+        meta: {
+          align: "right",
+          headClassName: "whitespace-nowrap",
+          cellClassName: "tabular-nums",
+        },
+        cell: ({
+          row,
+        }) => row.original.taskCount ?? 0,
+      },
+      {
+        id: "dailies",
+        sortDescFirst: SORT_DESC_FIRST.dailies,
+        header: ({
+          column,
+        }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Dailies"
+            align="right"
+          />
+        ),
+        meta: {
+          align: "right",
+          headClassName: "whitespace-nowrap",
+          cellClassName: "tabular-nums",
+        },
+        cell: ({
+          row,
+        }) => row.original.dailyCount ?? 0,
+      },
+    );
+
+    return cols;
+  }, [selection]);
 
   return (
-    <div className="w-full rounded-md border bg-card">
-      <Table className="w-auto min-w-full">
-        <TableHeader>
-          <TableRow>
-            {selection && (
-              <TableHead className="w-10">
-                <SelectAllCheckbox
-                  className="size-4"
-                  aria-label="Select all topics"
-                  checked={allSelected}
-                  indeterminate={!allSelected && someSelected}
-                  onCheckedChange={selection.onToggleAll}
-                />
-              </TableHead>
-            )}
-            <SortableHeader
-              column="name"
-              label="Name"
-              sort={sort}
-              onSortChange={onSortChange}
-            />
-            <SortableHeader
-              column="domains"
-              label="Domains"
-              sort={sort}
-              onSortChange={onSortChange}
-            />
-            <TableHead>Description</TableHead>
-            <SortableHeader
-              column="resources"
-              label="Resources"
-              sort={sort}
-              onSortChange={onSortChange}
-              align="right"
-            />
-            <SortableHeader
-              column="tasks"
-              label="Tasks"
-              sort={sort}
-              onSortChange={onSortChange}
-              align="right"
-            />
-            <SortableHeader
-              column="dailies"
-              label="Dailies"
-              sort={sort}
-              onSortChange={onSortChange}
-              align="right"
-            />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {topics.map((topic) => {
-            const isSelected = selectedIds?.has(topic.id) ?? false;
-            return (
-              <TableRow
-                key={topic.id}
-                data-state={isSelected ? "selected" : undefined}
-              >
-                {selection && (
-                  <TableCell className="w-10">
-                    <input
-                      type="checkbox"
-                      className="size-4"
-                      aria-label={`Select ${topic.name}`}
-                      checked={isSelected}
-                      onChange={() => selection.onToggleSelected(topic.id)}
-                    />
-                  </TableCell>
-                )}
-                <TableCell className="font-medium whitespace-nowrap">
-                  <EntityLink
-                    entity="topics"
-                    id={topic.id}
-                    className="hover:text-blue-600"
-                  >
-                    {topic.name}
-                  </EntityLink>
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {topic.domains
-                    && topic.domains.filter(d => d.id !== undefined).length > 0
-                    ? (
-                      <div className="flex flex-wrap gap-1">
-                        {topic.domains
-                          .filter(domain => domain.id !== undefined)
-                          .map(domain => (
-                            <span
-                              key={domain.id}
-                              className="
-                                rounded-sm bg-gray-100 px-2 py-0.5 text-xs
-                                text-gray-700
-                              "
-                            >
-                              {domain.title}
-                            </span>
-                          ))}
-                      </div>
-                    )
-                    : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                </TableCell>
-                <TableCell className="max-w-md">
-                  {topic.description
-                    ? (
-                      <span className="line-clamp-2 text-sm">
-                        {topic.description}
-                      </span>
-                    )
-                    : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {topic.resourceCount ?? 0}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {topic.taskCount ?? 0}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {topic.dailyCount ?? 0}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <DataTable
+      columns={columns}
+      data={topics}
+      getRowId={topic => topic.id}
+      enableSorting={sortingEnabled}
+      manualSorting
+      sorting={sorting}
+      onSortingChange={handleSortingChange}
+      enableRowSelection={!!selection}
+      rowSelection={selection ? rowSelection : undefined}
+      onRowSelectionChange={selection ? handleRowSelectionChange : undefined}
+      className="w-auto min-w-full"
+      containerClassName="w-full rounded-md border bg-card"
+    />
   );
 }

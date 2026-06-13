@@ -10,7 +10,7 @@ import type {
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import {
   flexRender,
@@ -205,7 +205,9 @@ export function DataTable<TData>({
             ? renderEmpty?.()
             : rows.map(row =>
               renderRow
-                ? renderRow(row)
+                ? (
+                  <Fragment key={row.id}>{renderRow(row)}</Fragment>
+                )
                 : (
                   <TableRow
                     key={row.id}
