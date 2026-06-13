@@ -20,10 +20,10 @@ import {
 } from "./blipLlmReview";
 
 import { Input } from "@/components/input";
-import { Pill } from "@/components/radar/Pill";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Pill } from "@/components/ui/Pill";
 import {
   Select,
   SelectContent,
@@ -32,10 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
-import {
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 
 interface ReviewTableProps {
   // Shared prop shape with the row/cell components; structural overlap only.

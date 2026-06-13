@@ -1,12 +1,17 @@
 import type { Daily } from "@emstack/types";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { GraduationCapIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { incrementResourceProgress } from "@/utils";
+import { DailyEntityLink } from "./DailyEntityLink";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { dailyLinkTooltip, incrementResourceProgress } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
 interface DailyResourceIndicatorProps {
@@ -48,30 +53,15 @@ export function DailyResourceIndicator({
     return null;
   }
 
-  const titlesMatch = course.name.trim().toLowerCase()
-    === daily.name.trim().toLowerCase();
-  const tooltip = titlesMatch ? "Go to Course" : course.name;
-
   return (
     <span className="inline-flex items-center gap-1">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link
-            to="/resources/$id"
-            params={{
-              id: course.id,
-            }}
-            aria-label={`Go to course ${course.name}`}
-            className="
-              inline-flex items-center text-muted-foreground
-              hover:text-foreground
-            "
-          >
-            <GraduationCapIcon className="size-4" />
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent>{tooltip}</TooltipContent>
-      </Tooltip>
+      <DailyEntityLink
+        entity="resources"
+        id={course.id}
+        icon={<GraduationCapIcon className="size-4" />}
+        tooltip={dailyLinkTooltip(course.name, daily.name, "Go to Course")}
+        ariaLabel={`Go to course ${course.name}`}
+      />
       <Tooltip>
         <TooltipTrigger asChild>
           <button
@@ -90,9 +80,7 @@ export function DailyResourceIndicator({
             <PlusIcon className="size-3.5" />
           </button>
         </TooltipTrigger>
-        <TooltipContent>
-          Progress course by 1
-        </TooltipContent>
+        <TooltipContent>Progress course by 1</TooltipContent>
       </Tooltip>
     </span>
   );

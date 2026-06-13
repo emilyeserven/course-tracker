@@ -1,5 +1,6 @@
 import { AlertTriangleIcon } from "lucide-react";
 
+import { Pill } from "@/components/ui/Pill";
 import {
   Tooltip,
   TooltipContent,
@@ -31,11 +32,10 @@ export function TooManyDailiesWarning({
     <TooltipProvider delayDuration={150}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span
+          <Pill
             className={cn(
               `
-                inline-flex items-center gap-1 rounded-md border
-                border-amber-400 bg-amber-100 px-2 py-0.5 text-xs font-medium
+                gap-1 rounded-md border border-amber-400 bg-amber-100
                 text-amber-900
                 dark:border-amber-500/50 dark:bg-amber-900/40
                 dark:text-amber-100
@@ -49,17 +49,11 @@ export function TooManyDailiesWarning({
             {activeCount}
             {" / "}
             {limit}
-          </span>
+          </Pill>
         </TooltipTrigger>
         <TooltipContent side="top">
           <span className="block max-w-xs">
-            You have
-            {" "}
-            {activeCount}
-            {" "}
-            active dailies (limit:
-            {" "}
-            {limit}
+            You have {activeCount} active dailies (limit: {limit}
             ). Completing all of them every day will be tougher.
           </span>
         </TooltipContent>

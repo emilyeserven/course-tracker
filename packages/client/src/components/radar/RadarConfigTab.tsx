@@ -1,12 +1,12 @@
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
 import { Input } from "@/components/input";
-import { Pill } from "@/components/radar/Pill";
 import {
   QuadrantsIllustration,
   RingsIllustration,
 } from "@/components/radar/RadarConfigIllustrations";
 import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/ui/Pill";
 
 export interface QuadrantDraft {
   id?: string;

@@ -1,5 +1,9 @@
 import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
-import type { Daily, DailyCompletionStatus, RoutineWeekday } from "@emstack/types";
+import type {
+  Daily,
+  DailyCompletionStatus,
+  RoutineWeekday,
+} from "@emstack/types";
 
 function getDateKey(date: Date = new Date()): string {
   const y = date.getFullYear();
@@ -10,6 +14,20 @@ function getDateKey(date: Date = new Date()): string {
 
 export function getTodayKey(): string {
   return getDateKey(new Date());
+}
+
+/**
+ * The tooltip a daily's task/resource indicator shows: the linked entity's name,
+ * unless it already matches the daily's own title (then a plain "Go to …" CTA).
+ */
+export function dailyLinkTooltip(
+  entityName: string,
+  dailyName: string,
+  goLabel: string,
+): string {
+  const titlesMatch
+    = entityName.trim().toLowerCase() === dailyName.trim().toLowerCase();
+  return titlesMatch ? goLabel : entityName;
 }
 
 export function shiftDateKey(key: string, deltaDays: number): string {
@@ -25,7 +43,10 @@ export function findStatusForDate(
   return daily.completions.find(c => c.date === dateKey)?.status ?? null;
 }
 
-export function getCurrentChain(daily: Pick<Daily, "completions">, todayKey: string = getTodayKey()): number {
+export function getCurrentChain(
+  daily: Pick<Daily, "completions">,
+  todayKey: string = getTodayKey(),
+): number {
   const completedDates = new Set(
     daily.completions
       .filter(c => c.status && c.status !== "incomplete")
@@ -48,10 +69,11 @@ export function getCurrentChain(daily: Pick<Daily, "completions">, todayKey: str
   return count;
 }
 
-export function getTotalCompletedDays(daily: Pick<Daily, "completions">): number {
-  return daily.completions.filter(
-    c => c.status && c.status !== "incomplete",
-  ).length;
+export function getTotalCompletedDays(
+  daily: Pick<Daily, "completions">,
+): number {
+  return daily.completions.filter(c => c.status && c.status !== "incomplete")
+    .length;
 }
 
 export function getLongestStreak(daily: Daily): number {
@@ -146,9 +168,10 @@ export function getRecentDays(
   for (let i = count - 1; i >= 0; i--) {
     const dateKey = shiftDateKey(todayKey, -i);
     const date = new Date(`${dateKey}T00:00:00Z`);
-    const dayLabel = labelFormat === "mmdd"
-      ? `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`
-      : SHORT_DAY_LABELS[date.getUTCDay()];
+    const dayLabel
+      = labelFormat === "mmdd"
+        ? `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`
+        : SHORT_DAY_LABELS[date.getUTCDay()];
     days.push({
       dateKey,
       dayLabel,
@@ -275,7 +298,8 @@ export function classifyDaily(
   todayKey: string,
   window: WeekTargetWindow,
 ): "now" | "done" {
-  return hasTaskForDay(daily, todayKey, window) && !hasStatusForDay(daily, todayKey)
+  return hasTaskForDay(daily, todayKey, window)
+    && !hasStatusForDay(daily, todayKey)
     ? "now"
     : "done";
 }
