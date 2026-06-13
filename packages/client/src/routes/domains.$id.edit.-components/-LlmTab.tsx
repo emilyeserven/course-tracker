@@ -1,12 +1,8 @@
-import type {
-  Domain,
-  Radar,
-  TopicForTopicsPage,
-} from "@emstack/types";
+import type { Domain, Radar, TopicForTopicsPage } from "@emstack/types";
 
 import { useMemo } from "react";
 
-import { LlmEditTab } from "@/components/radar/LlmEditTab";
+import { LlmEditTab } from "./-LlmEditTab";
 
 interface LlmTabContainerProps {
   radar: Radar | undefined;

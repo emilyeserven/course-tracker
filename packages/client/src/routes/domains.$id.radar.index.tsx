@@ -3,8 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, EditIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { RadarChart } from "./domains.$id.-components/-RadarChart";
+
 import { InfoArea, PageHeader } from "@/components/layout";
-import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, upsertRadarBlip } from "@/utils";
 
@@ -38,9 +39,12 @@ function RadarView() {
 
   const descriptionMutation = useMutation({
     mutationFn: ({
-      blipId, description,
-    }: { blipId: string;
-      description: string; }) => {
+      blipId,
+      description,
+    }: {
+      blipId: string;
+      description: string;
+    }) => {
       const blip = data?.blips.find(b => b.id === blipId);
       if (!blip) {
         return Promise.reject(new Error("Blip not found"));
@@ -124,8 +128,8 @@ function RadarView() {
             <InfoArea header="Get Started">
               <div className="flex flex-col gap-4 py-4">
                 <p>
-                  This radar has not been configured yet. Define slices and
-                  rings before adding blips.
+                  This radar has not been configured yet. Define slices and rings
+                  before adding blips.
                 </p>
                 <Link
                   to="/domains/$id/edit"

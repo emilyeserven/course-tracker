@@ -1,6 +1,9 @@
 import type { ResolvedLlmEntry } from "@/components/radar/blipLlmReview";
 import type { PositionedBlip } from "@/components/radar/radarLayout";
 import type {
+  Domain,
+  DomainTopic,
+  Radar,
   RadarBlip,
   RadarQuadrant,
   RadarRing,
@@ -27,23 +30,29 @@ const TOPIC_NAMES = [
 ];
 
 export function makeQuadrants(count = 4): RadarQuadrant[] {
-  return Array.from({
-    length: count,
-  }, (_q, i) => ({
-    id: `q${i}`,
-    name: QUADRANT_NAMES[i] ?? `Quadrant ${i + 1}`,
-    position: i,
-  }));
+  return Array.from(
+    {
+      length: count,
+    },
+    (_q, i) => ({
+      id: `q${i}`,
+      name: QUADRANT_NAMES[i] ?? `Quadrant ${i + 1}`,
+      position: i,
+    }),
+  );
 }
 
 export function makeRings(count = 4): RadarRing[] {
-  return Array.from({
-    length: count,
-  }, (_r, i) => ({
-    id: `r${i}`,
-    name: RING_NAMES[i] ?? `Ring ${i + 1}`,
-    position: i,
-  }));
+  return Array.from(
+    {
+      length: count,
+    },
+    (_r, i) => ({
+      id: `r${i}`,
+      name: RING_NAMES[i] ?? `Ring ${i + 1}`,
+      position: i,
+    }),
+  );
 }
 
 export function makeBlip(
@@ -66,29 +75,74 @@ export function makeBlips(
   quadrants = makeQuadrants(),
   rings = makeRings(),
 ): RadarBlip[] {
-  return Array.from({
-    length: count,
-  }, (_b, i) => makeBlip({
-    id: `blip-${i}`,
-    topicId: `topic-${i}`,
-    topicName: TOPIC_NAMES[i] ?? `Topic ${i + 1}`,
-    quadrantId: quadrants[i % quadrants.length]?.id ?? null,
-    ringId: rings[i % rings.length]?.id ?? null,
-    description: i % 2 === 0 ? `Notes about ${TOPIC_NAMES[i] ?? "topic"}` : null,
-  }));
+  return Array.from(
+    {
+      length: count,
+    },
+    (_b, i) =>
+      makeBlip({
+        id: `blip-${i}`,
+        topicId: `topic-${i}`,
+        topicName: TOPIC_NAMES[i] ?? `Topic ${i + 1}`,
+        quadrantId: quadrants[i % quadrants.length]?.id ?? null,
+        ringId: rings[i % rings.length]?.id ?? null,
+        description:
+          i % 2 === 0 ? `Notes about ${TOPIC_NAMES[i] ?? "topic"}` : null,
+      }),
+  );
 }
 
 export function makeTopics(count = 6): TopicForTopicsPage[] {
-  return Array.from({
-    length: count,
-  }, (_t, i) => ({
-    id: `topic-${i}`,
-    name: TOPIC_NAMES[i] ?? `Topic ${i + 1}`,
-    description: `Description for ${TOPIC_NAMES[i] ?? `topic ${i + 1}`}`,
-    resourceCount: i,
-    taskCount: i % 3,
-    dailyCount: i % 2,
-  }));
+  return Array.from(
+    {
+      length: count,
+    },
+    (_t, i) => ({
+      id: `topic-${i}`,
+      name: TOPIC_NAMES[i] ?? `Topic ${i + 1}`,
+      description: `Description for ${TOPIC_NAMES[i] ?? `topic ${i + 1}`}`,
+      resourceCount: i,
+      taskCount: i % 3,
+      dailyCount: i % 2,
+    }),
+  );
+}
+
+/** A fully-configured radar (quadrants, rings, and a spread of blips). */
+export function makeRadar(overrides: Partial<Radar> = {}): Radar {
+  const quadrants = overrides.quadrants ?? makeQuadrants();
+  const rings = overrides.rings ?? makeRings();
+  return {
+    domainId: "domain-1",
+    domainTitle: "Backend Platform",
+    hasAdoptedSection: false,
+    quadrants,
+    rings,
+    blips: makeBlips(6, quadrants, rings),
+    ...overrides,
+  };
+}
+
+/** A domain with scope topics, mirroring what the edit route passes its tabs. */
+export function makeDomain(overrides: Partial<Domain> = {}): Domain {
+  const asDomainTopics = (topics: TopicForTopicsPage[]): DomainTopic[] =>
+    topics.map(t => ({
+      id: t.id,
+      name: t.name,
+      description: t.description,
+    }));
+  const topics = makeTopics();
+  return {
+    id: "domain-1",
+    title: "Backend Platform",
+    description: "Services, infra, and tooling owned by the platform team.",
+    withinScopeDescription: "Anything the platform team operates.",
+    outOfScopeDescription: "Frontend frameworks.",
+    topics: asDomainTopics(topics.slice(0, 4)),
+    withinScopeTopics: asDomainTopics(topics.slice(0, 2)),
+    excludedTopics: [],
+    ...overrides,
+  };
 }
 
 /** Lays the blips out on a simple grid so SVG/legend stories have positions. */

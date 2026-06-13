@@ -64,7 +64,7 @@ interface BlipsTabProps {
   ) => Promise<void>;
 }
 
-export function BlipsTab({
+export function BlipsPanel({
   allConfigPersisted,
   savedBlipsForTable,
   newBlipDrafts,

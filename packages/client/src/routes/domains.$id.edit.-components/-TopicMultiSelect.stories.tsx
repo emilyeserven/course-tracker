@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { TopicMultiSelect } from "./TopicMultiSelect";
+import { TopicMultiSelect } from "./-TopicMultiSelect";
 
 import { makeTopics } from "@/test-utils/radarFixtures";
 
