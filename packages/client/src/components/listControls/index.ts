@@ -13,7 +13,6 @@ export {
 export {
   ClearFiltersButton,
   FilterSelect,
-  type FilterSelectOption,
   ListEmptyStates,
   ListSearchInput,
 } from "@/components/ListPageControls";
