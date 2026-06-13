@@ -22,6 +22,10 @@ export interface WeeklyRow {
   appendText: string;
 }
 
+// A weekly entry without its day key — the shared item shape Daily Task mode
+// reads/writes (the same entry applies to every weekday).
+export type WeeklyEntry = Omit<WeeklyRow, "day">;
+
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
 const ALL_DAYS: RoutineWeekday[] = ["0", "1", "2", "3", "4", "5", "6"];
 
@@ -101,14 +105,7 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
 // `type && id` — so a half-chosen entry (a type picked before its item) still
 // surfaces; otherwise the controlled type <select> would snap back to "None" and
 // the item picker would never enable.
-export function representativeRow(rows: WeeklyRow[]): {
-  type: WeeklyRowType;
-  id: string;
-  notes: string;
-  location: string;
-  prependText: string;
-  appendText: string;
-} {
+export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
   const found = rows.find(r => r.type !== "");
   return found
     ? {
