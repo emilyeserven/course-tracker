@@ -1,6 +1,6 @@
 import type { DailyCriteriaTemplate, Routine } from "@emstack/types";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
@@ -44,7 +44,6 @@ export function CriteriaTab({
     [routine],
   );
 
-  const lastSavedRef = useRef(startingValues);
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useAppForm({
@@ -79,7 +78,6 @@ export function CriteriaTab({
         await upsertRoutine(routine.id, {
           criteria,
         });
-        lastSavedRef.current = value;
         onChangeStateChange?.(false);
         await onSaved();
         toast.success("Status criteria saved.");
@@ -96,7 +94,7 @@ export function CriteriaTab({
   const currentValues = useStore(form.store, state => ({
     ...state.values,
   }));
-  const hasChanges = formHasChanges(currentValues, lastSavedRef.current);
+  const hasChanges = formHasChanges(currentValues, startingValues);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);
