@@ -2,17 +2,14 @@ import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { TodoistTask, TodoistTasks } from "@emstack/types";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { Check, ExternalLink, Repeat } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   Button,
-  CardSettingsFlyout,
-  DashboardCard,
-  DashboardSectionStatus,
-  isAutoHeight,
+  DashboardIntegrationCard,
   queryKeys,
+  SettingsLink,
   SettingToggle,
 } from "./-cardKit";
 
@@ -213,8 +210,9 @@ export function DashboardTodoist({
     : null;
 
   return (
-    <DashboardCard
-      autoHeight={isAutoHeight(tile)}
+    <DashboardIntegrationCard
+      tile={tile}
+      onUpdateTile={onUpdateTile}
       title="Todoist"
       action={(
         <Button
@@ -232,128 +230,96 @@ export function DashboardTodoist({
           </a>
         </Button>
       )}
-      settings={(
-        <CardSettingsFlyout
-          tile={tile}
-          onUpdateTile={onUpdateTile}
-        >
-          <div className="flex flex-col gap-2 border-t pt-3">
-            <SettingToggle
-              label="Show project"
-              checked={display.showProject}
-              onChange={showProject => onUpdateTile({
-                showProject,
-              })}
-            />
-            <SettingToggle
-              label="Show tags"
-              checked={display.showLabels}
-              onChange={showLabels => onUpdateTile({
-                showLabels,
-              })}
-            />
-            <SettingToggle
-              label="Show descriptions"
-              checked={display.showDescription}
-              onChange={showDescription => onUpdateTile({
-                showDescription,
-              })}
-            />
-            <SettingToggle
-              label="Show overdue"
-              checked={showOverdue}
-              onChange={value => onUpdateTile({
-                showOverdue: value,
-              })}
-            />
-          </div>
-          <Link
-            to="/settings"
-            search={{
-              tab: "connections",
-            }}
+      settingsExtra={(
+        <div className="flex flex-col gap-2 border-t pt-3">
+          <SettingToggle
+            label="Show project"
+            checked={display.showProject}
+            onChange={showProject => onUpdateTile({
+              showProject,
+            })}
+          />
+          <SettingToggle
+            label="Show tags"
+            checked={display.showLabels}
+            onChange={showLabels => onUpdateTile({
+              showLabels,
+            })}
+          />
+          <SettingToggle
+            label="Show descriptions"
+            checked={display.showDescription}
+            onChange={showDescription => onUpdateTile({
+              showDescription,
+            })}
+          />
+          <SettingToggle
+            label="Show overdue"
+            checked={showOverdue}
+            onChange={value => onUpdateTile({
+              showOverdue: value,
+            })}
+          />
+        </div>
+      )}
+      settingsLink={(
+        <SettingsLink className="text-sm">Set Todoist API key</SettingsLink>
+      )}
+      configured={configured}
+      isPending={isPending}
+      error={error}
+      connectPrompt={(
+        <p className="text-sm text-muted-foreground">
+          Add your Todoist API key in
+          {" "}
+          <SettingsLink>Settings</SettingsLink>
+          {" "}
+          to see tasks due today and overdue.
+        </p>
+      )}
+      isEmpty={configured && overdue.length === 0 && today.length === 0}
+      entity="tasks"
+      emptyMessage="Nothing due today. 🎉"
+    >
+      {showOverdue && overdue.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <h3
             className="
-              text-sm text-primary underline-offset-2
-              hover:underline
+              text-xs font-semibold tracking-wide text-destructive uppercase
             "
           >
-            Set Todoist API key
-          </Link>
-        </CardSettingsFlyout>
+            Overdue (
+            {overdue.length}
+            )
+          </h3>
+          <TaskList
+            tasks={overdue}
+            overdue
+            display={display}
+            onComplete={id => completeMutation.mutate(id)}
+            completingId={completingId}
+          />
+        </div>
       )}
-    >
-      {!isPending && !error && !configured
-        ? (
-          <p className="text-sm text-muted-foreground">
-            Add your Todoist API key in
-            {" "}
-            <Link
-              to="/settings"
-              search={{
-                tab: "connections",
-              }}
-              className="
-                text-primary underline-offset-2
-                hover:underline
-              "
-            >
-              Settings
-            </Link>
-            {" "}
-            to see tasks due today and overdue.
-          </p>
-        )
-        : (
-          <>
-            <DashboardSectionStatus
-              isPending={isPending}
-              error={error}
-              isEmpty={configured && overdue.length === 0 && today.length === 0}
-              entity="tasks"
-              emptyMessage="Nothing due today. 🎉"
-            />
-            {showOverdue && overdue.length > 0 && (
-              <div className="flex flex-col gap-1">
-                <h3
-                  className="
-                    text-xs font-semibold tracking-wide text-destructive
-                    uppercase
-                  "
-                >
-                  Overdue (
-                  {overdue.length}
-                  )
-                </h3>
-                <TaskList
-                  tasks={overdue}
-                  overdue
-                  display={display}
-                  onComplete={id => completeMutation.mutate(id)}
-                  completingId={completingId}
-                />
-              </div>
-            )}
-            {today.length > 0 && (
-              <div className="flex flex-col gap-1">
-                <h3
-                  className="
-                    text-xs font-semibold tracking-wide text-muted-foreground
-                    uppercase
-                  "
-                >
-                  Today
-                </h3>
-                <TaskList
-                  tasks={today}
-                  overdue={false}
-                  display={display}
-                  onComplete={id => completeMutation.mutate(id)}
-                  completingId={completingId}
-                />
-              </div>
-            )}
-          </>
-        )}
-    </DashboardCard>
+      {today.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <h3
+            className="
+              text-xs font-semibold tracking-wide text-muted-foreground
+              uppercase
+            "
+          >
+            Today
+          </h3>
+          <TaskList
+            tasks={today}
+            overdue={false}
+            display={display}
+            onComplete={id => completeMutation.mutate(id)}
+            completingId={completingId}
+          />
+        </div>
+      )}
+    </DashboardIntegrationCard>
   );
 }
