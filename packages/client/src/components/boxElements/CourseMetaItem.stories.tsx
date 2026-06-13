@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { within, expect } from "@storybook/test";
 import { BookIcon } from "lucide-react";
+import { within, expect } from "storybook/test";
 
 import { CourseMetaItem } from "./CourseMetaItem";
 
