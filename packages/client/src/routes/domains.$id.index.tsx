@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -23,18 +24,16 @@ function TopicLinkList({
     <ul className="ml-5 list-disc">
       {topics.map(topic => (
         <li key={topic.id}>
-          <Link
-            to="/topics/$id"
-            params={{
-              id: topic.id + "",
-            }}
-            className={`
+          <EntityLink
+            entity="topics"
+            id={String(topic.id)}
+            className="
               font-bold text-blue-800
               hover:text-blue-600
-            `}
+            "
           >
             {topic.name}
-          </Link>
+          </EntityLink>
           {topic.courses && topic.courses.length > 0 && (
             <span className="ml-2 text-xs text-muted-foreground">
               (

@@ -2,12 +2,12 @@ import type { TaskResource, TaskResourceLevel } from "@emstack/types";
 
 import { Fragment } from "react";
 
-import { Link } from "@tanstack/react-router";
 import { ActivityIcon, ExternalLinkIcon, PencilIcon } from "lucide-react";
 
 import { LevelBadge } from "./LevelBadge";
 import { COLUMN_COUNT } from "./TaskResourceEditingRow";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { InteractionQuickLog } from "@/components/resources/InteractionQuickLog";
 import { Button } from "@/components/ui/button";
 import { isHttpUrl } from "@/utils";
@@ -58,11 +58,9 @@ export function TaskResourceRow({
           <div className="flex flex-col gap-0.5">
             {linkedLabel && r.resourceId
               ? (
-                <Link
-                  to="/resources/$id"
-                  params={{
-                    id: r.resourceId,
-                  }}
+                <EntityLink
+                  entity="resources"
+                  id={r.resourceId}
                   className="
                     font-medium
                     hover:text-blue-600
@@ -70,7 +68,7 @@ export function TaskResourceRow({
                   title={linkedLabel}
                 >
                   {linkedLabel}
-                </Link>
+                </EntityLink>
               )
               : (
                 <span className="font-medium">{r.name}</span>

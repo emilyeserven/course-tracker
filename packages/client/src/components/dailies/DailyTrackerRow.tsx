@@ -1,6 +1,5 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
-import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
 import { DailyCadenceBadge } from "./DailyCadenceBadge";
@@ -17,6 +16,7 @@ import { DailyTaskIndicator } from "./DailyTaskIndicator";
 import { DailyTitle } from "./DailyTitle";
 import { TodayStatusCell } from "./TodayStatusCell";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { cn } from "@/lib/utils";
 import {
   findStatusForDate,
@@ -68,18 +68,16 @@ export function DailyTrackerRow({
         <DailyProgressCell daily={daily} />
       </td>
       <td className="p-2">
-        <Link
-          to="/routines/$id"
-          params={{
-            id: daily.id,
-          }}
+        <EntityLink
+          entity="routines"
+          id={daily.id}
           className="
             font-medium
             hover:text-blue-600
           "
         >
           <DailyTitle daily={daily} />
-        </Link>
+        </EntityLink>
       </td>
       <td className="p-2">
         <span className="inline-flex items-center gap-1.5">
