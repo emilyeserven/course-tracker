@@ -38,6 +38,7 @@ export const queryKeys = {
     list: () => ["domains"] as const,
     detail: (id: string) => ["domain", id] as const,
     radar: (id: string) => ["radar", id] as const,
+    explore: () => ["domains-explore"] as const,
   },
   tagGroups: {
     list: () => ["tagGroups"] as const,

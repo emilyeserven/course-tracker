@@ -1,5 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
+import { MAX_FOCUSED_DOMAINS } from "@emstack/types";
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
 import { nullableString } from "@/utils/schemas";
@@ -16,6 +17,12 @@ const updateSchema = {
       properties: {
         readwiseApiKey: nullableString,
         todoistApiKey: nullableString,
+        focusedDomainIds: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
       },
     },
   },
@@ -42,6 +49,12 @@ export default async function (server: FastifyInstance) {
       }
       if (request.body.todoistApiKey !== undefined) {
         updates.todoistApiKey = normalizeKey(request.body.todoistApiKey);
+      }
+      if (request.body.focusedDomainIds !== undefined) {
+        // Dedupe while preserving order, then enforce the focus cap server-side
+        // so the limit holds regardless of the client.
+        const deduped = [...new Set(request.body.focusedDomainIds)];
+        updates.focusedDomainIds = deduped.slice(0, MAX_FOCUSED_DOMAINS);
       }
 
       if (Object.keys(updates).length > 0) {
