@@ -1,12 +1,9 @@
 import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { RoutineMode } from "@emstack/types";
 
-import { useEffect, useState } from "react";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+
+import { useQuickAddRoutine } from "./useQuickAddRoutine";
 
 import { Input } from "@/components/input";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
@@ -18,57 +15,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createRoutine } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 export function QuickAddRoutineDialog({
   open,
   onOpenChange,
 }: ControlledDialogProps) {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [name, setName] = useState("");
-  const [mode, setMode] = useState<RoutineMode>("weekly");
-
-  useEffect(() => {
-    if (open) {
-      setName("");
-      setMode("weekly");
-    }
-  }, [open]);
-
-  const mutation = useMutation({
-    mutationFn: (input: { name: string;
-      mode: RoutineMode; }) =>
-      createRoutine({
-        name: input.name,
-        mode: input.mode,
-        status: "active",
-      }),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.routines.list(),
-      });
-      onOpenChange(false);
-      toast.success("Routine created", {
-        action: {
-          label: "Edit",
-          onClick: () =>
-            navigate({
-              to: "/routines/$id/edit",
-              params: {
-                id: result.id,
-              },
-            }),
-        },
-      });
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
+  const {
+    name,
+    setName,
+    mode,
+    setMode,
+    handleSubmit,
+    isPending,
+    canSubmit,
+  } = useQuickAddRoutine({
+    open,
+    onOpenChange,
   });
-
-  const trimmed = name.trim();
 
   return (
     <Dialog
@@ -81,15 +44,7 @@ export function QuickAddRoutineDialog({
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (trimmed) {
-              mutation.mutate({
-                name: trimmed,
-                mode,
-              });
-            }
-          }}
+          onSubmit={handleSubmit}
         >
           <div className="flex flex-col gap-1">
             <label
@@ -147,9 +102,9 @@ export function QuickAddRoutineDialog({
             </Button>
             <Button
               type="submit"
-              disabled={!trimmed || mutation.isPending}
+              disabled={!canSubmit || isPending}
             >
-              {mutation.isPending && <Loader2 className="animate-spin" />}
+              {isPending && <Loader2 className="animate-spin" />}
               Create
             </Button>
           </DialogFooter>
