@@ -2,19 +2,18 @@ import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { DailyCadenceBadge } from "./DailyCadenceBadge";
-// Shares the same daily-cell building blocks as DailiesActiveListView; the
-// overlapping import block is incidental.
-// fallow-ignore-next-line code-duplication
-import { DailyCommentPopover } from "./DailyCommentPopover";
-import { DailyLocationCell } from "./DailyLocationCell";
-import { DailyProgressCell } from "./DailyProgressCell";
-import { DailyResourceIndicator } from "./DailyResourceIndicator";
-import { DailyStatusCircle } from "./DailyStatusCircle";
-import { DailyStatusConnector } from "./DailyStatusConnector";
-import { DailyTaskIndicator } from "./DailyTaskIndicator";
-import { DailyTitle } from "./DailyTitle";
-import { TodayStatusCell } from "./TodayStatusCell";
+import {
+  DailyCadenceBadge,
+  DailyCommentPopover,
+  DailyLocationCell,
+  DailyProgressCell,
+  DailyResourceIndicator,
+  DailyStatusCircle,
+  DailyStatusConnector,
+  DailyTaskIndicator,
+  DailyTitle,
+  TodayStatusCell,
+} from "./dailyCells";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { cn } from "@/lib/utils";
