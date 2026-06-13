@@ -19,8 +19,8 @@ function DashboardCard({
     <section
       data-slot="dashboard-card"
       className={cn(`
-        flex flex-col gap-3 rounded-md border bg-card text-card-foreground
-        shadow-sm
+        flex w-full flex-col gap-3 rounded-md border bg-card
+        text-card-foreground shadow-sm
       `, className)}
       {...props}
     >

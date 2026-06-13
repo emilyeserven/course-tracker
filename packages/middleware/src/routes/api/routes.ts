@@ -21,6 +21,7 @@ import routineTemplates from "./routine-templates/routes";
 import dashboardLayouts from "./dashboard-layouts/routes";
 import settings from "./settings/routes";
 import readwise from "./readwise/routes";
+import todoist from "./todoist/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -82,5 +83,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(readwise, {
     prefix: "/readwise",
+  });
+  fastify.register(todoist, {
+    prefix: "/todoist",
   });
 }

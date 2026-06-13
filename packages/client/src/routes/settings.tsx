@@ -7,6 +7,7 @@ import { DataToolsSection } from "./settings.-components/-DataToolsSection";
 import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
 import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
+import { TodoistSection } from "./settings.-components/-TodoistSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
@@ -39,6 +40,8 @@ function Settings() {
         <DashboardLayoutsSection />
 
         <ReadwiseSection />
+
+        <TodoistSection />
 
         <section className="flex flex-col gap-3">
           <h2 className="text-xl font-semibold">Appearance</h2>
