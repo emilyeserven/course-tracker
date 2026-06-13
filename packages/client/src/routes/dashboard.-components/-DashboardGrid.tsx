@@ -123,6 +123,13 @@ function applyGeometryToTiles(
  * geometry style, drag handlers, and its own ref — so we must forward every
  * received prop (and merge its ref with our measuring ref). Swallowing them
  * leaves tiles unpositioned, undraggable, and with stray always-on handles.
+ *
+ * One exception: the grid's geometry `style` carries a fixed pixel `height`
+ * (the layout row count × rowHeight). For auto-height tiles that height must
+ * not reach the measured element — it would feed the element's own height back
+ * into the ResizeObserver (freezing the row count) and let taller content
+ * overflow into the tile below. So we keep position/transform/width but drop
+ * the imposed height for auto tiles, letting them size to their content.
  */
 export function GridTile({
   tileId,
@@ -130,6 +137,7 @@ export function GridTile({
   rowHeightPx,
   onMeasure,
   className,
+  style,
   ref,
   children,
   ...props
@@ -163,6 +171,15 @@ export function GridTile({
     return () => observer.disconnect();
   }, [autoHeight, tileId, rowHeightPx, minH, onMeasure]);
 
+  // Drop the grid's imposed height for auto tiles so the measured element
+  // sizes to its content (see the note above); fixed tiles keep it.
+  const itemStyle = autoHeight && style
+    ? {
+      ...style,
+      height: undefined,
+    }
+    : style;
+
   return (
     <div
       ref={setRef}
@@ -171,6 +188,7 @@ export function GridTile({
         *:h-full
       `, className)}
       {...props}
+      style={itemStyle}
     >
       {children}
     </div>
