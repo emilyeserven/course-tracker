@@ -1,14 +1,12 @@
 import type { TopicsTableSort } from "@/components/boxes/TopicsTable";
+import type { ViewMode } from "@/components/layout/ViewModeToggle";
 import type { TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
@@ -42,7 +40,6 @@ type SortOption
     | "tasks-desc"
     | "dailies-desc"
     | "custom";
-type ViewMode = "grid" | "table";
 
 const DEFAULT_SORT: TopicsTableSort = {
   column: "name",
@@ -137,14 +134,20 @@ function sortTopics(
         return cmp !== 0 ? cmp * dir : a.name.localeCompare(b.name);
       }
       case "resources":
-        return ((a.resourceCount ?? 0) - (b.resourceCount ?? 0)) * dir
-          || a.name.localeCompare(b.name);
+        return (
+          ((a.resourceCount ?? 0) - (b.resourceCount ?? 0)) * dir
+          || a.name.localeCompare(b.name)
+        );
       case "tasks":
-        return ((a.taskCount ?? 0) - (b.taskCount ?? 0)) * dir
-          || a.name.localeCompare(b.name);
+        return (
+          ((a.taskCount ?? 0) - (b.taskCount ?? 0)) * dir
+          || a.name.localeCompare(b.name)
+        );
       case "dailies":
-        return ((a.dailyCount ?? 0) - (b.dailyCount ?? 0)) * dir
-          || a.name.localeCompare(b.name);
+        return (
+          ((a.dailyCount ?? 0) - (b.dailyCount ?? 0)) * dir
+          || a.name.localeCompare(b.name)
+        );
     }
   });
 }
@@ -263,9 +266,7 @@ function Topics() {
       setSelectedIds(new Set());
       setConfirmOpen(false);
       toast.success(
-        ids.length === 1
-          ? "1 topic deleted."
-          : `${ids.length} topics deleted.`,
+        ids.length === 1 ? "1 topic deleted." : `${ids.length} topics deleted.`,
       );
     }
     catch {
@@ -430,9 +431,7 @@ function Topics() {
                   "
                 >
                   <span className="text-sm text-muted-foreground">
-                    {selectedIds.size > 0
-                      ? `${selectedIds.size} selected`
-                      : ""}
+                    {selectedIds.size > 0 ? `${selectedIds.size} selected` : ""}
                   </span>
                   {selectedIds.size > 0 && (
                     <div className="flex items-center gap-2">
