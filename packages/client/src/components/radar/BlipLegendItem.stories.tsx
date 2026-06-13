@@ -1,7 +1,7 @@
 import type { RadarBlip } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "@storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { BlipLegendItem, BlipLegendSection } from "./radarLegendItem";
 
