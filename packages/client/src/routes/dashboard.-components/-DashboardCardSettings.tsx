@@ -130,4 +130,4 @@ function CardSettingsFlyout({
   );
 }
 
-export { CardSettingsFlyout, SettingToggle, TileHeightSettings };
+export { CardSettingsFlyout, SettingToggle };
