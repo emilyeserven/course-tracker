@@ -4,13 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
-import { RadarChart } from "./domains.$id.-components/-RadarChart";
-
 import { EntityLink } from "@/components/boxElements";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, fetchSingleDomain } from "@/utils";
+
+import { RadarChart } from "./domains.$id.-components/-RadarChart";
 
 export const Route = createFileRoute("/domains/$id/")({
   component: SingleDomain,
