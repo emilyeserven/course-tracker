@@ -19,7 +19,6 @@ import {
   Undo2Icon,
 } from "lucide-react";
 
-import { Pill } from "@/components/radar/Pill";
 import {
   pillClassByIndex,
   RING_PILL_CLASSES,
@@ -34,6 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Pill } from "@/components/ui/Pill";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 interface BlipDisplayRowProps {
