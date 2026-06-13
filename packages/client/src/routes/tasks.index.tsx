@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { TaskBox } from "@/components/boxes";
+import { TaskBox } from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   EntityError,

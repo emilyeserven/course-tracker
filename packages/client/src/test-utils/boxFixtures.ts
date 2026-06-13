@@ -9,7 +9,7 @@ import type {
 } from "@emstack/types";
 
 /**
- * Mock-data builders for the `components/boxes/*` stories. Each `make*` takes a
+ * Mock-data builders for the `components/contentBoxComponents/*` stories. Each `make*` takes a
  * partial override and fills in sensible defaults, so a story only specifies the
  * fields it cares about. Mirrors the pattern in `radarFixtures.ts`.
  */

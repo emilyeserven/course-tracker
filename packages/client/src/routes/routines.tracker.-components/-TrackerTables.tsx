@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { Link } from "@tanstack/react-router";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { DashboardCard } from "@/components/contentBoxComponents/DashboardCard";
 import {
   buildDailyTrackerColumns,
   DailiesActiveListView,
