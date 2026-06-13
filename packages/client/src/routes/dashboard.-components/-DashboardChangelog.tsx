@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 
-// Bundled at build time from the repo-root CHANGELOG.md (the `@root` alias), so
-// the card needs no API round-trip and the file stays the single source of
-// truth — Vite inlines `?raw` imports into the bundle.
+// Bundled at build time from the repo-root CHANGELOG.md (the `@root` Vite
+// alias), so the card needs no API round-trip and the file stays the single
+// source of truth — Vite inlines `?raw` imports into the bundle. fallow's
+// static resolver only reads tsconfig paths, so the Vite-only alias reads as
+// unresolved; the import is real, hence the suppression.
+// fallow-ignore-next-line unresolved-import
 import changelogMarkdown from "@root/CHANGELOG.md?raw";
 
 import { parseChangelog } from "./-changelog";
