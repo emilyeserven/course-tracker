@@ -3,7 +3,6 @@
 // direct file paths (never this index), so this re-export barrel adds no cycle.
 export { ContentBox } from "./ContentBox";
 export { CourseBox } from "./CourseBox";
-export { DashboardCard } from "./DashboardCard";
 export { DomainBox } from "./DomainBox";
 export { ProviderBox } from "./ProviderBox";
 export { RoutineBox } from "./RoutineBox";
