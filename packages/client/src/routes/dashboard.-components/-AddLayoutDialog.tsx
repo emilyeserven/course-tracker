@@ -1,3 +1,4 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { DashboardLayout, DashboardLayoutTile } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
@@ -21,12 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface AddLayoutDialogProps {
-  open: boolean;
+interface AddLayoutDialogProps extends ControlledDialogProps {
   isSaving?: boolean;
   /** User-saved presets (template layouts) offered as starting points. */
   savedPresets: DashboardLayout[];
-  onOpenChange: (open: boolean) => void;
   onSubmit: (name: string, tiles: DashboardLayoutTile[]) => void;
 }
 

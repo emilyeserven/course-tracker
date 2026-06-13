@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useMemo, useState } from "react";
 
 import { useMutation } from "@tanstack/react-query";
@@ -18,9 +20,7 @@ import {
 import { copyTextToClipboard, stripCodeFence } from "@/utils";
 import { createModule, createModuleGroup } from "@/utils/fetchFunctions";
 
-interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface Props extends ControlledDialogProps {
   resourceId: string;
   resourceName: string;
   resourceDescription: string | null;
@@ -97,7 +97,9 @@ function parseSuggestion(raw: string): ModuleSuggestion {
     );
   }
   const obj = parsed as Record<string, unknown>;
-  const moduleGroupsRaw = Array.isArray(obj.moduleGroups) ? obj.moduleGroups : [];
+  const moduleGroupsRaw = Array.isArray(obj.moduleGroups)
+    ? obj.moduleGroups
+    : [];
   const ungroupedRaw = Array.isArray(obj.ungroupedModules)
     ? obj.ungroupedModules
     : [];
@@ -203,7 +205,8 @@ function buildPrompt(args: {
     userNotes,
   } = args;
   const label = resourceName.trim() || "(unnamed resource)";
-  const description = resourceDescription?.trim() || "(no description provided)";
+  const description
+    = resourceDescription?.trim() || "(no description provided)";
   const url = resourceUrl?.trim() || "(no URL provided)";
   const provider = providerName?.trim() || "(no provider set)";
   const trimmedNotes = userNotes.trim();
@@ -526,9 +529,7 @@ export function ModuleSuggestDialog({
       open={open}
       onOpenChange={handleOpenChange}
     >
-      <DialogContent
-        className="max-h-[90vh] max-w-3xl overflow-y-auto"
-      >
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <SparklesIcon className="size-4" />
@@ -833,9 +834,7 @@ function SuggestionGroupCard({
   onToggleModule: (mi: number) => void;
 }) {
   return (
-    <div
-      className="flex flex-col gap-2 rounded-md border bg-background p-3"
-    >
+    <div className="flex flex-col gap-2 rounded-md border bg-background p-3">
       <label className="flex items-start gap-2">
         <input
           type="checkbox"
@@ -896,9 +895,7 @@ function ModuleRow({
         <span className="text-sm">
           {m.name}
           {length && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              {length}
-            </span>
+            <span className="ml-2 text-xs text-muted-foreground">{length}</span>
           )}
         </span>
         {m.description && (

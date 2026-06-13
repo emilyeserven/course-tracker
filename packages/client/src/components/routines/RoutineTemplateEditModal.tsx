@@ -1,3 +1,4 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { WeeklyRow } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
 import type { RoutineTemplate } from "@emstack/types";
@@ -15,11 +16,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface RoutineTemplateEditModalProps {
-  open: boolean;
+interface RoutineTemplateEditModalProps extends ControlledDialogProps {
   template: RoutineTemplate | null;
   isNew?: boolean;
-  onOpenChange: (open: boolean) => void;
   onSave: (next: RoutineTemplate) => void;
   onDelete?: () => void;
   isSaving?: boolean;

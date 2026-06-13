@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useEffect, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,15 +21,10 @@ import {
 import { createTodoistTask, fetchSettings } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-interface QuickAddTodoistDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export function QuickAddTodoistDialog({
   open,
   onOpenChange,
-}: QuickAddTodoistDialogProps) {
+}: ControlledDialogProps) {
   const queryClient = useQueryClient();
   const [content, setContent] = useState("");
   const [description, setDescription] = useState("");
@@ -46,10 +43,9 @@ export function QuickAddTodoistDialog({
   const configured = settingsQuery.data?.todoistConfigured ?? false;
 
   const mutation = useMutation({
-    mutationFn: (input: {
-      content: string;
-      description?: string;
-    }) => createTodoistTask(input),
+    mutationFn: (input: { content: string;
+      description?: string; }) =>
+      createTodoistTask(input),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.todoist.tasks(),

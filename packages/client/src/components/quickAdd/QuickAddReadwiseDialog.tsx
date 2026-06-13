@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useEffect, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,15 +20,10 @@ import {
 import { fetchSettings, saveReadwiseArticle } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-interface QuickAddReadwiseDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export function QuickAddReadwiseDialog({
   open,
   onOpenChange,
-}: QuickAddReadwiseDialogProps) {
+}: ControlledDialogProps) {
   const queryClient = useQueryClient();
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
@@ -45,10 +42,9 @@ export function QuickAddReadwiseDialog({
   const configured = settingsQuery.data?.readwiseConfigured ?? false;
 
   const mutation = useMutation({
-    mutationFn: (input: {
-      url: string;
-      title?: string;
-    }) => saveReadwiseArticle(input),
+    mutationFn: (input: { url: string;
+      title?: string; }) =>
+      saveReadwiseArticle(input),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.readwise.readingList(),

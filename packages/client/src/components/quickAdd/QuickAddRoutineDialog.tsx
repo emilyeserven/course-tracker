@@ -1,3 +1,6 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+import type { RoutineMode } from "@emstack/types";
+
 import { useEffect, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,17 +21,10 @@ import {
 import { createRoutine } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-type RoutineMode = "weekly" | "daily";
-
-interface QuickAddRoutineDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export function QuickAddRoutineDialog({
   open,
   onOpenChange,
-}: QuickAddRoutineDialogProps) {
+}: ControlledDialogProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -42,10 +38,8 @@ export function QuickAddRoutineDialog({
   }, [open]);
 
   const mutation = useMutation({
-    mutationFn: (input: {
-      name: string;
-      mode: RoutineMode;
-    }) =>
+    mutationFn: (input: { name: string;
+      mode: RoutineMode; }) =>
       createRoutine({
         name: input.name,
         mode: input.mode,

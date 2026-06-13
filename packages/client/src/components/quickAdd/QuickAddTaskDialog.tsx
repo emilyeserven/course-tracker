@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useEffect, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,15 +19,10 @@ import {
 import { createTask } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-interface QuickAddTaskDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export function QuickAddTaskDialog({
   open,
   onOpenChange,
-}: QuickAddTaskDialogProps) {
+}: ControlledDialogProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");

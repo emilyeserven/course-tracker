@@ -1,3 +1,4 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { useEffect, useState } from "react";
@@ -18,7 +19,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { getTodayKey } from "@/utils";
 
-const CRITERIA_KEY_BY_STATUS: Record<DailyCompletionStatus, keyof NonNullable<Daily["criteria"]>> = {
+const CRITERIA_KEY_BY_STATUS: Record<
+  DailyCompletionStatus,
+  keyof NonNullable<Daily["criteria"]>
+> = {
   incomplete: "incomplete",
   touched: "touched",
   goal: "goal",
@@ -26,11 +30,9 @@ const CRITERIA_KEY_BY_STATUS: Record<DailyCompletionStatus, keyof NonNullable<Da
   freeze: "freeze",
 };
 
-interface DailyStatusModalProps {
+interface DailyStatusModalProps extends ControlledDialogProps {
   daily: Daily;
   currentStatus: DailyCompletionStatus | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onChange: (status: DailyCompletionStatus, note: string | null) => void;
   disabled?: boolean;
 }
@@ -81,10 +83,7 @@ export function DailyStatusModal({
         className="max-h-[90vh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto"
       >
         <DialogHeader className="text-left">
-          <DialogTitle>
-            {daily.name}
-            : Change Today&apos;s Status
-          </DialogTitle>
+          <DialogTitle>{daily.name}: Change Today&apos;s Status</DialogTitle>
           {daily.description
             ? (
               <DialogDescription>
@@ -98,10 +97,7 @@ export function DailyStatusModal({
             )
             : (
               <DialogDescription className="sr-only">
-                Change today&apos;s status for
-                {" "}
-                {daily.name}
-                .
+                Change today&apos;s status for {daily.name}.
               </DialogDescription>
             )}
         </DialogHeader>
@@ -129,11 +125,13 @@ export function DailyStatusModal({
                         hover:bg-muted/50
                       `,
                   )}
-                  style={isSelected
-                    ? {
-                      borderColor: opt.borderColor,
-                    }
-                    : undefined}
+                  style={
+                    isSelected
+                      ? {
+                        borderColor: opt.borderColor,
+                      }
+                      : undefined
+                  }
                 >
                   <input
                     type="radio"
@@ -202,8 +200,9 @@ export function DailyStatusModal({
             </Button>
             <Button
               type="submit"
-              disabled={disabled || !selected
-                || (!statusChanged && !noteChanged)}
+              disabled={
+                disabled || !selected || (!statusChanged && !noteChanged)
+              }
             >
               Save
             </Button>

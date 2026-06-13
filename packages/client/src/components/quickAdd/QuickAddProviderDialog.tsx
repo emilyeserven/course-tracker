@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useEffect, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,15 +19,10 @@ import {
 import { createProvider } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-interface QuickAddProviderDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export function QuickAddProviderDialog({
   open,
   onOpenChange,
-}: QuickAddProviderDialogProps) {
+}: ControlledDialogProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -39,10 +36,8 @@ export function QuickAddProviderDialog({
   }, [open]);
 
   const mutation = useMutation({
-    mutationFn: (input: {
-      name: string;
-      url: string;
-    }) => createProvider(input),
+    mutationFn: (input: { name: string;
+      url: string; }) => createProvider(input),
     onSuccess: (result) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.providers.list(),
