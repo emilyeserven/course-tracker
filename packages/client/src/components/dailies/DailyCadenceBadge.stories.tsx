@@ -1,18 +1,10 @@
-import type { Daily } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, within } from "storybook/test";
 
 import { DailyCadenceBadge } from "./DailyCadenceBadge";
 
-function makeDaily(mode: Daily["mode"], name = "Morning reading"): Daily {
-  return {
-    id: "r1",
-    name,
-    completions: [],
-    mode,
-  };
-}
+import { makeDaily } from "@/test-utils/dailiesFixtures";
 
 const meta = {
   component: DailyCadenceBadge,
@@ -24,7 +16,9 @@ type Story = StoryObj<typeof meta>;
 
 export const DailyMode: Story = {
   args: {
-    daily: makeDaily("daily"),
+    daily: makeDaily({
+      mode: "daily",
+    }),
   },
   play: async ({
     canvasElement,
@@ -36,7 +30,9 @@ export const DailyMode: Story = {
 
 export const WeeklyMode: Story = {
   args: {
-    daily: makeDaily("weekly"),
+    daily: makeDaily({
+      mode: "weekly",
+    }),
   },
   play: async ({
     canvasElement,
