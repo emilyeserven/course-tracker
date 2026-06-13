@@ -17,10 +17,8 @@ import {
   DailyTitle,
   TooManyDailiesWarning,
 } from "@/components/dailies";
-import {
-  DailyTrackerHeadColumns,
-  DailyTrackerRow,
-} from "@/components/dailies/DailyTrackerRow";
+import { buildDailyTrackerColumns } from "@/components/dailies/dailyTrackerColumns";
+import { DailyTrackerRow } from "@/components/dailies/DailyTrackerRow";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -203,7 +201,7 @@ function DailyTracker() {
     mode, setMode,
   } = useDailiesViewMode();
   const {
-    sortKey, sortDir, toggleSort, sortIndicator,
+    sortKey, sortDir, sorting, onSortingChange,
   } = useDailySort();
 
   const {
@@ -360,85 +358,43 @@ function DailyTracker() {
               />
             )}
             {mode === "table" && (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-muted-foreground">
-                      <th className="p-2 font-medium">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort("progress")}
-                          className="
-                            inline-flex items-center gap-1
-                            hover:text-foreground
-                          "
-                          aria-label="Sort by progress"
-                          title="Sort by progress"
-                        >
-                          {sortIndicator("progress")}
-                        </button>
-                      </th>
-                      <th className="p-2 font-medium">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort("name")}
-                          className="
-                            inline-flex items-center gap-1
-                            hover:text-foreground
-                          "
-                          aria-label="Sort by title"
-                        >
-                          Title
-                          {sortIndicator("name")}
-                        </button>
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Type
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Cadence
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Streak
-                      </th>
-                      <th className="p-2 font-medium whitespace-nowrap">
-                        Total
-                      </th>
-                      <th className="p-2 font-medium" />
-                      <DailyTrackerHeadColumns
-                        dayHeaders={dayHeaders}
-                        statusThClassName="w-36 p-2 font-medium whitespace-nowrap"
-                      />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeDailies.map(daily => (
-                      <DailyTrackerRow
-                        key={daily.id}
-                        daily={daily}
-                        todayKey={todayKey}
-                        recentDaysCount={RECENT_DAYS_COUNT}
-                        mutationPending={mutation.isPending}
-                        onChangeStatus={(d, status) =>
-                          mutation.mutate({
-                            daily: d,
-                            status,
-                          })}
-                        rowClassName="
-                          group border-t align-middle
-                          hover:bg-muted/40
-                        "
-                        statusCellClassName="w-36 p-2"
-                        firstConnectorClassName="
-                          absolute top-1/2 right-[calc(50%+12px)]
-                          -left-2 z-0 w-auto -translate-y-1/2
-                        "
-                        taskId={daily.taskId ?? daily.task?.id ?? null}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={buildDailyTrackerColumns({
+                  dayHeaders,
+                  progressHideLabel: true,
+                  statusHeadClassName: "w-36 p-2 font-medium whitespace-nowrap",
+                })}
+                data={activeDailies}
+                getRowId={daily => daily.id}
+                enableSorting
+                manualSorting
+                sorting={sorting}
+                onSortingChange={onSortingChange}
+                className="border-collapse"
+                renderRow={row => (
+                  <DailyTrackerRow
+                    daily={row.original}
+                    todayKey={todayKey}
+                    recentDaysCount={RECENT_DAYS_COUNT}
+                    mutationPending={mutation.isPending}
+                    onChangeStatus={(d, status) =>
+                      mutation.mutate({
+                        daily: d,
+                        status,
+                      })}
+                    rowClassName="
+                      group border-t align-middle
+                      hover:bg-muted/40
+                    "
+                    statusCellClassName="w-36 p-2"
+                    firstConnectorClassName="
+                      absolute top-1/2 right-[calc(50%+12px)]
+                      -left-2 z-0 w-auto -translate-y-1/2
+                    "
+                    taskId={row.original.taskId ?? row.original.task?.id ?? null}
+                  />
+                )}
+              />
             )}
           </DashboardCard>
         )}

@@ -1,9 +1,9 @@
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
+import type { SortingState, Updater } from "@tanstack/react-table";
 
 import { useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -47,39 +47,35 @@ export function compareDailies(
   return sortKey === "name" && sortDir === "desc" ? -cmp : cmp;
 }
 
-/** Sort state plus the toggle handler and header indicator used by both tracker tables. */
+/**
+ * Sort state for the tracker tables, exposed as a TanStack `SortingState` plus a
+ * change handler so the tables can drive `DataTable` / `DataTableColumnHeader`.
+ * `sortKey`/`sortDir` remain for `compareDailies`.
+ */
 export function useDailySort() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    }
-    else {
-      setSortKey(key);
-      setSortDir(key === "progress" ? "desc" : "asc");
-    }
-  }
+  const sorting: SortingState = [
+    {
+      id: sortKey,
+      desc: sortDir === "desc",
+    },
+  ];
 
-  function sortIndicator(key: SortKey) {
-    if (sortKey !== key) {
-      return <ArrowUpDownIcon className="size-3 opacity-40" />;
-    }
-    return sortDir === "asc"
-      ? (
-        <ArrowUpIcon className="size-3" />
-      )
-      : (
-        <ArrowDownIcon className="size-3" />
-      );
+  function onSortingChange(updater: Updater<SortingState>) {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    if (!first) return;
+    setSortKey(first.id as SortKey);
+    setSortDir(first.desc ? "desc" : "asc");
   }
 
   return {
     sortKey,
     sortDir,
-    toggleSort,
-    sortIndicator,
+    sorting,
+    onSortingChange,
   };
 }
 

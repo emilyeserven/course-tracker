@@ -8,6 +8,8 @@ interface DataTableColumnHeaderProps<TData, TValue> {
   column: Column<TData, TValue>;
   label: string;
   align?: "left" | "right";
+  /** Keep `label` for screen readers but hide it visually (icon-only header). */
+  hideLabel?: boolean;
 }
 
 /**
@@ -19,9 +21,14 @@ export function DataTableColumnHeader<TData, TValue>({
   column,
   label,
   align = "left",
+  hideLabel = false,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  const labelEl = hideLabel
+    ? <span className="sr-only">{label}</span>
+    : <span>{label}</span>;
+
   if (!column.getCanSort()) {
-    return <span>{label}</span>;
+    return labelEl;
   }
 
   const sorted = column.getIsSorted();
@@ -41,7 +48,7 @@ export function DataTableColumnHeader<TData, TValue>({
         align === "right" ? "justify-end" : "justify-start",
       )}
     >
-      <span>{label}</span>
+      {labelEl}
       {sorted === "asc" && (
         <ArrowUpIcon
           className="size-3.5"
