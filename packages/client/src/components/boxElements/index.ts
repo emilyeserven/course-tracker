@@ -1,8 +1,5 @@
-export { CourseMetaItem } from "./CourseMetaItem";
+// Cohesive box-display elements grouped so consumers can pull related pieces
+// from one dependency. Add a re-export here when a second consumer needs the
+// same component (a barrel only pays off at >=2 shared sources).
 export { Description } from "./Description";
-export { DomainPill } from "./DomainPill";
-export { DomainTagList } from "./DomainTagList";
-export { EntityLink, type EntityKind } from "./EntityLink";
-export { StatusIndicator } from "./StatusIndicator";
-export { TopicList } from "./TopicList";
-export { YesNoDisplay } from "./YesNoDisplay";
+export { EntityLink } from "./EntityLink";
