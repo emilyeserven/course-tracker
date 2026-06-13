@@ -1,7 +1,5 @@
 import type { Daily } from "@emstack/types";
 
-import { useEffect, useRef, useState } from "react";
-
 import { InfinityIcon } from "lucide-react";
 
 import {
@@ -15,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useHoverPopover } from "@/hooks/useHoverPopover";
 
 interface DailyProgressCellProps {
   daily: Daily;
@@ -33,33 +32,10 @@ function HoverProgressPopover({
   total,
   children,
 }: HoverProgressPopoverProps) {
-  const [open, setOpen] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (closeTimer.current) {
-        clearTimeout(closeTimer.current);
-      }
-    };
-  }, []);
-
-  const cancelClose = () => {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  };
-
-  const handleOpen = () => {
-    cancelClose();
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    cancelClose();
-    closeTimer.current = setTimeout(() => setOpen(false), 120);
-  };
+  const {
+    open, setOpen, cancelClose, handleOpen, handleClose,
+  }
+    = useHoverPopover();
 
   return (
     <Popover
