@@ -32,9 +32,10 @@ interface SaveAsPresetInput {
 
 /**
  * The dashboard-layout CRUD mutations shared by the /dashboard route and the
- * settings layouts section: rename, save-as-preset, duplicate, delete. Each
- * invalidates the layouts list and shows the same toast on both surfaces; the
- * only per-call-site difference (closing a dialog) is injected via callbacks.
+ * settings layouts section (both via `useDashboardLayoutManager`): rename,
+ * save-as-preset, duplicate, delete. Each invalidates the layouts list and shows
+ * the same toast on both surfaces; the only per-call-site difference (closing a
+ * dialog) is injected via callbacks.
  *
  * Create and tile-toggle are deliberately NOT here — they diverge between the
  * two surfaces (create's side effects/inputs differ; the dashboard toggles
