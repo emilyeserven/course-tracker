@@ -5,15 +5,17 @@ import { Fragment } from "react";
 import { Link } from "@tanstack/react-router";
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { DailyCommentPopover } from "./DailyCommentPopover";
-import { DailyLocationCell } from "./DailyLocationCell";
-import { DailyProgressCell } from "./DailyProgressCell";
-import { DailyResourceIndicator } from "./DailyResourceIndicator";
-import { DailyStatusCircle } from "./DailyStatusCircle";
-import { DailyStatusConnector } from "./DailyStatusConnector";
-import { DailyTaskIndicator } from "./DailyTaskIndicator";
-import { DailyTitle } from "./DailyTitle";
-import { TodayStatusCell } from "./TodayStatusCell";
+import {
+  DailyCommentPopover,
+  DailyLocationCell,
+  DailyProgressCell,
+  DailyResourceIndicator,
+  DailyStatusCircle,
+  DailyStatusConnector,
+  DailyTaskIndicator,
+  DailyTitle,
+  TodayStatusCell,
+} from "./dailyCells";
 
 import { cn } from "@/lib/utils";
 import {
@@ -60,7 +62,9 @@ export function DailiesActiveListView({
           recentDaysCount + 1,
           referenceKey,
           "mmdd",
-        ).slice(0, -1).reverse();
+        )
+          .slice(0, -1)
+          .reverse();
         const mostRecentPast = recentDays[0] ?? null;
         return (
           <li
@@ -102,9 +106,7 @@ export function DailiesActiveListView({
                           ? "text-orange-600"
                           : "text-muted-foreground",
                     )}
-                    title={chain > 0
-                      ? `${chain}-day chain`
-                      : "No active chain"}
+                    title={chain > 0 ? `${chain}-day chain` : "No active chain"}
                   >
                     <FlameIcon className="size-4" />
                     {chain}
@@ -112,9 +114,7 @@ export function DailiesActiveListView({
                   <span
                     className={cn(
                       "inline-flex items-center gap-1.5",
-                      total > 0
-                        ? "text-emerald-600"
-                        : "text-muted-foreground",
+                      total > 0 ? "text-emerald-600" : "text-muted-foreground",
                     )}
                     title={`${total} total day${total === 1 ? "" : "s"} completed`}
                   >
@@ -185,9 +185,7 @@ export function DailiesActiveListView({
                         className="mt-[11px] w-2.5 shrink-0"
                       />
                     )}
-                    <div
-                      className="flex shrink-0 flex-col items-center gap-0.5"
-                    >
+                    <div className="flex shrink-0 flex-col items-center gap-0.5">
                       <DailyStatusCircle
                         status={day.status}
                         size="sm"
