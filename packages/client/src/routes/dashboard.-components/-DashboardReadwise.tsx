@@ -145,6 +145,9 @@ export function DashboardReadwise({
         >
           <Link
             to="/settings"
+            search={{
+              tab: "connections",
+            }}
             className="
               text-sm text-primary underline-offset-2
               hover:underline
@@ -162,6 +165,9 @@ export function DashboardReadwise({
             {" "}
             <Link
               to="/settings"
+              search={{
+                tab: "connections",
+              }}
               className="
                 text-primary underline-offset-2
                 hover:underline

@@ -108,7 +108,7 @@ export function CriteriaTemplatesSection() {
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-xl font-semibold">
-            Dailies Status Criteria Templates
+            Status Criteria Templates
           </h2>
           <Button
             variant="outline"

@@ -272,9 +272,6 @@ export function DashboardLayoutsSection() {
     <>
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-xl font-semibold">
-            Dashboard Layouts
-          </h2>
           <div className="flex gap-2">
             <Button
               variant="outline"

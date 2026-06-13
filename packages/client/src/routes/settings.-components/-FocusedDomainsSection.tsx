@@ -31,7 +31,6 @@ export function FocusedDomainsSection() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xl font-semibold">Focused Domains</h2>
       <p className="text-sm text-muted-foreground">
         Choose up to
         {" "}
