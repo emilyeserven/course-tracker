@@ -112,35 +112,69 @@ content/render slots so it stays dumb.
 ## 5. Stories + tests for the resulting components
 
 Every extracted/widened shared component gets a co-located Storybook story and a
-test. Stories stay next to the component; **tests go in a `__tests__/` folder**
-when the caller asks (this repo otherwise co-locates `*.test.ts(x)` — follow the
-caller's convention).
+test. **Both stay next to the component** — this repo co-locates `*.stories.tsx`
+and `*.test.ts(x)` (no `__tests__/` folder). If a caller asks for a `__tests__/`
+folder, follow that, but co-location is the default. Vitest's `unit-tests`
+include (`**/*.test.{ts,tsx}`) finds tests either way.
+
+If the ask is broader than the components you touched — e.g. "every component in
+this folder needs a story" — first reuse the mock-data factories: extract shared
+`make*` builders into `test-utils/radarFixtures.ts` (blips/quadrants/rings/topics
++ a `byId` map helper) instead of re-rolling args in each story. One
+`*.stories.tsx` per component file covering the primary export (plus meaningful
+siblings — e.g. both illustrations); heavy containers get a single representative
+render story. A render-only story (no `play`) still smoke-tests rendering.
 
 - **Story** — mirror `components/Text.stories.tsx`: `Meta`/`StoryObj` from
   `@storybook/react-vite`, `within`/`expect`/`fn`/`userEvent` from
-  `@storybook/test`, a `play` assertion. Stories run as browser interaction tests
-  via the `storybook` vitest project, so each one also smoke-tests rendering.
+  `@storybook/test`, an optional `play` assertion. Stories run as browser
+  interaction tests via the `storybook` vitest project, so each one also
+  smoke-tests rendering.
 - **Test** — Vitest + Testing Library (`render`/`screen`/`fireEvent` from
   `@testing-library/react`; no `user-event` dep). jsdom env + jest-dom matchers
-  are set up in `setupTests.js`.
-- **Router-dependent components**: anything rendering a TanStack `<Link>` needs a
-  router context. Use `@/test-utils/RouterStub` (a memory-router context-only
-  wrapper) as a story decorator and a test wrapper. It mounts children after the
-  router's initial load, so assert with **async `findBy*`** queries, not `getBy*`.
+  are set up in `setupTests.js`. The first component test in a package may need
+  `src/vitest.d.ts` (`import "@testing-library/jest-dom/vitest"`) so the matchers
+  (`toBeInTheDocument`, …) are typed.
+
+### Story authoring gotchas (learned the hard way)
+- **Annotate `meta` explicitly** — `const meta: Meta<typeof X> = {…}`, NOT
+  `satisfies Meta<…>` — whenever args use `fn()`. The inferred meta type embeds
+  the `@vitest/spy` Mock type and isn't portable (TS2742). Likewise, if `meta`
+  references a component prop whose interface isn't exported, export it (TS4023).
+- **Async handler args**: `fn(async () => {})` trips
+  `@typescript-eslint/no-empty-function`. Use `fn(() => Promise.resolve())`.
+- **Host-element wrappers**: a component that returns a non-standalone fragment
+  needs its parent supplied by a story decorator — wrap SVG `<g>`/`<circle>`
+  components in `<svg>` (and in `<TooltipProvider>` if they use a Radix
+  `Tooltip`), and `TableRow` components in `<Table><TableBody>`.
+- **Router-dependent components**: anything rendering a TanStack `<Link>` (often
+  transitively — a legend, a table, a chart that renders a legend) needs router
+  context. Use `@/test-utils/RouterStub` (memory-router, context-only) as a story
+  decorator and a test wrapper. It mounts children after the router's initial
+  load, so assert with **async `findBy*`** queries, not `getBy*`. Don't add a
+  global decorator in `preview.ts` — the async mount breaks existing sync `play`s.
 - **jsdom gotcha**: `fireEvent.click` fires `onChange` even on a `disabled`
   input, so don't assert "disabled ⇒ handler not called" in jsdom — assert the
   `disabled` attribute instead.
+- **Story file naming need not match the component file** (e.g. `radarLegendItem.tsx`
+  → `BlipLegendItem.stories.tsx`). Don't audit coverage by filename match alone;
+  grep each component's export for a referencing `.stories.tsx`.
 
 ## 6. Verify
 
 ```bash
 pnpm --filter=@emstack/client exec tsc --noEmit -p tsconfig.app.json   # client typecheck
 pnpm --filter=@emstack/client exec vitest run --project=unit-tests <changed dirs/files>
-pnpm --filter=@emstack/client exec vitest run --project=storybook      # runs the new stories
+pnpm --filter=@emstack/client exec vitest run --project=storybook --no-file-parallelism
 pnpm exec eslint <changed files>                                       # run from repo ROOT —
                                                                        # the tailwind plugin
                                                                        # needs the root cwd
 ```
+
+The `storybook` project runs stories in a headless browser and is **flaky under
+parallelism** — it intermittently throws bare `TypeError`s across arbitrary story
+files (even ones you didn't touch), while each passes in isolation. Run it with
+`--no-file-parallelism` for a deterministic signal before trusting a failure.
 
 Use `pnpm --filter=@emstack/client run typecheck` (or `pnpm typecheck` for the
 whole repo) rather than a bare `tsc` at the root — the root has stale incremental
