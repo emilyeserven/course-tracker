@@ -15,3 +15,15 @@ export function closeTodoistTask(id: string): Promise<SuccessObj> {
     "Failed to complete task",
   );
 }
+
+export function createTodoistTask(input: {
+  content: string;
+  description?: string;
+}): Promise<{ status: string;
+  id: string; }> {
+  return postJson(
+    "/api/todoist/tasks",
+    input,
+    "Failed to add Todoist task",
+  );
+}

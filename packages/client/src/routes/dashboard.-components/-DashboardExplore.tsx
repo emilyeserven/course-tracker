@@ -1,6 +1,8 @@
 import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { ExploreItem } from "@emstack/types";
 
+import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
@@ -25,10 +27,42 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useExploreRing } from "@/hooks/useExploreRing";
+import { cn } from "@/lib/utils";
 import { fetchDomains, fetchExplore, fetchSettings } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
 const ALL_TAB = "all";
+
+// Two-line description with an inline toggle that expands the full text within
+// the tile. Renders nothing when there's no description to show.
+function ExploreItemDescription({
+  description,
+}: {
+  description: string | null;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const text = description?.trim();
+  if (!text) return null;
+
+  return (
+    <div className="text-xs text-muted-foreground">
+      <p className={cn("whitespace-pre-wrap", !expanded && "line-clamp-2")}>
+        {text}
+      </p>
+      <button
+        type="button"
+        onClick={() => setExpanded(prev => !prev)}
+        aria-expanded={expanded}
+        className="
+          mt-0.5 font-medium text-primary underline-offset-2
+          hover:underline
+        "
+      >
+        {expanded ? "Show less" : "Read more"}
+      </button>
+    </div>
+  );
+}
 
 function ItemList({
   items,
@@ -38,11 +72,17 @@ function ItemList({
   showDomain: boolean;
 }) {
   return (
-    <ul className="flex flex-col divide-y">
+    <ul
+      className="
+        grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),300px))] gap-2
+      "
+    >
       {items.map(item => (
         <li
           key={`${item.domainId}:${item.topicId}`}
-          className="flex flex-row items-center gap-2 py-2"
+          className="
+            flex max-w-[300px] min-w-0 flex-col gap-1 rounded-md border p-2
+          "
         >
           <div className="flex min-w-0 flex-col">
             <Link
@@ -63,6 +103,7 @@ function ItemList({
               </span>
             )}
           </div>
+          <ExploreItemDescription description={item.description} />
         </li>
       ))}
     </ul>
@@ -166,6 +207,22 @@ export function DashboardExplore({
             </TabsTrigger>
           ))}
         </TabsList>
+
+        {focusedDomains.length === 0 && (
+          <p className="text-xs text-muted-foreground">
+            {"Set "}
+            <Link
+              to="/settings"
+              className="
+                text-primary underline-offset-2
+                hover:underline
+              "
+            >
+              focused domains
+            </Link>
+            {" in settings to organize this by domain."}
+          </p>
+        )}
 
         <TabsContent value={ALL_TAB}>
           <DashboardSectionStatus

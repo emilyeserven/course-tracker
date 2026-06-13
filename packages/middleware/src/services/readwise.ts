@@ -3,6 +3,11 @@ import { db } from "@/db";
 import { appSettings } from "@/db/schema";
 
 const READWISE_LIST_URL = "https://readwise.io/api/v3/list/";
+const READWISE_SAVE_URL = "https://readwise.io/api/v3/save/";
+
+// Tag stamped on everything saved from Course Tracker so the source is traceable
+// inside Readwise.
+const SOURCE_TAG = "from-coursetracker";
 
 // Active reading locations only — archived/feed items are excluded so the card
 // shows a true "to read" / "reading" list. A document lives in exactly one
@@ -166,5 +171,59 @@ export async function fetchReadingList(
   return {
     started,
     unstarted,
+  };
+}
+
+/**
+ * Save a URL to the user's Readwise Reader, tagged with the source tag.
+ * Readwise resolves the title/metadata from the page itself, so `title` is only
+ * an override hint. Returns the created (or pre-existing) document's id and url.
+ */
+export async function saveReadwiseDocument(
+  token: string,
+  url: string,
+  title?: string,
+): Promise<{ id: string;
+  url: string; }> {
+  let response: Response;
+  try {
+    response = await fetch(READWISE_SAVE_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Token ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url,
+        tags: [SOURCE_TAG],
+        ...(title
+          ? {
+            title,
+          }
+          : {}),
+      }),
+    });
+  }
+  catch {
+    throw new ReadwiseError("Could not reach Readwise.", 502);
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw new ReadwiseError("Readwise rejected the API key.", 401);
+  }
+  if (response.status === 429) {
+    throw new ReadwiseError("Readwise rate limit reached — try again shortly.", 429);
+  }
+  if (!response.ok) {
+    throw new ReadwiseError(`Readwise request failed (${response.status}).`, 502);
+  }
+
+  const body = (await response.json()) as {
+    id?: string;
+    url?: string;
+  };
+  return {
+    id: body.id ?? "",
+    url: body.url ?? url,
   };
 }
