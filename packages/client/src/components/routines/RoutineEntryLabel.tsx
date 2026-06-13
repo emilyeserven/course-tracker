@@ -1,8 +1,8 @@
 import type { RoutineReferenceItem } from "@emstack/types";
 
-import { Link } from "@tanstack/react-router";
 import { MapPinIcon } from "lucide-react";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 
 interface RoutineEntryLabelProps {
@@ -29,11 +29,9 @@ export function RoutineEntryLabel({
   const nameNode = entry.type === "freeform"
     ? entry.id
     : (
-      <Link
-        to={entry.type === "task" ? "/tasks/$id" : "/resources/$id"}
-        params={{
-          id: entry.id,
-        }}
+      <EntityLink
+        entity={entry.type === "task" ? "tasks" : "resources"}
+        id={entry.id}
         className="
           text-blue-800
           hover:text-blue-600
@@ -43,7 +41,7 @@ export function RoutineEntryLabel({
         {entry.type === "task"
           ? (taskNames.get(entry.id) ?? entry.id)
           : (resourceNames.get(entry.id) ?? entry.id)}
-      </Link>
+      </EntityLink>
     );
 
   const actionable = (

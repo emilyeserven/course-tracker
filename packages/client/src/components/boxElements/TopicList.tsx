@@ -2,6 +2,8 @@ import type { Topic } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 
+import { PILL_LINK_CLASS } from "./EntityLink";
+
 import { cn } from "@/lib/utils";
 
 interface TopicListProps {
@@ -39,10 +41,14 @@ export function TopicList({
               params={{
                 id: topic.id + "",
               }}
-              className={cn({
-                "rounded-sm bg-gray-50 px-2 py-0.5 text-xs hover:bg-gray-900 hover:text-white": isPills,
-                "text-sm text-blue-800 hover:text-blue-600": !isPills,
-              })}
+              className={cn(
+                isPills
+                  ? PILL_LINK_CLASS
+                  : `
+                    text-sm text-blue-800
+                    hover:text-blue-600
+                  `,
+              )}
               key={topic.id}
             >
               {topic.name}
