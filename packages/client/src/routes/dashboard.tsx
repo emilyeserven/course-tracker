@@ -2,12 +2,12 @@ import type { DashboardLayout, DashboardLayoutTile, DashboardTileId } from "@ems
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   BookmarkIcon,
   CopyIcon,
+  LayoutGridIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
@@ -22,9 +22,9 @@ import {
   needsNormalization,
   normalizeTiles,
   tilesEqual,
-  TILE_META,
   toggleTile,
 } from "./dashboard.-components/-dashboardTileMeta";
+import { VisibleTilesDialog } from "./dashboard.-components/-VisibleTilesDialog";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -32,10 +32,8 @@ import { LayoutNameDialog } from "@/components/LayoutNameDialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -58,7 +56,7 @@ const SAVE_DEBOUNCE_MS = 600;
 
 interface LayoutTabProps {
   layout: DashboardLayout;
-  onToggleTile: (layout: DashboardLayout, tileId: DashboardTileId) => void;
+  onEditTiles: (layout: DashboardLayout) => void;
   onRename: (layout: DashboardLayout) => void;
   onDuplicate: (layout: DashboardLayout) => void;
   onSaveAs: (layout: DashboardLayout) => void;
@@ -70,7 +68,7 @@ interface LayoutTabProps {
  * button-in-button) and is always visible on touch where hover doesn't fire. */
 function LayoutTab({
   layout,
-  onToggleTile,
+  onEditTiles,
   onRename,
   onDuplicate,
   onSaveAs,
@@ -105,18 +103,10 @@ function LayoutTab({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Visible tiles</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {DASHBOARD_TILE_IDS.map(tileId => (
-            <DropdownMenuCheckboxItem
-              key={tileId}
-              checked={layout.tiles.some(t => t.tileId === tileId)}
-              onCheckedChange={() => onToggleTile(layout, tileId)}
-              onSelect={e => e.preventDefault()}
-            >
-              {TILE_META[tileId].title}
-            </DropdownMenuCheckboxItem>
-          ))}
+          <DropdownMenuItem onSelect={() => onEditTiles(layout)}>
+            <LayoutGridIcon />
+            Visible tiles…
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => onRename(layout)}>
             <PencilIcon />
@@ -147,6 +137,7 @@ function LayoutTab({
 function Dashboard() {
   const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [tilesTargetId, setTilesTargetId] = useState<string | null>(null);
   const [renameTargetId, setRenameTargetId] = useState<string | null>(null);
   const [saveAsTargetId, setSaveAsTargetId] = useState<string | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -183,6 +174,7 @@ function Dashboard() {
     [activeLayout],
   );
 
+  const tilesTarget = layouts?.find(l => l.id === tilesTargetId) ?? null;
   const renameTarget = layouts?.find(l => l.id === renameTargetId) ?? null;
   const saveAsTarget = layouts?.find(l => l.id === saveAsTargetId) ?? null;
   const deleteTarget = layouts?.find(l => l.id === deleteTargetId) ?? null;
@@ -413,7 +405,7 @@ function Dashboard() {
                     <LayoutTab
                       key={layout.id}
                       layout={layout}
-                      onToggleTile={handleToggleTile}
+                      onEditTiles={l => setTilesTargetId(l.id)}
                       onRename={l => setRenameTargetId(l.id)}
                       onDuplicate={l => duplicateMutation.mutate(l.id)}
                       onSaveAs={l => setSaveAsTargetId(l.id)}
@@ -447,6 +439,15 @@ function Dashboard() {
           </>
         )}
       </div>
+
+      <VisibleTilesDialog
+        open={tilesTarget !== null}
+        layout={tilesTarget}
+        onToggleTile={handleToggleTile}
+        onOpenChange={(open) => {
+          if (!open) setTilesTargetId(null);
+        }}
+      />
 
       <AddLayoutDialog
         open={addDialogOpen}
