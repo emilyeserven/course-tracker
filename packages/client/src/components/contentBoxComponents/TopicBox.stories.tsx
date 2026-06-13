@@ -5,20 +5,14 @@ import { expect, within } from "storybook/test";
 import { TopicBox } from "./TopicBox";
 
 import { makeTopicRow } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof TopicBox> = {
   component: TopicBox,
   args: makeTopicRow(),
-  decorators: [
-    Story => (
-      <RouterStub>
-        <div className="max-w-sm">
-          <Story />
-        </div>
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator({
+    constrained: true,
+  })],
 };
 
 export default meta;

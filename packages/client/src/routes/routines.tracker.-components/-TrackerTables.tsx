@@ -58,57 +58,48 @@ function lastEntryCell(daily: Daily) {
   );
 }
 
+// Columns shared between the Paused and Completed tracker tables.
+const nameColumn: ColumnDef<Daily> = {
+  id: "name",
+  header: "Name",
+  cell: ({
+    row,
+  }) => <DailyNameCell daily={row.original} />,
+};
+
+const lastEntryColumn: ColumnDef<Daily> = {
+  id: "lastEntry",
+  header: "Last Entry",
+  meta: {
+    headClassName: "whitespace-nowrap",
+    cellClassName: "whitespace-nowrap",
+  },
+  cell: ({
+    row,
+  }) => lastEntryCell(row.original),
+};
+
+const daysCompletedColumn: ColumnDef<Daily> = {
+  id: "daysCompleted",
+  header: "Days Completed",
+  meta: {
+    headClassName: "whitespace-nowrap",
+    cellClassName: "whitespace-nowrap",
+  },
+  cell: ({
+    row,
+  }) => getTotalCompletedDays(row.original),
+};
+
 const pausedColumns: ColumnDef<Daily>[] = [
-  {
-    id: "name",
-    header: "Name",
-    cell: ({
-      row,
-    }) => <DailyNameCell daily={row.original} />,
-  },
-  {
-    id: "lastEntry",
-    header: "Last Entry",
-    meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
-    cell: ({
-      row,
-    }) => lastEntryCell(row.original),
-  },
-  {
-    id: "daysCompleted",
-    header: "Days Completed",
-    meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
-    cell: ({
-      row,
-    }) => getTotalCompletedDays(row.original),
-  },
+  nameColumn,
+  lastEntryColumn,
+  daysCompletedColumn,
 ];
 
 const completedColumns: ColumnDef<Daily>[] = [
-  {
-    id: "name",
-    header: "Name",
-    cell: ({
-      row,
-    }) => <DailyNameCell daily={row.original} />,
-  },
-  {
-    id: "lastEntry",
-    header: "Last Entry",
-    meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
-    cell: ({
-      row,
-    }) => lastEntryCell(row.original),
-  },
+  nameColumn,
+  lastEntryColumn,
   {
     id: "longestStreak",
     header: "Longest Streak",
@@ -120,17 +111,7 @@ const completedColumns: ColumnDef<Daily>[] = [
       row,
     }) => getLongestStreak(row.original),
   },
-  {
-    id: "daysCompleted",
-    header: "Days Completed",
-    meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
-    cell: ({
-      row,
-    }) => getTotalCompletedDays(row.original),
-  },
+  daysCompletedColumn,
   {
     id: "span",
     header: "Span (days)",
