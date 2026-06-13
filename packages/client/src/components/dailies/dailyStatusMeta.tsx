@@ -1,4 +1,4 @@
-import type { DailyCompletionStatus } from "@emstack/types";
+import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import {
   CircleCheckIcon,
@@ -11,6 +11,13 @@ import {
 /** Tabs shown in the daily / routine detail panel. */
 export const DAILY_DETAIL_TABS = ["details", "entries", "criteria"] as const;
 export type DailyDetailTab = (typeof DAILY_DETAIL_TABS)[number];
+
+/** Props for editing a daily's completion status with an optional note. */
+export interface DailyStatusChangeProps {
+  daily: Daily;
+  currentStatus: DailyCompletionStatus | null;
+  onChange: (status: DailyCompletionStatus, note: string | null) => void;
+}
 
 export interface DailyStatusOption {
   value: DailyCompletionStatus;
@@ -34,32 +41,40 @@ export const DAILY_STATUS_OPTIONS: DailyStatusOption[] = [
     value: "touched",
     label: "Touched",
     icon: <CircleSlashIcon className="size-4" />,
-    circleClass: "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
-    pillClass: "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
+    circleClass:
+      "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
+    pillClass:
+      "bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-900/40 dark:text-amber-200",
     borderColor: "#fbbf24",
   },
   {
     value: "goal",
     label: "Goal",
     icon: <CircleCheckIcon className="size-4" />,
-    circleClass: "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
-    pillClass: "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
+    circleClass:
+      "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
+    pillClass:
+      "bg-emerald-100 text-emerald-800 border-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-200",
     borderColor: "#10b981",
   },
   {
     value: "exceeded",
     label: "Exceeded",
     icon: <SparklesIcon className="size-4" />,
-    circleClass: "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_8px_2px_rgba(139,92,246,0.5)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_8px_2px_rgba(167,139,250,0.55)]",
-    pillClass: "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_6px_1px_rgba(139,92,246,0.45)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_6px_1px_rgba(167,139,250,0.5)]",
+    circleClass:
+      "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_8px_2px_rgba(139,92,246,0.5)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_8px_2px_rgba(167,139,250,0.55)]",
+    pillClass:
+      "bg-violet-100 text-violet-800 border-violet-500 shadow-[0_0_6px_1px_rgba(139,92,246,0.45)] dark:bg-violet-900/40 dark:text-violet-200 dark:shadow-[0_0_6px_1px_rgba(167,139,250,0.5)]",
     borderColor: "#8b5cf6",
   },
   {
     value: "freeze",
     label: "Freeze",
     icon: <SnowflakeIcon className="size-4" />,
-    circleClass: "bg-sky-50/60 text-sky-500/70 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-400/60 dark:border-sky-900/40",
-    pillClass: "bg-sky-50/60 text-sky-700 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-300 dark:border-sky-900/40",
+    circleClass:
+      "bg-sky-50/60 text-sky-500/70 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-400/60 dark:border-sky-900/40",
+    pillClass:
+      "bg-sky-50/60 text-sky-700 border-sky-200/70 dark:bg-sky-950/20 dark:text-sky-300 dark:border-sky-900/40",
     borderColor: "#bae6fd",
   },
 ];
@@ -68,6 +83,7 @@ export function getDailyStatusOption(
   status: DailyCompletionStatus,
 ): DailyStatusOption {
   return (
-    DAILY_STATUS_OPTIONS.find(o => o.value === status) ?? DAILY_STATUS_OPTIONS[0]
+    DAILY_STATUS_OPTIONS.find(o => o.value === status)
+    ?? DAILY_STATUS_OPTIONS[0]
   );
 }
