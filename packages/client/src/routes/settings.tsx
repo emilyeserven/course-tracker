@@ -1,5 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { MoonIcon, SunIcon } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTemplatesSection";
 import { DashboardLayoutsSection } from "./settings.-components/-DashboardLayoutsSection";
@@ -8,72 +7,115 @@ import { FocusedDomainsSection } from "./settings.-components/-FocusedDomainsSec
 import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
 import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
+import { ThemeSection } from "./settings.-components/-ThemeSection";
 import { TodoistSection } from "./settings.-components/-TodoistSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageTabs } from "@/components/layout/PageTabs";
 import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/useTheme.ts";
+
+const TAB_VALUES = [
+  "tasks",
+  "routines",
+  "domains",
+  "dashboard",
+  "connections",
+  "display",
+  "advanced",
+] as const;
+type SettingsTab = (typeof TAB_VALUES)[number];
+
+export interface SettingsSearch {
+  tab?: SettingsTab;
+}
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
+  validateSearch: (search: Record<string, unknown>): SettingsSearch => ({
+    tab:
+      typeof search.tab === "string"
+      && (TAB_VALUES as readonly string[]).includes(search.tab)
+        ? (search.tab as SettingsTab)
+        : undefined,
+  }),
 });
 
 function Settings() {
-  const {
-    theme, setTheme,
-  } = useTheme();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+
+  const tab: SettingsTab = search.tab ?? "tasks";
+
+  function changeTab(next: SettingsTab) {
+    navigate({
+      to: "/settings",
+      search: {
+        tab: next,
+      },
+      replace: true,
+    });
+  }
 
   return (
     <div>
       <PageHeader pageTitle="Settings" />
-      <div className="container flex flex-col gap-8">
-        <DataToolsSection />
-
-        <TaskTypesSection />
-
-        <TagGroupsAdmin />
-
-        <CriteriaTemplatesSection />
-
-        <RoutineTemplatesSection />
-
-        <FocusedDomainsSection />
-
-        <DashboardLayoutsSection />
-
-        <ReadwiseSection />
-
-        <TodoistSection />
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-xl font-semibold">Appearance</h2>
-          <div className="flex flex-col items-start gap-2">
-            {theme === "dark"
-              ? (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setTheme("light");
-                  }}
-                >
-                  <SunIcon />
-                  Set to Light Mode
-                </Button>
-              )
-              : (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setTheme("dark");
-                  }}
-                >
-                  <MoonIcon />
-                  Set to Dark Mode
-                </Button>
-              )}
-          </div>
-        </section>
+      <div className="container">
+        <PageTabs
+          value={tab}
+          onValueChange={changeTab}
+          tabs={[
+            {
+              value: "tasks",
+              label: "Task Settings",
+              content: (
+                <>
+                  <TaskTypesSection />
+                  <TagGroupsAdmin />
+                </>
+              ),
+            },
+            {
+              value: "routines",
+              label: "Routine Settings",
+              content: (
+                <>
+                  <CriteriaTemplatesSection />
+                  <RoutineTemplatesSection />
+                </>
+              ),
+            },
+            {
+              value: "domains",
+              label: "Domains Settings",
+              content: <FocusedDomainsSection />,
+            },
+            {
+              value: "dashboard",
+              label: "Dashboard Settings",
+              content: <DashboardLayoutsSection />,
+            },
+            {
+              value: "connections",
+              label: "Third Party Connections",
+              content: (
+                <>
+                  <ReadwiseSection />
+                  <TodoistSection />
+                </>
+              ),
+            },
+            {
+              value: "display",
+              label: "Display Settings",
+              content: <ThemeSection />,
+            },
+            {
+              value: "advanced",
+              label: "Advanced",
+              content: <DataToolsSection />,
+            },
+          ]}
+        />
       </div>
     </div>
   );

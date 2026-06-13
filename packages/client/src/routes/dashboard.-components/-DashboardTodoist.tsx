@@ -119,6 +119,9 @@ export function DashboardTodoist() {
           </Button>
           <Link
             to="/settings"
+            search={{
+              tab: "connections",
+            }}
             className="
               text-sm text-primary underline-offset-2
               hover:underline
@@ -136,6 +139,9 @@ export function DashboardTodoist() {
             {" "}
             <Link
               to="/settings"
+              search={{
+                tab: "connections",
+              }}
               className="
                 text-primary underline-offset-2
                 hover:underline

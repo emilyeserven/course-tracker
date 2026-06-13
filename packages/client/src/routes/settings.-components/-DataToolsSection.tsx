@@ -49,7 +49,6 @@ export function DataToolsSection() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-xl font-semibold">Data Tools</h2>
       <div className="flex flex-col items-start gap-2">
         <Button
           variant="outline"

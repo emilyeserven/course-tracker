@@ -148,6 +148,9 @@ export function QuickAddReadwiseDialog({
                 {" "}
                 <Link
                   to="/settings"
+                  search={{
+                    tab: "connections",
+                  }}
                   onClick={() => onOpenChange(false)}
                   className="
                     text-primary underline-offset-2
