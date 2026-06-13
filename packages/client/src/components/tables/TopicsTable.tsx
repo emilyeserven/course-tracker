@@ -8,8 +8,7 @@ import type {
 
 import { useMemo } from "react";
 
-import { DomainTagList } from "@/components/boxElements/DomainTagList";
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { DomainTagList, EntityLink } from "@/components/boxElements";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { EmptyDash } from "@/components/ui/EmptyDash";

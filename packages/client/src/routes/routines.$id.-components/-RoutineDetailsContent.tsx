@@ -2,7 +2,7 @@ import type { Routine } from "@emstack/types";
 
 import { FlameIcon, LaughIcon } from "lucide-react";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements";
 import { InfoArea } from "@/components/layout";
 import { DAY_LABELS, DAY_ORDER, RoutineEntryLabel } from "@/components/routines";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";

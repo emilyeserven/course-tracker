@@ -3,9 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { ExternalLink } from "lucide-react";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
-import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
-import { TopicList } from "@/components/boxElements/TopicList";
+import { EntityLink, StatusIndicator, TopicList } from "@/components/boxElements";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyDash } from "@/components/ui/EmptyDash";

@@ -7,11 +7,13 @@ import {
   TimerIcon,
 } from "lucide-react";
 
-import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
-import { Description } from "@/components/boxElements/Description";
-import { EntityLink } from "@/components/boxElements/EntityLink";
-import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
-import { TopicList } from "@/components/boxElements/TopicList";
+import {
+  CourseMetaItem,
+  Description,
+  EntityLink,
+  StatusIndicator,
+  TopicList,
+} from "@/components/boxElements";
 import {
   ContentBox,
   ContentBoxBody,

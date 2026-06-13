@@ -15,7 +15,7 @@ import {
   TodayStatusCell,
 } from "./dailyCells";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements";
 import { cn } from "@/lib/utils";
 import {
   findStatusForDate,

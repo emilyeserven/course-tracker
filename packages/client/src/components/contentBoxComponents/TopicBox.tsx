@@ -2,10 +2,12 @@ import type { TopicForTopicsPage } from "@emstack/types";
 
 import { BookIcon } from "lucide-react";
 
-import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
-import { Description } from "@/components/boxElements/Description";
-import { DomainTagList } from "@/components/boxElements/DomainTagList";
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import {
+  CourseMetaItem,
+  Description,
+  DomainTagList,
+  EntityLink,
+} from "@/components/boxElements";
 import {
   ContentBox,
   ContentBoxBody,

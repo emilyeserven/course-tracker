@@ -13,8 +13,7 @@ import {
   TodoistSection,
 } from "./settings.-components";
 
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageTabs } from "@/components/layout/PageTabs";
+import { PageHeader, PageTabs } from "@/components/layout";
 import { TagGroupsAdmin } from "@/components/TagGroupsAdmin";
 
 const TAB_VALUES = [

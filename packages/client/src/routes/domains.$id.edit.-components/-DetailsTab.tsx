@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
-import { EditForm } from "@/components/layout/EditForm";
+import { EditForm } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { upsertDomain, formHasChanges } from "@/utils";
 

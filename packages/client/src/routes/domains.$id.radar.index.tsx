@@ -3,8 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, EditIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { InfoArea } from "@/components/layout/InfoArea";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { InfoArea, PageHeader } from "@/components/layout";
 import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, upsertRadarBlip } from "@/utils";

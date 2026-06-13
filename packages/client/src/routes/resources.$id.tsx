@@ -8,7 +8,7 @@ import {
 import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { fetchSingleResource } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";

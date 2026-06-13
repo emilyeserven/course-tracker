@@ -8,7 +8,7 @@ import * as z from "zod";
 import { useFocusedDomains } from "./-useFocusedDomains";
 
 import { useAppForm } from "@/components/formFields";
-import { EditForm } from "@/components/layout/EditForm";
+import { EditForm } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({

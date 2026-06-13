@@ -9,8 +9,7 @@ import {
   ResourceLinksSection,
   YesNoDisplay,
 } from "@/components/infoCard";
-import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { EntityHeaderButton, PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils";
 

@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarCheckIcon, ListTodoIcon } from "lucide-react";
 
-import { OverviewCardGrid } from "@/components/layout/OverviewCardGrid";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { OverviewCardGrid, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchRoutines, fetchTasks } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
