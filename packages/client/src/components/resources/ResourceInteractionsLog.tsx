@@ -1,3 +1,4 @@
+import type { InteractionDraft } from "@/hooks/useInteractionsLog";
 import type {
   Interaction,
   InteractionDifficulty,
@@ -7,13 +8,9 @@ import type {
   ModuleGroup,
 } from "@emstack/types";
 
-// Incidental overlap of a standard import block.
-// fallow-ignore-next-line code-duplication
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, PlusIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
@@ -21,30 +18,13 @@ import { OptionalSelectField } from "@/components/resources/OptionalSelectField"
 import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  createInteraction,
-  deleteSingleInteraction,
-  fetchInteractions,
-  fetchModuleGroups,
-  fetchModules,
-  upsertInteraction,
-} from "@/utils/fetchFunctions";
-import { queryKeys } from "@/utils/queryKeys";
+import { useInteractionsLog } from "@/hooks/useInteractionsLog";
 
 interface Props {
   resourceId: string;
 }
 
-interface Draft {
-  id: string;
-  date: string;
-  progress: InteractionProgress;
-  note: string;
-  difficulty: InteractionDifficulty | "";
-  understanding: InteractionUnderstanding | "";
-  moduleGroupId: string;
-  moduleId: string;
-}
+type Draft = InteractionDraft;
 
 const NEW_ID = "__new__";
 
@@ -115,94 +95,17 @@ const PROGRESS_COLOR: Record<InteractionProgress, string> = {
 export function ResourceInteractionsLog({
   resourceId,
 }: Props) {
-  const queryClient = useQueryClient();
-
-  const interactionsQuery = useQuery({
-    queryKey: queryKeys.resources.interactions(resourceId),
-    queryFn: () => fetchInteractions(),
-  });
-
-  const moduleGroupsQuery = useQuery({
-    queryKey: queryKeys.resources.moduleGroups(resourceId),
-    queryFn: () => fetchModuleGroups(),
-  });
-
-  const modulesQuery = useQuery({
-    queryKey: queryKeys.resources.modules(resourceId),
-    queryFn: () => fetchModules(),
-  });
-
-  const allInteractions = interactionsQuery.data ?? [];
-  const interactions = allInteractions.filter(i => i.resourceId === resourceId);
-
-  const moduleGroups = useMemo(
-    () =>
-      (moduleGroupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
-    [moduleGroupsQuery.data, resourceId],
-  );
-  const modules = useMemo(
-    () => (modulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
-    [modulesQuery.data, resourceId],
-  );
+  const {
+    interactions,
+    moduleGroups,
+    modules,
+    createMutation,
+    upsertMutation,
+    deleteMutation,
+  } = useInteractionsLog(resourceId);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-
-  function invalidate() {
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.resources.interactions(resourceId),
-    });
-  }
-
-  const upsertMutation = useMutation({
-    mutationFn: (d: Draft) =>
-      upsertInteraction(d.id, {
-        resourceId,
-        moduleGroupId: d.moduleGroupId || null,
-        moduleId: d.moduleId || null,
-        date: d.date,
-        progress: d.progress,
-        note: d.note || null,
-        difficulty: d.difficulty || null,
-        understanding: d.understanding || null,
-      }),
-    onSuccess: () => {
-      invalidate();
-      setEditingId(null);
-      toast.success("Interaction saved");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (d: Draft) =>
-      createInteraction({
-        resourceId,
-        moduleGroupId: d.moduleGroupId || null,
-        moduleId: d.moduleId || null,
-        date: d.date,
-        progress: d.progress,
-        note: d.note || null,
-        difficulty: d.difficulty || null,
-        understanding: d.understanding || null,
-      }),
-    onSuccess: () => {
-      invalidate();
-      setCreating(false);
-      toast.success("Interaction logged");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteSingleInteraction(id),
-    onSuccess: () => {
-      invalidate();
-      setEditingId(null);
-      toast.success("Interaction deleted");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   const isAnyEditing = creating || editingId !== null;
 
@@ -238,7 +141,10 @@ export function ResourceInteractionsLog({
           modules={modules}
           isNew
           isSaving={createMutation.isPending}
-          onSave={d => createMutation.mutate(d)}
+          onSave={d =>
+            createMutation.mutate(d, {
+              onSuccess: () => setCreating(false),
+            })}
           onCancel={() => setCreating(false)}
         />
       )}
@@ -256,9 +162,15 @@ export function ResourceInteractionsLog({
                   isSaving={
                     upsertMutation.isPending || deleteMutation.isPending
                   }
-                  onSave={d => upsertMutation.mutate(d)}
+                  onSave={d =>
+                    upsertMutation.mutate(d, {
+                      onSuccess: () => setEditingId(null),
+                    })}
                   onCancel={() => setEditingId(null)}
-                  onDelete={() => deleteMutation.mutate(i.id)}
+                  onDelete={() =>
+                    deleteMutation.mutate(i.id, {
+                      onSuccess: () => setEditingId(null),
+                    })}
                 />
               );
             }
