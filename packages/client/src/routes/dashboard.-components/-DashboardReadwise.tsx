@@ -2,17 +2,15 @@ import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { ReadwiseDocument } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
 import {
   Button,
-  CardSettingsFlyout,
-  DashboardCard,
+  DashboardIntegrationCard,
   DashboardSectionStatus,
-  isAutoHeight,
   queryKeys,
   RadialProgress,
+  SettingsLink,
   Tabs,
   TabsContent,
   TabsList,
@@ -121,8 +119,9 @@ export function DashboardReadwise({
   const unstarted = data?.unstarted ?? [];
 
   return (
-    <DashboardCard
-      autoHeight={isAutoHeight(tile)}
+    <DashboardIntegrationCard
+      tile={tile}
+      onUpdateTile={onUpdateTile}
       title="Readwise"
       action={(
         <Button
@@ -140,95 +139,68 @@ export function DashboardReadwise({
           </a>
         </Button>
       )}
-      settings={(
-        <CardSettingsFlyout
-          tile={tile}
-          onUpdateTile={onUpdateTile}
-        >
-          <Link
-            to="/settings"
-            search={{
-              tab: "connections",
-            }}
-            className="
-              text-sm text-primary underline-offset-2
-              hover:underline
-            "
-          >
-            Set Readwise API key
-          </Link>
-        </CardSettingsFlyout>
+      settingsLink={(
+        <SettingsLink className="text-sm">Set Readwise API key</SettingsLink>
+      )}
+      configured={configured}
+      isPending={isPending}
+      error={error}
+      connectPrompt={(
+        <p className="text-sm text-muted-foreground">
+          Add your Readwise API key in
+          {" "}
+          <SettingsLink>Settings</SettingsLink>
+          {" "}
+          to see your reading list.
+        </p>
       )}
     >
-      {!isPending && !error && !configured
-        ? (
-          <p className="text-sm text-muted-foreground">
-            Add your Readwise API key in
-            {" "}
-            <Link
-              to="/settings"
-              search={{
-                tab: "connections",
-              }}
-              className="
-                text-primary underline-offset-2
-                hover:underline
-              "
-            >
-              Settings
-            </Link>
-            {" "}
-            to see your reading list.
-          </p>
-        )
-        : (
-          <Tabs defaultValue="started">
-            <TabsList className="h-8">
-              <TabsTrigger
-                value="started"
-                className="text-xs"
-              >
-                In progress
-              </TabsTrigger>
-              <TabsTrigger
-                value="unstarted"
-                className="text-xs"
-              >
-                Unread
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="started">
-              <DashboardSectionStatus
-                isPending={isPending}
-                error={error}
-                isEmpty={configured && started.length === 0}
-                entity="articles"
-                emptyMessage="No articles in progress."
-              />
-              {started.length > 0 && (
-                <ArticleList
-                  docs={started}
-                  showProgress
-                />
-              )}
-            </TabsContent>
-            <TabsContent value="unstarted">
-              <DashboardSectionStatus
-                isPending={isPending}
-                error={error}
-                isEmpty={configured && unstarted.length === 0}
-                entity="articles"
-                emptyMessage="No unread articles."
-              />
-              {unstarted.length > 0 && (
-                <ArticleList
-                  docs={unstarted}
-                  showProgress={false}
-                />
-              )}
-            </TabsContent>
-          </Tabs>
-        )}
-    </DashboardCard>
+      <Tabs defaultValue="started">
+        <TabsList className="h-8">
+          <TabsTrigger
+            value="started"
+            className="text-xs"
+          >
+            In progress
+          </TabsTrigger>
+          <TabsTrigger
+            value="unstarted"
+            className="text-xs"
+          >
+            Unread
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="started">
+          <DashboardSectionStatus
+            isPending={isPending}
+            error={error}
+            isEmpty={configured && started.length === 0}
+            entity="articles"
+            emptyMessage="No articles in progress."
+          />
+          {started.length > 0 && (
+            <ArticleList
+              docs={started}
+              showProgress
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="unstarted">
+          <DashboardSectionStatus
+            isPending={isPending}
+            error={error}
+            isEmpty={configured && unstarted.length === 0}
+            entity="articles"
+            emptyMessage="No unread articles."
+          />
+          {unstarted.length > 0 && (
+            <ArticleList
+              docs={unstarted}
+              showProgress={false}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
+    </DashboardIntegrationCard>
   );
 }

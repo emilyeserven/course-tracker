@@ -2,14 +2,11 @@ import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { GoogleCalendarEvent } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 
 import {
-  CardSettingsFlyout,
-  DashboardCard,
-  DashboardSectionStatus,
-  isAutoHeight,
+  DashboardIntegrationCard,
   queryKeys,
+  SettingsLink,
 } from "./-cardKit";
 import { formatEventTime, groupEventsByDay } from "./-googleCalendarAgenda";
 
@@ -78,84 +75,52 @@ export function DashboardGoogleCalendar({
   const groups = groupEventsByDay(events, new Date());
 
   return (
-    <DashboardCard
-      autoHeight={isAutoHeight(tile)}
+    <DashboardIntegrationCard
+      tile={tile}
+      onUpdateTile={onUpdateTile}
       title="Calendar"
-      settings={(
-        <CardSettingsFlyout
-          tile={tile}
-          onUpdateTile={onUpdateTile}
+      settingsLink={(
+        <SettingsLink className="text-sm">Manage calendars</SettingsLink>
+      )}
+      configured={configured}
+      isPending={isPending}
+      error={error}
+      connectPrompt={(
+        <p className="text-sm text-muted-foreground">
+          Add a calendar feed in
+          {" "}
+          <SettingsLink>Settings</SettingsLink>
+          {" "}
+          to see your upcoming events.
+        </p>
+      )}
+      isEmpty={configured && events.length === 0}
+      entity="events"
+      emptyMessage="No upcoming events."
+    >
+      {groups.map(group => (
+        <div
+          key={group.dateKey}
+          className="flex flex-col gap-1"
         >
-          <Link
-            to="/settings"
-            search={{
-              tab: "connections",
-            }}
+          <h3
             className="
-              text-sm text-primary underline-offset-2
-              hover:underline
+              text-xs font-semibold tracking-wide text-muted-foreground
+              uppercase
             "
           >
-            Manage calendars
-          </Link>
-        </CardSettingsFlyout>
-      )}
-    >
-      {!isPending && !error && !configured
-        ? (
-          <p className="text-sm text-muted-foreground">
-            Add a calendar feed in
-            {" "}
-            <Link
-              to="/settings"
-              search={{
-                tab: "connections",
-              }}
-              className="
-                text-primary underline-offset-2
-                hover:underline
-              "
-            >
-              Settings
-            </Link>
-            {" "}
-            to see your upcoming events.
-          </p>
-        )
-        : (
-          <>
-            <DashboardSectionStatus
-              isPending={isPending}
-              error={error}
-              isEmpty={configured && events.length === 0}
-              entity="events"
-              emptyMessage="No upcoming events."
-            />
-            {groups.map(group => (
-              <div
-                key={group.dateKey}
-                className="flex flex-col gap-1"
-              >
-                <h3
-                  className="
-                    text-xs font-semibold tracking-wide text-muted-foreground
-                    uppercase
-                  "
-                >
-                  {group.label}
-                </h3>
-                <ul className="flex flex-col divide-y">
-                  {group.events.map(event => (
-                    <EventRow
-                      key={`${event.calendarId}:${event.id}`}
-                      event={event}
-                    />
-                  ))}
-                </ul>
-              </div>
+            {group.label}
+          </h3>
+          <ul className="flex flex-col divide-y">
+            {group.events.map(event => (
+              <EventRow
+                key={`${event.calendarId}:${event.id}`}
+                event={event}
+              />
             ))}
-          </>
-        )}
-    </DashboardCard>
+          </ul>
+        </div>
+      ))}
+    </DashboardIntegrationCard>
   );
 }
