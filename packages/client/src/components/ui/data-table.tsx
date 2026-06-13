@@ -142,6 +142,9 @@ export function DataTable<TData>({
     },
     enableSorting: sortingEnabled,
     enableMultiSort: false,
+    // Match the app's existing headers: clicking a sorted column toggles
+    // asc/desc and never clears the sort.
+    enableSortingRemoval: false,
     manualSorting,
     enableRowSelection,
     onSortingChange: onSortingChange ?? setInternalSorting,
