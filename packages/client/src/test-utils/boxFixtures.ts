@@ -134,8 +134,8 @@ export function makeRoutine(
         name: "Read a chapter",
       },
     ],
-    // A task on a few weekdays: keeps daily mode free of the "no task" warning
-    // and gives weekly mode a populated day strip.
+    // A task on a few weekdays: keeps daily mode free of the "nothing assigned"
+    // warning and gives weekly mode a populated day strip.
     weekly: {
       1: {
         type: "task",

@@ -76,12 +76,12 @@ export function RoutineBox({
   todayAction,
 }: Routine & { todayAction?: RoutineTodayAction | null }) {
   const isDaily = mode === "daily";
-  // A daily routine mirrors the same entry on every weekday, so "no task
-  // assigned" means none of the grid's entries is a task (it may be a
-  // resource, freeform, or empty). Flag it so the card can caution the user.
-  const dailyHasNoTask
+  // A daily routine mirrors the same entry on every weekday, so the caution
+  // only applies when the grid is empty — i.e. no task, resource, or freeform
+  // item is assigned at all. (connections are categorical, not the assignment.)
+  const dailyHasNoAssignment
     = isDaily
-      && !Object.values(weekly ?? {}).some(entry => entry?.type === "task");
+      && !Object.values(weekly ?? {}).some(entry => !!entry?.id);
   const scheduledCount = weekly
     ? Object.values(weekly).filter(Boolean).length
     : 0;
@@ -131,7 +131,7 @@ export function RoutineBox({
             <span
               className={cn(
                 "rounded-sm border px-2 py-0.5 text-xs",
-                dailyHasNoTask
+                dailyHasNoAssignment
                   ? `
                     border-amber-400 bg-amber-100 text-amber-900
                     dark:border-amber-500/50 dark:bg-amber-900/40
@@ -139,7 +139,7 @@ export function RoutineBox({
                   `
                   : "text-muted-foreground",
               )}
-              title={dailyHasNoTask ? "No task assigned" : undefined}
+              title={dailyHasNoAssignment ? "Nothing assigned" : undefined}
             >
               {isDaily ? "Daily" : "Weekly"}
             </span>
@@ -176,17 +176,17 @@ export function RoutineBox({
                   name
                 )}
             </Link>
-            {dailyHasNoTask && (
+            {dailyHasNoAssignment && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
                     className="inline-flex shrink-0 text-amber-500"
-                    aria-label="No task assigned"
+                    aria-label="Nothing assigned"
                   >
                     <AlertTriangleIcon className="size-4" />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>No task assigned</TooltipContent>
+                <TooltipContent>Nothing assigned</TooltipContent>
               </Tooltip>
             )}
           </h3>
