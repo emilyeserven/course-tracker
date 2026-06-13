@@ -1,9 +1,7 @@
 import type { Task } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
-import {
-  CheckSquareIcon,
-} from "lucide-react";
+import { CheckSquareIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
@@ -17,13 +15,10 @@ import {
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
 import { Badge } from "@/components/ui/badge";
+import { EmptyHint } from "@/components/ui/EmptyHint";
 
 export function TaskBox({
-  id,
-  name,
-  description,
-  topic,
-  resources,
+  id, name, description, topic, resources,
 }: Task) {
   const totalResources = resources?.length ?? 0;
   const usedResources = resources?.filter(r => r.usedYet).length ?? 0;
@@ -52,9 +47,7 @@ export function TaskBox({
                 </Badge>
               )
               : (
-                <span className="text-xs text-muted-foreground italic">
-                  No topic
-                </span>
+                <EmptyHint>No topic</EmptyHint>
               )}
           </div>
         </ContentBoxHeaderBar>

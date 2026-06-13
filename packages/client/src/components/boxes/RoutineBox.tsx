@@ -1,4 +1,8 @@
-import type { Routine, RoutineTodayAction, RoutineWeekday } from "@emstack/types";
+import type {
+  Routine,
+  RoutineTodayAction,
+  RoutineWeekday,
+} from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon } from "lucide-react";
@@ -15,7 +19,12 @@ import {
 } from "@/components/boxes/ContentBox";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { EmptyHint } from "@/components/ui/EmptyHint";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   connectionEntityKind,
@@ -116,9 +125,7 @@ export function RoutineBox({
                 ))
               )
               : (
-                <span className="text-xs text-muted-foreground italic">
-                  No connections
-                </span>
+                <EmptyHint>No connections</EmptyHint>
               )}
           </div>
           <div className="flex flex-row items-center gap-2">
@@ -166,7 +173,9 @@ export function RoutineBox({
                     name={todayAction.name}
                   />
                 )
-                : name}
+                : (
+                  name
+                )}
             </Link>
             {dailyHasNoTask && (
               <Tooltip>
@@ -185,11 +194,7 @@ export function RoutineBox({
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        {showNoTaskToday && (
-          <span className="text-xs text-muted-foreground italic">
-            No task for today
-          </span>
-        )}
+        {showNoTaskToday && <EmptyHint>No task for today</EmptyHint>}
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
@@ -202,9 +207,9 @@ export function RoutineBox({
               >
                 <FlameIcon
                   size={14}
-                  className={chain > 0
-                    ? "text-orange-600"
-                    : "text-muted-foreground"}
+                  className={
+                    chain > 0 ? "text-orange-600" : "text-muted-foreground"
+                  }
                 />
                 <strong>{chain}</strong>
                 <span className="text-muted-foreground">chain</span>
