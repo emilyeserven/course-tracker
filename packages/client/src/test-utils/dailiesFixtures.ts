@@ -1,4 +1,3 @@
-import type { DailyDayHeader } from "@/hooks/useDailyTracker";
 import type {
   Daily,
   DailyCompletion,
@@ -75,22 +74,4 @@ export function makeDaily(overrides: Partial<Daily> = {}): Daily {
     status: "active",
     ...overrides,
   };
-}
-
-/** Recent-day column headers (most recent last), ending today. */
-export function makeDayHeaders(
-  count = 5,
-  todayKey: string = getTodayKey(),
-): DailyDayHeader[] {
-  return Array.from({
-    length: count,
-  }, (_d, i) => {
-    const dateKey = shiftDateKey(todayKey, -(count - 1 - i));
-    const [, month, day] = dateKey.split("-");
-    return {
-      dateKey,
-      label: `${month}/${day}`,
-      isToday: dateKey === todayKey,
-    };
-  });
 }
