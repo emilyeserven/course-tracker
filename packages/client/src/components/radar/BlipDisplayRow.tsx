@@ -24,6 +24,7 @@ import {
   RING_PILL_CLASSES,
   SLICE_PILL_CLASSES,
 } from "@/components/radar/radarColors";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -33,8 +34,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Pill } from "@/components/ui/Pill";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface BlipDisplayRowProps {
   blip: RadarBlip;
@@ -82,7 +83,11 @@ export function BlipDisplayRow({
       <TableCell>
         {(() => {
           if (blip.isIgnored) {
-            return <Pill className="bg-gray-200 text-gray-700">Ignored</Pill>;
+            return (
+              <Badge className="border-transparent bg-gray-200 text-gray-700">
+                Ignored
+              </Badge>
+            );
           }
           const q = blip.quadrantId
             ? quadrantById.get(blip.quadrantId)
@@ -95,9 +100,14 @@ export function BlipDisplayRow({
             );
           }
           return (
-            <Pill className={pillClassByIndex(SLICE_PILL_CLASSES, q.position)}>
+            <Badge
+              className={cn(
+                "border-transparent",
+                pillClassByIndex(SLICE_PILL_CLASSES, q.position),
+              )}
+            >
               {q.name}
-            </Pill>
+            </Badge>
           );
         })()}
       </TableCell>
@@ -115,9 +125,14 @@ export function BlipDisplayRow({
             );
           }
           return (
-            <Pill className={pillClassByIndex(RING_PILL_CLASSES, r.position)}>
+            <Badge
+              className={cn(
+                "border-transparent",
+                pillClassByIndex(RING_PILL_CLASSES, r.position),
+              )}
+            >
               {r.name}
-            </Pill>
+            </Badge>
           );
         })()}
       </TableCell>

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { EntityLink, PILL_LINK_CLASS } from "./EntityLink";
+import { EntityLink } from "./EntityLink";
 
 import { RouterStub } from "@/test-utils/RouterStub";
 
@@ -25,13 +25,13 @@ describe("EntityLink", () => {
     ).toBeInTheDocument();
   });
 
-  test("applies the pill class and forwards the title attribute", async () => {
+  test("forwards a custom className and the title attribute", async () => {
     render(
       <RouterStub>
         <EntityLink
           entity="resources"
           id={7}
-          className={PILL_LINK_CLASS}
+          className="rounded-sm"
           title="Open"
         >
           Course

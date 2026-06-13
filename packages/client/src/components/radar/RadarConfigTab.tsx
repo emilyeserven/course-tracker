@@ -5,8 +5,8 @@ import {
   QuadrantsIllustration,
   RingsIllustration,
 } from "@/components/radar/RadarConfigIllustrations";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pill } from "@/components/ui/Pill";
 
 export interface QuadrantDraft {
   id?: string;
@@ -129,15 +129,15 @@ export function RadarConfigTab({
                 />
                 {r.isAdopted
                   ? (
-                    <Pill
+                    <Badge
                       className="
-                        rounded-sm bg-amber-100 px-1.5 text-[10px]
-                        text-amber-900
+                        rounded-sm border-transparent bg-amber-100 px-1.5
+                        text-[10px] text-amber-900
                       "
                       title="Hidden from radar chart, listed on the side"
                     >
                       Side panel
-                    </Pill>
+                    </Badge>
                   )
                   : (
                     <Button

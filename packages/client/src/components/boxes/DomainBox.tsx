@@ -13,6 +13,7 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
+import { Badge } from "@/components/ui/badge";
 
 export function DomainBox({
   id,
@@ -33,15 +34,10 @@ export function DomainBox({
             >{title}
             </EntityLink>
             {focused && (
-              <span
-                className="
-                  inline-flex items-center gap-1 rounded-full bg-primary/10 px-2
-                  py-0.5 text-xs font-medium text-primary
-                "
-              >
-                <StarIcon className="size-3 fill-current" />
+              <Badge className="border-transparent bg-primary/10 text-primary">
+                <StarIcon className="fill-current" />
                 Focused
-              </span>
+              </Badge>
             )}
           </h3>
         </ContentBoxTitle>

@@ -19,6 +19,7 @@ import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
 import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
 import { Textarea } from "@/components/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   createInteraction,
@@ -277,64 +278,51 @@ export function ResourceInteractionsLog({
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{i.date}</span>
-                    <span
-                      className={`
-                        inline-flex items-center rounded-full border px-2 py-0.5
-                        text-xs font-medium
-                        ${PROGRESS_COLOR[i.progress]}
-                      `}
+                    <Badge
+                      variant="outline"
+                      className={PROGRESS_COLOR[i.progress]}
                     >
                       {PROGRESS_LABEL[i.progress]}
-                    </span>
+                    </Badge>
                     {targetGroup && (
-                      <span
-                        className="
-                          inline-flex items-center rounded-full border
-                          border-blue-200 bg-blue-50 px-2 py-0.5 text-xs
-                          text-blue-900
-                        "
+                      <Badge
+                        variant="outline"
+                        className="border-blue-200 bg-blue-50 text-blue-900"
                       >
                         group:
                         {" "}
                         {targetGroup.name}
-                      </span>
+                      </Badge>
                     )}
                     {targetModule && (
-                      <span
-                        className="
-                          inline-flex items-center rounded-full border
-                          border-blue-200 bg-blue-50 px-2 py-0.5 text-xs
-                          text-blue-900
-                        "
+                      <Badge
+                        variant="outline"
+                        className="border-blue-200 bg-blue-50 text-blue-900"
                       >
                         module:
                         {" "}
                         {targetModule.name}
-                      </span>
+                      </Badge>
                     )}
                     {i.difficulty && (
-                      <span
-                        className="
-                          inline-flex items-center rounded-full border
-                          bg-muted/40 px-2 py-0.5 text-xs
-                        "
+                      <Badge
+                        variant="outline"
+                        className="bg-muted/40"
                       >
                         difficulty:
                         {" "}
                         {i.difficulty}
-                      </span>
+                      </Badge>
                     )}
                     {i.understanding && (
-                      <span
-                        className="
-                          inline-flex items-center rounded-full border
-                          bg-muted/40 px-2 py-0.5 text-xs
-                        "
+                      <Badge
+                        variant="outline"
+                        className="bg-muted/40"
                       >
                         understanding:
                         {" "}
                         {i.understanding}
-                      </span>
+                      </Badge>
                     )}
                   </div>
                   <Button

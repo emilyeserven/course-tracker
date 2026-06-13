@@ -19,11 +19,6 @@ const TO_BY_KIND: Record<EntityKind, string> = {
   routines: "/routines/$id",
 };
 
-/** Shared "chip" styling for an entity link rendered as a pill — used by
- *  TaskBox, RoutineBox connection chips, and TopicList's pill mode. */
-export const PILL_LINK_CLASS
-  = "rounded-sm bg-gray-50 px-2 py-0.5 text-xs hover:bg-gray-900 hover:text-white";
-
 interface EntityLinkProps extends Pick<
   ComponentProps<"a">,
   "title" | "aria-label"

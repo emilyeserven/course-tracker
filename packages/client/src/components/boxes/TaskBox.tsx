@@ -7,7 +7,7 @@ import {
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
-import { EntityLink, PILL_LINK_CLASS } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
@@ -16,6 +16,7 @@ import {
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
+import { Badge } from "@/components/ui/badge";
 
 export function TaskBox({
   id,
@@ -34,13 +35,21 @@ export function TaskBox({
           <div className="flex flex-row items-center gap-2">
             {topic
               ? (
-                <EntityLink
-                  entity="topics"
-                  id={topic.id}
-                  className={PILL_LINK_CLASS}
+                <Badge
+                  asChild
+                  variant="secondary"
+                  className="
+                    bg-gray-50
+                    hover:bg-gray-900 hover:text-white
+                  "
                 >
-                  {topic.name}
-                </EntityLink>
+                  <EntityLink
+                    entity="topics"
+                    id={topic.id}
+                  >
+                    {topic.name}
+                  </EntityLink>
+                </Badge>
               )
               : (
                 <span className="text-xs text-muted-foreground italic">

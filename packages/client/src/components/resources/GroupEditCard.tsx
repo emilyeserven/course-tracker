@@ -10,6 +10,7 @@ import { Input } from "@/components/input";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
 import { TagChip } from "@/components/tasks/TagChip";
 import { Textarea } from "@/components/textarea";
+import { Badge } from "@/components/ui/badge";
 
 export function GroupMetaChips({
   easeOfStarting,
@@ -28,15 +29,12 @@ export function GroupMetaChips({
   function chip(label: string, level: TaskResourceLevel | null) {
     if (!level) return null;
     return (
-      <span
-        className={`
-          inline-flex items-center rounded-full border px-2 py-0.5 text-xs
-          font-medium
-          ${levelChipClass(level)}
-        `}
+      <Badge
+        variant="outline"
+        className={levelChipClass(level)}
       >
         {label}: {level}
-      </span>
+      </Badge>
     );
   }
   return (

@@ -21,9 +21,9 @@ import {
 
 import { Input } from "@/components/input";
 import { Textarea } from "@/components/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { Pill } from "@/components/ui/Pill";
 import {
   Select,
   SelectContent,
@@ -326,31 +326,34 @@ function TopicCell({
         <span className="font-medium">{r.topicName || "(no topic)"}</span>
         <div className="flex flex-row flex-wrap gap-1">
           {r.willCreateTopic && (
-            <Pill
+            <Badge
               className="
-                rounded-sm bg-emerald-100 px-1.5 text-[10px] text-emerald-800
+                rounded-sm border-transparent bg-emerald-100 px-1.5 text-[10px]
+                text-emerald-800
               "
             >
               New topic
-            </Pill>
+            </Badge>
           )}
           {!r.willCreateTopic && r.matchedTopicId && (
-            <Pill
+            <Badge
               className="
-                rounded-sm bg-blue-100 px-1.5 text-[10px] text-blue-800
+                rounded-sm border-transparent bg-blue-100 px-1.5 text-[10px]
+                text-blue-800
               "
             >
               Existing topic
-            </Pill>
+            </Badge>
           )}
           {conflicts && (
-            <Pill
+            <Badge
               className="
-                rounded-sm bg-amber-200 px-1.5 text-[10px] text-amber-900
+                rounded-sm border-transparent bg-amber-200 px-1.5 text-[10px]
+                text-amber-900
               "
             >
               On radar
-            </Pill>
+            </Badge>
           )}
         </div>
         {r.problems.length > 0 && !isSkipped && (
