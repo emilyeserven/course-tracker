@@ -6,22 +6,24 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import * as z from "zod";
 
+import {
+  Button,
+  EditForm,
+  EditPageFooter,
+  EntityHeaderButton,
+  PageHeader,
+  UnsavedChangesDialog,
+} from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
-import { EditForm } from "@/components/layout/EditForm";
-import { EditPageFooter } from "@/components/layout/EditPageFooter";
-import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
   deleteSingleProvider,
   fetchSingleProvider,
   formHasChanges,
+  queryKeys,
   upsertProvider,
 } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 // fallow-ignore-next-line code-duplication
 export const Route = createFileRoute("/providers/$id/edit")({
@@ -48,28 +50,27 @@ function SingleProviderEdit() {
   const navigate = useNavigate();
 
   const {
-    data,
-    shouldBlockFn,
-    makeDeleteHandler,
-    makeSubmitHandler,
-  } = useEditFormPage({
-    id,
-    isNew,
-    queryKey: ["provider", id],
-    queryFn: () => fetchSingleProvider(id),
-    relatedQueryKeys: [queryKeys.providers.list()],
-  });
+    data, shouldBlockFn, makeDeleteHandler, makeSubmitHandler,
+  }
+    = useEditFormPage({
+      id,
+      isNew,
+      queryKey: ["provider", id],
+      queryFn: () => fetchSingleProvider(id),
+      relatedQueryKeys: [queryKeys.providers.list()],
+    });
 
   const submitProvider = makeSubmitHandler({
     createFn: createProvider,
     upsertFn: upsertProvider,
     entityLabel: "provider",
-    navigateToEntity: providerId => navigate({
-      to: "/providers/$id",
-      params: {
-        id: providerId,
-      },
-    }),
+    navigateToEntity: providerId =>
+      navigate({
+        to: "/providers/$id",
+        params: {
+          id: providerId,
+        },
+      }),
   });
 
   const startingValues = useMemo(
@@ -128,9 +129,10 @@ function SingleProviderEdit() {
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleProvider,
     entityLabel: "provider",
-    navigateToList: () => navigate({
-      to: "/providers",
-    }),
+    navigateToList: () =>
+      navigate({
+        to: "/providers",
+      }),
   });
 
   return (
@@ -295,9 +297,7 @@ function SingleProviderEdit() {
             </Button>
           </EditPageFooter>
         </EditForm>
-        <UnsavedChangesDialog
-          shouldBlockFn={shouldBlockFn(hasChanges)}
-        />
+        <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
       </div>
     </div>
   );
