@@ -1,4 +1,4 @@
-import type { Routine, RoutineWeekday } from "@emstack/types";
+import type { Routine, RoutineTodayAction, RoutineWeekday } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon } from "lucide-react";
@@ -54,15 +54,6 @@ const DAY_STRIP: { day: RoutineWeekday;
     letter: "S",
   },
 ];
-
-// The resolved entry a weekly routine schedules for today (task / resource /
-// freeform name plus any affixes), computed by the parent so the card can show
-// today's task in place of the routine name.
-export interface RoutineTodayAction {
-  name: string;
-  prependText?: string | null;
-  appendText?: string | null;
-}
 
 export function RoutineBox({
   id,

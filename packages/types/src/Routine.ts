@@ -57,3 +57,12 @@ export interface Routine {
   // Null/absent means no target (every day). Only goal/exceeded days count.
   weeklyTarget?: number | null;
 }
+
+// The resolved entry a weekly routine schedules for today (task / resource /
+// freeform name plus any affixes), computed by the client so a card can show
+// today's task in place of the routine name.
+export interface RoutineTodayAction {
+  name: string;
+  prependText?: string | null;
+  appendText?: string | null;
+}

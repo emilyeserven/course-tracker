@@ -1,7 +1,7 @@
-import type { RoutineTodayAction } from "@/components/boxes/RoutineBox";
 import type {
   Routine,
   RoutineConnectionType,
+  RoutineTodayAction,
   RoutineWeekday,
 } from "@emstack/types";
 
