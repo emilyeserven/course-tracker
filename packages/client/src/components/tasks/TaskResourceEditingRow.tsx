@@ -1,3 +1,4 @@
+import type { LinkOptionResource } from "./resourceMeta";
 import type {
   Module,
   ModuleGroup,
@@ -10,11 +11,6 @@ import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
 
 export const COLUMN_COUNT = 8;
-
-export interface LinkOptionResource {
-  id: string;
-  name: string;
-}
 
 export function EditingRow({
   resource,
