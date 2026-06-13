@@ -1,21 +1,10 @@
-import type {
-  DashboardTileProps,
-  GridLayoutItem,
-} from "./-dashboardTileMeta";
+import type { GridLayoutItem } from "./-dashboardTileMeta";
 import type { DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DndGrid } from "@dnd-grid/react";
 
-import { DashboardChangelog } from "./-DashboardChangelog";
-import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
-import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
-import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
-import { DashboardExplore } from "./-DashboardExplore";
-import { DashboardGoogleCalendar } from "./-DashboardGoogleCalendar";
-import { DashboardRadars } from "./-DashboardRadars";
-import { DashboardReadwise } from "./-DashboardReadwise";
 import {
   GRID_EM_PER_ROW,
   GRID_GAP,
@@ -26,28 +15,10 @@ import {
   TILE_META,
   tilesToLayoutItems,
 } from "./-dashboardTileMeta";
-import { DashboardTodoist } from "./-DashboardTodoist";
-import { DashboardUnderutilizedProviders } from "./-DashboardUnderutilizedProviders";
+import { TILE_COMPONENTS } from "./-tileComponents";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
-
-const TILE_COMPONENTS: Record<
-  DashboardTileId,
-  React.ComponentType<DashboardTileProps>
-> = {
-  doNow: DashboardDoNow,
-  doneForDay: DashboardDoneForDay,
-  underutilizedProviders: DashboardUnderutilizedProviders,
-  coursesByAmortization: DashboardCoursesByAmortization,
-  coursesInProgress: DashboardCoursesInProgress,
-  radars: DashboardRadars,
-  exploreSomething: DashboardExplore,
-  readwise: DashboardReadwise,
-  todoist: DashboardTodoist,
-  googleCalendar: DashboardGoogleCalendar,
-  changelog: DashboardChangelog,
-};
 
 interface DashboardGridProps {
   tiles: DashboardLayoutTile[];

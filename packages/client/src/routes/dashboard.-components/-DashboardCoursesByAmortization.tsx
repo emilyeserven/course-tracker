@@ -9,31 +9,31 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  Button,
+  CardSettingsFlyout,
+  cn,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
-import {
+  isAutoHeight,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
+  queryKeys,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "./-cardKit";
+
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import {
   fetchProviders,
   fetchResources,
   formatCurrency,
   parseCost,
 } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 type ViewMode = "courses" | "providers";
 

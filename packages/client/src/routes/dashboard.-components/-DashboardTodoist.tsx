@@ -6,16 +6,17 @@ import { Link } from "@tanstack/react-router";
 import { Check, ExternalLink, Repeat } from "lucide-react";
 import { toast } from "sonner";
 
-import { CardSettingsFlyout, SettingToggle } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  Button,
+  CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
-import { Button } from "@/components/ui/button";
+  isAutoHeight,
+  queryKeys,
+  SettingToggle,
+} from "./-cardKit";
+
 import { closeTodoistTask, fetchTodoistTasks } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 // Todoist priority is 1–4 with 4 the most urgent (shown as "P1" in the app).
 // Only the two highest priorities get a coloured dot; the rest stay muted.

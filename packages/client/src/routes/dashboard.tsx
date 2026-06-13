@@ -4,40 +4,27 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  BookmarkIcon,
-  CopyIcon,
-  LayoutGridIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { AddLayoutDialog } from "./dashboard.-components/-AddLayoutDialog";
-import { DashboardGrid } from "./dashboard.-components/-DashboardGrid";
 import {
+  AddLayoutDialog,
   buildDefaultTiles,
+  Button,
+  ConfirmDialog,
+  DashboardGrid,
+  LayoutNameDialog,
+  LayoutTab,
   needsNormalization,
   normalizeTiles,
+  PageHeader,
+  Tabs,
+  TabsList,
   tilesEqual,
   toggleTile,
-} from "./dashboard.-components/-dashboardTileMeta";
-import { VisibleTilesDialog } from "./dashboard.-components/-VisibleTilesDialog";
+  VisibleTilesDialog,
+} from "./dashboard.-components";
 
-import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { LayoutNameDialog } from "@/components/LayoutNameDialog";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
 import {
   createDashboardLayout,
@@ -53,86 +40,6 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const SAVE_DEBOUNCE_MS = 600;
-
-interface LayoutTabProps {
-  layout: DashboardLayout;
-  onEditTiles: (layout: DashboardLayout) => void;
-  onRename: (layout: DashboardLayout) => void;
-  onDuplicate: (layout: DashboardLayout) => void;
-  onSaveAs: (layout: DashboardLayout) => void;
-  onDelete: (layout: DashboardLayout) => void;
-}
-
-/** A dashboard tab plus its hover-revealed "More" menu. The trigger is a
- * sibling of the Radix TabsTrigger (never nested, which would be invalid
- * button-in-button) and is always visible on touch where hover doesn't fire. */
-function LayoutTab({
-  layout,
-  onEditTiles,
-  onRename,
-  onDuplicate,
-  onSaveAs,
-  onDelete,
-}: LayoutTabProps) {
-  return (
-    <div className="group relative">
-      <TabsTrigger
-        value={layout.id}
-        className="pr-8"
-      >
-        {layout.name}
-      </TabsTrigger>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            aria-label={`${layout.name} options`}
-            onClick={e => e.stopPropagation()}
-            className="
-              absolute top-1/2 right-1 flex size-5 -translate-y-1/2 items-center
-              justify-center rounded-sm text-muted-foreground opacity-0
-              transition-opacity
-              group-focus-within:opacity-100
-              group-hover:opacity-100
-              hover:bg-background/60 hover:text-foreground
-              focus-visible:opacity-100
-              max-md:opacity-100
-            "
-          >
-            <MoreHorizontalIcon className="size-3.5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => onEditTiles(layout)}>
-            <LayoutGridIcon />
-            Visible tiles…
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => onRename(layout)}>
-            <PencilIcon />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onDuplicate(layout)}>
-            <CopyIcon />
-            Duplicate
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onSaveAs(layout)}>
-            <BookmarkIcon />
-            Save as layout…
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => onDelete(layout)}
-          >
-            <Trash2Icon />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-}
 
 function Dashboard() {
   const queryClient = useQueryClient();

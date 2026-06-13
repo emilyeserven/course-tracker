@@ -4,16 +4,16 @@ import type { GoogleCalendarEvent } from "@emstack/types";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-import { formatEventTime, groupEventsByDay } from "./-googleCalendarAgenda";
-
 import {
+  CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
+  isAutoHeight,
+  queryKeys,
+} from "./-cardKit";
+import { formatEventTime, groupEventsByDay } from "./-googleCalendarAgenda";
+
 import { fetchGoogleCalendarEvents } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 function EventRow({
   event,

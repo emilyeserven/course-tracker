@@ -6,13 +6,19 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  CardSettingsFlyout,
+  cn,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
+  isAutoHeight,
+  queryKeys,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "./-cardKit";
+
 import {
   Select,
   SelectContent,
@@ -20,16 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { useExploreRing } from "@/hooks/useExploreRing";
-import { cn } from "@/lib/utils";
 import { fetchDomains, fetchExplore, fetchSettings } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 const ALL_TAB = "all";
 
