@@ -4,6 +4,7 @@ import { MoonIcon, SunIcon } from "lucide-react";
 import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTemplatesSection";
 import { DashboardLayoutsSection } from "./settings.-components/-DashboardLayoutsSection";
 import { DataToolsSection } from "./settings.-components/-DataToolsSection";
+import { FocusedDomainsSection } from "./settings.-components/-FocusedDomainsSection";
 import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
 import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
@@ -36,6 +37,8 @@ function Settings() {
         <CriteriaTemplatesSection />
 
         <RoutineTemplatesSection />
+
+        <FocusedDomainsSection />
 
         <DashboardLayoutsSection />
 

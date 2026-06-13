@@ -37,6 +37,11 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
+  exploreSomething: {
+    title: "Explore Something",
+    minW: 1,
+    minH: 4,
+  },
   readwise: {
     title: "Readwise",
     minW: 2,
@@ -80,6 +85,10 @@ const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
   },
   {
     tileId: "radars",
+    h: 7,
+  },
+  {
+    tileId: "exploreSomething",
     h: 7,
   },
   {

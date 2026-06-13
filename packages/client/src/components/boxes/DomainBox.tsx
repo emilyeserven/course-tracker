@@ -1,6 +1,6 @@
 import type { Domain } from "@emstack/types";
 
-import { BookIcon } from "lucide-react";
+import { BookIcon, StarIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
@@ -19,18 +19,30 @@ export function DomainBox({
   title,
   description,
   topicCount,
-}: Domain) {
+  focused = false,
+}: Domain & { focused?: boolean }) {
   return (
     <ContentBox>
       <ContentBoxHeader>
         <ContentBoxHeaderBar />
         <ContentBoxTitle>
-          <h3 className="text-2xl">
+          <h3 className="flex items-center gap-2 text-2xl">
             <EntityLink
               entity="domains"
               id={id}
             >{title}
             </EntityLink>
+            {focused && (
+              <span
+                className="
+                  inline-flex items-center gap-1 rounded-full bg-primary/10 px-2
+                  py-0.5 text-xs font-medium text-primary
+                "
+              >
+                <StarIcon className="size-3 fill-current" />
+                Focused
+              </span>
+            )}
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
