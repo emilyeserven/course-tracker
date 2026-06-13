@@ -28,7 +28,7 @@ interface LlmEntry {
   action?: unknown;
 }
 
-export interface EditDraft {
+export interface LlmEditDraft {
   description: string;
   radarNote: string;
   quadrantId: string;
@@ -64,7 +64,7 @@ export interface ResolvedLlmEntry {
   resolution: Resolution;
   deleteTopicOnRemove: boolean;
   editing: boolean;
-  editDraft: EditDraft | null;
+  editDraft: LlmEditDraft | null;
 
   selected: boolean;
 
@@ -72,9 +72,16 @@ export interface ResolvedLlmEntry {
 }
 
 export function computeProblems(
-  entry: Pick<ResolvedLlmEntry,
-  "topicName" | "quadrantInput" | "quadrantId" | "ringInput" | "ringId"
-  | "resolution" | "existingBlipId">,
+  entry: Pick<
+    ResolvedLlmEntry,
+    | "topicName"
+    | "quadrantInput"
+    | "quadrantId"
+    | "ringInput"
+    | "ringId"
+    | "resolution"
+    | "existingBlipId"
+  >,
   excludedNames?: Set<string>,
 ): string[] {
   const problems: string[] = [];
@@ -186,9 +193,7 @@ function asTrimmedString(value: unknown): string {
 }
 
 function normalizeAction(value: unknown): string | null {
-  return typeof value === "string"
-    ? value.trim().toLowerCase() || null
-    : null;
+  return typeof value === "string" ? value.trim().toLowerCase() || null : null;
 }
 
 function lookupByLowerName<T>(
@@ -268,7 +273,7 @@ function resolveLlmEntry(
   const ringMatch = lookupByLowerName(ringByLowerName, ringInput);
   const topicMatch = lookupByLowerName(topicByLowerName, topicName);
   const existingBlip = topicMatch
-    ? existingBlipByTopicId.get(topicMatch.id) ?? null
+    ? (existingBlipByTopicId.get(topicMatch.id) ?? null)
     : null;
 
   const blipState = existingBlipState(existingBlip);

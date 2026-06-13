@@ -1,9 +1,7 @@
 import type {
-  QuadrantInfo,
-  RingInfo,
-} from "@/components/radar/blipTableFilters";
-import type {
   RadarBlip,
+  RadarQuadrant,
+  RadarRing,
   TopicForTopicsPage,
 } from "@emstack/types";
 
@@ -41,8 +39,8 @@ import { TableCell, TableRow } from "@/components/ui/table";
 interface BlipDisplayRowProps {
   blip: RadarBlip;
   topic: TopicForTopicsPage | undefined;
-  quadrantById: Map<string, QuadrantInfo>;
-  ringById: Map<string, RingInfo>;
+  quadrantById: Map<string, RadarQuadrant>;
+  ringById: Map<string, RadarRing>;
   isSelected: boolean;
   isPending: boolean;
   editingLocked: boolean;
@@ -80,37 +78,24 @@ export function BlipDisplayRow({
           onChange={onToggleSelected}
         />
       </TableCell>
-      <TableCell className="font-medium">
-        {blip.topicName}
-      </TableCell>
+      <TableCell className="font-medium">{blip.topicName}</TableCell>
       <TableCell>
         {(() => {
           if (blip.isIgnored) {
-            return (
-              <Pill className="bg-gray-200 text-gray-700">
-                Ignored
-              </Pill>
-            );
+            return <Pill className="bg-gray-200 text-gray-700">Ignored</Pill>;
           }
           const q = blip.quadrantId
             ? quadrantById.get(blip.quadrantId)
             : undefined;
           if (!q) {
             return (
-              <span
-                className="text-xs text-muted-foreground italic"
-              >
+              <span className="text-xs text-muted-foreground italic">
                 unassigned
               </span>
             );
           }
           return (
-            <Pill
-              className={pillClassByIndex(
-                SLICE_PILL_CLASSES,
-                q.position,
-              )}
-            >
+            <Pill className={pillClassByIndex(SLICE_PILL_CLASSES, q.position)}>
               {q.name}
             </Pill>
           );
@@ -119,31 +104,18 @@ export function BlipDisplayRow({
       <TableCell>
         {(() => {
           if (blip.isIgnored) {
-            return (
-              <span className="text-xs text-muted-foreground">
-                —
-              </span>
-            );
+            return <span className="text-xs text-muted-foreground">—</span>;
           }
-          const r = blip.ringId
-            ? ringById.get(blip.ringId)
-            : undefined;
+          const r = blip.ringId ? ringById.get(blip.ringId) : undefined;
           if (!r) {
             return (
-              <span
-                className="text-xs text-muted-foreground italic"
-              >
+              <span className="text-xs text-muted-foreground italic">
                 unassigned
               </span>
             );
           }
           return (
-            <Pill
-              className={pillClassByIndex(
-                RING_PILL_CLASSES,
-                r.position,
-              )}
-            >
+            <Pill className={pillClassByIndex(RING_PILL_CLASSES, r.position)}>
               {r.name}
             </Pill>
           );
@@ -182,7 +154,9 @@ export function BlipDisplayRow({
                 />
               </div>
             )
-            : "—"}
+            : (
+              "—"
+            )}
         </TableCell>
       )}
       <TableCell className="text-right">
@@ -214,8 +188,12 @@ export function BlipDisplayRow({
                 aria-label="More actions"
               >
                 {isPending
-                  ? <Loader2 className="animate-spin" />
-                  : <MoreHorizontalIcon />}
+                  ? (
+                    <Loader2 className="animate-spin" />
+                  )
+                  : (
+                    <MoreHorizontalIcon />
+                  )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -281,9 +259,7 @@ export function BlipDisplayRow({
                   View Topic
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={onToggleIgnore}
-              >
+              <DropdownMenuItem onClick={onToggleIgnore}>
                 {blip.isIgnored
                   ? (
                     <>
@@ -337,10 +313,7 @@ function TopicItemLink({
         title={title}
         className="text-muted-foreground/60"
       >
-        {label}
-        :
-        {" "}
-        0
+        {label}: 0
       </span>
     );
   }
@@ -356,10 +329,7 @@ function TopicItemLink({
         hover:text-blue-500 hover:underline
       `}
     >
-      {label}
-      :
-      {" "}
-      {count}
+      {label}: {count}
     </Link>
   );
 }

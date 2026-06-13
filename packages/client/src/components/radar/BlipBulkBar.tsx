@@ -1,7 +1,4 @@
-import type {
-  QuadrantInfo,
-  RingInfo,
-} from "@/components/radar/blipTableFilters";
+import type { RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { Loader2 } from "lucide-react";
 
@@ -17,8 +14,8 @@ import {
 
 interface BlipBulkBarProps {
   selectedCount: number;
-  quadrants: QuadrantInfo[];
-  rings: RingInfo[];
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
   bulkQuadrantId: string;
   bulkRingId: string;
   onBulkQuadrantChange: (value: string) => void;
@@ -47,11 +44,7 @@ export function BlipBulkBar({
         border-primary/40 bg-primary/5 p-2
       `}
     >
-      <span className="text-sm font-medium">
-        {selectedCount}
-        {" "}
-        selected
-      </span>
+      <span className="text-sm font-medium">{selectedCount} selected</span>
       <Select
         value={bulkQuadrantId}
         onValueChange={onBulkQuadrantChange}
@@ -100,9 +93,7 @@ export function BlipBulkBar({
         }
       >
         {bulkPending && <Loader2 className="animate-spin" />}
-        Apply to
-        {" "}
-        {selectedCount}
+        Apply to {selectedCount}
       </Button>
       <Button
         type="button"

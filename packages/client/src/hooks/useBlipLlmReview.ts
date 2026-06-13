@@ -1,5 +1,5 @@
 import type {
-  EditDraft,
+  LlmEditDraft,
   Resolution,
   ResolvedLlmEntry,
 } from "@/components/radar/blipLlmReview";
@@ -52,7 +52,7 @@ export function useBlipLlmReview({
         if (i !== idx) {
           return entry;
         }
-        const draft: EditDraft = {
+        const draft: LlmEditDraft = {
           description: entry.description ?? "",
           radarNote: entry.radarNote ?? "",
           quadrantId: entry.quadrantId ?? "",
@@ -79,7 +79,9 @@ export function useBlipLlmReview({
         const draft = entry.editDraft;
         const next: ResolvedLlmEntry = {
           ...entry,
-          description: draft.description.trim() ? draft.description.trim() : null,
+          description: draft.description.trim()
+            ? draft.description.trim()
+            : null,
           radarNote: draft.radarNote.trim() ? draft.radarNote.trim() : null,
           quadrantId: draft.quadrantId || null,
           ringId: draft.ringId || null,
@@ -101,7 +103,7 @@ export function useBlipLlmReview({
     });
   }
 
-  function updateDraft(idx: number, patch: Partial<EditDraft>) {
+  function updateDraft(idx: number, patch: Partial<LlmEditDraft>) {
     setResolved((prev) => {
       if (!prev) {
         return prev;
@@ -153,8 +155,10 @@ export function useBlipLlmReview({
   function bulkApplyPlacement(
     match: { id: string;
       name: string; } | undefined,
-    toFields: (match: { id: string;
-      name: string; }) => Partial<ResolvedLlmEntry>,
+    toFields: (match: {
+      id: string;
+      name: string;
+    }) => Partial<ResolvedLlmEntry>,
   ) {
     setResolved((prev) => {
       if (!prev) {

@@ -1,4 +1,9 @@
-import type { RadarBlip, TopicForTopicsPage } from "@emstack/types";
+import type {
+  RadarBlip,
+  RadarQuadrant,
+  RadarRing,
+  TopicForTopicsPage,
+} from "@emstack/types";
 
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
@@ -14,19 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface PersistedQuadrant {
-  id: string;
-  name: string;
-  position: number;
-}
-
-interface PersistedRing {
-  id: string;
-  name: string;
-  position: number;
-  isAdopted?: boolean;
-}
-
 interface BlipDraft {
   id?: string;
   topicId: string;
@@ -40,8 +32,8 @@ interface BlipsTabProps {
   allConfigPersisted: boolean;
   savedBlipsForTable: RadarBlip[];
   newBlipDrafts: BlipDraft[];
-  persistedQuadrants: PersistedQuadrant[];
-  persistedRings: PersistedRing[];
+  persistedQuadrants: RadarQuadrant[];
+  persistedRings: RadarRing[];
   topics: TopicForTopicsPage[];
   usedTopicIds: Set<string>;
   pendingBlipKey: string | null;
@@ -57,10 +49,12 @@ interface BlipsTabProps {
   onRemoveBlip: (blip: BlipDraft) => void;
   onTableSave: (
     blip: RadarBlip,
-    patch: { quadrantId: string | null;
+    patch: {
+      quadrantId: string | null;
       ringId: string | null;
       description: string | null;
-      isIgnored: boolean; },
+      isIgnored: boolean;
+    },
   ) => Promise<void>;
   onTableRemove: (blip: RadarBlip) => Promise<void>;
   onTableBulkSave: (
@@ -155,8 +149,7 @@ export function BlipsTab({
                         {topics
                           .filter(
                             t =>
-                              t.id === blip.topicId
-                              || !usedTopicIds.has(t.id),
+                              t.id === blip.topicId || !usedTopicIds.has(t.id),
                           )
                           .map(t => (
                             <SelectItem

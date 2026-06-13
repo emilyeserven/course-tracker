@@ -3,10 +3,7 @@ import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import {
-  QUADRANT_PALETTE,
-
-} from "@/components/radar/radarLayout";
+import { QUADRANT_PALETTE } from "@/components/radar/radarLayout";
 import {
   BlipLegendItem,
   SimpleBlipLegendSection,
@@ -124,7 +121,7 @@ export function RadarLegend({
                   onHover={onHover}
                   onBlipClick={onBlipClick}
                   onDescriptionChange={onDescriptionChange}
-                  label={(
+                  label={
                     <>
                       <span
                         className="mr-1 inline-block font-mono text-xs"
@@ -132,17 +129,14 @@ export function RadarLegend({
                           color,
                         }}
                       >
-                        {index}
-                        .
+                        {index}.
                       </span>
                       <span className="font-medium">{blip.topicName}</span>
                       <span className="ml-1 text-xs text-muted-foreground">
-                        (
-                        {ringNameById[blip.ringId ?? ""]}
-                        )
+                        ({ringNameById[blip.ringId ?? ""]})
                       </span>
                     </>
-                  )}
+                  }
                 />
               ))}
             </ul>

@@ -1,8 +1,4 @@
-import type {
-  QuadrantInfo,
-  RingInfo,
-} from "@/components/radar/blipTableFilters";
-import type { RadarBlip } from "@emstack/types";
+import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 
 import { Loader2, XIcon } from "lucide-react";
 
@@ -11,7 +7,7 @@ import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 
-export interface EditDraft {
+export interface BlipEditDraft {
   quadrantId: string;
   ringId: string;
   description: string;
@@ -21,10 +17,10 @@ export interface EditDraft {
 interface BlipEditRowProps {
   blip: RadarBlip;
   topicDescription: string | null;
-  draft: EditDraft;
-  onDraftChange: (draft: EditDraft) => void;
-  quadrants: QuadrantInfo[];
-  rings: RingInfo[];
+  draft: BlipEditDraft;
+  onDraftChange: (draft: BlipEditDraft) => void;
+  quadrants: RadarQuadrant[];
+  rings: RadarRing[];
   isPending: boolean;
   onCommit: () => void;
   onCancel: () => void;
@@ -53,14 +49,10 @@ export function BlipEditRow({
           `}
         >
           <div className="flex flex-col gap-1">
-            <span
-              className="text-xs text-muted-foreground uppercase"
-            >
+            <span className="text-xs text-muted-foreground uppercase">
               Topic
             </span>
-            <h3 className="text-lg font-semibold">
-              {blip.topicName}
-            </h3>
+            <h3 className="text-lg font-semibold">{blip.topicName}</h3>
             {topicDescription
               ? (
                 <p className="text-sm text-muted-foreground">
@@ -68,17 +60,13 @@ export function BlipEditRow({
                 </p>
               )
               : (
-                <p
-                  className="text-sm text-muted-foreground italic"
-                >
+                <p className="text-sm text-muted-foreground italic">
                   (no topic description)
                 </p>
               )}
           </div>
           <div className="flex flex-col gap-3">
-            <label
-              className="flex flex-row items-center gap-2 text-sm"
-            >
+            <label className="flex flex-row items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={draft.isIgnored}
@@ -135,9 +123,7 @@ export function BlipEditRow({
                 onClick={onCommit}
                 disabled={isPending}
               >
-                {isPending && (
-                  <Loader2 className="animate-spin" />
-                )}
+                {isPending && <Loader2 className="animate-spin" />}
                 Save
               </Button>
               <Button

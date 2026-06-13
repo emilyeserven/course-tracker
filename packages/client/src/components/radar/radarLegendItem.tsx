@@ -8,29 +8,29 @@ import { BlipDescriptionPopover } from "@/components/radar/BlipDescriptionPopove
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface BlipLegendItemProps {
-  blip: RadarBlip;
-  /** Inner content of the clickable title button (e.g. index + name + ring). */
-  label: ReactNode;
-  isActive: boolean;
-  isSelected: boolean;
+/** Callbacks threaded from a legend section down to each blip row. */
+interface BlipLegendHandlers {
   registerRef: (id: string, el: HTMLLIElement | null) => void;
   onHover: (id: string | null) => void;
   onBlipClick: (blip: RadarBlip) => void;
   onDescriptionChange: (blipId: string, value: string) => void;
 }
 
-interface SimpleBlipLegendSectionProps {
+interface BlipLegendItemProps extends BlipLegendHandlers {
+  blip: RadarBlip;
+  /** Inner content of the clickable title button (e.g. index + name + ring). */
+  label: ReactNode;
+  isActive: boolean;
+  isSelected: boolean;
+}
+
+interface SimpleBlipLegendSectionProps extends BlipLegendHandlers {
   title: string;
   /** className for the section heading (color varies by section). */
   headingClassName: string;
   blips: RadarBlip[];
   activeBlipId: string | null;
   selectedBlipId: string | null;
-  registerRef: (id: string, el: HTMLLIElement | null) => void;
-  onHover: (id: string | null) => void;
-  onBlipClick: (blip: RadarBlip) => void;
-  onDescriptionChange: (blipId: string, value: string) => void;
 }
 
 /**
@@ -138,9 +138,7 @@ export function BlipLegendItem({
         </div>
       </div>
       {description && (
-        <p
-          className="mt-0.5 ml-4 text-xs text-muted-foreground italic"
-        >
+        <p className="mt-0.5 ml-4 text-xs text-muted-foreground italic">
           {description}
         </p>
       )}
