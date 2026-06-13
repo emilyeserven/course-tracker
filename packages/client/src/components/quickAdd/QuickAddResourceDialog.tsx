@@ -4,10 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { QuickAddNameDialog } from "./QuickAddNameDialog";
+
 import { upsertResource, uuidv4 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
-
-import { QuickAddNameDialog } from "./QuickAddNameDialog";
 
 interface QuickAddResourceDialogProps extends ControlledDialogProps {
   /**

@@ -1,6 +1,6 @@
-import { queryKeys } from "@/utils/queryKeys";
-
 import { IntegrationKeySection } from "./-IntegrationKeySection";
+
+import { queryKeys } from "@/utils/queryKeys";
 
 export function ReadwiseSection() {
   return (
