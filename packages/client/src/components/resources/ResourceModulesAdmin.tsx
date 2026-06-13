@@ -87,7 +87,6 @@ export function ResourceModulesAdmin({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-semibold">Modules</h2>
           {totalCount > 0 && (
             <p className="text-sm text-muted-foreground">
               {completedCount} of {totalCount} complete

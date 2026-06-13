@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+  # Also guard the mainline so a merge can't slip a type/lint error past the PR gate.
+  push:
+    branches: [master]
+
+# Superseded PR pushes don't need to keep running; cancel the in-flight run.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # eslint . is check-only here (no --fix); @stylistic rules make this the
+      # combined lint + formatting gate.
+      - name: Lint and format check
+        run: pnpm lint
+
+  # Storybook stories run as browser-mode Vitest tests in real headless Chromium.
+  # Kept as its own job (off typecheck/lint) because the Playwright browser install
+  # is slow and shouldn't burden the fast checks.
+  storybook:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # --with-deps pulls the Ubuntu system libraries headless Chromium needs in CI.
+      - name: Install Playwright Chromium
+        run: pnpm --filter=@emstack/client exec playwright install --with-deps chromium
+
+      # `vitest run` (not watch) keeps it non-interactive; --project storybook selects
+      # the browser-mode project defined in packages/client/vite.config.ts.
+      - name: Run Storybook component tests
+        run: pnpm --filter=@emstack/client exec vitest run --project storybook

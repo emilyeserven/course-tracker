@@ -12,15 +12,10 @@ import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
+import { PageTabs } from "@/components/layout/PageTabs";
 import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
 import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { cn } from "@/lib/utils";
@@ -613,31 +608,32 @@ function SingleResourceEdit() {
           detailsTab
         )
         : (
-          <Tabs
+          <PageTabs
             value={tab}
-            onValueChange={value => changeTab(value as ResourceTab)}
-          >
-            <TabsList>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="modules">Modules</TabsTrigger>
-              <TabsTrigger value="interactions">Interactions</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="details">
-              {detailsTab}
-            </TabsContent>
-
-            <TabsContent value="modules">
-              <ResourceModulesAdmin
-                resourceId={id}
-                modulesAreExhaustive={data?.modulesAreExhaustive}
-              />
-            </TabsContent>
-
-            <TabsContent value="interactions">
-              <ResourceInteractionsLog resourceId={id} />
-            </TabsContent>
-          </Tabs>
+            onValueChange={changeTab}
+            tabs={[
+              {
+                value: "details",
+                label: "Details",
+                content: detailsTab,
+              },
+              {
+                value: "modules",
+                label: "Modules",
+                content: (
+                  <ResourceModulesAdmin
+                    resourceId={id}
+                    modulesAreExhaustive={data?.modulesAreExhaustive}
+                  />
+                ),
+              },
+              {
+                value: "interactions",
+                label: "Interactions",
+                content: <ResourceInteractionsLog resourceId={id} />,
+              },
+            ]}
+          />
         )}
       <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
     </div>

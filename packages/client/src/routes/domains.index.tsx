@@ -10,7 +10,8 @@ import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-import { fetchDomains } from "@/utils";
+import { fetchDomains, fetchSettings } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/domains/")({
   component: DomainsIndex,
@@ -30,9 +31,36 @@ function DomainsIndex() {
   const {
     data,
   } = useQuery({
-    queryKey: ["domains"],
+    queryKey: queryKeys.domains.list(),
     queryFn: () => fetchDomains(),
   });
+
+  const {
+    data: settings,
+  } = useQuery({
+    queryKey: queryKeys.settings.detail(),
+    queryFn: () => fetchSettings(),
+  });
+
+  const focusedIds = settings?.focusedDomainIds ?? [];
+  const focusedRank = new Map(focusedIds.map((id, i) => [id, i]));
+  // Focused domains first (in their saved order), then everything else in its
+  // original order. A stable sort keeps non-focused domains as the API returned
+  // them.
+  const sortedDomains = (data ?? [])
+    .map((domain, index) => ({
+      domain,
+      index,
+    }))
+    .sort((a, b) => {
+      const aRank = focusedRank.get(a.domain.id ?? "");
+      const bRank = focusedRank.get(b.domain.id ?? "");
+      if (aRank !== undefined && bRank !== undefined) return aRank - bRank;
+      if (aRank !== undefined) return -1;
+      if (bRank !== undefined) return 1;
+      return a.index - b.index;
+    })
+    .map(entry => entry.domain);
 
   return (
     <div>
@@ -74,15 +102,15 @@ function DomainsIndex() {
             </div>
           )}
 
-          {data
-            && data.length > 0
-            && data.map((domain: Domain) => {
+          {sortedDomains.length > 0
+            && sortedDomains.map((domain: Domain) => {
               if (domain.title === "" || domain.id === undefined) {
                 return;
               }
               return (
                 <DomainBox
                   {...domain}
+                  focused={focusedRank.has(domain.id)}
                   key={domain.id}
                 />
               );

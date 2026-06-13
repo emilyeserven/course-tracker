@@ -40,7 +40,10 @@ RUN pnpm --filter @emstack/types build
 FROM build-types AS build-middleware
 
 COPY packages/middleware/ ./packages/middleware/
-RUN pnpm --filter @emstack/middleware build
+# Transpile-only: skip type checking here (--noCheck) since CI (.github/workflows/ci.yml)
+# owns the type gate. Mirrors the `build` script minus the type check to speed up images.
+RUN pnpm --filter @emstack/middleware exec tsc -b tsconfig.build.json --noCheck \
+ && pnpm --filter @emstack/middleware exec tsc-alias -p tsconfig.build.json --resolve-full-paths
 
 
 FROM build-types AS build-client

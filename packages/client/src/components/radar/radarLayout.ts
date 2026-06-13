@@ -18,6 +18,11 @@ export const QUADRANT_PALETTE = [
   "#db2777",
 ];
 
+// Gutters around the radar drawing so slice/ring labels positioned just outside
+// the circle (RadarChart) aren't clipped by the SVG viewport.
+export const RADAR_LABEL_PADDING_X = 88;
+export const RADAR_LABEL_PADDING_Y = 24;
+
 export const ADOPTED_DOT_RADIUS = 8;
 export const ADOPTED_DOT_SPACING = 22;
 export const ADOPTED_AREA_BOTTOM_PAD = 12;

@@ -16,14 +16,9 @@ import { useAppForm } from "@/components/formFields";
 import { EditForm } from "@/components/layout/EditForm";
 import { EditPageFooter } from "@/components/layout/EditPageFooter";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageTabs } from "@/components/layout/PageTabs";
 import { fillAllDays, rowsToWeekly } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
@@ -340,36 +335,39 @@ function ExistingRoutineEdit({
         </Link>
       </PageHeader>
       <div className="container flex flex-col gap-6">
-        <Tabs
+        <PageTabs
           value={tab}
-          onValueChange={value => changeTab(value as EditTab)}
-        >
-          <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="entries">Day Entries</TabsTrigger>
-            <TabsTrigger value="criteria">Status Criteria</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="details">
-            <DetailsTab
-              routine={routine}
-              onSaved={handleSaved}
-              onChangeStateChange={setDetailsHasChanges}
-            />
-          </TabsContent>
-
-          <TabsContent value="entries">
-            <EntriesTab id={id} />
-          </TabsContent>
-
-          <TabsContent value="criteria">
-            <CriteriaTab
-              routine={routine}
-              onSaved={handleSaved}
-              onChangeStateChange={setCriteriaHasChanges}
-            />
-          </TabsContent>
-        </Tabs>
+          onValueChange={changeTab}
+          tabs={[
+            {
+              value: "details",
+              label: "Details",
+              content: (
+                <DetailsTab
+                  routine={routine}
+                  onSaved={handleSaved}
+                  onChangeStateChange={setDetailsHasChanges}
+                />
+              ),
+            },
+            {
+              value: "entries",
+              label: "Day Entries",
+              content: <EntriesTab id={id} />,
+            },
+            {
+              value: "criteria",
+              label: "Status Criteria",
+              content: (
+                <CriteriaTab
+                  routine={routine}
+                  onSaved={handleSaved}
+                  onChangeStateChange={setCriteriaHasChanges}
+                />
+              ),
+            },
+          ]}
+        />
 
         <EditPageFooter
           isNew={false}

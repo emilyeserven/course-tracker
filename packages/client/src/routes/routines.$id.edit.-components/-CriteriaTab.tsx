@@ -132,7 +132,6 @@ export function CriteriaTab({
           className="flex flex-row flex-wrap items-start justify-between gap-2"
         >
           <div className="flex flex-col gap-1">
-            <h2 className="text-2xl">Status Criteria</h2>
             <p className="text-sm text-muted-foreground">
               Optional notes describing what each status means for this
               routine.

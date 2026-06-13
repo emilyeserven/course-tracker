@@ -12,6 +12,7 @@ export * from "./Topic.js";
 export * from "./TopicForTopicsPage.js";
 export * from "./TopicsToResources.js";
 export * from "./Domain.js";
+export * from "./Explore.js";
 export * from "./Daily.js";
 export * from "./DailyCriteriaTemplate.js";
 export * from "./DashboardLayout.js";

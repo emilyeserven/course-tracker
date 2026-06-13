@@ -211,7 +211,6 @@ export function ResourceInteractionsLog({
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-semibold">Interactions</h2>
           <p className="text-sm text-muted-foreground">
             {interactions.length === 0
               ? "No interactions logged yet."

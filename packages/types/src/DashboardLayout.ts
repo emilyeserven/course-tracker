@@ -8,6 +8,7 @@ export const DASHBOARD_TILE_IDS = [
   "coursesByAmortization",
   "coursesInProgress",
   "radars",
+  "exploreSomething",
   "readwise",
   "todoist",
 ] as const;
@@ -44,4 +45,8 @@ export interface DashboardLayout {
   name: string;
   position?: number | null;
   tiles: DashboardLayoutTile[];
+  // Presets ("saved layouts") are excluded from the dashboard's tab strip and
+  // offered as starting points when adding a tab. A missing value means "a
+  // normal tab", so existing layouts read as tabs without a backfill.
+  isTemplate?: boolean;
 }

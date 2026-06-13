@@ -11,6 +11,7 @@ import { DndGrid } from "@dnd-grid/react";
 import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
 import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
+import { DashboardExplore } from "./-DashboardExplore";
 import { DashboardRadars } from "./-DashboardRadars";
 import { DashboardReadwise } from "./-DashboardReadwise";
 import {
@@ -38,6 +39,7 @@ const TILE_COMPONENTS: Record<
   coursesByAmortization: DashboardCoursesByAmortization,
   coursesInProgress: DashboardCoursesInProgress,
   radars: DashboardRadars,
+  exploreSomething: DashboardExplore,
   readwise: DashboardReadwise,
   todoist: DashboardTodoist,
 };
