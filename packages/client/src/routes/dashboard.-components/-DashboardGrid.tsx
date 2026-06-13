@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DndGrid } from "@dnd-grid/react";
 
+import { DashboardChangelog } from "./-DashboardChangelog";
 import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
 import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
@@ -42,6 +43,7 @@ const TILE_COMPONENTS: Record<
   exploreSomething: DashboardExplore,
   readwise: DashboardReadwise,
   todoist: DashboardTodoist,
+  changelog: DashboardChangelog,
 };
 
 interface DashboardGridProps {

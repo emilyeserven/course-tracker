@@ -64,6 +64,11 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
+  changelog: {
+    title: "Changelog",
+    minW: 2,
+    minH: 4,
+  },
 };
 
 // The grid `h` unit maps to 4em per row (see GRID_EM_PER_ROW), and rows are
@@ -135,6 +140,10 @@ const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
   {
     tileId: "readwise",
     h: 7,
+  },
+  {
+    tileId: "changelog",
+    h: 8,
   },
 ];
 

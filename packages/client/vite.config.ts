@@ -39,6 +39,10 @@ export default defineConfig(({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Repo-root files bundled into the client (e.g. CHANGELOG.md). A relative
+      // path is autofixed into the bare `emstack/...` package import, which
+      // doesn't resolve — an alias keeps it pointing at the monorepo root.
+      "@root": path.resolve(__dirname, "../.."),
     },
   },
   test: {
