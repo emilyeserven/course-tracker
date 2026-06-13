@@ -11,7 +11,13 @@ function Tabs({
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      className={cn("flex flex-col gap-4", className)}
+      className={cn(
+        `
+          flex flex-col gap-4
+          data-[orientation=vertical]:flex-row
+        `,
+        className,
+      )}
       {...props}
     />
   );
@@ -28,6 +34,10 @@ function TabsList({
         `
           inline-flex h-10 w-fit items-center justify-center rounded-md bg-muted
           p-1 text-muted-foreground
+          data-[orientation=vertical]:h-auto
+          data-[orientation=vertical]:flex-col
+          data-[orientation=vertical]:items-stretch
+          data-[orientation=vertical]:justify-start
         `,
         className,
       )}
@@ -49,6 +59,8 @@ function TabsTrigger({
           text-sm font-medium whitespace-nowrap transition-all outline-none
           focus-visible:ring-[3px] focus-visible:ring-ring/50
           disabled:pointer-events-none disabled:opacity-50
+          data-[orientation=vertical]:w-full
+          data-[orientation=vertical]:justify-start
           data-[state=active]:bg-background data-[state=active]:text-foreground
           data-[state=active]:shadow-sm
           [&_svg]:pointer-events-none [&_svg]:shrink-0
