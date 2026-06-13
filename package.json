@@ -6,6 +6,8 @@
     "concurrently": "9.2.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@emilyeserven/eslint-config": "1.1.4",
     "@stylistic/eslint-plugin": "5.10.0",
     "@tanstack/eslint-plugin-query": "5.95.2",
