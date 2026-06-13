@@ -37,6 +37,11 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
+  readwise: {
+    title: "Readwise",
+    minW: 2,
+    minH: 4,
+  },
 };
 
 function isDashboardTileId(id: string): id is DashboardTileId {
@@ -79,6 +84,13 @@ export function buildDefaultTiles(): DashboardLayoutTile[] {
       x: 2,
       y: 15,
       w: 2,
+      h: 7,
+    },
+    {
+      tileId: "readwise",
+      x: 0,
+      y: 22,
+      w: 4,
       h: 7,
     },
   ];

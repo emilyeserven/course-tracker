@@ -60,13 +60,14 @@ describe("buildDefaultTiles", () => {
 describe("sortTilesForMobile", () => {
   test("orders by row first, then column", () => {
     const tiles = buildDefaultTiles();
-    const shuffled = [tiles[3], tiles[0], tiles[4], tiles[2], tiles[1]];
+    const shuffled = [tiles[3], tiles[0], tiles[5], tiles[4], tiles[2], tiles[1]];
     expect(sortTilesForMobile(shuffled).map(t => t.tileId)).toEqual([
       "dailies",
       "underutilizedProviders",
       "coursesByAmortization",
       "coursesInProgress",
       "radars",
+      "readwise",
     ]);
   });
 
@@ -81,7 +82,7 @@ describe("sortTilesForMobile", () => {
 describe("toggleTile", () => {
   test("removes a tile that is present", () => {
     const next = toggleTile(buildDefaultTiles(), "radars");
-    expect(next).toHaveLength(4);
+    expect(next).toHaveLength(buildDefaultTiles().length - 1);
     expect(next.some(t => t.tileId === "radars")).toBe(false);
   });
 

@@ -7,6 +7,7 @@ import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortizatio
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
 import { DashboardDailies } from "./-DashboardDailies";
 import { DashboardRadars } from "./-DashboardRadars";
+import { DashboardReadwise } from "./-DashboardReadwise";
 import {
   layoutItemsToTiles,
   sortTilesForMobile,
@@ -22,6 +23,7 @@ const TILE_COMPONENTS: Record<DashboardTileId, React.ComponentType> = {
   coursesByAmortization: DashboardCoursesByAmortization,
   coursesInProgress: DashboardCoursesInProgress,
   radars: DashboardRadars,
+  readwise: DashboardReadwise,
 };
 
 interface DashboardGridProps {

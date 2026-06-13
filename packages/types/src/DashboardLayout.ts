@@ -7,6 +7,7 @@ export const DASHBOARD_TILE_IDS = [
   "coursesByAmortization",
   "coursesInProgress",
   "radars",
+  "readwise",
 ] as const;
 
 export type DashboardTileId = (typeof DASHBOARD_TILE_IDS)[number];
