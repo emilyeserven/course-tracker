@@ -5,23 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  Button,
+  CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
-import { Button } from "@/components/ui/button";
-import { RadialProgress } from "@/components/ui/RadialProgress";
-import {
+  isAutoHeight,
+  queryKeys,
+  RadialProgress,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/ui/tabs";
+} from "./-cardKit";
+
 import { fetchReadwiseReadingList } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 function readingTime(wordCount: number | null): string | null {
   if (!wordCount || wordCount <= 0) return null;

@@ -6,22 +6,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  Button,
+  CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
-import {
+  isAutoHeight,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
-import { RadialProgress } from "@/components/ui/RadialProgress";
-import { fetchResources, fetchDailies } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
+  queryKeys,
+  RadialProgress,
+} from "./-cardKit";
+
+import { fetchDailies, fetchResources } from "@/utils";
 
 function ProgressIndicator({
   current,

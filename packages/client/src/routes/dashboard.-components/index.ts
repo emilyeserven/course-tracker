@@ -1,0 +1,20 @@
+// One import surface for everything the /dashboard route renders: its
+// route-private pieces plus the shared dialogs/chrome it composes. Members
+// import their own dependencies directly (never this index), so this re-export
+// barrel introduces no cycle.
+export { AddLayoutDialog } from "./-AddLayoutDialog";
+export { DashboardGrid } from "./-DashboardGrid";
+export { VisibleTilesDialog } from "./-VisibleTilesDialog";
+export { LayoutTab } from "./-LayoutTab";
+export {
+  buildDefaultTiles,
+  needsNormalization,
+  normalizeTiles,
+  tilesEqual,
+  toggleTile,
+} from "./-dashboardTileMeta";
+export { ConfirmDialog } from "@/components/ConfirmDialog";
+export { LayoutNameDialog } from "@/components/LayoutNameDialog";
+export { PageHeader } from "@/components/layout/PageHeader";
+export { Button } from "@/components/ui/button";
+export { Tabs, TabsList } from "@/components/ui/tabs";

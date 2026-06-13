@@ -4,14 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, RadarIcon } from "lucide-react";
 
-import { CardSettingsFlyout } from "./-DashboardCardSettings";
-import { isAutoHeight } from "./-dashboardTileMeta";
-
 import {
+  Button,
+  CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
-import { Button } from "@/components/ui/button";
+  isAutoHeight,
+} from "./-cardKit";
+
 import { fetchDomains } from "@/utils";
 
 export function DashboardRadars({
