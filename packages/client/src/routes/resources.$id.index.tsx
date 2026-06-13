@@ -7,12 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { TopicList } from "@/components/boxElements/TopicList";
+import { TopicList } from "@/components/boxElements";
 import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { InfoArea } from "@/components/layout/InfoArea";
-import { InfoRow } from "@/components/layout/InfoRow";
-import { PageTabs } from "@/components/layout/PageTabs";
+import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
 import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
 import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";

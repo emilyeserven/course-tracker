@@ -3,9 +3,11 @@ import type { Daily } from "@emstack/types";
 
 import { RECENT_DAYS_COUNT } from "./-useDashboardDailies";
 
-import { DailiesActiveListView } from "@/components/dailies";
-import { buildDailyTrackerColumns } from "@/components/dailies/dailyTrackerColumns";
-import { DailyTrackerRow } from "@/components/dailies/DailyTrackerRow";
+import {
+  buildDailyTrackerColumns,
+  DailiesActiveListView,
+  DailyTrackerRow,
+} from "@/components/dailies";
 import { DataTable } from "@/components/ui/data-table";
 
 /** Renders one dailies bucket as either the list view or the tracker table. */

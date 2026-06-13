@@ -2,9 +2,7 @@ import type { Domain } from "@emstack/types";
 
 import { BookIcon, StarIcon } from "lucide-react";
 
-import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
-import { Description } from "@/components/boxElements/Description";
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { CourseMetaItem, Description, EntityLink } from "@/components/boxElements";
 import {
   ContentBox,
   ContentBoxBody,

@@ -2,7 +2,7 @@ import type { RoutineReferenceItem } from "@emstack/types";
 
 import { MapPinIcon } from "lucide-react";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 
 interface RoutineEntryLabelProps {

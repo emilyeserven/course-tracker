@@ -3,8 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon, PlusIcon } from "lucide-react";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { InfoArea } from "@/components/layout/InfoArea";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { InfoArea, PageHeader } from "@/components/layout";
 import { ResourcesTable } from "@/components/tasks/ResourcesTable";
 import { TodosChecklist } from "@/components/tasks/TodosChecklist";
 import { Button } from "@/components/ui/button";

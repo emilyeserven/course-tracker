@@ -7,7 +7,7 @@ import { ActivityIcon, ExternalLinkIcon, PencilIcon } from "lucide-react";
 import { LevelBadge } from "./LevelBadge";
 import { COLUMN_COUNT } from "./TaskResourceEditingRow";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements";
 import { InteractionQuickLog } from "@/components/resources/InteractionQuickLog";
 import { Button } from "@/components/ui/button";
 import { isHttpUrl } from "@/utils";

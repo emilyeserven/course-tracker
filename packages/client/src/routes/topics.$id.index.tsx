@@ -3,10 +3,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
-import { InfoArea } from "@/components/layout/InfoArea";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { ResourceLinksSection } from "@/components/layout/ResourceLinksSection";
+import {
+  EntityHeaderButton,
+  InfoArea,
+  PageHeader,
+  ResourceLinksSection,
+} from "@/components/layout";
 import { fetchRoutines, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({

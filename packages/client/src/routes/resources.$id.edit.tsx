@@ -11,8 +11,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
-import { EditPageFooter } from "@/components/layout/EditPageFooter";
-import { PageTabs } from "@/components/layout/PageTabs";
+import { EditPageFooter, PageTabs } from "@/components/layout";
 import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
 import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";

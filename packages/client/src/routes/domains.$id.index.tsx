@@ -4,10 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { EntityLink } from "@/components/boxElements";
 import { EntityError, EntityPending } from "@/components/EntityStates";
-import { InfoArea } from "@/components/layout/InfoArea";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { InfoArea, PageHeader } from "@/components/layout";
 import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, fetchSingleDomain } from "@/utils";
