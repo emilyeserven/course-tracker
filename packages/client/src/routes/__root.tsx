@@ -1,4 +1,6 @@
-import React from "react";
+import type { QuickAddKey } from "@/components/quickAdd";
+
+import React, { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,12 +12,20 @@ import { HomeIcon, MenuIcon } from "lucide-react";
 
 import { DropdownNavItem } from "@/components/layout/DropdownNavItem";
 import { NavDropdown } from "@/components/layout/NavDropdown";
+import {
+  QuickAddDialogs,
+  QuickAddMenu,
+  QUICK_ADD_OPTIONS,
+
+} from "@/components/quickAdd";
 import { Toaster } from "@/components/sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -28,6 +38,8 @@ import {
 import { queryKeys } from "@/utils/queryKeys";
 
 const RootComponent: React.FunctionComponent = () => {
+  const [activeQuickAdd, setActiveQuickAdd] = useState<QuickAddKey | null>(null);
+
   const {
     data: resourcesData,
   } = useQuery({
@@ -201,6 +213,23 @@ const RootComponent: React.FunctionComponent = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                <DropdownMenuLabel>Quick Add</DropdownMenuLabel>
+                {QUICK_ADD_OPTIONS.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={option.key}
+                      className="cursor-pointer"
+                      onSelect={() => setActiveQuickAdd(option.key)}
+                    >
+                      <Icon />
+                      {option.label}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
                 <DropdownNavItem to="/settings">Settings</DropdownNavItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
@@ -208,10 +237,11 @@ const RootComponent: React.FunctionComponent = () => {
         </div>
         <div
           className={`
-            hidden flex-row gap-2
+            hidden flex-row items-center gap-4
             md:flex
           `}
         >
+          <QuickAddMenu onSelect={setActiveQuickAdd} />
           <Link
             to="/settings"
             className={navLinkClass}
@@ -224,6 +254,10 @@ const RootComponent: React.FunctionComponent = () => {
       <div className="mb-8">
         <Outlet />
       </div>
+      <QuickAddDialogs
+        active={activeQuickAdd}
+        onClose={() => setActiveQuickAdd(null)}
+      />
       <Toaster />
     </>
   );

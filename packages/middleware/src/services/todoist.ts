@@ -10,6 +10,13 @@ const TODOIST_FILTER_URL = "https://api.todoist.com/api/v1/tasks/filter";
 // payload, so we build one from the task id.
 const TODOIST_TASK_URL = "https://app.todoist.com/app/task";
 
+// Create endpoint for the unified v1 REST API.
+const TODOIST_CREATE_URL = "https://api.todoist.com/api/v1/tasks";
+
+// Label stamped on tasks created from Course Tracker so the source is traceable.
+// Todoist creates the label by name on first use.
+const SOURCE_LABEL = "from-coursetracker";
+
 // Filter query for the dashboard card: anything due today or already overdue.
 const DUE_FILTER = "today | overdue";
 
@@ -161,5 +168,55 @@ export async function fetchTodayAndOverdue(
   return {
     overdue,
     today: dueToday,
+  };
+}
+
+/**
+ * Create a Todoist task, labeled with the source label. `content` is the task
+ * title; `description` is the optional note body. Returns the new task id.
+ */
+export async function createTodoistTask(
+  token: string,
+  content: string,
+  description?: string,
+): Promise<{ id: string }> {
+  let response: Response;
+  try {
+    response = await fetch(TODOIST_CREATE_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content,
+        labels: [SOURCE_LABEL],
+        ...(description
+          ? {
+            description,
+          }
+          : {}),
+      }),
+    });
+  }
+  catch {
+    throw new TodoistError("Could not reach Todoist.", 502);
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw new TodoistError("Todoist rejected the API key.", 401);
+  }
+  if (response.status === 429) {
+    throw new TodoistError("Todoist rate limit reached — try again shortly.", 429);
+  }
+  if (!response.ok) {
+    throw new TodoistError(`Todoist request failed (${response.status}).`, 502);
+  }
+
+  const body = (await response.json()) as {
+    id?: string;
+  };
+  return {
+    id: body.id ?? "",
   };
 }
