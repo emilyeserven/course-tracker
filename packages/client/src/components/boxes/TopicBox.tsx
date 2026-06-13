@@ -1,17 +1,16 @@
 import type { TopicForTopicsPage } from "@emstack/types";
 
-import {
-  BookIcon,
-} from "lucide-react";
+import { BookIcon } from "lucide-react";
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
-import { DomainPill } from "@/components/boxElements/DomainPill";
+import { DomainTagList } from "@/components/boxElements/DomainTagList";
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
   ContentBoxBody,
-  ContentBoxFooter, ContentBoxHeader,
+  ContentBoxFooter,
+  ContentBoxHeader,
   ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/boxes/ContentBox";
@@ -32,21 +31,17 @@ export function TopicBox({
             <EntityLink
               entity="topics"
               id={id}
-            >{name}
+            >
+              {name}
             </EntityLink>
           </h3>
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        {domains && domains.filter(d => d.id !== undefined).length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
-            {domains
-              .filter(domain => domain.id !== undefined)
-              .map(domain => (
-                <DomainPill key={domain.id}>{domain.title}</DomainPill>
-              ))}
-          </div>
-        )}
+        <DomainTagList
+          domains={domains}
+          className="mb-2"
+        />
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
