@@ -6,12 +6,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 import * as z from "zod";
 
+import {
+  Button,
+  EditPageFooter,
+  EntityHeaderButton,
+  PageHeader,
+  UnsavedChangesDialog,
+} from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
-import { EditPageFooter } from "@/components/layout/EditPageFooter";
-import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createTask,
@@ -21,11 +23,11 @@ import {
   fetchTaskTypes,
   fetchTopics,
   formHasChanges,
+  queryKeys,
   tagGroupsToOptions,
   toOptions,
   upsertTask,
 } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 export interface TaskEditSearch {
   topicId?: string;
@@ -58,28 +60,27 @@ function SingleTaskEdit() {
   const navigate = useNavigate();
 
   const {
-    data,
-    shouldBlockFn,
-    makeDeleteHandler,
-    makeSubmitHandler,
-  } = useEditFormPage({
-    id,
-    isNew,
-    queryKey: ["task", id],
-    queryFn: () => fetchSingleTask(id),
-    relatedQueryKeys: [queryKeys.tasks.list()],
-  });
+    data, shouldBlockFn, makeDeleteHandler, makeSubmitHandler,
+  }
+    = useEditFormPage({
+      id,
+      isNew,
+      queryKey: ["task", id],
+      queryFn: () => fetchSingleTask(id),
+      relatedQueryKeys: [queryKeys.tasks.list()],
+    });
 
   const submitTask = makeSubmitHandler({
     createFn: createTask,
     upsertFn: upsertTask,
     entityLabel: "task",
-    navigateToEntity: taskId => navigate({
-      to: "/tasks/$id",
-      params: {
-        id: taskId,
-      },
-    }),
+    navigateToEntity: taskId =>
+      navigate({
+        to: "/tasks/$id",
+        params: {
+          id: taskId,
+        },
+      }),
   });
 
   const {
@@ -278,9 +279,7 @@ function SingleTaskEdit() {
             </Button>
           </EditPageFooter>
         </form>
-        <UnsavedChangesDialog
-          shouldBlockFn={shouldBlockFn(hasChanges)}
-        />
+        <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
       </div>
     </div>
   );

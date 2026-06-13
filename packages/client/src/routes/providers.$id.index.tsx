@@ -2,13 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
-import { YesNoDisplay } from "@/components/boxElements/YesNoDisplay";
 import { EntityError, EntityPending } from "@/components/EntityStates";
+import {
+  InfoArea,
+  InfoRow,
+  ResourceLinksSection,
+  YesNoDisplay,
+} from "@/components/infoCard";
 import { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
-import { InfoArea } from "@/components/layout/InfoArea";
-import { InfoRow } from "@/components/layout/InfoRow";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ResourceLinksSection } from "@/components/layout/ResourceLinksSection";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils";
 
