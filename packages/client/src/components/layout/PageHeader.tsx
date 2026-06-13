@@ -1,19 +1,16 @@
 import type { EntityKind } from "@/components/boxElements/EntityLink";
-import type { ResourceStatus } from "@emstack/types";
+import type { ResourceProgress } from "@/components/ui/ProgressBar";
 
 import { Link } from "@tanstack/react-router";
 
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { cn } from "@/lib/utils";
 
-interface PageHeaderProps {
+interface PageHeaderProps extends ResourceProgress {
   pageTitle?: string;
   pageSection?: EntityKind | "dailies" | "routines" | "";
   description?: React.ReactNode;
   children?: React.ReactNode;
-  progressCurrent?: number;
-  progressTotal?: number;
-  status?: ResourceStatus;
 }
 
 export function PageHeader({

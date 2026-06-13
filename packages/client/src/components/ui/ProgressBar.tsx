@@ -1,13 +1,14 @@
-import type { ResourceStatus } from "@emstack/types";
+import type { Resource } from "@emstack/types";
 
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-interface ContentBoxProgressProps {
-  progressCurrent?: number;
-  progressTotal?: number;
-  status?: ResourceStatus;
+export type ResourceProgress = Partial<
+  Pick<Resource, "progressCurrent" | "progressTotal" | "status">
+>;
+
+interface ContentBoxProgressProps extends ResourceProgress {
   isRounded?: boolean;
 }
 export function ProgressBar({
