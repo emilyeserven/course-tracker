@@ -34,7 +34,7 @@ export default async function (server: FastifyInstance) {
         return sendNotFound(reply, "Provider");
       }
 
-      const courseCount = provider.resources?.length ?? 0;
+      const resourceCount = provider.resources?.length ?? 0;
       const resources = provider.resources.map(resource => ({
         name: resource.name,
         id: resource.id,
@@ -51,7 +51,7 @@ export default async function (server: FastifyInstance) {
         recurPeriodUnit: provider.recurPeriodUnit,
         recurPeriod: provider.recurPeriod,
         isCourseFeesShared: provider.isCourseFeesShared,
-        courseCount: courseCount,
+        resourceCount: resourceCount,
         resources: resources,
       };
     },

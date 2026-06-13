@@ -1,15 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { RadarIcon } from "lucide-react";
 
 import { OverviewCardGrid } from "@/components/boxes/OverviewCardGrid";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
+import { fetchDomains } from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
+import { domainConnectionCount, topConnected } from "@/utils/topConnected";
 
 export const Route = createFileRoute("/plans")({
   component: Plans,
 });
 
 function Plans() {
+  const {
+    data: domains,
+  } = useQuery({
+    queryKey: queryKeys.domains.list(),
+    queryFn: () => fetchDomains(),
+  });
+
   return (
     <div>
       <PageHeader
@@ -29,6 +40,12 @@ function Plans() {
               title: "Domains",
               description: ENTITY_DESCRIPTIONS.domains,
               icon: RadarIcon,
+              entity: "domains",
+              topConnected: topConnected(
+                domains,
+                d => d.title,
+                domainConnectionCount,
+              ),
             },
           ]}
         />
