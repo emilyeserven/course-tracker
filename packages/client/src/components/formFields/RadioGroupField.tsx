@@ -1,15 +1,18 @@
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { SelectOption } from "@/utils";
+
 import { Field, FieldLabel } from "@/components/forms/field";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
+import {
+  changedFieldClass,
+  useFieldChangeHighlight,
+} from "@/utils/fieldChangeHighlight";
 import { useFieldContext } from "@/utils/fieldContext";
 
-interface RadioGroupFieldProps {
-  label: string;
-  options: { value: string;
-    label: string; }[];
-  className?: string;
+interface RadioGroupFieldProps extends BaseFieldProps {
+  options: SelectOption[];
   labelClassName?: string;
 }
 

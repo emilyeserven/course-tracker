@@ -1,12 +1,15 @@
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Textarea } from "@/components/textarea";
 import { cn } from "@/lib/utils";
-import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
+import {
+  changedFieldClass,
+  useFieldChangeHighlight,
+} from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
-interface TextareaFieldProps {
-  label: string;
-  className?: string;
+interface TextareaFieldProps extends BaseFieldProps {
   placeholder?: string;
   disabled?: boolean;
   labelIcon?: React.ReactNode;
@@ -34,9 +37,7 @@ export function TextareaField({
         className={className}
       >
         {labelIcon && (
-          <span className="inline-flex shrink-0 items-center">
-            {labelIcon}
-          </span>
+          <span className="inline-flex shrink-0 items-center">{labelIcon}</span>
         )}
         <span>{label}</span>
       </FieldLabel>

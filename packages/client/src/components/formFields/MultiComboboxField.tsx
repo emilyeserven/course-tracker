@@ -1,4 +1,6 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { SelectOption } from "@/utils";
 
 import {
   Combobox,
@@ -21,20 +23,15 @@ import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel
 import { useComboboxCreate } from "@/components/formFields/useComboboxCreate";
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { cn } from "@/lib/utils";
-import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
+import {
+  changedFieldClass,
+  useFieldChangeHighlight,
+} from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
-interface ComboboxOption {
-  value: string;
-  label: string;
-  group?: string;
-}
-
-interface MultiComboboxFieldProps {
-  label: string;
-  options: ComboboxOption[];
+interface MultiComboboxFieldProps extends BaseFieldProps {
+  options: SelectOption[];
   placeholder?: string;
-  className?: string;
   create?: CreateConfig;
   /**
    * When true, options are rendered under group headers (and the dropdown filters
@@ -50,7 +47,7 @@ interface MultiComboboxFieldProps {
 // this as the combobox `items` lets Base UI filter within each group and hide
 // empty ones. Groups keep first-appearance order, with "Other" forced last.
 function partitionOptions(
-  options: ComboboxOption[],
+  options: SelectOption[],
 ): { value: string;
   items: string[]; }[] {
   const groups = new Map<string, string[]>();
@@ -133,7 +130,9 @@ export function MultiComboboxField({
       <Combobox
         multiple
         items={
-          groupByPrefix ? partitionOptions(options) : options.map(o => o.value)
+          groupByPrefix
+            ? partitionOptions(options)
+            : options.map(o => o.value)
         }
         value={field.state.value || []}
         onValueChange={val => field.handleChange(val)}
@@ -142,9 +141,7 @@ export function MultiComboboxField({
       >
         <ComboboxChips ref={anchor}>
           {(field.state.value || []).map(val => (
-            <ComboboxChip key={val}>
-              {optionsMap.get(val) ?? val}
-            </ComboboxChip>
+            <ComboboxChip key={val}>{optionsMap.get(val) ?? val}</ComboboxChip>
           ))}
           <ComboboxChipsInput
             placeholder={placeholder}

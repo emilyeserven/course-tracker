@@ -1,12 +1,15 @@
+import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Input } from "@/components/input";
 import { cn } from "@/lib/utils";
-import { changedFieldClass, useFieldChangeHighlight } from "@/utils/fieldChangeHighlight";
+import {
+  changedFieldClass,
+  useFieldChangeHighlight,
+} from "@/utils/fieldChangeHighlight";
 import { useIsFieldInvalid } from "@/utils/useIsFieldInvalid";
 
-interface NumberFieldProps {
-  label: string;
-  className?: string;
+interface NumberFieldProps extends BaseFieldProps {
   min?: number;
   step?: string;
   disabled?: boolean;
