@@ -3,6 +3,7 @@ import type { DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
 import { DndGrid } from "@dnd-grid/react";
 
+import { DashboardChangelog } from "./-DashboardChangelog";
 import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
 import { DashboardDailies } from "./-DashboardDailies";
@@ -28,6 +29,7 @@ const TILE_COMPONENTS: Record<DashboardTileId, React.ComponentType> = {
   exploreSomething: DashboardExplore,
   readwise: DashboardReadwise,
   todoist: DashboardTodoist,
+  changelog: DashboardChangelog,
 };
 
 interface DashboardGridProps {

@@ -52,6 +52,11 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
+  changelog: {
+    title: "Changelog",
+    minW: 2,
+    minH: 4,
+  },
 };
 
 function isDashboardTileId(id: string): id is DashboardTileId {
@@ -94,6 +99,10 @@ const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
   {
     tileId: "readwise",
     h: 7,
+  },
+  {
+    tileId: "changelog",
+    h: 8,
   },
 ];
 
