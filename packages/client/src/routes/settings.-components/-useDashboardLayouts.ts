@@ -5,11 +5,10 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { toggleTile } from "@/routes/dashboard.-components/-dashboardTileMeta";
+import { useDashboardLayoutMutations } from "@/hooks/useDashboardLayoutMutations";
+import { toggleTile } from "@/lib/dashboardTiles";
 import {
   createDashboardLayout,
-  deleteSingleDashboardLayout,
-  duplicateDashboardLayout,
   fetchDashboardLayouts,
   upsertDashboardLayout,
 } from "@/utils/api";
@@ -71,76 +70,25 @@ export function useDashboardLayouts() {
     },
   });
 
-  const renameMutation = useMutation({
-    mutationFn: ({
-      layout, name,
-    }: { layout: DashboardLayout;
-      name: string; }) =>
-      upsertDashboardLayout(layout.id, {
-        name,
-        position: layout.position ?? null,
-        tiles: layout.tiles,
-        isTemplate: layout.isTemplate ?? false,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setRenameTargetId(null);
-      toast.success("Layout renamed");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const saveAsPresetMutation = useMutation({
-    mutationFn: ({
-      name, layout,
-    }: { name: string;
-      layout: DashboardLayout; }) =>
-      createDashboardLayout({
-        name,
-        position: null,
-        tiles: layout.tiles,
-        isTemplate: true,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setSaveAsTargetId(null);
-      toast.success("Saved as a layout you can reuse");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const duplicateMutation = useMutation({
-    mutationFn: (id: string) => duplicateDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      toast.success("Layout duplicated");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteSingleDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      setDeleteTargetId(null);
-      toast.success("Layout deleted");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
+  const {
+    renameMutation,
+    saveAsPresetMutation,
+    duplicateMutation,
+    deleteMutation,
+  } = useDashboardLayoutMutations({
+    onRenamed: () => setRenameTargetId(null),
+    onSavedAsPreset: () => setSaveAsTargetId(null),
+    onDeleted: () => setDeleteTargetId(null),
   });
 
   const toggleTileMutation = useMutation({
     mutationFn: ({
-      layout, tileId,
-    }: { layout: DashboardLayout;
-      tileId: DashboardTileId; }) =>
+      layout,
+      tileId,
+    }: {
+      layout: DashboardLayout;
+      tileId: DashboardTileId;
+    }) =>
       upsertDashboardLayout(layout.id, {
         name: layout.name,
         position: layout.position ?? null,
@@ -162,7 +110,8 @@ export function useDashboardLayouts() {
         tileId,
       }),
     onRename: (layout: DashboardLayout) => setRenameTargetId(layout.id),
-    onDuplicate: (layout: DashboardLayout) => duplicateMutation.mutate(layout.id),
+    onDuplicate: (layout: DashboardLayout) =>
+      duplicateMutation.mutate(layout.id),
     onSaveAs: (layout: DashboardLayout) => setSaveAsTargetId(layout.id),
     onDelete: (layout: DashboardLayout) => setDeleteTargetId(layout.id),
   };
@@ -204,7 +153,7 @@ export function useDashboardLayouts() {
       if (saveAsTarget) {
         saveAsPresetMutation.mutate({
           name,
-          layout: saveAsTarget,
+          tiles: saveAsTarget.tiles,
         });
       }
     },

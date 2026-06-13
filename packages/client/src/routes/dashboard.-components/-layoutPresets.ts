@@ -1,6 +1,6 @@
 import type { DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
-import { buildDefaultTiles, TILE_META } from "./-dashboardTileMeta";
+import { buildDefaultTiles, TILE_META } from "@/lib/dashboardTiles";
 
 // Curated, code-defined starting layouts offered when adding a tab. Built-ins
 // are never persisted as rows — picking one just creates a new layout from the

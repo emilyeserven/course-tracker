@@ -1,6 +1,5 @@
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
-import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import {
   BookmarkIcon,
   CopyIcon,
@@ -24,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TILE_META } from "@/routes/dashboard.-components/-dashboardTileMeta";
+import { tileVisibilityItems } from "@/lib/dashboardTiles";
 
 interface LayoutRowProps {
   layout: DashboardLayout;
@@ -45,15 +44,11 @@ function LayoutRow({
   onDelete,
 }: LayoutRowProps) {
   return (
-    <li
-      className="flex flex-wrap items-center justify-between gap-2 p-3"
-    >
+    <li className="flex flex-wrap items-center justify-between gap-2 p-3">
       <div className="flex flex-col gap-1">
         <span className="font-medium">{layout.name}</span>
         <span className="text-xs text-muted-foreground">
-          {layout.tiles.length}
-          {" "}
-          tile(s) shown
+          {layout.tiles.length} tile(s) shown
         </span>
       </div>
       <DropdownMenu>
@@ -69,14 +64,16 @@ function LayoutRow({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Visible tiles</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {DASHBOARD_TILE_IDS.map(tileId => (
+          {tileVisibilityItems(layout).map(({
+            tileId, title, checked,
+          }) => (
             <DropdownMenuCheckboxItem
               key={tileId}
-              checked={layout.tiles.some(t => t.tileId === tileId)}
+              checked={checked}
               onCheckedChange={() => onToggleTile(layout, tileId)}
               onSelect={e => e.preventDefault()}
             >
-              {TILE_META[tileId].title}
+              {title}
             </DropdownMenuCheckboxItem>
           ))}
           <DropdownMenuSeparator />
@@ -159,7 +156,9 @@ export function DashboardLayoutsSection() {
         </p>
 
         {isPending
-          ? <p className="text-sm text-muted-foreground">Loading...</p>
+          ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          )
           : (
             <>
               <div className="flex flex-col gap-2">
@@ -169,8 +168,8 @@ export function DashboardLayoutsSection() {
                 {tabs.length === 0
                   ? (
                     <p className="text-sm text-muted-foreground">
-                      No layouts yet. Visit the dashboard to create the default
-                      one, or add one here.
+                      No layouts yet. Visit the dashboard to create the default one,
+                      or add one here.
                     </p>
                   )
                   : (

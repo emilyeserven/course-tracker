@@ -1,4 +1,8 @@
-import type { DashboardLayout, DashboardLayoutTile, DashboardTileId } from "@emstack/types";
+import type {
+  DashboardLayout,
+  DashboardLayoutTile,
+  DashboardTileId,
+} from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -26,10 +30,9 @@ import {
 } from "./dashboard.-components";
 
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
+import { useDashboardLayoutMutations } from "@/hooks/useDashboardLayoutMutations";
 import {
   createDashboardLayout,
-  deleteSingleDashboardLayout,
-  duplicateDashboardLayout,
   fetchDashboardLayouts,
   upsertDashboardLayout,
 } from "@/utils/api";
@@ -93,9 +96,12 @@ function Dashboard() {
 
   const createTabMutation = useMutation({
     mutationFn: ({
-      name, tiles,
-    }: { name: string;
-      tiles: DashboardLayoutTile[]; }) =>
+      name,
+      tiles,
+    }: {
+      name: string;
+      tiles: DashboardLayoutTile[];
+    }) =>
       createDashboardLayout({
         name,
         position: tabs.length,
@@ -129,78 +135,27 @@ function Dashboard() {
     }
   }, [layouts, autoCreate]);
 
-  const saveAsPresetMutation = useMutation({
-    mutationFn: ({
-      name, tiles,
-    }: { name: string;
-      tiles: DashboardLayoutTile[]; }) =>
-      createDashboardLayout({
-        name,
-        position: null,
-        tiles,
-        isTemplate: true,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setSaveAsTargetId(null);
-      toast.success("Saved as a layout you can reuse");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const renameMutation = useMutation({
-    mutationFn: ({
-      layout, name,
-    }: { layout: DashboardLayout;
-      name: string; }) =>
-      upsertDashboardLayout(layout.id, {
-        name,
-        position: layout.position ?? null,
-        tiles: layout.tiles,
-        isTemplate: layout.isTemplate ?? false,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setRenameTargetId(null);
-      toast.success("Layout renamed");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const duplicateMutation = useMutation({
-    mutationFn: (id: string) => duplicateDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      toast.success("Layout duplicated");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteSingleDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      setDeleteTargetId(null);
-      toast.success("Layout deleted");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
+  const {
+    renameMutation,
+    saveAsPresetMutation,
+    duplicateMutation,
+    deleteMutation,
+  } = useDashboardLayoutMutations({
+    onRenamed: () => setRenameTargetId(null),
+    onSavedAsPreset: () => setSaveAsTargetId(null),
+    onDeleted: () => setDeleteTargetId(null),
   });
 
   // Tile moves/resizes save through an optimistic cache write with no
   // invalidate on success — a refetch mid-drag would snap tiles back.
   const saveTilesMutation = useMutation({
     mutationFn: ({
-      layout, tiles,
-    }: { layout: DashboardLayout;
-      tiles: DashboardLayoutTile[]; }) =>
+      layout,
+      tiles,
+    }: {
+      layout: DashboardLayout;
+      tiles: DashboardLayoutTile[];
+    }) =>
       upsertDashboardLayout(layout.id, {
         name: layout.name,
         position: layout.position ?? null,
@@ -212,13 +167,14 @@ function Dashboard() {
     }) => {
       queryClient.setQueryData<DashboardLayout[]>(
         queryKeys.dashboardLayouts.list(),
-        prev => prev?.map(l =>
-          l.id === layout.id
-            ? {
-              ...l,
-              tiles,
-            }
-            : l),
+        prev =>
+          prev?.map(l =>
+            l.id === layout.id
+              ? {
+                ...l,
+                tiles,
+              }
+              : l),
       );
     },
     onError: (err: Error) => {
@@ -227,7 +183,9 @@ function Dashboard() {
     },
   });
 
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   useEffect(() => () => clearTimeout(saveTimerRef.current), []);
 
   // Self-heal: persist the normalized tiles once when a layout still holds a

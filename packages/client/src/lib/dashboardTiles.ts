@@ -1,4 +1,8 @@
-import type { DashboardLayoutTile, DashboardTileId } from "@emstack/types";
+import type {
+  DashboardLayout,
+  DashboardLayoutTile,
+  DashboardTileId,
+} from "@emstack/types";
 
 import { DASHBOARD_TILE_IDS } from "@emstack/types";
 
@@ -90,14 +94,24 @@ function isDashboardTileId(id: string): id is DashboardTileId {
 }
 
 /** Whether a tile's height is content-driven (auto) rather than handle-driven. */
-export function isAutoHeight(tile: Pick<DashboardLayoutTile, "heightMode">): boolean {
+export function isAutoHeight(
+  tile: Pick<DashboardLayoutTile, "heightMode">,
+): boolean {
   return (tile.heightMode ?? "auto") === "auto";
 }
 
 /** Mirrors @dnd-grid's ResizeHandleAxis; its published d.ts re-exports the core
  * types through a broken relative path, so the imported type resolves to `any`
  * (the same reason GridLayoutItem below is hand-rolled). */
-export type ResizeHandleAxis = "s" | "w" | "e" | "n" | "sw" | "nw" | "se" | "ne";
+export type ResizeHandleAxis
+  = | "s"
+    | "w"
+    | "e"
+    | "n"
+    | "sw"
+    | "nw"
+    | "se"
+    | "ne";
 
 /**
  * Resize handles a tile exposes. Every tile gets the east (right-edge) handle so
@@ -265,6 +279,25 @@ export function toggleTile(
   ];
 }
 
+export interface TileVisibilityItem {
+  tileId: DashboardTileId;
+  title: string;
+  checked: boolean;
+}
+
+/** Every tile id paired with its title and whether `layout` currently shows it.
+ * Backs the tile-visibility checklists (dashboard dialog + settings dropdown),
+ * which share this logic but render different controls. */
+export function tileVisibilityItems(
+  layout: DashboardLayout,
+): TileVisibilityItem[] {
+  return DASHBOARD_TILE_IDS.map(tileId => ({
+    tileId,
+    title: TILE_META[tileId].title,
+    checked: layout.tiles.some(t => t.tileId === tileId),
+  }));
+}
+
 /**
  * Order-insensitive comparison of two tile sets. Compares id + position + width
  * for every tile, and height only for fixed-height tiles — an auto-height
@@ -277,8 +310,12 @@ export function tilesEqual(
   if (a.length !== b.length) return false;
   return a.every((tile) => {
     const other = b.find(t => t.tileId === tile.tileId);
-    if (!other || other.x !== tile.x || other.y !== tile.y
-      || other.w !== tile.w) {
+    if (
+      !other
+      || other.x !== tile.x
+      || other.y !== tile.y
+      || other.w !== tile.w
+    ) {
       return false;
     }
     return isAutoHeight(tile) ? true : other.h === tile.h;

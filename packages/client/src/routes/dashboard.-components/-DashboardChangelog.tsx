@@ -1,4 +1,4 @@
-import type { DashboardTileProps } from "./-dashboardTileMeta";
+import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { ReactNode } from "react";
 
 // Bundled at build time from the repo-root CHANGELOG.md (the `@root` Vite

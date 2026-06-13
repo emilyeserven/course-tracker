@@ -1,10 +1,6 @@
 import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
-import { DASHBOARD_TILE_IDS } from "@emstack/types";
-
-import { TILE_META } from "./-dashboardTileMeta";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -14,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { tileVisibilityItems } from "@/lib/dashboardTiles";
 
 interface VisibleTilesDialogProps extends ControlledDialogProps {
   /** The layout whose tiles are being toggled, or null when closed. */
@@ -47,24 +44,23 @@ export function VisibleTilesDialog({
         </DialogHeader>
         {layout && (
           <div className="flex flex-col gap-1">
-            {DASHBOARD_TILE_IDS.map((tileId) => {
-              const checked = layout.tiles.some(t => t.tileId === tileId);
-              return (
-                <Label
-                  key={tileId}
-                  className={`
-                    cursor-pointer rounded-md p-2 font-normal
-                    hover:bg-accent
-                  `}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => onToggleTile(layout, tileId)}
-                  />
-                  {TILE_META[tileId].title}
-                </Label>
-              );
-            })}
+            {tileVisibilityItems(layout).map(({
+              tileId, title, checked,
+            }) => (
+              <Label
+                key={tileId}
+                className={`
+                  cursor-pointer rounded-md p-2 font-normal
+                  hover:bg-accent
+                `}
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={() => onToggleTile(layout, tileId)}
+                />
+                {title}
+              </Label>
+            ))}
           </div>
         )}
       </DialogContent>
