@@ -34,18 +34,19 @@ interface TopicsTableSelection {
   onToggleAll: (selectAll: boolean) => void;
 }
 
-interface TopicsTableProps {
-  topics: TopicForTopicsPage[];
-  selection?: TopicsTableSelection;
+interface TopicsTableSortControl {
   sort?: TopicsTableSort;
   onSortChange?: (sort: TopicsTableSort) => void;
 }
 
-interface SortableHeaderProps {
+interface TopicsTableProps extends TopicsTableSortControl {
+  topics: TopicForTopicsPage[];
+  selection?: TopicsTableSelection;
+}
+
+interface SortableHeaderProps extends TopicsTableSortControl {
   column: TopicsTableSortColumn;
   label: string;
-  sort?: TopicsTableSort;
-  onSortChange?: (sort: TopicsTableSort) => void;
   align?: "left" | "right";
 }
 
