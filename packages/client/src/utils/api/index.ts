@@ -17,4 +17,5 @@ export * from "./settings";
 export * from "./tags";
 export * from "./tasks";
 export * from "./templates";
+export * from "./todoist";
 export * from "./topics";

@@ -18,10 +18,13 @@ export default async function (server: FastifyInstance) {
     "/",
     async (): Promise<AppSettingsSummary> => {
       const [row] = await db.select().from(appSettings).limit(1);
-      const key = row?.readwiseApiKey ?? null;
+      const readwiseKey = row?.readwiseApiKey ?? null;
+      const todoistKey = row?.todoistApiKey ?? null;
       return {
-        readwiseConfigured: Boolean(key),
-        readwiseKeyHint: maskKey(key),
+        readwiseConfigured: Boolean(readwiseKey),
+        readwiseKeyHint: maskKey(readwiseKey),
+        todoistConfigured: Boolean(todoistKey),
+        todoistKeyHint: maskKey(todoistKey),
       };
     },
   );

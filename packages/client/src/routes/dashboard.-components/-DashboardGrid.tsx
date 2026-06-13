@@ -13,6 +13,7 @@ import {
   sortTilesForMobile,
   tilesToLayoutItems,
 } from "./-dashboardTileMeta";
+import { DashboardTodoist } from "./-DashboardTodoist";
 import { DashboardUnderutilizedProviders } from "./-DashboardUnderutilizedProviders";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -24,6 +25,7 @@ const TILE_COMPONENTS: Record<DashboardTileId, React.ComponentType> = {
   coursesInProgress: DashboardCoursesInProgress,
   radars: DashboardRadars,
   readwise: DashboardReadwise,
+  todoist: DashboardTodoist,
 };
 
 interface DashboardGridProps {
@@ -84,6 +86,7 @@ export function DashboardGrid({
         gap={12}
         dragHandle="[data-slot=dashboard-card-header]"
         dragCancel="a, button, input, select, [role=menuitem]"
+        resizeHandles={["se"]}
         onLayoutChange={(next: readonly GridLayoutItem[]) =>
           onTilesChange(layoutItemsToTiles(next))}
       >

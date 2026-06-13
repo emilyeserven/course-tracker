@@ -66,4 +66,7 @@ export const queryKeys = {
   readwise: {
     readingList: () => ["readwise", "reading-list"] as const,
   },
+  todoist: {
+    tasks: () => ["todoist", "tasks"] as const,
+  },
 };

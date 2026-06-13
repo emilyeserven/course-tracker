@@ -58,16 +58,33 @@ describe("buildDefaultTiles", () => {
 });
 
 describe("sortTilesForMobile", () => {
-  test("orders by row first, then column", () => {
+  test("orders tiles top to bottom by row", () => {
     const tiles = buildDefaultTiles();
-    const shuffled = [tiles[3], tiles[0], tiles[5], tiles[4], tiles[2], tiles[1]];
-    expect(sortTilesForMobile(shuffled).map(t => t.tileId)).toEqual([
+    const expectedOrder = tiles.map(t => t.tileId);
+    const shuffled = tiles.slice().reverse();
+    expect(sortTilesForMobile(shuffled).map(t => t.tileId)).toEqual(
+      expectedOrder,
+    );
+  });
+
+  test("breaks ties on the same row by column", () => {
+    const right: DashboardLayoutTile = {
+      tileId: "radars",
+      x: 2,
+      y: 0,
+      w: 2,
+      h: 4,
+    };
+    const left: DashboardLayoutTile = {
+      tileId: "dailies",
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 4,
+    };
+    expect(sortTilesForMobile([right, left]).map(t => t.tileId)).toEqual([
       "dailies",
-      "underutilizedProviders",
-      "coursesByAmortization",
-      "coursesInProgress",
       "radars",
-      "readwise",
     ]);
   });
 

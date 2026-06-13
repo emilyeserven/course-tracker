@@ -42,58 +42,68 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 2,
     minH: 4,
   },
+  todoist: {
+    title: "Todoist",
+    minW: 1,
+    minH: 4,
+  },
 };
 
 function isDashboardTileId(id: string): id is DashboardTileId {
   return (DASHBOARD_TILE_IDS as readonly string[]).includes(id);
 }
 
-/** Replicates the pre-grid arrangement: dailies full-width, then a 2×2. */
+// Every tile starts full-width (spanning all 4 columns) and stacked top to
+// bottom. Users narrow a tile by dragging the resize handle in its bottom-right
+// corner, which lets the grid pack the freed space with the next tile.
+const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
+  h: number; }[] = [
+  {
+    tileId: "dailies",
+    h: 8,
+  },
+  {
+    tileId: "todoist",
+    h: 7,
+  },
+  {
+    tileId: "coursesInProgress",
+    h: 7,
+  },
+  {
+    tileId: "underutilizedProviders",
+    h: 7,
+  },
+  {
+    tileId: "coursesByAmortization",
+    h: 7,
+  },
+  {
+    tileId: "radars",
+    h: 7,
+  },
+  {
+    tileId: "readwise",
+    h: 7,
+  },
+];
+
+/** Full-width tiles stacked top to bottom, dailies first. */
 export function buildDefaultTiles(): DashboardLayoutTile[] {
-  return [
-    {
-      tileId: "dailies",
+  let y = 0;
+  return DEFAULT_TILE_HEIGHTS.map(({
+    tileId, h,
+  }) => {
+    const tile: DashboardLayoutTile = {
+      tileId,
       x: 0,
-      y: 0,
+      y,
       w: 4,
-      h: 8,
-    },
-    {
-      tileId: "underutilizedProviders",
-      x: 0,
-      y: 8,
-      w: 2,
-      h: 7,
-    },
-    {
-      tileId: "coursesByAmortization",
-      x: 2,
-      y: 8,
-      w: 2,
-      h: 7,
-    },
-    {
-      tileId: "coursesInProgress",
-      x: 0,
-      y: 15,
-      w: 2,
-      h: 7,
-    },
-    {
-      tileId: "radars",
-      x: 2,
-      y: 15,
-      w: 2,
-      h: 7,
-    },
-    {
-      tileId: "readwise",
-      x: 0,
-      y: 22,
-      w: 4,
-      h: 7,
-    },
-  ];
+      h,
+    };
+    y += h;
+    return tile;
+  });
 }
 
 /** Reading order for the stacked mobile rendering: top-to-bottom, then
@@ -120,7 +130,7 @@ export function toggleTile(
       tileId,
       x: 0,
       y: bottom,
-      w: 2,
+      w: 4,
       h: 7,
     },
   ];

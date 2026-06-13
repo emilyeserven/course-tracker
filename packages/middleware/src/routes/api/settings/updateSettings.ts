@@ -10,16 +10,22 @@ const SETTINGS_ROW_ID = "global";
 
 const updateSchema = {
   schema: {
-    description: "Update application settings (e.g. the Readwise API key)",
+    description: "Update application settings (e.g. the Readwise or Todoist API keys)",
     body: {
       type: "object",
-      required: ["readwiseApiKey"],
       properties: {
         readwiseApiKey: nullableString,
+        todoistApiKey: nullableString,
       },
     },
   },
 } as const;
+
+// Treat a blank/whitespace key as "clear it".
+function normalizeKey(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -28,22 +34,28 @@ export default async function (server: FastifyInstance) {
     "/",
     updateSchema,
     async function (request) {
-      // Treat a blank/whitespace key as "clear it".
-      const trimmed = request.body.readwiseApiKey?.trim();
-      const value = trimmed ? trimmed : null;
+      // Only touch the columns the request actually included, so updating one
+      // integration's key never clobbers another's.
+      const updates: Partial<typeof appSettings.$inferInsert> = {};
+      if (request.body.readwiseApiKey !== undefined) {
+        updates.readwiseApiKey = normalizeKey(request.body.readwiseApiKey);
+      }
+      if (request.body.todoistApiKey !== undefined) {
+        updates.todoistApiKey = normalizeKey(request.body.todoistApiKey);
+      }
 
-      await db
-        .insert(appSettings)
-        .values({
-          id: SETTINGS_ROW_ID,
-          readwiseApiKey: value,
-        })
-        .onConflictDoUpdate({
-          target: appSettings.id,
-          set: {
-            readwiseApiKey: value,
-          },
-        });
+      if (Object.keys(updates).length > 0) {
+        await db
+          .insert(appSettings)
+          .values({
+            id: SETTINGS_ROW_ID,
+            ...updates,
+          })
+          .onConflictDoUpdate({
+            target: appSettings.id,
+            set: updates,
+          });
+      }
 
       return {
         status: "ok",
