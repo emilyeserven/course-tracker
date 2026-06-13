@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { EmptyDash } from "@/components/ui/EmptyDash";
 import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -296,7 +297,7 @@ const courseColumns: ColumnDef<CourseRow>[] = [
           </Button>
         )
         : (
-          <span className="text-muted-foreground">—</span>
+          <EmptyDash />
         ),
   },
 ];

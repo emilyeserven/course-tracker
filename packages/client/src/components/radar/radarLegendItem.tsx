@@ -6,6 +6,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { BlipDescriptionPopover } from "@/components/radar/BlipDescriptionPopover";
 import { Button } from "@/components/ui/button";
+import { EmptyHint } from "@/components/ui/EmptyHint";
 import { cn } from "@/lib/utils";
 
 /** Callbacks threaded from a legend section down to each blip row. */
@@ -71,7 +72,9 @@ export function BlipLegendSection({
         {title}
       </h4>
       {items.length === 0 && emptyMessage !== undefined && (
-        <p className="text-xs text-muted-foreground italic">{emptyMessage}</p>
+        <EmptyHint asChild>
+          <p>{emptyMessage}</p>
+        </EmptyHint>
       )}
       <ul className="flex flex-col gap-0.5">
         {items.map(({
@@ -162,9 +165,12 @@ export function BlipLegendItem({
         </div>
       </div>
       {description && (
-        <p className="mt-0.5 ml-4 text-xs text-muted-foreground italic">
-          {description}
-        </p>
+        <EmptyHint
+          asChild
+          className="mt-0.5 ml-4"
+        >
+          <p>{description}</p>
+        </EmptyHint>
       )}
     </li>
   );
