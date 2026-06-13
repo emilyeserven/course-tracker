@@ -1,4 +1,5 @@
 import { jsonb, pgTable, varchar } from "drizzle-orm/pg-core";
+import type { CalendarFeed } from "@emstack/types";
 
 // Single-row application settings. The row is keyed by a constant id ("global")
 // and created on first write via onConflictDoUpdate — there is no multi-user
@@ -8,6 +9,14 @@ export const appSettings = pgTable("app_settings", {
   id: varchar().primaryKey().default("global"),
   readwiseApiKey: varchar("readwise_api_key"),
   todoistApiKey: varchar("todoist_api_key"),
+  // Subscribed iCal feed URLs (Google "secret address", Outlook, iCloud, …)
+  // whose events feed the dashboard calendar card. The secret URL is the
+  // credential, stored as plain text like the other integration tokens —
+  // acceptable for this single-user, self-hosted deployment.
+  googleCalendarFeeds: jsonb("google_calendar_feeds")
+    .$type<CalendarFeed[]>()
+    .notNull()
+    .default([]),
   // Ordered ids of the domains the user has marked "Focused". Capped at 3 by the
   // update handler; ordering drives the focused tabs in the dashboard's
   // "Explore Something" card.

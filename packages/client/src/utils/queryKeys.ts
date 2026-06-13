@@ -70,4 +70,8 @@ export const queryKeys = {
   todoist: {
     tasks: () => ["todoist", "tasks"] as const,
   },
+  googleCalendar: {
+    events: () => ["googleCalendar", "events"] as const,
+    feeds: () => ["googleCalendar", "feeds"] as const,
+  },
 };

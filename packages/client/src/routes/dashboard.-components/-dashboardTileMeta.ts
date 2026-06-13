@@ -64,6 +64,11 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
+  googleCalendar: {
+    title: "Google Calendar",
+    minW: 1,
+    minH: 4,
+  },
   changelog: {
     title: "Changelog",
     minW: 2,
@@ -142,6 +147,10 @@ const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
   },
   {
     tileId: "readwise",
+    h: 7,
+  },
+  {
+    tileId: "googleCalendar",
     h: 7,
   },
   {

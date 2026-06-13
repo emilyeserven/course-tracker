@@ -13,6 +13,7 @@ import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortizatio
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
 import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
 import { DashboardExplore } from "./-DashboardExplore";
+import { DashboardGoogleCalendar } from "./-DashboardGoogleCalendar";
 import { DashboardRadars } from "./-DashboardRadars";
 import { DashboardReadwise } from "./-DashboardReadwise";
 import {
@@ -43,6 +44,7 @@ const TILE_COMPONENTS: Record<
   exploreSomething: DashboardExplore,
   readwise: DashboardReadwise,
   todoist: DashboardTodoist,
+  googleCalendar: DashboardGoogleCalendar,
   changelog: DashboardChangelog,
 };
 
