@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { DndGrid } from "@dnd-grid/react";
-import { expect, waitFor } from "@storybook/test";
+import { expect, waitFor } from "storybook/test";
 
 import { GridTile } from "./-DashboardGrid";
 
