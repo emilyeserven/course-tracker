@@ -1,4 +1,4 @@
-import type { TopicsTableSort } from "@/components/boxes";
+import type { TopicsTableSort } from "@/components/contentBoxComponents";
 import type { ViewMode } from "@/components/listControls";
 import type { Domain, TopicForTopicsPage } from "@emstack/types";
 
@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 
-import { ContentBox, TopicBox, TopicsTable } from "@/components/boxes";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ContentBox, TopicBox, TopicsTable } from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   FilterSelect,

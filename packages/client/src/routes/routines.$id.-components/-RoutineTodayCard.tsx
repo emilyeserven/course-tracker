@@ -1,6 +1,6 @@
 import type { Daily, Routine } from "@emstack/types";
 
-import { DashboardCard } from "@/components/boxes/DashboardCard";
+import { DashboardCard } from "@/components/contentBoxComponents/DashboardCard";
 import { TodayStatusCell } from "@/components/dailies";
 import { RoutineEntryLabel } from "@/components/routines";
 import { useRoutineStatusMutation } from "@/hooks/useRoutineStatusMutation";

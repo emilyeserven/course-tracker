@@ -8,8 +8,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { TopicList } from "@/components/boxElements/TopicList";
-import { RoutineBox } from "@/components/boxes/RoutineBox";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RoutineBox } from "@/components/contentBoxComponents/RoutineBox";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { InfoRow } from "@/components/layout/InfoRow";
 import { PageTabs } from "@/components/layout/PageTabs";

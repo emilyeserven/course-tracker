@@ -33,7 +33,7 @@ The layers, in dependency order. Skipping one is the classic source of "saves bu
 - **Edit page** `packages/client/src/routes/<entity>.$id.edit.tsx`:
   - add to the zod `formSchema`, to `startingValues` (with `data?.field ?? <default>`), to the payload passed to the submit handler, and a `form.AppField` control (`InputField`, `TextareaField`, `NumberField`, `RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField` — registered in `hooks/useAppForm.ts`).
 - **Detail page** `<entity>.$id.index.tsx`: display the field (see `components/layout/InfoRow.tsx` / `InfoArea.tsx` patterns).
-- List/card views (`components/boxes/*`) only if the field belongs there.
+- List/card views (`components/contentBoxComponents/*`) only if the field belongs there.
 
 ## 5. Verify
 

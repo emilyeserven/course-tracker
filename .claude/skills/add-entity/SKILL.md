@@ -42,7 +42,7 @@ Files (see `topics/` for the junction-ful version, `providers/` for the minimal 
 - `<name>.tsx` (layout, usually a bare `<Outlet/>`), `<name>.index.tsx` (list), `<name>.$id.tsx`, `<name>.$id.index.tsx` (detail), `<name>.$id.edit.tsx` (edit/create — `id === "new"`).
 - Edit page: `useEditFormPage` (`makeSubmitHandler` + `makeDeleteHandler` + `shouldBlockFn`), `useAppForm` with a zod schema, `EditPageFooter` + `UnsavedChangesDialog`. Copy `topics.$id.edit.tsx`.
 - Loading/error: `EntityPending` / `EntityError` from `components/EntityStates.tsx`.
-- List card → new `components/boxes/<Name>Box.tsx` if the list shows cards.
+- List card → new `components/contentBoxComponents/<Name>Box.tsx` if the list shows cards (add it to the `contentBoxComponents/index.ts` barrel).
 - Regenerate the route tree: `pnpm --filter=@emstack/client run routeTree` (never edit `routeTree.gen.ts`).
 
 ## 6. Navigation

@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowDownAZIcon, ArrowUpAZIcon, PlusIcon } from "lucide-react";
 
-import { ContentBox, CourseBox, CoursesTable } from "@/components/boxes";
+import { ContentBox, CourseBox, CoursesTable } from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   FilterSelect,
