@@ -200,3 +200,28 @@ Tier B (need `RouterStub`): `PageHeader` (renders a section `<Link>` only when
 needs the `DropdownMenu`/`DropdownMenuContent` parent and asserts via
 `document.body`. The rest (`InfoRow`, `InfoArea`, `EditForm`, `PageTabs`,
 `ViewModeToggle`, `EditPageFooter`) are Tier A with `fn()` handlers.
+
+### formFields + forms (#354)
+The 7 TanStack-Form fields (`InputField`, `TextareaField`, `NumberField`,
+`RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField`) read
+`useFieldContext()`, so they need form context. Added a reusable
+**`test-utils/FormFieldHarness.tsx`**: it mounts a one-field `useAppForm` and
+renders the field via `form.AppField`. Import the field directly (there's **no
+lint ban** — `eslint.config.js` only restricts `@emstack/types/*` subpaths) and
+wrap it with the harness as a meta decorator; seed the field's value per story
+via `parameters.fieldValue` (read in the decorator) so Default/Filled/… states
+need no extra wiring. **Gotcha:** the harness `children` is a **render function**
+(`() => ReactNode`), passed straight through as `AppField`'s render prop — a
+static element hits React's same-element bailout and freezes the field on its
+initial value, so interaction `play`s (typing, selecting) never update. In a
+regular `.tsx` an inline parameterless function child also trips
+`react/no-children-prop` ("pass it as a prop") — pass the identifier
+(`{children}`), not `{() => …}` (story files are exempt via the storybook config,
+but the harness isn't). Option fixtures live in `test-utils/formFieldFixtures.ts`
+(`makeSelectOptions`, `makeGroupedSelectOptions`, `makeCreateConfig`). The two
+presentational `formFields` (`ComboboxCreatePanel`, `ComboboxAddNewRow`) are
+Tier A with `fn()` spies (`const meta: Meta<…>`). In `forms/`, `field.tsx`'s
+primitives are pure Tier A; `CourseFields` takes a whole `form`, so its story uses
+a tiny inline wrapper that builds the form and casts it
+(`as unknown as ReturnType<typeof useAppForm>`, mirroring the onboarding route)
+and types the meta against the wrapper to keep the required `form` out of args.
