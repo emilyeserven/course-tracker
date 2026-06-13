@@ -172,3 +172,41 @@ left importing only render deps (a `lucide` icon, the form primitives,
 set, not all ~13 layout files) merged them to a single `@/components/layout`
 import. A barrel only pays off at ≥2 sources sharing a folder; re-exporting one
 component buys nothing.
+
+## Learnings: route layout + sections (settings, #308)
+
+- **A route layout that renders N route-private sections → barrel the folder.**
+  `foo.tsx` importing 10 `<XSection/>` from `foo.-components/-XSection.tsx`
+  collapses to one import via a `foo.-components/index.ts` that
+  `export { XSection } from "./-XSection"` for each. The un-prefixed `index.ts`
+  is **router-safe** — the `.-` on the *folder* already excludes the whole
+  directory from routing, so the barrel never becomes a route. Confirm with
+  `pnpm --filter=@emstack/client run routeTree` (expect no diff). Generalizes
+  #337's `dashboard.-components/index.ts`. Keep it cohesive: re-export just the
+  route's own sections (stops at exactly the section count — no disable needed)
+  rather than also folding in `@/components/*` chrome, which would push the
+  barrel over 10 and force a scoped disable on it.
+
+- **Colocate a route-private hook as `-use*.ts` inside the `.-components/`
+  folder**, not `src/hooks/`, when only that route uses it (precedent:
+  `dashboard.-components/-useDashboardDailies.ts`). Reserve `src/hooks/` for
+  genuinely cross-route hooks (`useResourceModules`, `useEditFormPage`).
+
+- **When extracting a hook, move the UI state its mutations reset.** Mutation
+  `onSuccess` commonly calls component `setState` (close a dialog, clear a
+  `*TargetId`/`creatingKind`). Move that state **into the hook** alongside the
+  mutations and return `open*/close*/submit*` handlers plus `is*Pending` flags —
+  otherwise the hook can't reset it and you'd have to thread setters back in.
+  (`-useDashboardLayouts` owns its dialog-target + `creatingKind` state for
+  exactly this reason.)
+
+- **One hook can serve a parent + child split.** A section that's a thin
+  fetch-wrapper around a form child: call the data/mutation hook once in the
+  parent and pass the mutation **down as a prop**, rather than re-calling the
+  hook (and re-importing react-query/utils) inside the child. (`FocusedDomains`:
+  `useFocusedDomains()` in the section, `saveMutation` passed to the form.)
+
+- **`lucide-react` is already one dependency** — multiple icons from it are one
+  import line, so "consolidate the icons" advice is a no-op for the count. Look
+  for whole *modules* to shed (react-query, sonner, `@/utils/api`,
+  `@/utils/queryKeys`), which a hook absorbs in one move.
