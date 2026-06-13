@@ -5,30 +5,19 @@ import type {
   RoutineWeekday,
 } from "@emstack/types";
 
-import { useMemo, useState } from "react";
-
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarCheckIcon, PlusIcon } from "lucide-react";
 
-import { RoutineBox } from "@/components/boxes/RoutineBox";
-import { EntityError, EntityPending } from "@/components/EntityStates";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { RoutinesList } from "./routines.-components/-RoutinesList";
+
 import {
-  ClearFiltersButton,
-  FilterSelect,
-  ListEmptyStates,
-  ListSearchInput,
-} from "@/components/ListPageControls";
+  EntityError,
+  EntityPending,
+  PageHeader,
+} from "@/components/listControls";
 import { weeklyEntryName } from "@/components/routines/weekly";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
 import { fetchRoutines } from "@/utils";
 
@@ -69,9 +58,6 @@ function RoutinesError() {
   return <EntityError entity="routines" />;
 }
 
-// Pre-existing complexity hotspot (untested route component); suppressed so
-// unrelated edits inside it don't trip the audit gate. Refactor candidate.
-// fallow-ignore-next-line complexity
 function Routines() {
   const urlSearch = Route.useSearch();
   const initialConnection
@@ -80,16 +66,9 @@ function Routines() {
       : urlSearch.topicId
         ? `topic:${urlSearch.topicId}`
         : undefined;
-  const [search, setSearch] = useState("");
-  const [filterConnection, setFilterConnection] = useState<string | undefined>(
-    initialConnection,
-  );
-  const [filterMode, setFilterMode] = useState<"weekly" | "daily" | undefined>(
-    undefined,
-  );
 
   const {
-    data,
+    data: routines,
   } = useQuery({
     queryKey: ["routines"],
     queryFn: () => fetchRoutines(),
@@ -98,8 +77,7 @@ function Routines() {
   // Resolve scheduled task / resource names so a weekly routine can show today's
   // entry in place of its name (freeform entries carry their own text in `id`).
   const {
-    taskNames,
-    resourceNames,
+    taskNames, resourceNames,
   } = useTaskResourceNames();
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
 
@@ -120,75 +98,6 @@ function Routines() {
       appendText: entry.appendText,
     };
   }
-
-  const filtered = useMemo(() => {
-    if (!data) return [];
-
-    let result = data;
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(r =>
-        r.name.toLowerCase().includes(q)
-        || (r.description?.toLowerCase().includes(q) ?? false));
-    }
-
-    if (filterConnection === "none") {
-      result = result.filter(r => !r.connections || r.connections.length === 0);
-    }
-    else if (filterConnection) {
-      result = result.filter(r =>
-        (r.connections ?? []).some(
-          c => `${c.type}:${c.id}` === filterConnection,
-        ));
-    }
-
-    if (filterMode) {
-      // Pre-existing routines default to "weekly" when mode is absent.
-      result = result.filter(r => (r.mode ?? "weekly") === filterMode);
-    }
-
-    return result;
-  }, [data, search, filterConnection, filterMode]);
-
-  const hasActiveFilters = !!filterConnection || !!filterMode;
-
-  // Distinct connections across all routines, each with its display name and
-  // count, for the filter dropdown.
-  const connectionFilterOptions = useMemo(() => {
-    const map = new Map<string, {
-      value: string;
-      name: string;
-      type: RoutineConnectionType;
-      count: number;
-    }>();
-    data?.forEach((r) => {
-      r.connections?.forEach((c) => {
-        const value = `${c.type}:${c.id}`;
-        const existing = map.get(value);
-        if (existing) {
-          existing.count += 1;
-        }
-        else {
-          map.set(value, {
-            value,
-            name: c.name ?? c.id,
-            type: c.type,
-            count: 1,
-          });
-        }
-      });
-    });
-    return Array.from(map.values()).sort((a, b) =>
-      a.name.localeCompare(b.name));
-  }, [data]);
-  const totalRoutineCount = data?.length ?? 0;
-  const noConnectionCount = useMemo(
-    () =>
-      data?.filter(r => !r.connections || r.connections.length === 0).length
-      ?? 0,
-    [data],
-  );
 
   return (
     <div>
@@ -214,72 +123,11 @@ function Routines() {
           </Button>
         </Link>
       </PageHeader>
-      <div className="container flex flex-col gap-4">
-        {data && data.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            <ListSearchInput
-              placeholder="Search routines..."
-              value={search}
-              onChange={setSearch}
-            />
-            <FilterSelect
-              placeholder="Connection"
-              value={filterConnection}
-              onChange={setFilterConnection}
-              allLabel="All Connections"
-              totalCount={totalRoutineCount}
-              noneLabel="No Connection"
-              noneCount={noConnectionCount}
-              options={connectionFilterOptions.map(opt => ({
-                value: opt.value,
-                label: opt.name,
-                count: opt.count,
-                prefix: opt.type,
-              }))}
-            />
-            <Select
-              value={filterMode ?? "all"}
-              onValueChange={v =>
-                setFilterMode(v === "all" ? undefined : (v as "weekly" | "daily"))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="weekly">Weekly Schedule</SelectItem>
-                <SelectItem value="daily">Daily Task</SelectItem>
-              </SelectContent>
-            </Select>
-            {hasActiveFilters && (
-              <ClearFiltersButton
-                onClick={() => {
-                  setFilterConnection(undefined);
-                  setFilterMode(undefined);
-                }}
-              />
-            )}
-          </div>
-        )}
-
-        <ListEmptyStates
-          entityLabel="routines"
-          total={totalRoutineCount}
-          filteredCount={filtered.length}
-        />
-
-        {filtered.length > 0 && (
-          <div className="card-grid">
-            {filtered.map((routine: Routine) => (
-              <RoutineBox
-                key={routine.id}
-                {...routine}
-                todayAction={resolveTodayAction(routine)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <RoutinesList
+        routines={routines ?? []}
+        resolveTodayAction={resolveTodayAction}
+        initialConnection={initialConnection}
+      />
     </div>
   );
 }

@@ -4,10 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon, PlusIcon } from "lucide-react";
 
-import { ContentBox } from "@/components/boxes/ContentBox";
-import { DomainBox } from "@/components/boxes/DomainBox";
-import { EntityError, EntityPending } from "@/components/EntityStates";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { ContentBox, DomainBox } from "@/components/boxes";
+import {
+  EntityError,
+  EntityPending,
+  PageHeader,
+} from "@/components/listControls";
 import { Button } from "@/components/ui/button";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchDomains, fetchSettings } from "@/utils";

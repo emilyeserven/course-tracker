@@ -6,15 +6,16 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { TaskBox } from "@/components/boxes/TaskBox";
-import { EntityError, EntityPending } from "@/components/EntityStates";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { TaskBox } from "@/components/boxes";
 import {
   ClearFiltersButton,
+  EntityError,
+  EntityPending,
   FilterSelect,
   ListEmptyStates,
   ListSearchInput,
-} from "@/components/ListPageControls";
+  PageHeader,
+} from "@/components/listControls";
 import { Button } from "@/components/ui/button";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchTasks, fetchTopics } from "@/utils";
@@ -71,9 +72,11 @@ function Tasks() {
 
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(t =>
-        t.name.toLowerCase().includes(q)
-        || (t.description?.toLowerCase().includes(q) ?? false));
+      result = result.filter(
+        t =>
+          t.name.toLowerCase().includes(q)
+          || (t.description?.toLowerCase().includes(q) ?? false),
+      );
     }
 
     if (filterTopic === "none") {
