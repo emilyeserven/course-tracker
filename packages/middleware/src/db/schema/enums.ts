@@ -10,6 +10,8 @@ export type {
   DailyCompletion,
   DailyCompletionStatus,
   DailyCriteria,
+  DashboardLayoutTile,
+  DashboardTileId,
   RoutineConnectionType,
   RoutineReferenceItem,
   RoutineWeekday,

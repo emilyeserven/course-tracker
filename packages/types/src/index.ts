@@ -13,6 +13,7 @@ export * from "./TopicsToResources.js";
 export * from "./Domain.js";
 export * from "./Daily.js";
 export * from "./DailyCriteriaTemplate.js";
+export * from "./DashboardLayout.js";
 export * from "./Interaction.js";
 export * from "./Module.js";
 export * from "./ModuleGroup.js";

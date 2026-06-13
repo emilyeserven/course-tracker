@@ -181,8 +181,9 @@ export function DashboardDailies() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-h-0 flex-col gap-3">
       <DashboardCard
+        className="min-h-0 flex-1"
         title={
           <span className="inline-flex items-center gap-2">
             Do Now
@@ -221,7 +222,10 @@ export function DashboardDailies() {
         {renderBody(doNow)}
       </DashboardCard>
 
-      <DashboardCard title="Done for the Day">
+      <DashboardCard
+        className="min-h-0 flex-1"
+        title="Done for the Day"
+      >
         <DashboardSectionStatus
           isEmpty={hasData && doneForDay.length === 0}
           entity="dailies"

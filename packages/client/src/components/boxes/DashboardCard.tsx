@@ -17,6 +17,7 @@ function DashboardCard({
 }: DashboardCardProps) {
   return (
     <section
+      data-slot="dashboard-card"
       className={cn(`
         flex flex-col gap-3 rounded-md border bg-card text-card-foreground
         shadow-sm
@@ -24,6 +25,7 @@ function DashboardCard({
       {...props}
     >
       <header
+        data-slot="dashboard-card-header"
         className="
           flex flex-row items-center justify-between gap-2 border-b bg-border
           px-3 py-2
@@ -32,7 +34,11 @@ function DashboardCard({
         <h2 className="text-lg font-semibold">{title}</h2>
         {action ? <div className="flex items-center gap-1">{action}</div> : null}
       </header>
-      <div className="flex flex-col gap-2 px-3 pb-3">{children}</div>
+      <div
+        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3"
+      >
+        {children}
+      </div>
     </section>
   );
 }

@@ -54,6 +54,9 @@ export const queryKeys = {
   routineTemplates: {
     list: () => ["routineTemplates"] as const,
   },
+  dashboardLayouts: {
+    list: () => ["dashboardLayouts"] as const,
+  },
   dailyCriteriaTemplates: {
     list: () => ["dailyCriteriaTemplates"] as const,
   },

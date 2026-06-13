@@ -4,6 +4,7 @@
 export * from "./admin";
 export * from "./client";
 export * from "./dailies";
+export * from "./dashboardLayouts";
 export * from "./domains";
 export * from "./interactions";
 export * from "./modules";
