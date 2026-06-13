@@ -54,7 +54,8 @@ export const LAYOUT_PRESETS: LayoutPreset[] = [
     description: "Dailies plus course progress and spend.",
     buildTiles: () =>
       stackTiles([
-        "dailies",
+        "doNow",
+        "doneForDay",
         "coursesInProgress",
         "coursesByAmortization",
         "underutilizedProviders",
@@ -64,6 +65,6 @@ export const LAYOUT_PRESETS: LayoutPreset[] = [
     key: "tasks",
     name: "Tasks & habits",
     description: "Dailies, Todoist tasks, and radars.",
-    buildTiles: () => stackTiles(["dailies", "todoist", "radars"]),
+    buildTiles: () => stackTiles(["doNow", "doneForDay", "todoist", "radars"]),
   },
 ];

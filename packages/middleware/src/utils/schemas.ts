@@ -207,6 +207,22 @@ const dashboardLayoutTileSchema = {
       type: "integer",
       minimum: 1,
     },
+    heightMode: {
+      type: "string",
+      enum: ["auto", "fixed"],
+    },
+    showProject: {
+      type: "boolean",
+    },
+    showLabels: {
+      type: "boolean",
+    },
+    showDescription: {
+      type: "boolean",
+    },
+    showOverdue: {
+      type: "boolean",
+    },
   },
 } as const;
 

@@ -13,6 +13,12 @@ export interface TodoistTask {
   // Calendar date portion (YYYY-MM-DD) of the due date, for display/sorting.
   dueDate: string | null;
   isRecurring: boolean;
+  // Name of the task's Todoist project (resolved from project_id), or null.
+  project: string | null;
+  // Label names attached to the task (Todoist returns these as plain strings).
+  labels: string[];
+  // Task description/notes; empty string when none.
+  description: string;
 }
 
 export interface TodoistTasks {

@@ -1,6 +1,11 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
+
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, RadarIcon } from "lucide-react";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -9,7 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { fetchDomains } from "@/utils";
 
-export function DashboardRadars() {
+export function DashboardRadars({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data: domains, isPending, error,
   } = useQuery({
@@ -26,6 +34,7 @@ export function DashboardRadars() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Radars"
       action={(
         <Link
@@ -37,6 +46,12 @@ export function DashboardRadars() {
         >
           View all
         </Link>
+      )}
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
       )}
     >
       <DashboardSectionStatus

@@ -1,8 +1,12 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { CourseProvider } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -58,7 +62,10 @@ function buildUnderutilized(
   return rows;
 }
 
-export function DashboardUnderutilizedProviders() {
+export function DashboardUnderutilizedProviders({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data: providers,
     isPending,
@@ -72,6 +79,7 @@ export function DashboardUnderutilizedProviders() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Underutilized Providers"
       action={
         <Link
@@ -84,6 +92,12 @@ export function DashboardUnderutilizedProviders() {
           View all
         </Link>
       }
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
+      )}
     >
       <DashboardSectionStatus
         isPending={isPending}

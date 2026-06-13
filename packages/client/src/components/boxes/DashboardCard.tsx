@@ -6,12 +6,21 @@ interface DashboardCardProps
   extends Omit<React.ComponentProps<"section">, "title"> {
   title: React.ReactNode;
   action?: React.ReactNode;
+  /** Gear-icon settings flyout, rendered at the right edge of the header. */
+  settings?: React.ReactNode;
+  /**
+   * When true, the card grows to fit its content (no inner scroll). When false,
+   * the body fills the tile's fixed height and scrolls. Defaults to true.
+   */
+  autoHeight?: boolean;
 }
 
 function DashboardCard({
   className,
   title,
   action,
+  settings,
+  autoHeight = true,
   children,
   ...props
 }: DashboardCardProps) {
@@ -32,10 +41,20 @@ function DashboardCard({
         "
       >
         <h2 className="text-lg font-semibold">{title}</h2>
-        {action ? <div className="flex items-center gap-1">{action}</div> : null}
+        {action || settings
+          ? (
+            <div className="flex items-center gap-1">
+              {action}
+              {settings}
+            </div>
+          )
+          : null}
       </header>
       <div
-        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3"
+        className={cn(
+          "flex flex-col gap-2 px-3 pb-3",
+          autoHeight ? null : "min-h-0 flex-1 overflow-y-auto",
+        )}
       >
         {children}
       </div>

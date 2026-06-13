@@ -1,8 +1,13 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
+
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -61,7 +66,10 @@ function ProgressIndicator({
   );
 }
 
-export function DashboardCoursesInProgress() {
+export function DashboardCoursesInProgress({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data: courses, isPending, error,
   } = useQuery({
@@ -88,6 +96,7 @@ export function DashboardCoursesInProgress() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Resources in Progress"
       action={(
         <Link
@@ -99,6 +108,12 @@ export function DashboardCoursesInProgress() {
         >
           View all
         </Link>
+      )}
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
       )}
     >
       <DashboardSectionStatus

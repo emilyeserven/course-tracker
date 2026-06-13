@@ -1,9 +1,13 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { ExploreItem } from "@emstack/types";
 
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -106,7 +110,10 @@ function ItemList({
   );
 }
 
-export function DashboardExplore() {
+export function DashboardExplore({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data, isPending, error,
   } = useQuery({
@@ -151,6 +158,7 @@ export function DashboardExplore() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Explore Something"
       action={rings.length > 0
         ? (
@@ -174,6 +182,12 @@ export function DashboardExplore() {
           </Select>
         )
         : null}
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
+      )}
     >
       <Tabs defaultValue={ALL_TAB}>
         <TabsList className="h-8">

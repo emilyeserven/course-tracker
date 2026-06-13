@@ -1,3 +1,4 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { ResourceInResources, CourseProvider } from "@emstack/types";
 
 import { useMemo, useState } from "react";
@@ -10,6 +11,9 @@ import {
   ChevronUpIcon,
   ExternalLink,
 } from "lucide-react";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -175,7 +179,10 @@ function compareProviderRows(
   return compareAmortizationRows(a, b, key, dir, row => row.provider.name);
 }
 
-export function DashboardCoursesByAmortization() {
+export function DashboardCoursesByAmortization({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data: courses,
     isPending: isCoursesPending,
@@ -278,6 +285,7 @@ export function DashboardCoursesByAmortization() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Cost per Unit"
       action={
         <Link
@@ -290,6 +298,12 @@ export function DashboardCoursesByAmortization() {
           View all
         </Link>
       }
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
+      )}
     >
       <div
         className="flex flex-row flex-wrap items-center justify-between gap-3"

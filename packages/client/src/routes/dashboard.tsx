@@ -19,6 +19,8 @@ import { AddLayoutDialog } from "./dashboard.-components/-AddLayoutDialog";
 import { DashboardGrid } from "./dashboard.-components/-DashboardGrid";
 import {
   buildDefaultTiles,
+  needsNormalization,
+  normalizeTiles,
   tilesEqual,
   TILE_META,
   toggleTile,
@@ -174,6 +176,13 @@ function Dashboard() {
   } = useActiveDashboardLayoutId(tabs);
   const activeLayout = tabs.find(l => l.id === activeId) ?? null;
 
+  // Migrate legacy layouts (a single `dailies` tile becomes Do Now + Done for
+  // the Day) at read time so the grid and Tiles menu always see current ids.
+  const normalizedTiles = useMemo(
+    () => (activeLayout ? normalizeTiles(activeLayout.tiles) : []),
+    [activeLayout],
+  );
+
   const renameTarget = layouts?.find(l => l.id === renameTargetId) ?? null;
   const saveAsTarget = layouts?.find(l => l.id === saveAsTargetId) ?? null;
   const deleteTarget = layouts?.find(l => l.id === deleteTargetId) ?? null;
@@ -322,9 +331,25 @@ function Dashboard() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(saveTimerRef.current), []);
 
+  // Self-heal: persist the normalized tiles once when a layout still holds a
+  // legacy id, so the database catches up even without a manual drag/resize.
+  const healedRef = useRef<Set<string>>(new Set());
+  const {
+    mutate: saveTiles,
+  } = saveTilesMutation;
+  useEffect(() => {
+    if (!activeLayout || !needsNormalization(activeLayout.tiles)) return;
+    if (healedRef.current.has(activeLayout.id)) return;
+    healedRef.current.add(activeLayout.id);
+    saveTiles({
+      layout: activeLayout,
+      tiles: normalizeTiles(activeLayout.tiles),
+    });
+  }, [activeLayout, saveTiles]);
+
   const handleTilesChange = (tiles: DashboardLayoutTile[]) => {
     // Ignore the grid's mount/compaction echoes — only real moves save.
-    if (!activeLayout || tilesEqual(tiles, activeLayout.tiles)) return;
+    if (!activeLayout || tilesEqual(tiles, normalizedTiles)) return;
     clearTimeout(saveTimerRef.current);
     const layout = activeLayout;
     saveTimerRef.current = setTimeout(() => {
@@ -342,7 +367,25 @@ function Dashboard() {
     clearTimeout(saveTimerRef.current);
     saveTilesMutation.mutate({
       layout,
-      tiles: toggleTile(layout.tiles, tileId),
+      tiles: toggleTile(normalizeTiles(layout.tiles), tileId),
+    });
+  };
+
+  const handleUpdateTile = (
+    tileId: DashboardTileId,
+    patch: Partial<DashboardLayoutTile>,
+  ) => {
+    if (!activeLayout) return;
+    clearTimeout(saveTimerRef.current);
+    saveTilesMutation.mutate({
+      layout: activeLayout,
+      tiles: normalizedTiles.map(t =>
+        t.tileId === tileId
+          ? {
+            ...t,
+            ...patch,
+          }
+          : t),
     });
   };
 
@@ -391,8 +434,9 @@ function Dashboard() {
             {activeLayout
               ? (
                 <DashboardGrid
-                  tiles={activeLayout.tiles}
+                  tiles={normalizedTiles}
                   onTilesChange={handleTilesChange}
+                  onUpdateTile={handleUpdateTile}
                 />
               )
               : (
@@ -412,7 +456,7 @@ function Dashboard() {
         onSubmit={(name, tiles) =>
           createTabMutation.mutate({
             name,
-            tiles,
+            tiles: normalizeTiles(tiles),
           })}
       />
 
