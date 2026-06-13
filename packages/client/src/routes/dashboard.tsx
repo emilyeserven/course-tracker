@@ -1,13 +1,21 @@
-import type { DashboardLayout, DashboardLayoutTile } from "@emstack/types";
+import type { DashboardLayout, DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { PlusIcon, SlidersHorizontalIcon } from "lucide-react";
+import {
+  BookmarkIcon,
+  CopyIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { AddLayoutDialog } from "./dashboard.-components/-AddLayoutDialog";
 import { DashboardGrid } from "./dashboard.-components/-DashboardGrid";
 import {
   buildDefaultTiles,
@@ -16,6 +24,7 @@ import {
   toggleTile,
 } from "./dashboard.-components/-dashboardTileMeta";
 
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { LayoutNameDialog } from "@/components/LayoutNameDialog";
 import { Button } from "@/components/ui/button";
@@ -23,13 +32,20 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
-import { createDashboardLayout, fetchDashboardLayouts, upsertDashboardLayout } from "@/utils/api";
+import {
+  createDashboardLayout,
+  deleteSingleDashboardLayout,
+  duplicateDashboardLayout,
+  fetchDashboardLayouts,
+  upsertDashboardLayout,
+} from "@/utils/api";
 import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/dashboard")({
@@ -38,9 +54,100 @@ export const Route = createFileRoute("/dashboard")({
 
 const SAVE_DEBOUNCE_MS = 600;
 
+interface LayoutTabProps {
+  layout: DashboardLayout;
+  onToggleTile: (layout: DashboardLayout, tileId: DashboardTileId) => void;
+  onRename: (layout: DashboardLayout) => void;
+  onDuplicate: (layout: DashboardLayout) => void;
+  onSaveAs: (layout: DashboardLayout) => void;
+  onDelete: (layout: DashboardLayout) => void;
+}
+
+/** A dashboard tab plus its hover-revealed "More" menu. The trigger is a
+ * sibling of the Radix TabsTrigger (never nested, which would be invalid
+ * button-in-button) and is always visible on touch where hover doesn't fire. */
+function LayoutTab({
+  layout,
+  onToggleTile,
+  onRename,
+  onDuplicate,
+  onSaveAs,
+  onDelete,
+}: LayoutTabProps) {
+  return (
+    <div className="group relative">
+      <TabsTrigger
+        value={layout.id}
+        className="pr-8"
+      >
+        {layout.name}
+      </TabsTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label={`${layout.name} options`}
+            onClick={e => e.stopPropagation()}
+            className="
+              absolute top-1/2 right-1 flex size-5 -translate-y-1/2 items-center
+              justify-center rounded-sm text-muted-foreground opacity-0
+              transition-opacity
+              group-focus-within:opacity-100
+              group-hover:opacity-100
+              hover:bg-background/60 hover:text-foreground
+              focus-visible:opacity-100
+              max-md:opacity-100
+            "
+          >
+            <MoreHorizontalIcon className="size-3.5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Visible tiles</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {DASHBOARD_TILE_IDS.map(tileId => (
+            <DropdownMenuCheckboxItem
+              key={tileId}
+              checked={layout.tiles.some(t => t.tileId === tileId)}
+              onCheckedChange={() => onToggleTile(layout, tileId)}
+              onSelect={e => e.preventDefault()}
+            >
+              {TILE_META[tileId].title}
+            </DropdownMenuCheckboxItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => onRename(layout)}>
+            <PencilIcon />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onDuplicate(layout)}>
+            <CopyIcon />
+            Duplicate
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onSaveAs(layout)}>
+            <BookmarkIcon />
+            Save as layout…
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => onDelete(layout)}
+          >
+            <Trash2Icon />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
 function Dashboard() {
   const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [renameTargetId, setRenameTargetId] = useState<string | null>(null);
+  const [saveAsTargetId, setSaveAsTargetId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const {
     data: layouts,
@@ -51,25 +158,44 @@ function Dashboard() {
     queryFn: () => fetchDashboardLayouts(),
   });
 
+  // Tabs are the non-template layouts; presets are offered as starting points
+  // when adding a tab and never appear in the strip.
+  const tabs = useMemo(
+    () => layouts?.filter(l => !l.isTemplate) ?? [],
+    [layouts],
+  );
+  const presets = useMemo(
+    () => layouts?.filter(l => l.isTemplate) ?? [],
+    [layouts],
+  );
+
   const {
     activeId, setActiveId,
-  } = useActiveDashboardLayoutId(layouts);
-  const activeLayout = layouts?.find(l => l.id === activeId) ?? null;
+  } = useActiveDashboardLayoutId(tabs);
+  const activeLayout = tabs.find(l => l.id === activeId) ?? null;
 
-  const createLayoutMutation = useMutation({
+  const renameTarget = layouts?.find(l => l.id === renameTargetId) ?? null;
+  const saveAsTarget = layouts?.find(l => l.id === saveAsTargetId) ?? null;
+  const deleteTarget = layouts?.find(l => l.id === deleteTargetId) ?? null;
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboardLayouts.list(),
+    });
+
+  const createTabMutation = useMutation({
     mutationFn: ({
       name, tiles,
     }: { name: string;
       tiles: DashboardLayoutTile[]; }) =>
       createDashboardLayout({
         name,
-        position: layouts?.length ?? 0,
+        position: tabs.length,
         tiles,
+        isTemplate: false,
       }),
     onSuccess: async (res) => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.dashboardLayouts.list(),
-      });
+      await invalidate();
       setActiveId(res.id);
       setAddDialogOpen(false);
     },
@@ -84,7 +210,7 @@ function Dashboard() {
   const autoCreatedRef = useRef(false);
   const {
     mutate: autoCreate,
-  } = createLayoutMutation;
+  } = createTabMutation;
   useEffect(() => {
     if (layouts && layouts.length === 0 && !autoCreatedRef.current) {
       autoCreatedRef.current = true;
@@ -94,6 +220,71 @@ function Dashboard() {
       });
     }
   }, [layouts, autoCreate]);
+
+  const saveAsPresetMutation = useMutation({
+    mutationFn: ({
+      name, tiles,
+    }: { name: string;
+      tiles: DashboardLayoutTile[]; }) =>
+      createDashboardLayout({
+        name,
+        position: null,
+        tiles,
+        isTemplate: true,
+      }),
+    onSuccess: () => {
+      void invalidate();
+      setSaveAsTargetId(null);
+      toast.success("Saved as a layout you can reuse");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const renameMutation = useMutation({
+    mutationFn: ({
+      layout, name,
+    }: { layout: DashboardLayout;
+      name: string; }) =>
+      upsertDashboardLayout(layout.id, {
+        name,
+        position: layout.position ?? null,
+        tiles: layout.tiles,
+        isTemplate: layout.isTemplate ?? false,
+      }),
+    onSuccess: () => {
+      void invalidate();
+      setRenameTargetId(null);
+      toast.success("Layout renamed");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: (id: string) => duplicateDashboardLayout(id),
+    onSuccess: () => {
+      void invalidate();
+      toast.success("Layout duplicated");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSingleDashboardLayout(id),
+    onSuccess: () => {
+      void invalidate();
+      setDeleteTargetId(null);
+      toast.success("Layout deleted");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
 
   // Tile moves/resizes save through an optimistic cache write with no
   // invalidate on success — a refetch mid-drag would snap tiles back.
@@ -106,6 +297,7 @@ function Dashboard() {
         name: layout.name,
         position: layout.position ?? null,
         tiles,
+        isTemplate: layout.isTemplate ?? false,
       }),
     onMutate: ({
       layout, tiles,
@@ -123,9 +315,7 @@ function Dashboard() {
     },
     onError: (err: Error) => {
       toast.error(err.message);
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.dashboardLayouts.list(),
-      });
+      void invalidate();
     },
   });
 
@@ -145,12 +335,14 @@ function Dashboard() {
     }, SAVE_DEBOUNCE_MS);
   };
 
-  const handleToggleTile = (tileId: (typeof DASHBOARD_TILE_IDS)[number]) => {
-    if (!activeLayout) return;
+  const handleToggleTile = (
+    layout: DashboardLayout,
+    tileId: DashboardTileId,
+  ) => {
     clearTimeout(saveTimerRef.current);
     saveTilesMutation.mutate({
-      layout: activeLayout,
-      tiles: toggleTile(activeLayout.tiles, tileId),
+      layout,
+      tiles: toggleTile(layout.tiles, tileId),
     });
   };
 
@@ -166,78 +358,115 @@ function Dashboard() {
             Failed to load dashboard layouts.
           </p>
         )}
-        {activeLayout && (
+        {!isPending && error == null && layouts != null && (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Tabs
-                  value={activeLayout.id}
-                  onValueChange={setActiveId}
-                >
-                  <TabsList>
-                    {layouts?.map(layout => (
-                      <TabsTrigger
-                        key={layout.id}
-                        value={layout.id}
-                      >
-                        {layout.name}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  title="Add layout"
-                  onClick={() => setAddDialogOpen(true)}
-                >
-                  <PlusIcon />
-                </Button>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                  >
-                    <SlidersHorizontalIcon />
-                    Tiles
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Visible tiles</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {DASHBOARD_TILE_IDS.map(tileId => (
-                    <DropdownMenuCheckboxItem
-                      key={tileId}
-                      checked={activeLayout.tiles.some(t => t.tileId === tileId)}
-                      onCheckedChange={() => handleToggleTile(tileId)}
-                      onSelect={e => e.preventDefault()}
-                    >
-                      {TILE_META[tileId].title}
-                    </DropdownMenuCheckboxItem>
+            <div className="flex flex-wrap items-center gap-2">
+              <Tabs
+                value={activeId ?? ""}
+                onValueChange={setActiveId}
+              >
+                <TabsList>
+                  {tabs.map(layout => (
+                    <LayoutTab
+                      key={layout.id}
+                      layout={layout}
+                      onToggleTile={handleToggleTile}
+                      onRename={l => setRenameTargetId(l.id)}
+                      onDuplicate={l => duplicateMutation.mutate(l.id)}
+                      onSaveAs={l => setSaveAsTargetId(l.id)}
+                      onDelete={l => setDeleteTargetId(l.id)}
+                    />
                   ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </TabsList>
+              </Tabs>
+              <Button
+                variant="outline"
+                size="sm"
+                title="Add layout"
+                onClick={() => setAddDialogOpen(true)}
+              >
+                <PlusIcon />
+              </Button>
             </div>
-            <DashboardGrid
-              tiles={activeLayout.tiles}
-              onTilesChange={handleTilesChange}
-            />
+            {activeLayout
+              ? (
+                <DashboardGrid
+                  tiles={activeLayout.tiles}
+                  onTilesChange={handleTilesChange}
+                />
+              )
+              : (
+                <p className="text-sm text-muted-foreground">
+                  No layout selected. Add one to get started.
+                </p>
+              )}
           </>
         )}
       </div>
-      <LayoutNameDialog
+
+      <AddLayoutDialog
         open={addDialogOpen}
-        title="Add layout"
-        submitLabel="Add"
-        isSaving={createLayoutMutation.isPending}
+        isSaving={createTabMutation.isPending}
+        savedPresets={presets}
         onOpenChange={setAddDialogOpen}
-        onSubmit={name =>
-          createLayoutMutation.mutate({
+        onSubmit={(name, tiles) =>
+          createTabMutation.mutate({
             name,
-            tiles: activeLayout?.tiles ?? buildDefaultTiles(),
+            tiles,
           })}
+      />
+
+      <LayoutNameDialog
+        open={renameTarget !== null}
+        title="Rename layout"
+        initialName={renameTarget?.name ?? ""}
+        isSaving={renameMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setRenameTargetId(null);
+        }}
+        onSubmit={(name) => {
+          if (renameTarget) {
+            renameMutation.mutate({
+              layout: renameTarget,
+              name,
+            });
+          }
+        }}
+      />
+
+      <LayoutNameDialog
+        open={saveAsTarget !== null}
+        title="Save as layout"
+        submitLabel="Save"
+        initialName={saveAsTarget?.name ?? ""}
+        isSaving={saveAsPresetMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setSaveAsTargetId(null);
+        }}
+        onSubmit={(name) => {
+          if (saveAsTarget) {
+            saveAsPresetMutation.mutate({
+              name,
+              tiles: saveAsTarget.tiles,
+            });
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete layout?"
+        description={
+          deleteTarget
+            ? `"${deleteTarget.name}" will be removed. This can't be undone.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
+        }}
+        onCancel={() => setDeleteTargetId(null)}
       />
     </div>
   );

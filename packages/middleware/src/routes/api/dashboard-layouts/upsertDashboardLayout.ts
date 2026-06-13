@@ -1,18 +1,24 @@
 import { dashboardLayouts } from "@/db/schema";
 import type { DashboardLayoutTile } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import { dashboardLayoutTilesSchema, nullableInteger } from "@/utils/schemas";
+import {
+  dashboardLayoutTilesSchema,
+  nullableBoolean,
+  nullableInteger,
+} from "@/utils/schemas";
 
 interface DashboardLayoutBody {
   name: string;
   position?: number | null;
   tiles?: DashboardLayoutTile[];
+  isTemplate?: boolean | null;
 }
 
 const updateableColumns = [
   "name",
   "position",
   "tiles",
+  "isTemplate",
 ] as const;
 
 export default createUpsertHandler<DashboardLayoutBody>({
@@ -28,6 +34,7 @@ export default createUpsertHandler<DashboardLayoutBody>({
       },
       position: nullableInteger,
       tiles: dashboardLayoutTilesSchema,
+      isTemplate: nullableBoolean,
     },
   },
   buildRow: (body, id) => ({
@@ -35,6 +42,7 @@ export default createUpsertHandler<DashboardLayoutBody>({
     name: body.name,
     position: body.position ?? null,
     tiles: (body.tiles ?? []) as DashboardLayoutTile[],
+    isTemplate: body.isTemplate ?? false,
   }),
   updateableColumns,
 });

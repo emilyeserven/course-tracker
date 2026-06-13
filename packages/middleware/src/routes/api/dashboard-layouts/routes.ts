@@ -5,6 +5,7 @@ import root from "./root";
 import getDashboardLayout from "./getDashboardLayout";
 import upsertDashboardLayout from "./upsertDashboardLayout";
 import deleteDashboardLayout from "./deleteDashboardLayout";
+import duplicateDashboardLayout from "./duplicateDashboardLayout";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -13,4 +14,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(getDashboardLayout);
   fastify.register(upsertDashboardLayout);
   fastify.register(deleteDashboardLayout);
+  fastify.register(duplicateDashboardLayout);
 }
