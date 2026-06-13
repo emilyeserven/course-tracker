@@ -1,16 +1,10 @@
-import type { TagGroup, TaskResourceLevel } from "@emstack/types";
+import type { LevelAndTagsValue } from "./moduleDrafts";
+import type { TagGroup } from "@emstack/types";
 
 import { LevelTriad } from "./LevelTriad";
 import { lookupTagsByIds } from "./moduleDrafts";
 
 import { TagPicker } from "@/components/tasks/TagPicker";
-
-export interface LevelAndTagsValue {
-  easeOfStarting: TaskResourceLevel | "";
-  timeNeeded: TaskResourceLevel | "";
-  interactivity: TaskResourceLevel | "";
-  tagIds: string[];
-}
 
 /**
  * The shared "effort levels + tag picker" fields rendered at the bottom of the

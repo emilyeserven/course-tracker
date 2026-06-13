@@ -10,33 +10,36 @@ import type {
 
 import { parseModuleLength } from "@emstack/types";
 
-export interface GroupDraft {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
-  totalCount: string;
-  completedCount: string;
+// The shared "effort levels + tag picker" block rendered at the bottom of both
+// the module and module-group edit cards (see LevelAndTagsFields). Both draft
+// shapes below extend it, so the cards can pass a draft straight through.
+export interface LevelAndTagsValue {
   easeOfStarting: TaskResourceLevel | "";
   timeNeeded: TaskResourceLevel | "";
   interactivity: TaskResourceLevel | "";
   tagIds: string[];
 }
 
-export type DurationMode = "minutes" | "bucket";
-
-export interface ModuleDraft {
+// Fields common to both edit drafts (the editable header plus the level/tag
+// block). Group- and module-specific fields are added by the leaf interfaces.
+interface BaseModuleEditDraft extends LevelAndTagsValue {
   id: string;
   name: string;
   description: string;
   url: string;
+}
+
+export interface GroupDraft extends BaseModuleEditDraft {
+  totalCount: string;
+  completedCount: string;
+}
+
+export type DurationMode = "minutes" | "bucket";
+
+export interface ModuleDraft extends BaseModuleEditDraft {
   durationMode: DurationMode;
   minutesValue: string;
   bucketValue: ModuleDurationBucket | "";
-  easeOfStarting: TaskResourceLevel | "";
-  timeNeeded: TaskResourceLevel | "";
-  interactivity: TaskResourceLevel | "";
-  tagIds: string[];
 }
 
 const NEW_ID = "__new__";
