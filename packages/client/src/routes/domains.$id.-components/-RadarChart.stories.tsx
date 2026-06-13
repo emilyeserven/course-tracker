@@ -2,9 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { RadarChart } from "./RadarChart";
+import { RadarChart } from "./-RadarChart";
 
-import { makeBlips, makeQuadrants, makeRings } from "@/test-utils/radarFixtures";
+import {
+  makeBlips,
+  makeQuadrants,
+  makeRings,
+} from "@/test-utils/radarFixtures";
 import { RouterStub } from "@/test-utils/RouterStub";
 
 const meta: Meta<typeof RadarChart> = {

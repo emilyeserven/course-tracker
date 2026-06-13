@@ -5,7 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { TopicMultiSelect } from "@/components/radar/TopicMultiSelect";
+import { TopicMultiSelect } from "./-TopicMultiSelect";
+
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,9 +71,13 @@ export function ScopeTab({
     [domain],
   );
 
-  const [withinDescription, setWithinDescription] = useState(startingWithinDescription);
+  const [withinDescription, setWithinDescription] = useState(
+    startingWithinDescription,
+  );
   const [outDescription, setOutDescription] = useState(startingOutDescription);
-  const [withinTopicIds, setWithinTopicIds] = useState<string[]>(startingWithinTopicIds);
+  const [withinTopicIds, setWithinTopicIds] = useState<string[]>(
+    startingWithinTopicIds,
+  );
   const [ignoreRows, setIgnoreRows] = useState<IgnoreRow[]>(() =>
     buildIgnoreRows(radar));
   const [isSaving, setIsSaving] = useState(false);
@@ -117,9 +122,7 @@ export function ScopeTab({
   const onRadarTopicIds = useMemo(
     () =>
       new Set(
-        (radar?.blips ?? [])
-          .filter(b => !b.isIgnored)
-          .map(b => b.topicId),
+        (radar?.blips ?? []).filter(b => !b.isIgnored).map(b => b.topicId),
       ),
     [radar],
   );
@@ -128,13 +131,20 @@ export function ScopeTab({
     const last = lastSavedRef.current;
     if (withinDescription !== last.withinDescription) return true;
     if (outDescription !== last.outDescription) return true;
-    if (withinTopicIds.length !== last.withinTopicIds.length
-      || withinTopicIds.some((v, i) => v !== last.withinTopicIds[i])) {
+    if (
+      withinTopicIds.length !== last.withinTopicIds.length
+      || withinTopicIds.some((v, i) => v !== last.withinTopicIds[i])
+    ) {
       return true;
     }
     if (ignoreRows.length !== last.ignoreRows.length) return true;
-    const lastByTopic = new Map(last.ignoreRows.map(r => [r.topicId, r.reason]));
-    return ignoreRows.some(r => !lastByTopic.has(r.topicId) || lastByTopic.get(r.topicId) !== r.reason);
+    const lastByTopic = new Map(
+      last.ignoreRows.map(r => [r.topicId, r.reason]),
+    );
+    return ignoreRows.some(
+      r =>
+        !lastByTopic.has(r.topicId) || lastByTopic.get(r.topicId) !== r.reason,
+    );
   }, [withinDescription, outDescription, withinTopicIds, ignoreRows]);
 
   useEffect(() => {

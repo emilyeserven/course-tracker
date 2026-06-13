@@ -1,19 +1,12 @@
-import type {
-  Radar,
-  RadarBlip,
-  TopicForTopicsPage,
-} from "@emstack/types";
+import type { Radar, RadarBlip, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
 import { toast } from "sonner";
 
-import { BlipsTab as BlipsPanel } from "@/components/radar/BlipsTab";
-import {
-  createRadarBlip,
-  deleteRadarBlip,
-  upsertRadarBlip,
-} from "@/utils";
+import { BlipsPanel } from "./-BlipsPanel";
+
+import { createRadarBlip, deleteRadarBlip, upsertRadarBlip } from "@/utils";
 
 interface BlipsTabContainerProps {
   radar: Radar | undefined;
@@ -54,20 +47,22 @@ export function BlipsTabContainer({
   }, [radar]);
 
   const persistedQuadrants = useMemo(
-    () => (radar?.quadrants ?? []).map(q => ({
-      id: q.id,
-      name: q.name,
-      position: q.position,
-    })),
+    () =>
+      (radar?.quadrants ?? []).map(q => ({
+        id: q.id,
+        name: q.name,
+        position: q.position,
+      })),
     [radar],
   );
   const persistedRings = useMemo(
-    () => (radar?.rings ?? []).map(r => ({
-      id: r.id,
-      name: r.name,
-      position: r.position,
-      isAdopted: r.isAdopted ?? false,
-    })),
+    () =>
+      (radar?.rings ?? []).map(r => ({
+        id: r.id,
+        name: r.name,
+        position: r.position,
+        isAdopted: r.isAdopted ?? false,
+      })),
     [radar],
   );
   const allConfigPersisted
@@ -93,8 +88,11 @@ export function BlipsTabContainer({
   }, [topics]);
 
   const topicById = useMemo(() => {
-    const map = new Map<string, { name: string;
-      description?: string | null; }>();
+    const map = new Map<
+      string,
+      { name: string;
+        description?: string | null; }
+    >();
     topics.forEach(t =>
       map.set(t.id, {
         name: t.name,
@@ -184,7 +182,8 @@ export function BlipsTabContainer({
       else {
         await createRadarBlip(domainId, payload);
       }
-      setNewBlipDrafts(prev => prev.filter(b => b.localKey !== blip.localKey));
+      setNewBlipDrafts(prev =>
+        prev.filter(b => b.localKey !== blip.localKey));
       await onSaved();
       toast.success("Blip saved.");
     }
@@ -210,15 +209,18 @@ export function BlipsTabContainer({
       }
       setPendingBlipKey(null);
     }
-    setNewBlipDrafts(prev => prev.filter(b => b.localKey !== blip.localKey));
+    setNewBlipDrafts(prev =>
+      prev.filter(b => b.localKey !== blip.localKey));
   }
 
   async function handleTableSave(
     blip: RadarBlip,
-    patch: { quadrantId: string | null;
+    patch: {
+      quadrantId: string | null;
       ringId: string | null;
       description: string | null;
-      isIgnored: boolean; },
+      isIgnored: boolean;
+    },
   ) {
     try {
       await upsertRadarBlip(domainId, blip.id, {

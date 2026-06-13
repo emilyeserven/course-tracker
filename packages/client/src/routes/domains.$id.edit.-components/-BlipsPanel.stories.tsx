@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { BlipsTab } from "./BlipsTab";
+import { BlipsPanel } from "./-BlipsPanel";
 
 import {
   makeBlips,
@@ -14,8 +14,8 @@ import { RouterStub } from "@/test-utils/RouterStub";
 
 const topics = makeTopics();
 
-const meta: Meta<typeof BlipsTab> = {
-  component: BlipsTab,
+const meta: Meta<typeof BlipsPanel> = {
+  component: BlipsPanel,
   args: {
     allConfigPersisted: true,
     savedBlipsForTable: makeBlips(4),
@@ -26,10 +26,13 @@ const meta: Meta<typeof BlipsTab> = {
     usedTopicIds: new Set(["topic-0", "topic-1"]),
     pendingBlipKey: null,
     topicById: new Map(
-      topics.map(t => [t.id, {
-        name: t.name,
-        description: t.description,
-      }]),
+      topics.map(t => [
+        t.id,
+        {
+          name: t.name,
+          description: t.description,
+        },
+      ]),
     ),
     topicNameById: new Map(topics.map(t => [t.id, t.name])),
     onAddBlip: fn(),

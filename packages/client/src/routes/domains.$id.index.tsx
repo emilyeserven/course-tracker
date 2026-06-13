@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
+import { RadarChart } from "./domains.$id.-components/-RadarChart";
+
 import { EntityLink } from "@/components/boxElements";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
-import { RadarChart } from "@/components/radar/RadarChart";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, fetchSingleDomain } from "@/utils";
 
@@ -35,11 +36,9 @@ function TopicLinkList({
           </EntityLink>
           {topic.courses && topic.courses.length > 0 && (
             <span className="ml-2 text-xs text-muted-foreground">
-              (
-              {topic.courses.length}
+              ({topic.courses.length}
               {" course"}
-              {topic.courses.length === 1 ? "" : "s"}
-              )
+              {topic.courses.length === 1 ? "" : "s"})
             </span>
           )}
         </li>
@@ -147,9 +146,7 @@ function SingleDomain() {
           </InfoArea>
           {radarReady && radarData && (
             <InfoArea header="Radar">
-              <div
-                className="flex justify-center rounded-md border bg-card p-4"
-              >
+              <div className="flex justify-center rounded-md border bg-card p-4">
                 <RadarChart
                   quadrants={radarData.quadrants}
                   rings={radarData.rings}
@@ -211,9 +208,7 @@ function SingleDomain() {
                 </Link>
                 {topic.reason && (
                   <span className="ml-2 text-sm text-muted-foreground">
-                    —
-                    {" "}
-                    {topic.reason}
+                    — {topic.reason}
                   </span>
                 )}
               </li>

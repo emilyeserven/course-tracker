@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { RadarConfigTab } from "./RadarConfigTab";
+import { RadarConfigTab } from "./-RadarConfigTab";
 
 import { makeQuadrants, makeRings } from "@/test-utils/radarFixtures";
 

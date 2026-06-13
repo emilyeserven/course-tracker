@@ -1,14 +1,12 @@
-import type {
-  QuadrantDraft,
-  RingDraft,
-} from "@/components/radar/RadarConfigTab";
+import type { QuadrantDraft, RingDraft } from "./-RadarConfigTab";
 import type { Radar } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
 import { toast } from "sonner";
 
-import { RadarConfigTab as RadarConfigPanel } from "@/components/radar/RadarConfigTab";
+import { RadarConfigTab as RadarConfigPanel } from "./-RadarConfigTab";
+
 import { upsertRadarConfig } from "@/utils";
 
 interface ConfigTabProps {
@@ -37,9 +35,11 @@ function nextLocalKey() {
   return `local-${localKeyCounter}`;
 }
 
-function quadrantsFromServer(items: { id: string;
-  name: string;
-  position: number; }[]): QuadrantDraft[] {
+function quadrantsFromServer(
+  items: { id: string;
+    name: string;
+    position: number; }[],
+): QuadrantDraft[] {
   const fromServer: QuadrantDraft[] = items
     .slice()
     .sort((a, b) => a.position - b.position)
@@ -62,10 +62,12 @@ function quadrantsFromServer(items: { id: string;
   }));
 }
 
-function ringsFromServer(items: { id: string;
-  name: string;
-  position: number;
-  isAdopted?: boolean; }[]): RingDraft[] {
+function ringsFromServer(
+  items: { id: string;
+    name: string;
+    position: number;
+    isAdopted?: boolean; }[],
+): RingDraft[] {
   return items
     .slice()
     .sort((a, b) => a.position - b.position)
@@ -95,9 +97,7 @@ function defaultRings(): RingDraft[] {
 }
 
 export function ConfigTab({
-  radar,
-  domainId,
-  onSaved,
+  radar, domainId, onSaved,
 }: ConfigTabProps) {
   const [quadrants, setQuadrants] = useState<QuadrantDraft[]>([]);
   const [rings, setRings] = useState<RingDraft[]>([]);

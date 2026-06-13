@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { LlmEditTab } from "./LlmEditTab";
+import { LlmEditTab } from "./-LlmEditTab";
 
 import {
   makeBlips,
@@ -17,7 +17,8 @@ const meta: Meta<typeof LlmEditTab> = {
     allConfigPersisted: true,
     domainId: "domain-1",
     domainTitle: "Backend Platform",
-    domainDescription: "Services, infra, and tooling owned by the platform team.",
+    domainDescription:
+      "Services, infra, and tooling owned by the platform team.",
     domainTopics: [],
     excludedTopics: [],
     withinScopeDescription: "Anything the platform team operates.",
@@ -46,6 +47,8 @@ export const NotConfigured: Story = {
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/Save your slices and rings/)).toBeInTheDocument();
+    await expect(
+      canvas.getByText(/Save your slices and rings/),
+    ).toBeInTheDocument();
   },
 };
