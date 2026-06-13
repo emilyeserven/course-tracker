@@ -1,4 +1,5 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
+import type { SelectOption } from "@/utils";
 
 import { useState } from "react";
 
@@ -6,8 +7,7 @@ import { toast } from "sonner";
 
 interface UseComboboxCreateOptions {
   create: CreateConfig | undefined;
-  options: { value: string;
-    label: string; }[];
+  options: SelectOption[];
   /** Applies the newly created option to the field (set / append). */
   onCreated: (newId: string) => void;
 }
@@ -29,8 +29,9 @@ export function useComboboxCreate({
   const [creating, setCreating] = useState(false);
 
   const trimmedInput = inputValue.trim();
-  const hasExactMatch = trimmedInput.length > 0
-    && options.some(o => o.label.toLowerCase() === trimmedInput.toLowerCase());
+  const hasExactMatch
+    = trimmedInput.length > 0
+      && options.some(o => o.label.toLowerCase() === trimmedInput.toLowerCase());
 
   const showAddRow = !!create && trimmedInput.length > 0 && !hasExactMatch;
 
