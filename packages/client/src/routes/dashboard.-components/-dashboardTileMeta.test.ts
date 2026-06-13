@@ -8,6 +8,7 @@ import {
   layoutItemsToTiles,
   needsNormalization,
   normalizeTiles,
+  resizeHandlesForTile,
   sortTilesForMobile,
   tilesEqual,
   tilesToLayoutItems,
@@ -300,5 +301,20 @@ describe("needsNormalization", () => {
         },
       ]),
     ).toBe(true);
+  });
+});
+
+describe("resizeHandlesForTile", () => {
+  test("auto-height tiles get only the width (east) handle", () => {
+    expect(resizeHandlesForTile({})).toEqual(["e"]);
+    expect(resizeHandlesForTile({
+      heightMode: "auto",
+    })).toEqual(["e"]);
+  });
+
+  test("fixed-height tiles also get the SE corner for height", () => {
+    expect(resizeHandlesForTile({
+      heightMode: "fixed",
+    })).toEqual(["e", "se"]);
   });
 });

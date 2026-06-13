@@ -94,6 +94,23 @@ export function isAutoHeight(tile: Pick<DashboardLayoutTile, "heightMode">): boo
   return (tile.heightMode ?? "auto") === "auto";
 }
 
+/** Mirrors @dnd-grid's ResizeHandleAxis; its published d.ts re-exports the core
+ * types through a broken relative path, so the imported type resolves to `any`
+ * (the same reason GridLayoutItem below is hand-rolled). */
+export type ResizeHandleAxis = "s" | "w" | "e" | "n" | "sw" | "nw" | "se" | "ne";
+
+/**
+ * Resize handles a tile exposes. Every tile gets the east (right-edge) handle so
+ * its width is always adjustable; fixed-height tiles additionally get the SE
+ * corner so the same drag can set their height. Auto-height tiles omit the corner
+ * because their height is content-driven, not handle-driven.
+ */
+export function resizeHandlesForTile(
+  tile: Pick<DashboardLayoutTile, "heightMode">,
+): ResizeHandleAxis[] {
+  return isAutoHeight(tile) ? ["e"] : ["e", "se"];
+}
+
 /**
  * Smallest row count (`h`) whose pixel height fits `contentPx`, given the row
  * height and the inter-row gap. Clamped to `minH`.
@@ -269,7 +286,8 @@ export function tilesEqual(
 }
 
 // Per-item settings carried through the grid so a drag/resize round-trip never
-// drops them. `resizable` is consumed by @dnd-grid to hide the SE handle.
+// drops them. `resizable` and `resizeHandles` are consumed by @dnd-grid to
+// control which resize handles a tile shows (width edge vs. SE corner).
 interface GridItemSettings {
   heightMode?: DashboardLayoutTile["heightMode"];
   showProject?: boolean;
@@ -287,6 +305,7 @@ export interface GridLayoutItem extends GridItemSettings {
   minW?: number;
   minH?: number;
   resizable?: boolean;
+  resizeHandles?: ResizeHandleAxis[];
 }
 
 function pickSettings(source: GridItemSettings): GridItemSettings {
