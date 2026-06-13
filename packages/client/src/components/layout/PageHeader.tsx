@@ -1,3 +1,4 @@
+import type { EntityKind } from "@/components/boxElements/EntityLink";
 import type { ResourceStatus } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   pageTitle?: string;
-  pageSection?: "" | "resources" | "topics" | "providers" | "domains" | "dailies" | "routines" | "tasks";
+  pageSection?: EntityKind | "dailies" | "routines" | "";
   description?: React.ReactNode;
   children?: React.ReactNode;
   progressCurrent?: number;
