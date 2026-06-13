@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
-import { ContentBox } from "@/components/boxes/ContentBox";
+import { ContentBox } from "@/components/contentBoxComponents/ContentBox";
 import { cn } from "@/lib/utils";
 
 export interface OverviewCardItem {
@@ -20,7 +20,12 @@ export interface OverviewCardItem {
 }
 
 function OverviewCard({
-  to, title, description, icon: Icon, entity, topConnected,
+  to,
+  title,
+  description,
+  icon: Icon,
+  entity,
+  topConnected,
 }: OverviewCardItem) {
   return (
     <ContentBox className="h-full gap-0 overflow-hidden p-0">
@@ -77,11 +82,14 @@ export function OverviewCardGrid({
 }) {
   return (
     <div
-      className={cn(`
-        grid w-full grid-cols-1 gap-4 gap-y-6
-        sm:grid-cols-2
-        md:grid-cols-3
-      `, className)}
+      className={cn(
+        `
+          grid w-full grid-cols-1 gap-4 gap-y-6
+          sm:grid-cols-2
+          md:grid-cols-3
+        `,
+        className,
+      )}
     >
       {items.map(item => (
         <OverviewCard
