@@ -1,4 +1,4 @@
-import type { WeeklyRowType } from "@/components/routines/weekly";
+import type { WeeklyEntry, WeeklyRowType } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
 
 import { useMemo } from "react";
@@ -8,17 +8,8 @@ import { buildActionableSentence } from "@emstack/types";
 import { Combobox, ComboboxInput } from "@/components/combobox";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 
-interface EntryValue {
-  type: WeeklyRowType;
-  id: string;
-  notes: string;
-  location: string;
-  prependText: string;
-  appendText: string;
-}
-
-interface WeeklyEntryEditorProps extends EntryValue {
-  onChange: (next: EntryValue) => void;
+interface WeeklyEntryEditorProps extends WeeklyEntry {
+  onChange: (next: WeeklyEntry) => void;
   taskOptions: SelectOption[];
   resourceOptions: SelectOption[];
 }
@@ -45,7 +36,7 @@ export function WeeklyEntryEditor({
     [itemOptions],
   );
 
-  function emit(patch: Partial<EntryValue>) {
+  function emit(patch: Partial<WeeklyEntry>) {
     onChange({
       type,
       id,
