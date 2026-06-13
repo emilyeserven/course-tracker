@@ -1,3 +1,5 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
+
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/input";
@@ -10,14 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface LayoutNameDialogProps {
-  open: boolean;
+interface LayoutNameDialogProps extends ControlledDialogProps {
   title: string;
   /** Prefilled name when renaming; empty for a new layout. */
   initialName?: string;
   submitLabel?: string;
   isSaving?: boolean;
-  onOpenChange: (open: boolean) => void;
   onSubmit: (name: string) => void;
 }
 

@@ -1,3 +1,4 @@
+import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { DailyCriteriaTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
@@ -12,20 +13,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface DailyCriteriaTemplateEditModalProps {
-  open: boolean;
+interface DailyCriteriaTemplateEditModalProps extends ControlledDialogProps {
   template: DailyCriteriaTemplate | null;
   isNew?: boolean;
-  onOpenChange: (open: boolean) => void;
   onSave: (next: DailyCriteriaTemplate) => void;
   onDelete?: () => void;
   isSaving?: boolean;
   deleteDisabled?: boolean;
 }
 
-const FIELDS: { key: keyof Omit<DailyCriteriaTemplate, "id" | "label">;
+const FIELDS: {
+  key: keyof Omit<DailyCriteriaTemplate, "id" | "label">;
   label: string;
-  placeholder: string; }[] = [
+  placeholder: string;
+}[] = [
   {
     key: "incomplete",
     label: "Incomplete",
@@ -74,12 +75,13 @@ export function DailyCriteriaTemplateEditModal({
   }
 
   function update(patch: Partial<DailyCriteriaTemplate>) {
-    setDraft((prev: DailyCriteriaTemplate | null) => (prev
-      ? {
-        ...prev,
-        ...patch,
-      }
-      : prev));
+    setDraft((prev: DailyCriteriaTemplate | null) =>
+      prev
+        ? {
+          ...prev,
+          ...patch,
+        }
+        : prev);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -114,9 +116,10 @@ export function DailyCriteriaTemplateEditModal({
               id="criteria-template-label"
               type="text"
               value={draft.label}
-              onChange={e => update({
-                label: e.target.value,
-              })}
+              onChange={e =>
+                update({
+                  label: e.target.value,
+                })}
               required
               placeholder="Template label (e.g. Book Rules)"
             />
@@ -135,9 +138,10 @@ export function DailyCriteriaTemplateEditModal({
               <Textarea
                 id={`criteria-template-${f.key}`}
                 value={draft[f.key] ?? ""}
-                onChange={e => update({
-                  [f.key]: e.target.value,
-                })}
+                onChange={e =>
+                  update({
+                    [f.key]: e.target.value,
+                  })}
                 placeholder={f.placeholder}
                 maxLength={500}
               />
