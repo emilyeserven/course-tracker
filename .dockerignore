@@ -19,6 +19,9 @@
 .husky
 .claude
 *.md
+# …except CHANGELOG.md, which the client bundles at build time via the @root
+# Vite alias (see packages/client/src/routes/dashboard.-components/-DashboardChangelog.tsx).
+!CHANGELOG.md
 Dockerfile
 **/Dockerfile
 .dockerignore
