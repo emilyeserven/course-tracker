@@ -56,7 +56,7 @@ export function DailyResourceIndicator({
   return (
     <span className="inline-flex items-center gap-1">
       <DailyEntityLink
-        to="/resources/$id"
+        entity="resources"
         id={course.id}
         icon={<GraduationCapIcon className="size-4" />}
         tooltip={dailyLinkTooltip(course.name, daily.name, "Go to Course")}

@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const TaskLink: Story = {
   args: {
-    to: "/tasks/$id",
+    entity: "tasks",
     id: "t1",
     icon: <CheckSquareIcon className="size-4" />,
     tooltip: "Go to Task",
@@ -47,7 +47,7 @@ export const TaskLink: Story = {
 
 export const ResourceLink: Story = {
   args: {
-    to: "/resources/$id",
+    entity: "resources",
     id: "c1",
     icon: <GraduationCapIcon className="size-4" />,
     tooltip: "Structure and Interpretation of Computer Programs",

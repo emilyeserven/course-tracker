@@ -33,7 +33,7 @@ describe("DailyEntityLink", () => {
     render(
       <RouterStub>
         <DailyEntityLink
-          to="/tasks/$id"
+          entity="tasks"
           id="t1"
           icon={icon}
           tooltip="Go to Task"

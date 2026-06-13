@@ -1,8 +1,14 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-export type EntityKind = "resources" | "topics" | "providers" | "domains" | "tasks" | "routines";
+export type EntityKind
+  = | "resources"
+    | "topics"
+    | "providers"
+    | "domains"
+    | "tasks"
+    | "routines";
 
 const TO_BY_KIND: Record<EntityKind, string> = {
   resources: "/resources/$id",
@@ -18,13 +24,14 @@ const TO_BY_KIND: Record<EntityKind, string> = {
 export const PILL_LINK_CLASS
   = "rounded-sm bg-gray-50 px-2 py-0.5 text-xs hover:bg-gray-900 hover:text-white";
 
-interface EntityLinkProps {
+interface EntityLinkProps extends Pick<
+  ComponentProps<"a">,
+  "title" | "aria-label"
+> {
   entity: EntityKind;
   id: string | number;
   className?: string;
   children: ReactNode;
-  /** Passthrough native anchor attributes (e.g. `title`). */
-  title?: string;
 }
 
 export function EntityLink({

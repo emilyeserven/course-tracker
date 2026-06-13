@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import type { EntityKind } from "@/components/boxElements/EntityLink";
 
+import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   Tooltip,
   TooltipContent,
@@ -7,8 +8,8 @@ import {
 } from "@/components/ui/tooltip";
 
 interface DailyEntityLinkProps {
-  /** Both routes take a single `{ id }` param, so the union is param-compatible. */
-  to: "/tasks/$id" | "/resources/$id";
+  /** Which entity the daily links to — drives the route via EntityLink. */
+  entity: Extract<EntityKind, "tasks" | "resources">;
   id: string;
   icon: React.ReactNode;
   tooltip: string;
@@ -18,10 +19,10 @@ interface DailyEntityLinkProps {
 /**
  * A muted icon that links to a daily's linked task or resource, with a tooltip.
  * Shared by DailyTaskIndicator and DailyResourceIndicator — they differ only in
- * route, icon, and label.
+ * entity, icon, and label. The route + anchor come from the shared EntityLink.
  */
 export function DailyEntityLink({
-  to,
+  entity,
   id,
   icon,
   tooltip,
@@ -30,11 +31,9 @@ export function DailyEntityLink({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Link
-          to={to}
-          params={{
-            id,
-          }}
+        <EntityLink
+          entity={entity}
+          id={id}
           aria-label={ariaLabel}
           className="
             inline-flex items-center text-muted-foreground
@@ -42,7 +41,7 @@ export function DailyEntityLink({
           "
         >
           {icon}
-        </Link>
+        </EntityLink>
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>

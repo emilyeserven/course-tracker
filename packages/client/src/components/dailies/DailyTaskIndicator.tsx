@@ -20,7 +20,7 @@ export function DailyTaskIndicator({
 
   return (
     <DailyEntityLink
-      to="/tasks/$id"
+      entity="tasks"
       id={task.id}
       icon={<CheckSquareIcon className="size-4" />}
       tooltip={dailyLinkTooltip(task.name, daily.name, "Go to Task")}
