@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MoonIcon, SunIcon } from "lucide-react";
 
 import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTemplatesSection";
+import { DashboardLayoutsSection } from "./settings.-components/-DashboardLayoutsSection";
 import { DataToolsSection } from "./settings.-components/-DataToolsSection";
 import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
@@ -34,6 +35,8 @@ function Settings() {
         <CriteriaTemplatesSection />
 
         <RoutineTemplatesSection />
+
+        <DashboardLayoutsSection />
 
         <ReadwiseSection />
 

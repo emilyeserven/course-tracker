@@ -1,6 +1,7 @@
 import {
   courseProviders,
   dailyCriteriaTemplates,
+  dashboardLayouts,
   resources,
   resourceTags,
   domains,
@@ -52,6 +53,7 @@ export async function clearData() {
   await db.delete(routines);
   await db.delete(routineTemplates);
   await db.delete(dailyCriteriaTemplates);
+  await db.delete(dashboardLayouts);
   await db.delete(tasks);
   await db.delete(taskTypes);
   await db.delete(modules);

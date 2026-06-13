@@ -1,3 +1,5 @@
+import { DASHBOARD_TILE_IDS } from "@emstack/types";
+
 export const idParamSchema = {
   type: "object",
   properties: {
@@ -176,6 +178,41 @@ export const criteriaSchema = {
       type: "string",
     },
   },
+} as const;
+
+// One enabled dashboard tile and its placement in the 4-column grid.
+const dashboardLayoutTileSchema = {
+  type: "object",
+  required: ["tileId", "x", "y", "w", "h"],
+  additionalProperties: false,
+  properties: {
+    tileId: {
+      type: "string",
+      enum: DASHBOARD_TILE_IDS,
+    },
+    x: {
+      type: "integer",
+      minimum: 0,
+    },
+    y: {
+      type: "integer",
+      minimum: 0,
+    },
+    w: {
+      type: "integer",
+      minimum: 1,
+      maximum: 4,
+    },
+    h: {
+      type: "integer",
+      minimum: 1,
+    },
+  },
+} as const;
+
+export const dashboardLayoutTilesSchema = {
+  type: "array",
+  items: dashboardLayoutTileSchema,
 } as const;
 
 export const tagsArraySchema = {
