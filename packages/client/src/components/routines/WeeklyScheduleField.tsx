@@ -2,11 +2,12 @@ import type { WeeklyRow, WeeklyRowType } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
 import type { RoutineWeekday } from "@emstack/types";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
 import { Combobox, ComboboxInput } from "@/components/combobox";
+import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 import { DAY_LABELS, DAY_ORDER } from "@/components/routines/weekly";
 
@@ -27,6 +28,12 @@ export function WeeklyScheduleField({
     () => new Map(value.map(r => [r.day, r])),
     [value],
   );
+
+  // Inline "Add resource" modal — shared across days; only one combobox dropdown
+  // is open at a time, so a single typed-text value and target day are enough.
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForDay, setAddForDay] = useState<RoutineWeekday | null>(null);
+  const [inputValue, setInputValue] = useState("");
 
   function update(day: RoutineWeekday, patch: Partial<WeeklyRow>) {
     onChange(
@@ -132,6 +139,7 @@ export function WeeklyScheduleField({
                         update(day, {
                           id: val ?? "",
                         })}
+                      onInputValueChange={val => setInputValue(val)}
                       itemToStringLabel={(val: string) =>
                         optionsMap.get(val) ?? ""}
                     >
@@ -146,7 +154,17 @@ export function WeeklyScheduleField({
                         showClear
                         disabled={!row.type}
                       />
-                      <TaskResourceComboboxContent optionsMap={optionsMap} />
+                      <TaskResourceComboboxContent
+                        optionsMap={optionsMap}
+                        onAddNew={
+                          row.type === "resource"
+                            ? () => {
+                              setAddForDay(day);
+                              setAddOpen(true);
+                            }
+                            : undefined
+                        }
+                      />
                     </Combobox>
                   )}
               </div>
@@ -225,6 +243,19 @@ export function WeeklyScheduleField({
           );
         })}
       </ul>
+
+      <QuickAddResourceDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        initialName={inputValue}
+        onCreated={(newId) => {
+          if (addForDay != null) {
+            update(addForDay, {
+              id: newId,
+            });
+          }
+        }}
+      />
     </div>
   );
 }

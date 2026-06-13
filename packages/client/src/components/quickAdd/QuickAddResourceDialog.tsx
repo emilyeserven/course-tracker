@@ -19,17 +19,30 @@ import {
 import { upsertResource, uuidv4 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
+interface QuickAddResourceDialogProps extends ControlledDialogProps {
+  /**
+   * Called with the new resource's id after a successful create. When provided,
+   * the success toast skips the "Edit"/navigate action so callers (e.g. an
+   * inline combobox) can keep the user in place and auto-select the resource.
+   */
+  onCreated?: (id: string) => void;
+  /** Seeds the name input when the dialog opens (e.g. the combobox's typed text). */
+  initialName?: string;
+}
+
 export function QuickAddResourceDialog({
   open,
   onOpenChange,
-}: ControlledDialogProps) {
+  onCreated,
+  initialName,
+}: QuickAddResourceDialogProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
 
   useEffect(() => {
-    if (open) setName("");
-  }, [open]);
+    if (open) setName(initialName ?? "");
+  }, [open, initialName]);
 
   const mutation = useMutation({
     // Resources have no POST create endpoint — a PUT with a fresh id upserts,
@@ -46,6 +59,11 @@ export function QuickAddResourceDialog({
         queryKey: queryKeys.resources.list(),
       });
       onOpenChange(false);
+      if (onCreated) {
+        onCreated(id);
+        toast.success("Resource created");
+        return;
+      }
       toast.success("Resource created", {
         action: {
           label: "Edit",
