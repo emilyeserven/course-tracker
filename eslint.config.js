@@ -1,4 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import path from "node:path";
+
 import emstackConfig from "@emilyeserven/eslint-config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -12,7 +14,7 @@ export default tseslint.config([
     ignores: ["pnpm-lock.yaml"],
     settings: {
       "better-tailwindcss": {
-        entryPoint: "./packages/client/src/index.css",
+        entryPoint: path.resolve(import.meta.dirname, "packages/client/src/index.css"),
       },
     },
   },

@@ -1,4 +1,4 @@
-import type { ResourceLinkOption } from "./resourceMeta";
+import type { ResourceSelectOption } from "./resourceMeta";
 import type { Module, ModuleGroup } from "@emstack/types";
 
 import { useMemo } from "react";
@@ -19,7 +19,7 @@ interface ResourceLinkInput {
 interface ResourceLinksPickerProps {
   value: ResourceLinkInput[];
   onChange: (next: ResourceLinkInput[]) => void;
-  courses: ResourceLinkOption[];
+  courses: ResourceSelectOption[];
   moduleGroups: ModuleGroup[];
   modules: Module[];
 }

@@ -1,0 +1,171 @@
+import type { Routine } from "@emstack/types";
+
+import { useEffect, useMemo, useState } from "react";
+
+import { useStore } from "@tanstack/react-form";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import * as z from "zod";
+
+import { useAppForm } from "@/components/formFields";
+import {
+  fillAllDays,
+  representativeRow,
+  rowsToWeekly,
+  weeklyToRows,
+} from "@/components/routines";
+import {
+  buildConnectionOptions,
+  decodeConnection,
+  encodeConnection,
+  fetchResources,
+  fetchTasks,
+  fetchTopics,
+  formHasChanges,
+  toOptions,
+  upsertRoutine,
+} from "@/utils";
+import { queryKeys } from "@/utils/queryKeys";
+
+const weeklyRowSchema = z
+  .object({
+    day: z.enum(["0", "1", "2", "3", "4", "5", "6"]),
+    type: z.enum(["", "task", "resource", "freeform"]),
+    id: z.string(),
+    notes: z.string(),
+    location: z.string(),
+    prependText: z.string(),
+    appendText: z.string(),
+  })
+  .refine(row => row.type === "" || row.id.length > 0, {
+    message: "Required",
+    path: ["id"],
+  });
+
+const detailsSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  description: z.string().max(2000),
+  connections: z.array(z.string()),
+  status: z.enum(["active", "inactive", "complete", "paused"]),
+  mode: z.enum(["weekly", "daily"]),
+  weekly: z.array(weeklyRowSchema).length(7),
+  // Daily-mode only: how many days a week the routine needs doing. Null = no
+  // target (every day).
+  weeklyTarget: z.number().int().min(1).max(7).nullable(),
+});
+
+/**
+ * Bundles the Details tab's data layer: the topics/tasks/resources queries and
+ * their derived combobox options, plus the change-tracked save form. Keeps the
+ * tab component presentational.
+ */
+export function useRoutineDetailsForm(
+  routine: Routine,
+  onSaved: () => Promise<void>,
+  onChangeStateChange?: (hasChanges: boolean) => void,
+) {
+  const {
+    data: topics,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => fetchTopics(),
+  });
+
+  const {
+    data: tasks,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => fetchTasks(),
+  });
+
+  const {
+    data: resources,
+  } = useQuery({
+    queryKey: queryKeys.resources.list(),
+    queryFn: () => fetchResources(),
+  });
+
+  const taskOptions = useMemo(() => toOptions(tasks), [tasks]);
+  const resourceOptions = useMemo(() => toOptions(resources), [resources]);
+  const connectionOptions = useMemo(
+    () => buildConnectionOptions(topics, tasks, resources),
+    [topics, tasks, resources],
+  );
+
+  const startingValues = useMemo(
+    () => ({
+      name: routine.name ?? "",
+      description: routine.description ?? "",
+      connections: (routine.connections ?? []).map(encodeConnection),
+      status: routine.status ?? "active",
+      mode: routine.mode ?? "weekly",
+      weekly: weeklyToRows(routine.weekly),
+      weeklyTarget: routine.weeklyTarget ?? null,
+    }),
+    [routine],
+  );
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useAppForm({
+    defaultValues: startingValues,
+    validators: {
+      onSubmit: detailsSchema,
+    },
+    onSubmit: async ({
+      value,
+    }) => {
+      setIsSaving(true);
+      try {
+        const connections = value.connections
+          .map(decodeConnection)
+          .filter((c): c is NonNullable<typeof c> => c !== null);
+
+        await upsertRoutine(routine.id, {
+          name: value.name,
+          description: value.description || null,
+          connections,
+          status: value.status,
+          mode: value.mode,
+          // Daily mode mirrors the single chosen entry onto all 7 days so
+          // "today's item" resolves identically every day.
+          weekly:
+            value.mode === "daily"
+              ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
+              : rowsToWeekly(value.weekly),
+          // The weekly target only applies to daily routines; clear it for
+          // weekly schedules.
+          weeklyTarget: value.mode === "daily" ? value.weeklyTarget : null,
+        });
+        onChangeStateChange?.(false);
+        await onSaved();
+        toast.success("Details saved.");
+      }
+      catch {
+        toast.error("Failed to save details.");
+      }
+      finally {
+        setIsSaving(false);
+      }
+    },
+  });
+
+  const currentValues = useStore(form.store, state => ({
+    ...state.values,
+  }));
+  const hasChanges = formHasChanges(currentValues, startingValues);
+  const isDaily = currentValues.mode === "daily";
+
+  useEffect(() => {
+    onChangeStateChange?.(hasChanges);
+  }, [hasChanges, onChangeStateChange]);
+
+  return {
+    form,
+    connectionOptions,
+    taskOptions,
+    resourceOptions,
+    isDaily,
+    isSaving,
+  };
+}

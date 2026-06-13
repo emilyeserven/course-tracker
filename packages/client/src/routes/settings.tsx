@@ -1,15 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTemplatesSection";
-import { DashboardLayoutsSection } from "./settings.-components/-DashboardLayoutsSection";
-import { DataToolsSection } from "./settings.-components/-DataToolsSection";
-import { FocusedDomainsSection } from "./settings.-components/-FocusedDomainsSection";
-import { GoogleCalendarSection } from "./settings.-components/-GoogleCalendarSection";
-import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
-import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
-import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
-import { ThemeSection } from "./settings.-components/-ThemeSection";
-import { TodoistSection } from "./settings.-components/-TodoistSection";
+import {
+  CriteriaTemplatesSection,
+  DashboardLayoutsSection,
+  DataToolsSection,
+  FocusedDomainsSection,
+  GoogleCalendarSection,
+  ReadwiseSection,
+  RoutineTemplatesSection,
+  TaskTypesSection,
+  ThemeSection,
+  TodoistSection,
+} from "./settings.-components";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageTabs } from "@/components/layout/PageTabs";

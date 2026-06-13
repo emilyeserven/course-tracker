@@ -2,7 +2,6 @@ import type { QuickAddKey } from "@/components/quickAdd";
 
 import React, { useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
 import {
   createRootRoute,
   Link,
@@ -10,8 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { HomeIcon, MenuIcon } from "lucide-react";
 
-import { DropdownNavItem } from "@/components/layout/DropdownNavItem";
-import { NavDropdown } from "@/components/layout/NavDropdown";
+import { DropdownNavItem, NavDropdown } from "@/components/layout";
 import {
   QuickAddDialogs,
   QuickAddMenu,
@@ -29,56 +27,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  fetchResources,
-  fetchDomains,
-  fetchProviders,
-  fetchTopics,
-} from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
+import { useShowOnboard } from "@/hooks/useShowOnboard";
 
 const RootComponent: React.FunctionComponent = () => {
   const [activeQuickAdd, setActiveQuickAdd] = useState<QuickAddKey | null>(null);
 
-  const {
-    data: resourcesData,
-  } = useQuery({
-    queryKey: queryKeys.resources.list(),
-    queryFn: () => fetchResources(),
-  });
-
-  const {
-    data: topicsData,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
-
-  const {
-    data: providersData,
-  } = useQuery({
-    queryKey: ["providers"],
-    queryFn: () => fetchProviders(),
-  });
-
-  const {
-    data: domainsData,
-  } = useQuery({
-    queryKey: ["domains"],
-    queryFn: () => fetchDomains(),
-  });
-
-  const allLoaded
-    = resourcesData !== undefined
-      && topicsData !== undefined
-      && providersData !== undefined
-      && domainsData !== undefined;
-  const showOnboard
-    = !allLoaded
-      || (!resourcesData?.length
-        && !topicsData?.length
-        && !providersData?.length
-        && !domainsData?.length);
+  const showOnboard = useShowOnboard();
 
   const navLinkClass = `
     underline-offset-2

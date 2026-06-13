@@ -1,11 +1,9 @@
 import type { ControlledDialogProps } from "@/components/dialogProps";
 
-import { useEffect, useState } from "react";
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+
+import { useQuickAddTodoist } from "./useQuickAddTodoist";
 
 import { Input } from "@/components/input";
 import { Textarea } from "@/components/textarea";
@@ -18,48 +16,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createTodoistTask, fetchSettings } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 export function QuickAddTodoistDialog({
   open,
   onOpenChange,
 }: ControlledDialogProps) {
-  const queryClient = useQueryClient();
-  const [content, setContent] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (open) {
-      setContent("");
-      setDescription("");
-    }
-  }, [open]);
-
-  const settingsQuery = useQuery({
-    queryKey: queryKeys.settings.detail(),
-    queryFn: () => fetchSettings(),
+  const {
+    content,
+    setContent,
+    description,
+    setDescription,
+    configured,
+    handleSubmit,
+    isPending,
+    canSubmit,
+  } = useQuickAddTodoist({
+    open,
+    onOpenChange,
   });
-  const configured = settingsQuery.data?.todoistConfigured ?? false;
-
-  const mutation = useMutation({
-    mutationFn: (input: { content: string;
-      description?: string; }) =>
-      createTodoistTask(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.todoist.tasks(),
-      });
-      onOpenChange(false);
-      toast.success("Added to Todoist");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const trimmedContent = content.trim();
-  const trimmedDescription = description.trim();
 
   return (
     <Dialog
@@ -80,15 +54,7 @@ export function QuickAddTodoistDialog({
           ? (
             <form
               className="flex flex-col gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (trimmedContent) {
-                  mutation.mutate({
-                    content: trimmedContent,
-                    description: trimmedDescription || undefined,
-                  });
-                }
-              }}
+              onSubmit={handleSubmit}
             >
               <div className="flex flex-col gap-1">
                 <label
@@ -129,9 +95,9 @@ export function QuickAddTodoistDialog({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!trimmedContent || mutation.isPending}
+                  disabled={!canSubmit || isPending}
                 >
-                  {mutation.isPending && <Loader2 className="animate-spin" />}
+                  {isPending && <Loader2 className="animate-spin" />}
                   Add
                 </Button>
               </DialogFooter>

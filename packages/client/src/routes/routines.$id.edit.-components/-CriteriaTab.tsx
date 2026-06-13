@@ -1,28 +1,18 @@
-// fallow-ignore-next-line code-duplication
-import type { Routine } from "@emstack/types";
+import type { DailyCriteriaTemplate, Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronDownIcon, Loader2, WandSparklesIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { DAILY_STATUS_OPTIONS } from "@/components/dailies/dailyStatusMeta";
+import { QuickFillMenu } from "./-QuickFillMenu";
+
+import { DAILY_STATUS_OPTIONS } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  fetchDailyCriteriaTemplates,
-  formHasChanges,
-  upsertRoutine,
-} from "@/utils";
+import { formHasChanges, upsertRoutine } from "@/utils";
 
 const criteriaSchema = z.object({
   criteriaIncomplete: z.string().max(500),
@@ -43,13 +33,6 @@ export function CriteriaTab({
   onSaved,
   onChangeStateChange,
 }: CriteriaTabProps) {
-  const {
-    data: criteriaTemplates,
-  } = useQuery({
-    queryKey: ["dailyCriteriaTemplates"],
-    queryFn: () => fetchDailyCriteriaTemplates(),
-  });
-
   const startingValues = useMemo(
     () => ({
       criteriaIncomplete: routine.criteria?.incomplete ?? "",
@@ -135,47 +118,16 @@ export function CriteriaTab({
               routine.
             </p>
           </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-              >
-                <WandSparklesIcon className="size-4" />
-                Quick Fill
-                <ChevronDownIcon className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {(criteriaTemplates ?? []).length === 0
-                ? (
-                  <DropdownMenuItem disabled>
-                    No templates — add one in Settings
-                  </DropdownMenuItem>
-                )
-                : (criteriaTemplates ?? []).map(template => (
-                  <DropdownMenuItem
-                    key={template.id}
-                    onSelect={() => {
-                      form.setFieldValue(
-                        "criteriaIncomplete",
-                        template.incomplete,
-                      );
-                      form.setFieldValue("criteriaTouched", template.touched);
-                      form.setFieldValue("criteriaGoal", template.goal);
-                      form.setFieldValue(
-                        "criteriaExceeded",
-                        template.exceeded,
-                      );
-                      form.setFieldValue("criteriaFreeze", template.freeze);
-                    }}
-                  >
-                    {template.label}
-                  </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <QuickFillMenu<DailyCriteriaTemplate>
+            kind="criteria"
+            onSelect={(template) => {
+              form.setFieldValue("criteriaIncomplete", template.incomplete);
+              form.setFieldValue("criteriaTouched", template.touched);
+              form.setFieldValue("criteriaGoal", template.goal);
+              form.setFieldValue("criteriaExceeded", template.exceeded);
+              form.setFieldValue("criteriaFreeze", template.freeze);
+            }}
+          />
         </div>
         <form.AppField name="criteriaIncomplete">
           {field => (

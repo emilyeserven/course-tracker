@@ -5,9 +5,13 @@ import { useMemo, useState } from "react";
 
 import { PlusIcon, SearchIcon } from "lucide-react";
 
-import { inheritedLevel, linkedResourceLabel } from "./resourceMeta";
-import { COLUMN_COUNT, EditingRow } from "./TaskResourceEditingRow";
-import { TaskResourceRow } from "./TaskResourceRow";
+import {
+  COLUMN_COUNT,
+  EditingRow,
+  inheritedLevel,
+  linkedResourceLabel,
+  TaskResourceRow,
+} from "./taskResourceTable";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
@@ -19,10 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { useTaskResources } from "@/hooks/useTaskResources";
 import { uuidv4 } from "@/utils/uuid";
 
@@ -303,7 +304,12 @@ export function ResourcesTable({
           return (
             <TaskResourceRow
               resource={r}
-              ease={inheritedLevel(r, "easeOfStarting", modulesList, groupsList)}
+              ease={inheritedLevel(
+                r,
+                "easeOfStarting",
+                modulesList,
+                groupsList,
+              )}
               time={inheritedLevel(r, "timeNeeded", modulesList, groupsList)}
               interactivity={inheritedLevel(
                 r,

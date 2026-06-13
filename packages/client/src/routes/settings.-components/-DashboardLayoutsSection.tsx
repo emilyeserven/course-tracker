@@ -1,9 +1,6 @@
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
-import { useState } from "react";
-
 import { DASHBOARD_TILE_IDS } from "@emstack/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookmarkIcon,
   CopyIcon,
@@ -12,7 +9,8 @@ import {
   PlusIcon,
   Trash2Icon,
 } from "lucide-react";
-import { toast } from "sonner";
+
+import { useDashboardLayouts } from "./-useDashboardLayouts";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { LayoutNameDialog } from "@/components/LayoutNameDialog";
@@ -26,20 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  TILE_META,
-  toggleTile,
-} from "@/routes/dashboard.-components/-dashboardTileMeta";
-import {
-  createDashboardLayout,
-  deleteSingleDashboardLayout,
-  duplicateDashboardLayout,
-  fetchDashboardLayouts,
-  upsertDashboardLayout,
-} from "@/utils/api";
-import { queryKeys } from "@/utils/queryKeys";
-
-type CreateKind = "tab" | "preset";
+import { TILE_META } from "@/routes/dashboard.-components/-dashboardTileMeta";
 
 interface LayoutRowProps {
   layout: DashboardLayout;
@@ -124,149 +109,28 @@ function LayoutRow({
 }
 
 export function DashboardLayoutsSection() {
-  const queryClient = useQueryClient();
-
-  const [renameTargetId, setRenameTargetId] = useState<string | null>(null);
-  const [saveAsTargetId, setSaveAsTargetId] = useState<string | null>(null);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [creatingKind, setCreatingKind] = useState<CreateKind | null>(null);
-
-  const layoutsQuery = useQuery({
-    queryKey: queryKeys.dashboardLayouts.list(),
-    queryFn: () => fetchDashboardLayouts(),
-  });
-
-  const invalidate = () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.dashboardLayouts.list(),
-    });
-
-  const layouts = layoutsQuery.data ?? [];
-  const tabs = layouts.filter(l => !l.isTemplate);
-  const presets = layouts.filter(l => l.isTemplate);
-
-  const renameTarget = layouts.find(l => l.id === renameTargetId) ?? null;
-  const saveAsTarget = layouts.find(l => l.id === saveAsTargetId) ?? null;
-  const deleteTarget = layouts.find(l => l.id === deleteTargetId) ?? null;
-
-  const createMutation = useMutation({
-    mutationFn: ({
-      name, kind,
-    }: { name: string;
-      kind: CreateKind; }) =>
-      createDashboardLayout({
-        name,
-        position: kind === "tab" ? tabs.length : null,
-        tiles: [],
-        isTemplate: kind === "preset",
-      }),
-    onSuccess: (_res, {
-      kind,
-    }) => {
-      void invalidate();
-      setCreatingKind(null);
-      toast.success(kind === "preset" ? "Preset created" : "Layout created");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const renameMutation = useMutation({
-    mutationFn: ({
-      layout, name,
-    }: { layout: DashboardLayout;
-      name: string; }) =>
-      upsertDashboardLayout(layout.id, {
-        name,
-        position: layout.position ?? null,
-        tiles: layout.tiles,
-        isTemplate: layout.isTemplate ?? false,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setRenameTargetId(null);
-      toast.success("Layout renamed");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const saveAsPresetMutation = useMutation({
-    mutationFn: ({
-      name, layout,
-    }: { name: string;
-      layout: DashboardLayout; }) =>
-      createDashboardLayout({
-        name,
-        position: null,
-        tiles: layout.tiles,
-        isTemplate: true,
-      }),
-    onSuccess: () => {
-      void invalidate();
-      setSaveAsTargetId(null);
-      toast.success("Saved as a layout you can reuse");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const duplicateMutation = useMutation({
-    mutationFn: (id: string) => duplicateDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      toast.success("Layout duplicated");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteSingleDashboardLayout(id),
-    onSuccess: () => {
-      void invalidate();
-      setDeleteTargetId(null);
-      toast.success("Layout deleted");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const toggleTileMutation = useMutation({
-    mutationFn: ({
-      layout, tileId,
-    }: { layout: DashboardLayout;
-      tileId: DashboardTileId; }) =>
-      upsertDashboardLayout(layout.id, {
-        name: layout.name,
-        position: layout.position ?? null,
-        tiles: toggleTile(layout.tiles, tileId),
-        isTemplate: layout.isTemplate ?? false,
-      }),
-    onSuccess: () => {
-      void invalidate();
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
-
-  const rowProps = {
-    onToggleTile: (layout: DashboardLayout, tileId: DashboardTileId) =>
-      toggleTileMutation.mutate({
-        layout,
-        tileId,
-      }),
-    onRename: (layout: DashboardLayout) => setRenameTargetId(layout.id),
-    onDuplicate: (layout: DashboardLayout) => duplicateMutation.mutate(layout.id),
-    onSaveAs: (layout: DashboardLayout) => setSaveAsTargetId(layout.id),
-    onDelete: (layout: DashboardLayout) => setDeleteTargetId(layout.id),
-  };
+  const {
+    isPending,
+    tabs,
+    presets,
+    rowProps,
+    creatingKind,
+    startCreate,
+    closeCreate,
+    submitCreate,
+    isCreating,
+    renameTarget,
+    closeRename,
+    submitRename,
+    isRenaming,
+    saveAsTarget,
+    closeSaveAs,
+    submitSaveAs,
+    isSavingPreset,
+    deleteTarget,
+    closeDelete,
+    confirmDelete,
+  } = useDashboardLayouts();
 
   return (
     <>
@@ -275,14 +139,14 @@ export function DashboardLayoutsSection() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => setCreatingKind("preset")}
+              onClick={() => startCreate("preset")}
             >
               <BookmarkIcon />
               New Preset
             </Button>
             <Button
               variant="outline"
-              onClick={() => setCreatingKind("tab")}
+              onClick={() => startCreate("tab")}
             >
               <PlusIcon />
               New Layout
@@ -294,7 +158,7 @@ export function DashboardLayoutsSection() {
           tab from.
         </p>
 
-        {layoutsQuery.isPending
+        {isPending
           ? <p className="text-sm text-muted-foreground">Loading...</p>
           : (
             <>
@@ -353,18 +217,11 @@ export function DashboardLayoutsSection() {
         open={renameTarget !== null}
         title="Rename layout"
         initialName={renameTarget?.name ?? ""}
-        isSaving={renameMutation.isPending}
+        isSaving={isRenaming}
         onOpenChange={(open) => {
-          if (!open) setRenameTargetId(null);
+          if (!open) closeRename();
         }}
-        onSubmit={(name) => {
-          if (renameTarget) {
-            renameMutation.mutate({
-              layout: renameTarget,
-              name,
-            });
-          }
-        }}
+        onSubmit={submitRename}
       />
 
       <LayoutNameDialog
@@ -372,36 +229,22 @@ export function DashboardLayoutsSection() {
         title="Save as preset"
         submitLabel="Save"
         initialName={saveAsTarget?.name ?? ""}
-        isSaving={saveAsPresetMutation.isPending}
+        isSaving={isSavingPreset}
         onOpenChange={(open) => {
-          if (!open) setSaveAsTargetId(null);
+          if (!open) closeSaveAs();
         }}
-        onSubmit={(name) => {
-          if (saveAsTarget) {
-            saveAsPresetMutation.mutate({
-              name,
-              layout: saveAsTarget,
-            });
-          }
-        }}
+        onSubmit={submitSaveAs}
       />
 
       <LayoutNameDialog
         open={creatingKind !== null}
         title={creatingKind === "preset" ? "New preset" : "New layout"}
         submitLabel="Create"
-        isSaving={createMutation.isPending}
+        isSaving={isCreating}
         onOpenChange={(open) => {
-          if (!open) setCreatingKind(null);
+          if (!open) closeCreate();
         }}
-        onSubmit={(name) => {
-          if (creatingKind) {
-            createMutation.mutate({
-              name,
-              kind: creatingKind,
-            });
-          }
-        }}
+        onSubmit={submitCreate}
       />
 
       <ConfirmDialog
@@ -414,10 +257,8 @@ export function DashboardLayoutsSection() {
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"
-        onConfirm={() => {
-          if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
-        }}
-        onCancel={() => setDeleteTargetId(null)}
+        onConfirm={confirmDelete}
+        onCancel={closeDelete}
       />
     </>
   );

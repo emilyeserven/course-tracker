@@ -1,11 +1,12 @@
 import type { WeeklyEntry, WeeklyRowType } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
 import { Combobox, ComboboxInput } from "@/components/combobox";
+import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 
 interface WeeklyEntryEditorProps extends WeeklyEntry {
@@ -35,6 +36,10 @@ export function WeeklyEntryEditor({
     () => new Map(itemOptions.map(o => [o.value, o.label])),
     [itemOptions],
   );
+
+  // Inline "Add resource" modal (only offered for the resource type).
+  const [addOpen, setAddOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   function emit(patch: Partial<WeeklyEntry>) {
     onChange({
@@ -111,6 +116,7 @@ export function WeeklyEntryEditor({
                 emit({
                   id: val ?? "",
                 })}
+              onInputValueChange={val => setInputValue(val)}
               itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
             >
               <ComboboxInput
@@ -124,7 +130,12 @@ export function WeeklyEntryEditor({
                 showClear
                 disabled={!type}
               />
-              <TaskResourceComboboxContent optionsMap={optionsMap} />
+              <TaskResourceComboboxContent
+                optionsMap={optionsMap}
+                onAddNew={
+                  type === "resource" ? () => setAddOpen(true) : undefined
+                }
+              />
             </Combobox>
           )}
       </div>
@@ -195,6 +206,16 @@ export function WeeklyEntryEditor({
           )}
         </>
       )}
+
+      <QuickAddResourceDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        initialName={inputValue}
+        onCreated={newId =>
+          emit({
+            id: newId,
+          })}
+      />
     </div>
   );
 }

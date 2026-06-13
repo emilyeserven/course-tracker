@@ -5,7 +5,7 @@
 export {
   DashboardCard,
   DashboardSectionStatus,
-} from "@/components/boxes/DashboardCard";
+} from "@/components/contentBoxComponents/DashboardCard";
 export { CardSettingsFlyout, SettingToggle } from "./-DashboardCardSettings";
 export { isAutoHeight } from "./-dashboardTileMeta";
 export { Button } from "@/components/ui/button";

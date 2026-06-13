@@ -10,17 +10,20 @@ import {
   SparklesIcon,
 } from "lucide-react";
 
-import { GroupEditCard, GroupMetaChips } from "./GroupEditCard";
-import { InteractionQuickLog } from "./InteractionQuickLog";
-import { ModuleDisplayRow } from "./ModuleDisplayRow";
+import {
+  GroupEditCard,
+  GroupMetaChips,
+  InteractionQuickLog,
+  ModuleDisplayRow,
+  ModuleEditCard,
+  ModuleSuggestDialog,
+} from "./moduleAdminComponents";
 import {
   emptyGroupDraft,
   emptyModuleDraft,
   groupToDraft,
   moduleToDraft,
 } from "./moduleDrafts";
-import { ModuleEditCard } from "./ModuleEditCard";
-import { ModuleSuggestDialog } from "./ModuleSuggestDialog";
 
 import { Button } from "@/components/ui/button";
 import { useResourceModules } from "@/hooks/useResourceModules";

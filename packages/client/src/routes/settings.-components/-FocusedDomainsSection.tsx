@@ -2,16 +2,14 @@ import type { AppSettingsSummary, Domain } from "@emstack/types";
 
 import { MAX_FOCUSED_DOMAINS } from "@emstack/types";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import * as z from "zod";
+
+import { useFocusedDomains } from "./-useFocusedDomains";
 
 import { useAppForm } from "@/components/formFields";
 import { EditForm } from "@/components/layout/EditForm";
 import { Button } from "@/components/ui/button";
-import { fetchDomains, fetchSettings, updateSettings } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 const formSchema = z.object({
   focusedDomainIds: z
@@ -19,15 +17,14 @@ const formSchema = z.object({
     .max(MAX_FOCUSED_DOMAINS, `Pick at most ${MAX_FOCUSED_DOMAINS} domains.`),
 });
 
+type SaveMutation = ReturnType<typeof useFocusedDomains>["saveMutation"];
+
 export function FocusedDomainsSection() {
-  const settingsQuery = useQuery({
-    queryKey: queryKeys.settings.detail(),
-    queryFn: () => fetchSettings(),
-  });
-  const domainsQuery = useQuery({
-    queryKey: queryKeys.domains.list(),
-    queryFn: () => fetchDomains(),
-  });
+  const {
+    settingsQuery,
+    domainsQuery,
+    saveMutation,
+  } = useFocusedDomains();
 
   return (
     <section className="flex flex-col gap-3">
@@ -45,6 +42,7 @@ export function FocusedDomainsSection() {
           <FocusedDomainsForm
             settings={settingsQuery.data}
             domains={domainsQuery.data}
+            saveMutation={saveMutation}
           />
         )
         : (
@@ -57,12 +55,12 @@ export function FocusedDomainsSection() {
 function FocusedDomainsForm({
   settings,
   domains,
+  saveMutation,
 }: {
   settings: AppSettingsSummary;
   domains: Domain[];
+  saveMutation: SaveMutation;
 }) {
-  const queryClient = useQueryClient();
-
   const domainOptions = domains
     .filter((d): d is Domain & { id: string } => Boolean(d.id))
     .map(d => ({
@@ -75,22 +73,6 @@ function FocusedDomainsForm({
   const existingIds = new Set(domainOptions.map(o => o.value));
   const initialFocused = settings.focusedDomainIds.filter(id =>
     existingIds.has(id));
-
-  const saveMutation = useMutation({
-    mutationFn: (focusedDomainIds: string[]) =>
-      updateSettings({
-        focusedDomainIds,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.settings.detail(),
-      });
-      toast.success("Focused domains saved");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-    },
-  });
 
   const form = useAppForm({
     defaultValues: {

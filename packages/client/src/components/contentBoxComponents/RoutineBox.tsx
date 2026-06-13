@@ -7,8 +7,7 @@ import type {
 import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon } from "lucide-react";
 
-import { Description } from "@/components/boxElements/Description";
-import { EntityLink } from "@/components/boxElements/EntityLink";
+import { Description, EntityLink } from "@/components/boxElements";
 import {
   ContentBox,
   ContentBoxBody,
