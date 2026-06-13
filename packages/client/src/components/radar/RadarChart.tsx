@@ -21,6 +21,8 @@ import {
   IGNORED_LABEL_COLOR,
   IGNORED_LABEL_GAP,
   QUADRANT_PALETTE,
+  RADAR_LABEL_PADDING_X,
+  RADAR_LABEL_PADDING_Y,
   computeRingRadii,
   layoutStripBlips,
   positionRadarBlips,
@@ -267,10 +269,10 @@ export function RadarChart({
       >
         <div className="flex-1">
           <svg
-            viewBox={`0 0 ${size} ${totalHeight}`}
+            viewBox={`${-RADAR_LABEL_PADDING_X} ${-RADAR_LABEL_PADDING_Y} ${size + RADAR_LABEL_PADDING_X * 2} ${totalHeight + RADAR_LABEL_PADDING_Y * 2}`}
             width="100%"
             style={{
-              maxWidth: size,
+              maxWidth: size + RADAR_LABEL_PADDING_X * 2,
             }}
             role="img"
             aria-label="Radar chart"
