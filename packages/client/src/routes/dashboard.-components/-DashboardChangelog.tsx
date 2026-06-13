@@ -1,3 +1,4 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { ReactNode } from "react";
 
 // Bundled at build time from the repo-root CHANGELOG.md (the `@root` Vite
@@ -9,6 +10,8 @@ import type { ReactNode } from "react";
 import changelogMarkdown from "@root/CHANGELOG.md?raw";
 
 import { parseChangelog } from "./-changelog";
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import { DashboardCard } from "@/components/boxes/DashboardCard";
 
@@ -86,9 +89,13 @@ function renderInline(text: string): ReactNode[] {
   return nodes;
 }
 
-export function DashboardChangelog() {
+export function DashboardChangelog({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Changelog"
       action={(
         <a
@@ -102,6 +109,12 @@ export function DashboardChangelog() {
         >
           View on GitHub
         </a>
+      )}
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        />
       )}
     >
       {releases.length === 0
