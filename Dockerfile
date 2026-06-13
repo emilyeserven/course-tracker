@@ -49,6 +49,9 @@ RUN pnpm --filter @emstack/middleware exec tsc -b tsconfig.build.json --noCheck 
 FROM build-types AS build-client
 
 COPY packages/client/ ./packages/client/
+# The client bundles the repo-root CHANGELOG.md at build time (the @root Vite
+# alias + ?raw import in -DashboardChangelog.tsx), so it must be present here.
+COPY CHANGELOG.md ./
 RUN pnpm --filter @emstack/client build
 
 
