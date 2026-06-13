@@ -614,6 +614,7 @@ function SingleResourceEdit() {
         )
         : (
           <Tabs
+            orientation="vertical"
             value={tab}
             onValueChange={value => changeTab(value as ResourceTab)}
           >

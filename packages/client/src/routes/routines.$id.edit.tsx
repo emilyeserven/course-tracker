@@ -341,6 +341,7 @@ function ExistingRoutineEdit({
       </PageHeader>
       <div className="container flex flex-col gap-6">
         <Tabs
+          orientation="vertical"
           value={tab}
           onValueChange={value => changeTab(value as EditTab)}
         >
