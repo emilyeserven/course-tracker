@@ -85,7 +85,7 @@ function TaskList({
                 target="_blank"
                 rel="noreferrer"
                 className="
-                  truncate font-medium
+                  truncate text-sm font-medium
                   hover:text-blue-600
                 "
               >

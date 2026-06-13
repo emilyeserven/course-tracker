@@ -72,14 +72,18 @@ function ArticleList({
                   target="_blank"
                   rel="noreferrer"
                   className="
-                    truncate font-medium
+                    truncate text-sm font-medium
                     hover:text-blue-600
                   "
                 >
                   {doc.title}
                 </a>
               )
-              : <span className="truncate font-medium">{doc.title}</span>}
+              : (
+                <span className="truncate text-sm font-medium">
+                  {doc.title}
+                </span>
+              )}
             <ArticleMeta doc={doc} />
           </div>
           {!!doc.url && (
