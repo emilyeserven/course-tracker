@@ -2,50 +2,45 @@ import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
 import { useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { useDashboardLayoutMutations } from "@/hooks/useDashboardLayoutMutations";
+import { useDashboardLayoutManager } from "@/hooks/useDashboardLayoutManager";
 import { toggleTile } from "@/lib/dashboardTiles";
-import {
-  createDashboardLayout,
-  fetchDashboardLayouts,
-  upsertDashboardLayout,
-} from "@/utils/api";
-import { queryKeys } from "@/utils/queryKeys";
+import { createDashboardLayout, upsertDashboardLayout } from "@/utils/api";
 
 export type CreateKind = "tab" | "preset";
 
 /**
- * Data + mutations for the dashboard-layouts settings section. Owns the dialog
- * target state alongside the mutations so each `onSuccess` can close its own
- * dialog; the section is left rendering from a presentational-ready return.
+ * Data + mutations for the dashboard-layouts settings section. Wraps the shared
+ * `useDashboardLayoutManager` (query + rename/save-as/delete dialogs) and layers
+ * on the settings-only create (tab or preset) and per-row tile toggle, returning
+ * a presentational-ready shape for the section to render.
  */
 export function useDashboardLayouts() {
-  const queryClient = useQueryClient();
+  const {
+    isPending,
+    tabs,
+    presets,
+    invalidate,
+    duplicateMutation,
+    renameTarget,
+    openRename,
+    closeRename,
+    submitRename,
+    isRenaming,
+    saveAsTarget,
+    openSaveAs,
+    closeSaveAs,
+    submitSaveAs,
+    isSavingPreset,
+    deleteTarget,
+    openDelete,
+    closeDelete,
+    confirmDelete,
+  } = useDashboardLayoutManager();
 
-  const [renameTargetId, setRenameTargetId] = useState<string | null>(null);
-  const [saveAsTargetId, setSaveAsTargetId] = useState<string | null>(null);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [creatingKind, setCreatingKind] = useState<CreateKind | null>(null);
-
-  const layoutsQuery = useQuery({
-    queryKey: queryKeys.dashboardLayouts.list(),
-    queryFn: () => fetchDashboardLayouts(),
-  });
-
-  const invalidate = () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.dashboardLayouts.list(),
-    });
-
-  const layouts = layoutsQuery.data ?? [];
-  const tabs = layouts.filter(l => !l.isTemplate);
-  const presets = layouts.filter(l => l.isTemplate);
-
-  const renameTarget = layouts.find(l => l.id === renameTargetId) ?? null;
-  const saveAsTarget = layouts.find(l => l.id === saveAsTargetId) ?? null;
-  const deleteTarget = layouts.find(l => l.id === deleteTargetId) ?? null;
 
   const createMutation = useMutation({
     mutationFn: ({
@@ -68,17 +63,6 @@ export function useDashboardLayouts() {
     onError: (err: Error) => {
       toast.error(err.message);
     },
-  });
-
-  const {
-    renameMutation,
-    saveAsPresetMutation,
-    duplicateMutation,
-    deleteMutation,
-  } = useDashboardLayoutMutations({
-    onRenamed: () => setRenameTargetId(null),
-    onSavedAsPreset: () => setSaveAsTargetId(null),
-    onDeleted: () => setDeleteTargetId(null),
   });
 
   const toggleTileMutation = useMutation({
@@ -109,15 +93,15 @@ export function useDashboardLayouts() {
         layout,
         tileId,
       }),
-    onRename: (layout: DashboardLayout) => setRenameTargetId(layout.id),
+    onRename: (layout: DashboardLayout) => openRename(layout.id),
     onDuplicate: (layout: DashboardLayout) =>
       duplicateMutation.mutate(layout.id),
-    onSaveAs: (layout: DashboardLayout) => setSaveAsTargetId(layout.id),
-    onDelete: (layout: DashboardLayout) => setDeleteTargetId(layout.id),
+    onSaveAs: (layout: DashboardLayout) => openSaveAs(layout.id),
+    onDelete: (layout: DashboardLayout) => openDelete(layout.id),
   };
 
   return {
-    isPending: layoutsQuery.isPending,
+    isPending,
     tabs,
     presets,
     rowProps,
@@ -136,33 +120,17 @@ export function useDashboardLayouts() {
     isCreating: createMutation.isPending,
 
     renameTarget,
-    closeRename: () => setRenameTargetId(null),
-    submitRename: (name: string) => {
-      if (renameTarget) {
-        renameMutation.mutate({
-          layout: renameTarget,
-          name,
-        });
-      }
-    },
-    isRenaming: renameMutation.isPending,
+    closeRename,
+    submitRename,
+    isRenaming,
 
     saveAsTarget,
-    closeSaveAs: () => setSaveAsTargetId(null),
-    submitSaveAs: (name: string) => {
-      if (saveAsTarget) {
-        saveAsPresetMutation.mutate({
-          name,
-          tiles: saveAsTarget.tiles,
-        });
-      }
-    },
-    isSavingPreset: saveAsPresetMutation.isPending,
+    closeSaveAs,
+    submitSaveAs,
+    isSavingPreset,
 
     deleteTarget,
-    closeDelete: () => setDeleteTargetId(null),
-    confirmDelete: () => {
-      if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
-    },
+    closeDelete,
+    confirmDelete,
   };
 }

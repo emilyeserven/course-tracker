@@ -6,7 +6,7 @@ import type {
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -30,12 +30,8 @@ import {
 } from "./dashboard.-components";
 
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
-import { useDashboardLayoutMutations } from "@/hooks/useDashboardLayoutMutations";
-import {
-  createDashboardLayout,
-  fetchDashboardLayouts,
-  upsertDashboardLayout,
-} from "@/utils/api";
+import { useDashboardLayoutManager } from "@/hooks/useDashboardLayoutManager";
+import { createDashboardLayout, upsertDashboardLayout } from "@/utils/api";
 import { queryKeys } from "@/utils/queryKeys";
 
 export const Route = createFileRoute("/dashboard")({
@@ -48,29 +44,30 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [tilesTargetId, setTilesTargetId] = useState<string | null>(null);
-  const [renameTargetId, setRenameTargetId] = useState<string | null>(null);
-  const [saveAsTargetId, setSaveAsTargetId] = useState<string | null>(null);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const {
-    data: layouts,
+    layouts,
+    tabs,
+    presets,
     isPending,
     error,
-  } = useQuery({
-    queryKey: queryKeys.dashboardLayouts.list(),
-    queryFn: () => fetchDashboardLayouts(),
-  });
-
-  // Tabs are the non-template layouts; presets are offered as starting points
-  // when adding a tab and never appear in the strip.
-  const tabs = useMemo(
-    () => layouts?.filter(l => !l.isTemplate) ?? [],
-    [layouts],
-  );
-  const presets = useMemo(
-    () => layouts?.filter(l => l.isTemplate) ?? [],
-    [layouts],
-  );
+    invalidate,
+    duplicateMutation,
+    renameTarget,
+    openRename,
+    closeRename,
+    submitRename,
+    isRenaming,
+    saveAsTarget,
+    openSaveAs,
+    closeSaveAs,
+    submitSaveAs,
+    isSavingPreset,
+    deleteTarget,
+    openDelete,
+    closeDelete,
+    confirmDelete,
+  } = useDashboardLayoutManager();
 
   const {
     activeId, setActiveId,
@@ -84,15 +81,7 @@ function Dashboard() {
     [activeLayout],
   );
 
-  const tilesTarget = layouts?.find(l => l.id === tilesTargetId) ?? null;
-  const renameTarget = layouts?.find(l => l.id === renameTargetId) ?? null;
-  const saveAsTarget = layouts?.find(l => l.id === saveAsTargetId) ?? null;
-  const deleteTarget = layouts?.find(l => l.id === deleteTargetId) ?? null;
-
-  const invalidate = () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.dashboardLayouts.list(),
-    });
+  const tilesTarget = layouts.find(l => l.id === tilesTargetId) ?? null;
 
   const createTabMutation = useMutation({
     mutationFn: ({
@@ -119,32 +108,23 @@ function Dashboard() {
   });
 
   // First visit on an empty database: create the "Default" layout that
-  // replicates the pre-grid dashboard. Ref-guarded so StrictMode's double
-  // effect run can't create two rows.
+  // replicates the pre-grid dashboard. Wait for a settled, successful load so a
+  // still-loading (or errored) query can't trigger a spurious create, and
+  // ref-guard so StrictMode's double effect run can't create two rows.
   const autoCreatedRef = useRef(false);
   const {
     mutate: autoCreate,
   } = createTabMutation;
   useEffect(() => {
-    if (layouts && layouts.length === 0 && !autoCreatedRef.current) {
+    if (isPending || error != null) return;
+    if (layouts.length === 0 && !autoCreatedRef.current) {
       autoCreatedRef.current = true;
       autoCreate({
         name: "Default",
         tiles: buildDefaultTiles(),
       });
     }
-  }, [layouts, autoCreate]);
-
-  const {
-    renameMutation,
-    saveAsPresetMutation,
-    duplicateMutation,
-    deleteMutation,
-  } = useDashboardLayoutMutations({
-    onRenamed: () => setRenameTargetId(null),
-    onSavedAsPreset: () => setSaveAsTargetId(null),
-    onDeleted: () => setDeleteTargetId(null),
-  });
+  }, [isPending, error, layouts, autoCreate]);
 
   // Tile moves/resizes save through an optimistic cache write with no
   // invalidate on success — a refetch mid-drag would snap tiles back.
@@ -258,7 +238,7 @@ function Dashboard() {
             Failed to load dashboard layouts.
           </p>
         )}
-        {!isPending && error == null && layouts != null && (
+        {!isPending && error == null && (
           <>
             <div className="flex flex-wrap items-center gap-2">
               <Tabs
@@ -271,10 +251,10 @@ function Dashboard() {
                       key={layout.id}
                       layout={layout}
                       onEditTiles={l => setTilesTargetId(l.id)}
-                      onRename={l => setRenameTargetId(l.id)}
+                      onRename={l => openRename(l.id)}
                       onDuplicate={l => duplicateMutation.mutate(l.id)}
-                      onSaveAs={l => setSaveAsTargetId(l.id)}
-                      onDelete={l => setDeleteTargetId(l.id)}
+                      onSaveAs={l => openSaveAs(l.id)}
+                      onDelete={l => openDelete(l.id)}
                     />
                   ))}
                 </TabsList>
@@ -330,18 +310,11 @@ function Dashboard() {
         open={renameTarget !== null}
         title="Rename layout"
         initialName={renameTarget?.name ?? ""}
-        isSaving={renameMutation.isPending}
+        isSaving={isRenaming}
         onOpenChange={(open) => {
-          if (!open) setRenameTargetId(null);
+          if (!open) closeRename();
         }}
-        onSubmit={(name) => {
-          if (renameTarget) {
-            renameMutation.mutate({
-              layout: renameTarget,
-              name,
-            });
-          }
-        }}
+        onSubmit={submitRename}
       />
 
       <LayoutNameDialog
@@ -349,18 +322,11 @@ function Dashboard() {
         title="Save as layout"
         submitLabel="Save"
         initialName={saveAsTarget?.name ?? ""}
-        isSaving={saveAsPresetMutation.isPending}
+        isSaving={isSavingPreset}
         onOpenChange={(open) => {
-          if (!open) setSaveAsTargetId(null);
+          if (!open) closeSaveAs();
         }}
-        onSubmit={(name) => {
-          if (saveAsTarget) {
-            saveAsPresetMutation.mutate({
-              name,
-              tiles: saveAsTarget.tiles,
-            });
-          }
-        }}
+        onSubmit={submitSaveAs}
       />
 
       <ConfirmDialog
@@ -373,10 +339,8 @@ function Dashboard() {
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"
-        onConfirm={() => {
-          if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
-        }}
-        onCancel={() => setDeleteTargetId(null)}
+        onConfirm={confirmDelete}
+        onCancel={closeDelete}
       />
     </div>
   );
