@@ -40,7 +40,7 @@ Organized by purpose under `src/components/`:
 - `ui/` — shadcn-style primitives (add new ones via the shadcn CLI)
 - Root-level primitives — `button.tsx`, `calendar.tsx`, `combobox.tsx`, `input.tsx`, `input-group.tsx`, `popover.tsx`, `radio-group.tsx`, `textarea.tsx`, `sonner.tsx`: vendored shadcn-derived files; keep edits minimal and preserve their scoped eslint-disable comments
 - `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, `OverviewCardGrid`, …)
-- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. `boxes/` still exists as a thin re-export shim for the old `@/components/boxes/*` import paths — prefer importing from `contentBoxComponents/`
+- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. Import boxes from `contentBoxComponents/` (the `index.ts` barrel re-exports the boxes plus the two tables, so a page rendering several imports from one module). The entity boxes (`CourseBox`, `DomainBox`, `ProviderBox`, `TaskBox`, `TopicBox`) are a deliberate cohesive card family — they share `ContentBox` and the `boxElements/` primitives — so they stay centralized here even though each has a single consuming index route (decided in #323); don't colocate them into `*.-components/`.
 - `tables/` — table components (`CoursesTable`, `TopicsTable`)
 - `resources/` — resource/module components
 - `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)

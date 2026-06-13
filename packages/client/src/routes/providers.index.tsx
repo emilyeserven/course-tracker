@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { ContentBox, ProviderBox } from "@/components/boxes";
+import { ContentBox, ProviderBox } from "@/components/contentBoxComponents";
 import {
   EntityError,
   EntityPending,

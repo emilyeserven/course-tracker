@@ -1,6 +1,6 @@
 import type { Routine } from "@emstack/types";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
@@ -105,7 +105,6 @@ export function useRoutineDetailsForm(
     [routine],
   );
 
-  const lastSavedRef = useRef(startingValues);
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useAppForm({
@@ -138,7 +137,6 @@ export function useRoutineDetailsForm(
           // weekly schedules.
           weeklyTarget: value.mode === "daily" ? value.weeklyTarget : null,
         });
-        lastSavedRef.current = value;
         onChangeStateChange?.(false);
         await onSaved();
         toast.success("Details saved.");
@@ -155,7 +153,7 @@ export function useRoutineDetailsForm(
   const currentValues = useStore(form.store, state => ({
     ...state.values,
   }));
-  const hasChanges = formHasChanges(currentValues, lastSavedRef.current);
+  const hasChanges = formHasChanges(currentValues, startingValues);
   const isDaily = currentValues.mode === "daily";
 
   useEffect(() => {

@@ -34,7 +34,7 @@ factory refactors that landed since. `<name>` = plural kebab/camel entity name.
 - [ ] `packages/client/src/routes/<name>.$id.tsx` — detail layout
 - [ ] `packages/client/src/routes/<name>.$id.index.tsx` — detail page
 - [ ] `packages/client/src/routes/<name>.$id.edit.tsx` — edit/create page
-- [ ] `packages/client/src/components/boxes/<Name>Box.tsx` — list card (if cards)
+- [ ] `packages/client/src/components/contentBoxComponents/<Name>Box.tsx` — list card (if cards; add to the `contentBoxComponents/index.ts` barrel)
 - [ ] `packages/client/src/components/<name>/…` — entity-specific widgets (as needed)
 - [ ] `packages/client/src/routes/__root.tsx` — desktop nav + mobile nav links
 - [ ] `packages/client/src/components/layout/PageHeader.tsx` — page section (if mapped)

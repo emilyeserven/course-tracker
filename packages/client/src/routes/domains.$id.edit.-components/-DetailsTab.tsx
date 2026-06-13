@@ -1,6 +1,6 @@
 import type { Domain, TopicForTopicsPage } from "@emstack/types";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useStore } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
@@ -49,7 +49,6 @@ export function DetailsTab({
     [domain],
   );
 
-  const lastSavedRef = useRef(startingValues);
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useAppForm({
@@ -68,7 +67,6 @@ export function DetailsTab({
           description: value.description || null,
           topicIds: value.topicIds,
         });
-        lastSavedRef.current = value;
         onChangeStateChange?.(false);
         await onSaved();
         toast.success("Details saved.");
@@ -86,7 +84,7 @@ export function DetailsTab({
   const currentValues = useStore(form.store, state => ({
     ...state.values,
   }));
-  const hasChanges = formHasChanges(currentValues, lastSavedRef.current);
+  const hasChanges = formHasChanges(currentValues, startingValues);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);

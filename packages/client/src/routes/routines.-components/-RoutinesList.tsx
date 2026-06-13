@@ -6,7 +6,7 @@ import type {
 
 import { useMemo, useState } from "react";
 
-import { RoutineBox } from "@/components/boxes";
+import { RoutineBox } from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   FilterSelect,
