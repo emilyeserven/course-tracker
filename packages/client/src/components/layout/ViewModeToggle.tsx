@@ -2,7 +2,7 @@ import { LayoutGridIcon, ListIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-type ViewMode = "grid" | "table";
+export type ViewMode = "grid" | "table";
 
 interface ViewModeToggleProps {
   viewMode: ViewMode;

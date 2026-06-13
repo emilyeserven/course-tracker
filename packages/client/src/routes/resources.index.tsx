@@ -1,14 +1,11 @@
+import type { ViewMode } from "@/components/layout/ViewModeToggle";
 import type { ResourceInResources } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowDownAZIcon,
-  ArrowUpAZIcon,
-  PlusIcon,
-} from "lucide-react";
+import { ArrowDownAZIcon, ArrowUpAZIcon, PlusIcon } from "lucide-react";
 
 import { ContentBox } from "@/components/boxes/ContentBox";
 import { CourseBox } from "@/components/boxes/CourseBox";
@@ -36,7 +33,6 @@ import { fetchResources, fetchProviders, fetchTopics } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
-type ViewMode = "grid" | "table";
 
 const VIEW_MODE_STORAGE_KEY = "resources:viewMode";
 // Pre-rename key; fall back to it so existing preferences survive.
