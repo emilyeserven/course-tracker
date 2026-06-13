@@ -1,3 +1,4 @@
+import type { DailyStatusChangeProps } from "./dailyStatusMeta";
 import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
@@ -30,10 +31,8 @@ const CRITERIA_KEY_BY_STATUS: Record<
   freeze: "freeze",
 };
 
-interface DailyStatusModalProps extends ControlledDialogProps {
-  daily: Daily;
-  currentStatus: DailyCompletionStatus | null;
-  onChange: (status: DailyCompletionStatus, note: string | null) => void;
+interface DailyStatusModalProps
+  extends ControlledDialogProps, DailyStatusChangeProps {
   disabled?: boolean;
 }
 

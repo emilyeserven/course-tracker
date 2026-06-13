@@ -1,4 +1,4 @@
-import type { Daily, DailyCompletionStatus } from "@emstack/types";
+import type { DailyStatusChangeProps } from "./dailyStatusMeta";
 
 import { useState } from "react";
 
@@ -7,11 +7,8 @@ import { DailyStatusModal } from "./DailyStatusModal";
 
 import { cn } from "@/lib/utils";
 
-interface TodayStatusCellProps {
-  daily: Daily;
-  currentStatus: DailyCompletionStatus | null;
+interface TodayStatusCellProps extends DailyStatusChangeProps {
   disabled: boolean;
-  onChange: (status: DailyCompletionStatus, note: string | null) => void;
 }
 
 export function TodayStatusCell({
@@ -29,9 +26,11 @@ export function TodayStatusCell({
         type="button"
         disabled={disabled}
         onClick={() => setModalOpen(true)}
-        aria-label={currentStatus
-          ? `Change today's status for ${daily.name}`
-          : `Set today's status for ${daily.name}`}
+        aria-label={
+          currentStatus
+            ? `Change today's status for ${daily.name}`
+            : `Set today's status for ${daily.name}`
+        }
         className={cn(
           `
             flex w-full cursor-pointer items-center justify-center gap-1
