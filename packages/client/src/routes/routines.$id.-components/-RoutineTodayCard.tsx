@@ -1,12 +1,15 @@
 import type { Daily, Routine } from "@emstack/types";
 
+import { ExternalLink } from "lucide-react";
+
 import { DashboardCard } from "@/components/contentBoxComponents/DashboardCard";
 import { TodayStatusCell } from "@/components/dailies";
 import { RoutineEntryLabel } from "@/components/routines";
+import { Button } from "@/components/ui/button";
 import { useRoutineStatusMutation } from "@/hooks/useRoutineStatusMutation";
 import { useSettings } from "@/hooks/useSettings";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
-import { findStatusForDate, getTodayKey, isWeeklyTargetMet } from "@/utils";
+import { findStatusForDate, getTodayKey, isHttpUrl, isWeeklyTargetMet } from "@/utils";
 
 interface RoutineTodayCardProps {
   data: Routine;
@@ -42,6 +45,10 @@ export function RoutineTodayCard({
   const todayEntry = isDaily
     ? dailyEntry
     : (weekly[todayKey as keyof typeof weekly] ?? null);
+  // When today's item has a URL location, surface a "Go" button beside the
+  // task text so it can be opened in a new tab (non-URL locations show no button).
+  const todayLocation = todayEntry?.location ?? null;
+  const locationIsUrl = !!todayLocation && isHttpUrl(todayLocation);
   const completions = data.completions ?? [];
   // Daily-mode routines with a met weekly target need nothing more today.
   const weekTargetMet
@@ -90,14 +97,32 @@ export function RoutineTodayCard({
       {todayEntry
         ? (
           <>
-            <p className="text-lg font-medium">
-              <RoutineEntryLabel
-                entry={todayEntry}
-                taskNames={taskNames}
-                resourceNames={resourceNames}
-                showMeta={false}
-              />
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-medium">
+                <RoutineEntryLabel
+                  entry={todayEntry}
+                  taskNames={taskNames}
+                  resourceNames={resourceNames}
+                  showMeta={false}
+                />
+              </p>
+              {locationIsUrl && todayLocation && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                >
+                  <a
+                    href={todayLocation}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Go
+                    <ExternalLink />
+                  </a>
+                </Button>
+              )}
+            </div>
             {todayEntry.notes && (
               <p className="text-sm text-muted-foreground">
                 {todayEntry.notes}
