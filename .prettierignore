@@ -1,0 +1,4 @@
+# This repo formats with ESLint @stylistic, not Prettier.
+# Prettier is only present transitively; ignore everything so any
+# editor/agent "format on save" Prettier run is a no-op here.
+**
