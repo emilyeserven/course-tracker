@@ -6,6 +6,12 @@ import { appSettings } from "@/db/schema";
 // filter query server-side and returns matching active tasks, paginated.
 const TODOIST_FILTER_URL = "https://api.todoist.com/api/v1/tasks/filter";
 
+// Project list, used to resolve a task's project_id to a human-readable name.
+const TODOIST_PROJECTS_URL = "https://api.todoist.com/api/v1/projects";
+
+// Base for the close-task action (marks a task complete).
+const TODOIST_TASKS_URL = "https://api.todoist.com/api/v1/tasks";
+
 // Deep-link base for the Todoist web app. Tasks don't carry a URL in the v1
 // payload, so we build one from the task id.
 const TODOIST_TASK_URL = "https://app.todoist.com/app/task";
@@ -23,7 +29,10 @@ const MAX_PAGES = 5;
 interface RawTodoistTask {
   id: string;
   content?: string | null;
+  description?: string | null;
   priority?: number | null;
+  project_id?: string | null;
+  labels?: string[] | null;
   due?: {
     date?: string | null;
     string?: string | null;
@@ -33,6 +42,17 @@ interface RawTodoistTask {
 
 interface RawFilterResponse {
   results: RawTodoistTask[];
+  next_cursor: string | null;
+}
+
+/** Raw shape of the fields we read off a Todoist v1 project. */
+interface RawTodoistProject {
+  id: string;
+  name?: string | null;
+}
+
+interface RawProjectsResponse {
+  results: RawTodoistProject[];
   next_cursor: string | null;
 }
 
@@ -68,7 +88,10 @@ function todayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
-function mapTask(raw: RawTodoistTask): TodoistTask {
+function mapTask(
+  raw: RawTodoistTask,
+  projectMap: Map<string, string>,
+): TodoistTask {
   // due.date can be a plain date ("2026-06-13") or a full datetime
   // ("2026-06-13T09:00:00Z"); the leading 10 chars are the calendar date.
   const dueDate = raw.due?.date ? raw.due.date.slice(0, 10) : null;
@@ -80,7 +103,26 @@ function mapTask(raw: RawTodoistTask): TodoistTask {
     due: raw.due?.string ?? null,
     dueDate,
     isRecurring: raw.due?.is_recurring ?? false,
+    project: raw.project_id ? projectMap.get(raw.project_id) ?? null : null,
+    labels: raw.labels ?? [],
+    description: raw.description?.trim() ?? "",
   };
+}
+
+/**
+ * Translate a fetch failure / non-OK response into a friendly TodoistError.
+ * Shared by every Todoist call so they map statuses consistently.
+ */
+function assertTodoistOk(response: Response): void {
+  if (response.status === 401 || response.status === 403) {
+    throw new TodoistError("Todoist rejected the API key.", 401);
+  }
+  if (response.status === 429) {
+    throw new TodoistError("Todoist rate limit reached — try again shortly.", 429);
+  }
+  if (!response.ok) {
+    throw new TodoistError(`Todoist request failed (${response.status}).`, 502);
+  }
 }
 
 async function fetchFilteredTasks(token: string): Promise<RawTodoistTask[]> {
@@ -106,15 +148,7 @@ async function fetchFilteredTasks(token: string): Promise<RawTodoistTask[]> {
       throw new TodoistError("Could not reach Todoist.", 502);
     }
 
-    if (response.status === 401 || response.status === 403) {
-      throw new TodoistError("Todoist rejected the API key.", 401);
-    }
-    if (response.status === 429) {
-      throw new TodoistError("Todoist rate limit reached — try again shortly.", 429);
-    }
-    if (!response.ok) {
-      throw new TodoistError(`Todoist request failed (${response.status}).`, 502);
-    }
+    assertTodoistOk(response);
 
     const body = (await response.json()) as RawFilterResponse;
     collected.push(...(body.results ?? []));
@@ -124,6 +158,73 @@ async function fetchFilteredTasks(token: string): Promise<RawTodoistTask[]> {
   }
 
   return collected;
+}
+
+/**
+ * Build an id → name map of the user's Todoist projects so task rows can show a
+ * readable project name (the filter endpoint only returns project_id).
+ */
+async function fetchProjectMap(token: string): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  let cursor: string | null = null;
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const params = new URLSearchParams({
+      limit: String(PAGE_LIMIT),
+    });
+    if (cursor) params.set("cursor", cursor);
+
+    let response: Response;
+    try {
+      response = await fetch(`${TODOIST_PROJECTS_URL}?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+    catch {
+      throw new TodoistError("Could not reach Todoist.", 502);
+    }
+
+    assertTodoistOk(response);
+
+    const body = (await response.json()) as RawProjectsResponse;
+    for (const project of body.results ?? []) {
+      if (project.name) map.set(project.id, project.name);
+    }
+
+    cursor = body.next_cursor;
+    if (!cursor) break;
+  }
+
+  return map;
+}
+
+/**
+ * Close (complete) a Todoist task. Returns 204 No Content on success, so the
+ * body is never parsed.
+ */
+export async function closeTodoistTask(
+  token: string,
+  id: string,
+): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${TODOIST_TASKS_URL}/${id}/close`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+  catch {
+    throw new TodoistError("Could not reach Todoist.", 502);
+  }
+
+  if (response.status === 404) {
+    throw new TodoistError("Todoist task not found.", 404);
+  }
+  assertTodoistOk(response);
 }
 
 export interface TodoistTasksData {
@@ -141,12 +242,15 @@ export async function fetchTodayAndOverdue(
   token: string,
 ): Promise<TodoistTasksData> {
   const today = todayDateString();
-  const raw = await fetchFilteredTasks(token);
+  const [raw, projectMap] = await Promise.all([
+    fetchFilteredTasks(token),
+    fetchProjectMap(token),
+  ]);
 
   const overdue: TodoistTask[] = [];
   const dueToday: TodoistTask[] = [];
   for (const item of raw) {
-    const task = mapTask(item);
+    const task = mapTask(item, projectMap);
     if (task.dueDate && task.dueDate < today) {
       overdue.push(task);
     }

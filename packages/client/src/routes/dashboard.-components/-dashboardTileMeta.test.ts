@@ -6,6 +6,8 @@ import { describe, expect, test } from "vitest";
 import {
   buildDefaultTiles,
   layoutItemsToTiles,
+  needsNormalization,
+  normalizeTiles,
   sortTilesForMobile,
   tilesEqual,
   tilesToLayoutItems,
@@ -29,9 +31,9 @@ describe("buildDefaultTiles", () => {
       .toEqual([...DASHBOARD_TILE_IDS].sort());
   });
 
-  test("puts dailies full-width at the top", () => {
-    const dailies = buildDefaultTiles().find(t => t.tileId === "dailies");
-    expect(dailies).toMatchObject({
+  test("puts Do Now full-width at the top", () => {
+    const doNow = buildDefaultTiles().find(t => t.tileId === "doNow");
+    expect(doNow).toMatchObject({
       x: 0,
       y: 0,
       w: 4,
@@ -76,14 +78,14 @@ describe("sortTilesForMobile", () => {
       h: 4,
     };
     const left: DashboardLayoutTile = {
-      tileId: "dailies",
+      tileId: "doNow",
       x: 0,
       y: 0,
       w: 2,
       h: 4,
     };
     expect(sortTilesForMobile([right, left]).map(t => t.tileId)).toEqual([
-      "dailies",
+      "doNow",
       "radars",
     ]);
   });
@@ -115,7 +117,7 @@ describe("toggleTile", () => {
   });
 
   test("adds at y=0 when the layout is empty", () => {
-    expect(toggleTile([], "dailies")[0]).toMatchObject({
+    expect(toggleTile([], "doNow")[0]).toMatchObject({
       x: 0,
       y: 0,
     });
@@ -145,6 +147,38 @@ describe("tilesEqual", () => {
     const tiles = buildDefaultTiles();
     expect(tilesEqual(tiles, tiles.slice(1))).toBe(false);
   });
+
+  test("ignores height changes on auto-height tiles", () => {
+    const auto: DashboardLayoutTile = {
+      tileId: "doNow",
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 5,
+      heightMode: "auto",
+    };
+    const grown = {
+      ...auto,
+      h: 9,
+    };
+    expect(tilesEqual([auto], [grown])).toBe(true);
+  });
+
+  test("detects height changes on fixed-height tiles", () => {
+    const fixed: DashboardLayoutTile = {
+      tileId: "doNow",
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 5,
+      heightMode: "fixed",
+    };
+    const resized = {
+      ...fixed,
+      h: 9,
+    };
+    expect(tilesEqual([fixed], [resized])).toBe(false);
+  });
 });
 
 describe("layout item conversion", () => {
@@ -164,7 +198,7 @@ describe("layout item conversion", () => {
   test("drops unknown ids and strips grid-only props", () => {
     const tiles = layoutItemsToTiles([
       {
-        id: "dailies",
+        id: "doNow",
         x: 1,
         y: 2,
         w: 3,
@@ -182,12 +216,89 @@ describe("layout item conversion", () => {
     ]);
     expect(tiles).toEqual([
       {
-        tileId: "dailies",
+        tileId: "doNow",
         x: 1,
         y: 2,
         w: 3,
         h: 4,
       },
     ]);
+  });
+
+  test("preserves per-tile settings through a round-trip", () => {
+    const tiles: DashboardLayoutTile[] = [
+      {
+        tileId: "todoist",
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 5,
+        heightMode: "fixed",
+        showProject: false,
+        showOverdue: true,
+      },
+    ];
+    expect(layoutItemsToTiles(tilesToLayoutItems(tiles))).toEqual(tiles);
+  });
+});
+
+describe("normalizeTiles", () => {
+  test("splits a legacy dailies tile into Do Now + Done for the Day", () => {
+    const result = normalizeTiles([
+      {
+        tileId: "dailies" as DashboardLayoutTile["tileId"],
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 8,
+      },
+    ]);
+    expect(result.map(t => t.tileId)).toEqual(["doNow", "doneForDay"]);
+    const [doNow, doneForDay] = result;
+    expect(doNow).toMatchObject({
+      x: 0,
+      y: 0,
+      w: 4,
+    });
+    // Done for the Day sits directly below Do Now.
+    expect(doneForDay.y).toBe(doNow.y + doNow.h);
+  });
+
+  test("passes known tiles through and drops unknown ids", () => {
+    const known: DashboardLayoutTile = {
+      tileId: "readwise",
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 4,
+    };
+    const result = normalizeTiles([
+      known,
+      {
+        tileId: "gone" as DashboardLayoutTile["tileId"],
+        x: 0,
+        y: 4,
+        w: 1,
+        h: 1,
+      },
+    ]);
+    expect(result).toEqual([known]);
+  });
+});
+
+describe("needsNormalization", () => {
+  test("is true only when a legacy id is present", () => {
+    expect(needsNormalization(buildDefaultTiles())).toBe(false);
+    expect(
+      needsNormalization([
+        {
+          tileId: "dailies" as DashboardLayoutTile["tileId"],
+          x: 0,
+          y: 0,
+          w: 4,
+          h: 8,
+        },
+      ]),
+    ).toBe(true);
   });
 });

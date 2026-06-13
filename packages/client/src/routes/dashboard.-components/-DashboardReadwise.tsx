@@ -1,8 +1,12 @@
+import type { DashboardTileProps } from "./-dashboardTileMeta";
 import type { ReadwiseDocument } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
+
+import { CardSettingsFlyout } from "./-DashboardCardSettings";
+import { isAutoHeight } from "./-dashboardTileMeta";
 
 import {
   DashboardCard,
@@ -98,7 +102,10 @@ function ArticleList({
   );
 }
 
-export function DashboardReadwise() {
+export function DashboardReadwise({
+  tile,
+  onUpdateTile,
+}: DashboardTileProps) {
   const {
     data, isPending, error,
   } = useQuery({
@@ -113,23 +120,29 @@ export function DashboardReadwise() {
 
   return (
     <DashboardCard
+      autoHeight={isAutoHeight(tile)}
       title="Readwise"
       action={(
-        <>
-          <Button
-            asChild
-            size="sm"
-            variant="outline"
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+        >
+          <a
+            href="https://read.readwise.io"
+            target="_blank"
+            rel="noreferrer"
           >
-            <a
-              href="https://read.readwise.io"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open Reader
-              <ExternalLink />
-            </a>
-          </Button>
+            Open Reader
+            <ExternalLink />
+          </a>
+        </Button>
+      )}
+      settings={(
+        <CardSettingsFlyout
+          tile={tile}
+          onUpdateTile={onUpdateTile}
+        >
           <Link
             to="/settings"
             className="
@@ -137,9 +150,9 @@ export function DashboardReadwise() {
               hover:underline
             "
           >
-            Settings
+            Set Readwise API key
           </Link>
-        </>
+        </CardSettingsFlyout>
       )}
     >
       {!isPending && !error && !configured

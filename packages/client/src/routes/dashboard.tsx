@@ -1,6 +1,6 @@
-import type { DashboardLayout, DashboardLayoutTile } from "@emstack/types";
+import type { DashboardLayout, DashboardLayoutTile, DashboardTileId } from "@emstack/types";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { DashboardGrid } from "./dashboard.-components/-DashboardGrid";
 import {
   buildDefaultTiles,
+  needsNormalization,
+  normalizeTiles,
   tilesEqual,
   TILE_META,
   toggleTile,
@@ -55,6 +57,13 @@ function Dashboard() {
     activeId, setActiveId,
   } = useActiveDashboardLayoutId(layouts);
   const activeLayout = layouts?.find(l => l.id === activeId) ?? null;
+
+  // Migrate legacy layouts (a single `dailies` tile becomes Do Now + Done for
+  // the Day) at read time so the grid and Tiles menu always see current ids.
+  const normalizedTiles = useMemo(
+    () => (activeLayout ? normalizeTiles(activeLayout.tiles) : []),
+    [activeLayout],
+  );
 
   const createLayoutMutation = useMutation({
     mutationFn: ({
@@ -132,9 +141,25 @@ function Dashboard() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(saveTimerRef.current), []);
 
+  // Self-heal: persist the normalized tiles once when a layout still holds a
+  // legacy id, so the database catches up even without a manual drag/resize.
+  const healedRef = useRef<Set<string>>(new Set());
+  const {
+    mutate: saveTiles,
+  } = saveTilesMutation;
+  useEffect(() => {
+    if (!activeLayout || !needsNormalization(activeLayout.tiles)) return;
+    if (healedRef.current.has(activeLayout.id)) return;
+    healedRef.current.add(activeLayout.id);
+    saveTiles({
+      layout: activeLayout,
+      tiles: normalizeTiles(activeLayout.tiles),
+    });
+  }, [activeLayout, saveTiles]);
+
   const handleTilesChange = (tiles: DashboardLayoutTile[]) => {
     // Ignore the grid's mount/compaction echoes — only real moves save.
-    if (!activeLayout || tilesEqual(tiles, activeLayout.tiles)) return;
+    if (!activeLayout || tilesEqual(tiles, normalizedTiles)) return;
     clearTimeout(saveTimerRef.current);
     const layout = activeLayout;
     saveTimerRef.current = setTimeout(() => {
@@ -150,7 +175,25 @@ function Dashboard() {
     clearTimeout(saveTimerRef.current);
     saveTilesMutation.mutate({
       layout: activeLayout,
-      tiles: toggleTile(activeLayout.tiles, tileId),
+      tiles: toggleTile(normalizedTiles, tileId),
+    });
+  };
+
+  const handleUpdateTile = (
+    tileId: DashboardTileId,
+    patch: Partial<DashboardLayoutTile>,
+  ) => {
+    if (!activeLayout) return;
+    clearTimeout(saveTimerRef.current);
+    saveTilesMutation.mutate({
+      layout: activeLayout,
+      tiles: normalizedTiles.map(t =>
+        t.tileId === tileId
+          ? {
+            ...t,
+            ...patch,
+          }
+          : t),
     });
   };
 
@@ -210,7 +253,7 @@ function Dashboard() {
                   {DASHBOARD_TILE_IDS.map(tileId => (
                     <DropdownMenuCheckboxItem
                       key={tileId}
-                      checked={activeLayout.tiles.some(t => t.tileId === tileId)}
+                      checked={normalizedTiles.some(t => t.tileId === tileId)}
                       onCheckedChange={() => handleToggleTile(tileId)}
                       onSelect={e => e.preventDefault()}
                     >
@@ -221,8 +264,9 @@ function Dashboard() {
               </DropdownMenu>
             </div>
             <DashboardGrid
-              tiles={activeLayout.tiles}
+              tiles={normalizedTiles}
               onTilesChange={handleTilesChange}
+              onUpdateTile={handleUpdateTile}
             />
           </>
         )}
@@ -236,7 +280,7 @@ function Dashboard() {
         onSubmit={name =>
           createLayoutMutation.mutate({
             name,
-            tiles: activeLayout?.tiles ?? buildDefaultTiles(),
+            tiles: activeLayout ? normalizedTiles : buildDefaultTiles(),
           })}
       />
     </div>
