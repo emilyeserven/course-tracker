@@ -201,6 +201,21 @@ needs the `DropdownMenu`/`DropdownMenuContent` parent and asserts via
 `document.body`. The rest (`InfoRow`, `InfoArea`, `EditForm`, `PageTabs`,
 `ViewModeToggle`, `EditPageFooter`) are Tier A with `fn()` handlers.
 
+### ui primitives (#353)
+13 new stories; no fixtures needed (inline literals only). Radix composites
+(`select`, `dialog`, `alert-dialog`, `dropdown-menu`, `tooltip`, `tabs`) use a
+small non-generic `*Demo` harness as `meta.component` (same trick as
+`data-table.stories.tsx`'s `DataTableDemo`) — it sidesteps the multi-export Root
+typing and lets spies ride in as harness props. Dialog/AlertDialog **don't export
+their `Trigger`**, so drive them with a controlled `open` prop and assert content
+via `within(document.body)`. Tooltip self-wraps its provider — assert
+`findByRole("tooltip")` in the body. `data-table-column-header` mocks just the
+`Column` methods it calls (`getCanSort`/`getIsSorted`/`getToggleSortingHandler`)
+cast `as unknown as Column<unknown, unknown>`. **`toHaveStyle({ width: "30%" })`
+fails** in the browser project — computed style resolves `%` to px; assert the
+inline `el.style.width` string instead. `table.tsx` was left unstoried: it's
+already exercised transitively by `data-table.stories.tsx`.
+
 ### formFields + forms (#354)
 The 7 TanStack-Form fields (`InputField`, `TextareaField`, `NumberField`,
 `RadioGroupField`, `DatePickerField`, `ComboboxField`, `MultiComboboxField`) read
