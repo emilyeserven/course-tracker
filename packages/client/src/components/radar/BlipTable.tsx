@@ -19,27 +19,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { toast } from "sonner";
 
-import { Input } from "@/components/input";
-import { BlipBulkBar } from "@/components/radar/BlipBulkBar";
-import { BlipDisplayRow } from "@/components/radar/BlipDisplayRow";
-import { BlipEditRow } from "@/components/radar/BlipEditRow";
 import {
   ALL,
   countByField,
   filterAndSortBlips,
   NO_CHANGE,
-  UNASSIGNED,
 } from "@/components/radar/blipTableFilters";
+import {
+  BlipBulkBar,
+  BlipDisplayRow,
+  BlipEditRow,
+} from "@/components/radar/blipTableRows";
+import { BlipTableToolbar } from "@/components/radar/BlipTableToolbar";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
   TableCell,
@@ -376,74 +370,21 @@ export function BlipTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        className={`
-          grid grid-cols-1 gap-2
-          sm:grid-cols-[1fr_auto_auto_auto]
-        `}
-      >
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search topic or note"
-        />
-        <Select
-          value={filterQuadrant}
-          onValueChange={setFilterQuadrant}
-        >
-          <SelectTrigger className="min-w-40">
-            <SelectValue placeholder="Slice" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All Slices ({blips.length})</SelectItem>
-            <SelectItem value={UNASSIGNED}>
-              Unassigned ({sliceCounts.unassigned})
-            </SelectItem>
-            {quadrants.map(q => (
-              <SelectItem
-                key={q.id}
-                value={q.id}
-              >
-                {q.name}
-                {" ("}
-                {sliceCounts.counts.get(q.id) ?? 0})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filterRing}
-          onValueChange={setFilterRing}
-        >
-          <SelectTrigger className="min-w-32">
-            <SelectValue placeholder="Ring" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All Rings ({blips.length})</SelectItem>
-            <SelectItem value={UNASSIGNED}>
-              Unassigned ({ringCounts.unassigned})
-            </SelectItem>
-            {rings.map(r => (
-              <SelectItem
-                key={r.id}
-                value={r.id}
-              >
-                {r.name}
-                {" ("}
-                {ringCounts.counts.get(r.id) ?? 0})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <label className="flex flex-row items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={showItemsColumn}
-            onChange={e => setShowItemsColumn(e.target.checked)}
-          />
-          Topic Items
-        </label>
-      </div>
+      <BlipTableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        filterQuadrant={filterQuadrant}
+        onFilterQuadrantChange={setFilterQuadrant}
+        filterRing={filterRing}
+        onFilterRingChange={setFilterRing}
+        showItemsColumn={showItemsColumn}
+        onShowItemsColumnChange={setShowItemsColumn}
+        quadrants={quadrants}
+        rings={rings}
+        blipCount={blips.length}
+        sliceCounts={sliceCounts}
+        ringCounts={ringCounts}
+      />
 
       {selectedIds.size > 0 && (
         <BlipBulkBar
