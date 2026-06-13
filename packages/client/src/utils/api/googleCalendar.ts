@@ -1,29 +1,36 @@
-import type { SuccessObj } from "./client";
+import type { CreateResponse, SuccessObj } from "./client";
 import type {
+  CalendarFeedSummary,
   GoogleCalendarEvents,
-  GoogleCalendarListEntry,
 } from "@emstack/types";
 
-import { fetchJson, postJson } from "./client";
+import { deleteJson, fetchJson, postJson } from "./client";
 
-// Upcoming events across the user's selected calendars (for the dashboard card).
+// Upcoming events merged across all subscribed feeds (for the dashboard card).
 export function fetchGoogleCalendarEvents(): Promise<GoogleCalendarEvents> {
   return fetchJson<GoogleCalendarEvents>("/api/google-calendar/events");
 }
 
-// The connected account's calendars (for the Settings checkbox list).
-export function fetchGoogleCalendars(): Promise<GoogleCalendarListEntry[]> {
-  return fetchJson<GoogleCalendarListEntry[]>("/api/google-calendar/calendars");
+// Subscribed feeds, secret URLs masked (for the Settings list).
+export function fetchCalendarFeeds(): Promise<CalendarFeedSummary[]> {
+  return fetchJson<CalendarFeedSummary[]>("/api/google-calendar/feeds");
 }
 
-export function disconnectGoogleCalendar(): Promise<SuccessObj> {
-  return postJson<SuccessObj>(
-    "/api/google-calendar/disconnect",
-    undefined,
-    "Failed to disconnect Google Calendar",
+export function addCalendarFeed(input: {
+  url: string;
+  name: string;
+  color?: string;
+}): Promise<CreateResponse> {
+  return postJson<CreateResponse>(
+    "/api/google-calendar/feeds",
+    input,
+    "Failed to add calendar feed",
   );
 }
 
-// Connecting is a full-page OAuth redirect, not an XHR — navigate the browser
-// here (window.location) so Google's consent screen can take over.
-export const GOOGLE_CALENDAR_CONNECT_URL = "/api/google-calendar/connect";
+export function removeCalendarFeed(id: string): Promise<SuccessObj> {
+  return deleteJson<SuccessObj>(
+    `/api/google-calendar/feeds/${id}`,
+    "Failed to remove calendar feed",
+  );
+}

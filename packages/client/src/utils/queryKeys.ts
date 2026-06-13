@@ -72,6 +72,6 @@ export const queryKeys = {
   },
   googleCalendar: {
     events: () => ["googleCalendar", "events"] as const,
-    calendars: () => ["googleCalendar", "calendars"] as const,
+    feeds: () => ["googleCalendar", "feeds"] as const,
   },
 };

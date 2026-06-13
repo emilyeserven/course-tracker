@@ -1,40 +1,47 @@
-// Projection of a Google Calendar event, returned by
-// GET /api/google-calendar/events. The middleware maps the raw Calendar API v3
-// event onto this shape so the client never sees the full payload. Events are
-// aggregated across all of the user's selected calendars.
+// Projection of a calendar event, returned by GET /api/google-calendar/events.
+// The middleware expands each subscribed iCal feed into this shape so the client
+// never sees the raw ICS. Events are aggregated across all subscribed feeds.
 export interface GoogleCalendarEvent {
   id: string;
-  // Id of the calendar this event belongs to.
+  // Id of the feed this event came from.
   calendarId: string;
-  // Human-readable name of the source calendar, for display/grouping.
+  // Human-readable name of the source feed, for display/grouping.
   calendarName: string;
-  // The source calendar's colour (hex), or null — used for the per-calendar dot.
+  // The feed's colour (hex), or null — used for the per-feed dot.
   calendarColor: string | null;
   summary: string;
   // ISO 8601 start/end. All-day events carry a date-only string ("2026-06-13");
   // timed events carry a full datetime ("2026-06-13T09:00:00Z").
   start: string;
   end: string;
-  // True for all-day events (Google returns `date` rather than `dateTime`).
+  // True for all-day events.
   allDay: boolean;
   location: string | null;
-  // Deep link to the event in Google Calendar.
+  // Deep link to the event, when the feed provides one.
   htmlLink: string;
 }
 
-// One entry from the user's calendar list, offered as a checkbox in Settings so
-// they can choose which calendars feed the dashboard card.
-export interface GoogleCalendarListEntry {
-  id: string;
-  summary: string;
-  backgroundColor: string | null;
-  primary: boolean;
-}
-
 export interface GoogleCalendarEvents {
-  // false when Google Calendar isn't connected yet — lets the dashboard card
-  // prompt the user to connect instead of surfacing an error. When connected but
-  // no calendars are selected (or nothing is upcoming), `events` is simply empty.
+  // false when no calendar feeds are subscribed yet — lets the dashboard card
+  // prompt the user to add one instead of surfacing an error. When feeds exist
+  // but nothing is upcoming, `events` is simply empty.
   configured: boolean;
   events: GoogleCalendarEvent[];
+}
+
+// A subscribed iCal feed, persisted in app settings. The secret URL is the
+// credential and is never sent back to the client (see CalendarFeedSummary).
+export interface CalendarFeed {
+  id: string;
+  url: string;
+  name: string;
+  color?: string;
+}
+
+// What the Settings UI sees for each feed — the secret URL is masked to a hint.
+export interface CalendarFeedSummary {
+  id: string;
+  name: string;
+  urlHint: string;
+  color: string | null;
 }

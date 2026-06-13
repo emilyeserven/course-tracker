@@ -80,7 +80,7 @@ export function DashboardGoogleCalendar({
   return (
     <DashboardCard
       autoHeight={isAutoHeight(tile)}
-      title="Google Calendar"
+      title="Calendar"
       settings={(
         <CardSettingsFlyout
           tile={tile}
@@ -96,7 +96,7 @@ export function DashboardGoogleCalendar({
               hover:underline
             "
           >
-            Manage Google Calendar
+            Manage calendars
           </Link>
         </CardSettingsFlyout>
       )}
@@ -104,7 +104,7 @@ export function DashboardGoogleCalendar({
       {!isPending && !error && !configured
         ? (
           <p className="text-sm text-muted-foreground">
-            Connect Google Calendar in
+            Add a calendar feed in
             {" "}
             <Link
               to="/settings"
@@ -129,7 +129,7 @@ export function DashboardGoogleCalendar({
               error={error}
               isEmpty={configured && events.length === 0}
               entity="events"
-              emptyMessage="No upcoming events. Pick calendars in Settings if you haven't."
+              emptyMessage="No upcoming events."
             />
             {groups.map(group => (
               <div

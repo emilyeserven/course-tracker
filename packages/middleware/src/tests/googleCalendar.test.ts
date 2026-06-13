@@ -2,59 +2,109 @@ import assert from "node:assert";
 import { test } from "node:test";
 
 import {
-  mapEvent,
+  expandIcsToEvents,
   mergeAndSortEvents,
-} from "../services/googleCalendarMap.ts";
+} from "../services/googleCalendarIcs.ts";
 
-test("mapEvent flags all-day events and resolves date-only start/end", () => {
-  const event = mapEvent(
-    {
-      id: "e1",
-      summary: "  Holiday  ",
-      start: {
-        date: "2026-06-15",
-      },
-      end: {
-        date: "2026-06-16",
-      },
-    },
-    "cal-1",
-    "Personal",
-    "#ff0000",
+const FEED = {
+  id: "feed-1",
+  name: "Personal",
+  color: "#ff0000",
+};
+
+// Build a minimal VCALENDAR wrapper around one or more VEVENT blocks.
+function calendar(...vevents: string[]): string {
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//test//test//EN",
+    ...vevents,
+    "END:VCALENDAR",
+  ].join("\r\n");
+}
+
+test("expandIcsToEvents maps a single timed event in range", () => {
+  const ics = calendar(
+    [
+      "BEGIN:VEVENT",
+      "UID:evt-1",
+      "DTSTAMP:20260613T000000Z",
+      "DTSTART:20260615T090000Z",
+      "DTEND:20260615T100000Z",
+      "SUMMARY:One off",
+      "LOCATION:Room 4",
+      "END:VEVENT",
+    ].join("\r\n"),
   );
-  assert.strictEqual(event.allDay, true);
-  assert.strictEqual(event.start, "2026-06-15");
-  assert.strictEqual(event.end, "2026-06-16");
-  assert.strictEqual(event.summary, "Holiday");
-  assert.strictEqual(event.calendarId, "cal-1");
-  assert.strictEqual(event.calendarName, "Personal");
-  assert.strictEqual(event.calendarColor, "#ff0000");
-  assert.strictEqual(event.location, null);
+  const events = expandIcsToEvents(
+    ics,
+    new Date("2026-06-14T00:00:00Z"),
+    new Date("2026-06-28T00:00:00Z"),
+    FEED,
+  );
+  assert.strictEqual(events.length, 1);
+  assert.strictEqual(events[0].summary, "One off");
+  assert.strictEqual(events[0].allDay, false);
+  assert.strictEqual(events[0].location, "Room 4");
+  assert.strictEqual(events[0].calendarName, "Personal");
+  assert.strictEqual(events[0].start, "2026-06-15T09:00:00.000Z");
 });
 
-test("mapEvent prefers dateTime for timed events and falls back for a missing title", () => {
-  const event = mapEvent(
-    {
-      id: "e2",
-      location: " Room 4 ",
-      start: {
-        dateTime: "2026-06-15T09:00:00Z",
-      },
-      end: {
-        dateTime: "2026-06-15T10:00:00Z",
-      },
-    },
-    "cal-2",
-    "Work",
-    null,
+test("expandIcsToEvents flags all-day events with a date-only start", () => {
+  const ics = calendar(
+    [
+      "BEGIN:VEVENT",
+      "UID:evt-allday",
+      "DTSTAMP:20260613T000000Z",
+      "DTSTART;VALUE=DATE:20260616",
+      "DTEND;VALUE=DATE:20260617",
+      "SUMMARY:Holiday",
+      "END:VEVENT",
+    ].join("\r\n"),
   );
-  assert.strictEqual(event.allDay, false);
-  assert.strictEqual(event.start, "2026-06-15T09:00:00Z");
-  assert.strictEqual(event.summary, "(no title)");
-  assert.strictEqual(event.location, "Room 4");
+  const events = expandIcsToEvents(
+    ics,
+    new Date("2026-06-14T00:00:00Z"),
+    new Date("2026-06-28T00:00:00Z"),
+    FEED,
+  );
+  assert.strictEqual(events.length, 1);
+  assert.strictEqual(events[0].allDay, true);
+  assert.strictEqual(events[0].start, "2026-06-16");
 });
 
-test("mergeAndSortEvents orders chronologically across calendars and is pure", () => {
+test("expandIcsToEvents expands a weekly recurrence within the window", () => {
+  // Weekly on Mondays starting 2026-06-15; a 21-day window should yield 3.
+  const ics = calendar(
+    [
+      "BEGIN:VEVENT",
+      "UID:evt-weekly",
+      "DTSTAMP:20260613T000000Z",
+      "DTSTART:20260615T120000Z",
+      "DTEND:20260615T123000Z",
+      "RRULE:FREQ=WEEKLY;BYDAY=MO",
+      "SUMMARY:Standup",
+      "END:VEVENT",
+    ].join("\r\n"),
+  );
+  const events = expandIcsToEvents(
+    ics,
+    new Date("2026-06-14T00:00:00Z"),
+    new Date("2026-07-05T00:00:00Z"),
+    FEED,
+  );
+  assert.strictEqual(events.length, 3);
+  assert.ok(events.every(e => e.summary === "Standup"));
+  // Distinct occurrences a week apart.
+  const starts = events.map(e => e.start).sort();
+  assert.deepStrictEqual(starts, [
+    "2026-06-15T12:00:00.000Z",
+    "2026-06-22T12:00:00.000Z",
+    "2026-06-29T12:00:00.000Z",
+  ]);
+});
+
+test("mergeAndSortEvents orders chronologically and is pure", () => {
   const base = {
     summary: "event",
     calendarName: "c",
@@ -86,8 +136,6 @@ test("mergeAndSortEvents orders chronologically across calendars and is pure", (
     },
   ];
   const sorted = mergeAndSortEvents(input);
-  // All-day (midnight) sorts first, then the two timed events ascending.
   assert.deepStrictEqual(sorted.map(e => e.id), ["allday", "early", "late"]);
-  // Input is not mutated.
   assert.strictEqual(input[0].id, "late");
 });

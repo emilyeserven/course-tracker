@@ -25,9 +25,6 @@ export default async function (server: FastifyInstance) {
         readwiseKeyHint: maskKey(readwiseKey),
         todoistConfigured: Boolean(todoistKey),
         todoistKeyHint: maskKey(todoistKey),
-        googleCalendarConfigured: Boolean(row?.googleAccessToken),
-        googleAccountEmail: row?.googleAccountEmail ?? null,
-        googleSelectedCalendarIds: row?.googleSelectedCalendarIds ?? [],
         focusedDomainIds: row?.focusedDomainIds ?? [],
       };
     },

@@ -17,12 +17,6 @@ const updateSchema = {
       properties: {
         readwiseApiKey: nullableString,
         todoistApiKey: nullableString,
-        googleSelectedCalendarIds: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
         focusedDomainIds: {
           type: "array",
           items: {
@@ -55,13 +49,6 @@ export default async function (server: FastifyInstance) {
       }
       if (request.body.todoistApiKey !== undefined) {
         updates.todoistApiKey = normalizeKey(request.body.todoistApiKey);
-      }
-      if (request.body.googleSelectedCalendarIds !== undefined) {
-        // Dedupe while preserving order; the OAuth tokens are managed by the
-        // connect/callback flow, not this endpoint.
-        updates.googleSelectedCalendarIds = [
-          ...new Set(request.body.googleSelectedCalendarIds),
-        ];
       }
       if (request.body.focusedDomainIds !== undefined) {
         // Dedupe while preserving order, then enforce the focus cap server-side

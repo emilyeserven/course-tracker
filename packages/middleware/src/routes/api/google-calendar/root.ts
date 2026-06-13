@@ -1,26 +1,52 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import type {
+  CalendarFeedSummary,
   GoogleCalendarEvents,
-  GoogleCalendarListEntry,
 } from "@emstack/types";
 import {
-  fetchCalendarList,
+  addCalendarFeed,
   fetchUpcomingEvents,
-  getConnection,
+  getCalendarFeeds,
+  getCalendarFeedSummaries,
   GoogleCalendarError,
+  removeCalendarFeed,
 } from "@/services/googleCalendar";
 import { sendBadRequest } from "@/utils/errors";
+import { idParamSchema } from "@/utils/schemas";
+
+const addFeedSchema = {
+  schema: {
+    body: {
+      type: "object",
+      required: ["url", "name"],
+      additionalProperties: false,
+      properties: {
+        url: {
+          type: "string",
+          minLength: 1,
+        },
+        name: {
+          type: "string",
+          minLength: 1,
+        },
+        color: {
+          type: "string",
+        },
+      },
+    },
+  },
+} as const;
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
-  // Upcoming events across the user's selected calendars, for the dashboard
-  // card. Mirrors the Todoist card: a 200 with configured:false when not
-  // connected so the card can prompt rather than render an error.
+  // Upcoming events across all subscribed feeds, for the dashboard card.
+  // Mirrors the Todoist card: configured:false when nothing is subscribed yet so
+  // the card can prompt rather than render an error.
   fastify.get("/events", async (request, reply) => {
-    const conn = await getConnection();
-    if (!conn) {
+    const feeds = await getCalendarFeeds();
+    if (feeds.length === 0) {
       const empty: GoogleCalendarEvents = {
         configured: false,
         events: [],
@@ -29,7 +55,7 @@ export default async function (server: FastifyInstance) {
     }
 
     try {
-      const events = await fetchUpcomingEvents(conn, conn.selectedCalendarIds);
+      const events = await fetchUpcomingEvents(feeds);
       const result: GoogleCalendarEvents = {
         configured: true,
         events,
@@ -42,23 +68,23 @@ export default async function (server: FastifyInstance) {
           message: err.message,
         });
       }
-      return sendBadRequest(reply, "Failed to load Google Calendar events.");
+      return sendBadRequest(reply, "Failed to load calendar events.");
     }
   });
 
-  // The user's calendars, for the Settings checkbox list. 409 when not
-  // connected so the UI knows to show the connect button instead.
-  fastify.get("/calendars", async (request, reply) => {
-    const conn = await getConnection();
-    if (!conn) {
-      return reply.code(409).send({
-        message: "Google Calendar is not connected.",
-      });
-    }
+  // Subscribed feeds, for the Settings list (secret URLs masked).
+  fastify.get("/feeds", async (): Promise<CalendarFeedSummary[]> => {
+    return getCalendarFeedSummaries();
+  });
 
+  // Subscribe to a feed. Validates the URL serves iCal before saving.
+  fastify.post("/feeds", addFeedSchema, async (request, reply) => {
     try {
-      const calendars: GoogleCalendarListEntry[] = await fetchCalendarList(conn);
-      return calendars;
+      const id = await addCalendarFeed(request.body);
+      return {
+        status: "ok",
+        id,
+      };
     }
     catch (err) {
       if (err instanceof GoogleCalendarError) {
@@ -66,7 +92,23 @@ export default async function (server: FastifyInstance) {
           message: err.message,
         });
       }
-      return sendBadRequest(reply, "Failed to load Google calendars.");
+      return sendBadRequest(reply, "Failed to add calendar feed.");
     }
   });
+
+  // Unsubscribe from a feed.
+  fastify.delete(
+    "/feeds/:id",
+    {
+      schema: {
+        params: idParamSchema,
+      },
+    },
+    async (request) => {
+      await removeCalendarFeed(request.params.id);
+      return {
+        status: "ok",
+      };
+    },
+  );
 }
