@@ -1,6 +1,7 @@
 import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
 import { Input } from "@/components/input";
+import { Pill } from "@/components/radar/Pill";
 import {
   QuadrantsIllustration,
   RingsIllustration,
@@ -128,15 +129,15 @@ export function RadarConfigTab({
                 />
                 {r.isAdopted
                   ? (
-                    <span
-                      className={`
-                        rounded-sm bg-amber-100 px-1.5 py-0.5 text-[10px]
+                    <Pill
+                      className="
+                        rounded-sm bg-amber-100 px-1.5 text-[10px]
                         text-amber-900
-                      `}
+                      "
                       title="Hidden from radar chart, listed on the side"
                     >
                       Side panel
-                    </span>
+                    </Pill>
                   )
                   : (
                     <Button

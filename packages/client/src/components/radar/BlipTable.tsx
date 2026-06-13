@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
   Table,
   TableBody,
@@ -385,14 +386,11 @@ export function BlipTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-1">
-                <input
-                  type="checkbox"
+                <SelectAllCheckbox
                   aria-label="Select all visible"
                   checked={allVisibleSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = someVisibleSelected;
-                  }}
-                  onChange={toggleSelectAllVisible}
+                  indeterminate={someVisibleSelected}
+                  onCheckedChange={toggleSelectAllVisible}
                   disabled={filteredBlips.length === 0}
                 />
               </TableHead>

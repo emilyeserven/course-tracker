@@ -4,10 +4,7 @@ import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { QUADRANT_PALETTE } from "@/components/radar/radarLayout";
-import {
-  BlipLegendItem,
-  SimpleBlipLegendSection,
-} from "@/components/radar/radarLegendItem";
+import { BlipLegendSection } from "@/components/radar/radarLegendItem";
 
 interface RadarLegendProps {
   quadrants: RadarQuadrant[];
@@ -87,67 +84,56 @@ export function RadarLegend({
     >
       {quadrants.map((q, idx) => {
         const color = QUADRANT_PALETTE[idx % QUADRANT_PALETTE.length];
-        const items = positionedBlips.filter(
-          pb => pb.blip.quadrantId === q.id,
-        );
+        const items = positionedBlips
+          .filter(pb => pb.blip.quadrantId === q.id)
+          .map(({
+            blip, index,
+          }) => ({
+            blip,
+            label: (
+              <>
+                <span
+                  className="mr-1 inline-block font-mono text-xs"
+                  style={{
+                    color,
+                  }}
+                >
+                  {index}.
+                </span>
+                <span className="font-medium">{blip.topicName}</span>
+                <span className="ml-1 text-xs text-muted-foreground">
+                  ({ringNameById[blip.ringId ?? ""]})
+                </span>
+              </>
+            ),
+          }));
         return (
-          <div
+          <BlipLegendSection
             key={q.id}
-            className="flex flex-col gap-1"
-          >
-            <h4
-              className="text-sm font-semibold uppercase"
-              style={{
-                color,
-              }}
-            >
-              {q.name}
-            </h4>
-            {items.length === 0 && (
-              <p className="text-xs text-muted-foreground italic">
-                No blips yet.
-              </p>
-            )}
-            <ul className="flex flex-col gap-0.5">
-              {items.map(({
-                blip, index,
-              }) => (
-                <BlipLegendItem
-                  key={blip.id}
-                  blip={blip}
-                  isActive={activeBlipId === blip.id}
-                  isSelected={selectedBlipId === blip.id}
-                  registerRef={registerRef}
-                  onHover={onHover}
-                  onBlipClick={onBlipClick}
-                  onDescriptionChange={onDescriptionChange}
-                  label={
-                    <>
-                      <span
-                        className="mr-1 inline-block font-mono text-xs"
-                        style={{
-                          color,
-                        }}
-                      >
-                        {index}.
-                      </span>
-                      <span className="font-medium">{blip.topicName}</span>
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        ({ringNameById[blip.ringId ?? ""]})
-                      </span>
-                    </>
-                  }
-                />
-              ))}
-            </ul>
-          </div>
+            title={q.name}
+            headingClassName="text-sm font-semibold uppercase"
+            headingStyle={{
+              color,
+            }}
+            items={items}
+            emptyMessage="No blips yet."
+            activeBlipId={activeBlipId}
+            selectedBlipId={selectedBlipId}
+            registerRef={registerRef}
+            onHover={onHover}
+            onBlipClick={onBlipClick}
+            onDescriptionChange={onDescriptionChange}
+          />
         );
       })}
       {adoptedBlips.length > 0 && (
-        <SimpleBlipLegendSection
+        <BlipLegendSection
           title={adoptedSectionName}
           headingClassName="text-sm font-semibold text-amber-700 uppercase"
-          blips={adoptedBlips}
+          items={adoptedBlips.map(blip => ({
+            blip,
+            label: <span className="font-medium">{blip.topicName}</span>,
+          }))}
           activeBlipId={activeBlipId}
           selectedBlipId={selectedBlipId}
           registerRef={registerRef}
@@ -157,10 +143,13 @@ export function RadarLegend({
         />
       )}
       {ignoredBlips.length > 0 && (
-        <SimpleBlipLegendSection
+        <BlipLegendSection
           title="Ignored"
           headingClassName="text-sm font-semibold text-gray-600 uppercase"
-          blips={ignoredBlips}
+          items={ignoredBlips.map(blip => ({
+            blip,
+            label: <span className="font-medium">{blip.topicName}</span>,
+          }))}
           activeBlipId={activeBlipId}
           selectedBlipId={selectedBlipId}
           registerRef={registerRef}
