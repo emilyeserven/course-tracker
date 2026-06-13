@@ -73,9 +73,11 @@ export function CriteriaTab({
           criteria.freeze = value.criteriaFreeze;
         }
 
-        // Partial save: only `criteria` is sent, so the routine's schedule,
-        // connections and completions are preserved by the backend merge.
+        // Partial save: `name` is included to satisfy the upsert body schema;
+        // the backend merge preserves the routine's schedule, connections and
+        // completions since they're omitted here.
         await upsertRoutine(routine.id, {
+          name: routine.name,
           criteria,
         });
         onChangeStateChange?.(false);
