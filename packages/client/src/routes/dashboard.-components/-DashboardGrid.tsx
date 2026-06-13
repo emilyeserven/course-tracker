@@ -116,26 +116,42 @@ function applyGeometryToTiles(
  * Wraps a single tile. Auto-height tiles render at their natural height and
  * report it (via ResizeObserver) so the grid can size their row span; fixed
  * tiles fill the grid cell and scroll internally.
+ *
+ * The grid clones this element to inject the `dnd-grid-item` class, the inline
+ * geometry style, drag handlers, and its own ref — so we must forward every
+ * received prop (and merge its ref with our measuring ref). Swallowing them
+ * leaves tiles unpositioned, undraggable, and with stray always-on handles.
  */
-function GridTile({
+export function GridTile({
   tileId,
   autoHeight,
   rowHeightPx,
   onMeasure,
+  className,
+  ref,
   children,
+  ...props
 }: {
   tileId: DashboardTileId;
   autoHeight: boolean;
   rowHeightPx: number;
   onMeasure: (tileId: DashboardTileId, rows: number) => void;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
+} & React.ComponentProps<"div">) {
+  const innerRef = useRef<HTMLDivElement>(null);
   const minH = TILE_META[tileId].minH;
+
+  const setRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      innerRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
 
   useEffect(() => {
     if (!autoHeight) return;
-    const el = ref.current;
+    const el = innerRef.current;
     if (!el) return;
     const measure = () =>
       onMeasure(tileId, rowsForContent(el.offsetHeight, rowHeightPx, minH));
@@ -147,11 +163,12 @@ function GridTile({
 
   return (
     <div
-      ref={ref}
+      ref={setRef}
       className={cn("min-w-0", !autoHeight && `
         h-full min-h-0
         *:h-full
-      `)}
+      `, className)}
+      {...props}
     >
       {children}
     </div>
