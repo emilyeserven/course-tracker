@@ -22,6 +22,7 @@ import dashboardLayouts from "./dashboard-layouts/routes";
 import settings from "./settings/routes";
 import readwise from "./readwise/routes";
 import todoist from "./todoist/routes";
+import googleCalendar from "./google-calendar/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -86,5 +87,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(todoist, {
     prefix: "/todoist",
+  });
+  fastify.register(googleCalendar, {
+    prefix: "/google-calendar",
   });
 }

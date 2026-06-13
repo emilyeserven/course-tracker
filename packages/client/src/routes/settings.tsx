@@ -4,6 +4,7 @@ import { CriteriaTemplatesSection } from "./settings.-components/-CriteriaTempla
 import { DashboardLayoutsSection } from "./settings.-components/-DashboardLayoutsSection";
 import { DataToolsSection } from "./settings.-components/-DataToolsSection";
 import { FocusedDomainsSection } from "./settings.-components/-FocusedDomainsSection";
+import { GoogleCalendarSection } from "./settings.-components/-GoogleCalendarSection";
 import { ReadwiseSection } from "./settings.-components/-ReadwiseSection";
 import { RoutineTemplatesSection } from "./settings.-components/-RoutineTemplatesSection";
 import { TaskTypesSection } from "./settings.-components/-TaskTypesSection";
@@ -101,6 +102,7 @@ function Settings() {
                 <>
                   <ReadwiseSection />
                   <TodoistSection />
+                  <GoogleCalendarSection />
                 </>
               ),
             },

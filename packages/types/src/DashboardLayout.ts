@@ -11,6 +11,7 @@ export const DASHBOARD_TILE_IDS = [
   "exploreSomething",
   "readwise",
   "todoist",
+  "googleCalendar",
   "changelog",
 ] as const;
 

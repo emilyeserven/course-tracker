@@ -6,6 +6,7 @@ export * from "./client";
 export * from "./dailies";
 export * from "./dashboardLayouts";
 export * from "./domains";
+export * from "./googleCalendar";
 export * from "./interactions";
 export * from "./modules";
 export * from "./providers";
