@@ -21,12 +21,12 @@ export interface DashboardTileMeta {
 export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
   doNow: {
     title: "Do Now",
-    minW: 2,
+    minW: 1,
     minH: 4,
   },
   doneForDay: {
     title: "Done for the Day",
-    minW: 2,
+    minW: 1,
     minH: 4,
   },
   underutilizedProviders: {
@@ -56,7 +56,7 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
   },
   readwise: {
     title: "Readwise",
-    minW: 2,
+    minW: 1,
     minH: 4,
   },
   todoist: {
@@ -71,7 +71,7 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
   },
   changelog: {
     title: "Changelog",
-    minW: 2,
+    minW: 1,
     minH: 4,
   },
 };
