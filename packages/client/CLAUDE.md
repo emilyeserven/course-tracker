@@ -31,7 +31,7 @@ React 19 + Vite frontend. Read the root CLAUDE.md for commands and setup; this f
 ## Loading / error / empty states
 
 - Route-level: `<EntityPending entity="..."/>` and `<EntityError entity="..."/>` from `src/components/EntityStates.tsx`.
-- Inside a `DashboardCard`: `<DashboardSectionStatus isPending error isEmpty entity="..." emptyMessage="..."/>` from `src/components/boxes/DashboardCard.tsx` — renders pending/error/empty rows in the card body.
+- Inside a `DashboardCard`: `<DashboardSectionStatus isPending error isEmpty entity="..." emptyMessage="..."/>` from `src/components/contentBoxComponents/DashboardCard.tsx` — renders pending/error/empty rows in the card body.
 
 ## Components
 
@@ -39,8 +39,9 @@ Organized by purpose under `src/components/`:
 
 - `ui/` — shadcn-style primitives (add new ones via the shadcn CLI)
 - Root-level primitives — `button.tsx`, `calendar.tsx`, `combobox.tsx`, `input.tsx`, `input-group.tsx`, `popover.tsx`, `radio-group.tsx`, `textarea.tsx`, `sonner.tsx`: vendored shadcn-derived files; keep edits minimal and preserve their scoped eslint-disable comments
-- `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, …)
-- `boxes/` / `boxElements/` — dashboard cards and their building blocks
+- `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, `OverviewCardGrid`, …)
+- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. `boxes/` still exists as a thin re-export shim for the old `@/components/boxes/*` import paths — prefer importing from `contentBoxComponents/`
+- `tables/` — table components (`CoursesTable`, `TopicsTable`)
 - `resources/` — resource/module components
 - `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)
 - `forms/` — field-composition primitives; `formFields/` — TanStack Form-aware fields

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpenIcon, Building2Icon, LightbulbIcon } from "lucide-react";
 
-import { OverviewCardGrid } from "@/components/boxes/OverviewCardGrid";
+import { OverviewCardGrid } from "@/components/layout/OverviewCardGrid";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchProviders, fetchResources, fetchTopics } from "@/utils";

@@ -8,11 +8,15 @@ import type {
 
 import { useMemo } from "react";
 
-import { DomainPill } from "@/components/boxElements/DomainPill";
+import { DomainTagList } from "@/components/boxElements/DomainTagList";
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
-import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
+import { EmptyDash } from "@/components/ui/EmptyDash";
+import {
+  makeManualSortHandler,
+  toSortingState,
+} from "@/components/ui/manualSort";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 
 export type TopicsTableSortColumn
@@ -53,16 +57,11 @@ const SORT_DESC_FIRST: Record<TopicsTableSortColumn, boolean> = {
 };
 
 function domainsCell(topic: TopicForTopicsPage) {
-  const domains = topic.domains?.filter(d => d.id !== undefined) ?? [];
-  if (domains.length === 0) {
-    return <span className="text-muted-foreground">—</span>;
-  }
   return (
-    <div className="flex flex-wrap gap-1">
-      {domains.map(domain => (
-        <DomainPill key={domain.id}>{domain.title}</DomainPill>
-      ))}
-    </div>
+    <DomainTagList
+      domains={topic.domains}
+      fallback={<EmptyDash />}
+    />
   );
 }
 
@@ -202,7 +201,7 @@ export function TopicsTable({
               </span>
             )
             : (
-              <span className="text-muted-foreground">—</span>
+              <EmptyDash />
             ),
       },
       {

@@ -1,15 +1,14 @@
 import type { ResourceInResources } from "@emstack/types";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import {
-  ExternalLink,
-} from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { StatusIndicator } from "@/components/boxElements/StatusIndicator";
 import { TopicList } from "@/components/boxElements/TopicList";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { EmptyDash } from "@/components/ui/EmptyDash";
 
 interface CoursesTableProps {
   courses: ResourceInResources[];
@@ -17,9 +16,7 @@ interface CoursesTableProps {
 
 function formatProgress(course: ResourceInResources): string {
   if (!course.progressTotal) return "—";
-  const pct = Math.round(
-    (course.progressCurrent / course.progressTotal) * 100,
-  );
+  const pct = Math.round((course.progressCurrent / course.progressTotal) * 100);
   return `${course.progressCurrent} / ${course.progressTotal} (${pct}%)`;
 }
 
@@ -89,7 +86,7 @@ const columns: ColumnDef<ResourceInResources>[] = [
           </EntityLink>
         )
         : (
-          <span className="text-muted-foreground">—</span>
+          <EmptyDash />
         ),
   },
   {
@@ -110,7 +107,7 @@ const columns: ColumnDef<ResourceInResources>[] = [
           />
         )
         : (
-          <span className="text-muted-foreground">—</span>
+          <EmptyDash />
         ),
   },
   {
@@ -144,10 +141,7 @@ const columns: ColumnDef<ResourceInResources>[] = [
     },
     cell: ({
       row,
-    }) =>
-      row.original.dateExpires || (
-        <span className="text-muted-foreground">—</span>
-      ),
+    }) => row.original.dateExpires || <EmptyDash />,
   },
   {
     id: "link",

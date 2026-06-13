@@ -3,10 +3,13 @@
 // paths (never this index), so this re-export barrel introduces no cycle.
 export { ContentBox } from "./ContentBox";
 export { CourseBox } from "./CourseBox";
-export { CoursesTable } from "./CoursesTable";
+export { CoursesTable } from "@/components/tables/CoursesTable";
 export { DomainBox } from "./DomainBox";
 export { ProviderBox } from "./ProviderBox";
 export { RoutineBox } from "./RoutineBox";
 export { TaskBox } from "./TaskBox";
 export { TopicBox } from "./TopicBox";
-export { TopicsTable, type TopicsTableSort } from "./TopicsTable";
+export {
+  TopicsTable,
+  type TopicsTableSort,
+} from "@/components/tables/TopicsTable";
