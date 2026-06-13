@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-type EntityKind = "resources" | "topics" | "providers" | "domains" | "tasks";
+export type EntityKind = "resources" | "topics" | "providers" | "domains" | "tasks";
 
 const TO_BY_KIND: Record<EntityKind, string> = {
   resources: "/resources/$id",

@@ -1,14 +1,15 @@
 import type { SelectOption } from "./selectOptions";
+import type { EntityKind } from "@/components/boxElements/EntityLink";
 import type { RoutineConnectionType } from "@emstack/types";
 
 import { toOptions } from "./selectOptions";
 
 // EntityLink's entity kind (plural route segment) for each connection type.
-const ENTITY_KIND_BY_TYPE = {
+const ENTITY_KIND_BY_TYPE: Record<RoutineConnectionType, EntityKind> = {
   topic: "topics",
   task: "tasks",
   resource: "resources",
-} as const;
+};
 
 export function connectionEntityKind(type: RoutineConnectionType) {
   return ENTITY_KIND_BY_TYPE[type];
