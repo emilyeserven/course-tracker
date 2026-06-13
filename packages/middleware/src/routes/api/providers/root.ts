@@ -36,7 +36,7 @@ export default async function (server: FastifyInstance) {
           recurPeriodUnit: provider.recurPeriodUnit,
           recurPeriod: provider.recurPeriod,
           isCourseFeesShared: provider.isCourseFeesShared,
-          courseCount: resources.length,
+          resourceCount: resources.length,
           activeCount: countByStatus("active"),
           inactiveCount: countByStatus("inactive"),
           completeCount: countByStatus("complete"),
