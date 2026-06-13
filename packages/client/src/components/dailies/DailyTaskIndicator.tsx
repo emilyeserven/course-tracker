@@ -1,9 +1,10 @@
 import type { Daily } from "@emstack/types";
 
-import { Link } from "@tanstack/react-router";
 import { CheckSquareIcon } from "lucide-react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DailyEntityLink } from "./DailyEntityLink";
+
+import { dailyLinkTooltip } from "@/utils";
 
 interface DailyTaskIndicatorProps {
   daily: Daily;
@@ -17,28 +18,13 @@ export function DailyTaskIndicator({
     return null;
   }
 
-  const titlesMatch = task.name.trim().toLowerCase()
-    === daily.name.trim().toLowerCase();
-  const tooltip = titlesMatch ? "Go to Task" : task.name;
-
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Link
-          to="/tasks/$id"
-          params={{
-            id: task.id,
-          }}
-          aria-label={`Go to task ${task.name}`}
-          className="
-            inline-flex items-center text-muted-foreground
-            hover:text-foreground
-          "
-        >
-          <CheckSquareIcon className="size-4" />
-        </Link>
-      </TooltipTrigger>
-      <TooltipContent>{tooltip}</TooltipContent>
-    </Tooltip>
+    <DailyEntityLink
+      to="/tasks/$id"
+      id={task.id}
+      icon={<CheckSquareIcon className="size-4" />}
+      tooltip={dailyLinkTooltip(task.name, daily.name, "Go to Task")}
+      ariaLabel={`Go to task ${task.name}`}
+    />
   );
 }
