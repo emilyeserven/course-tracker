@@ -8,6 +8,7 @@ import type {
 
 import { useMemo } from "react";
 
+import { DomainPill } from "@/components/boxElements/DomainPill";
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
@@ -59,12 +60,7 @@ function domainsCell(topic: TopicForTopicsPage) {
   return (
     <div className="flex flex-wrap gap-1">
       {domains.map(domain => (
-        <span
-          key={domain.id}
-          className="rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
-        >
-          {domain.title}
-        </span>
+        <DomainPill key={domain.id}>{domain.title}</DomainPill>
       ))}
     </div>
   );

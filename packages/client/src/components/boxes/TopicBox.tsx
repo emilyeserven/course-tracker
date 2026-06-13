@@ -6,6 +6,7 @@ import {
 
 import { CourseMetaItem } from "@/components/boxElements/CourseMetaItem";
 import { Description } from "@/components/boxElements/Description";
+import { DomainPill } from "@/components/boxElements/DomainPill";
 import { EntityLink } from "@/components/boxElements/EntityLink";
 import {
   ContentBox,
@@ -42,14 +43,7 @@ export function TopicBox({
             {domains
               .filter(domain => domain.id !== undefined)
               .map(domain => (
-                <span
-                  key={domain.id}
-                  className="
-                    rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700
-                  "
-                >
-                  {domain.title}
-                </span>
+                <DomainPill key={domain.id}>{domain.title}</DomainPill>
               ))}
           </div>
         )}
