@@ -1,3 +1,4 @@
+import type { LinkOptionResource } from "./resourceMeta";
 import type { Module, ModuleGroup } from "@emstack/types";
 
 import { useMemo } from "react";
@@ -15,15 +16,10 @@ interface ResourceLinkInput {
   moduleId: string | null;
 }
 
-interface ResourceSummary {
-  id: string;
-  name: string;
-}
-
 interface ResourceLinksPickerProps {
   value: ResourceLinkInput[];
   onChange: (next: ResourceLinkInput[]) => void;
-  courses: ResourceSummary[];
+  courses: LinkOptionResource[];
   moduleGroups: ModuleGroup[];
   modules: Module[];
 }
