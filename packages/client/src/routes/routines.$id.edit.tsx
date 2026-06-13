@@ -1,28 +1,22 @@
 import type { RoutineConnectionType, RoutineMode } from "@emstack/types";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { EyeIcon, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import * as z from "zod";
+import { EyeIcon } from "lucide-react";
 
-import { CriteriaTab } from "./routines.$id.edit.-components/-CriteriaTab";
-import { DetailsTab } from "./routines.$id.edit.-components/-DetailsTab";
-import { EntriesTab } from "./routines.$id.edit.-components/-EntriesTab";
+import {
+  CriteriaTab,
+  DetailsTab,
+  EntriesTab,
+  NewRoutineForm,
+} from "./routines.$id.edit.-components";
 
-import { useAppForm } from "@/components/formFields";
-import { EditForm } from "@/components/layout/EditForm";
-import { EditPageFooter } from "@/components/layout/EditPageFooter";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageTabs } from "@/components/layout/PageTabs";
-import { fillAllDays, rowsToWeekly } from "@/components/routines/weekly";
+import { EditPageFooter, PageHeader, PageTabs } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
-  createRoutine,
   deleteSingleRoutine,
   duplicateRoutine,
   fetchSingleRoutine,
@@ -80,155 +74,32 @@ export const Route = createFileRoute("/routines/$id/edit")({
   }),
 });
 
-const MODE_OPTIONS = [
-  {
-    value: "weekly",
-    label: "Weekly Schedule",
-  },
-  {
-    value: "daily",
-    label: "Daily Task",
-  },
-];
-
-const newRoutineSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  mode: z.enum(["weekly", "daily"]),
-});
-
 function SingleRoutineEdit() {
   const {
     id,
   } = Route.useParams();
-
-  if (id === "new") {
-    return <NewRoutine />;
-  }
-  return <ExistingRoutineEdit id={id} />;
-}
-
-function NewRoutine() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const [isSaving, setIsSaving] = useState(false);
 
-  // New routines can be prefilled via search params: the generic
-  // `?connectedType=&connectedId=` or the legacy `?topicId=` alias, plus an
-  // optional `?entryType=&entryId=` that seeds the weekly grid.
-  const prefilledConnections = useMemo(() => {
-    const out: { type: RoutineConnectionType;
-      id: string; }[] = [];
-    if (search.connectedType && search.connectedId) {
-      out.push({
-        type: search.connectedType,
-        id: search.connectedId,
-      });
-    }
-    if (search.topicId) {
-      out.push({
-        type: "topic",
-        id: search.topicId,
-      });
-    }
-    return out;
-  }, [search.connectedType, search.connectedId, search.topicId]);
-
-  const form = useAppForm({
-    defaultValues: {
-      name: "",
-      mode: search.mode ?? "weekly",
-    },
-    validators: {
-      onSubmit: newRoutineSchema,
-    },
-    onSubmit: async ({
-      value,
-    }) => {
-      setIsSaving(true);
-      try {
-        const weekly
-          = search.entryType && search.entryId
-            ? rowsToWeekly(
-              fillAllDays({
-                type: search.entryType,
-                id: search.entryId,
-              }),
-            )
-            : {};
-        const result = await createRoutine({
-          name: value.name,
-          mode: value.mode,
-          status: "active",
-          connections: prefilledConnections,
-          weekly,
-        });
-        await navigate({
-          to: "/routines/$id/edit",
-          params: {
-            id: result.id,
-          },
-        });
-      }
-      catch {
-        toast.error("Failed to create routine. Please try again.");
-      }
-      finally {
-        setIsSaving(false);
-      }
-    },
-  });
-
-  const isSubmitting = useStore(form.store, state => state.isSubmitting);
-
-  return (
-    <div>
-      <PageHeader
-        pageTitle="New Routine"
-        pageSection="routines"
+  if (id === "new") {
+    return (
+      <NewRoutineForm
+        search={search}
+        onCreated={newId =>
+          navigate({
+            to: "/routines/$id/edit",
+            params: {
+              id: newId,
+            },
+          })}
+        onCancel={() =>
+          navigate({
+            to: "/routines",
+          })}
       />
-      <div className="m-auto w-full max-w-[1200px] px-4">
-        <EditForm
-          onSubmit={form.handleSubmit}
-          className="flex max-w-3xl flex-col gap-8"
-        >
-          <form.AppField name="name">
-            {field => <field.InputField label="Routine Name" />}
-          </form.AppField>
-
-          <form.AppField name="mode">
-            {field => (
-              <field.RadioGroupField
-                label="Type"
-                options={MODE_OPTIONS}
-              />
-            )}
-          </form.AppField>
-
-          <EditPageFooter isNew>
-            <Button
-              type="submit"
-              disabled={isSubmitting || isSaving}
-            >
-              {(isSubmitting || isSaving) && (
-                <Loader2 className="animate-spin" />
-              )}
-              Create Routine
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                navigate({
-                  to: "/routines",
-                })}
-            >
-              Cancel
-            </Button>
-          </EditPageFooter>
-        </EditForm>
-      </div>
-    </div>
-  );
+    );
+  }
+  return <ExistingRoutineEdit id={id} />;
 }
 
 interface ExistingRoutineEditProps {
@@ -245,10 +116,10 @@ function ExistingRoutineEdit({
   const {
     data: routine,
     queryClient,
-    skipBlock,
     invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeDuplicateHandler,
   } = useEditFormPage({
     id,
     isNew: false,
@@ -277,22 +148,16 @@ function ExistingRoutineEdit({
     }),
   });
 
-  async function handleDuplicate() {
-    try {
-      const result = await duplicateRoutine(id);
-      await invalidateRelated();
-      skipBlock();
-      await navigate({
-        to: "/routines/$id/edit",
-        params: {
-          id: result.id,
-        },
-      });
-    }
-    catch {
-      toast.error("Failed to duplicate routine. Please try again.");
-    }
-  }
+  const handleDuplicate = makeDuplicateHandler({
+    duplicateFn: duplicateRoutine,
+    entityLabel: "routine",
+    navigateToEntity: newId => navigate({
+      to: "/routines/$id/edit",
+      params: {
+        id: newId,
+      },
+    }),
+  });
 
   function changeTab(next: EditTab) {
     navigate({

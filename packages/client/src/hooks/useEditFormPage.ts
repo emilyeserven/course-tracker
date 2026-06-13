@@ -20,6 +20,12 @@ interface MakeDeleteHandlerOptions {
   navigateToList: () => void | Promise<void>;
 }
 
+interface MakeDuplicateHandlerOptions {
+  duplicateFn: (id: string) => Promise<{ id: string }>;
+  entityLabel: string;
+  navigateToEntity: (id: string) => void | Promise<void>;
+}
+
 interface MakeSubmitHandlerOptions<TPayload> {
   createFn: (data: TPayload) => Promise<{ id: string }>;
   upsertFn: (id: string, data: TPayload) => Promise<unknown>;
@@ -33,6 +39,8 @@ interface MakeSubmitHandlerOptions<TPayload> {
  *   - manages the "skip unsaved-changes blocker" ref
  *   - exposes invalidateRelated() to refresh list/detail caches
  *   - exposes makeDeleteHandler(...) that wires up delete + invalidate + nav
+ *   - exposes makeDuplicateHandler(...) that wires up duplicate + invalidate +
+ *     nav to the new entity
  *   - exposes makeSubmitHandler(...) that wires up create/upsert + invalidate
  *     + nav + error toast; call the returned function from the form's
  *     onSubmit with the API payload
@@ -97,6 +105,26 @@ export function useEditFormPage<TData>({
     [id, invalidateRelated, skipBlock],
   );
 
+  const makeDuplicateHandler = useCallback(
+    ({
+      duplicateFn,
+      entityLabel,
+      navigateToEntity,
+    }: MakeDuplicateHandlerOptions) =>
+      async () => {
+        try {
+          const result = await duplicateFn(id);
+          await invalidateRelated();
+          skipBlock();
+          await navigateToEntity(result.id);
+        }
+        catch {
+          toast.error(`Failed to duplicate ${entityLabel}. Please try again.`);
+        }
+      },
+    [id, invalidateRelated, skipBlock],
+  );
+
   const makeSubmitHandler = useCallback(
     <TPayload>({
       createFn,
@@ -136,6 +164,7 @@ export function useEditFormPage<TData>({
     invalidateRelated,
     shouldBlockFn,
     makeDeleteHandler,
+    makeDuplicateHandler,
     makeSubmitHandler,
   };
 }
