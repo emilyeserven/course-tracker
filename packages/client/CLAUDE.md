@@ -20,6 +20,7 @@ Two homes, by audience:
 - Single-use component props → colocate (often non-exported) in the component file.
 - Shared types tightly coupled to runtime helpers/consts → keep in their module (e.g. `DashboardTileProps`/`GridLayoutItem` in `lib/dashboardTiles.ts`, `SelectOption` in `utils/selectOptions.ts`, the context union types in `src/context/`).
 - Feature-domain types → keep in the feature folder (`components/radar/`, `components/dailies/`, …).
+- Types shared by several files **within one directory** but not the wider client → a local `types.ts` (or `<area>Props.ts`) in that directory is fine. `@/types/` is for genuinely client-wide types; don't promote a directory-scoped type there just to centralize it.
 
 ## Fetch layer (`src/utils/api/`)
 
