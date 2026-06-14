@@ -6,7 +6,7 @@ import { expect, within } from "storybook/test";
 import { RoutineTemplatesSection } from "./-RoutineTemplatesSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
-import { makeRoutineTemplate } from "@/test-utils/templatesFixtures";
+import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
 
 function clientWith(templates = [makeRoutineTemplate()]) {
   const client = new QueryClient({
@@ -50,7 +50,7 @@ export const Default: Story = {
         name: /routine templates/i,
       }),
     ).toBeInTheDocument();
-    await expect(canvas.getByText("Weekday mornings")).toBeInTheDocument();
+    await expect(canvas.getByText("Summer Japanese")).toBeInTheDocument();
   },
 };
 

@@ -8,7 +8,7 @@ import { DetailsTab } from "./-DetailsTab";
 import { makeRoutine } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
-import { makeRoutineTemplate } from "@/test-utils/templatesFixtures";
+import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
 
 // useRoutineDetailsForm reads topics/tasks/resources for its combobox options,
 // and the weekly-mode Quick Fill menu reads the routine templates. Empty lists

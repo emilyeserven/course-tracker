@@ -6,10 +6,8 @@ import { expect, fn, screen, userEvent, within } from "storybook/test";
 import { QuickFillMenu } from "./-QuickFillMenu";
 
 import { QueryStub } from "@/test-utils/QueryStub";
-import {
-  makeCriteriaTemplate,
-  makeRoutineTemplate,
-} from "@/test-utils/templatesFixtures";
+import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
+import { makeCriteriaTemplate } from "@/test-utils/templatesFixtures";
 
 // Seeds one template list so the menu renders its items without a network call.
 function clientWith(key: string, data: unknown) {
@@ -57,7 +55,7 @@ export const RoutineTemplates: Story = {
         name: /quick fill/i,
       }),
     );
-    const item = await screen.findByText("Weekday mornings");
+    const item = await screen.findByText("Summer Japanese");
     await userEvent.click(item);
     await expect(args.onSelect).toHaveBeenCalled();
   },
