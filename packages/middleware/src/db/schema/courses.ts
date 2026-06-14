@@ -46,6 +46,10 @@ export const resources = pgTable("resources", {
   status: statusEnum().default("active"),
   minutesLength: integer(),
   courseProviderId: varchar("course_provider_id"),
+  // When true, this resource is its own provider: a separate courseProviders row
+  // sharing this resource's id is kept in sync with its name/url (see
+  // upsertResource's afterUpsert).
+  providerIsSelf: boolean("provider_is_self").default(false).notNull(),
   // When true, completion is computed from finished modules rather than from
   // progressCurrent/progressTotal.
   modulesAreExhaustive: boolean("modules_are_exhaustive").default(false).notNull(),

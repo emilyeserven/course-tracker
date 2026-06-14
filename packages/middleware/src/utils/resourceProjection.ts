@@ -20,6 +20,7 @@ interface ResourceProjectionRow {
   progressCurrent: number | null;
   progressTotal: number | null;
   status: Resource["status"] | null;
+  providerIsSelf: boolean | null;
   easeOfStarting: Resource["easeOfStarting"];
   timeNeeded: Resource["timeNeeded"];
   interactivity: Resource["interactivity"];
@@ -45,6 +46,7 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
     progressCurrent: resource.progressCurrent ? resource.progressCurrent : 0,
     progressTotal: resource.progressTotal ? resource.progressTotal : 0,
     status: resource.status ?? "inactive",
+    providerIsSelf: resource.providerIsSelf ?? false,
     topics: processResourceLinks(resource.topicsToResources, "topic"),
     provider:
       resource.courseProvider?.name && resource.courseProvider?.id
