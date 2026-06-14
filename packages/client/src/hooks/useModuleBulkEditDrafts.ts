@@ -42,7 +42,7 @@ function sameTagSet(a: string[], b: string[]): boolean {
  * persisted value (via `draftToLength`) so a no-op minutes/range mode toggle
  * doesn't read as a change, and tags are compared order-insensitively.
  */
-export function rowDraftsEqual(a: ModuleRowDraft, b: ModuleRowDraft): boolean {
+function rowDraftsEqual(a: ModuleRowDraft, b: ModuleRowDraft): boolean {
   if (a.status !== b.status) return false;
   if (a.moduleGroupId !== b.moduleGroupId) return false;
   const da = a.draft;
