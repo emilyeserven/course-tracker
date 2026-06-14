@@ -4,6 +4,7 @@ import { expect, fn, within } from "storybook/test";
 
 import { TagPicker } from "./TagPicker";
 
+import { constrainedDecorator } from "@/test-utils/storyDecorators";
 import { makeTagGroup } from "@/test-utils/tasksFixtures";
 
 const tagGroups = [
@@ -33,13 +34,7 @@ const meta: Meta<typeof TagPicker> = {
     onChange: fn(),
     tagGroups,
   },
-  decorators: [
-    Story => (
-      <div className="max-w-sm">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [constrainedDecorator],
 };
 
 export default meta;

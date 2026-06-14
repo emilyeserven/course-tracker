@@ -5,6 +5,7 @@ import { expect, fn, userEvent, within } from "storybook/test";
 import { ComboboxCreatePanel } from "./ComboboxCreatePanel";
 
 import { makeCreateConfig } from "@/test-utils/formFieldFixtures";
+import { constrainedDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof ComboboxCreatePanel> = {
   component: ComboboxCreatePanel,
@@ -14,13 +15,7 @@ const meta: Meta<typeof ComboboxCreatePanel> = {
     onCancel: fn(),
     onSubmit: fn(),
   },
-  decorators: [
-    Story => (
-      <div className="max-w-sm">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [constrainedDecorator],
 };
 
 export default meta;
