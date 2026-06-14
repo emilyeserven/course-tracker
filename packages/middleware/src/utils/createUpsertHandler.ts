@@ -26,6 +26,13 @@ interface UpsertHandlerOptions<TBody> {
   buildRow: (body: TBody, id: string) => Row;
   updateableColumns: readonly string[];
   /**
+   * Async pre-write transform of the request body, run after `validate` and
+   * before `buildRow`. Use for enrichment that needs the db / the row id (e.g.
+   * baking derived fields). The returned body feeds buildRow / buildSetClause /
+   * junctions, so the single write persists the transformed values.
+   */
+  prepareBody?: (body: TBody, id: string) => Promise<TBody>;
+  /**
    * Override the conflict-update SET clause. Defaults to picking
    * `updateableColumns` out of the built row; use this for partial-merge
    * semantics where only columns present in the body are written.
@@ -58,10 +65,10 @@ export function createUpsertHandler<TBody = Record<string, unknown>>(
 
     fastify.put("/:id", schema, async function (request, reply: FastifyReply) {
       const params = request.params as { id: string };
-      const body = request.body as TBody;
+      const rawBody = request.body as TBody;
 
       if (options.validate) {
-        const errorMessage = options.validate(body);
+        const errorMessage = options.validate(rawBody);
         if (errorMessage !== null) {
           reply.status(400);
           return {
@@ -72,6 +79,10 @@ export function createUpsertHandler<TBody = Record<string, unknown>>(
       }
 
       const id = params.id || (options.generateIdIfMissing ? uuidv4() : params.id);
+
+      const body = options.prepareBody
+        ? await options.prepareBody(rawBody, id)
+        : rawBody;
 
       const row = options.buildRow(body, id);
 

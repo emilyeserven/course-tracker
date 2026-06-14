@@ -4,21 +4,33 @@ import type {
   DailyCriteria,
   EntityStatus,
   RoutineConnection,
+  RoutineCurated,
   RoutineMode,
-  RoutineWeekday,
   RoutineWeekly,
 } from "@emstack/types";
 import { buildActionableSentence } from "@emstack/types";
 import { mapDaily } from "./dailyProjection";
 import {
   activeEntry,
+  curatedEntry,
+  currentDateKey,
   currentWeekday,
+  entryForCompletionDate,
   representativeEntry,
+  weekdayForDateKey,
 } from "./routineWeekday";
 
 // Entry-selection helpers live in a dependency-free leaf module so they can be
 // unit-tested directly; re-export them here so callers keep a single import site.
-export { activeEntry, currentWeekday, representativeEntry };
+export {
+  activeEntry,
+  curatedEntry,
+  currentDateKey,
+  currentWeekday,
+  entryForCompletionDate,
+  representativeEntry,
+  weekdayForDateKey,
+};
 
 // Resolved task/resource rows the handler loads for an active entry. They
 // mirror the column selection mapDaily expects (see dailyProjection.ts).
@@ -45,6 +57,7 @@ export interface RoutineRow {
   description: string | null;
   status: EntityStatus | null;
   weekly: RoutineWeekly | null;
+  curated: RoutineCurated | null;
   mode: RoutineMode;
   completions: DailyCompletion[];
   criteria: DailyCriteria;
@@ -54,27 +67,35 @@ export interface RoutineRow {
 
 // A daily-mode routine projected into the Daily shape (so the existing daily
 // tracker / detail components render unchanged) while still carrying the
-// routine-specific fields (mode, weekly, connections) consumers need.
+// routine-specific fields (mode, weekly, curated, connections) consumers need.
 export type RoutineDaily = Daily & {
   mode: RoutineMode;
   weekly: RoutineWeekly;
+  curated: RoutineCurated;
   weeklyTarget: number | null;
   connections: RoutineConnection[];
 };
 
-// Build a Daily-compatible object from a daily-mode routine, resolving the
-// representative weekly entry's task/resource into progress blocks via mapDaily.
-// Provider/module sub-targeting is intentionally dropped in the unified model.
+// Build a Daily-compatible object from a routine, resolving today's active entry's
+// task/resource into progress blocks via mapDaily. Provider/module sub-targeting
+// is intentionally dropped in the unified model.
 export function mapRoutineToDaily(
   routine: RoutineRow,
   resolved: { task?: ResolvedTask | null;
     resource?: ResolvedResource | null; } = {},
-  weekday: RoutineWeekday = currentWeekday(),
+  dateKey: string = currentDateKey(),
 ): RoutineDaily {
   // The active entry carries the per-item location and the prepend/append text
-  // below: today's scheduled entry for weekly routines, or the representative
-  // entry (mirrored on every day) for daily ones.
-  const entry = activeEntry(routine.weekly, routine.mode, weekday);
+  // below: today's scheduled entry for weekly routines, today's date entry for
+  // curated routines, or the representative entry (mirrored on every day) for
+  // daily ones. Uses the same resolver as the caller's id-collection so the two
+  // never pick different entries.
+  const entry = entryForCompletionDate(
+    routine.mode,
+    routine.weekly,
+    routine.curated,
+    dateKey,
+  );
 
   const daily = mapDaily({
     id: routine.id,
@@ -121,6 +142,10 @@ export function mapRoutineToDaily(
     actionParts,
     mode: routine.mode,
     weekly: routine.weekly ?? {},
+    curated: routine.curated ?? {
+      endDate: null,
+      entries: {},
+    },
     weeklyTarget: routine.weeklyTarget ?? null,
     connections: routine.connections ?? [],
   };

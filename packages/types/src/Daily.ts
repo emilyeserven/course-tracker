@@ -1,12 +1,27 @@
 import type { EntityStatus } from "./EntityStatus";
-import type { RoutineMode, RoutineWeekly } from "./Routine";
+import type { RoutineCurated, RoutineMode, RoutineWeekly } from "./Routine";
 
 export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
+
+// The resolved name + affixes of whatever was scheduled on the entry's date,
+// frozen at save time so the log keeps reading correctly even if the schedule
+// later changes. Same shape as Daily.actionParts; render via
+// buildActionableSentence. Mirrors weekly/daily/curated entry resolution.
+export interface DailyCompletionEntryParts {
+  prependText?: string | null;
+  name: string;
+  appendText?: string | null;
+}
 
 export interface DailyCompletion {
   date: string;
   status?: DailyCompletionStatus;
   note?: string;
+  // Baked snapshot of the scheduled item for this date (weekly/curated routines).
+  // Set server-side when a status is saved; absent on legacy/unbaked entries
+  // (consumers fall back to live schedule resolution). null = nothing was
+  // scheduled that day at save time.
+  entryParts?: DailyCompletionEntryParts | null;
 }
 
 export interface DailyCriteria {
@@ -71,6 +86,9 @@ export interface Daily {
   // Per-weekday scheduled grid (unresolved names). Present only on weekly-mode
   // routine projections; absent/null for daily-mode dailies.
   weekly?: RoutineWeekly | null;
+  // Date-keyed schedule (unresolved names). Present only on curated-mode routine
+  // projections; absent/null for weekly and daily dailies.
+  curated?: RoutineCurated | null;
   // Routine mode. "weekly" means the `weekly` grid is meaningful per day.
   mode?: RoutineMode | null;
   // Weekly target for daily-mode routines: how many days a week it needs doing.

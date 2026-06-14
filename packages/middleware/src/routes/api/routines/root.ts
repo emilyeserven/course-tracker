@@ -4,8 +4,8 @@ import { db } from "@/db";
 import { nullableRoutineModeEnum } from "@/utils/schemas";
 import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
-  activeEntry,
-  currentWeekday,
+  currentDateKey,
+  entryForCompletionDate,
   mapRoutineToDaily,
   type RoutineRow,
 } from "@/utils/routineProjection";
@@ -60,14 +60,20 @@ export default async function (server: FastifyInstance) {
     }
 
     // Resolve against one "today" for the whole request so id-collection,
-    // resolution, and projection all agree on which weekday's entry is active.
-    const weekday = currentWeekday();
+    // resolution, and projection all agree on which entry is active. Curated
+    // routines key by date, weekly by weekday, daily by representative entry.
+    const dateKey = currentDateKey();
 
     // Batch-resolve every active task/resource id up front to avoid N+1.
     const taskIds: string[] = [];
     const resourceIds: string[] = [];
     for (const routine of withConnections) {
-      const entry = activeEntry(routine.weekly, routine.mode, weekday);
+      const entry = entryForCompletionDate(
+        routine.mode,
+        routine.weekly,
+        routine.curated,
+        dateKey,
+      );
       if (entry?.type === "task") {
         taskIds.push(entry.id);
       }
@@ -120,7 +126,12 @@ export default async function (server: FastifyInstance) {
     const resourceMap = new Map(resourceRows.map(r => [r.id, r]));
 
     return withConnections.map((routine) => {
-      const entry = activeEntry(routine.weekly, routine.mode, weekday);
+      const entry = entryForCompletionDate(
+        routine.mode,
+        routine.weekly,
+        routine.curated,
+        dateKey,
+      );
       const task = entry?.type === "task"
         ? taskMap.get(entry.id) ?? null
         : null;
@@ -130,7 +141,7 @@ export default async function (server: FastifyInstance) {
       return mapRoutineToDaily(routine as RoutineRow, {
         task,
         resource,
-      }, weekday);
+      }, dateKey);
     });
   });
 }

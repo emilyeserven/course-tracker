@@ -16,10 +16,11 @@ export interface RoutineConnection {
   name?: string | null;
 }
 
-// A routine is either a weekly schedule (each weekday can differ) or a daily
-// task (the same entry applied to every day). Both modes carry completion
-// tracking; the mode only changes how the weekly grid is edited.
-export type RoutineMode = "weekly" | "daily";
+// A routine is a weekly schedule (each weekday can differ), a daily task (the
+// same entry applied to every day), or a curated run (a task per calendar date
+// from today up to a chosen end date, at most 14 days out). All modes carry
+// completion tracking; the mode only changes how the schedule grid is edited.
+export type RoutineMode = "weekly" | "daily" | "curated";
 
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;
@@ -43,6 +44,15 @@ export type RoutineWeekday = "0" | "1" | "2" | "3" | "4" | "5" | "6";
 // Each day is optional — a routine may have no entry for some days.
 export type RoutineWeekly = Partial<Record<RoutineWeekday, RoutineReferenceItem>>;
 
+// Curated mode's schedule: a chosen end date (≤ 14 days from "today") plus a map
+// of absolute date keys ("YYYY-MM-DD") to that date's scheduled item. The start
+// is implicitly today; `endDate` is null until the user picks one. Each date is
+// optional — a curated run may have no entry for some days in the range.
+export interface RoutineCurated {
+  endDate: string | null;
+  entries: Partial<Record<string, RoutineReferenceItem>>;
+}
+
 export interface Routine {
   id: string;
   name: string;
@@ -50,6 +60,9 @@ export interface Routine {
   connections?: RoutineConnection[] | null;
   status?: EntityStatus | null;
   weekly?: RoutineWeekly | null;
+  // Curated-mode schedule (date-keyed). Present/meaningful only when
+  // mode === "curated"; absent/empty for weekly and daily routines.
+  curated?: RoutineCurated | null;
   mode?: RoutineMode | null;
   completions?: DailyCompletion[] | null;
   criteria?: DailyCriteria | null;
