@@ -4,6 +4,8 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { QuickAddNameDialog } from "./QuickAddNameDialog";
 
+import { expectDialogFields } from "@/test-utils/quickAddStoryHelpers";
+
 const meta: Meta<typeof QuickAddNameDialog> = {
   component: QuickAddNameDialog,
   args: {
@@ -23,11 +25,10 @@ type Story = StoryObj<typeof meta>;
 
 // The Radix dialog content portals to document.body, so assert against it.
 export const Default: Story = {
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Add Resource")).toBeInTheDocument();
-    await expect(await body.findByLabelText("Name")).toBeInTheDocument();
-  },
+  play: expectDialogFields({
+    title: "Add Resource",
+    fields: ["Name"],
+  }),
 };
 
 // Submitting calls onSubmit with the trimmed, non-empty name.

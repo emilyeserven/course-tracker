@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { QuickAddIntegrationDialog } from "./QuickAddIntegrationDialog";
 
 import { Input } from "@/components/input";
+import {
+  expectConfiguredForm,
+  expectSettingsPrompt,
+} from "@/test-utils/quickAddStoryHelpers";
 import { RouterStub } from "@/test-utils/RouterStub";
 
 const meta: Meta<typeof QuickAddIntegrationDialog> = {
@@ -59,16 +63,11 @@ export const Configured: Story = {
   args: {
     configured: true,
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Save to Readwise")).toBeInTheDocument();
-    await expect(await body.findByLabelText("URL")).toBeInTheDocument();
-    await expect(
-      await body.findByRole("button", {
-        name: "Save",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: expectConfiguredForm({
+    title: "Save to Readwise",
+    field: "URL",
+    submit: "Save",
+  }),
 };
 
 // Unconfigured → the dialog points the user to Settings instead of the form.
@@ -76,16 +75,8 @@ export const Unconfigured: Story = {
   args: {
     configured: false,
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Save to Readwise")).toBeInTheDocument();
-    await expect(
-      await body.findByText(/Add a Readwise API key in/),
-    ).toBeInTheDocument();
-    await expect(
-      await body.findByRole("link", {
-        name: "Settings",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: expectSettingsPrompt({
+    title: "Save to Readwise",
+    provider: "Readwise",
+  }),
 };
