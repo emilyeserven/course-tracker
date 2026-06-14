@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/db";
 import { domains, radarBlips } from "@/db/schema";
-import type { RadarConfig } from "@/db/schema";
+import type { DomainRadarConfig } from "@/db/schema";
 import { sendNotFound } from "@/utils/errors";
 
 const upsertConfigSchema = {
@@ -100,7 +100,7 @@ export default async function (server: FastifyInstance) {
         return sendNotFound(reply, "Domain");
       }
 
-      const newConfig: RadarConfig = {
+      const newConfig: DomainRadarConfig = {
         quadrants: quadrants.map((q, idx) => ({
           id: q.id ?? uuidv4(),
           name: q.name,
