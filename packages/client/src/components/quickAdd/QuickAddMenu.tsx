@@ -1,6 +1,4 @@
-import type { QuickAddKey } from "./quickAddOptions";
-
-import { useCallback, useRef, useState } from "react";
+import type { QuickAddKey, QuickAddOption } from "./quickAddOptions";
 
 import { ChevronDownIcon } from "lucide-react";
 
@@ -14,9 +12,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useHoverPopover } from "@/hooks/useHoverPopover";
 
 interface QuickAddMenuProps {
   onSelect: (key: QuickAddKey) => void;
+}
+
+/** Renders one group of Quick Add options as selectable dropdown items. */
+function QuickAddGroup({
+  options,
+  onSelect,
+}: {
+  options: QuickAddOption[];
+  onSelect: (key: QuickAddKey) => void;
+}) {
+  return options.map((option) => {
+    const Icon = option.icon;
+    return (
+      <DropdownMenuItem
+        key={option.key}
+        className="cursor-pointer"
+        onSelect={() => onSelect(option.key)}
+      >
+        <Icon />
+        {option.label}
+      </DropdownMenuItem>
+    );
+  });
 }
 
 /**
@@ -27,23 +49,11 @@ interface QuickAddMenuProps {
 export function QuickAddMenu({
   onSelect,
 }: QuickAddMenuProps) {
-  const [open, setOpen] = useState(false);
-  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMouseEnter = useCallback(() => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current);
-      closeTimeout.current = null;
-    }
-    setOpen(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current);
-    }
-    closeTimeout.current = setTimeout(() => setOpen(false), 400);
-  }, []);
+  const {
+    open, setOpen, handleOpen, handleClose,
+  } = useHoverPopover({
+    closeDelay: 400,
+  });
 
   const external = QUICK_ADD_OPTIONS.filter(o => o.group === "external");
   const tracker = QUICK_ADD_OPTIONS.filter(o => o.group === "tracker");
@@ -55,8 +65,8 @@ export function QuickAddMenu({
     >
       <DropdownMenuTrigger asChild>
         <div
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleOpen}
+          onMouseLeave={handleClose}
           className="
             inline-flex cursor-pointer items-center gap-0.5 outline-none
           "
@@ -86,38 +96,20 @@ export function QuickAddMenu({
         align="end"
         side="bottom"
         sideOffset={0}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={handleOpen}
+        onMouseLeave={handleClose}
       >
         <DropdownMenuLabel>Send to</DropdownMenuLabel>
-        {external.map((option) => {
-          const Icon = option.icon;
-          return (
-            <DropdownMenuItem
-              key={option.key}
-              className="cursor-pointer"
-              onSelect={() => onSelect(option.key)}
-            >
-              <Icon />
-              {option.label}
-            </DropdownMenuItem>
-          );
-        })}
+        <QuickAddGroup
+          options={external}
+          onSelect={onSelect}
+        />
         <DropdownMenuSeparator />
         <DropdownMenuLabel>New record</DropdownMenuLabel>
-        {tracker.map((option) => {
-          const Icon = option.icon;
-          return (
-            <DropdownMenuItem
-              key={option.key}
-              className="cursor-pointer"
-              onSelect={() => onSelect(option.key)}
-            >
-              <Icon />
-              {option.label}
-            </DropdownMenuItem>
-          );
-        })}
+        <QuickAddGroup
+          options={tracker}
+          onSelect={onSelect}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );

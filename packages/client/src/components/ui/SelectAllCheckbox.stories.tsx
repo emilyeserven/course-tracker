@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { SelectAllCheckbox } from "./SelectAllCheckbox";
+
+import {
+  playExpectChecked,
+  playExpectDisabled,
+  playToggleCheckbox,
+} from "@/test-utils/storyPlays";
 
 const meta: Meta<typeof SelectAllCheckbox> = {
   component: SelectAllCheckbox,
@@ -19,29 +25,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Unchecked: Story = {
-  play: async ({
-    canvasElement, args,
-  }) => {
-    const canvas = within(canvasElement);
-    const checkbox = canvas.getByRole("checkbox", {
-      name: "Select all",
-    });
-    await expect(checkbox).not.toBeChecked();
-    await userEvent.click(checkbox);
-    await expect(args.onCheckedChange).toHaveBeenCalledWith(true);
-  },
+  play: playToggleCheckbox,
 };
 
 export const Checked: Story = {
   args: {
     checked: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox")).toBeChecked();
-  },
+  play: playExpectChecked,
 };
 
 export const Indeterminate: Story = {
@@ -61,10 +52,5 @@ export const Disabled: Story = {
   args: {
     disabled: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox")).toBeDisabled();
-  },
+  play: playExpectDisabled("checkbox"),
 };

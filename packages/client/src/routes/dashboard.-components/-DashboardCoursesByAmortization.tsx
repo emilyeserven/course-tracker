@@ -1,7 +1,11 @@
 import type { SortDirection } from "@/components/ui/manualSort";
 import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { ResourceInResources, CourseProvider } from "@emstack/types";
-import type { ColumnDef } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  ColumnMeta,
+  HeaderContext,
+} from "@tanstack/react-table";
 
 import { useMemo, useState } from "react";
 
@@ -27,7 +31,10 @@ import {
 
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
-import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
+import {
+  makeManualSortHandler,
+  toSortingState,
+} from "@/components/ui/manualSort";
 import {
   fetchProviders,
   fetchResources,
@@ -58,7 +65,9 @@ interface ProviderRow {
   costPerUnit: number | null;
 }
 
-function buildCourseRows(courses: ResourceInResources[] | undefined): CourseRow[] {
+function buildCourseRows(
+  courses: ResourceInResources[] | undefined,
+): CourseRow[] {
   if (!courses) return [];
   return courses.map((course) => {
     const rawCost = parseCost(course.cost?.cost);
@@ -169,6 +178,49 @@ function compareProviderRows(
   return compareAmortizationRows(a, b, key, dir, row => row.provider.name);
 }
 
+/** Name-column cell linking to an entity's detail page (course or provider). */
+function NameLink({
+  to,
+  id,
+  name,
+}: {
+  to: "/resources/$id" | "/providers/$id";
+  id: string;
+  name: string;
+}) {
+  return (
+    <Link
+      to={to}
+      params={{
+        id,
+      }}
+      className="hover:text-blue-600"
+    >
+      {name}
+    </Link>
+  );
+}
+
+// The cost-per-unit column's header and meta are identical for both tables;
+// only the cell body (course vs provider breakdown) differs.
+const costPerUnitMeta = {
+  align: "right",
+  headClassName: "whitespace-nowrap",
+  cellClassName: "whitespace-nowrap",
+} as const satisfies ColumnMeta<unknown, unknown>;
+
+function costPerUnitHeader<T>({
+  column,
+}: HeaderContext<T, unknown>) {
+  return (
+    <DataTableColumnHeader
+      column={column}
+      label="Cost per Unit"
+      align="right"
+    />
+  );
+}
+
 const courseColumns: ColumnDef<CourseRow>[] = [
   {
     id: "name",
@@ -189,34 +241,18 @@ const courseColumns: ColumnDef<CourseRow>[] = [
     cell: ({
       row,
     }) => (
-      <Link
+      <NameLink
         to="/resources/$id"
-        params={{
-          id: row.original.resource.id,
-        }}
-        className="hover:text-blue-600"
-      >
-        {row.original.resource.name}
-      </Link>
+        id={row.original.resource.id}
+        name={row.original.resource.name}
+      />
     ),
   },
   {
     id: "costPerUnit",
     sortDescFirst: true,
-    header: ({
-      column,
-    }) => (
-      <DataTableColumnHeader
-        column={column}
-        label="Cost per Unit"
-        align="right"
-      />
-    ),
-    meta: {
-      align: "right",
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
+    header: costPerUnitHeader,
+    meta: costPerUnitMeta,
     cell: ({
       row,
     }) => {
@@ -320,44 +356,25 @@ const providerColumns: ColumnDef<ProviderRow>[] = [
     cell: ({
       row,
     }) => (
-      <Link
+      <NameLink
         to="/providers/$id"
-        params={{
-          id: row.original.provider.id,
-        }}
-        className="hover:text-blue-600"
-      >
-        {row.original.provider.name}
-      </Link>
+        id={row.original.provider.id}
+        name={row.original.provider.name}
+      />
     ),
   },
   {
     id: "costPerUnit",
     sortDescFirst: true,
-    header: ({
-      column,
-    }) => (
-      <DataTableColumnHeader
-        column={column}
-        label="Cost per Unit"
-        align="right"
-      />
-    ),
-    meta: {
-      align: "right",
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
-    },
+    header: costPerUnitHeader,
+    meta: costPerUnitMeta,
     cell: ({
       row,
     }) => {
       const {
-        courseCount,
-        completedUnits,
-        totalUnits,
-        cost,
-        costPerUnit,
-      } = row.original;
+        courseCount, completedUnits, totalUnits, cost, costPerUnit,
+      }
+        = row.original;
       return (
         <Popover>
           <PopoverTrigger
@@ -431,7 +448,8 @@ export function DashboardCoursesByAmortization({
   const [showUnstarted, setShowUnstarted] = useState(false);
   const [courseSortKey, setCourseSortKey] = useState<SortKey>("costPerUnit");
   const [courseSortDir, setCourseSortDir] = useState<SortDirection>("desc");
-  const [providerSortKey, setProviderSortKey] = useState<SortKey>("costPerUnit");
+  const [providerSortKey, setProviderSortKey]
+    = useState<SortKey>("costPerUnit");
   const [providerSortDir, setProviderSortDir] = useState<SortDirection>("desc");
 
   const courseRows = useMemo(() => {
@@ -458,13 +476,15 @@ export function DashboardCoursesByAmortization({
       ? isCoursesPending || isProvidersPending
       : isCoursesPending;
   const error
-    = viewMode === "providers" ? coursesError ?? providersError : coursesError;
+    = viewMode === "providers" ? (coursesError ?? providersError) : coursesError;
   const hasData
     = viewMode === "providers"
       ? providers !== undefined && courses !== undefined
       : courses !== undefined;
   const isEmpty
-    = viewMode === "providers" ? providerRows.length === 0 : courseRows.length === 0;
+    = viewMode === "providers"
+      ? providerRows.length === 0
+      : courseRows.length === 0;
 
   return (
     <DashboardCard
@@ -549,9 +569,11 @@ export function DashboardCoursesByAmortization({
         error={error}
         isEmpty={hasData && isEmpty}
         entity={viewMode === "providers" ? "providers" : "courses"}
-        emptyMessage={viewMode === "providers"
-          ? "No providers with shared course fees."
-          : "No courses to show."}
+        emptyMessage={
+          viewMode === "providers"
+            ? "No providers with shared course fees."
+            : "No courses to show."
+        }
       />
       {viewMode === "courses" && courseRows.length > 0 && (
         <DataTable

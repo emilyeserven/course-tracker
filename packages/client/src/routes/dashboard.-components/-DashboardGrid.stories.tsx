@@ -56,21 +56,27 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// Both regression stories first need the grid-positioned tile element: it must
+// carry the injected `dnd-grid-item` class and the absolute positioning the grid
+// applies inline (proof the cloned `style` was forwarded — the #279 fix).
+async function findPositionedTile(canvasElement: HTMLElement) {
+  const item = await waitFor(() => {
+    const el = canvasElement.querySelector<HTMLElement>(".dnd-grid-item");
+    if (!el) throw new Error("tile did not receive the dnd-grid-item class");
+    return el;
+  });
+  await waitFor(() => expect(getComputedStyle(item).position).toBe("absolute"));
+  return item;
+}
+
 export const ForwardsGridProps: Story = {
   play: async ({
     canvasElement,
   }) => {
-    // The grid's injected class must reach the rendered tile element.
-    const item = await waitFor(() => {
-      const el = canvasElement.querySelector<HTMLElement>(".dnd-grid-item");
-      if (!el) throw new Error("tile did not receive the dnd-grid-item class");
-      return el;
-    });
+    const item = await findPositionedTile(canvasElement);
 
-    // Geometry is applied inline by the grid (position:absolute + a pixel width
-    // narrower than the container) — proof the cloned `style` was forwarded.
-    await waitFor(() =>
-      expect(getComputedStyle(item).position).toBe("absolute"));
+    // Geometry is applied inline by the grid (a pixel width narrower than the
+    // container) — further proof the cloned `style` was forwarded.
     await expect(item.getBoundingClientRect().width).toBeLessThan(640);
 
     // The SE (bottom-right) resize handle exists and is hidden by default — the
@@ -140,15 +146,7 @@ export const AutoHeightSizesToContent: Story = {
   play: async ({
     canvasElement,
   }) => {
-    const item = await waitFor(() => {
-      const el = canvasElement.querySelector<HTMLElement>(".dnd-grid-item");
-      if (!el) throw new Error("tile did not receive the dnd-grid-item class");
-      return el;
-    });
-
-    // Still positioned by the forwarded geometry (the #279 fix must hold).
-    await waitFor(() =>
-      expect(getComputedStyle(item).position).toBe("absolute"));
+    const item = await findPositionedTile(canvasElement);
 
     // The tile grows to its ~600px content rather than being clamped to the
     // layout's 4-row (~256px) imposed height. A regressed build leaves the

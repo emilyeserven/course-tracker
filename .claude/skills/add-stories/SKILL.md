@@ -27,6 +27,12 @@ Stories already exist for ~40-50% of components; whole areas are done
 (`contentBoxComponents/`, `boxElements/`, `dailies/`, `radar/`, `tables/`). Don't
 re-story those. The shared infra is already in place — reuse it, don't reinvent.
 
+> _Components, files, and fixtures named below (e.g. `InfoRow`,
+> `-ResourcesList.stories.tsx`, `useResourceModules`) are illustrations — they
+> show the **shape** of the pattern, not required targets. Apply the method to
+> whatever's in your scope; the **Area notes** section is per-issue worked
+> examples, not core procedure._
+
 ## 1. Inventory the target area — what's actually uncovered
 
 Story files are **co-located** next to the component and a story's filename
@@ -191,6 +197,9 @@ below for anything learned (new fixture file, a tricky decorator).
 - **Skip generated files:** `routeTree.gen.ts`, anything under `dist/`.
 
 ## Area notes
+
+_Per-issue worked examples — what a real pass through each area turned up
+(fixtures added, tricky decorators). Illustrative reference, not steps to follow._
 
 ### layout (#352)
 First batch. All 12 covered components are Tier A/B — no fixtures needed.

@@ -1,20 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { DailiesLimitSetting } from "./DailiesLimitSetting";
 
 import { SettingsProvider } from "@/context/SettingsProvider";
+import { providerStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta = {
   component: DailiesLimitSetting,
-  decorators: [
-    Story => (
-      <SettingsProvider>
-        <Story />
-      </SettingsProvider>
-    ),
-  ],
+  decorators: [providerStoryDecorator(SettingsProvider)],
 } satisfies Meta<typeof DailiesLimitSetting>;
 
 export default meta;
@@ -22,14 +16,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("button", {
-        name: /routine tracker settings/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "button",
+    name: /routine tracker settings/i,
+  }]),
 };

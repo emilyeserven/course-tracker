@@ -87,9 +87,24 @@ Schema changes: edit `packages/middleware/src/db/schema/` and run `pnpm push:dev
 - **ESLint:** Flat config (`eslint.config.js`) extending the external `@emilyeserven/eslint-config` package; caching enabled via `--cache` in the lint scripts
 - **Git hooks:** Husky `pre-commit` runs lint-staged (`eslint --fix` on staged files); `commit-msg` runs commitlint (see Conventional Commits below)
 - **Conventional Commits (PR titles + commit messages):** The `pr-title` CI check (`.github/workflows/pr-title.yml`, via `amannn/action-semantic-pull-request`) fails any PR whose **title** isn't a valid Conventional Commit, and the `commit-msg` hook lints each **commit message** with `@commitlint/config-conventional`. release-please also consumes these to cut releases, so they must be accurate. Format: `type(optional-scope): subject` — scope is optional, subject is required and lowercase-leaning. Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. **When opening a PR, set its title in this form** (e.g. `feat(client): add daily streak badge`, `fix: prevent duplicate routine seeds`, `chore: bump deps`) — the title is checked independently of commit messages, so a conventional title is what keeps the naming check green.
+- **Linking an issue for autoclose:** put the issue's closing keyword right after the `type(scope):` prefix in the PR title (e.g. `docs: closes #427 refresh inventories`) — still a valid Conventional Commit. The `pr-autoclose` workflow (`.github/workflows/pr-autoclose.yml`) reads the first `#N` from the title and appends `Closes #N` to the PR body, so merging autocloses the issue. GitHub does **not** autoclose from the title alone — the keyword has to reach the body/commit message — which is what the workflow handles. Keep exactly one issue ref in the title.
 - **Codebase analysis:** fallow for dead code, duplication, complexity, and unused dependencies — config in `.fallowrc.json`. Installed as a root devDependency, so invoke via `pnpm exec fallow <cmd>` (bare `fallow` is not on PATH; `pnpm fallow <cmd>` also works but pnpm's script banner pollutes stdout, so always use `pnpm exec` when parsing `--format json` output). The `.claude/skills/fallow/` skill is vendored from the npm package — don't hand-edit it; after a fallow version bump, re-sync with `pnpm fallow:sync-skill`
 - **Dependency checks:** syncpack for version consistency
 - **TypeScript:** Strict mode, ES2022 target, incremental typecheck
+
+## Skills
+
+Project skills live in `.claude/skills/<name>/SKILL.md`. The `/`-command name comes from the **directory name**, not the `name` field. See the [official skill docs](https://code.claude.com/docs/en/skills) for the full frontmatter reference.
+
+**Frontmatter schema** — the repo baseline every skill follows:
+
+- **`name`** *(required here)* — matches the directory name.
+- **`description`** *(required here)* — a folded block scalar (`>-`) stating **what the skill does AND when to use it** (include the trigger phrases users say). Claude reads this to decide when to auto-invoke, so keep it specific. Combined with `when_to_use` it's truncated at ~1,536 characters in skill listings.
+
+**Optional fields** — add only when a skill actually needs them (all are valid Claude Code fields; see the docs above): `disable-model-invocation`, `allowed-tools` / `disallowed-tools`, `context: fork` (with optional `agent`), `model`, `effort`, `argument-hint` / `arguments`, `paths`, `when_to_use`, `user-invocable`.
+
+- **`review-pr` is the deliberate exception.** It's the only skill carrying `disable-model-invocation: true`, `allowed-tools`, and `context: fork`. These are intentional, not drift: `review-pr` is a **manual** `/review-pr` (never auto-invoked) that runs in a **forked subagent** with a scoped toolset. Leave them in place.
+- **`fallow/` is vendored** (see the fallow note under Code Quality). Its frontmatter carries upstream `license` and `metadata` keys that are **not** part of Claude's schema — don't hand-edit; re-sync with `pnpm fallow:sync-skill`.
 
 ## Environment Variables
 

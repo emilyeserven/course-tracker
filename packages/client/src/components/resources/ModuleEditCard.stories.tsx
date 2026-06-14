@@ -9,6 +9,8 @@ import {
   makeModule,
   makeTagGroups,
 } from "@/test-utils/resourceModulesFixtures";
+import { constrainedStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof ModuleEditCard> = {
   component: ModuleEditCard,
@@ -21,13 +23,7 @@ const meta: Meta<typeof ModuleEditCard> = {
     onSave: fn(),
     onCancel: fn(),
   },
-  decorators: [
-    Story => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [constrainedStoryDecorator("max-w-xl")],
 };
 
 export default meta;
@@ -35,12 +31,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const New: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Module Name")).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: "Module Name",
+  }]),
 };
 
 export const Editing: Story = {
@@ -54,14 +47,9 @@ export const Editing: Story = {
     isNew: false,
     onDelete: fn(),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByDisplayValue("Variables and Types"),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    displayValue: "Variables and Types",
+  }]),
 };
 
 export const RangeLength: Story = {

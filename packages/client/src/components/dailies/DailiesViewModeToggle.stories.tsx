@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { DailiesViewModeToggle } from "./DailiesViewModeToggle";
+
+import { clickButtonExpectChange } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof DailiesViewModeToggle> = {
   component: DailiesViewModeToggle,
@@ -17,28 +19,12 @@ export const TableSelected: Story = {
   args: {
     mode: "table",
   },
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "List view",
-    }));
-    await expect(args.onChange).toHaveBeenCalledWith("list");
-  },
+  play: clickButtonExpectChange("List view", "list"),
 };
 
 export const ListSelected: Story = {
   args: {
     mode: "list",
   },
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Table view",
-    }));
-    await expect(args.onChange).toHaveBeenCalledWith("table");
-  },
+  play: clickButtonExpectChange("Table view", "table"),
 };

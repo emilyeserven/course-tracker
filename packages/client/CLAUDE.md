@@ -45,6 +45,9 @@ Organized by purpose under `src/components/`:
 - `resources/` — resource/module components
 - `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)
 - `forms/` — field-composition primitives; `formFields/` — TanStack Form-aware fields
+- `quickAdd/` — the quick-add dialog family (`QuickAddMenu` + per-entity `QuickAdd*Dialog` components)
+- `utils/` — shared cva variant definitions (`badgeVariants`, `buttonVariants`)
+- `editPage/`, `infoCard/`, `listControls/` — **single-import aggregator barrels** (each is an `index.ts` only): `editPage/` re-exports the entity edit-page shell (`PageHeader`, `EditForm`, `EditPageFooter`, `PageTabs`, `UnsavedChangesDialog`, …), `infoCard/` the read-only `$id.index` view sections (`InfoArea`, `InfoRow`, `ResourceLinksSection`, `YesNoDisplay`), `listControls/` the list/index page chrome (`PageHeader`, `EntityStates`, `ViewModeToggle`, the `ListPageControls` filter primitives). Implementations stay in their original homes (`layout/`, `boxElements/`, …) — these barrels only re-export.
 
 Theme support via ThemeProvider context (`src/hooks/useTheme.ts`, dark/light mode).
 

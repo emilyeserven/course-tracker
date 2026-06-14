@@ -1,8 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { EditModalFooter } from "./EditModalFooter";
+
+import {
+  clickCancelFiresOnCancel,
+  clickRemoveFiresOnDelete,
+  expectRemoveHidden,
+  expectSaveDisabled,
+} from "@/test-utils/editRowStoryPlays";
 
 const meta: Meta<typeof EditModalFooter> = {
   component: EditModalFooter,
@@ -17,15 +24,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Cancel",
-    }));
-    await expect(args.onCancel).toHaveBeenCalled();
-  },
+  play: clickCancelFiresOnCancel,
 };
 
 // A new entity hides the destructive Remove button.
@@ -33,41 +32,17 @@ export const NewEntity: Story = {
   args: {
     isNew: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.queryByRole("button", {
-        name: "Remove",
-      }),
-    ).not.toBeInTheDocument();
-  },
+  play: expectRemoveHidden,
 };
 
 // An existing entity shows Remove and fires onDelete.
 export const Removable: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Remove",
-    }));
-    await expect(args.onDelete).toHaveBeenCalled();
-  },
+  play: clickRemoveFiresOnDelete,
 };
 
 export const Saving: Story = {
   args: {
     isSaving: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", {
-      name: "Save",
-    })).toBeDisabled();
-  },
+  play: expectSaveDisabled,
 };

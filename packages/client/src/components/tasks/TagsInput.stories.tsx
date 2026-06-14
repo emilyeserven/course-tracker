@@ -4,6 +4,8 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { TagsInput } from "./TagsInput";
 
+import { constrainedDecorator } from "@/test-utils/storyDecorators";
+
 const meta: Meta<typeof TagsInput> = {
   component: TagsInput,
   args: {
@@ -11,13 +13,7 @@ const meta: Meta<typeof TagsInput> = {
     onChange: fn(),
     suggestions: ["lang:python", "lang:rust", "tooling:vite"],
   },
-  decorators: [
-    Story => (
-      <div className="max-w-sm">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [constrainedDecorator],
 };
 
 export default meta;

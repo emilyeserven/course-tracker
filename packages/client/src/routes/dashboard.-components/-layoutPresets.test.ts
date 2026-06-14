@@ -1,18 +1,10 @@
-import type { DashboardLayoutTile } from "@emstack/types";
-
 import { describe, expect, test } from "vitest";
 
-import { TILE_META } from "@/lib/dashboardTiles";
+import {
+  expectTilesRespectMinSize,
+  tilesOverlap,
+} from "@/test-utils/dashboardTileAssertions";
 import { LAYOUT_PRESETS } from "./-layoutPresets";
-
-function overlaps(a: DashboardLayoutTile, b: DashboardLayoutTile): boolean {
-  return (
-    a.x < b.x + b.w
-    && b.x < a.x + a.w
-    && a.y < b.y + b.h
-    && b.y < a.y + a.h
-  );
-}
 
 describe("LAYOUT_PRESETS", () => {
   test("includes a blank preset that yields no tiles", () => {
@@ -46,16 +38,13 @@ describe("LAYOUT_PRESETS", () => {
         for (const tile of tiles) {
           for (const other of tiles) {
             if (other === tile) continue;
-            expect(overlaps(tile, other)).toBe(false);
+            expect(tilesOverlap(tile, other)).toBe(false);
           }
         }
       });
 
       test("respects each tile's minimum size", () => {
-        for (const tile of preset.buildTiles()) {
-          expect(tile.w).toBeGreaterThanOrEqual(TILE_META[tile.tileId].minW);
-          expect(tile.h).toBeGreaterThanOrEqual(TILE_META[tile.tileId].minH);
-        }
+        expectTilesRespectMinSize(preset.buildTiles());
       });
     });
   }

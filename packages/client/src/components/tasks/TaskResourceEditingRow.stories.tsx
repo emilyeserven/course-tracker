@@ -6,6 +6,10 @@ import { expect, fn, within } from "storybook/test";
 import { EditingRow } from "./TaskResourceEditingRow";
 
 import {
+  expectRemoveHidden,
+  expectSaveDisabled,
+} from "@/test-utils/editRowStoryPlays";
+import {
   makeModule,
   makeModuleGroup,
   makeTaskResource,
@@ -56,21 +60,15 @@ type Story = StoryObj<typeof meta>;
 
 /** A brand-new row: Save/Cancel only, no Remove. */
 export const NewRow: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
     await expect(canvas.getByLabelText("Name")).toBeInTheDocument();
     await expect(
       canvas.getByRole("button", {
         name: "Save",
       }),
     ).toBeInTheDocument();
-    await expect(
-      canvas.queryByRole("button", {
-        name: "Remove",
-      }),
-    ).not.toBeInTheDocument();
+    await expectRemoveHidden(context);
   },
 };
 
@@ -100,14 +98,5 @@ export const Saving: Story = {
   args: {
     isSaving: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("button", {
-        name: "Save",
-      }),
-    ).toBeDisabled();
-  },
+  play: expectSaveDisabled,
 };

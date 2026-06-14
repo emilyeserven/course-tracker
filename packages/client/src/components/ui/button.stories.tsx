@@ -1,15 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
-
 import { Button } from "./button";
+
+import {
+  asChildArgs,
+  buttonMetaArgs,
+  buttonVariantArgs,
+  clickButtonFiresOnClick,
+  expectAsChildRendersLink,
+} from "@/test-utils/buttonStoryFixtures";
 
 const meta: Meta<typeof Button> = {
   component: Button,
-  args: {
-    children: "Button",
-    onClick: fn(),
-  },
+  args: buttonMetaArgs(),
 };
 
 export default meta;
@@ -17,43 +20,23 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement, args,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Button",
-    }));
-    await expect(args.onClick).toHaveBeenCalled();
-  },
+  play: clickButtonFiresOnClick,
 };
 
 export const Secondary: Story = {
-  args: {
-    variant: "secondary",
-    children: "Secondary",
-  },
+  args: buttonVariantArgs.secondary,
 };
 
 export const Destructive: Story = {
-  args: {
-    variant: "destructive",
-    children: "Delete",
-  },
+  args: buttonVariantArgs.destructive,
 };
 
 export const Outline: Story = {
-  args: {
-    variant: "outline",
-    children: "Outline",
-  },
+  args: buttonVariantArgs.outline,
 };
 
 export const Ghost: Story = {
-  args: {
-    variant: "ghost",
-    children: "Ghost",
-  },
+  args: buttonVariantArgs.ghost,
 };
 
 export const Link: Story = {
@@ -63,21 +46,7 @@ export const Link: Story = {
   },
 };
 
-// `asChild` renders the child element (here an anchor) with the button styling
-// instead of a <button>, so the rendered node is a link.
 export const AsChild: Story = {
-  args: {
-    asChild: true,
-    children: <a href="/somewhere">Link button</a>,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("link", {
-        name: "Link button",
-      }),
-    ).toBeInTheDocument();
-  },
+  args: asChildArgs,
+  play: expectAsChildRendersLink,
 };

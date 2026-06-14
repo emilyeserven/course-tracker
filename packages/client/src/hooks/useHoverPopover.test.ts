@@ -3,6 +3,19 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { useHoverPopover } from "./useHoverPopover";
 
+function renderClosingPopover(
+  options?: Parameters<typeof useHoverPopover>[0],
+) {
+  const view = renderHook(() => useHoverPopover(options));
+  act(() => {
+    view.result.current.handleOpen();
+  });
+  act(() => {
+    view.result.current.handleClose();
+  });
+  return view;
+}
+
 describe("useHoverPopover", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -33,13 +46,7 @@ describe("useHoverPopover", () => {
   test("handleClose keeps it open until the close delay elapses", () => {
     const {
       result,
-    } = renderHook(() => useHoverPopover());
-    act(() => {
-      result.current.handleOpen();
-    });
-    act(() => {
-      result.current.handleClose();
-    });
+    } = renderClosingPopover();
 
     // still open just before the 120ms grace period ends
     act(() => {
@@ -57,13 +64,7 @@ describe("useHoverPopover", () => {
   test("cancelClose aborts a pending close", () => {
     const {
       result,
-    } = renderHook(() => useHoverPopover());
-    act(() => {
-      result.current.handleOpen();
-    });
-    act(() => {
-      result.current.handleClose();
-    });
+    } = renderClosingPopover();
     act(() => {
       result.current.cancelClose();
     });
@@ -77,14 +78,8 @@ describe("useHoverPopover", () => {
   test("honours a custom closeDelay", () => {
     const {
       result,
-    } = renderHook(() => useHoverPopover({
+    } = renderClosingPopover({
       closeDelay: 300,
-    }));
-    act(() => {
-      result.current.handleOpen();
-    });
-    act(() => {
-      result.current.handleClose();
     });
 
     act(() => {
@@ -115,14 +110,8 @@ describe("useHoverPopover", () => {
   test("clears a pending close timer on unmount", () => {
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const {
-      result, unmount,
-    } = renderHook(() => useHoverPopover());
-    act(() => {
-      result.current.handleOpen();
-    });
-    act(() => {
-      result.current.handleClose();
-    });
+      unmount,
+    } = renderClosingPopover();
 
     unmount();
     expect(clearTimeoutSpy).toHaveBeenCalled();

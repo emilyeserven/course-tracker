@@ -1,9 +1,14 @@
 import type { TaskType } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { TaskTypeEditRow } from "./-TaskTypeEditRow";
+
+import {
+  clickCancelFiresOnCancel,
+  expectRemoveHidden,
+} from "@/test-utils/editRowStoryPlays";
 
 const taskType: TaskType = {
   id: "task-type-1",
@@ -56,26 +61,9 @@ export const NewType: Story = {
       tags: [],
     },
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.queryByRole("button", {
-        name: "Remove",
-      }),
-    ).not.toBeInTheDocument();
-  },
+  play: expectRemoveHidden,
 };
 
 export const Cancels: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Cancel",
-    }));
-    await expect(args.onCancel).toHaveBeenCalled();
-  },
+  play: clickCancelFiresOnCancel,
 };

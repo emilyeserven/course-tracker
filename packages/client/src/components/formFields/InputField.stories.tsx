@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, userEvent, within } from "storybook/test";
+import { expect, within } from "storybook/test";
 
 import { InputField } from "./InputField";
 
 import { FormFieldHarness } from "@/test-utils/FormFieldHarness";
+import {
+  playExpectDisabled,
+  playTypeIntoTextbox,
+} from "@/test-utils/storyPlays";
 
 const meta = {
   component: InputField,
@@ -59,22 +63,10 @@ export const Disabled: Story = {
   args: {
     disabled: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("textbox")).toBeDisabled();
-  },
+  play: playExpectDisabled("textbox"),
 };
 
 /** Typing updates the field value through the form's `handleChange`. */
 export const Typing: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox");
-    await userEvent.type(input, "Clean Architecture");
-    await expect(input).toHaveValue("Clean Architecture");
-  },
+  play: playTypeIntoTextbox("Clean Architecture"),
 };

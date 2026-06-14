@@ -4,6 +4,8 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { ConfirmDialog } from "./ConfirmDialog";
 
+import { playClickDialogButton } from "@/test-utils/storyPlays";
+
 // Controlled AlertDialog: render with `open: true`. The content portals to
 // document.body, so assertions query there rather than the canvas.
 const meta: Meta<typeof ConfirmDialog> = {
@@ -33,15 +35,7 @@ export const Default: Story = {
 
 // The confirm button runs the confirm handler.
 export const Confirms: Story = {
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    await userEvent.click(await body.findByRole("button", {
-      name: "Yes",
-    }));
-    await expect(args.onConfirm).toHaveBeenCalled();
-  },
+  play: playClickDialogButton("Yes"),
 };
 
 // The cancel button runs the cancel handler.

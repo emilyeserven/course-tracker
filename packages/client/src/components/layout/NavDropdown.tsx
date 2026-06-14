@@ -1,5 +1,3 @@
-import { useCallback, useRef, useState } from "react";
-
 import { Link } from "@tanstack/react-router";
 import { ChevronDownIcon } from "lucide-react";
 
@@ -8,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useHoverPopover } from "@/hooks/useHoverPopover";
 
 interface NavDropdownProps {
   label: string;
@@ -18,23 +17,11 @@ interface NavDropdownProps {
 export function NavDropdown({
   label, to, children,
 }: NavDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMouseEnter = useCallback(() => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current);
-      closeTimeout.current = null;
-    }
-    setOpen(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current);
-    }
-    closeTimeout.current = setTimeout(() => setOpen(false), 400);
-  }, []);
+  const {
+    open, setOpen, handleOpen, handleClose,
+  } = useHoverPopover({
+    closeDelay: 400,
+  });
 
   return (
     <DropdownMenu
@@ -43,8 +30,8 @@ export function NavDropdown({
     >
       <DropdownMenuTrigger asChild>
         <div
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleOpen}
+          onMouseLeave={handleClose}
           className="
             inline-flex cursor-pointer items-center gap-0.5 outline-none
           "
@@ -83,8 +70,8 @@ export function NavDropdown({
         align="start"
         side="bottom"
         sideOffset={0}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={handleOpen}
+        onMouseLeave={handleClose}
       >
         {children}
       </DropdownMenuContent>

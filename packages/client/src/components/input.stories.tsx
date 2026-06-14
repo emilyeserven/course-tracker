@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, userEvent, within } from "storybook/test";
+import { expect, within } from "storybook/test";
 
 import { Input } from "./input";
+
+import {
+  playExpectDisabled,
+  playTypeIntoTextbox,
+} from "@/test-utils/storyPlays";
 
 const meta = {
   component: Input,
@@ -27,24 +32,12 @@ export const Default: Story = {
 };
 
 export const Typing: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox");
-    await userEvent.type(input, "Hello");
-    await expect(input).toHaveValue("Hello");
-  },
+  play: playTypeIntoTextbox("Hello"),
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("textbox")).toBeDisabled();
-  },
+  play: playExpectDisabled("textbox"),
 };
