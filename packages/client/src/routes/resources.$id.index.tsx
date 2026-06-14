@@ -1,8 +1,10 @@
 /* eslint-disable import/max-dependencies */
+import type { ModuleProgress } from "@/utils/moduleProgress";
 import type { Resource } from "@emstack/types";
 
 import { useState } from "react";
 
+import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
@@ -16,6 +18,7 @@ import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
 import { TagChip } from "@/components/tasks/TagChip";
 import { Button } from "@/components/ui/button";
+import { useResourceModuleProgress } from "@/hooks/useResourceModuleProgress";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -72,6 +75,13 @@ function SingleCourse() {
     data?.progressTotal,
   );
 
+  // When Module Tracking is on, the Details tab shows progress derived from the
+  // modules instead of the manual progressCurrent/progressTotal fields.
+  const moduleProgress = useResourceModuleProgress(
+    id,
+    data?.modulesAreExhaustive ?? false,
+  );
+
   // A resource → routine link is either a weekly-grid entry or a connection.
   const linkedRoutines = (routines ?? []).filter(r =>
     Object.values(r.weekly ?? {}).some(
@@ -107,6 +117,7 @@ function SingleCourse() {
                 <ResourceDetailsTab
                   data={data}
                   percentComplete={percentComplete}
+                  moduleProgress={moduleProgress}
                 />
               )
               : null,
@@ -209,11 +220,15 @@ function SingleCourse() {
 function ResourceDetailsTab({
   data,
   percentComplete,
+  moduleProgress,
 }: {
   data: Resource;
   percentComplete: string | undefined;
+  moduleProgress: ModuleProgress;
 }) {
   const topics = data.topics ?? null;
+  const moduleLabel
+    = data.modulesConfig?.moduleLabel || DEFAULT_MODULES_CONFIG.moduleLabel;
   return (
     <div className="flex flex-col gap-12">
       <InfoArea
@@ -267,27 +282,38 @@ function ResourceDetailsTab({
         </InfoArea>
       </InfoRow>
       <InfoRow header="Progress">
-        <InfoArea
-          header="Current Progress"
-          condition={!!data.progressCurrent}
-        >
-          <p>{data.progressCurrent}</p>
-        </InfoArea>
-        <InfoArea
-          header="Total Modules"
-          condition={!!data.progressTotal}
-        >
-          <p>{data.progressTotal}</p>
-        </InfoArea>
-        <InfoArea
-          header="% Complete"
-          condition={!!data.progressTotal && !!data.progressCurrent}
-        >
-          <p>{percentComplete}%</p>
-        </InfoArea>
-        {!data.progressCurrent && !data.progressTotal && (
-          <span>No progress information given.</span>
-        )}
+        {data.modulesAreExhaustive
+          ? (
+            <ModuleProgressDisplay
+              moduleProgress={moduleProgress}
+              moduleLabel={moduleLabel}
+            />
+          )
+          : (
+            <>
+              <InfoArea
+                header="Current Progress"
+                condition={!!data.progressCurrent}
+              >
+                <p>{data.progressCurrent}</p>
+              </InfoArea>
+              <InfoArea
+                header="Total Modules"
+                condition={!!data.progressTotal}
+              >
+                <p>{data.progressTotal}</p>
+              </InfoArea>
+              <InfoArea
+                header="% Complete"
+                condition={!!data.progressTotal && !!data.progressCurrent}
+              >
+                <p>{percentComplete}%</p>
+              </InfoArea>
+              {!data.progressCurrent && !data.progressTotal && (
+                <span>No progress information given.</span>
+              )}
+            </>
+          )}
       </InfoRow>
       <InfoRow
         header="Effort & Engagement"
@@ -344,5 +370,39 @@ function ResourceDetailsTab({
         </div>
       </InfoRow>
     </div>
+  );
+}
+
+// Module Tracking progress: completed/total/% derived from the resource's
+// modules (and count-only groups), shown instead of the manual progress fields.
+function ModuleProgressDisplay({
+  moduleProgress,
+  moduleLabel,
+}: {
+  moduleProgress: ModuleProgress;
+  moduleLabel: string;
+}) {
+  const {
+    completedCount,
+    totalCount,
+    percentComplete,
+  } = moduleProgress;
+
+  if (totalCount === 0) {
+    return <span>No {moduleLabel.toLowerCase()}s added yet.</span>;
+  }
+
+  return (
+    <>
+      <InfoArea header={`${moduleLabel}s Completed`}>
+        <p>{completedCount}</p>
+      </InfoArea>
+      <InfoArea header={`Total ${moduleLabel}s`}>
+        <p>{totalCount}</p>
+      </InfoArea>
+      <InfoArea header="% Complete">
+        <p>{percentComplete}%</p>
+      </InfoArea>
+    </>
   );
 }

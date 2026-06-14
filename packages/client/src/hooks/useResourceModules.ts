@@ -3,7 +3,7 @@ import type { Module, ModuleGroup, ModulesConfig, ModuleStatus } from "@emstack/
 
 import { useMemo } from "react";
 
-import { DEFAULT_MODULES_CONFIG, isModuleComplete } from "@emstack/types";
+import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ import {
   upsertModule,
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
+import { computeModuleProgress } from "@/utils/moduleProgress";
 import { queryKeys } from "@/utils/queryKeys";
 
 export function useResourceModules(resourceId: string) {
@@ -77,25 +78,13 @@ export function useResourceModules(resourceId: string) {
   // Aggregate progress: sum enumerated modules + groups-with-counts (only
   // groups that have NO enumerated modules contribute their direct counts;
   // when a group has enumerated modules, those modules are already counted).
-  const groupsWithoutModulesCounts = useMemo(() => {
-    let total = 0;
-    let completed = 0;
-    for (const g of groups) {
-      const hasEnumerated = (modulesByGroup.get(g.id)?.length ?? 0) > 0;
-      if (hasEnumerated) continue;
-      total += g.totalCount ?? 0;
-      completed += g.completedCount ?? 0;
-    }
-    return {
-      total,
-      completed,
-    };
-  }, [groups, modulesByGroup]);
-
-  const completedCount
-    = allModules.filter(m => isModuleComplete(m.status)).length
-      + groupsWithoutModulesCounts.completed;
-  const totalCount = allModules.length + groupsWithoutModulesCounts.total;
+  const {
+    completedCount,
+    totalCount,
+  } = useMemo(
+    () => computeModuleProgress(allModules, groups),
+    [allModules, groups],
+  );
 
   // Book resources get per-module/group page ranges; the edit cards key off this.
   const isBook = resourceQuery.data?.type === "book";
