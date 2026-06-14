@@ -1,4 +1,4 @@
-import type { WeeklyRowType } from "./weekly";
+import type { WeeklyEntry, WeeklyRowType } from "./weekly";
 import type { SelectOption } from "@/utils";
 
 import { buildActionableSentence } from "@emstack/types";
@@ -6,28 +6,16 @@ import { buildActionableSentence } from "@emstack/types";
 import { Combobox, ComboboxInput } from "@/components/combobox";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 
-// The editable fields shared by every schedule row (a weekday row or a curated
-// date row) — everything except the row's key (weekday vs. date).
-export interface ScheduleEntryRowValue {
-  // "" = no entry scheduled.
-  type: WeeklyRowType;
-  id: string;
-  notes: string;
-  location: string;
-  prependText: string;
-  appendText: string;
-}
-
 interface ScheduleEntryRowProps {
   // Displayed label for the row (e.g. "Monday" or "Mon, Jun 15").
   label: string;
   // Prefix for the row's aria-labels (kept stable so tests/stories can target
   // e.g. "Monday type").
   ariaPrefix: string;
-  row: ScheduleEntryRowValue;
+  row: WeeklyEntry;
   taskOptions: SelectOption[];
   resourceOptions: SelectOption[];
-  onChange: (patch: Partial<ScheduleEntryRowValue>) => void;
+  onChange: (patch: Partial<WeeklyEntry>) => void;
   // Open the "add resource" dialog targeting this row.
   onAddResource: () => void;
   // Surface the combobox's typed text so the parent can seed the add dialog.
