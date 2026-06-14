@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, within } from "storybook/test";
 
-import { ResourceInteractionsLog } from "./ResourceInteractionsLog";
+import { ResourceInteractionsLog } from "./-ResourceInteractionsLog";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { makeInteraction } from "@/test-utils/resourceModulesFixtures";
