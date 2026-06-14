@@ -1,3 +1,4 @@
+import type { BlipDraft } from "./-BlipsPanel";
 import type { Radar, RadarBlip, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
@@ -13,15 +14,6 @@ interface BlipsTabContainerProps {
   topics: TopicForTopicsPage[];
   domainId: string;
   onSaved: () => Promise<void>;
-}
-
-interface BlipDraft {
-  id?: string;
-  topicId: string;
-  description: string;
-  quadrantId: string;
-  ringId: string;
-  localKey: string;
 }
 
 let localKeyCounter = 0;

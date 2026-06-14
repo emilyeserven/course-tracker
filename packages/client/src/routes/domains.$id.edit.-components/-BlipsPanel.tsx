@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface BlipDraft {
+export interface BlipDraft {
   id?: string;
   topicId: string;
   description: string;
