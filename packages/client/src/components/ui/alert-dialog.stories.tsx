@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import {
   AlertDialog,
@@ -12,6 +12,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./alert-dialog";
+
+import { playClickDialogButton } from "@/test-utils/storyPlays";
 
 function AlertDialogDemo({
   open,
@@ -65,15 +67,5 @@ export const Open: Story = {
 
 // The action button runs the confirm handler.
 export const Confirms: Story = {
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    await userEvent.click(
-      await body.findByRole("button", {
-        name: "Continue",
-      }),
-    );
-    await expect(args.onConfirm).toHaveBeenCalled();
-  },
+  play: playClickDialogButton("Continue"),
 };
