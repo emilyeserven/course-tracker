@@ -1,8 +1,9 @@
 // Barrel for the domain edit tab components so the editor imports its tabs from
-// one module instead of five. The tab files import their own dependencies
-// directly (never this index), so this re-export introduces no cycle.
-export { BlipsTabContainer } from "./-BlipsTab";
-export { ConfigTab } from "./-ConfigTab";
-export { DetailsTab } from "./-DetailsTab";
-export { LlmTabContainer } from "./-LlmTab";
-export { ScopeTab } from "./-ScopeTab";
+// one module instead of five. Each tab now lives in its own themed subfolder
+// (details/, scope/, config/, blips/, llm/) with its own index.ts; this
+// re-export aggregates their public surface for -ExistingDomainEditor.
+export { BlipsTabContainer } from "./blips";
+export { ConfigTab } from "./config";
+export { DetailsTab } from "./details";
+export { LlmTabContainer } from "./llm";
+export { ScopeTab } from "./scope";
