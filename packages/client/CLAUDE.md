@@ -76,4 +76,14 @@ Theme support via ThemeProvider context (`src/hooks/useTheme.ts`, dark/light mod
 ## Testing
 
 - Vitest + Testing Library; co-located `*.test.ts(x)` files.
+- **Two Vitest projects** (`vite.config.ts`): `unit-tests` runs the co-located
+  `*.test.ts(x)` in **jsdom** (fast); `storybook` runs every `*.stories.tsx` in a
+  **real headless Chromium** via Playwright (slow — this is the bottleneck).
 - Run all: `pnpm --filter=@emstack/client test`; single file: `pnpm --filter=@emstack/client exec vitest run path/to/file.test.tsx`.
+- Scope by project: `… exec vitest run --project unit-tests` (fast jsdom) or
+  `--project storybook` (browser). Append a path to run a single file:
+  `… exec vitest run --project storybook path/to/Foo.stories.tsx`.
+- **Fast inner loop:** from the repo root, `pnpm verify:changed` runs Vitest
+  `related` for the files you touched — the affected jsdom unit tests **and only
+  the Storybook stories that import a changed module** — instead of the whole
+  browser suite. See the root CLAUDE.md "Verification — fast inner loop".

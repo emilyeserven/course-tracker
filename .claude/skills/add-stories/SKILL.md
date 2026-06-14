@@ -164,7 +164,10 @@ already takes plain props (`-ResourcesList` gets `resources`/`providers`/`topics
 ```bash
 # The CI gate — stories run in headless Chromium. Run with --no-file-parallelism:
 # the storybook project is flaky under parallelism (bare TypeErrors across
-# unrelated files), so serialize it for a trustworthy signal.
+# unrelated files; the full suite can also hang), so serialize it for a
+# trustworthy signal. Parallel-stability is tracked in #504; until it's fixed,
+# keep this guard. For day-to-day iteration prefer `pnpm verify:changed`, which
+# runs only the touched stories via `vitest related`.
 pnpm --filter=@emstack/client exec vitest run --project=storybook --no-file-parallelism
 
 # Typecheck (catches @storybook/test slips, TS2742 satisfies/fn issues, TS4023):

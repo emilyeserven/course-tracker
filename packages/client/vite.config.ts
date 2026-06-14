@@ -45,6 +45,20 @@ export default defineConfig(({
       "@root": path.resolve(__dirname, "../.."),
     },
   },
+  optimizeDeps: {
+    // Pre-bundle the heavy shared deps once up front so each browser-mode story
+    // file doesn't trigger on-demand Vite transforms — a source of suite
+    // slowness and the parallelism races tracked in #504.
+    include: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+      "@tanstack/react-router",
+      "lucide-react",
+    ],
+  },
   test: {
     projects: [
       {
@@ -75,11 +89,28 @@ export default defineConfig(({
         ],
         test: {
           name: "storybook",
+          // Block real /api network calls during the run (stories seed query
+          // data instead) — kills the ECONNREFUSED proxy round-trips/noise.
+          setupFiles: ["./.storybook/vitest.setup.ts"],
+          // Cap concurrency. The browser suite deadlocked/crawled under
+          // unbounded file parallelism (#504) — stalling at low CPU with
+          // resources free — so bound it to a few concurrent story files
+          // instead of fully serializing (`--no-file-parallelism`).
+          maxWorkers: 2,
           browser: {
             enabled: true,
             headless: true,
             provider: playwright({
-              launch: {},
+              // Headless Chromium in CI/containers: avoid the sandbox + the
+              // /dev/shm path (it can stall under contention); --disable-gpu
+              // is a free win headless.
+              launch: {
+                args: [
+                  "--no-sandbox",
+                  "--disable-dev-shm-usage",
+                  "--disable-gpu",
+                ],
+              },
             }),
             instances: [
               {
