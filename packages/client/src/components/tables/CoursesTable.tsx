@@ -78,6 +78,7 @@ const columns: ColumnDef<ResourceInResources>[] = [
             className="
               text-blue-800
               hover:text-blue-600
+              dark:text-blue-300
             "
           >
             {row.original.provider.name}

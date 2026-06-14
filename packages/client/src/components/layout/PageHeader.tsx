@@ -24,7 +24,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <div
-      className={cn("mb-8 bg-gray-200 pt-4", {
+      className={cn("mb-8 bg-muted pt-4", {
         "pt-4": progressCurrent && progressCurrent !== 0,
         "py-4": !progressCurrent || progressCurrent === 0,
       })}
@@ -116,7 +116,7 @@ export function PageHeader({
             progressTotal={progressTotal}
             status={status}
             isRounded={false}
-            className="mt-6 bg-gray-300"
+            className="mt-6 bg-muted-foreground/20"
           />
         )
         : (

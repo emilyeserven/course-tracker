@@ -129,7 +129,7 @@ export function RadarLegend({
       {adoptedBlips.length > 0 && (
         <BlipLegendSection
           title={adoptedSectionName}
-          headingClassName="text-sm font-semibold text-amber-700 uppercase"
+          headingClassName="text-sm font-semibold text-amber-700 uppercase dark:text-amber-400"
           items={adoptedBlips.map(blip => ({
             blip,
             label: <span className="font-medium">{blip.topicName}</span>,
@@ -145,7 +145,7 @@ export function RadarLegend({
       {ignoredBlips.length > 0 && (
         <BlipLegendSection
           title="Ignored"
-          headingClassName="text-sm font-semibold text-gray-600 uppercase"
+          headingClassName="text-sm font-semibold text-muted-foreground uppercase"
           items={ignoredBlips.map(blip => ({
             blip,
             label: <span className="font-medium">{blip.topicName}</span>,

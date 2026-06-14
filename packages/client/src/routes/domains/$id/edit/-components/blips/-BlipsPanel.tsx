@@ -93,7 +93,12 @@ export function BlipsPanel({
         </Button>
       </div>
       {!allConfigPersisted && (
-        <p className="text-sm text-amber-700">
+        <p
+          className="
+            text-sm text-amber-700
+            dark:text-amber-400
+          "
+        >
           Save your slices and rings before adding blips.
         </p>
       )}

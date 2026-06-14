@@ -114,8 +114,8 @@ export function BlipLegendItem({
       onMouseLeave={() => onHover(null)}
       className={cn(
         "group flex flex-col rounded-sm px-1 py-0.5 text-sm transition-colors",
-        isActive && "bg-gray-200",
-        isSelected && "ring-1 ring-gray-400",
+        isActive && "bg-muted",
+        isSelected && "ring-1 ring-muted-foreground/50",
       )}
     >
       <div className="flex items-center gap-1">

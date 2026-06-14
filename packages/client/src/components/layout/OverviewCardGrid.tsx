@@ -60,8 +60,8 @@ function OverviewCard({
               entity={entity}
               id={item.id}
               className="
-                rounded-sm bg-gray-50 px-2 py-0.5 text-xs
-                hover:bg-gray-900 hover:text-white
+                rounded-sm bg-muted px-2 py-0.5 text-xs
+                hover:bg-primary hover:text-primary-foreground
               "
             >
               {item.name}

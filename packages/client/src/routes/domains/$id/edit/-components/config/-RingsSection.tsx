@@ -61,6 +61,7 @@ export function RingsSection({
                   className="
                     rounded-sm border-transparent bg-amber-100 px-1.5
                     text-[10px] text-amber-900
+                    dark:bg-amber-900/40 dark:text-amber-200
                   "
                   title="Hidden from radar chart, listed on the side"
                 >

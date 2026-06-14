@@ -212,7 +212,11 @@ export function ResourceInteractionsLog({
                     {targetGroup && (
                       <Badge
                         variant="outline"
-                        className="border-blue-200 bg-blue-50 text-blue-900"
+                        className="
+                          border-blue-200 bg-blue-50 text-blue-900
+                          dark:border-blue-900/50 dark:bg-blue-950/40
+                          dark:text-blue-200
+                        "
                       >
                         group: {targetGroup.name}
                       </Badge>
@@ -220,7 +224,11 @@ export function ResourceInteractionsLog({
                     {targetModule && (
                       <Badge
                         variant="outline"
-                        className="border-blue-200 bg-blue-50 text-blue-900"
+                        className="
+                          border-blue-200 bg-blue-50 text-blue-900
+                          dark:border-blue-900/50 dark:bg-blue-950/40
+                          dark:text-blue-200
+                        "
                       >
                         module: {targetModule.name}
                       </Badge>
