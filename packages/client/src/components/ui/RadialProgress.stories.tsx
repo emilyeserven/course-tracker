@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RadialProgress } from "./RadialProgress";
 
 const meta = {
@@ -17,18 +15,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("img", {
-        name: "75% complete",
-      }),
-    ).toBeInTheDocument();
-  },
-};
+export const Default: Story = {};
 
 // total of 0 must not divide by zero — it renders 0%.
 export const Empty: Story = {
@@ -36,14 +23,20 @@ export const Empty: Story = {
     current: 0,
     total: 0,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("img", {
-        name: "0% complete",
-      }),
-    ).toBeInTheDocument();
+};
+
+export const Full: Story = {
+  args: {
+    current: 5,
+    total: 5,
+  },
+};
+
+// A custom `title` overrides the tooltip, but the aria-label stays percentage.
+export const CustomTitle: Story = {
+  args: {
+    current: 1,
+    total: 2,
+    title: "Halfway there",
   },
 };

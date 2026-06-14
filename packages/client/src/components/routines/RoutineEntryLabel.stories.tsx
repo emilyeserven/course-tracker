@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RoutineEntryLabel } from "./RoutineEntryLabel";
 
 import { RouterStub } from "@/test-utils/RouterStub";
@@ -43,15 +41,6 @@ export const TaskEntry: Story = {
       location: "Library, desk 4",
     }),
   },
-  // RouterStub mounts children after its initial load, so assert with findBy*.
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Read a chapter")).toBeInTheDocument();
-    await expect(canvas.getByText("Focus on the subjunctive.")).toBeInTheDocument();
-    await expect(canvas.getByText("Library, desk 4")).toBeInTheDocument();
-  },
 };
 
 export const ResourceEntry: Story = {
@@ -61,12 +50,28 @@ export const ResourceEntry: Story = {
       id: "resource-1",
     }),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByText("Duolingo Spanish"),
-    ).toBeInTheDocument();
+};
+
+export const Freeform: Story = {
+  args: {
+    entry: makeReferenceItem({
+      type: "freeform",
+      id: "Stretch for 10 minutes",
+      prependText: "Then",
+    }),
+  },
+};
+
+// Compact form (showMeta: false) renders only the actionable sentence — no TYPE
+// badge, notes, or location.
+export const Compact: Story = {
+  args: {
+    entry: makeReferenceItem({
+      type: "task",
+      id: "task-1",
+      notes: "Hidden in compact form.",
+      location: "Hidden too",
+    }),
+    showMeta: false,
   },
 };

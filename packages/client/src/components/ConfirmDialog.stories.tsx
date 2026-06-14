@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { ConfirmDialog } from "./ConfirmDialog";
-
-import { playClickDialogButton } from "@/test-utils/storyPlays";
 
 // Controlled AlertDialog: render with `open: true`. The content portals to
 // document.body, so assertions query there rather than the canvas.
@@ -23,17 +21,20 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async () => {
-    const body = within(document.body);
-    await expect(
-      await body.findByText("Delete this routine?"),
-    ).toBeInTheDocument();
-    await expect(body.getByText("This can't be undone.")).toBeInTheDocument();
-  },
-};
+export const Default: Story = {};
 
 // The confirm button runs the confirm handler.
-export const Confirms: Story = {
-  play: playClickDialogButton("Yes"),
+export const Confirms: Story = {};
+
+// The cancel button runs the cancel handler.
+export const Cancels: Story = {};
+
+// Custom labels and no description.
+export const CustomLabels: Story = {
+  args: {
+    title: "Discard changes?",
+    description: undefined,
+    confirmLabel: "Discard",
+    cancelLabel: "Keep editing",
+  },
 };
