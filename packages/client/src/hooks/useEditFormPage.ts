@@ -20,17 +20,19 @@ interface MakeDeleteHandlerOptions {
   navigateToList: () => void | Promise<void>;
 }
 
-interface MakeDuplicateHandlerOptions {
-  duplicateFn: (id: string) => Promise<{ id: string }>;
+// Shared by the handlers that navigate to the affected entity after acting.
+interface EntityNavHandlerOptions {
   entityLabel: string;
   navigateToEntity: (id: string) => void | Promise<void>;
 }
 
-interface MakeSubmitHandlerOptions<TPayload> {
+interface MakeDuplicateHandlerOptions extends EntityNavHandlerOptions {
+  duplicateFn: (id: string) => Promise<{ id: string }>;
+}
+
+interface MakeSubmitHandlerOptions<TPayload> extends EntityNavHandlerOptions {
   createFn: (data: TPayload) => Promise<{ id: string }>;
   upsertFn: (id: string, data: TPayload) => Promise<unknown>;
-  entityLabel: string;
-  navigateToEntity: (id: string) => void | Promise<void>;
 }
 
 /**
@@ -87,9 +89,7 @@ export function useEditFormPage<TData>({
 
   const makeDeleteHandler = useCallback(
     ({
-      deleteFn,
-      entityLabel,
-      navigateToList,
+      deleteFn, entityLabel, navigateToList,
     }: MakeDeleteHandlerOptions) =>
       async () => {
         try {
