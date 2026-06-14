@@ -107,6 +107,31 @@ export function queryStoryDecorator(client?: QueryClient): Decorator {
   };
 }
 
+/**
+ * Wraps an SVG-child story (e.g. radar blips) in an `<svg>` canvas of the given
+ * size, optionally inside a TooltipProvider for blips that show tooltips.
+ */
+export function svgStoryDecorator(options: {
+  width: number;
+  height: number;
+  tooltip?: boolean;
+}): Decorator {
+  const {
+    width, height, tooltip = false,
+  } = options;
+  return function SvgStoryWrapper(Story) {
+    const svg = (
+      <svg
+        width={width}
+        height={height}
+      >
+        <Story />
+      </svg>
+    );
+    return tooltip ? <TooltipProvider>{svg}</TooltipProvider> : svg;
+  };
+}
+
 /** Wraps the story in a width-constrained container (defaults to `max-w-sm`). */
 export function constrainedStoryDecorator(className = "max-w-sm"): Decorator {
   return function ConstrainedStoryWrapper(Story) {

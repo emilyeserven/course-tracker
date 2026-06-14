@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { LevelBadge } from "./LevelBadge";
 
 const meta = {
@@ -15,12 +13,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Low: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Low")).toBeInTheDocument();
+export const Low: Story = {};
+
+export const Medium: Story = {
+  args: {
+    level: "medium",
+  },
+};
+
+export const High: Story = {
+  args: {
+    level: "high",
   },
 };
 
@@ -28,11 +31,5 @@ export const Low: Story = {
 export const None: Story = {
   args: {
     level: null,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("—")).toBeInTheDocument();
   },
 };

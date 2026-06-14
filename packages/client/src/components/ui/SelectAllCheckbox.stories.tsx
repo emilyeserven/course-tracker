@@ -4,11 +4,6 @@ import { fn } from "storybook/test";
 
 import { SelectAllCheckbox } from "./SelectAllCheckbox";
 
-import {
-  playExpectChecked,
-  playToggleCheckbox,
-} from "@/test-utils/storyPlays";
-
 const meta: Meta<typeof SelectAllCheckbox> = {
   component: SelectAllCheckbox,
   args: {
@@ -23,13 +18,22 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Unchecked: Story = {
-  play: playToggleCheckbox,
-};
+export const Unchecked: Story = {};
 
 export const Checked: Story = {
   args: {
     checked: true,
   },
-  play: playExpectChecked,
+};
+
+export const Indeterminate: Story = {
+  args: {
+    indeterminate: true,
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+  },
 };

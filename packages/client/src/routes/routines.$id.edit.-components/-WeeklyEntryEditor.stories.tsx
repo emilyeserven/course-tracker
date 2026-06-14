@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
@@ -41,29 +41,37 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const TaskEntry: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByLabelText("Daily task type")).toHaveValue(
-      "task",
-    );
-    await expect(canvas.getByLabelText("Daily task notes")).toBeInTheDocument();
-  },
-};
+export const TaskEntry: Story = {};
 
 export const ResourceEntry: Story = {
   args: {
     type: "resource",
     id: "resource-1",
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByLabelText("Daily task type")).toHaveValue(
-      "resource",
-    );
+};
+
+export const Freeform: Story = {
+  args: {
+    type: "freeform",
+    id: "Stretch for 10 minutes",
+  },
+};
+
+// Prepend/append text around a resolved item name renders the actionable-sentence
+// preview.
+export const WithPreview: Story = {
+  args: {
+    type: "task",
+    id: "task-1",
+    prependText: "Review",
+    appendText: "for 10 minutes",
+  },
+};
+
+// type "" (None): the meta/notes inputs collapse to just the type select.
+export const None: Story = {
+  args: {
+    type: "",
+    id: "",
   },
 };

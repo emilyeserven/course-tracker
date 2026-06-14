@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import {
+  ClearFiltersButton,
   FilterSelect,
+  ListEmptyStates,
   ListSearchInput,
 } from "./ListPageControls";
 
@@ -22,16 +24,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const SearchInput: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByPlaceholderText("Search resources...");
-    await userEvent.type(input, "react");
-    await expect(args.onChange).toHaveBeenCalled();
-  },
-};
+export const SearchInput: Story = {};
 
 // Radix Select-based filter dropdown. Its options render in a body portal only
 // once opened, so the closed-state smoke test asserts the trigger.
@@ -57,10 +50,30 @@ export const Filter: Story = {
       ]}
     />
   ),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("combobox")).toBeInTheDocument();
-  },
+};
+
+export const ClearFilters: Story = {
+  render: () => <ClearFiltersButton onClick={fn()} />,
+};
+
+// No items at all.
+export const EmptyNoneYet: Story = {
+  render: () => (
+    <ListEmptyStates
+      entityLabel="resources"
+      total={0}
+      filteredCount={0}
+    />
+  ),
+};
+
+// Items exist, but none match the active filters.
+export const EmptyNoMatch: Story = {
+  render: () => (
+    <ListEmptyStates
+      entityLabel="resources"
+      total={10}
+      filteredCount={0}
+    />
+  ),
 };

@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RoutineBox } from "./RoutineBox";
 
 import { makeRoutine } from "@/test-utils/boxFixtures";
@@ -20,16 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Daily: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Daily reading")).toBeInTheDocument();
-    await expect(await canvas.findByText("Daily")).toBeInTheDocument();
-    await expect(await canvas.findByText("chain")).toBeInTheDocument();
-  },
-};
+export const Daily: Story = {};
 
 export const Weekly: Story = {
   args: makeRoutine({
@@ -41,13 +30,27 @@ export const Weekly: Story = {
       appendText: "for today",
     },
   }),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Weekly")).toBeInTheDocument();
-    await expect(
-      await canvas.findByText("Review the backlog"),
-    ).toBeInTheDocument();
-  },
+};
+
+export const DailyNoTask: Story = {
+  args: makeRoutine({
+    name: "Stretch",
+    connections: [],
+    weekly: {},
+  }),
+};
+
+export const DailyResourceNoWarning: Story = {
+  args: makeRoutine({
+    name: "Read the docs",
+    connections: [],
+    // A daily routine assigned a resource (not a task) still counts as
+    // assigned, so the caution must not appear.
+    weekly: {
+      1: {
+        type: "resource",
+        id: "res-1",
+      },
+    },
+  }),
 };

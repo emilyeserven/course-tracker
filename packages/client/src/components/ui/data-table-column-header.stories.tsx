@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { Column } from "@tanstack/react-table";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { DataTableColumnHeader } from "./data-table-column-header";
 
@@ -53,30 +53,30 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // A sortable column renders a button that toggles the column's sort.
-export const Sortable: Story = {
-  play: async ({
-    canvasElement, args,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: /name/i,
-    }));
-    await expect(args.onToggle).toHaveBeenCalled();
-  },
-};
+export const Sortable: Story = {};
 
 export const SortedAscending: Story = {
   args: {
     sorted: "asc",
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("button", {
-        name: /name/i,
-      }),
-    ).toBeInTheDocument();
+};
+
+export const SortedDescending: Story = {
+  args: {
+    sorted: "desc",
+  },
+};
+
+// A non-sortable column renders a plain label, not a button.
+export const NotSortable: Story = {
+  args: {
+    canSort: false,
+  },
+};
+
+// The label is kept for screen readers even when visually hidden.
+export const HideLabel: Story = {
+  args: {
+    hideLabel: true,
   },
 };

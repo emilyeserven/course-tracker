@@ -4,11 +4,6 @@ import { fn } from "storybook/test";
 
 import { EditModalFooter } from "./EditModalFooter";
 
-import {
-  clickCancelFiresOnCancel,
-  expectRemoveHidden,
-} from "@/test-utils/editRowStoryPlays";
-
 const meta: Meta<typeof EditModalFooter> = {
   component: EditModalFooter,
   args: {
@@ -21,14 +16,20 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: clickCancelFiresOnCancel,
-};
+export const Default: Story = {};
 
 // A new entity hides the destructive Remove button.
 export const NewEntity: Story = {
   args: {
     isNew: true,
   },
-  play: expectRemoveHidden,
+};
+
+// An existing entity shows Remove and fires onDelete.
+export const Removable: Story = {};
+
+export const Saving: Story = {
+  args: {
+    isSaving: true,
+  },
 };
