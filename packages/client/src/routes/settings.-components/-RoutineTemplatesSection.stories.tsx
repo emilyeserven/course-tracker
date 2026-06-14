@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RoutineTemplatesSection } from "./-RoutineTemplatesSection";
 
 import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryStubDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 function clientWith(templates = [makeRoutineTemplate()]) {
   return seededQueryClient([
@@ -28,26 +27,21 @@ type Story = StoryObj<typeof meta>;
 
 // A saved routine template with its scheduled-day count.
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("heading", {
-        name: /routine templates/i,
-      }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByText("Summer Japanese")).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: /routine templates/i,
+    },
+    {
+      text: "Summer Japanese",
+    },
+  ]),
 };
 
 // The empty state prompts the user to create one.
 export const Empty: Story = {
   decorators: [queryStubDecorator(() => clientWith([]))],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/no templates yet/i)).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: /no templates yet/i,
+  }]),
 };

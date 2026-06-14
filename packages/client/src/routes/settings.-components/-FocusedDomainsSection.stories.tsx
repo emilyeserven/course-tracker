@@ -1,13 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { FocusedDomainsSection } from "./-FocusedDomainsSection";
 
 import { makeDomain } from "@/test-utils/boxFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeAppSettings } from "@/test-utils/settingsFixtures";
 import { queryStubDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seeds settings + domains so the form (rather than the loading placeholder)
@@ -39,28 +38,21 @@ type Story = StoryObj<typeof meta>;
 // The focused-domains picker + save action once the queries resolve.
 export const Default: Story = {
   decorators: [queryStubDecorator(seededClient)],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Focused domains")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save focused domains/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: "Focused domains",
+    },
+    {
+      role: "button",
+      name: /save focused domains/i,
+    },
+  ]),
 };
 
 // Before the queries resolve the section shows its loading placeholder.
 export const Loading: Story = {
   decorators: [queryStubDecorator()],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByText(/loading domains/i),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: /loading domains/i,
+  }]),
 };
