@@ -58,7 +58,7 @@ export function makeModule(overrides: Partial<Module> = {}): Module {
     resourceId: "resource-1",
     moduleGroupId: "module-group-1",
     name: "Chapter 1",
-    isComplete: false,
+    status: "unstarted",
     ...overrides,
   };
 }

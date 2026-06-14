@@ -18,7 +18,6 @@ const meta: Meta<typeof ModuleEditCard> = {
     draft: emptyModuleDraft(),
     tagGroups: makeTagGroups(),
     isNew: true,
-    isComplete: false,
     isSaving: false,
     onSave: fn(),
     onCancel: fn(),

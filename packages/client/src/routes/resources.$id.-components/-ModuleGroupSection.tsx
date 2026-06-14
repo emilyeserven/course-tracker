@@ -346,7 +346,6 @@ export function ModuleGroupSection({
           draft={emptyModuleDraft()}
           tagGroups={tagGroups}
           isNew
-          isComplete={false}
           showPages={api.isBook}
           moduleLabel={api.moduleLabel}
           isSaving={createModuleMutation.isPending}

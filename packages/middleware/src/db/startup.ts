@@ -3,6 +3,7 @@ import { resources } from "@/db/schema";
 import { migrateAddCuratedRoutineMode } from "./migrateAddCuratedRoutineMode.ts";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
+import { migrateModuleStatus } from "./migrateModuleStatus.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
 import { seed } from "./seed.ts";
 
@@ -56,6 +57,18 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to sweep dangling routine connections:", err);
+    throw err;
+  }
+
+  // Replace the legacy boolean `modules.is_complete` with the tri-state
+  // `modules.status` enum, creating the type + dropping the old column before
+  // drizzle-kit push diffs the modules table (push can't do either
+  // non-interactively). Independent of the routine migrations above.
+  try {
+    await migrateModuleStatus();
+  }
+  catch (err) {
+    console.error("Failed to migrate module status:", err);
     throw err;
   }
 }

@@ -5,6 +5,7 @@ import { Fragment } from "react";
 
 import {
   InteractionQuickLog,
+  ModuleDetailsPanel,
   ModuleDisplayRow,
   ModuleEditCard,
 } from "@/components/resources/moduleAdminComponents";
@@ -38,7 +39,7 @@ export function ModuleListItem({
     tagGroups,
     upsertModuleMutation,
     deleteModuleMutation,
-    toggleCompleteMutation,
+    setStatusMutation,
     moveModule,
     isReordering,
   } = api;
@@ -47,6 +48,8 @@ export function ModuleListItem({
     setEditingModuleId,
     loggingForModuleId,
     setLoggingForModuleId,
+    expandedModuleId,
+    setExpandedModuleId,
     isAnyEditing,
   } = ui;
 
@@ -55,7 +58,6 @@ export function ModuleListItem({
       <ModuleEditCard
         draft={moduleToDraft(m)}
         tagGroups={tagGroups}
-        isComplete={m.isComplete}
         showPages={api.isBook}
         moduleLabel={api.moduleLabel}
         isSaving={
@@ -66,7 +68,7 @@ export function ModuleListItem({
             {
               draft: d,
               groupId,
-              isComplete: m.isComplete,
+              status: m.status,
             },
             {
               onSuccess: () => setEditingModuleId(null),
@@ -91,11 +93,25 @@ export function ModuleListItem({
         canMoveDown={index < list.length - 1}
         onMoveUp={() => moveModule(list, index, "up")}
         onMoveDown={() => moveModule(list, index, "down")}
-        onToggleComplete={() => toggleCompleteMutation.mutate(m)}
+        onSetStatus={status => setStatusMutation.mutate({
+          module: m,
+          status,
+        })}
+        onOpenDetails={() =>
+          setExpandedModuleId(expandedModuleId === m.id ? null : m.id)}
         onEdit={() => setEditingModuleId(m.id)}
         onLogInteraction={() => setLoggingForModuleId(m.id)}
-        isToggling={toggleCompleteMutation.isPending}
+        isStatusPending={setStatusMutation.isPending}
       />
+      {expandedModuleId === m.id && (
+        <ModuleDetailsPanel
+          module={m}
+          onEdit={() => {
+            setExpandedModuleId(null);
+            setEditingModuleId(m.id);
+          }}
+        />
+      )}
       {loggingForModuleId === m.id && (
         <li className="border-t bg-muted/30 p-3">
           <InteractionQuickLog

@@ -6,6 +6,7 @@ import {
   interactionDifficultyEnum,
   interactionProgressEnum,
   interactionUnderstandingEnum,
+  moduleStatusEnum,
   recurPeriodUnitEnum,
   resourceLevelEnum,
   resourceTypeEnum,
@@ -114,7 +115,7 @@ export const modules = pgTable("modules", {
   // TODO(module-length-followup): drop minutesLength once `length` has fully
   // replaced it on the wire. Kept for safety during the additive migration.
   minutesLength: integer("minutes_length"),
-  isComplete: boolean("is_complete").default(false).notNull(),
+  status: moduleStatusEnum("status").default("unstarted").notNull(),
   // TODO(modules-ordering-followup): position is queried in ASC order today
   // but there's no UI to set it. Add a reorder UI for modules within a group
   // (and ungrouped modules) — drag-handle or up/down buttons.

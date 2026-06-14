@@ -21,6 +21,7 @@ export * from "./Interaction.js";
 export * from "./Module.js";
 export * from "./ModuleGroup.js";
 export * from "./ModulesConfig.js";
+export * from "./ModuleStatus.js";
 export * from "./OnboardData.js";
 export * from "./Radar.js";
 export * from "./Readwise.js";

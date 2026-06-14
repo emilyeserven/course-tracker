@@ -18,7 +18,7 @@ const baseModule: Module = {
   id: "mod-1",
   resourceId: "res-1",
   name: "Intro",
-  isComplete: false,
+  status: "unstarted",
 };
 
 describe("moduleToDraft / draftToLength round-trip", () => {

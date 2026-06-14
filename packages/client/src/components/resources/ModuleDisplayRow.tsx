@@ -1,4 +1,4 @@
-import type { Module } from "@emstack/types";
+import type { Module, ModuleStatus } from "@emstack/types";
 
 import { formatModuleLength, formatPageRange } from "@emstack/types";
 import {
@@ -8,6 +8,8 @@ import {
   ExternalLinkIcon,
   PencilIcon,
 } from "lucide-react";
+
+import { ModuleStatusControl } from "./ModuleStatusControl";
 
 import { Button } from "@/components/ui/button";
 import { isHttpUrl } from "@/utils";
@@ -20,10 +22,11 @@ export function ModuleDisplayRow({
   canMoveDown,
   onMoveUp,
   onMoveDown,
-  onToggleComplete,
+  onSetStatus,
+  onOpenDetails,
   onEdit,
   onLogInteraction,
-  isToggling,
+  isStatusPending,
 }: {
   module: Module;
   isAnyEditing: boolean;
@@ -32,41 +35,47 @@ export function ModuleDisplayRow({
   canMoveDown: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
-  onToggleComplete: () => void;
+  onSetStatus: (status: ModuleStatus) => void;
+  onOpenDetails: () => void;
   onEdit: () => void;
   onLogInteraction: () => void;
-  isToggling: boolean;
+  isStatusPending: boolean;
 }) {
   return (
     <li className="flex items-center justify-between gap-2 px-2 py-1.5">
-      <label className="flex flex-1 items-center gap-2">
-        <input
-          type="checkbox"
-          checked={m.isComplete}
-          onChange={onToggleComplete}
-          disabled={isAnyEditing || isToggling}
-          className="size-4"
+      <div className="flex flex-1 items-center gap-2">
+        <ModuleStatusControl
+          status={m.status}
+          onChange={onSetStatus}
+          disabled={isAnyEditing || isStatusPending}
         />
-        <span
-          className={
-            m.isComplete
-              ? "text-sm text-muted-foreground line-through"
-              : "text-sm"
-          }
+        <button
+          type="button"
+          onClick={onOpenDetails}
+          className="flex flex-1 items-center gap-2 text-left"
+          aria-label={`Open details for ${m.name}`}
         >
-          {m.name}
-        </span>
-        {formatPageRange(m.pageStart, m.pageEnd) && (
-          <span className="text-xs text-muted-foreground">
-            {formatPageRange(m.pageStart, m.pageEnd)}
+          <span
+            className={
+              m.status === "complete"
+                ? "text-sm text-muted-foreground line-through"
+                : "text-sm"
+            }
+          >
+            {m.name}
           </span>
-        )}
-        {formatModuleLength(m.length) && (
-          <span className="text-xs text-muted-foreground">
-            {formatModuleLength(m.length)}
-          </span>
-        )}
-      </label>
+          {formatPageRange(m.pageStart, m.pageEnd) && (
+            <span className="text-xs text-muted-foreground">
+              {formatPageRange(m.pageStart, m.pageEnd)}
+            </span>
+          )}
+          {formatModuleLength(m.length) && (
+            <span className="text-xs text-muted-foreground">
+              {formatModuleLength(m.length)}
+            </span>
+          )}
+        </button>
+      </div>
       <div className="flex items-center gap-0.5">
         {m.url && isHttpUrl(m.url) && (
           <Button

@@ -812,7 +812,7 @@ function modulePayload(
     description: m.description ?? null,
     url: m.location ?? null,
     length: m.length ?? null,
-    isComplete: false,
+    status: "unstarted",
     easeOfStarting: null,
     timeNeeded: null,
     interactivity: null,

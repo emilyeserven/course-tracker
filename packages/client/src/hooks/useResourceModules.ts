@@ -1,9 +1,9 @@
 import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
-import type { Module, ModuleGroup, ModulesConfig, Resource } from "@emstack/types";
+import type { Module, ModuleGroup, ModulesConfig, ModuleStatus, Resource } from "@emstack/types";
 
 import { useMemo } from "react";
 
-import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
+import { DEFAULT_MODULES_CONFIG, isModuleComplete } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -92,7 +92,7 @@ export function useResourceModules(resourceId: string) {
   }, [groups, modulesByGroup]);
 
   const completedCount
-    = allModules.filter(m => m.isComplete).length
+    = allModules.filter(m => isModuleComplete(m.status)).length
       + groupsWithoutModulesCounts.completed;
   const totalCount = allModules.length + groupsWithoutModulesCounts.total;
 
@@ -207,11 +207,11 @@ export function useResourceModules(resourceId: string) {
     mutationFn: ({
       draft,
       groupId,
-      isComplete,
+      status,
     }: {
       draft: ModuleDraft;
       groupId: string | null;
-      isComplete: boolean;
+      status: ModuleStatus;
     }) =>
       upsertModule(draft.id, {
         resourceId,
@@ -222,7 +222,7 @@ export function useResourceModules(resourceId: string) {
         length: draftToLength(draft),
         pageStart: parseCount(draft.pageStart),
         pageEnd: parseCount(draft.pageEnd),
-        isComplete,
+        status,
         easeOfStarting: draft.easeOfStarting || null,
         timeNeeded: draft.timeNeeded || null,
         interactivity: draft.interactivity || null,
@@ -235,8 +235,14 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const toggleCompleteMutation = useMutation({
-    mutationFn: (m: Module) =>
+  const setStatusMutation = useMutation({
+    mutationFn: ({
+      module: m,
+      status,
+    }: {
+      module: Module;
+      status: ModuleStatus;
+    }) =>
       upsertModule(m.id, {
         resourceId,
         moduleGroupId: m.moduleGroupId ?? null,
@@ -246,7 +252,7 @@ export function useResourceModules(resourceId: string) {
         length: m.length ?? null,
         pageStart: m.pageStart ?? null,
         pageEnd: m.pageEnd ?? null,
-        isComplete: !m.isComplete,
+        status,
       }),
     onSuccess: () => invalidateAll(),
     onError: (e: Error) => toast.error(e.message),
@@ -300,7 +306,7 @@ export function useResourceModules(resourceId: string) {
           length: a.length ?? null,
           pageStart: a.pageStart ?? null,
           pageEnd: a.pageEnd ?? null,
-          isComplete: a.isComplete,
+          status: a.status,
           position: aPosition,
         }),
         upsertModule(b.id, {
@@ -312,7 +318,7 @@ export function useResourceModules(resourceId: string) {
           length: b.length ?? null,
           pageStart: b.pageStart ?? null,
           pageEnd: b.pageEnd ?? null,
-          isComplete: b.isComplete,
+          status: b.status,
           position: bPosition,
         }),
       ]),
@@ -441,7 +447,7 @@ export function useResourceModules(resourceId: string) {
     deleteGroupMutation,
     createModuleMutation,
     upsertModuleMutation,
-    toggleCompleteMutation,
+    setStatusMutation,
     deleteModuleMutation,
     setModulesExhaustiveMutation,
     updateModulesConfigMutation,

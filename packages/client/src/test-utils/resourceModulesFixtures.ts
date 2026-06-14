@@ -80,7 +80,7 @@ export function makeModule(overrides: Partial<Module> = {}): Module {
     description: "An overview of the basics.",
     url: "https://example.com/module",
     length: "30",
-    isComplete: false,
+    status: "unstarted",
     position: 0,
     easeOfStarting: "low",
     timeNeeded: "medium",

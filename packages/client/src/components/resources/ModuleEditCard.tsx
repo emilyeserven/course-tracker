@@ -18,7 +18,6 @@ export function ModuleEditCard({
   draft: initial,
   tagGroups,
   isNew = false,
-  isComplete: _isComplete,
   isSaving = false,
   showPages = false,
   moduleLabel = "Module",
@@ -29,7 +28,6 @@ export function ModuleEditCard({
   draft: ModuleDraft;
   tagGroups: TagGroup[];
   isNew?: boolean;
-  isComplete: boolean;
   isSaving?: boolean;
   /** When true (book resources), show start/end page inputs. */
   showPages?: boolean;
