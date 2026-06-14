@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { buildCleanupPrompt, buildLlmPrompt } from "@/components/radar/blipLlmPrompts";
 import { descriptionChanged, parseLlmEntries } from "@/components/radar/blipLlmReview";
 import { useBlipLlmReview } from "@/hooks/useBlipLlmReview";
+import { useIndexById, useIndexByLowerName } from "@/hooks/useIndexBy";
 import {
   bulkCreateRadarBlips,
   copyTextToClipboard,
@@ -61,11 +62,12 @@ export function useBlipLlmAssist({
 }: UseBlipLlmAssistArgs) {
   const [mode, setMode] = useState<PromptMode>("setup");
 
+  const quadrantById = useIndexById(quadrants);
+  const ringById = useIndexById(rings);
+  const topicById = useIndexById(topics);
+
   const prompt = useMemo(
     () => {
-      const topicById = new Map(topics.map(t => [t.id, t]));
-      const quadrantById = new Map(quadrants.map(q => [q.id, q]));
-      const ringById = new Map(rings.map(r => [r.id, r]));
       if (mode === "cleanup") {
         const unassignedBlips = existingBlips
           .filter(b => !b.quadrantId || !b.ringId)
@@ -125,7 +127,9 @@ export function useBlipLlmAssist({
       quadrants,
       rings,
       existingBlips,
-      topics,
+      quadrantById,
+      ringById,
+      topicById,
     ],
   );
 
@@ -138,29 +142,9 @@ export function useBlipLlmAssist({
   const [parseError, setParseError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const topicByLowerName = useMemo(() => {
-    const map = new Map<string, TopicForTopicsPage>();
-    topics.forEach((t) => {
-      map.set(t.name.toLowerCase(), t);
-    });
-    return map;
-  }, [topics]);
-
-  const quadrantByLowerName = useMemo(() => {
-    const map = new Map<string, RadarQuadrant>();
-    quadrants.forEach((q) => {
-      map.set(q.name.toLowerCase(), q);
-    });
-    return map;
-  }, [quadrants]);
-
-  const ringByLowerName = useMemo(() => {
-    const map = new Map<string, RadarRing>();
-    rings.forEach((r) => {
-      map.set(r.name.toLowerCase(), r);
-    });
-    return map;
-  }, [rings]);
+  const topicByLowerName = useIndexByLowerName(topics);
+  const quadrantByLowerName = useIndexByLowerName(quadrants);
+  const ringByLowerName = useIndexByLowerName(rings);
 
   const existingBlipByTopicId = useMemo(() => {
     const map = new Map<string, RadarBlip>();
@@ -169,24 +153,6 @@ export function useBlipLlmAssist({
     });
     return map;
   }, [existingBlips]);
-
-  const quadrantById = useMemo(() => {
-    const map = new Map<string, RadarQuadrant>();
-    quadrants.forEach(q => map.set(q.id, q));
-    return map;
-  }, [quadrants]);
-
-  const ringById = useMemo(() => {
-    const map = new Map<string, RadarRing>();
-    rings.forEach(r => map.set(r.id, r));
-    return map;
-  }, [rings]);
-
-  const topicById = useMemo(() => {
-    const map = new Map<string, TopicForTopicsPage>();
-    topics.forEach(t => map.set(t.id, t));
-    return map;
-  }, [topics]);
 
   const excludedNamesLower = useMemo(() => {
     const set = new Set<string>();

@@ -1,11 +1,4 @@
-import type {
-  DomainExcludedTopic,
-  DomainTopic,
-  RadarBlip,
-  RadarQuadrant,
-  RadarRing,
-  TopicForTopicsPage,
-} from "@emstack/types";
+import type { UseBlipLlmAssistArgs } from "@/hooks/useBlipLlmAssist";
 
 import { CopyIcon, Loader2 } from "lucide-react";
 
@@ -16,22 +9,7 @@ import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { useBlipLlmAssist } from "@/hooks/useBlipLlmAssist";
 
-interface BlipLlmAssistProps {
-  domainId: string;
-  domainTitle: string;
-  domainDescription?: string | null;
-  domainTopics?: DomainTopic[];
-  excludedTopics?: DomainExcludedTopic[];
-  withinScopeDescription?: string | null;
-  outOfScopeDescription?: string | null;
-  withinScopeTopicNames?: string[];
-  outOfScopeTopicNames?: string[];
-  quadrants: RadarQuadrant[];
-  rings: RadarRing[];
-  topics: TopicForTopicsPage[];
-  existingBlips: RadarBlip[];
-  onComplete: () => void;
-}
+export type BlipLlmAssistProps = UseBlipLlmAssistArgs;
 
 export function BlipLlmAssist(props: BlipLlmAssistProps) {
   const {
