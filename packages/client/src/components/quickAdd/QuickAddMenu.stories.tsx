@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
 
 import { QuickAddMenu } from "./QuickAddMenu";
 
@@ -32,8 +32,20 @@ export const Opens: Story = {
     canvasElement,
     args,
   }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText("Quick Add"));
+    // Open via hover, through the component's own state — the trigger fires
+    // setOpen(true) on mouseenter. Dispatch that with fireEvent.mouseOver
+    // (React synthesizes onMouseEnter from mouseover) rather than
+    // userEvent.hover/click: those assert hit-testable pointer events, and
+    // Radix's open modal layer leaves document.body at `pointer-events: none`,
+    // which the trigger inherits — making the opening click flaky. fireEvent
+    // dispatches directly, so it's immune to that (see NavDropdown.stories).
+    const trigger = canvasElement.querySelector<HTMLElement>(
+      "[data-slot=\"dropdown-menu-trigger\"]",
+    );
+    if (!trigger) throw new Error("dropdown-menu-trigger did not render");
+    fireEvent.mouseOver(trigger);
+
+    // Content portals to document.body and mounts async — assert with findBy*.
     const body = within(document.body);
     await expect(await body.findByText("Send to")).toBeInTheDocument();
     await expect(await body.findByText("New record")).toBeInTheDocument();
