@@ -1,8 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { EditFormActions } from "./EditFormActions";
+
+import {
+  clickCancelFiresOnCancel,
+  clickRemoveFiresOnDelete,
+  expectRemoveHidden,
+  expectSaveDisabled,
+} from "@/test-utils/editRowStoryPlays";
 
 const meta: Meta<typeof EditFormActions> = {
   component: EditFormActions,
@@ -18,15 +25,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Cancel",
-    }));
-    await expect(args.onCancel).toHaveBeenCalled();
-  },
+  play: clickCancelFiresOnCancel,
 };
 
 // A new (unsaved) row hides the destructive Remove button.
@@ -34,29 +33,12 @@ export const NewRow: Story = {
   args: {
     isNew: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.queryByRole("button", {
-        name: "Remove",
-      }),
-    ).not.toBeInTheDocument();
-  },
+  play: expectRemoveHidden,
 };
 
 // An existing row shows Remove and fires onDelete.
 export const ExistingRow: Story = {
-  play: async ({
-    args, canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: "Remove",
-    }));
-    await expect(args.onDelete).toHaveBeenCalled();
-  },
+  play: clickRemoveFiresOnDelete,
 };
 
 // While saving, the Save button is disabled.
@@ -64,14 +46,7 @@ export const Saving: Story = {
   args: {
     isSaving: true,
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", {
-      name: "Save",
-    })).toBeDisabled();
-  },
+  play: expectSaveDisabled,
 };
 
 // Delete can be blocked with an explanatory reason.
@@ -84,9 +59,11 @@ export const DeleteDisabled: Story = {
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", {
-      name: "Remove",
-    })).toBeDisabled();
+    await expect(
+      canvas.getByRole("button", {
+        name: "Remove",
+      }),
+    ).toBeDisabled();
   },
 };
 
