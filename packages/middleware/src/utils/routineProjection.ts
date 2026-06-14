@@ -19,26 +19,16 @@ import type {
 } from "./routineActionParts";
 import { resolveActionParts } from "./routineActionParts";
 import {
-  activeEntry,
-  curatedEntry,
   currentDateKey,
-  currentWeekday,
   entryForCompletionDate,
   representativeEntry,
-  weekdayForDateKey,
 } from "./routineWeekday";
 
-// Pure helpers live in dependency-free leaf modules so they can be unit-tested
-// directly; re-export them here so callers keep a single import site.
-export {
-  activeEntry,
-  curatedEntry,
-  currentDateKey,
-  currentWeekday,
-  entryForCompletionDate,
-  representativeEntry,
-  weekdayForDateKey,
-};
+// Pure entry-resolution helpers live in the dependency-free routineWeekday leaf
+// module (unit-tested there directly). Re-export only the ones the projection's
+// callers consume from here, so they keep a single import site; the rest are
+// imported from routineWeekday directly.
+export { currentDateKey, entryForCompletionDate, representativeEntry };
 export type { ResolvedConnections, ResolvedResource, ResolvedTask };
 
 // The routine columns (plus its resolved connections) the projection reads.

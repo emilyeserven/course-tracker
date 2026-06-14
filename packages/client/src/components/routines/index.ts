@@ -14,9 +14,7 @@ export {
   rowsToWeekly,
   weeklyToRows,
 } from "./weekly";
-export type { CuratedRow, WeeklyEntry, WeeklyRow, WeeklyRowType } from "./weekly";
 export { CuratedEndDateField } from "./CuratedEndDateField";
 export { CuratedScheduleField } from "./CuratedScheduleField";
 export { RoutineEntryLabel } from "./RoutineEntryLabel";
-export { ScheduleEntryRow } from "./ScheduleEntryRow";
 export { WeeklyScheduleField } from "./WeeklyScheduleField";

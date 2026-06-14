@@ -46,7 +46,7 @@ export const nullableRoutineModeEnum = {
   enum: ["weekly", "daily", "curated", null],
 } as const;
 
-export const routineReferenceItemSchema = {
+const routineReferenceItemSchema = {
   type: "object",
   required: ["type", "id"],
   properties: {
