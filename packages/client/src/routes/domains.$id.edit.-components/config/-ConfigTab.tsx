@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 
 import { toast } from "sonner";
 
+import {
+  defaultQuadrants,
+  defaultRings,
+  MAX_RINGS,
+  nextLocalKey,
+  QUADRANT_COUNT,
+  quadrantsFromServer,
+  ringsFromServer,
+} from "./-radarConfigDrafts";
 import { RadarConfigTab as RadarConfigPanel } from "./-RadarConfigTab";
 
 import { upsertRadarConfig } from "@/utils";
@@ -15,86 +24,7 @@ interface ConfigTabProps {
   onSaved: () => Promise<void>;
 }
 
-const DEFAULT_QUADRANTS = [
-  "Languages & Frameworks",
-  "Tools",
-  "Platforms",
-  "Techniques",
-  "Practices",
-];
-
-const DEFAULT_RINGS = ["Adopt", "Trial", "Assess", "Hold"];
-
-const QUADRANT_COUNT = 5;
-const MAX_RINGS = 6;
 const ADOPTED_RING_NAME = "Adopted";
-
-let localKeyCounter = 0;
-function nextLocalKey() {
-  localKeyCounter += 1;
-  return `local-${localKeyCounter}`;
-}
-
-function quadrantsFromServer(
-  items: { id: string;
-    name: string;
-    position: number; }[],
-): QuadrantDraft[] {
-  const fromServer: QuadrantDraft[] = items
-    .slice()
-    .sort((a, b) => a.position - b.position)
-    .map(q => ({
-      id: q.id,
-      name: q.name,
-      position: q.position,
-      localKey: q.id,
-    }));
-  while (fromServer.length < QUADRANT_COUNT) {
-    fromServer.push({
-      name: "",
-      position: fromServer.length,
-      localKey: nextLocalKey(),
-    });
-  }
-  return fromServer.map((q, idx) => ({
-    ...q,
-    position: idx,
-  }));
-}
-
-function ringsFromServer(
-  items: { id: string;
-    name: string;
-    position: number;
-    isAdopted?: boolean; }[],
-): RingDraft[] {
-  return items
-    .slice()
-    .sort((a, b) => a.position - b.position)
-    .map(r => ({
-      id: r.id,
-      name: r.name,
-      position: r.position,
-      localKey: r.id,
-      isAdopted: r.isAdopted ?? false,
-    }));
-}
-
-function defaultQuadrants(): QuadrantDraft[] {
-  return DEFAULT_QUADRANTS.slice(0, QUADRANT_COUNT).map((name, idx) => ({
-    name,
-    position: idx,
-    localKey: nextLocalKey(),
-  }));
-}
-
-function defaultRings(): RingDraft[] {
-  return DEFAULT_RINGS.map((name, idx) => ({
-    name,
-    position: idx,
-    localKey: nextLocalKey(),
-  }));
-}
 
 export function ConfigTab({
   radar, domainId, onSaved,
