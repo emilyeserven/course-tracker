@@ -4,24 +4,12 @@ import { expect, within } from "storybook/test";
 
 import { TodoistSection } from "./-TodoistSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
-import { seededQueryClient } from "@/test-utils/seededQueryClient";
-import { makeAppSettings } from "@/test-utils/settingsFixtures";
-import { queryKeys } from "@/utils/queryKeys";
-
-function seededClient() {
-  return seededQueryClient([[queryKeys.settings.detail(), makeAppSettings()]]);
-}
+import { seededSettingsClient } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 
 const meta = {
   component: TodoistSection,
-  decorators: [
-    Story => (
-      <QueryStub client={seededClient()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(seededSettingsClient)],
 } satisfies Meta<typeof TodoistSection>;
 
 export default meta;

@@ -4,9 +4,9 @@ import { expect, within } from "storybook/test";
 
 import { TaskTypesSection } from "./-TaskTypesSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeTaskType } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 
 function clientWith(taskTypes = [makeTaskType()]) {
   return seededQueryClient([[["taskTypes"], taskTypes]]);
@@ -14,13 +14,7 @@ function clientWith(taskTypes = [makeTaskType()]) {
 
 const meta = {
   component: TaskTypesSection,
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(clientWith)],
 } satisfies Meta<typeof TaskTypesSection>;
 
 export default meta;
@@ -44,13 +38,7 @@ export const Default: Story = {
 
 // The empty state prompts the user to create one.
 export const Empty: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith([])}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => clientWith([]))],
   play: async ({
     canvasElement,
   }) => {

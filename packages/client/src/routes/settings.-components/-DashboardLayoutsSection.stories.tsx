@@ -4,9 +4,9 @@ import { expect, within } from "storybook/test";
 
 import { DashboardLayoutsSection } from "./-DashboardLayoutsSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeLayout } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seeds one tab layout + one saved preset so both lists render.
@@ -31,13 +31,7 @@ function seededClient() {
 
 const meta = {
   component: DashboardLayoutsSection,
-  decorators: [
-    Story => (
-      <QueryStub client={seededClient()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(seededClient)],
 } satisfies Meta<typeof DashboardLayoutsSection>;
 
 export default meta;
@@ -67,13 +61,7 @@ export const Default: Story = {
 
 // Before the layouts query resolves the section shows its loading placeholder.
 export const Loading: Story = {
-  decorators: [
-    Story => (
-      <QueryStub>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator()],
   play: async ({
     canvasElement,
   }) => {

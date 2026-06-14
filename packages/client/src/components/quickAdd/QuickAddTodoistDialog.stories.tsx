@@ -8,8 +8,8 @@ import {
   expectConfiguredForm,
   expectSettingsPrompt,
   routerQueryDecorator,
-  seededSettingsClient,
 } from "@/test-utils/quickAddStoryHelpers";
+import { seededSettingsClient } from "@/test-utils/settingsFixtures";
 
 const meta: Meta<typeof QuickAddTodoistDialog> = {
   component: QuickAddTodoistDialog,

@@ -1,4 +1,3 @@
-import type { AppSettingsSummary } from "@emstack/types";
 import type { Decorator } from "@storybook/react-vite";
 import type { QueryClient } from "@tanstack/react-query";
 
@@ -6,9 +5,6 @@ import { expect, userEvent, within } from "storybook/test";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
-import { seededQueryClient } from "@/test-utils/seededQueryClient";
-import { makeAppSettings } from "@/test-utils/settingsFixtures";
-import { queryKeys } from "@/utils/queryKeys";
 
 /**
  * Shared scaffold for the QuickAdd dialog stories. Each dialog renders inside a
@@ -33,19 +29,6 @@ export function routerQueryDecorator(client?: QueryClient): Decorator {
       </RouterStub>
     );
   };
-}
-
-/**
- * Seeds the settings query (`queryKeys.settings.detail()`) the Readwise/Todoist
- * dialogs read via `useQuery`, so they render the right branch without a
- * network call.
- */
-export function seededSettingsClient(
-  over: Partial<AppSettingsSummary> = {},
-): QueryClient {
-  return seededQueryClient([
-    [queryKeys.settings.detail(), makeAppSettings(over)],
-  ]);
 }
 
 // The Radix dialog content portals to document.body, so the play helpers query

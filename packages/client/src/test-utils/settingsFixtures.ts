@@ -5,6 +5,9 @@ import type {
   TaskType,
 } from "@emstack/types";
 
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import { queryKeys } from "@/utils/queryKeys";
+
 /**
  * Mock-data factories for the Settings page sections and the dashboard
  * layout dialogs. Each `make*` takes a partial override and fills in sensible
@@ -22,6 +25,15 @@ export function makeAppSettings(
     focusedDomainIds: [],
     ...overrides,
   };
+}
+
+/** A QueryStub client pre-seeded with the settings detail a section reads. */
+export function seededSettingsClient(
+  overrides: Partial<AppSettingsSummary> = {},
+) {
+  return seededQueryClient([
+    [queryKeys.settings.detail(), makeAppSettings(overrides)],
+  ]);
 }
 
 export function makeTaskType(overrides: Partial<TaskType> = {}): TaskType {
