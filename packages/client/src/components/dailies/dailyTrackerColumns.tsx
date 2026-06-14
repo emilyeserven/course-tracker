@@ -9,6 +9,8 @@ interface DailyTrackerColumnsOptions {
   dayHeaders: DailyDayHeader[];
   /** Icon-only progress header (routine tracker); the dashboard shows the text. */
   progressHideLabel?: boolean;
+  /** Visible progress header text; the dashboard shortens it to keep the column narrow. */
+  progressLabel?: string;
   /** Today-status header className — the wider table adds `w-36`. */
   statusHeadClassName: string;
   /** Title header className — the dashboard uses `w-full` to absorb slack. */
@@ -25,6 +27,7 @@ interface DailyTrackerColumnsOptions {
 export function buildDailyTrackerColumns({
   dayHeaders,
   progressHideLabel = false,
+  progressLabel = "Progress",
   statusHeadClassName,
   titleHeadClassName,
 }: DailyTrackerColumnsOptions): ColumnDef<Daily>[] {
@@ -37,7 +40,7 @@ export function buildDailyTrackerColumns({
       }) => (
         <DataTableColumnHeader
           column={column}
-          label="Progress"
+          label={progressLabel}
           hideLabel={progressHideLabel}
         />
       ),
