@@ -39,6 +39,7 @@ export function TopicList({
             className={cn(!isPills && `
               text-sm text-blue-800
               hover:text-blue-600
+              dark:text-blue-300
             `)}
           >
             {topic.name}
@@ -55,8 +56,8 @@ export function TopicList({
                   asChild
                   variant="secondary"
                   className="
-                    bg-gray-50
-                    hover:bg-gray-900 hover:text-white
+                    bg-muted
+                    hover:bg-primary hover:text-primary-foreground
                   "
                 >
                   {link}

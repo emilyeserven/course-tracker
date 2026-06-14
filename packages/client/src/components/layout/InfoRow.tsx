@@ -14,7 +14,7 @@ export function InfoRow({
   return (
     <div className="flex flex-col">
       {header && (
-        <h6 className="mb-2 text-lg font-bold text-black/90 uppercase">
+        <h6 className="mb-2 text-lg font-bold text-foreground/90 uppercase">
           {header}
         </h6>
       )}

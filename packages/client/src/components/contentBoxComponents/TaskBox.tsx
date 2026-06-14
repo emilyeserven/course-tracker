@@ -32,8 +32,8 @@ export function TaskBox({
                   asChild
                   variant="secondary"
                   className="
-                    bg-gray-50
-                    hover:bg-gray-900 hover:text-white
+                    bg-muted
+                    hover:bg-primary hover:text-primary-foreground
                   "
                 >
                   <EntityLink

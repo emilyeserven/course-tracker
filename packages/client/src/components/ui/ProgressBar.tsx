@@ -24,7 +24,7 @@ export function ProgressBar({
   }
   return (
     <div
-      className={cn("-mt-2 w-full rounded-br bg-gray-50", className)}
+      className={cn("-mt-2 w-full rounded-br bg-muted", className)}
       {...props}
     >
       <div

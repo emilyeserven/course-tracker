@@ -11,7 +11,7 @@ export function DomainPill({
   return (
     <span
       className={cn(
-        "rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-700",
+        "rounded-sm bg-muted px-2 py-0.5 text-xs text-muted-foreground",
         className,
       )}
       {...props}

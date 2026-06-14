@@ -18,6 +18,7 @@ export function RoutineLinkList({
             className={`
               font-bold text-blue-800
               hover:text-blue-600
+              dark:text-blue-300
             `}
           >
             {r.name}

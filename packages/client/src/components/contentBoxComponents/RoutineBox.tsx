@@ -110,8 +110,8 @@ export function RoutineBox({
                     asChild
                     variant="secondary"
                     className="
-                      bg-gray-50
-                      hover:bg-gray-900 hover:text-white
+                      bg-muted
+                      hover:bg-primary hover:text-primary-foreground
                     "
                   >
                     <EntityLink
@@ -147,8 +147,11 @@ export function RoutineBox({
               className={cn(
                 "rounded-sm px-2 py-0.5 text-xs capitalize",
                 isActive
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-200 text-gray-700",
+                  ? `
+                    bg-green-600 text-white
+                    dark:bg-green-700
+                  `
+                  : "bg-muted text-muted-foreground",
               )}
             >
               {status ?? "active"}
@@ -240,8 +243,11 @@ export function RoutineBox({
                         text-xs
                       `,
                       scheduled
-                        ? "bg-blue-600 font-bold text-white"
-                        : "bg-gray-100 text-gray-400",
+                        ? `
+                          bg-blue-600 font-bold text-white
+                          dark:bg-blue-700
+                        `
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     {letter}

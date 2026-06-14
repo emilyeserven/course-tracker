@@ -20,6 +20,7 @@ export function DomainLinkList({
               className={`
                 font-bold text-blue-800
                 hover:text-blue-600
+                dark:text-blue-300
               `}
             >
               {domain.title}

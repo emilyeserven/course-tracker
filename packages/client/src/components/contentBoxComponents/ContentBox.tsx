@@ -75,7 +75,7 @@ function ContentBoxFooter({
     <div
       className={cn(`
         flex flex-row flex-wrap justify-between gap-8 gap-y-1 border-t
-        bg-gray-50 p-2
+        bg-muted/50 p-2
       `, className)}
       {...props}
     />

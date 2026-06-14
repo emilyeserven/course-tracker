@@ -16,7 +16,7 @@ export function InfoArea({
   return (
     <div className="flex flex-col">
       {header && (
-        <h6 className="text-xs font-bold text-black/70 uppercase">{header}</h6>
+        <h6 className="text-xs font-bold text-foreground/70 uppercase">{header}</h6>
       )}
       {children}
     </div>

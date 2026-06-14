@@ -84,7 +84,9 @@ export function BlipDisplayRow({
         {(() => {
           if (blip.isIgnored) {
             return (
-              <Badge className="border-transparent bg-gray-200 text-gray-700">
+              <Badge
+                className="border-transparent bg-muted text-muted-foreground"
+              >
                 Ignored
               </Badge>
             );
@@ -342,6 +344,7 @@ function TopicItemLink({
       className={`
         font-medium text-blue-700
         hover:text-blue-500 hover:underline
+        dark:text-blue-300
       `}
     >
       {label}: {count}

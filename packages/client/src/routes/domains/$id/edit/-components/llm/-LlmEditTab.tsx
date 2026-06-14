@@ -46,7 +46,12 @@ export function LlmEditTab({
 }: LlmEditTabProps) {
   if (!allConfigPersisted) {
     return (
-      <p className="text-sm text-amber-700">
+      <p
+        className="
+          text-sm text-amber-700
+          dark:text-amber-400
+        "
+      >
         Save your slices and rings before using LLM-assisted edits.
       </p>
     );

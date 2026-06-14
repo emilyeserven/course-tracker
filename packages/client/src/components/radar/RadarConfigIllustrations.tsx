@@ -3,11 +3,11 @@ interface QuadrantsIllustrationProps {
 }
 
 const QUADRANT_COLORS = [
-  "fill-blue-100 stroke-blue-300",
-  "fill-emerald-100 stroke-emerald-300",
-  "fill-amber-100 stroke-amber-300",
-  "fill-rose-100 stroke-rose-300",
-  "fill-violet-100 stroke-violet-300",
+  "fill-blue-100 stroke-blue-300 dark:fill-blue-900/40 dark:stroke-blue-700",
+  "fill-emerald-100 stroke-emerald-300 dark:fill-emerald-900/40 dark:stroke-emerald-700",
+  "fill-amber-100 stroke-amber-300 dark:fill-amber-900/40 dark:stroke-amber-700",
+  "fill-rose-100 stroke-rose-300 dark:fill-rose-900/40 dark:stroke-rose-700",
+  "fill-violet-100 stroke-violet-300 dark:fill-violet-900/40 dark:stroke-violet-700",
 ];
 
 export function QuadrantsIllustration({

@@ -182,8 +182,8 @@ interface ReviewRowProps {
 function rowToneClass(r: ResolvedLlmEntry): string {
   if (r.resolution === "skip") return "opacity-60";
   if (r.problems.length > 0) return "bg-destructive/10";
-  if (r.resolution === "removeBlip") return "bg-red-50/40";
-  if (r.existingBlipId !== null) return "bg-amber-50/40";
+  if (r.resolution === "removeBlip") return "bg-red-50/40 dark:bg-red-950/30";
+  if (r.existingBlipId !== null) return "bg-amber-50/40 dark:bg-amber-950/30";
   return "";
 }
 
@@ -330,6 +330,7 @@ function TopicCell({
               className="
                 rounded-sm border-transparent bg-emerald-100 px-1.5 text-[10px]
                 text-emerald-800
+                dark:bg-emerald-900/40 dark:text-emerald-200
               "
             >
               New topic
@@ -340,6 +341,7 @@ function TopicCell({
               className="
                 rounded-sm border-transparent bg-blue-100 px-1.5 text-[10px]
                 text-blue-800
+                dark:bg-blue-900/40 dark:text-blue-200
               "
             >
               Existing topic
@@ -350,6 +352,7 @@ function TopicCell({
               className="
                 rounded-sm border-transparent bg-amber-200 px-1.5 text-[10px]
                 text-amber-900
+                dark:bg-amber-900/40 dark:text-amber-200
               "
             >
               On radar
