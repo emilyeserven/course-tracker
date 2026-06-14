@@ -1,16 +1,16 @@
 import { db } from "@/db";
 import type { RoutineConnectionType } from "@/db/schema";
 
+import type { RoutineConnection } from "@emstack/types";
+
 export interface RawRoutineConnection {
   connectedType: RoutineConnectionType;
   connectedId: string;
 }
 
-export interface ResolvedRoutineConnection {
-  type: RoutineConnectionType;
-  id: string;
-  name: string;
-}
+// A shared RoutineConnection with its display name resolved on read (always
+// present here, unlike the optional `name` on the wire/persisted shape).
+export type ResolvedRoutineConnection = RoutineConnection & { name: string };
 
 // Batch-resolve display names for the polymorphic connections across a set of
 // routines, querying each target table at most once (avoids N+1). Connections
