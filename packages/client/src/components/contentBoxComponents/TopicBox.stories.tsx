@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { TopicBox } from "./TopicBox";
 
 import { makeTopicRow } from "@/test-utils/boxFixtures";
 import { cardStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof TopicBox> = {
   component: TopicBox,
@@ -19,13 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// "Frontend" is the domain tag rendered via DomainTagList.
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("TypeScript")).toBeInTheDocument();
-    // Domain tag rendered via DomainTagList.
-    await expect(await canvas.findByText("Frontend")).toBeInTheDocument();
-  },
+  play: smokeText("TypeScript", "Frontend"),
 };

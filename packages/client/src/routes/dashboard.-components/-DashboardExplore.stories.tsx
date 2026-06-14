@@ -5,10 +5,9 @@ import { expect, fn, within } from "storybook/test";
 import { DashboardExplore } from "./-DashboardExplore";
 
 import { makeTile } from "@/test-utils/dashboardFixtures";
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeAppSettings } from "@/test-utils/settingsFixtures";
+import { queryStoryDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
 
 function seededClient() {
@@ -40,15 +39,7 @@ const meta: Meta<typeof DashboardExplore> = {
     tile: makeTile("exploreSomething"),
     onUpdateTile: fn(),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <QueryStub client={seededClient()}>
-          <Story />
-        </QueryStub>
-      </RouterStub>
-    ),
-  ],
+  decorators: [queryStoryDecorator(seededClient())],
   // The selected ring is persisted in localStorage; reset it so the fixture's
   // "Trial" ring is the one shown.
   beforeEach: () => {

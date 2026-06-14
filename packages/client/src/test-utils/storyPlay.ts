@@ -111,3 +111,19 @@ export function clickButtonExpectChange(
     await expect(args.onChange).toHaveBeenCalledWith(expected);
   };
 }
+
+/**
+ * Play function for list stories: click the "Table view" toggle and assert a
+ * table renders. Shared by the resources and topics list stories.
+ */
+export async function playTableViewToggle({
+  canvasElement,
+}: PlayContext) {
+  const canvas = within(canvasElement);
+  await userEvent.click(
+    canvas.getByRole("button", {
+      name: "Table view",
+    }),
+  );
+  await expect(canvas.getByRole("table")).toBeInTheDocument();
+}
