@@ -7,12 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
+import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
+
 import { TopicList } from "@/components/boxElements";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { RoutineBox } from "@/components/contentBoxComponents";
 import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
-import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
-import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";

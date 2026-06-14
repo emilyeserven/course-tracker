@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, userEvent, within } from "storybook/test";
 
-import { DailyDetailsPanel } from "./DailyDetailsPanel";
+import { DailyDetailsPanel } from "./-DailyDetailsPanel";
 
 import { makeDaily, makeRecentCompletions } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";

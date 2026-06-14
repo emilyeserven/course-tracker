@@ -1,17 +1,15 @@
+/* eslint-disable import/max-dependencies -- route page composes several colocated section components */
 import type { DailyDetailTab } from "@/components/dailies";
 
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
+import { DailyDetailsPanel } from "./routines.$id.-components/-DailyDetailsPanel";
 import { RoutineDetailsContent } from "./routines.$id.-components/-RoutineDetailsContent";
 import { RoutineTodayCard } from "./routines.$id.-components/-RoutineTodayCard";
 
-import {
-  DAILY_DETAIL_TABS,
-
-  DailyDetailsPanel,
-} from "@/components/dailies";
+import { DAILY_DETAIL_TABS } from "@/components/dailies";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";

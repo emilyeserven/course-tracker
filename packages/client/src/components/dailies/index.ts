@@ -7,7 +7,6 @@ export { DailyTitle } from "./DailyTitle";
 export { TodayStatusCell } from "./TodayStatusCell";
 export { TooManyDailiesWarning } from "./TooManyDailiesWarning";
 export { DailiesLimitSetting } from "./DailiesLimitSetting";
-export { DailyDetailsPanel } from "./DailyDetailsPanel";
 export { DailyTrackerRow } from "./DailyTrackerRow";
 export { buildDailyTrackerColumns } from "./dailyTrackerColumns";
 export {

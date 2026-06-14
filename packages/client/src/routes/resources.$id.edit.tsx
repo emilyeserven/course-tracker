@@ -10,10 +10,11 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
+
 import { useAppForm } from "@/components/formFields";
 import { EditPageFooter, PageTabs } from "@/components/layout";
-import { ResourceInteractionsLog } from "@/components/resources/ResourceInteractionsLog";
-import { ResourceModulesAdmin } from "@/components/resources/ResourceModulesAdmin";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
