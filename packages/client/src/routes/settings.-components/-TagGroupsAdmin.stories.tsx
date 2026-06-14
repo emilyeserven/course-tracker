@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
-import { TagGroupsAdmin } from "./TagGroupsAdmin";
+import { TagGroupsAdmin } from "./-TagGroupsAdmin";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { makeTagGroups } from "@/test-utils/resourceModulesFixtures";
