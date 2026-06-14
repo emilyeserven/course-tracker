@@ -4,6 +4,7 @@ import type { Module } from "@emstack/types";
 import { db } from "@/db";
 import { modules, moduleTags } from "@/db/schema";
 import {
+  moduleStatusEnum,
   nullableInteger,
   nullableResourceLevelEnum,
   nullableString,
@@ -53,9 +54,7 @@ const createSchema = {
         length: nullableString,
         // @deprecated — accept for backwards compat; coerced into `length`.
         minutesLength: nullableInteger,
-        isComplete: {
-          type: "boolean",
-        },
+        status: moduleStatusEnum,
         position: nullableInteger,
         easeOfStarting: nullableResourceLevelEnum,
         timeNeeded: nullableResourceLevelEnum,
@@ -107,7 +106,7 @@ export default async function (server: FastifyInstance) {
       url: m.url,
       length: m.length,
       minutesLength: m.minutesLength,
-      isComplete: m.isComplete,
+      status: m.status,
       position: m.position,
       easeOfStarting: m.easeOfStarting ?? null,
       timeNeeded: m.timeNeeded ?? null,
@@ -131,7 +130,7 @@ export default async function (server: FastifyInstance) {
       url: body.url ?? null,
       length,
       minutesLength: null,
-      isComplete: body.isComplete ?? false,
+      status: body.status ?? "unstarted",
       position: body.position ?? null,
       easeOfStarting: body.easeOfStarting ?? null,
       timeNeeded: body.timeNeeded ?? null,

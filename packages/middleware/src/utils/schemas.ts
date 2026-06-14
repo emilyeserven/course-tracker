@@ -32,6 +32,11 @@ export const nullableResourceLevelEnum = {
   enum: ["low", "medium", "high", null],
 } as const;
 
+export const moduleStatusEnum = {
+  type: "string",
+  enum: ["unstarted", "in_progress", "complete"],
+} as const;
+
 // Routines use the full lifecycle status set, including "inactive" as a manual
 // status (any number of routines may be active at once).
 export const nullableRoutineStatusEnum = {

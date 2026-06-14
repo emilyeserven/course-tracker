@@ -23,6 +23,7 @@ export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", 
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
+export const moduleStatusEnum = pgEnum("module_status", ["unstarted", "in_progress", "complete"]);
 export const routineModeEnum = pgEnum("routine_mode", ["weekly", "daily", "curated"]);
 export const interactionProgressEnum = pgEnum("interaction_progress", ["incomplete", "started", "complete"]);
 export const interactionDifficultyEnum = pgEnum("interaction_difficulty", ["easy", "medium", "hard"]);

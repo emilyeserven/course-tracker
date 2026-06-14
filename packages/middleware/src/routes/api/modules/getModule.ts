@@ -48,7 +48,7 @@ export default async function (server: FastifyInstance) {
       url: module_.url,
       length: module_.length,
       minutesLength: module_.minutesLength,
-      isComplete: module_.isComplete,
+      status: module_.status,
       position: module_.position,
       easeOfStarting: module_.easeOfStarting ?? null,
       timeNeeded: module_.timeNeeded ?? null,

@@ -1,8 +1,9 @@
 import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
-import type { Module, ModuleGroup, Resource } from "@emstack/types";
+import type { Module, ModuleGroup, ModuleStatus, Resource } from "@emstack/types";
 
 import { useMemo } from "react";
 
+import { isModuleComplete } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -90,7 +91,7 @@ export function useResourceModules(resourceId: string) {
   }, [groups, modulesByGroup]);
 
   const completedCount
-    = allModules.filter(m => m.isComplete).length
+    = allModules.filter(m => isModuleComplete(m.status)).length
       + groupsWithoutModulesCounts.completed;
   const totalCount = allModules.length + groupsWithoutModulesCounts.total;
 
@@ -190,11 +191,11 @@ export function useResourceModules(resourceId: string) {
     mutationFn: ({
       draft,
       groupId,
-      isComplete,
+      status,
     }: {
       draft: ModuleDraft;
       groupId: string | null;
-      isComplete: boolean;
+      status: ModuleStatus;
     }) =>
       upsertModule(draft.id, {
         resourceId,
@@ -203,7 +204,7 @@ export function useResourceModules(resourceId: string) {
         description: draft.description || null,
         url: draft.url || null,
         length: draftToLength(draft),
-        isComplete,
+        status,
         easeOfStarting: draft.easeOfStarting || null,
         timeNeeded: draft.timeNeeded || null,
         interactivity: draft.interactivity || null,
@@ -216,8 +217,14 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const toggleCompleteMutation = useMutation({
-    mutationFn: (m: Module) =>
+  const setStatusMutation = useMutation({
+    mutationFn: ({
+      module: m,
+      status,
+    }: {
+      module: Module;
+      status: ModuleStatus;
+    }) =>
       upsertModule(m.id, {
         resourceId,
         moduleGroupId: m.moduleGroupId ?? null,
@@ -225,7 +232,7 @@ export function useResourceModules(resourceId: string) {
         description: m.description ?? null,
         url: m.url ?? null,
         length: m.length ?? null,
-        isComplete: !m.isComplete,
+        status,
       }),
     onSuccess: () => invalidateAll(),
     onError: (e: Error) => toast.error(e.message),
@@ -263,7 +270,7 @@ export function useResourceModules(resourceId: string) {
           description: a.description ?? null,
           url: a.url ?? null,
           length: a.length ?? null,
-          isComplete: a.isComplete,
+          status: a.status,
           position: aPosition,
         }),
         upsertModule(b.id, {
@@ -273,7 +280,7 @@ export function useResourceModules(resourceId: string) {
           description: b.description ?? null,
           url: b.url ?? null,
           length: b.length ?? null,
-          isComplete: b.isComplete,
+          status: b.status,
           position: bPosition,
         }),
       ]),
@@ -394,7 +401,7 @@ export function useResourceModules(resourceId: string) {
     deleteGroupMutation,
     createModuleMutation,
     upsertModuleMutation,
-    toggleCompleteMutation,
+    setStatusMutation,
     deleteModuleMutation,
     setModulesExhaustiveMutation,
     moveModule,
