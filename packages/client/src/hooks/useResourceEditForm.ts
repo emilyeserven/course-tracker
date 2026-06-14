@@ -7,6 +7,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { useSetModulesExhaustive } from "./useSetModulesExhaustive";
+
 import { useAppForm } from "@/components/formFields";
 import {
   buildResourcePayload,
@@ -14,6 +16,7 @@ import {
 } from "@/routes/resources.$id.edit.-components/-buildResourcePayload";
 import {
   createProvider,
+  createTag,
   createTopic,
   fetchProviders,
   fetchTagGroups,
@@ -78,6 +81,9 @@ export function useResourceEditForm({
   const topicOptions = useMemo(() => toOptions(topics), [topics]);
   const providerOptions = useMemo(() => toOptions(providers), [providers]);
   const tagOptions = useMemo(() => tagGroupsToOptions(tagGroups), [tagGroups]);
+  // Tag groups themselves (not the tags within them) — used as the "Tag Group"
+  // choices when creating a new tag inline from the combobox.
+  const tagGroupOptions = useMemo(() => toOptions(tagGroups), [tagGroups]);
 
   // An exhaustive field-by-field mapping of the resource onto the form's
   // default values. Its high cyclomatic score is an artifact of per-field
@@ -198,17 +204,45 @@ export function useResourceEditForm({
     return result.id;
   };
 
+  const createTagOption = async (
+    values: Record<string, unknown>,
+  ): Promise<string> => {
+    const result = await createTag({
+      name: values.name,
+      groupId: values.groupId,
+      color: null,
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ["tagGroups"],
+    });
+    return result.id;
+  };
+
+  // Progress-mode toggle. Reuses the same optimistic mutation the Modules tab
+  // uses, so toggling here (Details tab) and the Modules-tab callout stay in
+  // sync. No-op for new resources (no id/modules yet).
+  const modulesAreExhaustive = data?.modulesAreExhaustive ?? false;
+  const setModulesExhaustiveMutation = useSetModulesExhaustive(id);
+  const setProgressMode = (mode: "manual" | "modules") => {
+    if (isNew) return;
+    setModulesExhaustiveMutation.mutate(mode === "modules");
+  };
+
   return {
     form,
     topicOptions,
     providerOptions,
     tagOptions,
+    tagGroupOptions,
     currentValues,
     isSubmitting,
     hasChanges,
     isCostFromPlatform,
     providerUrlMissing,
+    modulesAreExhaustive,
     createTopicOption,
     createProviderOption,
+    createTagOption,
+    setProgressMode,
   };
 }

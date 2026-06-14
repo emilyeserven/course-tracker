@@ -1,12 +1,13 @@
 import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 
-import { PlusIcon, SparklesIcon } from "lucide-react";
+import { CircleCheckBig, InfoIcon, PlusIcon, SparklesIcon } from "lucide-react";
 
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
 import { ModuleConventionsEditor } from "./-ModuleConventionsEditor";
 
 import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
+import { cn } from "@/lib/utils";
 
 interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
   /** When true, render the editable "module list is exhaustive" toggle. */
@@ -29,7 +30,6 @@ export function ModuleAdminHeader({
     groupLabel,
     moduleLabel,
     modulesAreExhaustive,
-    setModulesExhaustiveMutation,
   } = api;
   const {
     isAnyEditing,
@@ -89,27 +89,48 @@ export function ModuleAdminHeader({
         </div>
       </div>
 
-      {canEditExhaustive && (
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={modulesAreExhaustive}
-            onChange={e =>
-              setModulesExhaustiveMutation.mutate(e.target.checked)}
-            className="mt-0.5 size-4"
-          />
-          <span className="flex flex-col gap-0.5">
-            <span className="font-medium">Module list is exhaustive</span>
-            <span className="text-xs text-muted-foreground">
-              Treat the modules below as the full contents of this resource. When
-              on, progress and % complete are calculated from how many modules
-              are marked done — instead of the Current Progress / Total Modules
-              numbers on the Details tab. Leave off if these modules are only a
-              partial breakdown.
-            </span>
+      <div
+        className={cn(
+          "flex items-start gap-2 rounded-md border p-3 text-sm",
+          modulesAreExhaustive
+            ? `
+              border-emerald-300 bg-emerald-50 text-emerald-900
+              dark:border-emerald-500/40 dark:bg-emerald-900/30
+              dark:text-emerald-100
+            `
+            : "border-border bg-muted/40",
+        )}
+      >
+        {modulesAreExhaustive
+          ? <CircleCheckBig className="mt-0.5 size-4 shrink-0" />
+          : (
+            <InfoIcon
+              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            />
+          )}
+        <span className="flex flex-col gap-0.5">
+          <span className="font-medium">
+            {modulesAreExhaustive
+              ? `These ${moduleLabel.toLowerCase()}s are used to calculate `
+              + "this resource's progress"
+              : `These ${moduleLabel.toLowerCase()}s are not used to calculate `
+                + "progress"}
           </span>
-        </label>
-      )}
+          <span
+            className={cn("text-xs", !modulesAreExhaustive && `
+              text-muted-foreground
+            `)}
+          >
+            {modulesAreExhaustive
+              ? "Progress and % complete come from how many are marked done."
+              : "Progress is tracked manually with the Current Progress / Total "
+                + "Modules numbers on the Details tab."}
+            {canEditExhaustive
+              && " Change this with \"How to calculate progress\" on the "
+              + "Details tab."}
+          </span>
+        </span>
+      </div>
 
       <ModuleAssistDialog
         resourceId={resourceId}
