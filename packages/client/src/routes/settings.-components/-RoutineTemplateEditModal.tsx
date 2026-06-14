@@ -12,6 +12,7 @@ import { WeeklyScheduleField } from "@/components/routines/WeeklyScheduleField";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -71,6 +72,11 @@ export function RoutineTemplateEditModal({
           <DialogTitle>
             {isNew ? "Add Routine Template" : "Edit Routine Template"}
           </DialogTitle>
+          <DialogDescription>
+            {isNew
+              ? "Name the template and set its weekly schedule of tasks and resources."
+              : "Update the template's label and weekly schedule of tasks and resources."}
+          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
