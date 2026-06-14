@@ -89,6 +89,9 @@ export default defineConfig(({
         ],
         test: {
           name: "storybook",
+          // Block real /api network calls during the run (stories seed query
+          // data instead) — kills the ECONNREFUSED proxy round-trips/noise.
+          setupFiles: ["./.storybook/vitest.setup.ts"],
           // Cap concurrency. The browser suite deadlocked/crawled under
           // unbounded file parallelism (#504) — stalling at low CPU with
           // resources free — so bound it to a few concurrent story files
