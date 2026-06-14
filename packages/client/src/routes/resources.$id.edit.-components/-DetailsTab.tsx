@@ -232,31 +232,6 @@ export function DetailsTab({
           </form.AppField>
         </div>
 
-        <form.Field name="modulesAreExhaustive">
-          {field => (
-            <label
-              className={cn(
-                "flex items-start gap-2 text-sm",
-                !isNew && !field.state.meta.isDefaultValue && changedFieldClass,
-              )}
-            >
-              <input
-                type="checkbox"
-                checked={field.state.value}
-                onChange={e => field.handleChange(e.target.checked)}
-                className="mt-0.5 size-4"
-              />
-              <span className="flex flex-col gap-0.5">
-                <span className="font-medium">Module list is exhaustive</span>
-                <span className="text-xs text-muted-foreground">
-                  When checked, course progress is computed from the count of
-                  completed modules below rather than the manual fields above.
-                </span>
-              </span>
-            </label>
-          )}
-        </form.Field>
-
         <form.AppField name="cost">
           {field => (
             <field.NumberField

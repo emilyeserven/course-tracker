@@ -102,7 +102,6 @@ export function useResourceEditForm({
         || "",
       courseProviderId: data?.provider?.id ?? "",
       providerIsSelf: data?.providerIsSelf ?? false,
-      modulesAreExhaustive: data?.modulesAreExhaustive ?? false,
       easeOfStarting: data?.easeOfStarting ?? "",
       timeNeeded: data?.timeNeeded ?? "",
       interactivity: data?.interactivity ?? "",

@@ -13,23 +13,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 
 export function QuickAddRoutineDialog({
   open,
   onOpenChange,
 }: ControlledDialogProps) {
   const {
-    name,
-    setName,
-    mode,
-    setMode,
-    handleSubmit,
-    isPending,
-    canSubmit,
-  } = useQuickAddRoutine({
-    open,
-    onOpenChange,
-  });
+    name, setName, mode, setMode, handleSubmit, isPending, canSubmit,
+  }
+    = useQuickAddRoutine({
+      open,
+      onOpenChange,
+    });
 
   return (
     <Dialog
@@ -60,7 +56,7 @@ export function QuickAddRoutineDialog({
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Routine name"
-              maxLength={255}
+              maxLength={NAME_MAX_LENGTH}
             />
           </div>
           <div className="flex flex-col gap-2">

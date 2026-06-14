@@ -241,7 +241,9 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
     ) => {
       const completions
         = args.kind === "status"
-          ? withCompletion(daily, args.dateKey, args.status)
+          // Recent re-updates re-bake to the current schedule; older entries
+          // (beyond REBAKE_WINDOW_DAYS) keep their frozen snapshot.
+          ? withCompletion(daily, args.dateKey, args.status, realToday)
           : withCompletionNote(daily, args.dateKey, args.note);
       return upsertDaily(daily.id, {
         name: daily.name,

@@ -12,14 +12,15 @@ import { QuickFillMenu } from "./-QuickFillMenu";
 import { DAILY_STATUS_OPTIONS } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { formHasChanges, upsertRoutine } from "@/utils";
 
 const criteriaSchema = z.object({
-  criteriaIncomplete: z.string().max(500),
-  criteriaTouched: z.string().max(500),
-  criteriaGoal: z.string().max(500),
-  criteriaExceeded: z.string().max(500),
-  criteriaFreeze: z.string().max(500),
+  criteriaIncomplete: z.string().max(TEXT_MAX_LENGTH),
+  criteriaTouched: z.string().max(TEXT_MAX_LENGTH),
+  criteriaGoal: z.string().max(TEXT_MAX_LENGTH),
+  criteriaExceeded: z.string().max(TEXT_MAX_LENGTH),
+  criteriaFreeze: z.string().max(TEXT_MAX_LENGTH),
 });
 
 interface CriteriaTabProps {
@@ -116,8 +117,7 @@ export function CriteriaTab({
         >
           <div className="flex flex-col gap-1">
             <p className="text-sm text-muted-foreground">
-              Optional notes describing what each status means for this
-              routine.
+              Optional notes describing what each status means for this routine.
             </p>
           </div>
           <QuickFillMenu<DailyCriteriaTemplate>
@@ -135,9 +135,10 @@ export function CriteriaTab({
           {field => (
             <field.TextareaField
               label="Incomplete"
-              placeholder="What does &quot;Incomplete&quot; mean here?"
-              labelIcon={DAILY_STATUS_OPTIONS.find(o =>
-                o.value === "incomplete")?.icon}
+              placeholder='What does "Incomplete" mean here?'
+              labelIcon={
+                DAILY_STATUS_OPTIONS.find(o => o.value === "incomplete")?.icon
+              }
             />
           )}
         </form.AppField>
@@ -145,9 +146,10 @@ export function CriteriaTab({
           {field => (
             <field.TextareaField
               label="Touched"
-              placeholder="What does &quot;Touched&quot; mean here?"
-              labelIcon={DAILY_STATUS_OPTIONS.find(o =>
-                o.value === "touched")?.icon}
+              placeholder='What does "Touched" mean here?'
+              labelIcon={
+                DAILY_STATUS_OPTIONS.find(o => o.value === "touched")?.icon
+              }
             />
           )}
         </form.AppField>
@@ -155,9 +157,10 @@ export function CriteriaTab({
           {field => (
             <field.TextareaField
               label="Completed (Goal)"
-              placeholder="What does &quot;Completed&quot; (goal) mean here?"
-              labelIcon={DAILY_STATUS_OPTIONS.find(o =>
-                o.value === "goal")?.icon}
+              placeholder='What does "Completed" (goal) mean here?'
+              labelIcon={
+                DAILY_STATUS_OPTIONS.find(o => o.value === "goal")?.icon
+              }
             />
           )}
         </form.AppField>
@@ -165,9 +168,10 @@ export function CriteriaTab({
           {field => (
             <field.TextareaField
               label="Exceeded"
-              placeholder="What does &quot;Exceeded&quot; mean here?"
-              labelIcon={DAILY_STATUS_OPTIONS.find(o =>
-                o.value === "exceeded")?.icon}
+              placeholder='What does "Exceeded" mean here?'
+              labelIcon={
+                DAILY_STATUS_OPTIONS.find(o => o.value === "exceeded")?.icon
+              }
             />
           )}
         </form.AppField>
@@ -175,9 +179,10 @@ export function CriteriaTab({
           {field => (
             <field.TextareaField
               label="Freeze"
-              placeholder="What does &quot;Freeze&quot; mean here?"
-              labelIcon={DAILY_STATUS_OPTIONS.find(o =>
-                o.value === "freeze")?.icon}
+              placeholder='What does "Freeze" mean here?'
+              labelIcon={
+                DAILY_STATUS_OPTIONS.find(o => o.value === "freeze")?.icon
+              }
             />
           )}
         </form.AppField>

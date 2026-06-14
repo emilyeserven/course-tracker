@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 import { upsertTask } from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
@@ -296,7 +297,7 @@ export function TodosChecklist({
           value={draft}
           onChange={e => setDraft(e.target.value)}
           placeholder="Add a to-do..."
-          maxLength={500}
+          maxLength={TEXT_MAX_LENGTH}
           disabled={mutation.isPending}
         />
         <Button

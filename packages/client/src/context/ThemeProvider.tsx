@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { useEffect, useState } from "react";
 
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { ThemeProviderContext } from "@/context/ThemeProviderContext";
 
 interface ThemeProviderProps {
@@ -14,7 +15,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "vite-ui-theme",
+  storageKey = STORAGE_KEYS.theme,
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
@@ -24,10 +25,13 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove("light", "dark"); ;
+    root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
 
       root.classList.add(systemTheme);
       return;

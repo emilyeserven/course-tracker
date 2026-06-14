@@ -10,6 +10,8 @@ import type {
 
 import { parseModuleLength } from "@emstack/types";
 
+import { NEW_ROW_ID } from "@/constants/sentinels";
+
 // The shared "effort levels + tag picker" block rendered at the bottom of both
 // the module and module-group edit cards (see LevelAndTagsFields). Both draft
 // shapes below extend it, so the cards can pass a draft straight through.
@@ -46,11 +48,9 @@ export interface ModuleDraft extends BaseModuleEditDraft {
   bucketValue: ModuleDurationBucket | "";
 }
 
-const NEW_ID = "__new__";
-
 export function emptyGroupDraft(): GroupDraft {
   return {
-    id: NEW_ID,
+    id: NEW_ROW_ID,
     name: "",
     description: "",
     url: "",
@@ -84,7 +84,7 @@ export function groupToDraft(g: ModuleGroup): GroupDraft {
 
 export function emptyModuleDraft(): ModuleDraft {
   return {
-    id: NEW_ID,
+    id: NEW_ROW_ID,
     name: "",
     description: "",
     url: "",
@@ -145,7 +145,9 @@ export function draftToLength(d: ModuleDraft): string | null {
   return d.bucketValue || null;
 }
 
-export function levelChipClass(level: TaskResourceLevel | null | undefined): string {
+export function levelChipClass(
+  level: TaskResourceLevel | null | undefined,
+): string {
   switch (level) {
     case "low":
       return "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-200";

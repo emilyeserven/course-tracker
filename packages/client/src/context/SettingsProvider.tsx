@@ -6,14 +6,13 @@ import type { ReactNode } from "react";
 
 import { useEffect, useState } from "react";
 
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 import {
   DEFAULT_MAX_ACTIVE_DAILIES,
   DEFAULT_WEEK_TARGET_WINDOW,
   SettingsProviderContext,
   WEEK_TARGET_WINDOWS,
 } from "@/context/SettingsProviderContext";
-
-const STORAGE_KEY = "emstack-settings";
 
 interface PersistedSettings {
   maxActiveDailies?: number;
@@ -24,7 +23,7 @@ interface PersistedSettings {
 function readPersistedSettings(): PersistedSettings {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.settings);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object") {
@@ -56,8 +55,10 @@ export function SettingsProvider({
   const [dailiesViewMode, setDailiesViewModeState]
     = useState<DailiesViewMode | null>(() => {
       const persisted = readPersistedSettings();
-      if (persisted.dailiesViewMode === "table"
-        || persisted.dailiesViewMode === "list") {
+      if (
+        persisted.dailiesViewMode === "table"
+        || persisted.dailiesViewMode === "list"
+      ) {
         return persisted.dailiesViewMode;
       }
       return null;
@@ -66,8 +67,10 @@ export function SettingsProvider({
   const [weekTargetWindow, setWeekTargetWindowState]
     = useState<WeekTargetWindow>(() => {
       const persisted = readPersistedSettings();
-      if (persisted.weekTargetWindow
-        && WEEK_TARGET_WINDOWS.includes(persisted.weekTargetWindow)) {
+      if (
+        persisted.weekTargetWindow
+        && WEEK_TARGET_WINDOWS.includes(persisted.weekTargetWindow)
+      ) {
         return persisted.weekTargetWindow;
       }
       return DEFAULT_WEEK_TARGET_WINDOW;
@@ -76,7 +79,7 @@ export function SettingsProvider({
   useEffect(() => {
     try {
       localStorage.setItem(
-        STORAGE_KEY,
+        STORAGE_KEYS.settings,
         JSON.stringify({
           maxActiveDailies,
           dailiesViewMode,

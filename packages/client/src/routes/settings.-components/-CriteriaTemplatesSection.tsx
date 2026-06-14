@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { DailyCriteriaTemplateEditModal } from "./-DailyCriteriaTemplateEditModal";
 
 import { Button } from "@/components/ui/button";
+import { NEW_ROW_ID } from "@/constants/sentinels";
 import {
   createDailyCriteriaTemplate,
   deleteSingleDailyCriteriaTemplate,
@@ -16,11 +17,9 @@ import {
   upsertDailyCriteriaTemplate,
 } from "@/utils";
 
-const NEW_CRITERIA_TEMPLATE_ID = "__new__";
-
 function makeEmptyCriteriaTemplate(): DailyCriteriaTemplate {
   return {
-    id: NEW_CRITERIA_TEMPLATE_ID,
+    id: NEW_ROW_ID,
     label: "",
     incomplete: "",
     touched: "",

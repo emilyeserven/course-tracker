@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-const STORAGE_KEY = "emstack-explore-ring";
+import { STORAGE_KEYS } from "@/constants/storageKeys";
+
+const STORAGE_KEY = STORAGE_KEYS.exploreRing;
 const DEFAULT_RING = "Trial";
 
 /**
@@ -31,11 +33,12 @@ export function useExploreRing(rings: string[] | undefined) {
 
   // While rings are still loading, surface the stored value as-is so the
   // <Select> has a stable value and doesn't flicker.
-  const ring = !rings || rings.includes(storedRing)
-    ? storedRing
-    : rings.includes(DEFAULT_RING)
-      ? DEFAULT_RING
-      : rings[0] ?? DEFAULT_RING;
+  const ring
+    = !rings || rings.includes(storedRing)
+      ? storedRing
+      : rings.includes(DEFAULT_RING)
+        ? DEFAULT_RING
+        : (rings[0] ?? DEFAULT_RING);
 
   return {
     ring,

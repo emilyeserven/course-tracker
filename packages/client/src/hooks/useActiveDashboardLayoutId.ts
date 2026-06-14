@@ -2,7 +2,9 @@ import type { DashboardLayout } from "@emstack/types";
 
 import { useState } from "react";
 
-const STORAGE_KEY = "emstack-dashboard-layout-id";
+import { STORAGE_KEYS } from "@/constants/storageKeys";
+
+const STORAGE_KEY = STORAGE_KEYS.dashboardLayoutId;
 
 /**
  * Persists the dashboard's selected layout tab in localStorage. When the
@@ -34,7 +36,7 @@ export function useActiveDashboardLayoutId(
 
   const activeId = layouts?.some(l => l.id === storedId)
     ? storedId
-    : layouts?.[0]?.id ?? null;
+    : (layouts?.[0]?.id ?? null);
 
   return {
     activeId,

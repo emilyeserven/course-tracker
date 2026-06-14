@@ -2,11 +2,13 @@ import type { EntityStatus, ResourceType } from "@emstack/types";
 
 import * as z from "zod";
 
+import { NAME_MAX_LENGTH, TEXT_MAX_LENGTH } from "@/constants/stringLimits";
+
 export const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   type: z.enum(["website", "book"]),
-  description: z.string().max(500),
-  url: z.string().max(255),
+  description: z.string().max(TEXT_MAX_LENGTH),
+  url: z.string().max(NAME_MAX_LENGTH),
   status: z.enum(["active", "inactive", "complete"]),
   progressCurrent: z.number().int().min(0).nullable(),
   progressTotal: z.number().int().min(0).nullable(),
@@ -15,7 +17,6 @@ export const formSchema = z.object({
   topicId: z.string(),
   courseProviderId: z.string(),
   providerIsSelf: z.boolean(),
-  modulesAreExhaustive: z.boolean(),
   easeOfStarting: z.enum(["", "low", "medium", "high"]),
   timeNeeded: z.enum(["", "low", "medium", "high"]),
   interactivity: z.enum(["", "low", "medium", "high"]),
@@ -41,7 +42,6 @@ export interface ResourceFormValues {
   topicId: string;
   courseProviderId: string;
   providerIsSelf: boolean;
-  modulesAreExhaustive: boolean;
   easeOfStarting: string;
   timeNeeded: string;
   interactivity: string;
@@ -93,7 +93,6 @@ export function buildResourcePayload(
     topicId: value.topicId || null,
     courseProviderId: value.courseProviderId || null,
     providerIsSelf: value.providerIsSelf,
-    modulesAreExhaustive: value.modulesAreExhaustive,
     easeOfStarting: value.easeOfStarting || null,
     timeNeeded: value.timeNeeded || null,
     interactivity: value.interactivity || null,

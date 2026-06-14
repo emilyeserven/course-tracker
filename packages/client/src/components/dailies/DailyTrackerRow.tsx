@@ -29,7 +29,11 @@ interface DailyTrackerRowProps {
   todayKey: string;
   recentDaysCount: number;
   mutationPending: boolean;
-  onChangeStatus: (daily: Daily, status: DailyCompletionStatus) => void;
+  onChangeStatus: (
+    daily: Daily,
+    status: DailyCompletionStatus,
+    note: string | null,
+  ) => void;
   /** `<tr>` className — the two tracker tables differ only by `align-middle`. */
   rowClassName: string;
   /** `<td>` wrapping the today-status cell — the wider table uses `w-36 p-2`. */
@@ -123,7 +127,7 @@ export function DailyTrackerRow({
           daily={daily}
           currentStatus={currentStatus}
           disabled={mutationPending}
-          onChange={status => onChangeStatus(daily, status)}
+          onChange={(status, note) => onChangeStatus(daily, status, note)}
         />
       </td>
       {days.map((day, i) => {

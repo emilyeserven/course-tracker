@@ -1,5 +1,5 @@
 import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
-import type { Module, ModuleGroup, ModulesConfig } from "@emstack/types";
+import type { Module, ModuleGroup, ModulesConfig, Resource } from "@emstack/types";
 
 import { useMemo } from "react";
 
@@ -17,6 +17,7 @@ import {
   fetchModules,
   fetchSingleResource,
   fetchTagGroups,
+  setResourceModulesExhaustive,
   updateResourceModulesConfig,
   upsertModule,
   upsertModuleGroup,
@@ -43,6 +44,8 @@ export function useResourceModules(resourceId: string) {
     queryFn: () => fetchSingleResource(resourceId),
   });
   const tagGroups = tagGroupsQuery.data ?? [];
+  const modulesAreExhaustive
+    = resourceQuery.data?.modulesAreExhaustive ?? false;
 
   const groups = useMemo(
     () => (groupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
@@ -382,9 +385,47 @@ export function useResourceModules(resourceId: string) {
   const isReordering
     = reorderModulesMutation.isPending || reorderGroupsMutation.isPending;
 
+  // Toggle the resource-level "module list is exhaustive" flag. Optimistic so
+  // the checkbox responds instantly; rolls back on error.
+  const setModulesExhaustiveMutation = useMutation({
+    mutationFn: (value: boolean) =>
+      setResourceModulesExhaustive(resourceId, value),
+    onMutate: async (value: boolean) => {
+      const detailKey = queryKeys.resources.detail(resourceId);
+      await queryClient.cancelQueries({
+        queryKey: detailKey,
+      });
+      const previous = queryClient.getQueryData<Resource>(detailKey);
+      if (previous) {
+        queryClient.setQueryData<Resource>(detailKey, {
+          ...previous,
+          modulesAreExhaustive: value,
+        });
+      }
+      return {
+        previous,
+      };
+    },
+    onError: (e: Error, _value, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          queryKeys.resources.detail(resourceId),
+          context.previous,
+        );
+      }
+      toast.error(e.message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resources.detail(resourceId),
+      });
+    },
+  });
+
   return {
     resourceQuery,
     tagGroups,
+    modulesAreExhaustive,
     groups,
     ungroupedModules,
     modulesByGroup,
@@ -402,6 +443,7 @@ export function useResourceModules(resourceId: string) {
     upsertModuleMutation,
     toggleCompleteMutation,
     deleteModuleMutation,
+    setModulesExhaustiveMutation,
     updateModulesConfigMutation,
     moveModule,
     moveGroup,

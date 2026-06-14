@@ -1,4 +1,4 @@
-import type { TodoistTask } from "@emstack/types";
+import type { TodoistTask, TodoistTasks } from "@emstack/types";
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
 import { buildCloseTaskUrl } from "./todoistUrls.ts";
@@ -238,10 +238,8 @@ export async function closeTodoistTask(
   assertTodoistOk(response);
 }
 
-export interface TodoistTasksData {
-  overdue: TodoistTask[];
-  today: TodoistTask[];
-}
+// The tasks payload minus `configured`, which the route stamps on.
+export type TodoistTasksData = Omit<TodoistTasks, "configured">;
 
 /**
  * Fetch the user's active tasks due today or overdue and split them by whether

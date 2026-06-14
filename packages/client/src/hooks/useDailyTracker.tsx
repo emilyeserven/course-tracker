@@ -83,7 +83,8 @@ export function useDailyStatusMutation(todayKey: string) {
       status: DailyCompletionStatus;
       note?: string | null;
     }) => {
-      const withStatus = withCompletion(daily, todayKey, status);
+      // Re-updating today's status re-bakes the entry to the current schedule.
+      const withStatus = withCompletion(daily, todayKey, status, todayKey);
       const completions
         = note === undefined
           ? withStatus

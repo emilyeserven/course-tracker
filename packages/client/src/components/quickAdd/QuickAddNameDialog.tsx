@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 
 interface QuickAddNameDialogProps {
   open: boolean;
@@ -90,7 +91,7 @@ export function QuickAddNameDialog({
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={placeholder}
-              maxLength={255}
+              maxLength={NAME_MAX_LENGTH}
             />
           </div>
           <QuickAddDialogFooter

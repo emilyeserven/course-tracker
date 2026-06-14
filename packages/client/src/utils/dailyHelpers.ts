@@ -337,14 +337,47 @@ function carryEntryParts(
     : {};
 }
 
+// How recent a logged entry must be for a status re-update to re-snapshot its
+// scheduled task. Re-updating a recent entry re-bakes it (so a changed/renamed
+// task is reflected in the entries log); older entries stay frozen for historical
+// accuracy.
+export const REBAKE_WINDOW_DAYS = 7;
+
+// Whether `dateKey` (a "YYYY-MM-DD" key) is recent enough — today, in the future,
+// or within REBAKE_WINDOW_DAYS in the past — that re-updating its status should
+// drop the frozen snapshot and let the server re-bake to the current schedule.
+// Both keys are compared in UTC to match the rest of the daily date math.
+export function isWithinRebakeWindow(dateKey: string, todayKey: string): boolean {
+  const diffDays = Math.round(
+    (Date.parse(`${todayKey}T00:00:00Z`) - Date.parse(`${dateKey}T00:00:00Z`))
+    / 86_400_000,
+  );
+  return diffDays <= REBAKE_WINDOW_DAYS;
+}
+
+// Decide whether to keep an entry's frozen snapshot or drop it so the server
+// re-bakes. With no recency reference we keep frozen (safe default); given
+// `todayKey`, recent entries drop the snapshot (re-bake), older ones stay frozen.
+function rebakeOrCarry(
+  existing: Daily["completions"][number] | undefined,
+  dateKey: string,
+  todayKey: string | undefined,
+): Pick<Daily["completions"][number], "entryParts"> | object {
+  if (todayKey !== undefined && isWithinRebakeWindow(dateKey, todayKey)) {
+    return {};
+  }
+  return carryEntryParts(existing);
+}
+
 export function withCompletion(
   daily: Daily,
   dateKey: string,
   status: DailyCompletionStatus | null,
+  todayKey?: string,
 ): Daily["completions"] {
   const others = daily.completions.filter(c => c.date !== dateKey);
   const existing = daily.completions.find(c => c.date === dateKey);
-  const carry = carryEntryParts(existing);
+  const carry = rebakeOrCarry(existing, dateKey, todayKey);
   if (status === null) {
     if (existing?.note) {
       return [

@@ -5,6 +5,7 @@ import { CheckIcon, PencilIcon } from "lucide-react";
 import { Input } from "@/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 
 interface NoteEditButtonProps {
@@ -40,10 +41,11 @@ export function NoteEditButton({
           variant="ghost"
           size="icon-sm"
           disabled={disabled}
-          title={hasNote ? "Edit note" : "Add note"}
-          aria-label={hasNote ? "Edit note" : "Add note"}
+          title={hasNote ? "Edit comment" : "Add comment"}
+          aria-label={hasNote ? "Edit comment" : "Add comment"}
           className={cn(
-            !hasNote && `
+            !hasNote
+            && `
               opacity-0
               group-focus-within:opacity-100
               group-hover:opacity-100
@@ -69,15 +71,15 @@ export function NoteEditButton({
           <Input
             value={value}
             onChange={e => setValue(e.target.value)}
-            placeholder="Add a note..."
+            placeholder="Add a comment..."
             autoFocus
-            maxLength={500}
+            maxLength={TEXT_MAX_LENGTH}
           />
           <Button
             type="submit"
             size="icon-sm"
-            aria-label="Save note"
-            title="Save note"
+            aria-label="Save comment"
+            title="Save comment"
           >
             <CheckIcon className="size-4" />
           </Button>

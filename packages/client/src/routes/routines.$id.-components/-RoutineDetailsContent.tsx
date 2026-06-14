@@ -4,11 +4,18 @@ import { FlameIcon, LaughIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements";
 import { InfoArea } from "@/components/layout";
-import { DAY_LABELS, DAY_ORDER, RoutineEntryLabel } from "@/components/routines";
+import {
+  curatedDateRange,
+  DAY_LABELS,
+  DAY_ORDER,
+  formatCuratedDateLabel,
+  RoutineEntryLabel,
+} from "@/components/routines";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
 import {
   connectionEntityKind,
   getCurrentChain,
+  getTodayKey,
   getTotalCompletedDays,
 } from "@/utils";
 
@@ -30,6 +37,12 @@ export function RoutineDetailsContent({
 
   const weekly = data.weekly ?? {};
   const isDaily = data.mode === "daily";
+  const isCurated = data.mode === "curated";
+  // Full window of dates this curated run spans (today → end date); empty for the
+  // other modes, or when no end date is set / it has already passed.
+  const curatedDates = isCurated
+    ? curatedDateRange(getTodayKey(), data.curated?.endDate)
+    : [];
   const completions = data.completions ?? [];
   const chain = getCurrentChain({
     completions,
@@ -56,7 +69,11 @@ export function RoutineDetailsContent({
               font-medium
             "
           >
-            {isDaily ? "Daily Task" : "Weekly Schedule"}
+            {isCurated
+              ? "Curated"
+              : isDaily
+                ? "Daily Task"
+                : "Weekly Schedule"}
           </span>
         </InfoArea>
         <InfoArea
@@ -122,7 +139,7 @@ export function RoutineDetailsContent({
           ))}
         </ul>
       </InfoArea>
-      {!isDaily && (
+      {!isDaily && !isCurated && (
         <InfoArea
           header="Weekly Schedule"
           condition={true}
@@ -160,6 +177,61 @@ export function RoutineDetailsContent({
               );
             })}
           </ul>
+        </InfoArea>
+      )}
+      {isCurated && (
+        <InfoArea
+          header="Curated Schedule"
+          condition={true}
+        >
+          {data.curated?.endDate && (
+            <p className="mb-2 text-sm text-muted-foreground">
+              Ends
+              {" "}
+              {formatCuratedDateLabel(data.curated.endDate)}
+            </p>
+          )}
+          {curatedDates.length > 0
+            ? (
+              <ul className="flex flex-col gap-1">
+                {curatedDates.map((dateKey) => {
+                  const entry = data.curated?.entries?.[dateKey];
+                  return (
+                    <li
+                      key={dateKey}
+                      className="
+                        grid grid-cols-[150px_1fr] items-center gap-2 border-b
+                        border-border/60 py-1
+                      "
+                    >
+                      <span className="text-sm font-medium">
+                        {formatCuratedDateLabel(dateKey)}
+                      </span>
+                      {entry
+                        ? (
+                          <RoutineEntryLabel
+                            entry={entry}
+                            taskNames={taskNames}
+                            resourceNames={resourceNames}
+                          />
+                        )
+                        : (
+                          <span
+                            className="text-sm text-muted-foreground italic"
+                          >
+                            Nothing scheduled
+                          </span>
+                        )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )
+            : (
+              <span className="text-sm text-muted-foreground italic">
+                No curated schedule set.
+              </span>
+            )}
         </InfoArea>
       )}
     </div>

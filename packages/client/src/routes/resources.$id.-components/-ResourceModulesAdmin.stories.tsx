@@ -30,6 +30,7 @@ const resourceDetail: Resource = {
   progressCurrent: 0,
   progressTotal: 0,
   status: "active",
+  modulesAreExhaustive: false,
   topics: [],
 };
 
@@ -38,12 +39,19 @@ const resourceDetail: Resource = {
 function seededClient(seed: {
   groups: ModuleGroup[];
   modules: Module[];
+  modulesAreExhaustive?: boolean;
 }) {
   return seededQueryClient([
     [queryKeys.resources.moduleGroups(RESOURCE_ID), seed.groups],
     [queryKeys.resources.modules(RESOURCE_ID), seed.modules],
     [queryKeys.tagGroups.list(), makeTagGroups()],
-    [queryKeys.resources.detail(RESOURCE_ID), resourceDetail],
+    [
+      queryKeys.resources.detail(RESOURCE_ID),
+      {
+        ...resourceDetail,
+        modulesAreExhaustive: seed.modulesAreExhaustive ?? false,
+      },
+    ],
   ]);
 }
 
@@ -126,6 +134,48 @@ export const Populated: Story = {
     },
     {
       text: "Standalone intro",
+    },
+  ]),
+};
+
+// Edit-page context: `canEditExhaustive` renders the toggle, and the exhaustive
+// flag drives the `· N%` progress summary.
+export const ExhaustiveEditable: Story = {
+  args: {
+    resourceId: RESOURCE_ID,
+    canEditExhaustive: true,
+  },
+  decorators: [
+    queryStubDecorator(
+      () =>
+        seededClient({
+          groups: [],
+          modules: [
+            makeModule({
+              id: "m1",
+              moduleGroupId: null,
+              name: "Variables",
+              isComplete: true,
+            }),
+            makeModule({
+              id: "m2",
+              moduleGroupId: null,
+              name: "Functions",
+            }),
+          ],
+          modulesAreExhaustive: true,
+        }),
+      {
+        className: "max-w-2xl",
+      },
+    ),
+  ],
+  play: smokePlay([
+    {
+      text: "Module list is exhaustive",
+    },
+    {
+      text: /50%/,
     },
   ]),
 };

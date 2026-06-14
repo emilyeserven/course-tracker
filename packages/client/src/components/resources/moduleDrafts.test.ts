@@ -2,6 +2,7 @@ import type { Module, ModuleGroup, TagGroup } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
+import { NEW_ROW_ID } from "@/constants/sentinels";
 import {
   draftToLength,
   emptyGroupDraft,
@@ -89,7 +90,7 @@ describe("parseCount", () => {
 describe("emptyGroupDraft", () => {
   test("creates a blank group draft with the new-id sentinel", () => {
     const draft = emptyGroupDraft();
-    expect(draft.id).toBe("__new__");
+    expect(draft.id).toBe(NEW_ROW_ID);
     expect(draft.name).toBe("");
     expect(draft.totalCount).toBe("");
     expect(draft.completedCount).toBe("");
@@ -160,7 +161,7 @@ describe("groupToDraft", () => {
 describe("emptyModuleDraft", () => {
   test("creates a blank module draft defaulting to minutes mode", () => {
     const draft = emptyModuleDraft();
-    expect(draft.id).toBe("__new__");
+    expect(draft.id).toBe(NEW_ROW_ID);
     expect(draft.durationMode).toBe("minutes");
     expect(draft.minutesValue).toBe("");
     expect(draft.bucketValue).toBe("");
@@ -225,23 +226,29 @@ describe("lookupTagsByIds", () => {
   ];
 
   test("resolves ids to tags in request order across groups", () => {
-    expect(lookupTagsByIds(["t-3", "t-1"], tagGroups).map(t => t.name)).toEqual([
-      "Three",
-      "One",
-    ]);
+    expect(
+      lookupTagsByIds(["t-3", "t-1"], tagGroups).map(t => t.name),
+    ).toEqual(["Three", "One"]);
   });
 
   test("silently drops unknown ids", () => {
-    expect(lookupTagsByIds(["t-1", "missing"], tagGroups).map(t => t.id)).toEqual(
-      ["t-1"],
-    );
+    expect(
+      lookupTagsByIds(["t-1", "missing"], tagGroups).map(t => t.id),
+    ).toEqual(["t-1"]);
   });
 
   test("handles groups with no tags and an empty id list", () => {
     expect(lookupTagsByIds([], tagGroups)).toEqual([]);
-    expect(lookupTagsByIds(["t-1"], [{
-      id: "tg-3",
-      name: "Empty",
-    }])).toEqual([]);
+    expect(
+      lookupTagsByIds(
+        ["t-1"],
+        [
+          {
+            id: "tg-3",
+            name: "Empty",
+          },
+        ],
+      ),
+    ).toEqual([]);
   });
 });

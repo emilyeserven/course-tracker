@@ -1,8 +1,8 @@
 import type { Module } from "./Module";
 import type { Tag } from "./Tag";
-import type { TaskResourceLevel } from "./TaskResource";
+import type { ResourceLevelAttributes } from "./TaskResource";
 
-export interface ModuleGroup {
+export interface ModuleGroup extends ResourceLevelAttributes {
   id: string;
   resourceId: string;
   name: string;
@@ -19,8 +19,5 @@ export interface ModuleGroup {
   pageStart?: number | null;
   pageEnd?: number | null;
   modules?: Module[];
-  easeOfStarting?: TaskResourceLevel | null;
-  timeNeeded?: TaskResourceLevel | null;
-  interactivity?: TaskResourceLevel | null;
   tags?: Tag[];
 }

@@ -4,7 +4,8 @@ import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
-import * as z from "zod";
+
+import { formSchema } from "./tasks.$id.edit.-components/-taskFormSchema";
 
 import {
   Button,
@@ -41,14 +42,6 @@ export const Route = createFileRoute("/tasks/$id/edit")({
         ? search.topicId
         : undefined,
   }),
-});
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(2000),
-  topicId: z.string(),
-  taskTypeId: z.string(),
-  tagIds: z.array(z.string()),
 });
 
 function SingleTaskEdit() {

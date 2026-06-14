@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 import { getTodayKey } from "@/utils";
 
@@ -184,7 +185,7 @@ export function DailyStatusModal({
               value={comment}
               onChange={e => setComment(e.target.value)}
               placeholder="Add a comment for today..."
-              maxLength={500}
+              maxLength={TEXT_MAX_LENGTH}
               className="min-h-20"
             />
           </div>
