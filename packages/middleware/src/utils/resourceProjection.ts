@@ -1,4 +1,5 @@
 import { processCost } from "@/utils/processCost";
+import { toProviderBlock } from "@/utils/providerProjection";
 import { processResourceLinks } from "@/utils/processResourceLinks";
 import type {
   CostData,
@@ -48,13 +49,7 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
     status: resource.status ?? "inactive",
     providerIsSelf: resource.providerIsSelf ?? false,
     topics: processResourceLinks(resource.topicsToResources, "topic"),
-    provider:
-      resource.courseProvider?.name && resource.courseProvider?.id
-        ? {
-          name: resource.courseProvider.name,
-          id: resource.courseProvider.id,
-        }
-        : undefined,
+    provider: toProviderBlock(resource.courseProvider),
     easeOfStarting: resource.easeOfStarting ?? null,
     timeNeeded: resource.timeNeeded ?? null,
     interactivity: resource.interactivity ?? null,
