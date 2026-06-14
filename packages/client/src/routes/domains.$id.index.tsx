@@ -2,12 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
-import { ExcludedTopicsList } from "./domains.$id.-components/-ExcludedTopicsList";
-import { RadarChart } from "./domains.$id.-components/-RadarChart";
-import { TopicLinkList } from "./domains.$id.-components/-TopicLinkList";
+import { RadarChart } from "./domains.$id.-components/radar";
+import {
+  ExcludedTopicsList,
+  TopicLinkList,
+} from "./domains.$id.-components/topicLists";
 
 import { InfoArea, PageHeader } from "@/components/layout";
-import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
+import {
+  EntityError,
+  EntityPending,
+} from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, fetchSingleDomain } from "@/utils";
 
