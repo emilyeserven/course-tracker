@@ -14,6 +14,7 @@ import { TopicList } from "@/components/boxElements";
 import { RoutineBox } from "@/components/contentBoxComponents";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
+import { TagChip } from "@/components/tasks/TagChip";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
@@ -250,6 +251,19 @@ function ResourceDetailsTab({
             topics={data.topics}
             isPills={false}
           />
+        </InfoArea>
+        <InfoArea
+          header={`Tag${data.tags && data.tags.length > 1 ? "s" : ""}`}
+          condition={!!data.tags?.length}
+        >
+          <div className="flex flex-wrap gap-1">
+            {data.tags?.map(tag => (
+              <TagChip
+                key={tag.id}
+                tag={tag.name}
+              />
+            ))}
+          </div>
         </InfoArea>
       </InfoRow>
       <InfoRow header="Progress">

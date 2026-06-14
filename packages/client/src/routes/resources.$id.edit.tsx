@@ -132,6 +132,7 @@ function SingleResourceEdit() {
       onDelete={handleDelete}
       onDuplicate={handleDuplicate}
       onCancel={handleCancel}
+      onGoToModules={() => changeTab("modules")}
     />
   );
 

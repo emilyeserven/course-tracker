@@ -5,13 +5,23 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface CreateFieldConfig {
   name: string;
   label: string;
   required?: boolean;
-  type?: "text" | "url" | "email";
+  type?: "text" | "url" | "email" | "select";
   placeholder?: string;
+  /** Choices for a `type: "select"` field. */
+  options?: { value: string;
+    label: string; }[];
   /** When true, this field is pre-filled with the user's typed input */
   isPrimary?: boolean;
 }
@@ -109,19 +119,50 @@ export function ComboboxCreatePanel({
               {f.label}
               {f.required && <span className="text-destructive"> *</span>}
             </Label>
-            <Input
-              id={`combobox-create-${f.name}`}
-              type={f.type ?? "text"}
-              value={values[f.name] ?? ""}
-              placeholder={f.placeholder}
-              onChange={e =>
-                setValues(prev => ({
-                  ...prev,
-                  [f.name]: e.target.value,
-                }))}
-              disabled={submitting}
-              autoFocus={f.name === primaryFieldName}
-            />
+            {f.type === "select"
+              ? (
+                <Select
+                  value={values[f.name] || undefined}
+                  onValueChange={val =>
+                    setValues(prev => ({
+                      ...prev,
+                      [f.name]: val,
+                    }))}
+                  disabled={submitting}
+                >
+                  <SelectTrigger
+                    id={`combobox-create-${f.name}`}
+                    className="w-full"
+                  >
+                    <SelectValue placeholder={f.placeholder ?? "Select..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(f.options ?? []).map(opt => (
+                      <SelectItem
+                        key={opt.value}
+                        value={opt.value}
+                      >
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+              : (
+                <Input
+                  id={`combobox-create-${f.name}`}
+                  type={f.type ?? "text"}
+                  value={values[f.name] ?? ""}
+                  placeholder={f.placeholder}
+                  onChange={e =>
+                    setValues(prev => ({
+                      ...prev,
+                      [f.name]: e.target.value,
+                    }))}
+                  disabled={submitting}
+                  autoFocus={f.name === primaryFieldName}
+                />
+              )}
           </div>
         ))}
         <div className="flex gap-2">

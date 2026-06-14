@@ -12,6 +12,8 @@ export const queryKeys = {
       ["resource-module-groups", resourceId] as const,
     interactions: (resourceId: string) =>
       ["resource-interactions", resourceId] as const,
+    routineInteractions: (resourceId: string) =>
+      ["resource-routine-interactions", resourceId] as const,
   },
   topics: {
     list: () => ["topics"] as const,

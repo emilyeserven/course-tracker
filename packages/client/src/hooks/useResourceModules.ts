@@ -1,11 +1,13 @@
 import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
-import type { Module, ModuleGroup, ModulesConfig, ModuleStatus, Resource } from "@emstack/types";
+import type { Module, ModuleGroup, ModulesConfig, ModuleStatus } from "@emstack/types";
 
 import { useMemo } from "react";
 
 import { DEFAULT_MODULES_CONFIG, isModuleComplete } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+import { useSetModulesExhaustive } from "./useSetModulesExhaustive";
 
 import { draftToLength, parseCount } from "@/components/resources/moduleDrafts";
 import {
@@ -17,7 +19,6 @@ import {
   fetchModules,
   fetchSingleResource,
   fetchTagGroups,
-  setResourceModulesExhaustive,
   updateResourceModulesConfig,
   upsertModule,
   upsertModuleGroup,
@@ -468,41 +469,9 @@ export function useResourceModules(resourceId: string) {
       || reorderGroupsListMutation.isPending;
 
   // Toggle the resource-level "module list is exhaustive" flag. Optimistic so
-  // the checkbox responds instantly; rolls back on error.
-  const setModulesExhaustiveMutation = useMutation({
-    mutationFn: (value: boolean) =>
-      setResourceModulesExhaustive(resourceId, value),
-    onMutate: async (value: boolean) => {
-      const detailKey = queryKeys.resources.detail(resourceId);
-      await queryClient.cancelQueries({
-        queryKey: detailKey,
-      });
-      const previous = queryClient.getQueryData<Resource>(detailKey);
-      if (previous) {
-        queryClient.setQueryData<Resource>(detailKey, {
-          ...previous,
-          modulesAreExhaustive: value,
-        });
-      }
-      return {
-        previous,
-      };
-    },
-    onError: (e: Error, _value, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(
-          queryKeys.resources.detail(resourceId),
-          context.previous,
-        );
-      }
-      toast.error(e.message);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.resources.detail(resourceId),
-      });
-    },
-  });
+  // the control responds instantly; rolls back on error. Shared with the edit
+  // form's progress-mode radio so both writers stay in sync.
+  const setModulesExhaustiveMutation = useSetModulesExhaustive(resourceId);
 
   return {
     resourceQuery,

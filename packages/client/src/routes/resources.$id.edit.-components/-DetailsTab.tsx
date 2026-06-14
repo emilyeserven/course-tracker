@@ -1,11 +1,12 @@
 import type { LevelValue } from "./-LevelSelectRow";
 import type { useResourceEditForm } from "@/hooks/useResourceEditForm";
-import type { AnyFieldApi } from "@tanstack/react-form";
 
 import { RESOURCE_TYPE_LABELS, RESOURCE_TYPES } from "@emstack/types";
+import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 import { LevelSelectRow } from "./-LevelSelectRow";
+import { ProgressModeField } from "./-ProgressModeField";
 
 import { EditForm, EditPageFooter } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ interface DetailsTabProps {
   onDelete: () => void | Promise<void>;
   onDuplicate: () => void | Promise<void>;
   onCancel: () => void;
+  /** Switch the edit page to the Modules tab (module-tracking mode). */
+  onGoToModules: () => void;
 }
 
 export function DetailsTab({
@@ -27,18 +30,23 @@ export function DetailsTab({
   onDelete,
   onDuplicate,
   onCancel,
+  onGoToModules,
 }: DetailsTabProps) {
   const {
     form,
     topicOptions,
     providerOptions,
     tagOptions,
+    tagGroupOptions,
     currentValues,
     isSubmitting,
     isCostFromPlatform,
     providerUrlMissing,
+    modulesAreExhaustive,
     createTopicOption,
     createProviderOption,
+    createTagOption,
+    setProgressMode,
   } = controller;
 
   return (
@@ -193,44 +201,13 @@ export function DetailsTab({
           )}
         </form.AppField>
 
-        <div className="grid grid-cols-2 gap-4">
-          <form.AppField
-            name="progressCurrent"
-            validators={{
-              onSubmit: ({
-                value,
-                fieldApi,
-              }: {
-                value: number | null;
-                fieldApi: AnyFieldApi;
-              }) => {
-                const total = fieldApi.form.getFieldValue("progressTotal");
-                if (value != null && total != null && value > total) {
-                  return {
-                    message: "Current progress cannot exceed total modules",
-                  };
-                }
-                return undefined;
-              },
-            }}
-          >
-            {field => (
-              <field.NumberField
-                label="Current Progress"
-                min={0}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="progressTotal">
-            {field => (
-              <field.NumberField
-                label="Total Modules"
-                min={0}
-              />
-            )}
-          </form.AppField>
-        </div>
+        <ProgressModeField
+          form={form}
+          modulesAreExhaustive={modulesAreExhaustive}
+          isNew={isNew}
+          onModeChange={setProgressMode}
+          onGoToModules={onGoToModules}
+        />
 
         <form.AppField name="cost">
           {field => (
@@ -285,16 +262,51 @@ export function DetailsTab({
           </form.Field>
         </fieldset>
 
-        <form.AppField name="tagIds">
-          {field => (
-            <field.MultiComboboxField
-              label="Tags"
-              options={tagOptions}
-              placeholder="Pick tags..."
-              groupByPrefix
-            />
-          )}
-        </form.AppField>
+        <div className="flex flex-col gap-1">
+          <form.AppField name="tagIds">
+            {field => (
+              <field.MultiComboboxField
+                label="Tags"
+                options={tagOptions}
+                placeholder="Pick tags..."
+                groupByPrefix
+                create={{
+                  itemLabel: "tag",
+                  fields: [
+                    {
+                      name: "name",
+                      label: "Tag Name",
+                      required: true,
+                      isPrimary: true,
+                    },
+                    {
+                      name: "groupId",
+                      label: "Tag Group",
+                      required: true,
+                      type: "select",
+                      placeholder: "Select a group...",
+                      options: tagGroupOptions,
+                    },
+                  ],
+                  onCreate: createTagOption,
+                }}
+              />
+            )}
+          </form.AppField>
+          <Link
+            to="/settings"
+            search={{
+              tab: "tasks",
+            }}
+            className="
+              self-start text-xs text-muted-foreground underline
+              underline-offset-4
+              hover:text-foreground
+            "
+          >
+            Manage tags in settings
+          </Link>
+        </div>
 
         <EditPageFooter
           isNew={isNew}

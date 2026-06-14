@@ -139,8 +139,9 @@ export const Populated: Story = {
   ]),
 };
 
-// Edit-page context: `canEditExhaustive` renders the toggle, and the exhaustive
-// flag drives the `· N%` progress summary.
+// Edit-page context: `canEditExhaustive` adds the "change this on the Details
+// tab" hint to the progress callout, and the exhaustive flag drives both the
+// "used to calculate progress" callout and the `· N%` progress summary.
 export const ExhaustiveEditable: Story = {
   args: {
     resourceId: RESOURCE_ID,
@@ -173,7 +174,7 @@ export const ExhaustiveEditable: Story = {
   ],
   play: smokePlay([
     {
-      text: "Module list is exhaustive",
+      text: /used to calculate/,
     },
     {
       text: /50%/,

@@ -14,6 +14,7 @@ import {
   currentWeekday,
   entryForCompletionDate,
   entryToCompletionParts,
+  entryToCompletionRef,
   representativeEntry,
   weekdayForDateKey,
 } from "../utils/routineWeekday.ts";
@@ -185,4 +186,19 @@ test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot
     entryToCompletionParts(null, taskNames, resourceNames),
     null,
   );
+});
+
+test("entryToCompletionRef freezes the scheduled item's kind + id", () => {
+  // Task / resource entries keep their type + id (affixes are dropped — the ref
+  // is for matching by id, not display).
+  assert.deepStrictEqual(entryToCompletionRef(mondayTask), {
+    type: "task",
+    id: "task-mon",
+  });
+  assert.deepStrictEqual(entryToCompletionRef(wednesdayResource), {
+    type: "resource",
+    id: "res-wed",
+  });
+  // Nothing scheduled → null.
+  assert.strictEqual(entryToCompletionRef(null), null);
 });

@@ -4,12 +4,14 @@ import type {
   InteractionProgress,
   Module,
   ModuleGroup,
+  RoutineInteraction,
 } from "@emstack/types";
 
 import { useState } from "react";
 
 import { PencilIcon, PlusIcon } from "lucide-react";
 
+import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import { EditFormActions } from "@/components/layout/EditFormActions";
 import {
   DIFFICULTY_OPTIONS,
@@ -68,11 +70,28 @@ function fromInteraction(i: Interaction): Draft {
   };
 }
 
+// One row of the merged log: a manually-logged interaction (editable) or a
+// derived routine completion that touched this resource (read-only).
+type LogRow
+  = | { source: "manual";
+    date: string;
+    manual: Interaction; }
+    | { source: "routine";
+      date: string;
+      routine: RoutineInteraction; };
+
+function touchLabel(row: LogRow): string {
+  return row.source === "manual"
+    ? PROGRESS_LABEL[row.manual.progress]
+    : getDailyStatusOption(row.routine.status).label;
+}
+
 export function ResourceInteractionsLog({
   resourceId,
 }: Props) {
   const {
     interactions,
+    routineInteractions,
     moduleGroups,
     modules,
     createMutation,
@@ -85,17 +104,36 @@ export function ResourceInteractionsLog({
 
   const isAnyEditing = creating || editingId !== null;
 
-  const lastTouch = interactions[0];
+  // Interleave manual interactions and routine completions, newest first. Both
+  // sources arrive date-desc from the server; re-sort the union to merge them.
+  const merged: LogRow[] = [
+    ...interactions.map(
+      (i): LogRow => ({
+        source: "manual",
+        date: i.date,
+        manual: i,
+      }),
+    ),
+    ...routineInteractions.map(
+      (r): LogRow => ({
+        source: "routine",
+        date: r.date,
+        routine: r,
+      }),
+    ),
+  ].sort((a, b) => b.date.localeCompare(a.date));
+
+  const lastTouch = merged[0];
 
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm text-muted-foreground">
-            {interactions.length === 0
+            {merged.length === 0
               ? "No interactions logged yet."
               : lastTouch
-                ? `Last touch: ${lastTouch.date} · ${PROGRESS_LABEL[lastTouch.progress]}`
+                ? `Last touch: ${lastTouch.date} · ${touchLabel(lastTouch)}`
                 : null}
           </p>
         </div>
@@ -125,9 +163,18 @@ export function ResourceInteractionsLog({
         />
       )}
 
-      {interactions.length > 0 && (
+      {merged.length > 0 && (
         <ul className="flex flex-col divide-y rounded-md border bg-background">
-          {interactions.map((i) => {
+          {merged.map((row) => {
+            if (row.source === "routine") {
+              return (
+                <RoutineInteractionRow
+                  key={row.routine.id}
+                  item={row.routine}
+                />
+              );
+            }
+            const i = row.manual;
             if (i.id === editingId) {
               return (
                 <InteractionEditCard
@@ -224,6 +271,51 @@ export function ResourceInteractionsLog({
         </ul>
       )}
     </section>
+  );
+}
+
+// A read-only log row for a routine completion that touched this resource. Shows
+// the date, the routine, the completion status, and (when known) the specific
+// scheduled action and whether it touched the resource directly or via a task.
+function RoutineInteractionRow({
+  item,
+}: {
+  item: RoutineInteraction;
+}) {
+  const statusOption = getDailyStatusOption(item.status);
+  const showAction = item.actionLabel && item.actionLabel !== item.routineName;
+  return (
+    <li className="flex flex-col gap-1 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium">{item.date}</span>
+        <Badge
+          variant="outline"
+          className={statusOption.pillClass}
+        >
+          {statusOption.label}
+        </Badge>
+        <Badge
+          variant="outline"
+          className="border-blue-200 bg-blue-50 text-blue-900"
+        >
+          routine: {item.routineName}
+        </Badge>
+        {item.via === "task" && (
+          <Badge
+            variant="outline"
+            className="bg-muted/40"
+          >
+            via task
+          </Badge>
+        )}
+      </div>
+      {showAction && (
+        <p className="text-sm text-muted-foreground">{item.actionLabel}</p>
+      )}
+      {item.note && (
+        <p className="text-sm text-muted-foreground">{item.note}</p>
+      )}
+    </li>
   );
 }
 
