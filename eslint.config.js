@@ -42,6 +42,37 @@ export default tseslint.config([
               message:
                 "Import from \"@emstack/types\" — subpath imports bypass the package's exports map.",
             },
+            {
+              // Components moved out of the components/ root into themed
+              // subdirectories. No component lives directly in components/ —
+              // a structure test (components/structure.test.ts) enforces this.
+              // These globs catch reverts to the old loose-file paths.
+              group: [
+                "@/components/calendar",
+                "@/components/combobox",
+                "@/components/input",
+                "@/components/input-group",
+                "@/components/popover",
+                "@/components/radio-group",
+                "@/components/sonner",
+                "@/components/textarea",
+                "@/components/ConfirmDialog",
+                "@/components/UnsavedChangesDialog",
+                "@/components/LayoutNameDialog",
+                "@/components/EditModalFooter",
+                "@/components/quickAdd",
+                "@/components/EntityStates",
+                "@/components/FilterOptionCount",
+                "@/components/ListPageControls",
+                "@/components/EditFormActions",
+                "@/components/LayoutMenuActions",
+              ],
+              message:
+                "Import from the component's themed subdirectory instead "
+                + "(e.g. @/components/ui/input, @/components/dialogs/ConfirmDialog, "
+                + "@/components/listControls/EntityStates, @/components/layout/EditFormActions). "
+                + "No component lives directly in components/.",
+            },
           ],
         },
       ],

@@ -6,12 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   ContentBox,
   TopicBox,
   TopicsTable,
 } from "@/components/contentBoxComponents";
+import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
   ClearFiltersButton,
   FilterSelect,

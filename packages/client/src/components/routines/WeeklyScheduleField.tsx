@@ -4,7 +4,7 @@ import type { RoutineWeekday } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
-import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
+import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 import { ScheduleEntryRow } from "@/components/routines/ScheduleEntryRow";
 import { DAY_LABELS, DAY_ORDER } from "@/components/routines/weekly";
 

@@ -1,6 +1,6 @@
 import { SearchIcon, XIcon } from "lucide-react";
 
-import { FilterOptionCount } from "@/components/FilterOptionCount";
+import { FilterOptionCount } from "@/components/listControls/FilterOptionCount";
 import { Button } from "@/components/ui/button";
 import {
   Select,

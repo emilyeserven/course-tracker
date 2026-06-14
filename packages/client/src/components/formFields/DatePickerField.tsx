@@ -2,10 +2,10 @@ import type { BaseFieldProps } from "@/types/fieldProps";
 
 import { CalendarIcon } from "lucide-react";
 
-import { Calendar } from "@/components/calendar";
 import { Field, FieldLabel } from "@/components/forms/field";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
   changedFieldClass,

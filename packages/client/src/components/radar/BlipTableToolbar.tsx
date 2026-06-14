@@ -1,10 +1,10 @@
 import type { RadarQuadrant, RadarRing } from "@emstack/types";
 
-import { Input } from "@/components/input";
 import {
   ALL,
   UNASSIGNED,
 } from "@/components/radar/blipTableFilters";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,

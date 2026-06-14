@@ -11,8 +11,8 @@ import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceIn
 import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
 
 import { TopicList } from "@/components/boxElements";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { RoutineBox } from "@/components/contentBoxComponents";
+import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";

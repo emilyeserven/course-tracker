@@ -4,8 +4,8 @@ import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceIn
 import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
 import { DetailsTab } from "./resources.$id.edit.-components";
 
+import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
 import { PageTabs } from "@/components/layout";
-import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { useResourceEditForm } from "@/hooks/useResourceEditForm";
 import {

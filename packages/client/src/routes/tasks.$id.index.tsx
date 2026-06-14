@@ -6,8 +6,8 @@ import { LinkedRoutinesSection } from "./tasks.$id.-components/-LinkedRoutinesSe
 import { ResourcesTable } from "./tasks.$id.-components/-ResourcesTable";
 import { TodosChecklist } from "./tasks.$id.-components/-TodosChecklist";
 
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleTask } from "@/utils";
 

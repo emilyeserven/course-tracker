@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 import { upsertTask } from "@/utils";

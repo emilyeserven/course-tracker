@@ -7,14 +7,14 @@ import { useEffect, useRef, useState } from "react";
 import { SettingsIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 
-import { Input } from "@/components/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { RadioGroupItem } from "@/components/radio-group";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/popover";
+import { RadioGroupItem } from "@/components/ui/radio-group";
 import { MAX_TILE_ROWS, TILE_META } from "@/lib/dashboardTiles";
 import { cn } from "@/lib/utils";
 

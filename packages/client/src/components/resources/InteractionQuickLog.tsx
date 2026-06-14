@@ -10,7 +10,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/input";
 import {
   DIFFICULTY_OPTIONS,
   PROGRESS_LABEL,
@@ -18,8 +17,9 @@ import {
   UNDERSTANDING_OPTIONS,
 } from "@/components/resources/interactionMeta";
 import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { createInteraction } from "@/utils/fetchFunctions";
 import { queryKeys } from "@/utils/queryKeys";
 

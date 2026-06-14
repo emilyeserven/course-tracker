@@ -7,10 +7,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
-import { Textarea } from "@/components/textarea";
+import { EditFormActions } from "@/components/layout/EditFormActions";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   createTag,
   createTagGroup,

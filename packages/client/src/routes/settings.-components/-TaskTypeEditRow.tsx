@@ -3,10 +3,10 @@ import type { TaskType } from "@emstack/types";
 
 import { useState } from "react";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
+import { EditFormActions } from "@/components/layout/EditFormActions";
 import { TagsInput } from "@/components/tasks/TagsInput";
-import { Textarea } from "@/components/textarea";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TaskTypeEditRowProps extends EditRowBaseProps {
   taskType: TaskType;

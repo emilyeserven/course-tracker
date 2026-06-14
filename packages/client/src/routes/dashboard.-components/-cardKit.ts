@@ -14,7 +14,7 @@ export {
 export { isAutoHeight } from "@/lib/dashboardTiles";
 export { Button } from "@/components/ui/button";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-export { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
+export { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 export { RadialProgress } from "@/components/ui/RadialProgress";
 export { cn } from "@/lib/utils";
 export { queryKeys } from "@/utils/queryKeys";

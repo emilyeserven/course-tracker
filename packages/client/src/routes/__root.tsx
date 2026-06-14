@@ -1,4 +1,4 @@
-import type { QuickAddKey } from "@/components/quickAdd";
+import type { QuickAddKey } from "@/components/dialogs/quickAdd";
 
 import React, { useState } from "react";
 
@@ -9,14 +9,13 @@ import {
 } from "@tanstack/react-router";
 import { HomeIcon, MenuIcon } from "lucide-react";
 
-import { DropdownNavItem, NavDropdown } from "@/components/layout";
 import {
   QuickAddDialogs,
   QuickAddMenu,
   QUICK_ADD_OPTIONS,
 
-} from "@/components/quickAdd";
-import { Toaster } from "@/components/sonner";
+} from "@/components/dialogs/quickAdd";
+import { DropdownNavItem, NavDropdown } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Toaster } from "@/components/ui/sonner";
 import { useShowOnboard } from "@/hooks/useShowOnboard";
 
 const RootComponent: React.FunctionComponent = () => {

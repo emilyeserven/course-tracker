@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 
 import { PlusIcon, SearchIcon } from "lucide-react";
 
-import { Input } from "@/components/input";
 import {
   COLUMN_COUNT,
   EditingRow,
@@ -15,6 +14,7 @@ import {
 } from "@/components/tasks/taskResourceTable";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,

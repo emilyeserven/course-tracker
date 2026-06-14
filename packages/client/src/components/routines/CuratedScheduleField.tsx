@@ -3,7 +3,7 @@ import type { SelectOption } from "@/utils";
 
 import { useState } from "react";
 
-import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
+import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 import { ScheduleEntryRow } from "@/components/routines/ScheduleEntryRow";
 import { formatCuratedDateLabel } from "@/components/routines/weekly";
 

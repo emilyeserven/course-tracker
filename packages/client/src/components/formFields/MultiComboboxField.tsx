@@ -2,6 +2,10 @@ import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
 import type { BaseFieldProps } from "@/types/fieldProps";
 import type { SelectOption } from "@/utils";
 
+import { ComboboxAddNewRow } from "@/components/formFields/ComboboxAddNewRow";
+import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
+import { useComboboxCreate } from "@/components/formFields/useComboboxCreate";
+import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import {
   Combobox,
   ComboboxChip,
@@ -17,11 +21,7 @@ import {
   useComboboxAnchor,
   // Incidental overlap of shared formField imports + prop interface.
   // fallow-ignore-next-line code-duplication
-} from "@/components/combobox";
-import { ComboboxAddNewRow } from "@/components/formFields/ComboboxAddNewRow";
-import { ComboboxCreatePanel } from "@/components/formFields/ComboboxCreatePanel";
-import { useComboboxCreate } from "@/components/formFields/useComboboxCreate";
-import { Field, FieldError, FieldLabel } from "@/components/forms/field";
+} from "@/components/ui/combobox";
 import { cn } from "@/lib/utils";
 import {
   changedFieldClass,

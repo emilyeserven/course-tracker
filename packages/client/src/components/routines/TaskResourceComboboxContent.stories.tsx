@@ -4,7 +4,7 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { TaskResourceComboboxContent } from "./TaskResourceComboboxContent";
 
-import { Combobox, ComboboxInput } from "@/components/combobox";
+import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 const optionsMap = new Map([
   ["task-1", "Read a chapter"],

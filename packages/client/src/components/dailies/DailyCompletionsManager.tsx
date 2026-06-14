@@ -16,9 +16,9 @@ import {
 import { DailyStatusCircle, DailyStatusConnector } from "./dailyCells";
 
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDailyCompletions } from "@/hooks/useDailyCompletions";
 import { cn } from "@/lib/utils";
 

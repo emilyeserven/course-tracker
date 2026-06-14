@@ -8,7 +8,6 @@ import { toast } from "sonner";
 
 import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
 
-import { Input } from "@/components/input";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import { createProvider } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";

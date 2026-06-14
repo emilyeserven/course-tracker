@@ -9,7 +9,6 @@ import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
 
 import { BlipPlacementSelect } from "@/components/radar/BlipPlacementSelect";
 import { BlipTable } from "@/components/radar/BlipTable";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface BlipDraft {
   id?: string;
