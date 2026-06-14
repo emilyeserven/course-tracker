@@ -2,12 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, within } from "storybook/test";
 
-import {
-  QuadrantsIllustration,
-  RingsIllustration,
-} from "./RadarConfigIllustrations";
+import { QuadrantsIllustration } from "./RadarConfigIllustrations";
 
-import { makeQuadrants, makeRings } from "@/test-utils/radarFixtures";
+import { makeQuadrants } from "@/test-utils/radarFixtures";
 
 const meta: Meta<typeof QuadrantsIllustration> = {
   component: QuadrantsIllustration,
@@ -26,15 +23,5 @@ export const Quadrants: Story = {
   }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Techniques")).toBeInTheDocument();
-  },
-};
-
-export const Rings: StoryObj<typeof RingsIllustration> = {
-  render: () => <RingsIllustration names={makeRings().map(r => r.name)} />,
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Adopt")).toBeInTheDocument();
   },
 };
