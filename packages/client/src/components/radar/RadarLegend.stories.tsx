@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { RadarLegend } from "./RadarLegend";
 
@@ -11,7 +11,8 @@ import {
   makeQuadrants,
   makeRings,
 } from "@/test-utils/radarFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof RadarLegend> = {
   component: RadarLegend,
@@ -38,13 +39,7 @@ const meta: Meta<typeof RadarLegend> = {
     onHover: fn(),
     onBlipClick: fn(),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -52,11 +47,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Kubernetes")).toBeInTheDocument();
-    await expect(canvas.getByText("Adopted")).toBeInTheDocument();
-  },
+  play: smokeText("Kubernetes", "Adopted"),
 };

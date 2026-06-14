@@ -5,7 +5,8 @@ import { expect, within } from "storybook/test";
 import { LinkedRoutinesSection } from "./-LinkedRoutinesSection";
 
 import { makeRoutine } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof LinkedRoutinesSection> = {
   component: LinkedRoutinesSection,
@@ -24,13 +25,7 @@ const meta: Meta<typeof LinkedRoutinesSection> = {
       }),
     ],
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -38,16 +33,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByText("Morning practice"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByText("Daily")).toBeInTheDocument();
-    await expect(canvas.getByText("Weekly")).toBeInTheDocument();
-  },
+  play: smokeText("Morning practice", "Daily", "Weekly"),
 };
 
 export const Empty: Story = {

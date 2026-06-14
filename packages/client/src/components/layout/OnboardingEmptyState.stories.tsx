@@ -4,20 +4,14 @@ import { expect, within } from "storybook/test";
 
 import { OnboardingEmptyState } from "./OnboardingEmptyState";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
 
 const meta: Meta<typeof OnboardingEmptyState> = {
   component: OnboardingEmptyState,
   args: {
     message: "No resources yet!",
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;

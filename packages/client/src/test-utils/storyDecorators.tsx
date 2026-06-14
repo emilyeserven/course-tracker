@@ -3,6 +3,13 @@ import type { Decorator } from "@storybook/react-vite";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RouterStub } from "@/test-utils/RouterStub";
 
+/** Bare stub-router wrapper — for stories whose only context need is `<Link>`. */
+export const routerDecorator: Decorator = Story => (
+  <RouterStub>
+    <Story />
+  </RouterStub>
+);
+
 /**
  * Shared Storybook decorator for the card / table library stories, which all
  * render inside a stub router so their `<Link>`s resolve. Set `tooltip` for
