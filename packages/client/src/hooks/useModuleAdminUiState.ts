@@ -36,6 +36,11 @@ export function useModuleAdminUiState() {
   // LLM Assist dialog
   const [llmAssistOpen, setLlmAssistOpen] = useState(false);
 
+  // Reorder mode: when on, group/module move controls (drag handles on desktop,
+  // up/down arrows on small screens) are revealed. Orthogonal to editing, so it
+  // deliberately does NOT feed into `isAnyEditing`.
+  const [reorderMode, setReorderMode] = useState(false);
+
   const isAnyEditing
     = editingGroupId !== null
       || creatingGroup
@@ -61,6 +66,8 @@ export function useModuleAdminUiState() {
     setLoggingForModuleId,
     llmAssistOpen,
     setLlmAssistOpen,
+    reorderMode,
+    setReorderMode,
     isAnyEditing,
   };
 }

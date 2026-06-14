@@ -366,6 +366,70 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Drag-and-drop produces a whole new order rather than an adjacent swap.
+  // These persist it by writing `position = index` for every item whose
+  // position actually changed (same full payloads as the pairwise mutations).
+  const reorderModulesListMutation = useMutation({
+    mutationFn: (list: Module[]) =>
+      Promise.all(
+        list
+          .map((m, index) => ({
+            m,
+            index,
+          }))
+          .filter(({
+            m, index,
+          }) => m.position !== index)
+          .map(({
+            m, index,
+          }) =>
+            upsertModule(m.id, {
+              resourceId: m.resourceId,
+              moduleGroupId: m.moduleGroupId ?? null,
+              name: m.name,
+              description: m.description ?? null,
+              url: m.url ?? null,
+              length: m.length ?? null,
+              pageStart: m.pageStart ?? null,
+              pageEnd: m.pageEnd ?? null,
+              status: m.status,
+              position: index,
+            })),
+      ),
+    onSuccess: () => invalidateAll(),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reorderGroupsListMutation = useMutation({
+    mutationFn: (list: ModuleGroup[]) =>
+      Promise.all(
+        list
+          .map((g, index) => ({
+            g,
+            index,
+          }))
+          .filter(({
+            g, index,
+          }) => g.position !== index)
+          .map(({
+            g, index,
+          }) =>
+            upsertModuleGroup(g.id, {
+              resourceId: g.resourceId,
+              name: g.name,
+              description: g.description ?? null,
+              url: g.url ?? null,
+              pageStart: g.pageStart ?? null,
+              pageEnd: g.pageEnd ?? null,
+              totalCount: g.totalCount ?? null,
+              completedCount: g.completedCount ?? null,
+              position: index,
+            })),
+      ),
+    onSuccess: () => invalidateAll(),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   function moveModule(list: Module[], index: number, direction: "up" | "down") {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= list.length) return;
@@ -388,8 +452,20 @@ export function useResourceModules(resourceId: string) {
     });
   }
 
+  // Drag-drop entry points: persist an already-reordered list.
+  function reorderModulesList(list: Module[]) {
+    reorderModulesListMutation.mutate(list);
+  }
+
+  function reorderGroupsList(list: ModuleGroup[]) {
+    reorderGroupsListMutation.mutate(list);
+  }
+
   const isReordering
-    = reorderModulesMutation.isPending || reorderGroupsMutation.isPending;
+    = reorderModulesMutation.isPending
+      || reorderGroupsMutation.isPending
+      || reorderModulesListMutation.isPending
+      || reorderGroupsListMutation.isPending;
 
   // Toggle the resource-level "module list is exhaustive" flag. Optimistic so
   // the checkbox responds instantly; rolls back on error.
@@ -453,6 +529,8 @@ export function useResourceModules(resourceId: string) {
     updateModulesConfigMutation,
     moveModule,
     moveGroup,
+    reorderModulesList,
+    reorderGroupsList,
     isReordering,
   };
 }

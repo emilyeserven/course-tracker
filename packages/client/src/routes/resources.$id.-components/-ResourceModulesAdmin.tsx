@@ -1,5 +1,17 @@
+import { DndContext } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+
 import { ModuleAdminHeader } from "./-ModuleAdminHeader";
 import { ModuleGroupSection } from "./-ModuleGroupSection";
+import {
+  handleListDragEnd,
+  reorderCollisionDetection,
+  reorderModifiers,
+  useReorderSensors,
+} from "./-reorderDnd";
 import { UngroupedModulesSection } from "./-UngroupedModulesSection";
 
 import { GroupEditCard } from "@/components/resources/moduleAdminComponents";
@@ -19,18 +31,20 @@ export function ResourceModulesAdmin({
 }: Props) {
   const api = useResourceModules(resourceId);
   const ui = useModuleAdminUiState();
+  const sensors = useReorderSensors();
 
   const {
     tagGroups,
     groups,
     ungroupedModules,
     createGroupMutation,
+    reorderGroupsList,
     isBook,
     groupLabel,
     moduleLabel,
   } = api;
   const {
-    creatingGroup, setCreatingGroup, creatingModuleIn,
+    creatingGroup, setCreatingGroup, creatingModuleIn, reorderMode,
   } = ui;
 
   const isEmpty
@@ -71,16 +85,43 @@ export function ResourceModulesAdmin({
         ui={ui}
       />
 
-      {groups.map((g, gIndex) => (
-        <ModuleGroupSection
-          key={g.id}
-          group={g}
-          groupIndex={gIndex}
-          resourceId={resourceId}
-          api={api}
-          ui={ui}
-        />
-      ))}
+      {reorderMode
+        ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={reorderCollisionDetection}
+            modifiers={reorderModifiers}
+            onDragEnd={e => handleListDragEnd(e, groups, reorderGroupsList)}
+          >
+            <SortableContext
+              items={groups.map(g => g.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {groups.map((g, gIndex) => (
+                <ModuleGroupSection
+                  key={g.id}
+                  group={g}
+                  groupIndex={gIndex}
+                  resourceId={resourceId}
+                  api={api}
+                  ui={ui}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )
+        : (
+          groups.map((g, gIndex) => (
+            <ModuleGroupSection
+              key={g.id}
+              group={g}
+              groupIndex={gIndex}
+              resourceId={resourceId}
+              api={api}
+              ui={ui}
+            />
+          ))
+        )}
 
       {isEmpty && (
         <p className="text-sm text-muted-foreground">

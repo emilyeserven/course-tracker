@@ -3,7 +3,11 @@ import type { Module } from "@emstack/types";
 
 import { Fragment } from "react";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import {
+  hasModuleDetails,
   InteractionQuickLog,
   ModuleDetailsPanel,
   ModuleDisplayRow,
@@ -51,7 +55,23 @@ export function ModuleListItem({
     expandedModuleId,
     setExpandedModuleId,
     isAnyEditing,
+    reorderMode,
   } = ui;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: m.id,
+  });
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  const expandable = hasModuleDetails(m);
 
   if (m.id === editingModuleId) {
     return (
@@ -102,8 +122,16 @@ export function ModuleListItem({
         onEdit={() => setEditingModuleId(m.id)}
         onLogInteraction={() => setLoggingForModuleId(m.id)}
         isStatusPending={setStatusMutation.isPending}
+        reorderMode={reorderMode}
+        expandable={expandable}
+        setNodeRef={setNodeRef}
+        dragStyle={dragStyle}
+        dragHandleProps={{
+          ...attributes,
+          ...listeners,
+        }}
       />
-      {expandedModuleId === m.id && (
+      {expandable && expandedModuleId === m.id && (
         <ModuleDetailsPanel
           module={m}
           onEdit={() => {

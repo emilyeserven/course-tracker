@@ -93,3 +93,46 @@ export const RangeLength: Story = {
     }),
   },
 };
+
+export const ReorderMode: Story = {
+  args: {
+    reorderMode: true,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    // The desktop drag handle is responsive-hidden via CSS, so query it
+    // including hidden elements.
+    await expect(
+      canvas.getByRole("button", {
+        name: /Drag to reorder/i,
+        hidden: true,
+      }),
+    ).toBeInTheDocument();
+  },
+};
+
+export const NotExpandable: Story = {
+  args: {
+    module: makeModule({
+      description: null,
+      url: null,
+      length: null,
+      tags: [],
+    }),
+    expandable: false,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Getting Started")).toBeInTheDocument();
+    // With nothing to show, the name is plain text — not an open-details button.
+    await expect(
+      canvas.queryByRole("button", {
+        name: /Open details/i,
+      }),
+    ).not.toBeInTheDocument();
+  },
+};

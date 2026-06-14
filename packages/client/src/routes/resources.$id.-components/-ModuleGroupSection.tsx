@@ -1,19 +1,36 @@
 import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
 import type { ResourceModulesController } from "@/hooks/useResourceModules";
-import type { Module, ModuleGroup } from "@emstack/types";
+import type { Module, ModuleGroup, ModuleStatus } from "@emstack/types";
 
+import { useState } from "react";
+
+import { DndContext } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { formatPageRange } from "@emstack/types";
 import {
   ActivityIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   ChevronUpIcon,
   ExternalLinkIcon,
+  GripVerticalIcon,
   PencilIcon,
   PlusIcon,
 } from "lucide-react";
 
 import { ModuleListItem } from "./-ModuleListItem";
+import {
+  handleListDragEnd,
+  reorderCollisionDetection,
+  reorderModifiers,
+  useReorderSensors,
+} from "./-reorderDnd";
 
 import {
   GroupEditCard,
@@ -25,7 +42,12 @@ import {
   emptyModuleDraft,
   groupToDraft,
 } from "@/components/resources/moduleDrafts";
+import {
+  getGroupStatus,
+  getModuleStatusOption,
+} from "@/components/resources/moduleStatusMeta";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { isHttpUrl } from "@/utils";
 
 interface ModuleGroupSectionProps extends ModuleAdminSectionProps {
@@ -83,6 +105,7 @@ function GroupTitle({
         target="_blank"
         rel="noreferrer"
         className="hover:text-blue-600"
+        onClick={e => e.stopPropagation()}
       >
         {g.name}
         {" "}
@@ -90,6 +113,29 @@ function GroupTitle({
       </a>
       {pages}
     </>
+  );
+}
+
+/** Read-only status circle shown beside a group name; auto-derived, not clickable. */
+function GroupStatusBadge({
+  status,
+}: { status: ModuleStatus }) {
+  const option = getModuleStatusOption(status);
+  return (
+    <span
+      title={`Status: ${option.label}`}
+      aria-label={`Status: ${option.label}`}
+      className={cn(
+        `
+          inline-flex size-5 shrink-0 items-center justify-center rounded-full
+          border-2
+          [&_svg]:size-3.5
+        `,
+        option.circleClass,
+      )}
+    >
+      {option.icon}
+    </span>
   );
 }
 
@@ -113,48 +159,77 @@ function GroupHeaderControls({
   groupIndex: gIndex,
   api,
   ui,
+  dragHandleProps,
 }: {
   group: ModuleGroup;
   groupIndex: number;
   api: ResourceModulesController;
   ui: ModuleAdminUiState;
+  dragHandleProps?: Record<string, unknown>;
 }) {
   const {
     groups, moveGroup, isReordering,
   } = api;
   const {
     isAnyEditing,
+    reorderMode,
     setCreatingModuleIn,
     setLoggingForGroupId,
     setEditingGroupId,
   } = ui;
 
+  // Only a list with more than one group can be reordered.
+  const showReorder = reorderMode && !isAnyEditing && groups.length > 1;
+
   return (
     <div className="flex flex-row items-center gap-2">
-      <div className="flex items-center gap-0.5">
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          onClick={() => moveGroup(gIndex, "up")}
-          disabled={isAnyEditing || isReordering || gIndex === 0}
-          aria-label="Move group up"
-          title="Move group up"
-        >
-          <ChevronUpIcon className="size-3.5" />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          onClick={() => moveGroup(gIndex, "down")}
-          disabled={
-            isAnyEditing || isReordering || gIndex === groups.length - 1
-          }
-          aria-label="Move group down"
-          title="Move group down"
-        >
-          <ChevronDownIcon className="size-3.5" />
-        </Button>
-      </div>
+      {showReorder && (
+        <>
+          <span
+            className="
+              flex items-center gap-0.5
+              md:hidden
+            "
+          >
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => moveGroup(gIndex, "up")}
+              disabled={isReordering || gIndex === 0}
+              aria-label="Move group up"
+              title="Move group up"
+            >
+              <ChevronUpIcon className="size-3.5" />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => moveGroup(gIndex, "down")}
+              disabled={isReordering || gIndex === groups.length - 1}
+              aria-label="Move group down"
+              title="Move group down"
+            >
+              <ChevronDownIcon className="size-3.5" />
+            </Button>
+          </span>
+          <button
+            type="button"
+            {...dragHandleProps}
+            onClick={e => e.stopPropagation()}
+            aria-label={`Drag to reorder ${g.name}`}
+            title="Drag to reorder"
+            className="
+              hidden size-7 cursor-grab touch-none items-center justify-center
+              rounded-md text-muted-foreground
+              hover:bg-accent
+              active:cursor-grabbing
+              md:inline-flex
+            "
+          >
+            <GripVerticalIcon className="size-3.5" />
+          </button>
+        </>
+      )}
       <Button
         size="sm"
         variant="outline"
@@ -188,7 +263,11 @@ function GroupHeaderControls({
   );
 }
 
-/** The enumerated module rows for a group; renders nothing when empty. */
+/**
+ * The enumerated module rows for a group; renders nothing when empty. In reorder
+ * mode the list becomes its own sortable scope so a module can only be dragged
+ * within its own group.
+ */
 function GroupModuleList({
   group: g,
   resourceId,
@@ -202,8 +281,10 @@ function GroupModuleList({
   api: ResourceModulesController;
   ui: ModuleAdminUiState;
 }) {
+  const sensors = useReorderSensors();
   if (groupModules.length === 0) return null;
-  return (
+
+  const list = (
     <ul className="flex flex-col divide-y rounded-sm border">
       {groupModules.map((m, mIndex) => (
         <ModuleListItem
@@ -218,6 +299,25 @@ function GroupModuleList({
         />
       ))}
     </ul>
+  );
+
+  if (!ui.reorderMode) return list;
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={reorderCollisionDetection}
+      modifiers={reorderModifiers}
+      onDragEnd={e =>
+        handleListDragEnd(e, groupModules, api.reorderModulesList)}
+    >
+      <SortableContext
+        items={groupModules.map(m => m.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {list}
+      </SortableContext>
+    </DndContext>
   );
 }
 
@@ -256,10 +356,10 @@ function GroupProgressHint({
 }
 
 /**
- * One module group: header (title, controls), meta chips, optional quick-log +
- * create-module cards, the enumerated module list, and the fallback
- * progress/empty hints. Swaps to an inline `GroupEditCard` while this group is
- * being edited. Extracted from the `groups.map` body of `ResourceModulesAdmin`.
+ * One module group: header (collapse toggle, title, auto status icon, controls),
+ * meta chips, optional quick-log + create-module cards, the enumerated module
+ * list, and the fallback progress/empty hints. Clicking the header collapses the
+ * body. Swaps to an inline `GroupEditCard` while this group is being edited.
  */
 export function ModuleGroupSection({
   group: g,
@@ -284,8 +384,20 @@ export function ModuleGroupSection({
     setLoggingForGroupId,
   } = ui;
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: g.id,
+  });
+  const [collapsed, setCollapsed] = useState(false);
+
   const groupModules = modulesByGroup.get(g.id) ?? [];
   const isCreatingHere = creatingModuleIn === g.id;
+  const groupStatus = getGroupStatus(g, groupModules);
 
   if (editingGroupId === g.id) {
     return (
@@ -312,12 +424,42 @@ export function ModuleGroupSection({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border bg-background p-3">
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className="flex flex-col gap-2 rounded-md border bg-background p-3"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
-          <h3 className="font-medium">
-            <GroupTitle group={g} />
-          </h3>
+        <div
+          className="flex flex-1 cursor-pointer flex-col gap-0.5"
+          onClick={() => setCollapsed(c => !c)}
+        >
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCollapsed(c => !c);
+              }}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? "Expand group" : "Collapse group"}
+              className="
+                inline-flex size-5 shrink-0 items-center justify-center
+                text-muted-foreground
+              "
+            >
+              {collapsed
+                ? <ChevronRightIcon className="size-4" />
+                : <ChevronDownIcon className="size-4" />}
+            </button>
+            <h3 className="font-medium">
+              <GroupTitle group={g} />
+            </h3>
+            <GroupStatusBadge status={groupStatus} />
+          </div>
           {g.description && (
             <span className="text-xs text-muted-foreground">
               {g.description}
@@ -329,51 +471,59 @@ export function ModuleGroupSection({
           groupIndex={gIndex}
           api={api}
           ui={ui}
+          dragHandleProps={{
+            ...attributes,
+            ...listeners,
+          }}
         />
       </div>
-      <GroupMeta group={g} />
-      {loggingForGroupId === g.id && (
-        <InteractionQuickLog
-          resourceId={resourceId}
-          moduleGroupId={g.id}
-          scopeLabel={`group: ${g.name}`}
-          onCancel={() => setLoggingForGroupId(null)}
-          onSaved={() => setLoggingForGroupId(null)}
-        />
+      {!collapsed && (
+        <>
+          <GroupMeta group={g} />
+          {loggingForGroupId === g.id && (
+            <InteractionQuickLog
+              resourceId={resourceId}
+              moduleGroupId={g.id}
+              scopeLabel={`group: ${g.name}`}
+              onCancel={() => setLoggingForGroupId(null)}
+              onSaved={() => setLoggingForGroupId(null)}
+            />
+          )}
+          {isCreatingHere && (
+            <ModuleEditCard
+              draft={emptyModuleDraft()}
+              tagGroups={tagGroups}
+              isNew
+              showPages={api.isBook}
+              moduleLabel={api.moduleLabel}
+              isSaving={createModuleMutation.isPending}
+              onSave={d =>
+                createModuleMutation.mutate(
+                  {
+                    draft: d,
+                    groupId: g.id,
+                  },
+                  {
+                    onSuccess: () => setCreatingModuleIn(null),
+                  },
+                )}
+              onCancel={() => setCreatingModuleIn(null)}
+            />
+          )}
+          <GroupModuleList
+            group={g}
+            resourceId={resourceId}
+            groupModules={groupModules}
+            api={api}
+            ui={ui}
+          />
+          <GroupProgressHint
+            group={g}
+            groupModules={groupModules}
+            isCreatingHere={isCreatingHere}
+          />
+        </>
       )}
-      {isCreatingHere && (
-        <ModuleEditCard
-          draft={emptyModuleDraft()}
-          tagGroups={tagGroups}
-          isNew
-          showPages={api.isBook}
-          moduleLabel={api.moduleLabel}
-          isSaving={createModuleMutation.isPending}
-          onSave={d =>
-            createModuleMutation.mutate(
-              {
-                draft: d,
-                groupId: g.id,
-              },
-              {
-                onSuccess: () => setCreatingModuleIn(null),
-              },
-            )}
-          onCancel={() => setCreatingModuleIn(null)}
-        />
-      )}
-      <GroupModuleList
-        group={g}
-        resourceId={resourceId}
-        groupModules={groupModules}
-        api={api}
-        ui={ui}
-      />
-      <GroupProgressHint
-        group={g}
-        groupModules={groupModules}
-        isCreatingHere={isCreatingHere}
-      />
     </div>
   );
 }
