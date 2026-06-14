@@ -1,3 +1,7 @@
+// Every fetch() here targets a relative same-origin /api/<endpoint> path built
+// from literal strings (see createEntityClient); the URL is never
+// attacker-controlled, so the SSRF candidates fallow flags are not exploitable.
+// fallow-ignore-file security-sink
 export interface SuccessObj {
   status: string;
 }

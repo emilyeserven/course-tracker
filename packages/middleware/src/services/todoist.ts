@@ -1,6 +1,7 @@
 import type { TodoistTask } from "@emstack/types";
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
+import { buildCloseTaskUrl } from "./todoistUrls.ts";
 
 // Todoist API v1 (unified REST). The dedicated filter endpoint runs a Todoist
 // filter query server-side and returns matching active tasks, paginated.
@@ -8,9 +9,6 @@ const TODOIST_FILTER_URL = "https://api.todoist.com/api/v1/tasks/filter";
 
 // Project list, used to resolve a task's project_id to a human-readable name.
 const TODOIST_PROJECTS_URL = "https://api.todoist.com/api/v1/projects";
-
-// Base for the close-task action (marks a task complete).
-const TODOIST_TASKS_URL = "https://api.todoist.com/api/v1/tasks";
 
 // Deep-link base for the Todoist web app. Tasks don't carry a URL in the v1
 // payload, so we build one from the task id.
@@ -145,6 +143,9 @@ async function fetchFilteredTasks(token: string): Promise<RawTodoistTask[]> {
 
     let response: Response;
     try {
+      // Fixed origin (TODOIST_FILTER_URL); params are constants/API cursors
+      // encoded via URLSearchParams, so this is not SSRF.
+      // fallow-ignore-next-line security-sink
       response = await fetch(`${TODOIST_FILTER_URL}?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -183,6 +184,9 @@ async function fetchProjectMap(token: string): Promise<Map<string, string>> {
 
     let response: Response;
     try {
+      // Fixed origin (TODOIST_PROJECTS_URL); params are constants/API cursors
+      // encoded via URLSearchParams, so this is not SSRF.
+      // fallow-ignore-next-line security-sink
       response = await fetch(`${TODOIST_PROJECTS_URL}?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -217,7 +221,7 @@ export async function closeTodoistTask(
 ): Promise<void> {
   let response: Response;
   try {
-    response = await fetch(`${TODOIST_TASKS_URL}/${id}/close`, {
+    response = await fetch(buildCloseTaskUrl(id), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

@@ -1,3 +1,6 @@
+// Test-only Storybook helper; the RegExp is built from literal test fixtures,
+// not reachable from any app entry or untrusted source.
+// fallow-ignore-file security-sink
 import type { Decorator } from "@storybook/react-vite";
 import type { QueryClient } from "@tanstack/react-query";
 

@@ -6,10 +6,18 @@ import type {
   RoutineConnection,
   RoutineCurated,
   RoutineMode,
+  RoutineReferenceItem,
   RoutineWeekly,
 } from "@emstack/types";
 import { buildActionableSentence } from "@emstack/types";
+import type { DailyProjectionRow } from "./dailyProjection";
 import { mapDaily } from "./dailyProjection";
+import type {
+  ResolvedConnections,
+  ResolvedResource,
+  ResolvedTask,
+} from "./routineActionParts";
+import { resolveActionParts } from "./routineActionParts";
 import {
   activeEntry,
   curatedEntry,
@@ -20,8 +28,8 @@ import {
   weekdayForDateKey,
 } from "./routineWeekday";
 
-// Entry-selection helpers live in a dependency-free leaf module so they can be
-// unit-tested directly; re-export them here so callers keep a single import site.
+// Pure helpers live in dependency-free leaf modules so they can be unit-tested
+// directly; re-export them here so callers keep a single import site.
 export {
   activeEntry,
   curatedEntry,
@@ -31,24 +39,7 @@ export {
   representativeEntry,
   weekdayForDateKey,
 };
-
-// Resolved task/resource rows the handler loads for an active entry. They
-// mirror the column selection mapDaily expects (see dailyProjection.ts).
-export interface ResolvedTask {
-  id: string;
-  name: string;
-  todos?: { id: string;
-    isComplete: boolean; }[];
-  resources?: { id: string;
-    usedYet: boolean; }[];
-}
-
-export interface ResolvedResource {
-  id: string;
-  name: string;
-  progressCurrent: number | null;
-  progressTotal: number | null;
-}
+export type { ResolvedConnections, ResolvedResource, ResolvedTask };
 
 // The routine columns (plus its resolved connections) the projection reads.
 export interface RoutineRow {
@@ -65,9 +56,9 @@ export interface RoutineRow {
   connections?: RoutineConnection[];
 }
 
-// A daily-mode routine projected into the Daily shape (so the existing daily
-// tracker / detail components render unchanged) while still carrying the
-// routine-specific fields (mode, weekly, curated, connections) consumers need.
+// A routine projected into the Daily shape (so the existing daily tracker /
+// detail components render unchanged) while still carrying the routine-specific
+// fields (mode, weekly, curated, connections) consumers need.
 export type RoutineDaily = Daily & {
   mode: RoutineMode;
   weekly: RoutineWeekly;
@@ -76,28 +67,15 @@ export type RoutineDaily = Daily & {
   connections: RoutineConnection[];
 };
 
-// Build a Daily-compatible object from a routine, resolving today's active entry's
-// task/resource into progress blocks via mapDaily. Provider/module sub-targeting
-// is intentionally dropped in the unified model.
-export function mapRoutineToDaily(
+// Assemble the DailyProjectionRow mapDaily expects from a routine, its active
+// entry, and the resolved connections. Provider/module sub-targeting is
+// intentionally dropped in the unified routine model (always null).
+function toDailyRow(
   routine: RoutineRow,
-  resolved: { task?: ResolvedTask | null;
-    resource?: ResolvedResource | null; } = {},
-  dateKey: string = currentDateKey(),
-): RoutineDaily {
-  // The active entry carries the per-item location and the prepend/append text
-  // below: today's scheduled entry for weekly routines, today's date entry for
-  // curated routines, or the representative entry (mirrored on every day) for
-  // daily ones. Uses the same resolver as the caller's id-collection so the two
-  // never pick different entries.
-  const entry = entryForCompletionDate(
-    routine.mode,
-    routine.weekly,
-    routine.curated,
-    dateKey,
-  );
-
-  const daily = mapDaily({
+  entry: RoutineReferenceItem | null,
+  resolved: ResolvedConnections,
+): DailyProjectionRow {
+  return {
     id: routine.id,
     name: routine.name,
     location: entry?.location ?? null,
@@ -111,29 +89,34 @@ export function mapRoutineToDaily(
     courseProvider: null,
     resource: resolved.resource ?? null,
     task: resolved.task ?? null,
-  });
+  };
+}
 
-  // Surface the representative entry's resolved name (task/resource/freeform) as
-  // the daily's action title, wrapped with any prepend/append text into a
-  // natural sentence. Set whenever the entry resolves to a name — affixes are
-  // optional and may be null — so a daily assigned to something shows that
-  // thing's name even without affixes, with the routine name rendered beneath.
-  // A daily with no representative entry still falls back to the routine name.
-  const baseName
-    = resolved.resource?.name
-      ?? resolved.task?.name
-      ?? (entry?.type === "freeform" ? entry.id : null);
-  // Structured parts (affixes + name) so consumers can render the name heavier
-  // than the surrounding text; the flat label is derived from them so the two
-  // never drift.
-  const actionParts
-    = entry && baseName
-      ? {
-        prependText: entry.prependText ?? null,
-        name: baseName,
-        appendText: entry.appendText ?? null,
-      }
-      : null;
+// Build a Daily-compatible object from a routine, resolving today's active
+// entry's task/resource into progress blocks via mapDaily.
+export function mapRoutineToDaily(
+  routine: RoutineRow,
+  resolved: ResolvedConnections = {},
+  dateKey: string = currentDateKey(),
+): RoutineDaily {
+  // The active entry carries the per-item location and the prepend/append text:
+  // today's scheduled entry for weekly routines, today's date entry for curated
+  // routines, or the representative entry (mirrored on every day) for daily
+  // ones. Uses the same resolver as the caller's id-collection so the two never
+  // pick different entries.
+  const entry = entryForCompletionDate(
+    routine.mode,
+    routine.weekly,
+    routine.curated,
+    dateKey,
+  );
+
+  const daily = mapDaily(toDailyRow(routine, entry, resolved));
+
+  // Surface the resolved name (task/resource/freeform) as the daily's action
+  // title, wrapped with any affixes into a natural sentence. The flat label is
+  // derived from the structured parts so the two never drift.
+  const actionParts = resolveActionParts(entry, resolved);
   const actionLabel = actionParts ? buildActionableSentence(actionParts) : null;
 
   return {
