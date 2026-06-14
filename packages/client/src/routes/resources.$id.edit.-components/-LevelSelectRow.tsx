@@ -1,7 +1,9 @@
+import type { TaskResourceLevel } from "@emstack/types";
+
 import { cn } from "@/lib/utils";
 import { changedFieldClass } from "@/utils";
 
-export type LevelValue = "" | "low" | "medium" | "high";
+export type LevelValue = "" | TaskResourceLevel;
 
 export function LevelSelectRow({
   label,

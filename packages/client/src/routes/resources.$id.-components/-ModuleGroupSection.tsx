@@ -1,3 +1,4 @@
+import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
 import type { ResourceModulesController } from "@/hooks/useResourceModules";
 import type { Module, ModuleGroup } from "@emstack/types";
@@ -26,12 +27,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { isHttpUrl } from "@/utils";
 
-interface ModuleGroupSectionProps {
+interface ModuleGroupSectionProps extends ModuleAdminSectionProps {
   group: ModuleGroup;
   groupIndex: number;
-  resourceId: string;
-  api: ResourceModulesController;
-  ui: ModuleAdminUiState;
 }
 
 /** The group title — a link when it carries an http(s) url, plain text otherwise. */

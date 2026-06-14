@@ -1,5 +1,4 @@
-import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
-import type { ResourceModulesController } from "@/hooks/useResourceModules";
+import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 import type { Module } from "@emstack/types";
 
 import { Fragment } from "react";
@@ -11,16 +10,13 @@ import {
 } from "@/components/resources/moduleAdminComponents";
 import { moduleToDraft } from "@/components/resources/moduleDrafts";
 
-interface ModuleListItemProps {
+interface ModuleListItemProps extends ModuleAdminSectionProps {
   module: Module;
-  resourceId: string;
   /** Owning group id, or null for an ungrouped module. */
   groupId: string | null;
   /** The sibling list this module belongs to, for reorder bounds/moves. */
   list: Module[];
   index: number;
-  api: ResourceModulesController;
-  ui: ModuleAdminUiState;
 }
 
 /**

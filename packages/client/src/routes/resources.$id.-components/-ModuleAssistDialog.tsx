@@ -1,14 +1,9 @@
-import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
-import type { ResourceModulesController } from "@/hooks/useResourceModules";
+import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 import type { Resource } from "@emstack/types";
 
 import { ModuleSuggestDialog } from "@/components/resources/moduleAdminComponents";
 
-interface ModuleAssistDialogProps {
-  resourceId: string;
-  api: ResourceModulesController;
-  ui: ModuleAdminUiState;
-}
+type ModuleAssistDialogProps = ModuleAdminSectionProps;
 
 /** Resource detail fields the suggest dialog needs, with safe fallbacks. */
 function deriveResourceContext(resource: Resource | undefined) {
