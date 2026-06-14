@@ -6,12 +6,12 @@ import {
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
-  Trash2Icon,
 } from "lucide-react";
 
 import { useDashboardLayouts } from "./-useDashboardLayouts";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { LayoutMenuActions } from "@/components/LayoutMenuActions";
 import { LayoutNameDialog } from "@/components/LayoutNameDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,20 +85,13 @@ function LayoutRow({
             <CopyIcon />
             Duplicate
           </DropdownMenuItem>
-          {!layout.isTemplate && (
-            <DropdownMenuItem onSelect={() => onSaveAs(layout)}>
-              <BookmarkIcon />
-              Save as preset…
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => onDelete(layout)}
-          >
-            <Trash2Icon />
-            Delete
-          </DropdownMenuItem>
+          <LayoutMenuActions
+            layout={layout}
+            onSaveAs={onSaveAs}
+            onDelete={onDelete}
+            saveAsLabel="Save as preset…"
+            showSaveAs={!layout.isTemplate}
+          />
         </DropdownMenuContent>
       </DropdownMenu>
     </li>

@@ -1,5 +1,4 @@
 import type { TopicsTableSort } from "@/components/contentBoxComponents";
-import type { ViewMode } from "@/components/listControls";
 import type { Domain, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +7,11 @@ import { Link } from "@tanstack/react-router";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { ContentBox, TopicBox, TopicsTable } from "@/components/contentBoxComponents";
+import {
+  ContentBox,
+  TopicBox,
+  TopicsTable,
+} from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   FilterSelect,
@@ -24,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useStoredViewMode } from "@/hooks/useStoredViewMode";
 
 type SortOption
   = | "alpha-asc"
@@ -85,14 +89,6 @@ function optionToSort(option: SortOption): TopicsTableSort {
   }
 }
 
-const VIEW_MODE_STORAGE_KEY = "topics:viewMode";
-
-function getInitialViewMode(): ViewMode {
-  if (typeof window === "undefined") return "grid";
-  const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-  return stored === "table" ? "table" : "grid";
-}
-
 function firstDomainTitle(topic: TopicForTopicsPage): string {
   const first = topic.domains?.find(d => d.id !== undefined);
   return first?.title ?? "";
@@ -145,17 +141,13 @@ export function TopicsList({
   const [search, setSearch] = useState("");
   const [filterDomain, setFilterDomain] = useState<string | undefined>();
   const [sort, setSort] = useState<TopicsTableSort>(DEFAULT_SORT);
-  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+  const {
+    viewMode, setViewMode: updateViewMode,
+  }
+    = useStoredViewMode("topics:viewMode");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const updateViewMode = (mode: ViewMode) => {
-    setViewMode(mode);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
-    }
-  };
 
   const filteredAndSorted = useMemo(() => {
     let result = topics.filter(t => t.name !== "");
