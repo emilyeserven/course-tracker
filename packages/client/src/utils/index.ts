@@ -1,4 +1,5 @@
 /* eslint-disable import/max-dependencies */
+export * from "./connectionCounts";
 export * from "./copyTextToClipboard";
 export * from "./dailyHelpers";
 export * from "./FieldChangeHighlightProvider";
@@ -14,5 +15,6 @@ export * from "./queryKeys";
 export * from "./routineConnections";
 export * from "./selectOptions";
 export * from "./stripCodeFence";
+export * from "./topConnected";
 export * from "./useIsFieldInvalid";
 export * from "./uuid";

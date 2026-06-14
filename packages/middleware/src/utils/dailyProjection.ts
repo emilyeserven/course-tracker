@@ -3,8 +3,8 @@ import type {
   DailyCompletion,
   DailyCriteria,
 } from "@emstack/types";
-import { toProviderBlock } from "./providerProjection";
-import type { ResolvedResource, ResolvedTask } from "./routineActionParts";
+import { toProviderBlock } from "./providerProjection.ts";
+import type { ResolvedResource, ResolvedTask } from "./routineActionParts.ts";
 
 // The fields mapDaily reads. Both the single-daily and list daily queries
 // produce a superset of this shape, so their Drizzle rows are assignable here.
