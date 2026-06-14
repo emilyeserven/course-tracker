@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { fn } from "storybook/test";
 
-import { DailyCriteriaTemplateEditModal } from "./DailyCriteriaTemplateEditModal";
+import { DailyCriteriaTemplateEditModal } from "./-DailyCriteriaTemplateEditModal";
 
 const populatedTemplate: DailyCriteriaTemplate = {
   id: "tpl-1",

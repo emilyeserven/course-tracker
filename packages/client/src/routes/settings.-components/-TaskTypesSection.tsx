@@ -6,8 +6,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { TaskTypeEditRow } from "./-TaskTypeEditRow";
+
 import { TagChip } from "@/components/tasks/TagChip";
-import { TaskTypeEditRow } from "@/components/TaskTypeEditRow";
 import { Button } from "@/components/ui/button";
 import {
   createTaskType,
@@ -92,7 +93,7 @@ export function TaskTypesSection() {
 
   const taskTypes = taskTypesQuery.data ?? [];
   const editingTaskType = editingId
-    ? taskTypes.find(t => t.id === editingId) ?? null
+    ? (taskTypes.find(t => t.id === editingId) ?? null)
     : null;
   const isAnyTaskTypeEditing = editingId !== null || creatingNew;
 
@@ -110,7 +111,9 @@ export function TaskTypesSection() {
         </Button>
       </div>
       {taskTypesQuery.isPending
-        ? <p className="text-sm text-muted-foreground">Loading...</p>
+        ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        )
         : taskTypes.length === 0 && !creatingNew
           ? (
             <p className="text-sm text-muted-foreground">
@@ -134,8 +137,9 @@ export function TaskTypesSection() {
                     <TaskTypeEditRow
                       key={t.id}
                       taskType={editingTaskType}
-                      isSaving={upsertMutation.isPending
-                        || deleteMutation.isPending}
+                      isSaving={
+                        upsertMutation.isPending || deleteMutation.isPending
+                      }
                       onSave={next => upsertMutation.mutate(next)}
                       onCancel={() => setEditingId(null)}
                       onDelete={() => deleteMutation.mutate(t.id)}
@@ -160,13 +164,8 @@ export function TaskTypesSection() {
                             />
                           ))}
                           {t.tags.length > 4 && (
-                            <span
-                              className="text-xs text-muted-foreground"
-                            >
-                              +
-                              {t.tags.length - 4}
-                              {" "}
-                              more
+                            <span className="text-xs text-muted-foreground">
+                              +{t.tags.length - 4} more
                             </span>
                           )}
                         </div>
