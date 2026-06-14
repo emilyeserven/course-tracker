@@ -326,13 +326,15 @@ export function getDailyProgressPercent(daily: Daily): number {
 
 // Carry a completion's already-baked schedule snapshot forward across status /
 // note edits, so the frozen text survives and the server doesn't re-bake it to a
-// later schedule. Absent on first save → the server bakes it then.
-function carryEntryParts(
+// later schedule. entryParts and entryRef are baked together (coupled presence),
+// so both ride along. Absent on first save → the server bakes them then.
+function carryBakedSnapshot(
   existing: Daily["completions"][number] | undefined,
-): Pick<Daily["completions"][number], "entryParts"> | object {
+): Pick<Daily["completions"][number], "entryParts" | "entryRef"> | object {
   return existing?.entryParts !== undefined
     ? {
       entryParts: existing.entryParts,
+      entryRef: existing.entryRef,
     }
     : {};
 }
@@ -366,7 +368,7 @@ function rebakeOrCarry(
   if (todayKey !== undefined && isWithinRebakeWindow(dateKey, todayKey)) {
     return {};
   }
-  return carryEntryParts(existing);
+  return carryBakedSnapshot(existing);
 }
 
 export function withCompletion(
@@ -413,7 +415,7 @@ export function withCompletionNote(
 ): Daily["completions"] {
   const others = daily.completions.filter(c => c.date !== dateKey);
   const existing = daily.completions.find(c => c.date === dateKey);
-  const carry = carryEntryParts(existing);
+  const carry = carryBakedSnapshot(existing);
   const trimmed = note?.trim() ?? "";
   if (!trimmed) {
     if (existing?.status) {

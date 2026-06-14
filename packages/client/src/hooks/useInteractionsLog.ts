@@ -15,6 +15,7 @@ import {
   fetchInteractions,
   fetchModuleGroups,
   fetchModules,
+  fetchResourceRoutineInteractions,
   upsertInteraction,
 } from "@/utils/fetchFunctions";
 import { queryKeys } from "@/utils/queryKeys";
@@ -48,8 +49,16 @@ export function useInteractionsLog(resourceId: string) {
     queryFn: () => fetchModules(),
   });
 
+  // Routine completions whose day-action touched this resource (derived
+  // server-side). Read-only — surfaced alongside the manually-logged interactions.
+  const routineInteractionsQuery = useQuery({
+    queryKey: queryKeys.resources.routineInteractions(resourceId),
+    queryFn: () => fetchResourceRoutineInteractions(resourceId),
+  });
+
   const allInteractions = interactionsQuery.data ?? [];
   const interactions = allInteractions.filter(i => i.resourceId === resourceId);
+  const routineInteractions = routineInteractionsQuery.data ?? [];
 
   const moduleGroups = useMemo(
     () =>
@@ -116,6 +125,7 @@ export function useInteractionsLog(resourceId: string) {
 
   return {
     interactions,
+    routineInteractions,
     moduleGroups,
     modules,
     createMutation,

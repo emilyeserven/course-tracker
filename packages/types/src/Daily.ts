@@ -1,5 +1,10 @@
 import type { EntityStatus } from "./EntityStatus";
-import type { RoutineCurated, RoutineMode, RoutineWeekly } from "./Routine";
+import type {
+  RoutineCurated,
+  RoutineMode,
+  RoutineReferenceType,
+  RoutineWeekly,
+} from "./Routine";
 
 export type DailyCompletionStatus = "incomplete" | "touched" | "goal" | "exceeded" | "freeze";
 
@@ -13,6 +18,16 @@ export interface DailyCompletionEntryParts {
   appendText?: string | null;
 }
 
+// The structured reference (kind + id) of whatever was scheduled on the entry's
+// date, frozen at save time alongside entryParts. Unlike entryParts (which holds
+// a resolved display name), this keeps the id so consumers can tell *which*
+// task/resource a completion touched even if the schedule later changes. Mirrors
+// RoutineReferenceItem's discriminator.
+export interface DailyCompletionEntryRef {
+  type: RoutineReferenceType;
+  id: string;
+}
+
 export interface DailyCompletion {
   date: string;
   status?: DailyCompletionStatus;
@@ -22,6 +37,11 @@ export interface DailyCompletion {
   // (consumers fall back to live schedule resolution). null = nothing was
   // scheduled that day at save time.
   entryParts?: DailyCompletionEntryParts | null;
+  // Structured reference (type + id) of the scheduled item, frozen together with
+  // entryParts. Lets consumers match a completion to a specific task/resource by
+  // id (e.g. a resource's Interactions tab) without re-resolving a schedule that
+  // may have changed. Same presence rules as entryParts; null = nothing scheduled.
+  entryRef?: DailyCompletionEntryRef | null;
 }
 
 export interface DailyCriteria {

@@ -1,6 +1,11 @@
-import type { ModulesConfig, Resource, ResourceInResources } from "@emstack/types";
+import type {
+  ModulesConfig,
+  Resource,
+  ResourceInResources,
+  RoutineInteraction,
+} from "@emstack/types";
 
-import { createEntityClient, postJson, putJson } from "./client";
+import { createEntityClient, fetchJson, postJson, putJson } from "./client";
 
 const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
   "resources",
@@ -12,6 +17,16 @@ export const fetchSingleResource = resourcesApi.get;
 export const upsertResource = resourcesApi.upsert;
 export const deleteSingleResource = resourcesApi.delete;
 export const duplicateResource = resourcesApi.duplicate;
+
+// Routine completions whose scheduled day-action touched this resource (directly
+// or via a linked task). Derived server-side; read-only for the Interactions tab.
+export async function fetchResourceRoutineInteractions(
+  id: string,
+): Promise<RoutineInteraction[]> {
+  return fetchJson<RoutineInteraction[]>(
+    `/api/resources/${id}/routine-interactions`,
+  );
+}
 
 export async function incrementResourceProgress(
   id: string,

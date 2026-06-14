@@ -26,6 +26,7 @@ export * from "./OnboardData.js";
 export * from "./Radar.js";
 export * from "./Readwise.js";
 export * from "./Routine.js";
+export * from "./RoutineInteraction.js";
 export * from "./RoutineTemplate.js";
 export * from "./Tag.js";
 export * from "./TagGroup.js";

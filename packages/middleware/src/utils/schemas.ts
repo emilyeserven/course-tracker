@@ -188,6 +188,21 @@ export const completionSchema = {
         appendText: nullableString,
       },
     },
+    // Structured reference (kind + id) of the scheduled item, baked alongside
+    // entryParts. Nullable: null means nothing was scheduled that date.
+    entryRef: {
+      type: ["object", "null"],
+      required: ["type", "id"],
+      properties: {
+        type: {
+          type: "string",
+          enum: ["task", "resource", "freeform"],
+        },
+        id: {
+          type: "string",
+        },
+      },
+    },
   },
 } as const;
 
