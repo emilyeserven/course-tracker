@@ -13,6 +13,16 @@ const meta: Meta<typeof QuickAddIntegrationDialog> = {
     open: true,
     onOpenChange: fn(),
     title: "Save to Readwise",
+    // Mirrors the real Readwise dialog so the DialogContent has an accessible
+    // description (Radix warns when one is missing).
+    description: (
+      <>
+        The article is tagged
+        {" "}
+        <code>from-coursetracker</code>
+        .
+      </>
+    ),
     providerName: "Readwise",
     isPending: false,
     canSubmit: true,

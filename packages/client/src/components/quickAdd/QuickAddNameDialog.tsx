@@ -6,6 +6,7 @@ import { Input } from "@/components/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -17,6 +18,11 @@ interface QuickAddNameDialogProps {
   title: string;
   /** Slug for the input's id, e.g. "resource" → `quick-add-resource-name`. */
   entity: string;
+  /**
+   * Accessible description for the dialog. Defaults to a sentence derived from
+   * `entity` (e.g. "Enter a name to create a new resource.").
+   */
+  description?: React.ReactNode;
   /** Placeholder shown in the name input. */
   placeholder: string;
   /** Seeds the name input each time the dialog opens. */
@@ -37,6 +43,7 @@ export function QuickAddNameDialog({
   onOpenChange,
   title,
   entity,
+  description,
   placeholder,
   initialName,
   isPending,
@@ -59,6 +66,9 @@ export function QuickAddNameDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            {description ?? `Enter a name to create a new ${entity}.`}
+          </DialogDescription>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
