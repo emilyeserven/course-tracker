@@ -24,6 +24,10 @@ and the root-level `components/*.tsx` vendored files. Feature components live in
 pulling hand-rolled markup back toward a primitive, or lifting a copy-pasted
 block into one shared component.
 
+> _Components named below (e.g. `BlipLegendItem`, `SelectAllCheckbox`) are
+> illustrations from earlier runs of this skill — they show the **shape** of a
+> fix, not required targets. Apply the method to whatever's in your scope._
+
 ## 1. Inventory the target area
 
 List the components in scope and look for repeated JSX structure across files —
@@ -86,9 +90,10 @@ content/render slots so it stays dumb.
 ## 3. Guardrails (when NOT to condense)
 
 - **Similar markup ≠ same component.** Two bars/cards that look alike but have
-  different *interaction models* must stay separate. `BlipBulkBar` (controlled,
-  single shared Apply, `NO_CHANGE` sentinel) and `BulkEditBar` (internal pending
-  state, per-control Apply, placeholder) were deliberately **not** merged — one
+  different *interaction models* must stay separate. Example: `BlipBulkBar`
+  (controlled, single shared Apply, `NO_CHANGE` sentinel) and `BulkEditBar`
+  (internal pending state, per-control Apply, placeholder) were deliberately
+  **not** merged — one
   configurable component would need a flag for every divergence and read worse
   than two. If unifying needs an ever-growing pile of `variant`/boolean props,
   stop and leave them apart.

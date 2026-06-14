@@ -17,6 +17,12 @@ issues (dailies, resources, routines, routes, …). This skill is the repeatable
 procedure for one such area. Quality only — behavior must not change. For
 behavior cleanups use `/simplify`; for bugs use `/code-review`.
 
+> _Hooks, files, and components named below (e.g. `useResourceModules`,
+> `DailyRecentDaysStrip`) are illustrations — they show the **shape** of a fix,
+> not required targets. Apply the method to whatever's in your scope; the
+> **Area notes** and **Learnings** sections are per-issue worked examples, not
+> core procedure._
+
 ## How the rule actually counts (read this first)
 
 Config: `@emilyeserven/eslint-config/configs/import.js` →
@@ -66,7 +72,7 @@ state, move that logic into a `use…` hook under `src/hooks/`. The hook absorbs
 those imports; the component is left rendering JSX from a
 presentational-ready return value.
 
-Mirror the existing bundled-hook pattern:
+Mirror the existing bundled-hook pattern — for example:
 - `hooks/useResourceModules.ts` — rich `{ data…, mutations…, handlers… }` return.
 - `hooks/useDailyTracker.tsx`, `hooks/useDailyCompletions.ts` — feature hooks
   returning pre-derived rows + action callbacks. Return *computed* values
@@ -82,8 +88,8 @@ real barrel/aggregator, never to dodge restructuring a component.
 ## Guardrails (don't break behavior to win the count)
 
 - **Don't swap inline markup for a similar existing component** unless it's
-  truly equivalent. The dailies row files inline a recent-days strip; the
-  `DailyRecentDaysStrip` component looks similar but renders different
+  truly equivalent. Example: the dailies row files inline a recent-days strip;
+  the `DailyRecentDaysStrip` component looks similar but renders different
   table/list markup — reusing it would change behavior. Group the imports; keep
   the markup.
 - **Keep public props identical** so `*.stories.tsx` and tests keep passing.
@@ -121,6 +127,9 @@ sub-barrel extraction and the hook extraction into separate commits reads
 better.
 
 ## Area notes: app shell & quick-add dialogs (#311)
+
+_Per-issue worked examples — what a real pass turned up. Illustrative reference,
+not steps to follow; the same goes for the Learnings section below._
 
 Worked counts (non-type value imports): `routes/__root.tsx` = **12** (shed 2);
 `components/quickAdd/QuickAddRoutineDialog.tsx` = **11** (shed 1);

@@ -91,6 +91,20 @@ Schema changes: edit `packages/middleware/src/db/schema/` and run `pnpm push:dev
 - **Dependency checks:** syncpack for version consistency
 - **TypeScript:** Strict mode, ES2022 target, incremental typecheck
 
+## Skills
+
+Project skills live in `.claude/skills/<name>/SKILL.md`. The `/`-command name comes from the **directory name**, not the `name` field. See the [official skill docs](https://code.claude.com/docs/en/skills) for the full frontmatter reference.
+
+**Frontmatter schema** — the repo baseline every skill follows:
+
+- **`name`** *(required here)* — matches the directory name.
+- **`description`** *(required here)* — a folded block scalar (`>-`) stating **what the skill does AND when to use it** (include the trigger phrases users say). Claude reads this to decide when to auto-invoke, so keep it specific. Combined with `when_to_use` it's truncated at ~1,536 characters in skill listings.
+
+**Optional fields** — add only when a skill actually needs them (all are valid Claude Code fields; see the docs above): `disable-model-invocation`, `allowed-tools` / `disallowed-tools`, `context: fork` (with optional `agent`), `model`, `effort`, `argument-hint` / `arguments`, `paths`, `when_to_use`, `user-invocable`.
+
+- **`review-pr` is the deliberate exception.** It's the only skill carrying `disable-model-invocation: true`, `allowed-tools`, and `context: fork`. These are intentional, not drift: `review-pr` is a **manual** `/review-pr` (never auto-invoked) that runs in a **forked subagent** with a scoped toolset. Leave them in place.
+- **`fallow/` is vendored** (see the fallow note under Code Quality). Its frontmatter carries upstream `license` and `metadata` keys that are **not** part of Claude's schema — don't hand-edit; re-sync with `pnpm fallow:sync-skill`.
+
 ## Environment Variables
 
 | Variable | Package | Purpose | Default |
