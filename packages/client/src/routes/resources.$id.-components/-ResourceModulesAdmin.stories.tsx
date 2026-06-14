@@ -1,8 +1,6 @@
 import type { Module, ModuleGroup, Resource } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { ResourceModulesAdmin } from "./-ResourceModulesAdmin";
 
 import {
@@ -12,6 +10,7 @@ import {
 } from "@/test-utils/resourceModulesFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryStubDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 import { queryKeys } from "@/utils/queryKeys";
 
 const RESOURCE_ID = "resource-1";
@@ -72,17 +71,15 @@ export const Empty: Story = {
       },
     ),
   ],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/No modules yet\./)).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: "LLM Assist",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: /No modules yet\./,
+    },
+    {
+      role: "button",
+      name: "LLM Assist",
+    },
+  ]),
 };
 
 export const Populated: Story = {
@@ -120,14 +117,15 @@ export const Populated: Story = {
       },
     ),
   ],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByText("Section 1: Fundamentals"),
-    ).toBeInTheDocument();
-    await expect(canvas.getByText("Variables")).toBeInTheDocument();
-    await expect(canvas.getByText("Standalone intro")).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: "Section 1: Fundamentals",
+    },
+    {
+      text: "Variables",
+    },
+    {
+      text: "Standalone intro",
+    },
+  ]),
 };

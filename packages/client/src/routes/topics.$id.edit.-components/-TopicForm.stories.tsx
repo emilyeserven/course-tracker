@@ -2,8 +2,6 @@ import type { Topic } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { QueryKey } from "@tanstack/react-query";
 
-import { expect, within } from "storybook/test";
-
 import { TopicForm } from "./-TopicForm";
 
 import { makeDomain, makeResources } from "@/test-utils/boxFixtures";
@@ -12,6 +10,7 @@ import {
   queryStubDecorator,
   routerDecorator,
 } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const TOPIC_ID = "topic-1";
 
@@ -62,22 +61,19 @@ export const Edit: Story = {
     isNew: false,
   },
   decorators: [queryStubDecorator(() => buildClient(true))],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: /edit topic/i,
-      }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByDisplayValue("TypeScript")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save changes/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: /edit topic/i,
+    },
+    {
+      displayValue: "TypeScript",
+    },
+    {
+      role: "button",
+      name: /save changes/i,
+    },
+  ]),
 };
 
 // Create a new topic: empty form, no detail fetch.
@@ -87,20 +83,17 @@ export const New: Story = {
     isNew: true,
   },
   decorators: [queryStubDecorator(() => buildClient(false))],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: /new topic/i,
-      }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByText("Topic Name")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /create topic/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: /new topic/i,
+    },
+    {
+      text: "Topic Name",
+    },
+    {
+      role: "button",
+      name: /create topic/i,
+    },
+  ]),
 };
