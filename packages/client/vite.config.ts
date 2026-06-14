@@ -92,10 +92,13 @@ export default defineConfig(({
           // Block real /api network calls during the run (stories seed query
           // data instead) — kills the ECONNREFUSED proxy round-trips/noise.
           setupFiles: ["./.storybook/vitest.setup.ts"],
-          // Cap concurrency. The browser suite deadlocked/crawled under
-          // unbounded file parallelism (#504) — stalling at low CPU with
-          // resources free — so bound it to a few concurrent story files
-          // instead of fully serializing (`--no-file-parallelism`).
+          // Cap concurrency. Unbounded file parallelism hard-deadlocked the
+          // browser suite (#504): a >28-min crawl at low CPU with resources
+          // free, no summary. This bound prevents that runaway and is what CI
+          // uses. It is not a full fix, though — on throttled/shared hosts even
+          // bounded parallelism can still crawl (reproduced under #504), so a
+          // trustworthy *full* local run still passes `--no-file-parallelism`
+          // (fully serial); day-to-day, prefer `pnpm verify:changed`.
           maxWorkers: 2,
           browser: {
             enabled: true,
