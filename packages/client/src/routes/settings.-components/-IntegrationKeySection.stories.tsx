@@ -4,16 +4,9 @@ import { expect, within } from "storybook/test";
 
 import { IntegrationKeySection } from "./-IntegrationKeySection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
-import { seededQueryClient } from "@/test-utils/seededQueryClient";
-import { makeAppSettings } from "@/test-utils/settingsFixtures";
+import { seededSettingsClient } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
-
-// Seeds the settings detail the section reads so the configured/unconfigured
-// banner resolves without a network call.
-function clientWith(settings = makeAppSettings()) {
-  return seededQueryClient([[queryKeys.settings.detail(), settings]]);
-}
 
 const meta = {
   component: IntegrationKeySection,
@@ -30,13 +23,7 @@ const meta = {
     }),
     dataQueryKey: queryKeys.readwise.readingList(),
   },
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(seededSettingsClient)],
 } satisfies Meta<typeof IntegrationKeySection>;
 
 export default meta;
@@ -65,18 +52,11 @@ export const Unconfigured: Story = {
 // A saved key surfaces the masked hint plus Update/Remove actions.
 export const Configured: Story = {
   decorators: [
-    Story => (
-      <QueryStub
-        client={clientWith(
-          makeAppSettings({
-            readwiseConfigured: true,
-            readwiseKeyHint: "aB3x",
-          }),
-        )}
-      >
-        <Story />
-      </QueryStub>
-    ),
+    queryStubDecorator(() =>
+      seededSettingsClient({
+        readwiseConfigured: true,
+        readwiseKeyHint: "aB3x",
+      })),
   ],
   play: async ({
     canvasElement,

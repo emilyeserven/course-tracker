@@ -7,9 +7,11 @@ import { expect, within } from "storybook/test";
 import { TopicForm } from "./-TopicForm";
 
 import { makeDomain, makeResources } from "@/test-utils/boxFixtures";
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import {
+  queryStubDecorator,
+  routerStubDecorator,
+} from "@/test-utils/storyDecorators";
 
 const TOPIC_ID = "topic-1";
 
@@ -46,13 +48,7 @@ function buildClient(seedDetail: boolean) {
 
 const meta = {
   component: TopicForm,
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerStubDecorator()],
 } satisfies Meta<typeof TopicForm>;
 
 export default meta;
@@ -65,13 +61,7 @@ export const Edit: Story = {
     id: TOPIC_ID,
     isNew: false,
   },
-  decorators: [
-    Story => (
-      <QueryStub client={buildClient(true)}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => buildClient(true))],
   play: async ({
     canvasElement,
   }) => {
@@ -96,13 +86,7 @@ export const New: Story = {
     id: "new",
     isNew: true,
   },
-  decorators: [
-    Story => (
-      <QueryStub client={buildClient(false)}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => buildClient(false))],
   play: async ({
     canvasElement,
   }) => {

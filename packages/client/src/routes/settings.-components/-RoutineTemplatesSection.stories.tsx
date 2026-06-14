@@ -4,9 +4,9 @@ import { expect, within } from "storybook/test";
 
 import { RoutineTemplatesSection } from "./-RoutineTemplatesSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 
 function clientWith(templates = [makeRoutineTemplate()]) {
   return seededQueryClient([
@@ -19,13 +19,7 @@ function clientWith(templates = [makeRoutineTemplate()]) {
 
 const meta = {
   component: RoutineTemplatesSection,
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(clientWith)],
 } satisfies Meta<typeof RoutineTemplatesSection>;
 
 export default meta;
@@ -49,13 +43,7 @@ export const Default: Story = {
 
 // The empty state prompts the user to create one.
 export const Empty: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith([])}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => clientWith([]))],
   play: async ({
     canvasElement,
   }) => {

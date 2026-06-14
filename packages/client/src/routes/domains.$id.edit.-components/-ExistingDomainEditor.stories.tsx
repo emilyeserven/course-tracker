@@ -5,10 +5,12 @@ import { expect, within } from "storybook/test";
 import { ExistingDomainEditor } from "./-ExistingDomainEditor";
 
 import { makeDomain, makeTopicRows } from "@/test-utils/boxFixtures";
-import { QueryStub } from "@/test-utils/QueryStub";
 import { makeRadar } from "@/test-utils/radarFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import {
+  queryStubDecorator,
+  routerStubDecorator,
+} from "@/test-utils/storyDecorators";
 
 const DOMAIN_ID = "domain-1";
 
@@ -28,13 +30,7 @@ const meta = {
     id: DOMAIN_ID,
     tab: "details",
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerStubDecorator()],
 } satisfies Meta<typeof ExistingDomainEditor>;
 
 export default meta;
@@ -44,13 +40,7 @@ type Story = StoryObj<typeof meta>;
 // With the queries seeded the editor shows its header, tab strip, and the
 // (default) Details tab body.
 export const Loaded: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={seededClient()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(seededClient)],
   play: async ({
     canvasElement,
   }) => {
@@ -73,13 +63,7 @@ export const Loaded: Story = {
 
 // Before the domain query resolves the editor renders its loading placeholder.
 export const Loading: Story = {
-  decorators: [
-    Story => (
-      <QueryStub>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator()],
   play: async ({
     canvasElement,
   }) => {

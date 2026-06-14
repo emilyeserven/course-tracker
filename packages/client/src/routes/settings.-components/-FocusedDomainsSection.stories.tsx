@@ -5,9 +5,9 @@ import { expect, within } from "storybook/test";
 import { FocusedDomainsSection } from "./-FocusedDomainsSection";
 
 import { makeDomain } from "@/test-utils/boxFixtures";
-import { QueryStub } from "@/test-utils/QueryStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeAppSettings } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seeds settings + domains so the form (rather than the loading placeholder)
@@ -38,13 +38,7 @@ type Story = StoryObj<typeof meta>;
 
 // The focused-domains picker + save action once the queries resolve.
 export const Default: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={seededClient()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(seededClient)],
   play: async ({
     canvasElement,
   }) => {
@@ -60,13 +54,7 @@ export const Default: Story = {
 
 // Before the queries resolve the section shows its loading placeholder.
 export const Loading: Story = {
-  decorators: [
-    Story => (
-      <QueryStub>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator()],
   play: async ({
     canvasElement,
   }) => {

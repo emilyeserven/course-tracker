@@ -4,8 +4,8 @@ import { expect, within } from "storybook/test";
 
 import { CriteriaTemplatesSection } from "./-CriteriaTemplatesSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { makeCriteriaTemplate } from "@/test-utils/templatesFixtures";
 
 function clientWith(templates = [makeCriteriaTemplate()]) {
@@ -14,13 +14,7 @@ function clientWith(templates = [makeCriteriaTemplate()]) {
 
 const meta = {
   component: CriteriaTemplatesSection,
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(clientWith)],
 } satisfies Meta<typeof CriteriaTemplatesSection>;
 
 export default meta;
@@ -44,13 +38,7 @@ export const Default: Story = {
 
 // The empty state prompts the user to create one.
 export const Empty: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith([])}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => clientWith([]))],
   play: async ({
     canvasElement,
   }) => {

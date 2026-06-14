@@ -5,13 +5,13 @@ import { expect, within } from "storybook/test";
 
 import { ResourceModulesAdmin } from "./ResourceModulesAdmin";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import {
   makeModule,
   makeModuleGroup,
   makeTagGroups,
 } from "@/test-utils/resourceModulesFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
 
 const RESOURCE_ID = "resource-1";
@@ -61,17 +61,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {
   decorators: [
-    Story => (
-      <QueryStub
-        client={seededClient({
+    queryStubDecorator(
+      () =>
+        seededClient({
           groups: [],
           modules: [],
-        })}
-      >
-        <div className="max-w-2xl">
-          <Story />
-        </div>
-      </QueryStub>
+        }),
+      {
+        className: "max-w-2xl",
+      },
     ),
   ],
   play: async ({
@@ -89,9 +87,9 @@ export const Empty: Story = {
 
 export const Populated: Story = {
   decorators: [
-    Story => (
-      <QueryStub
-        client={seededClient({
+    queryStubDecorator(
+      () =>
+        seededClient({
           groups: [
             makeModuleGroup({
               id: "g1",
@@ -116,12 +114,10 @@ export const Populated: Story = {
               name: "Standalone intro",
             }),
           ],
-        })}
-      >
-        <div className="max-w-2xl">
-          <Story />
-        </div>
-      </QueryStub>
+        }),
+      {
+        className: "max-w-2xl",
+      },
     ),
   ],
   play: async ({

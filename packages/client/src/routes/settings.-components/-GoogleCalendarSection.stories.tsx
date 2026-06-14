@@ -4,9 +4,9 @@ import { expect, within } from "storybook/test";
 
 import { GoogleCalendarSection } from "./-GoogleCalendarSection";
 
-import { QueryStub } from "@/test-utils/QueryStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeCalendarFeed } from "@/test-utils/settingsFixtures";
+import { queryStubDecorator } from "@/test-utils/storyDecorators";
 import { queryKeys } from "@/utils/queryKeys";
 
 function clientWith(feeds = [makeCalendarFeed()]) {
@@ -15,13 +15,7 @@ function clientWith(feeds = [makeCalendarFeed()]) {
 
 const meta = {
   component: GoogleCalendarSection,
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith()}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(clientWith)],
 } satisfies Meta<typeof GoogleCalendarSection>;
 
 export default meta;
@@ -50,13 +44,7 @@ export const Default: Story = {
 
 // No feeds subscribed yet — just the add-feed form.
 export const Empty: Story = {
-  decorators: [
-    Story => (
-      <QueryStub client={clientWith([])}>
-        <Story />
-      </QueryStub>
-    ),
-  ],
+  decorators: [queryStubDecorator(() => clientWith([]))],
   play: async ({
     canvasElement,
   }) => {
