@@ -162,9 +162,12 @@ export function DashboardChangelog({
                         </h3>
                       )}
                       <ul className="flex list-disc flex-col gap-1 pl-4">
-                        {section.items.map(item => (
+                        {section.items.map((item, index) => (
                           <li
-                            key={item}
+                            // Changelog lines aren't unique (e.g. repeated
+                            // "Update README.md"), so pair the text with its
+                            // index for a stable per-section key.
+                            key={`${index}-${item}`}
                             className="text-sm/snug"
                           >
                             {renderInline(item)}
