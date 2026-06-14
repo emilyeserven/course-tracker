@@ -118,6 +118,9 @@ async function fetchLocation(
 
     let response: Response;
     try {
+      // Fixed origin (READWISE_LIST_URL); params are constants/API cursors
+      // encoded via URLSearchParams, so this is not SSRF.
+      // fallow-ignore-next-line security-sink
       response = await fetch(`${READWISE_LIST_URL}?${params.toString()}`, {
         headers: {
           Authorization: `Token ${token}`,

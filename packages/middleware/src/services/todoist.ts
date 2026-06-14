@@ -145,6 +145,9 @@ async function fetchFilteredTasks(token: string): Promise<RawTodoistTask[]> {
 
     let response: Response;
     try {
+      // Fixed origin (TODOIST_FILTER_URL); params are constants/API cursors
+      // encoded via URLSearchParams, so this is not SSRF.
+      // fallow-ignore-next-line security-sink
       response = await fetch(`${TODOIST_FILTER_URL}?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -183,6 +186,9 @@ async function fetchProjectMap(token: string): Promise<Map<string, string>> {
 
     let response: Response;
     try {
+      // Fixed origin (TODOIST_PROJECTS_URL); params are constants/API cursors
+      // encoded via URLSearchParams, so this is not SSRF.
+      // fallow-ignore-next-line security-sink
       response = await fetch(`${TODOIST_PROJECTS_URL}?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
