@@ -307,15 +307,7 @@ export async function createTodoistTask(
     throw new TodoistError("Could not reach Todoist.", 502);
   }
 
-  if (response.status === 401 || response.status === 403) {
-    throw new TodoistError("Todoist rejected the API key.", 401);
-  }
-  if (response.status === 429) {
-    throw new TodoistError("Todoist rate limit reached — try again shortly.", 429);
-  }
-  if (!response.ok) {
-    throw new TodoistError(`Todoist request failed (${response.status}).`, 502);
-  }
+  assertTodoistOk(response);
 
   const body = (await response.json()) as {
     id?: string;

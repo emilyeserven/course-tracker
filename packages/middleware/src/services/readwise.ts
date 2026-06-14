@@ -63,6 +63,23 @@ export async function getReadwiseToken(): Promise<string | null> {
   return fromEnv ? fromEnv : null;
 }
 
+/**
+ * Translate a non-OK Readwise response into a friendly ReadwiseError.
+ * Shared by every Readwise call so they map statuses consistently. Readwise
+ * answers 401 (missing auth) or 403 (bad token) for auth failures.
+ */
+function assertReadwiseOk(response: Response): void {
+  if (response.status === 401 || response.status === 403) {
+    throw new ReadwiseError("Readwise rejected the API key.", 401);
+  }
+  if (response.status === 429) {
+    throw new ReadwiseError("Readwise rate limit reached — try again shortly.", 429);
+  }
+  if (!response.ok) {
+    throw new ReadwiseError(`Readwise request failed (${response.status}).`, 502);
+  }
+}
+
 // Readwise documents reading_progress as a 0–1 float, but some clients report
 // 0–100; normalize defensively so the partition logic is scale-independent.
 function normalizeProgress(value: number | null | undefined): number {
@@ -111,16 +128,7 @@ async function fetchLocation(
       throw new ReadwiseError("Could not reach Readwise.", 502);
     }
 
-    // Readwise answers 401 (missing auth) or 403 (bad token) for auth failures.
-    if (response.status === 401 || response.status === 403) {
-      throw new ReadwiseError("Readwise rejected the API key.", 401);
-    }
-    if (response.status === 429) {
-      throw new ReadwiseError("Readwise rate limit reached — try again shortly.", 429);
-    }
-    if (!response.ok) {
-      throw new ReadwiseError(`Readwise request failed (${response.status}).`, 502);
-    }
+    assertReadwiseOk(response);
 
     const body = (await response.json()) as RawListResponse;
     collected.push(...(body.results ?? []));
@@ -208,15 +216,7 @@ export async function saveReadwiseDocument(
     throw new ReadwiseError("Could not reach Readwise.", 502);
   }
 
-  if (response.status === 401 || response.status === 403) {
-    throw new ReadwiseError("Readwise rejected the API key.", 401);
-  }
-  if (response.status === 429) {
-    throw new ReadwiseError("Readwise rate limit reached — try again shortly.", 429);
-  }
-  if (!response.ok) {
-    throw new ReadwiseError(`Readwise request failed (${response.status}).`, 502);
-  }
+  assertReadwiseOk(response);
 
   const body = (await response.json()) as {
     id?: string;
