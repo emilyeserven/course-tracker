@@ -50,7 +50,11 @@ export default async function (server: FastifyInstance) {
         isExpires: source.isExpires ?? null,
         cost: source.cost ?? null,
         status: source.status ?? undefined,
-        courseProviderId: source.courseProviderId ?? null,
+        // A self-provider belongs to the source resource (it shares its id), so
+        // don't carry the link onto the copy; providerIsSelf defaults to false.
+        courseProviderId: source.providerIsSelf
+          ? null
+          : (source.courseProviderId ?? null),
         easeOfStarting: source.easeOfStarting ?? null,
         timeNeeded: source.timeNeeded ?? null,
         interactivity: source.interactivity ?? null,

@@ -24,6 +24,8 @@ export interface Resource {
     name: string;
     id: string;
   };
+  /** When true, the provider is auto-created from and kept in sync with this resource. */
+  providerIsSelf?: boolean;
   moduleGroups?: ModuleGroup[];
   modules?: Module[];
   easeOfStarting?: TaskResourceLevel | null;

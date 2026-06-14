@@ -71,6 +71,7 @@ const formSchema = z.object({
   dateExpires: z.date().nullable(),
   topicId: z.string(),
   courseProviderId: z.string(),
+  providerIsSelf: z.boolean(),
   modulesAreExhaustive: z.boolean(),
   easeOfStarting: z.enum(["", "low", "medium", "high"]),
   timeNeeded: z.enum(["", "low", "medium", "high"]),
@@ -185,6 +186,7 @@ function SingleResourceEdit() {
         || (isNew ? (search.topicId ?? "") : "")
         || "",
       courseProviderId: data?.provider?.id ?? "",
+      providerIsSelf: data?.providerIsSelf ?? false,
       modulesAreExhaustive: data?.modulesAreExhaustive ?? false,
       easeOfStarting: data?.easeOfStarting ?? "",
       timeNeeded: data?.timeNeeded ?? "",
@@ -221,6 +223,7 @@ function SingleResourceEdit() {
         isExpires: !!value.dateExpires,
         topicId: value.topicId || null,
         courseProviderId: value.courseProviderId || null,
+        providerIsSelf: value.providerIsSelf,
         modulesAreExhaustive: value.modulesAreExhaustive,
         easeOfStarting: value.easeOfStarting || null,
         timeNeeded: value.timeNeeded || null,
@@ -266,6 +269,9 @@ function SingleResourceEdit() {
   }));
   const isSubmitting = useStore(form.store, state => state.isSubmitting);
   const hasChanges = formHasChanges(currentValues, startingValues);
+  // A self-provider mirrors the resource's url, which a provider requires, so the
+  // option is only offered once the resource has a url.
+  const providerUrlMissing = !currentValues.url.trim();
   const selectedProvider = (providers ?? []).find(
     p => p.id === currentValues.courseProviderId,
   );
@@ -372,40 +378,84 @@ function SingleResourceEdit() {
           )}
         </form.AppField>
 
-        <form.AppField name="courseProviderId">
+        <form.Field name="providerIsSelf">
           {field => (
-            <field.ComboboxField
-              label="Provider"
-              options={providerOptions}
-              placeholder="Search providers..."
-              create={{
-                itemLabel: "provider",
-                fields: [
-                  {
-                    name: "name",
-                    label: "Name",
-                    required: true,
-                    isPrimary: true,
-                  },
-                  {
-                    name: "url",
-                    label: "URL",
-                    required: true,
-                    type: "url",
-                    placeholder: "https://...",
-                  },
-                ],
-                onCreate: async (values) => {
-                  const result = await createProvider(values);
-                  await queryClient.invalidateQueries({
-                    queryKey: ["providers"],
-                  });
-                  return result.id;
-                },
-              }}
-            />
+            <label
+              className={cn(
+                "flex items-start gap-2 text-sm",
+                !isNew && !field.state.meta.isDefaultValue && changedFieldClass,
+                providerUrlMissing && "opacity-60",
+              )}
+            >
+              <input
+                type="checkbox"
+                checked={field.state.value}
+                disabled={providerUrlMissing}
+                onChange={(e) => {
+                  field.handleChange(e.target.checked);
+                  if (e.target.checked) {
+                    form.setFieldValue("courseProviderId", "");
+                  }
+                }}
+                className="mt-0.5 size-4"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="font-medium">
+                  This resource is its own provider
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {providerUrlMissing
+                    ? "Add a Resource URL to enable this."
+                    : "Creates a separate provider that mirrors this resource's "
+                      + "name and URL, kept in sync whenever you save."}
+                </span>
+              </span>
+            </label>
           )}
-        </form.AppField>
+        </form.Field>
+
+        {currentValues.providerIsSelf
+          ? (
+            <p className="text-sm text-muted-foreground">
+              Provider mirrors this resource — its name and URL will match.
+            </p>
+          )
+          : (
+            <form.AppField name="courseProviderId">
+              {field => (
+                <field.ComboboxField
+                  label="Provider"
+                  options={providerOptions}
+                  placeholder="Search providers..."
+                  create={{
+                    itemLabel: "provider",
+                    fields: [
+                      {
+                        name: "name",
+                        label: "Name",
+                        required: true,
+                        isPrimary: true,
+                      },
+                      {
+                        name: "url",
+                        label: "URL",
+                        required: true,
+                        type: "url",
+                        placeholder: "https://...",
+                      },
+                    ],
+                    onCreate: async (values) => {
+                      const result = await createProvider(values);
+                      await queryClient.invalidateQueries({
+                        queryKey: ["providers"],
+                      });
+                      return result.id;
+                    },
+                  }}
+                />
+              )}
+            </form.AppField>
+          )}
 
         <form.AppField name="status">
           {field => (
