@@ -7,12 +7,12 @@ import {
   MODULE_STATUS_OPTIONS,
 } from "./moduleStatusMeta";
 
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 /**
