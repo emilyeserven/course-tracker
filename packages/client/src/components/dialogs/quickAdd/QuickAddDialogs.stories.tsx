@@ -21,6 +21,7 @@ const client = seededQueryClient([
       todoistConfigured: true,
       todoistKeyHint: "…aB3x",
       focusedDomainIds: [],
+      moduleHintTemplates: [],
     } satisfies AppSettingsSummary,
   ],
 ]);

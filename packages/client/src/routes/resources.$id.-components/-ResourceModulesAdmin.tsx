@@ -42,6 +42,7 @@ export function ResourceModulesAdmin({
     isBook,
     groupLabel,
     moduleLabel,
+    groupHint,
   } = api;
   const {
     creatingGroup, setCreatingGroup, creatingModuleIn, reorderMode,
@@ -69,6 +70,7 @@ export function ResourceModulesAdmin({
           tagGroups={tagGroups}
           showPages={isBook}
           groupLabel={groupLabel}
+          groupNamePlaceholder={groupHint}
           isNew
           isSaving={createGroupMutation.isPending}
           onSave={d =>

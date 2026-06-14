@@ -70,6 +70,7 @@ export function UngroupedModulesSection({
           isNew
           showPages={api.isBook}
           moduleLabel={api.moduleLabel}
+          moduleNamePlaceholder={api.moduleHint}
           isSaving={createModuleMutation.isPending}
           onSave={d =>
             createModuleMutation.mutate(

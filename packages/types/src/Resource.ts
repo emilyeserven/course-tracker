@@ -39,6 +39,6 @@ export interface Resource extends ResourceLevelAttributes {
   moduleGroups?: ModuleGroup[];
   modules?: Module[];
   tags?: Tag[];
-  /** Per-resource labels for the module hierarchy (group vs module). */
+  /** Per-resource module-hierarchy config (selected hint template). */
   modulesConfig?: ModulesConfig | null;
 }

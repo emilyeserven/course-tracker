@@ -21,6 +21,7 @@ export function ModuleEditCard({
   isSaving = false,
   showPages = false,
   moduleLabel = "Module",
+  moduleNamePlaceholder,
   onSave,
   onCancel,
   onDelete,
@@ -33,6 +34,8 @@ export function ModuleEditCard({
   showPages?: boolean;
   /** Per-resource label for a module (e.g. "Section"). */
   moduleLabel?: string;
+  /** Hint (placeholder) for the name input, from the resource's hint template. */
+  moduleNamePlaceholder?: string;
   onSave: (d: ModuleDraft) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -65,6 +68,7 @@ export function ModuleEditCard({
             })}
           required
           autoFocus
+          placeholder={moduleNamePlaceholder || undefined}
         />
       </div>
       <div className="flex flex-col gap-1">

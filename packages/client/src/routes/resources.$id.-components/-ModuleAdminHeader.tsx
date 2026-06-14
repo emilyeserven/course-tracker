@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
-import { ModuleConventionsEditor } from "./-ModuleConventionsEditor";
+import { ModuleHintTemplatePicker } from "./-ModuleHintTemplatePicker";
 
 import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
@@ -61,7 +61,7 @@ export function ModuleAdminHeader({
           )}
         </div>
         <div className="flex flex-row flex-wrap gap-2">
-          <ModuleConventionsEditor api={api} />
+          <ModuleHintTemplatePicker api={api} />
           <Button
             variant="outline"
             size="sm"
