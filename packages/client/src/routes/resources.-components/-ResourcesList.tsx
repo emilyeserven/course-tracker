@@ -1,4 +1,3 @@
-import type { ViewMode } from "@/components/listControls";
 import type {
   CourseProvider,
   ResourceInResources,
@@ -10,13 +9,16 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowDownAZIcon, ArrowUpAZIcon, PlusIcon } from "lucide-react";
 
-import { ContentBox, CourseBox, CoursesTable } from "@/components/contentBoxComponents";
+import {
+  ContentBox,
+  CourseBox,
+  CoursesTable,
+} from "@/components/contentBoxComponents";
 import {
   ClearFiltersButton,
   FilterSelect,
   ListSearchInput,
   OnboardingEmptyState,
-
   ViewModeToggle,
 } from "@/components/listControls";
 import { Button } from "@/components/ui/button";
@@ -27,20 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useStoredViewMode } from "@/hooks/useStoredViewMode";
 
 type SortOption = "alpha" | "progress" | "provider" | "topic";
-
-const VIEW_MODE_STORAGE_KEY = "resources:viewMode";
-// Pre-rename key; fall back to it so existing preferences survive.
-const LEGACY_VIEW_MODE_STORAGE_KEY = "courses:viewMode";
-
-function getInitialViewMode(): ViewMode {
-  if (typeof window === "undefined") return "grid";
-  const stored
-    = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY)
-      ?? window.localStorage.getItem(LEGACY_VIEW_MODE_STORAGE_KEY);
-  return stored === "table" ? "table" : "grid";
-}
 
 function getProgressPercent(course: ResourceInResources): number {
   if (course.progressTotal === 0) return 0;
@@ -87,14 +78,14 @@ export function ResourcesList({
   );
   const [sortBy, setSortBy] = useState<SortOption>("alpha");
   const [sortAsc, setSortAsc] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
-
-  const updateViewMode = (mode: ViewMode) => {
-    setViewMode(mode);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
-    }
-  };
+  const {
+    viewMode, setViewMode: updateViewMode,
+  } = useStoredViewMode(
+    "resources:viewMode",
+    {
+      legacyKey: "courses:viewMode",
+    },
+  );
 
   const filteredAndSorted = useMemo(() => {
     let result = resources;

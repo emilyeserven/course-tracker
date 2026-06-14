@@ -1,14 +1,13 @@
 import type { DashboardLayout } from "@emstack/types";
 
 import {
-  BookmarkIcon,
   CopyIcon,
   LayoutGridIcon,
   MoreHorizontalIcon,
   PencilIcon,
-  Trash2Icon,
 } from "lucide-react";
 
+import { LayoutMenuActions } from "@/components/LayoutMenuActions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,18 +79,12 @@ export function LayoutTab({
             <CopyIcon />
             Duplicate
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onSaveAs(layout)}>
-            <BookmarkIcon />
-            Save as layout…
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => onDelete(layout)}
-          >
-            <Trash2Icon />
-            Delete
-          </DropdownMenuItem>
+          <LayoutMenuActions
+            layout={layout}
+            onSaveAs={onSaveAs}
+            onDelete={onDelete}
+            saveAsLabel="Save as layout…"
+          />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

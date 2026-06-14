@@ -1,3 +1,4 @@
+import type { DataTableSampleRow } from "@/test-utils/dataTableSampleFixtures";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
 
 // Pulls in the jest-dom matcher type augmentation for Vitest's `expect`.
@@ -10,93 +11,10 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { DataTable } from "./data-table";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
-interface Item {
-  id: string;
-  name: string;
-  count: number;
-}
-
-const columns: ColumnDef<Item>[] = [
-  {
-    id: "select",
-    enableSorting: false,
-    header: ({
-      table,
-    }) => (
-      <input
-        type="checkbox"
-        aria-label="Select all"
-        checked={table.getIsAllRowsSelected()}
-        ref={(el) => {
-          if (el) el.indeterminate = table.getIsSomeRowsSelected();
-        }}
-        onChange={table.getToggleAllRowsSelectedHandler()}
-      />
-    ),
-    cell: ({
-      row,
-    }) => (
-      <input
-        type="checkbox"
-        aria-label={`Select ${row.original.name}`}
-        checked={row.getIsSelected()}
-        onChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  },
-  {
-    accessorKey: "name",
-    header: ({
-      column,
-    }) => (
-      <DataTableColumnHeader
-        column={column}
-        label="Name"
-      />
-    ),
-    cell: ({
-      row,
-    }) => row.original.name,
-  },
-  {
-    accessorKey: "count",
-    header: ({
-      column,
-    }) => (
-      <DataTableColumnHeader
-        column={column}
-        label="Count"
-        align="right"
-      />
-    ),
-    cell: ({
-      row,
-    }) => row.original.count,
-    meta: {
-      align: "right",
-    },
-  },
-];
-
-// Capitalized, distinct initials so ordering is unambiguous regardless of the
-// sort fn's case handling. Initial order is intentionally unsorted.
-const data: Item[] = [
-  {
-    id: "a",
-    name: "Banana",
-    count: 2,
-  },
-  {
-    id: "b",
-    name: "Avocado",
-    count: 5,
-  },
-  {
-    id: "c",
-    name: "Cherry",
-    count: 1,
-  },
-];
+import {
+  dataTableSampleColumns as columns,
+  dataTableSampleRows as data,
+} from "@/test-utils/dataTableSampleFixtures";
 
 /** Body-row text in DOM order (excludes the header row). */
 function bodyRowNames(): string[] {
@@ -178,10 +96,7 @@ describe("DataTable", () => {
     const rowCheckbox = screen.getByLabelText("Select Avocado");
     fireEvent.click(rowCheckbox);
 
-    expect(rowCheckbox.closest("tr")).toHaveAttribute(
-      "data-state",
-      "selected",
-    );
+    expect(rowCheckbox.closest("tr")).toHaveAttribute("data-state", "selected");
 
     // Partial selection → header checkbox is indeterminate, not checked.
     const selectAll = screen.getByLabelText("Select all") as HTMLInputElement;
@@ -192,8 +107,10 @@ describe("DataTable", () => {
     fireEvent.click(selectAll);
     expect(selectAll.checked).toBe(true);
     expect(
-      screen.getAllByRole("row").slice(1).every(row =>
-        row.getAttribute("data-state") === "selected"),
+      screen
+        .getAllByRole("row")
+        .slice(1)
+        .every(row => row.getAttribute("data-state") === "selected"),
     ).toBe(true);
   });
 
@@ -223,7 +140,7 @@ describe("DataTable", () => {
     // TanStack's getCanSort requires an accessor, so DataTable injects a no-op
     // one for display columns. Without it, manual-sort tables (Topics, Blip,
     // amortization, daily tracker) render dead headers.
-    const displayColumns: ColumnDef<Item>[] = [
+    const displayColumns: ColumnDef<DataTableSampleRow>[] = [
       {
         id: "name",
         header: ({
