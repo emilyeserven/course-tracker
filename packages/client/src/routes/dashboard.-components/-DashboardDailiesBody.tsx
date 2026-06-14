@@ -61,10 +61,11 @@ export function DashboardDailiesBody({
           todayKey={todayKey}
           recentDaysCount={RECENT_DAYS_COUNT}
           mutationPending={mutation.isPending}
-          onChangeStatus={(d, status) =>
+          onChangeStatus={(d, status, note) =>
             mutation.mutate({
               daily: d,
               status,
+              note,
             })}
           rowClassName="
             group border-t

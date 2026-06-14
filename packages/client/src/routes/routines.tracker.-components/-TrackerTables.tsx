@@ -209,10 +209,11 @@ export function TrackerTables({
                   todayKey={todayKey}
                   recentDaysCount={recentDaysCount}
                   mutationPending={mutation.isPending}
-                  onChangeStatus={(d, status) =>
+                  onChangeStatus={(d, status, note) =>
                     mutation.mutate({
                       daily: d,
                       status,
+                      note,
                     })}
                   rowClassName="
                     group border-t align-middle
