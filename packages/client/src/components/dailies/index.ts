@@ -1,6 +1,5 @@
 /* eslint-disable import/max-dependencies -- cohesive feature barrel (precedent: utils/index.ts) */
 export { DailiesActiveListView } from "./DailiesActiveListView";
-export { DailyCriteriaTemplateEditModal } from "./DailyCriteriaTemplateEditModal";
 export { DailiesViewModeToggle } from "./DailiesViewModeToggle";
 export { DailyResourceIndicator } from "./DailyResourceIndicator";
 export { DailyTaskIndicator } from "./DailyTaskIndicator";

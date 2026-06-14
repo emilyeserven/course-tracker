@@ -6,7 +6,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { DailyCriteriaTemplateEditModal } from "@/components/dailies";
+import { DailyCriteriaTemplateEditModal } from "./-DailyCriteriaTemplateEditModal";
+
 import { Button } from "@/components/ui/button";
 import {
   createDailyCriteriaTemplate,
@@ -32,7 +33,9 @@ function makeEmptyCriteriaTemplate(): DailyCriteriaTemplate {
 export function CriteriaTemplatesSection() {
   const queryClient = useQueryClient();
 
-  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(
+    null,
+  );
   const [creatingNewTemplate, setCreatingNewTemplate] = useState(false);
 
   const criteriaTemplatesQuery = useQuery({
@@ -100,16 +103,14 @@ export function CriteriaTemplatesSection() {
 
   const criteriaTemplates = criteriaTemplatesQuery.data ?? [];
   const editingCriteriaTemplate = editingTemplateId
-    ? criteriaTemplates.find(t => t.id === editingTemplateId) ?? null
+    ? (criteriaTemplates.find(t => t.id === editingTemplateId) ?? null)
     : null;
 
   return (
     <>
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-xl font-semibold">
-            Status Criteria Templates
-          </h2>
+          <h2 className="text-xl font-semibold">Status Criteria Templates</h2>
           <Button
             variant="outline"
             onClick={() => setCreatingNewTemplate(true)}
@@ -122,7 +123,9 @@ export function CriteriaTemplatesSection() {
           Prefill options for the Status Criteria Quick Fill on a daily.
         </p>
         {criteriaTemplatesQuery.isPending
-          ? <p className="text-sm text-muted-foreground">Loading...</p>
+          ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          )
           : criteriaTemplates.length === 0
             ? (
               <p className="text-sm text-muted-foreground">
@@ -144,9 +147,7 @@ export function CriteriaTemplatesSection() {
                         <span
                           className="line-clamp-1 text-xs text-muted-foreground"
                         >
-                          Goal:
-                          {" "}
-                          {t.goal}
+                          Goal: {t.goal}
                         </span>
                       )}
                     </div>
@@ -182,11 +183,14 @@ export function CriteriaTemplatesSection() {
           if (!open) setEditingTemplateId(null);
         }}
         onSave={t => upsertTemplateMutation.mutate(t)}
-        onDelete={editingCriteriaTemplate
-          ? () => deleteTemplateMutation.mutate(editingCriteriaTemplate.id)
-          : undefined}
-        isSaving={upsertTemplateMutation.isPending
-          || deleteTemplateMutation.isPending}
+        onDelete={
+          editingCriteriaTemplate
+            ? () => deleteTemplateMutation.mutate(editingCriteriaTemplate.id)
+            : undefined
+        }
+        isSaving={
+          upsertTemplateMutation.isPending || deleteTemplateMutation.isPending
+        }
       />
 
       <DailyCriteriaTemplateEditModal
