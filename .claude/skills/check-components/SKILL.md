@@ -155,15 +155,16 @@ Each finding states: the component, its **current path → proposed path**, and 
 **consumer evidence** (which route families import it, with `file:line`).
 
 **Do not create issues automatically.** For each (category × feature/path-group)
-bucket, emit a ready-to-run command using the existing **`refactor`** label
-(repo `emilyeserven/course-tracker`):
+bucket, emit a ready-to-run command using the existing **`refactor`** label in
+the **current repo** — omit `--repo` so `gh` infers it from the local git remote,
+which keeps the skill portable if it's copied to another project:
 
 Pass the body as a plain multi-line string (not a `$(cat <<EOF …)` heredoc — a
 heredoc-substituted command doesn't start with `gh`, so the `Bash(gh:*)`
 permission pattern won't match):
 
 ```bash
-gh issue create --repo emilyeserven/course-tracker --label refactor \
+gh issue create --label refactor \
   --title "refactor(client): colocate <feature> components into *.-components" \
   --body "Components used by only the <feature> route that should move out of shared components/:
 
