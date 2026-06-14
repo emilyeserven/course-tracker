@@ -66,32 +66,91 @@ jobs:
   # Storybook stories run as browser-mode Vitest tests in real headless Chromium.
   # Kept as its own job (off typecheck/lint) because the Playwright browser install
   # is slow and shouldn't burden the fast checks.
+  #
+  # The job always runs so it keeps reporting a status check (safe if it's a
+  # required check under branch protection), but the heavy steps are gated on a
+  # path filter: the whole Storybook suite lives in packages/client, so PRs that
+  # only touch middleware/types/docs fast-pass without installing Playwright.
   storybook:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Only packages/client carries stories; gate the expensive steps on changes
+      # to it, the shared deps it consumes, or the CI/dependency definitions
+      # themselves. dorny/paths-filter reports per-filter booleans without failing
+      # the job, so non-client PRs still get a green storybook check.
+      - name: Detect client-affecting changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            client:
+              - 'packages/client/**'
+              - 'packages/types/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - '.github/workflows/ci.yml'
+
       - name: Set up pnpm
+        if: steps.changes.outputs.client == 'true'
         uses: pnpm/action-setup@v4
 
       - name: Set up Node.js
+        if: steps.changes.outputs.client == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
       - name: Install dependencies
+        if: steps.changes.outputs.client == 'true'
         run: pnpm install --frozen-lockfile
 
-      # --with-deps pulls the Ubuntu system libraries headless Chromium needs in CI.
-      - name: Install Playwright Chromium
+      # Cache the downloaded browser binary keyed by the Playwright version
+      # resolved from the lockfile, so warm runs skip the ~100 MB download.
+      - name: Resolve Playwright version
+        if: steps.changes.outputs.client == 'true'
+        id: playwright
+        run: echo "version=$(grep -oP '^\s+playwright@\K[0-9.]+(?=:)' pnpm-lock.yaml | head -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        if: steps.changes.outputs.client == 'true'
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
+
+      # Cache miss: download Chromium plus the Ubuntu system libs it needs.
+      - name: Install Playwright Chromium (with system deps)
+        if: steps.changes.outputs.client == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter=@emstack/client exec playwright install --with-deps chromium
+
+      # Cache hit: the binary is restored, but apt system libs aren't cached, so
+      # still ensure they're present without re-downloading the browser.
+      - name: Install Playwright system deps (cache hit)
+        if: steps.changes.outputs.client == 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter=@emstack/client exec playwright install-deps chromium
+
+      # Cache Vite's dep pre-bundle so warm runs skip "[optimizer] bundling
+      # dependencies"; keyed by the lockfile + Vite config that drive optimization.
+      - name: Cache Vite optimize deps
+        if: steps.changes.outputs.client == 'true'
+        uses: actions/cache@v4
+        with:
+          path: packages/client/node_modules/.vite
+          key: ${{ runner.os }}-vite-${{ hashFiles('pnpm-lock.yaml', 'packages/client/vite.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-
 
       # `vitest run` (not watch) keeps it non-interactive; --project storybook selects
       # the browser-mode project defined in packages/client/vite.config.ts.
       - name: Run Storybook component tests
+        if: steps.changes.outputs.client == 'true'
         run: pnpm --filter=@emstack/client exec vitest run --project storybook
