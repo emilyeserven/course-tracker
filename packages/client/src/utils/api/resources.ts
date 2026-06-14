@@ -1,6 +1,6 @@
-import type { Resource, ResourceInResources } from "@emstack/types";
+import type { ModulesConfig, Resource, ResourceInResources } from "@emstack/types";
 
-import { createEntityClient, postJson } from "./client";
+import { createEntityClient, postJson, putJson } from "./client";
 
 const resourcesApi = createEntityClient<Resource, ResourceInResources[]>(
   "resources",
@@ -25,6 +25,23 @@ export async function incrementResourceProgress(
     `/api/resources/${id}/incrementProgress`,
     undefined,
     "Failed to increment resource progress",
+  );
+}
+
+export async function updateResourceModulesConfig(
+  id: string,
+  modulesConfig: ModulesConfig,
+): Promise<{
+  status: string;
+  id: string;
+  modulesConfig: ModulesConfig;
+}> {
+  return putJson(
+    `/api/resources/${id}/modulesConfig`,
+    {
+      modulesConfig,
+    },
+    "Failed to update naming conventions",
   );
 }
 

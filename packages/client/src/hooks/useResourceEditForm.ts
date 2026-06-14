@@ -88,6 +88,7 @@ export function useResourceEditForm({
     // fallow-ignore-next-line complexity
     () => ({
       name: data?.name ?? "",
+      type: data?.type ?? ("website" as const),
       description: data?.description ?? "",
       url: data?.url ?? "",
       status: data?.status ?? ("active" as const),

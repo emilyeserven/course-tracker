@@ -16,6 +16,8 @@ interface ModuleGroupBody {
   position?: number | null;
   totalCount?: number | null;
   completedCount?: number | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;
@@ -30,6 +32,8 @@ const updateableColumns = [
   "position",
   "totalCount",
   "completedCount",
+  "pageStart",
+  "pageEnd",
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
@@ -55,6 +59,8 @@ export default createUpsertHandler<ModuleGroupBody>({
       position: nullableInteger,
       totalCount: nullableInteger,
       completedCount: nullableInteger,
+      pageStart: nullableInteger,
+      pageEnd: nullableInteger,
       easeOfStarting: nullableResourceLevelEnum,
       timeNeeded: nullableResourceLevelEnum,
       interactivity: nullableResourceLevelEnum,
@@ -70,6 +76,8 @@ export default createUpsertHandler<ModuleGroupBody>({
     position: body.position ?? null,
     totalCount: body.totalCount ?? null,
     completedCount: body.completedCount ?? null,
+    pageStart: body.pageStart ?? null,
+    pageEnd: body.pageEnd ?? null,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
     interactivity: body.interactivity ?? null,

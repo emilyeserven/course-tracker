@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import type { TaskResourceLevel } from "@emstack/types";
+import type { ModulesConfig, ResourceType, TaskResourceLevel } from "@emstack/types";
 import { db } from "@/db";
 import {
   courseProviders,
@@ -24,6 +24,7 @@ import {
 
 interface CourseBody {
   name: string;
+  type?: ResourceType | null;
   description?: string | null;
   url?: string | null;
   status?: "active" | "inactive" | "complete";
@@ -41,10 +42,12 @@ interface CourseBody {
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;
   tagIds?: string[];
+  modulesConfig?: ModulesConfig | null;
 }
 
 const updateableColumns = [
   "name",
+  "type",
   "description",
   "url",
   "status",
@@ -59,6 +62,7 @@ const updateableColumns = [
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
+  "modulesConfig",
 ] as const;
 
 export default createUpsertHandler<CourseBody>({
@@ -71,6 +75,10 @@ export default createUpsertHandler<CourseBody>({
     properties: {
       name: {
         type: "string",
+      },
+      type: {
+        type: ["string", "null"],
+        enum: ["website", "book", null],
       },
       description: nullableString,
       url: nullableString,
@@ -95,11 +103,23 @@ export default createUpsertHandler<CourseBody>({
       timeNeeded: nullableResourceLevelEnum,
       interactivity: nullableResourceLevelEnum,
       tagIds: tagIdsArraySchema,
+      modulesConfig: {
+        type: ["object", "null"],
+        properties: {
+          groupLabel: {
+            type: "string",
+          },
+          moduleLabel: {
+            type: "string",
+          },
+        },
+      },
     },
   },
   buildRow: (body, id) => ({
     id,
     name: body.name,
+    type: body.type ?? "website",
     description: body.description ?? null,
     url: body.url ?? null,
     status: body.status,
@@ -115,6 +135,7 @@ export default createUpsertHandler<CourseBody>({
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
     interactivity: body.interactivity ?? null,
+    modulesConfig: body.modulesConfig ?? null,
   }),
   updateableColumns,
   generateIdIfMissing: true,

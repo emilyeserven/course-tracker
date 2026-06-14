@@ -12,6 +12,7 @@ export type {
   DailyCriteria,
   DashboardLayoutTile,
   DashboardTileId,
+  ModulesConfig,
   RoutineConnectionType,
   RoutineCurated,
   RoutineReferenceItem,
@@ -20,6 +21,7 @@ export type {
 } from "@emstack/types";
 
 export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
+export const resourceTypeEnum = pgEnum("resourceType", ["website", "book"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);

@@ -1,4 +1,6 @@
-import { boolean, date, integer, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, jsonb, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
+
+import type { ModulesConfig } from "./enums";
 
 import {
   interactionDifficultyEnum,
@@ -7,6 +9,7 @@ import {
   moduleStatusEnum,
   recurPeriodUnitEnum,
   resourceLevelEnum,
+  resourceTypeEnum,
   statusEnum,
 } from "./enums";
 
@@ -34,6 +37,10 @@ export const courseProviders = pgTable("courseProviders", {
 export const resources = pgTable("resources", {
   id: varchar().primaryKey(),
   name: varchar({}).notNull(),
+  // Whether this resource is a website or a book. Nullable with a default so
+  // drizzle-kit push backfills existing rows; the projection coalesces to
+  // "website" (same approach as `status`).
+  type: resourceTypeEnum("type").default("website"),
   description: varchar(),
   url: varchar({
     length: 255,
@@ -57,6 +64,8 @@ export const resources = pgTable("resources", {
   easeOfStarting: resourceLevelEnum("ease_of_starting"),
   timeNeeded: resourceLevelEnum("time_needed"),
   interactivity: resourceLevelEnum(),
+  // Per-resource labels for the module hierarchy (group vs module).
+  modulesConfig: jsonb("modules_config").$type<ModulesConfig>(),
 });
 
 export const moduleGroups = pgTable("module_groups", {
@@ -79,6 +88,9 @@ export const moduleGroups = pgTable("module_groups", {
   // and counts derive from those modules.
   totalCount: integer("total_count"),
   completedCount: integer("completed_count"),
+  // For book resources: the page range this group spans. Both optional.
+  pageStart: integer("page_start"),
+  pageEnd: integer("page_end"),
   easeOfStarting: resourceLevelEnum("ease_of_starting"),
   timeNeeded: resourceLevelEnum("time_needed"),
   interactivity: resourceLevelEnum(),
@@ -108,6 +120,9 @@ export const modules = pgTable("modules", {
   // but there's no UI to set it. Add a reorder UI for modules within a group
   // (and ungrouped modules) — drag-handle or up/down buttons.
   position: integer(),
+  // For book resources: the page range this module spans. Both optional.
+  pageStart: integer("page_start"),
+  pageEnd: integer("page_end"),
   easeOfStarting: resourceLevelEnum("ease_of_starting"),
   timeNeeded: resourceLevelEnum("time_needed"),
   interactivity: resourceLevelEnum(),

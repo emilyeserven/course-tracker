@@ -21,7 +21,13 @@ export function ResourceModulesAdmin({
   const ui = useModuleAdminUiState();
 
   const {
-    tagGroups, groups, ungroupedModules, createGroupMutation,
+    tagGroups,
+    groups,
+    ungroupedModules,
+    createGroupMutation,
+    isBook,
+    groupLabel,
+    moduleLabel,
   } = api;
   const {
     creatingGroup, setCreatingGroup, creatingModuleIn,
@@ -47,6 +53,8 @@ export function ResourceModulesAdmin({
           draft={emptyGroupDraft()}
           hasEnumeratedModules={false}
           tagGroups={tagGroups}
+          showPages={isBook}
+          groupLabel={groupLabel}
           isNew
           isSaving={createGroupMutation.isPending}
           onSave={d =>
@@ -76,8 +84,15 @@ export function ResourceModulesAdmin({
 
       {isEmpty && (
         <p className="text-sm text-muted-foreground">
-          No modules yet. Add a module directly, or create a module group to
-          organize them.
+          No {moduleLabel.toLowerCase()}s yet. Add a
+          {" "}
+          {moduleLabel.toLowerCase()}
+          {" "}
+          directly, or create a
+          {" "}
+          {groupLabel.toLowerCase()}
+          {" "}
+          to organize them.
         </p>
       )}
     </div>

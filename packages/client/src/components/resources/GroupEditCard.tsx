@@ -58,6 +58,8 @@ export function GroupEditCard({
   tagGroups,
   isNew = false,
   isSaving = false,
+  showPages = false,
+  groupLabel = "Group",
   onSave,
   onCancel,
   onDelete,
@@ -67,6 +69,10 @@ export function GroupEditCard({
   tagGroups: TagGroup[];
   isNew?: boolean;
   isSaving?: boolean;
+  /** When true (book resources), show start/end page inputs. */
+  showPages?: boolean;
+  /** Per-resource label for a group (e.g. "Chapter"). */
+  groupLabel?: string;
   onSave: (d: GroupDraft) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -88,7 +94,7 @@ export function GroupEditCard({
     >
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          Group Name
+          {groupLabel} Name
         </label>
         <Input
           type="text"
@@ -116,7 +122,7 @@ export function GroupEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          Location (optional)
+          {showPages ? "URL (optional)" : "Location (optional)"}
         </label>
         <Input
           type="text"
@@ -127,6 +133,42 @@ export function GroupEditCard({
             })}
         />
       </div>
+      {showPages && (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Start page (optional)
+            </label>
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={draft.pageStart}
+              onChange={e =>
+                update({
+                  pageStart: e.target.value,
+                })}
+              placeholder="e.g. 42"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              End page (optional)
+            </label>
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={draft.pageEnd}
+              onChange={e =>
+                update({
+                  pageEnd: e.target.value,
+                })}
+              placeholder="e.g. 58"
+            />
+          </div>
+        </div>
+      )}
       {!hasEnumeratedModules && (
         <fieldset
           className="flex flex-col gap-2 rounded-md border border-border/60 p-2"
@@ -186,7 +228,7 @@ export function GroupEditCard({
         onCancel={onCancel}
         onDelete={onDelete}
         isNew={isNew}
-        removeLabel="Remove Group"
+        removeLabel={`Remove ${groupLabel}`}
       />
     </form>
   );

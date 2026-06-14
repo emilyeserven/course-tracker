@@ -37,6 +37,8 @@ export function UngroupedModulesSection({
           draft={emptyModuleDraft()}
           tagGroups={tagGroups}
           isNew
+          showPages={api.isBook}
+          moduleLabel={api.moduleLabel}
           isSaving={createModuleMutation.isPending}
           onSave={d =>
             createModuleMutation.mutate(

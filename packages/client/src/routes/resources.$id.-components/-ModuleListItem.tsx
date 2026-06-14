@@ -58,6 +58,8 @@ export function ModuleListItem({
       <ModuleEditCard
         draft={moduleToDraft(m)}
         tagGroups={tagGroups}
+        showPages={api.isBook}
+        moduleLabel={api.moduleLabel}
         isSaving={
           upsertModuleMutation.isPending || deleteModuleMutation.isPending
         }

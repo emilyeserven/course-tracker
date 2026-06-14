@@ -41,6 +41,7 @@ export default async function (server: FastifyInstance) {
       await db.insert(resources).values({
         id: newId,
         name: `${source.name} (Copy)`,
+        type: source.type ?? "website",
         description: source.description ?? null,
         url: null,
         isCostFromPlatform: source.isCostFromPlatform ?? false,
@@ -58,6 +59,7 @@ export default async function (server: FastifyInstance) {
         easeOfStarting: source.easeOfStarting ?? null,
         timeNeeded: source.timeNeeded ?? null,
         interactivity: source.interactivity ?? null,
+        modulesConfig: source.modulesConfig ?? null,
       });
 
       const topicLinks = (source.topicsToResources ?? []).map(t => ({

@@ -21,6 +21,8 @@ interface ModuleBody {
   minutesLength?: number | null;
   status?: "unstarted" | "in_progress" | "complete";
   position?: number | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;
@@ -36,6 +38,8 @@ const updateableColumns = [
   "length",
   "status",
   "position",
+  "pageStart",
+  "pageEnd",
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
@@ -63,6 +67,8 @@ export default createUpsertHandler<ModuleBody>({
       minutesLength: nullableInteger,
       status: moduleStatusEnum,
       position: nullableInteger,
+      pageStart: nullableInteger,
+      pageEnd: nullableInteger,
       easeOfStarting: nullableResourceLevelEnum,
       timeNeeded: nullableResourceLevelEnum,
       interactivity: nullableResourceLevelEnum,
@@ -79,6 +85,8 @@ export default createUpsertHandler<ModuleBody>({
     length: coerceModuleLength(body.length, body.minutesLength),
     status: body.status ?? "unstarted",
     position: body.position ?? null,
+    pageStart: body.pageStart ?? null,
+    pageEnd: body.pageEnd ?? null,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
     interactivity: body.interactivity ?? null,
