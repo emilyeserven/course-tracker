@@ -1,5 +1,5 @@
 import { jsonb, pgTable, varchar } from "drizzle-orm/pg-core";
-import type { CalendarFeed } from "@emstack/types";
+import type { CalendarFeed, HintTemplate } from "@emstack/types";
 
 // Single-row application settings. The row is keyed by a constant id ("global")
 // and created on first write via onConflictDoUpdate — there is no multi-user
@@ -22,6 +22,13 @@ export const appSettings = pgTable("app_settings", {
   // "Explore Something" card.
   focusedDomainIds: jsonb("focused_domain_ids")
     .$type<string[]>()
+    .notNull()
+    .default([]),
+  // Reusable hint templates for naming a resource's group/module hierarchy. Each
+  // resource references one by id (resources.modules_config.hintTemplateId); its
+  // hints surface as placeholders when editing that resource's groups/modules.
+  moduleHintTemplates: jsonb("module_hint_templates")
+    .$type<HintTemplate[]>()
     .notNull()
     .default([]),
 });

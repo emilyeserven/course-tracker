@@ -3,13 +3,18 @@ import type { Module, ModuleGroup, ModulesConfig, ModuleStatus } from "@emstack/
 
 import { useMemo } from "react";
 
-import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
+import {
+  DEFAULT_GROUP_LABEL,
+  DEFAULT_MODULE_LABEL,
+  DEFAULT_MODULES_CONFIG,
+} from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useSetModulesExhaustive } from "./useSetModulesExhaustive";
 
 import { draftToLength, parseCount } from "@/components/resources/moduleDrafts";
+import { fetchSettings } from "@/utils";
 import {
   createModule,
   createModuleGroup,
@@ -44,6 +49,10 @@ export function useResourceModules(resourceId: string) {
   const resourceQuery = useQuery({
     queryKey: queryKeys.resources.detail(resourceId),
     queryFn: () => fetchSingleResource(resourceId),
+  });
+  const settingsQuery = useQuery({
+    queryKey: queryKeys.settings.detail(),
+    queryFn: () => fetchSettings(),
   });
   const tagGroups = tagGroupsQuery.data ?? [];
   const modulesAreExhaustive
@@ -88,12 +97,19 @@ export function useResourceModules(resourceId: string) {
 
   // Book resources get per-module/group page ranges; the edit cards key off this.
   const isBook = resourceQuery.data?.type === "book";
-  // Per-resource naming conventions (group vs module labels), with defaults.
+  // The hierarchy labels are no longer renamed per resource — always the
+  // defaults. Instead a resource picks a hint template whose hints surface as
+  // placeholders in the group/module name fields.
+  const groupLabel = DEFAULT_GROUP_LABEL;
+  const moduleLabel = DEFAULT_MODULE_LABEL;
   const modulesConfig: ModulesConfig
     = resourceQuery.data?.modulesConfig ?? DEFAULT_MODULES_CONFIG;
-  const groupLabel = modulesConfig.groupLabel || DEFAULT_MODULES_CONFIG.groupLabel;
-  const moduleLabel
-    = modulesConfig.moduleLabel || DEFAULT_MODULES_CONFIG.moduleLabel;
+  const hintTemplates = settingsQuery.data?.moduleHintTemplates ?? [];
+  const selectedHintTemplate = hintTemplates.find(
+    t => t.id === modulesConfig.hintTemplateId,
+  );
+  const groupHint = selectedHintTemplate?.groupHint ?? "";
+  const moduleHint = selectedHintTemplate?.moduleHint ?? "";
 
   function invalidateAll() {
     queryClient.invalidateQueries({
@@ -257,8 +273,8 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Naming conventions: a surgical update of just the resource's group/module
-  // labels (own endpoint so the rest of the resource is never re-sent).
+  // Hint template: a surgical update of just the resource's selected hint
+  // template (own endpoint so the rest of the resource is never re-sent).
   const updateModulesConfigMutation = useMutation({
     mutationFn: (config: ModulesConfig) =>
       updateResourceModulesConfig(resourceId, config),
@@ -266,7 +282,7 @@ export function useResourceModules(resourceId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.resources.detail(resourceId),
       });
-      toast.success("Naming conventions saved");
+      toast.success("Hint template saved");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -475,6 +491,9 @@ export function useResourceModules(resourceId: string) {
     modulesConfig,
     groupLabel,
     moduleLabel,
+    groupHint,
+    moduleHint,
+    hintTemplates,
     invalidateAll,
     createGroupMutation,
     upsertGroupMutation,

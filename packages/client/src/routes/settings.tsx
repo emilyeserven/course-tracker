@@ -7,6 +7,7 @@ import {
   FocusedDomainsSection,
   GoogleCalendarSection,
   ReadwiseSection,
+  ResourceHintTemplatesSection,
   RoutineTemplatesSection,
   TaskTypesSection,
   ThemeSection,
@@ -20,6 +21,7 @@ const TAB_VALUES = [
   "tasks",
   "routines",
   "domains",
+  "resources",
   "dashboard",
   "connections",
   "display",
@@ -90,6 +92,11 @@ function Settings() {
               value: "domains",
               label: "Domains Settings",
               content: <FocusedDomainsSection />,
+            },
+            {
+              value: "resources",
+              label: "Resource Settings",
+              content: <ResourceHintTemplatesSection />,
             },
             {
               value: "dashboard",

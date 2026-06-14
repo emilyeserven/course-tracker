@@ -62,7 +62,9 @@ const updateableColumns = [
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
-  "modulesConfig",
+  // modulesConfig is intentionally omitted: it's owned by the dedicated
+  // PUT /:id/modulesConfig endpoint, so the general upsert (whose body never
+  // carries it) must not clobber a resource's picked hint template on save.
 ] as const;
 
 export default createUpsertHandler<CourseBody>({
@@ -106,11 +108,8 @@ export default createUpsertHandler<CourseBody>({
       modulesConfig: {
         type: ["object", "null"],
         properties: {
-          groupLabel: {
-            type: "string",
-          },
-          moduleLabel: {
-            type: "string",
+          hintTemplateId: {
+            type: ["string", "null"],
           },
         },
       },

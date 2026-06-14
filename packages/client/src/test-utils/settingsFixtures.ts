@@ -23,6 +23,7 @@ export function makeAppSettings(
     todoistConfigured: false,
     todoistKeyHint: null,
     focusedDomainIds: [],
+    moduleHintTemplates: [],
     ...overrides,
   };
 }

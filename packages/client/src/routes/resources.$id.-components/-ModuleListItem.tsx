@@ -80,6 +80,7 @@ export function ModuleListItem({
         tagGroups={tagGroups}
         showPages={api.isBook}
         moduleLabel={api.moduleLabel}
+        moduleNamePlaceholder={api.moduleHint}
         isSaving={
           upsertModuleMutation.isPending || deleteModuleMutation.isPending
         }

@@ -6,12 +6,13 @@ import { resources } from "@/db/schema";
 import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 
-// Surgical update of just the resource's module naming conventions. Lives apart
-// from the full upsert so the Modules tab can save labels without re-sending
-// (and risking clobbering) the rest of the resource's columns.
+// Surgical update of just the resource's module-hierarchy config (the selected
+// hint template). Lives apart from the full upsert so the Modules tab can save
+// it without re-sending (and risking clobbering) the rest of the resource's
+// columns.
 const updateSchema = {
   schema: {
-    description: "Update a resource's module naming conventions (group/module labels)",
+    description: "Update a resource's module-hierarchy config (selected hint template)",
     params: idParamSchema,
     body: {
       type: "object",
@@ -19,15 +20,12 @@ const updateSchema = {
       properties: {
         modulesConfig: {
           type: "object",
-          required: ["groupLabel", "moduleLabel"],
           properties: {
-            groupLabel: {
-              type: "string",
-            },
-            moduleLabel: {
-              type: "string",
+            hintTemplateId: {
+              type: ["string", "null"],
             },
           },
+          additionalProperties: false,
         },
       },
     },

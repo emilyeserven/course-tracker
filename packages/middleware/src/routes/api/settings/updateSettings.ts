@@ -23,6 +23,28 @@ const updateSchema = {
             type: "string",
           },
         },
+        moduleHintTemplates: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["id", "name", "groupHint", "moduleHint"],
+            properties: {
+              id: {
+                type: "string",
+              },
+              name: {
+                type: "string",
+              },
+              groupHint: {
+                type: "string",
+              },
+              moduleHint: {
+                type: "string",
+              },
+            },
+            additionalProperties: false,
+          },
+        },
       },
     },
   },
@@ -55,6 +77,10 @@ export default async function (server: FastifyInstance) {
         // so the limit holds regardless of the client.
         const deduped = [...new Set(request.body.focusedDomainIds)];
         updates.focusedDomainIds = deduped.slice(0, MAX_FOCUSED_DOMAINS);
+      }
+      if (request.body.moduleHintTemplates !== undefined) {
+        // Replaces the saved hint templates wholesale.
+        updates.moduleHintTemplates = request.body.moduleHintTemplates;
       }
 
       if (Object.keys(updates).length > 0) {

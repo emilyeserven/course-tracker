@@ -4,7 +4,7 @@ import type { Resource } from "@emstack/types";
 
 import { useState } from "react";
 
-import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
+import { DEFAULT_MODULE_LABEL } from "@emstack/types";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
@@ -227,8 +227,8 @@ function ResourceDetailsTab({
   moduleProgress: ModuleProgress;
 }) {
   const topics = data.topics ?? null;
-  const moduleLabel
-    = data.modulesConfig?.moduleLabel || DEFAULT_MODULES_CONFIG.moduleLabel;
+  // Labels are no longer renamed per resource; always use the default.
+  const moduleLabel = DEFAULT_MODULE_LABEL;
   return (
     <div className="flex flex-col gap-12">
       <InfoArea

@@ -26,6 +26,7 @@ export default async function (server: FastifyInstance) {
         todoistConfigured: Boolean(todoistKey),
         todoistKeyHint: maskKey(todoistKey),
         focusedDomainIds: row?.focusedDomainIds ?? [],
+        moduleHintTemplates: row?.moduleHintTemplates ?? [],
       };
     },
   );

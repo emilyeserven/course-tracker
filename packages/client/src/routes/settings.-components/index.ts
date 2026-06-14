@@ -7,6 +7,7 @@ export { DataToolsSection } from "./-DataToolsSection";
 export { FocusedDomainsSection } from "./-FocusedDomainsSection";
 export { GoogleCalendarSection } from "./-GoogleCalendarSection";
 export { ReadwiseSection } from "./-ReadwiseSection";
+export { ResourceHintTemplatesSection } from "./-ResourceHintTemplatesSection";
 export { RoutineTemplatesSection } from "./-RoutineTemplatesSection";
 export { TaskTypesSection } from "./-TaskTypesSection";
 export { ThemeSection } from "./-ThemeSection";

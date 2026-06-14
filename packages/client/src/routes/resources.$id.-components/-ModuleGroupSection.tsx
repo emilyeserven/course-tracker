@@ -407,6 +407,7 @@ export function ModuleGroupSection({
         tagGroups={tagGroups}
         showPages={api.isBook}
         groupLabel={api.groupLabel}
+        groupNamePlaceholder={api.groupHint}
         isSaving={
           upsertGroupMutation.isPending || deleteGroupMutation.isPending
         }
@@ -496,6 +497,7 @@ export function ModuleGroupSection({
               isNew
               showPages={api.isBook}
               moduleLabel={api.moduleLabel}
+              moduleNamePlaceholder={api.moduleHint}
               isSaving={createModuleMutation.isPending}
               onSave={d =>
                 createModuleMutation.mutate(

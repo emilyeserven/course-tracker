@@ -60,6 +60,7 @@ export function GroupEditCard({
   isSaving = false,
   showPages = false,
   groupLabel = "Group",
+  groupNamePlaceholder,
   onSave,
   onCancel,
   onDelete,
@@ -73,6 +74,8 @@ export function GroupEditCard({
   showPages?: boolean;
   /** Per-resource label for a group (e.g. "Chapter"). */
   groupLabel?: string;
+  /** Hint (placeholder) for the name input, from the resource's hint template. */
+  groupNamePlaceholder?: string;
   onSave: (d: GroupDraft) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -105,7 +108,7 @@ export function GroupEditCard({
             })}
           required
           autoFocus
-          placeholder="e.g. Section 1: Fundamentals"
+          placeholder={groupNamePlaceholder || "e.g. Section 1: Fundamentals"}
         />
       </div>
       <div className="flex flex-col gap-1">
