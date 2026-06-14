@@ -26,31 +26,26 @@ export interface BlipFilterLookups {
   topicItemCount: (topicId: string) => number;
 }
 
-export function filterAndSortBlips(
+function matchesFieldFilter(
+  value: string | null,
+  filterValue: string,
+): boolean {
+  if (filterValue === UNASSIGNED) return value === null;
+  if (filterValue === ALL) return true;
+  return value === filterValue;
+}
+
+export function filterBlips(
   blips: RadarBlip[],
   criteria: BlipFilterCriteria,
-  lookups: BlipFilterLookups,
 ): RadarBlip[] {
   const {
-    search, filterQuadrant, filterRing, sortKey, sortDir,
+    search, filterQuadrant, filterRing,
   } = criteria;
-  const {
-    quadrantById, ringById, topicItemCount,
-  } = lookups;
   const query = search.trim().toLowerCase();
-  const filtered = blips.filter((b) => {
-    if (filterQuadrant === UNASSIGNED) {
-      if (b.quadrantId !== null) return false;
-    }
-    else if (filterQuadrant !== ALL && b.quadrantId !== filterQuadrant) {
-      return false;
-    }
-    if (filterRing === UNASSIGNED) {
-      if (b.ringId !== null) return false;
-    }
-    else if (filterRing !== ALL && b.ringId !== filterRing) {
-      return false;
-    }
+  return blips.filter((b) => {
+    if (!matchesFieldFilter(b.quadrantId, filterQuadrant)) return false;
+    if (!matchesFieldFilter(b.ringId, filterRing)) return false;
     if (query) {
       const topicName = b.topicName?.toLowerCase() ?? "";
       const note = b.description?.toLowerCase() ?? "";
@@ -60,39 +55,59 @@ export function filterAndSortBlips(
     }
     return true;
   });
+}
+
+function positionOf(
+  byId: Map<string, { position: number }>,
+  id: string | null,
+): number {
+  return byId.get(id ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
+}
+
+export function blipSortValue(
+  blip: RadarBlip,
+  sortKey: SortKey,
+  lookups: BlipFilterLookups,
+): number | string {
+  const {
+    quadrantById, ringById, topicItemCount,
+  } = lookups;
+  switch (sortKey) {
+    case "topic":
+      return (blip.topicName ?? "").toLowerCase();
+    case "slice":
+      return positionOf(quadrantById, blip.quadrantId);
+    case "items":
+      return topicItemCount(blip.topicId);
+    default:
+      return positionOf(ringById, blip.ringId);
+  }
+}
+
+export function sortBlips(
+  blips: RadarBlip[],
+  criteria: BlipFilterCriteria,
+  lookups: BlipFilterLookups,
+): RadarBlip[] {
+  const {
+    sortKey, sortDir,
+  } = criteria;
   const dir = sortDir === "asc" ? 1 : -1;
-  const sorted = filtered.slice().sort((a, b) => {
-    let av: number | string;
-    let bv: number | string;
-    if (sortKey === "topic") {
-      av = (a.topicName ?? "").toLowerCase();
-      bv = (b.topicName ?? "").toLowerCase();
-    }
-    else if (sortKey === "slice") {
-      av
-        = quadrantById.get(a.quadrantId ?? "")?.position
-          ?? Number.MAX_SAFE_INTEGER;
-      bv
-        = quadrantById.get(b.quadrantId ?? "")?.position
-          ?? Number.MAX_SAFE_INTEGER;
-    }
-    else if (sortKey === "items") {
-      av = topicItemCount(a.topicId);
-      bv = topicItemCount(b.topicId);
-    }
-    else {
-      av = ringById.get(a.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
-      bv = ringById.get(b.ringId ?? "")?.position ?? Number.MAX_SAFE_INTEGER;
-    }
-    if (av < bv) {
-      return -1 * dir;
-    }
-    if (av > bv) {
-      return 1 * dir;
-    }
+  return blips.slice().sort((a, b) => {
+    const av = blipSortValue(a, sortKey, lookups);
+    const bv = blipSortValue(b, sortKey, lookups);
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
     return (a.topicName ?? "").localeCompare(b.topicName ?? "");
   });
-  return sorted;
+}
+
+export function filterAndSortBlips(
+  blips: RadarBlip[],
+  criteria: BlipFilterCriteria,
+  lookups: BlipFilterLookups,
+): RadarBlip[] {
+  return sortBlips(filterBlips(blips, criteria), criteria, lookups);
 }
 
 export function countByField(
