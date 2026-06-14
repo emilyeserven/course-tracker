@@ -1,5 +1,5 @@
 import type { DashboardTileProps } from "@/lib/dashboardTiles";
-import type { TodoistTask, TodoistTasks } from "@emstack/types";
+import type { DashboardLayoutTile, TodoistTask, TodoistTasks } from "@emstack/types";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ExternalLink, Repeat } from "lucide-react";
@@ -23,11 +23,11 @@ function priorityDotClass(priority: number): string {
   return "bg-muted-foreground/40";
 }
 
-interface TaskDisplay {
-  showProject: boolean;
-  showLabels: boolean;
-  showDescription: boolean;
-}
+// Resolved per-tile display flags (defaults applied) — the persisted versions
+// on DashboardLayoutTile are optional; readers below require them.
+type TaskDisplay = Required<
+  Pick<DashboardLayoutTile, "showProject" | "showLabels" | "showDescription">
+>;
 
 function TaskList({
   tasks,
