@@ -1,5 +1,5 @@
 import type { DailyStatusChangeProps } from "./dailyStatusMeta";
-import type { ControlledDialogProps } from "@/components/dialogProps";
+import type { ControlledDialogProps } from "@/types/dialogProps";
 import type { Daily, DailyCompletionStatus } from "@emstack/types";
 
 import { useEffect, useState } from "react";

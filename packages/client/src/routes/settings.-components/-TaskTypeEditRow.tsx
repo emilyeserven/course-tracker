@@ -1,4 +1,4 @@
-import type { EditRowBaseProps } from "@/components/editRowProps";
+import type { EditRowBaseProps } from "@/types/editRowProps";
 import type { TaskType } from "@emstack/types";
 
 import { useState } from "react";

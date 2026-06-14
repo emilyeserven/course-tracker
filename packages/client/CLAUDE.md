@@ -9,6 +9,18 @@ React 19 + Vite frontend. Read the root CLAUDE.md for commands and setup; this f
 - `src/routeTree.gen.ts` is **generated — never edit or read it**. Regenerate with `pnpm --filter=@emstack/client run routeTree` (the vite dev server also regenerates it on save).
 - Path alias: `@` → `packages/client/src`.
 
+## Types — where they live
+
+Two homes, by audience:
+
+- **`@emstack/types` (`packages/types/src/`)** — the cross-package source of truth. Any shape that crosses the wire or is shared with the middleware lives here (one type per PascalCase file + barrel). Both client and middleware consume it; never re-declare a shared shape locally. See the root CLAUDE.md.
+- **`@/types/` (`src/types/`)** — client-only shared types with **no runtime code**: pure type modules imported across multiple client files but never needed by the backend (e.g. `ControlledDialogProps` in `dialogProps.ts`, `EditRowBaseProps` in `editRowProps.ts`, `BaseFieldProps` in `fieldProps.ts`). Import by explicit file (`@/types/dialogProps`) — there's no barrel, to keep it from becoming a grab-bag.
+
+**Stays put — don't move into `@/types/`:**
+- Single-use component props → colocate (often non-exported) in the component file.
+- Shared types tightly coupled to runtime helpers/consts → keep in their module (e.g. `DashboardTileProps`/`GridLayoutItem` in `lib/dashboardTiles.ts`, `SelectOption` in `utils/selectOptions.ts`, the context union types in `src/context/`).
+- Feature-domain types → keep in the feature folder (`components/radar/`, `components/dailies/`, …).
+
 ## Fetch layer (`src/utils/api/`)
 
 - `client.ts` exports `fetchJson`/`postJson`/`putJson`/`deleteJson` and `createEntityClient<TEntity, TList>(endpoint, label)`, which returns `{ list, get, create, upsert, delete, duplicate }` against `/api/<endpoint>`.

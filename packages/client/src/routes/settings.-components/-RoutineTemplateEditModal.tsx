@@ -1,5 +1,5 @@
-import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { WeeklyRow } from "@/components/routines/weekly";
+import type { ControlledDialogProps } from "@/types/dialogProps";
 import type { SelectOption } from "@/utils";
 import type { RoutineTemplate } from "@emstack/types";
 
