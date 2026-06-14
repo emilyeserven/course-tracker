@@ -31,6 +31,12 @@ or command. Run from the repo root. If given a scope arg, limit accordingly
 (`fallow` = guards A1–A3 only, `overrides` = guard B only, a path = scope the
 fallow scans to that path; `lint` = guards C1–C3 only).
 
+> **Related, but separate:** this skill audits *existing* guards for staleness.
+> The `new-suppressions` CI job (`.github/workflows/pr-guards.yml`, backed by
+> `scripts/check-new-suppressions.sh`) flags *newly-added* inline directives
+> (C1–C3 kinds) on each PR as warn-only annotations. Use that to catch guards as
+> they land; use this skill to prune the ones that outlived their cause.
+
 ## What counts as a guard here
 
 | Guard | Where | How it goes stale |
