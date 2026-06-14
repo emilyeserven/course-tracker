@@ -1,6 +1,12 @@
 import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 
-import { CircleCheckBig, InfoIcon, PlusIcon, SparklesIcon } from "lucide-react";
+import {
+  ArrowUpDownIcon,
+  CircleCheckBig,
+  InfoIcon,
+  PlusIcon,
+  SparklesIcon,
+} from "lucide-react";
 
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
 import { ModuleConventionsEditor } from "./-ModuleConventionsEditor";
@@ -36,6 +42,8 @@ export function ModuleAdminHeader({
     setLlmAssistOpen,
     setCreatingModuleIn,
     setCreatingGroup,
+    reorderMode,
+    setReorderMode,
   } = ui;
 
   const percentComplete
@@ -63,6 +71,17 @@ export function ModuleAdminHeader({
           >
             <SparklesIcon className="size-4" />
             LLM Assist
+          </Button>
+          <Button
+            variant={reorderMode ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => setReorderMode(!reorderMode)}
+            disabled={isAnyEditing}
+            aria-pressed={reorderMode}
+            title="Toggle reordering of groups and modules"
+          >
+            <ArrowUpDownIcon className="size-4" />
+            Reorder
           </Button>
           <Button
             variant="outline"

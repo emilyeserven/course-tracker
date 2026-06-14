@@ -1,6 +1,6 @@
-import type { ModuleStatus } from "@emstack/types";
+import type { Module, ModuleGroup, ModuleStatus } from "@emstack/types";
 
-import { MODULE_STATUS_LABELS } from "@emstack/types";
+import { isModuleComplete, MODULE_STATUS_LABELS } from "@emstack/types";
 import { CircleCheckIcon, CircleDashedIcon, CircleDotIcon } from "lucide-react";
 
 /**
@@ -51,4 +51,26 @@ export function getModuleStatusOption(status: ModuleStatus): ModuleStatusOption 
     MODULE_STATUS_OPTIONS.find(o => o.value === status)
     ?? MODULE_STATUS_OPTIONS[0]
   );
+}
+
+/**
+ * Derive a group's overall status for the read-only status circle shown next to
+ * its name. When the group has enumerated modules, the status reflects those
+ * modules (all complete → complete; any progress/mix → in_progress; otherwise
+ * unstarted). Otherwise it falls back to the group's direct progress counts.
+ */
+export function getGroupStatus(
+  group: Pick<ModuleGroup, "totalCount" | "completedCount">,
+  modules: Module[],
+): ModuleStatus {
+  if (modules.length > 0) {
+    if (modules.every(m => isModuleComplete(m.status))) return "complete";
+    if (modules.some(m => m.status !== "unstarted")) return "in_progress";
+    return "unstarted";
+  }
+  const total = group.totalCount ?? 0;
+  const done = group.completedCount ?? 0;
+  if (total > 0 && done >= total) return "complete";
+  if (done > 0) return "in_progress";
+  return "unstarted";
 }
