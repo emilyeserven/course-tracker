@@ -20,6 +20,8 @@ import {
   hasTaskForDay,
   isScheduledForDay,
   isWeeklyTargetMet,
+  isWithinRebakeWindow,
+  REBAKE_WINDOW_DAYS,
   shiftDateKey,
   withCompletion,
   withCompletionNote,
@@ -759,7 +761,7 @@ describe("withCompletion", () => {
     expect(withCompletion(noNote, "2026-06-11", null)).toEqual([]);
   });
 
-  test("carries a baked entryParts snapshot forward across a status change", () => {
+  test("carries a baked entryParts snapshot forward with no recency reference", () => {
     const daily = makeDaily({
       completions: [{
         date: "2026-06-11",
@@ -771,8 +773,7 @@ describe("withCompletion", () => {
         },
       }],
     });
-    // Re-saving the status must keep the frozen snapshot so the server doesn't
-    // re-bake it to a later schedule.
+    // Without a `todayKey` reference we keep the frozen snapshot (safe default).
     expect(withCompletion(daily, "2026-06-11", "goal")).toEqual([
       {
         date: "2026-06-11",
@@ -784,6 +785,71 @@ describe("withCompletion", () => {
         },
       },
     ]);
+  });
+
+  test("drops the baked snapshot when re-updating a recent entry (re-bake)", () => {
+    const daily = makeDaily({
+      completions: [{
+        date: "2026-06-11",
+        status: "touched",
+        entryParts: {
+          prependText: "Review",
+          name: "Spanish flashcards",
+          appendText: null,
+        },
+      }],
+    });
+    // 2026-06-11 is within REBAKE_WINDOW_DAYS of 2026-06-14, so the snapshot is
+    // dropped (entryParts omitted) and the server re-bakes to the current schedule.
+    expect(withCompletion(daily, "2026-06-11", "goal", "2026-06-14")).toEqual([
+      {
+        date: "2026-06-11",
+        status: "goal",
+      },
+    ]);
+  });
+
+  test("keeps the baked snapshot when re-updating an older entry (frozen)", () => {
+    const daily = makeDaily({
+      completions: [{
+        date: "2026-06-01",
+        status: "touched",
+        entryParts: {
+          prependText: "Review",
+          name: "Spanish flashcards",
+          appendText: null,
+        },
+      }],
+    });
+    // 2026-06-01 is beyond REBAKE_WINDOW_DAYS of 2026-06-14, so it stays frozen.
+    expect(withCompletion(daily, "2026-06-01", "goal", "2026-06-14")).toEqual([
+      {
+        date: "2026-06-01",
+        status: "goal",
+        entryParts: {
+          prependText: "Review",
+          name: "Spanish flashcards",
+          appendText: null,
+        },
+      },
+    ]);
+  });
+});
+
+describe("isWithinRebakeWindow", () => {
+  test("today and future dates are within the window", () => {
+    expect(isWithinRebakeWindow("2026-06-14", "2026-06-14")).toBe(true);
+    expect(isWithinRebakeWindow("2026-06-20", "2026-06-14")).toBe(true);
+  });
+
+  test("a past date exactly at the window edge is included", () => {
+    const edge = shiftDateKey("2026-06-14", -REBAKE_WINDOW_DAYS);
+    expect(isWithinRebakeWindow(edge, "2026-06-14")).toBe(true);
+  });
+
+  test("a past date beyond the window is excluded", () => {
+    const beyond = shiftDateKey("2026-06-14", -(REBAKE_WINDOW_DAYS + 1));
+    expect(isWithinRebakeWindow(beyond, "2026-06-14")).toBe(false);
   });
 });
 
