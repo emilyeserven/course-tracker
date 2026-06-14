@@ -39,6 +39,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import { useIndexById } from "@/hooks/useIndexBy";
 
 interface BlipTableProps {
   blips: RadarBlip[];
@@ -81,23 +82,9 @@ export function BlipTable({
   const [bulkPending, setBulkPending] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const quadrantById = useMemo(() => {
-    const map = new Map<string, RadarQuadrant>();
-    quadrants.forEach(q => map.set(q.id, q));
-    return map;
-  }, [quadrants]);
-
-  const ringById = useMemo(() => {
-    const map = new Map<string, RadarRing>();
-    rings.forEach(r => map.set(r.id, r));
-    return map;
-  }, [rings]);
-
-  const topicById = useMemo(() => {
-    const map = new Map<string, TopicForTopicsPage>();
-    topics.forEach(t => map.set(t.id, t));
-    return map;
-  }, [topics]);
+  const quadrantById = useIndexById(quadrants);
+  const ringById = useIndexById(rings);
+  const topicById = useIndexById(topics);
 
   const sliceCounts = useMemo(() => countByField(blips, "quadrantId"), [blips]);
 
