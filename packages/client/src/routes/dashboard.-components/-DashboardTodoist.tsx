@@ -23,8 +23,6 @@ function priorityDotClass(priority: number): string {
   return "bg-muted-foreground/40";
 }
 
-// Resolved per-tile display flags (defaults applied) — the persisted versions
-// on DashboardLayoutTile are optional; readers below require them.
 type TaskDisplay = Required<
   Pick<DashboardLayoutTile, "showProject" | "showLabels" | "showDescription">
 >;

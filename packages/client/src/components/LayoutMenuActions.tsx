@@ -7,12 +7,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-/**
- * The layout a row/tab acts on plus the four mutating actions every layout
- * menu offers. Shared by the dashboard tab menu (`LayoutTab`), the settings
- * layouts/presets rows (`LayoutRow`), and this menu body so the action set
- * stays in sync; each consumer extends it with its own extras.
- */
 export interface LayoutMenuHandlers {
   layout: DashboardLayout;
   onRename: (layout: DashboardLayout) => void;
