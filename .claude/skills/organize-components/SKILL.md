@@ -73,24 +73,33 @@ Group the inventory into themed subfolders — one per concern. Good seams:
 - container + its presentational partner → same subfolder;
 - a leaf used by exactly one sibling → live beside that sibling (internal);
 - two small forms that share the same parent primitives (e.g. both compose
-  `EditForm` / `form.AppField`) → one `forms`/`details` subfolder.
+  `EditForm` / `form.AppField`) → one `forms`/`details` subfolder;
+- a leaf, hook, or util used by **more than one** theme (e.g. a `-cardKit` of
+  shared card primitives) → a **`shared/`** subfolder, imported by siblings via
+  `../shared/-x`. Don't duplicate it into each theme.
 
-Keep the page-level shell (the orchestrator component) and the cross-cutting tab
-aggregator barrel at the folder **root**.
+Keep the page-level shell (the orchestrator component) and the folder's
+**public-API modules** — the root aggregator barrel (`index.ts`) and any registry
+the route reads (e.g. a `-tileComponents.tsx` id→component map) — at the folder
+**root**. Preserving these means **nothing outside the folder changes**; only the
+folder's single route consumer (and the registry's internal imports) move to the
+new subfolder paths.
 
-Move files with `git mv` to preserve history. **Co-move each `*.stories.tsx` with
-its component** — the relative `./-X` import inside a story stays valid when both
-land in the same subfolder, so no story edits are needed for the move:
+Move files with `git mv` to preserve history. **Co-move each component's whole
+co-located family** — its `*.stories.tsx`, `*.test.ts(x)`, and any private
+`-useX.ts` hook / `-x.ts` helper — into the same subfolder. The relative `./-X`
+imports between co-moved siblings stay valid, so those files need no edits for the
+move:
 
 ```bash
 cd 'packages/client/src/routes/<x>.-components'   # single-quote: $id is literal
-mkdir -p <theme-a> <theme-b> ...
-git mv -- -Foo.tsx -Foo.stories.tsx -FooPanel.tsx -FooPanel.stories.tsx <theme-a>/
+mkdir -p <theme-a> <theme-b> shared ...
+git mv -- -Foo.tsx -Foo.stories.tsx -Foo.test.ts -useFoo.ts <theme-a>/
 ```
 
 Give each subfolder an `index.ts` barrel that exports **only the public surface**
-(the component the rest of the app renders); keep presentational partners and
-extracted leaves un-exported, with a comment saying so:
+(the components the rest of the app renders); keep presentational partners,
+extracted leaves, hooks, and helpers un-exported, with a comment saying so:
 
 ```ts
 // Public surface of the <theme> family. -FooPanel and the extracted -FooRow are
@@ -98,29 +107,48 @@ extracted leaves un-exported, with a comment saying so:
 export { FooContainer } from "./-Foo";
 ```
 
+(A pure-`shared/` subfolder consumed only via direct `../shared/-x` paths needs no
+barrel — add one only if several files import the same public set from it.)
+
 Then fix the wiring:
 
-- Rewrite the root aggregator barrel (e.g. `-tabs.ts`) to re-export from the new
-  subfolder barrels.
+- Rewrite the root aggregator barrel (e.g. `-tabs.ts` / `index.ts`) and any
+  registry to re-export / import from the new subfolder barrels — keeping their
+  **public export names identical** so external consumers are untouched.
 - Update the route file (and any other importer) to import moved public
   components via the subfolder barrel path.
-- Intra-folder relative imports between co-moved siblings are unchanged.
+- Intra-folder relative imports between co-moved siblings are unchanged;
+  cross-theme imports become `../<other-theme>/-x` (or `../shared/-x`).
 
 ## Step 3 — Extract cohesive blocks (moderate)
 
-Within the grouped components, extract the **clear** repeated or cohesive render
-blocks into their own `-Leaf.tsx` files in the same subfolder — typically a
-mapped list `<li>` (a row/card) or a self-contained column/section. Keep the
-parent as a thin composer.
+Within the grouped components, extract the **clear** cohesive pieces into their own
+files in the same subfolder, keeping the parent a thin composer. Three kinds:
 
-- Props mirror the per-item handlers the parent already threads through; bind the
-  item key at the parent's `.map()` so the leaf takes plain `onChange`/`onRemove`.
+- **Render blocks → `-Leaf.tsx`** — typically a mapped list `<li>` (a row/card) or
+  a self-contained column/section. Props mirror the per-item handlers the parent
+  already threads through; bind the item key at the parent's `.map()` so the leaf
+  takes plain `onChange`/`onRemove`.
+- **Pure logic → `-x.ts`** — row/value builders, table column definitions, layout
+  math, formatting. A big card is often mostly non-JSX (e.g. a 610-line card → a
+  `-xRows.ts` builder + `-xColumns.tsx` defs + a thin shell). Pulling this out
+  shrinks the component **and** makes the logic unit-testable in isolation.
+- **Stateful / data-prep logic → `-useX.ts` hook** — when a large component spends
+  most of its body deriving state (queries, memos, transforms) before rendering,
+  lift that into a co-located hook so the component becomes a slim orchestrator
+  (e.g. a 487-line chart → a `-useXData` hook + a ~234-line orchestrator + leaves).
+
+Shared notes:
+
+- **Unify near-identical siblings.** If two blocks differ only by their data
+  (e.g. an "adopted" vs "ignored" strip), extract **one** parameterized leaf and
+  render it twice with different props rather than two near-copies.
 - If a shared data type lives in the parent (e.g. `BlipDraft`, a `*Draft`
   interface), import it `import type` into the leaf — type-only imports don't
   create a runtime cycle even when the parent also imports the leaf.
 - **Don't over-decompose.** Leave already-small components, containers, and the
-  page shell intact. Aim for the few extractions that remove real duplication or
-  shrink a >150-line render — not maximum granularity.
+  page shell intact. Aim for the few extractions that remove real duplication,
+  shrink a >150-line render, or isolate testable logic — not maximum granularity.
 
 ## Step 4 — Check shared `components/` for duplicates (flag only)
 
@@ -143,12 +171,14 @@ evidence, and hand off the actual consolidation to `/condense-components` (and
 `/condense-types` for the prop-shape half). Do not rewrite call sites in this
 pass — a structural sort that also silently changes behavior is hard to review.
 
-## Step 5 — A story for every component
+## Step 5 — A story for every component, a test for every extracted helper
 
 Every component — moved or newly extracted — must have a co-located
-`*.stories.tsx`. Moved components keep their existing stories; write new ones for
-the extracted leaves. Follow the repo CSF3 conventions (see `/add-stories` and the
-sibling stories in the same folder):
+`*.stories.tsx`; every extracted **pure-logic** module (`-x.ts` from Step 3) gets
+a co-located `*.test.ts`. Stories cover rendering; unit tests cover the logic that
+was previously buried in a component and untestable. Moved files keep their
+existing stories/tests; write new ones for the new leaves and helpers. Follow the
+repo CSF3 conventions (see `/add-stories` and the sibling stories in the folder):
 
 - `import type { Meta, StoryObj } from "@storybook/react-vite";`
 - Use `const meta: Meta<typeof X> = { component: X, args: {...} }` when args
@@ -170,8 +200,14 @@ sibling stories in the same folder):
 pnpm --filter=@emstack/client run routeTree   # the .- prefix keeps subfolders out of routing; confirm no route diff
 pnpm typecheck                                 # moved/extracted imports resolve
 pnpm lint                                      # barrels + import/max-dependencies stay green
-pnpm --filter=@emstack/client test             # unit + Storybook stories render (incl. new leaves)
+pnpm --filter=@emstack/client test             # unit tests + Storybook story smoke-renders (incl. new leaves/helpers)
 ```
+
+`vitest` (above) runs the stories via the Storybook vitest project, so it
+validates the new stories. **Don't rely on `build-storybook`** to verify — it can
+fail on `master` for unrelated pre-existing reasons (e.g. `MISSING_EXPORT` in
+files this change doesn't touch); typecheck + the vitest run are the real gate.
+Confirm `git status` shows the moves as **renames** (history preserved).
 
 ## Guardrails
 
