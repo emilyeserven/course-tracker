@@ -6,6 +6,7 @@ import {
   InfoIcon,
   PlusIcon,
   SparklesIcon,
+  Table2Icon,
 } from "lucide-react";
 
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
@@ -18,6 +19,11 @@ import { cn } from "@/lib/utils";
 interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
   /** When true, render the editable "module list is exhaustive" toggle. */
   canEditExhaustive?: boolean;
+  /**
+   * Toggle the bulk-edit table on/off. Owned by the parent so it can guard exit
+   * with an unsaved-changes confirmation (the staged edits live up there).
+   */
+  onToggleBulkEdit: () => void;
 }
 
 /**
@@ -27,6 +33,7 @@ interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
 export function ModuleAdminHeader({
   resourceId,
   canEditExhaustive,
+  onToggleBulkEdit,
   api,
   ui,
 }: ModuleAdminHeaderProps) {
@@ -44,7 +51,13 @@ export function ModuleAdminHeader({
     setCreatingGroup,
     reorderMode,
     setReorderMode,
+    bulkEditMode,
   } = ui;
+
+  // Bulk edit and reorder are conflicting full-table modes; the other actions
+  // are meaningless while the bulk table is open. `isAnyEditing` already covers
+  // the per-card edit/create slots.
+  const otherActionsDisabled = isAnyEditing || bulkEditMode;
 
   const percentComplete
     = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -66,17 +79,28 @@ export function ModuleAdminHeader({
             variant="outline"
             size="sm"
             onClick={() => setLlmAssistOpen(true)}
-            disabled={isAnyEditing}
+            disabled={otherActionsDisabled}
             title="Suggest module groups and modules via Claude"
           >
             <SparklesIcon className="size-4" />
             LLM Assist
           </Button>
           <Button
+            variant={bulkEditMode ? "secondary" : "outline"}
+            size="sm"
+            onClick={onToggleBulkEdit}
+            disabled={isAnyEditing || reorderMode}
+            aria-pressed={bulkEditMode}
+            title="Edit all modules in a table"
+          >
+            <Table2Icon className="size-4" />
+            Bulk Edit
+          </Button>
+          <Button
             variant={reorderMode ? "secondary" : "outline"}
             size="sm"
             onClick={() => setReorderMode(!reorderMode)}
-            disabled={isAnyEditing}
+            disabled={otherActionsDisabled}
             aria-pressed={reorderMode}
             title="Toggle reordering of groups and modules"
           >
@@ -87,7 +111,7 @@ export function ModuleAdminHeader({
             variant="outline"
             size="sm"
             onClick={() => setCreatingModuleIn(UNGROUPED_KEY)}
-            disabled={isAnyEditing}
+            disabled={otherActionsDisabled}
           >
             <PlusIcon className="size-4" />
             Add
@@ -98,7 +122,7 @@ export function ModuleAdminHeader({
             variant="outline"
             size="sm"
             onClick={() => setCreatingGroup(true)}
-            disabled={isAnyEditing}
+            disabled={otherActionsDisabled}
           >
             <PlusIcon className="size-4" />
             New
