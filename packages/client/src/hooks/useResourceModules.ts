@@ -7,7 +7,6 @@ import {
   DEFAULT_GROUP_LABEL,
   DEFAULT_MODULE_LABEL,
   DEFAULT_MODULES_CONFIG,
-  isModuleComplete,
 } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
