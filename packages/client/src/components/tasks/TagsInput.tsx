@@ -15,7 +15,7 @@ import {
   ComboboxLabel,
   ComboboxList,
   useComboboxAnchor,
-} from "@/components/combobox";
+} from "@/components/ui/combobox";
 
 interface TagsInputProps {
   value: string[];

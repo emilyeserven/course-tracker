@@ -7,8 +7,8 @@ import type {
 
 import { useState } from "react";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
+import { EditFormActions } from "@/components/layout/EditFormActions";
+import { Input } from "@/components/ui/input";
 
 export const COLUMN_COUNT = 8;
 

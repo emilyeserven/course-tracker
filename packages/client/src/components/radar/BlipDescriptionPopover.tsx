@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 
 import { PencilIcon } from "lucide-react";
 
-import { Input } from "@/components/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/popover";
 
 interface BlipDescriptionPopoverProps {
   value: string;

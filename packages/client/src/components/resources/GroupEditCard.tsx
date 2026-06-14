@@ -5,12 +5,12 @@ import { useState } from "react";
 
 import { levelChipClass } from "./moduleDrafts";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
+import { EditFormActions } from "@/components/layout/EditFormActions";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
 import { TagChip } from "@/components/tasks/TagChip";
-import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export function GroupMetaChips({
   easeOfStarting,

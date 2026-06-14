@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { DailyCompletionsManager } from "@/components/dailies/DailyCompletionsManager";
-import { EntityError, EntityPending } from "@/components/EntityStates";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { fetchSingleDaily } from "@/utils";
 
 interface EntriesTabProps {

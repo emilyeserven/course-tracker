@@ -1,24 +1,25 @@
 import type { ControlledDialogProps } from "@/types/dialogProps";
 
 import { QuickAddIntegrationDialog } from "./QuickAddIntegrationDialog";
-import { useQuickAddReadwise } from "./useQuickAddReadwise";
+import { useQuickAddTodoist } from "./useQuickAddTodoist";
 
-import { Input } from "@/components/input";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-export function QuickAddReadwiseDialog({
+export function QuickAddTodoistDialog({
   open,
   onOpenChange,
 }: ControlledDialogProps) {
   const {
-    url,
-    setUrl,
-    title,
-    setTitle,
+    content,
+    setContent,
+    description,
+    setDescription,
     configured,
     handleSubmit,
     isPending,
     canSubmit,
-  } = useQuickAddReadwise({
+  } = useQuickAddTodoist({
     open,
     onOpenChange,
   });
@@ -27,50 +28,49 @@ export function QuickAddReadwiseDialog({
     <QuickAddIntegrationDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Save to Readwise"
+      title="Add Todoist task"
       description={(
         <>
-          The article is tagged
+          The task is labeled
           {" "}
           <code>from-coursetracker</code>
           .
         </>
       )}
-      providerName="Readwise"
+      providerName="Todoist"
       configured={configured}
       isPending={isPending}
       canSubmit={canSubmit}
-      submitLabel="Save"
+      submitLabel="Add"
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-1">
         <label
-          htmlFor="quick-add-readwise-url"
+          htmlFor="quick-add-todoist-content"
           className="text-xs font-medium text-muted-foreground"
         >
-          URL
+          Title
         </label>
         <Input
-          id="quick-add-readwise-url"
-          type="url"
+          id="quick-add-todoist-content"
           autoFocus
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-          placeholder="https://example.com/article"
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder="What needs doing?"
         />
       </div>
       <div className="flex flex-col gap-1">
         <label
-          htmlFor="quick-add-readwise-title"
+          htmlFor="quick-add-todoist-description"
           className="text-xs font-medium text-muted-foreground"
         >
-          Title (optional)
+          Description (optional)
         </label>
-        <Input
-          id="quick-add-readwise-title"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          placeholder="Leave blank to use the page title"
+        <Textarea
+          id="quick-add-todoist-description"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          placeholder="Add any extra detail"
         />
       </div>
     </QuickAddIntegrationDialog>

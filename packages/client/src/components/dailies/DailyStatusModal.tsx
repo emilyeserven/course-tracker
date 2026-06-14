@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
 
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 import { getTodayKey } from "@/utils";

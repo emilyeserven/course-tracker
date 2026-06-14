@@ -10,8 +10,7 @@ import { useState } from "react";
 
 import { PencilIcon, PlusIcon } from "lucide-react";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
+import { EditFormActions } from "@/components/layout/EditFormActions";
 import {
   DIFFICULTY_OPTIONS,
   PROGRESS_COLOR,
@@ -20,9 +19,10 @@ import {
   UNDERSTANDING_OPTIONS,
 } from "@/components/resources/interactionMeta";
 import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
-import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { NEW_ROW_ID } from "@/constants/sentinels";
 import { useInteractionsLog } from "@/hooks/useInteractionsLog";
 

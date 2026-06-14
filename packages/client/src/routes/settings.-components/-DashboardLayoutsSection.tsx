@@ -1,13 +1,13 @@
-import type { LayoutMenuHandlers } from "@/components/LayoutMenuActions";
+import type { LayoutMenuHandlers } from "@/components/layout/LayoutMenuActions";
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
 import { BookmarkIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
 
 import { useDashboardLayouts } from "./-useDashboardLayouts";
 
-import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { LayoutMenuActions } from "@/components/LayoutMenuActions";
-import { LayoutNameDialog } from "@/components/LayoutNameDialog";
+import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
+import { LayoutNameDialog } from "@/components/dialogs/LayoutNameDialog";
+import { LayoutMenuActions } from "@/components/layout/LayoutMenuActions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

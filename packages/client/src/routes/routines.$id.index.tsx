@@ -10,8 +10,8 @@ import { RoutineDetailsContent } from "./routines.$id.-components/-RoutineDetail
 import { RoutineTodayCard } from "./routines.$id.-components/-RoutineTodayCard";
 
 import { DAILY_DETAIL_TABS } from "@/components/dailies";
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleRoutine } from "@/utils";
 

@@ -6,9 +6,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/popover";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { useHoverPopover } from "@/hooks/useHoverPopover";
 import { cn } from "@/lib/utils";

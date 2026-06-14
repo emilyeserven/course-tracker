@@ -4,7 +4,7 @@ import { fn } from "storybook/test";
 
 import { QuickAddIntegrationDialog } from "./QuickAddIntegrationDialog";
 
-import { Input } from "@/components/input";
+import { Input } from "@/components/ui/input";
 import { RouterStub } from "@/test-utils/RouterStub";
 
 const meta: Meta<typeof QuickAddIntegrationDialog> = {

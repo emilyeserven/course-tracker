@@ -3,9 +3,9 @@ import type { RadarBlip, RadarQuadrant, RadarRing } from "@emstack/types";
 import { Loader2, XIcon } from "lucide-react";
 
 import { BlipPlacementSelect } from "@/components/radar/BlipPlacementSelect";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface BlipEditDraft {
   quadrantId: string;

@@ -3,9 +3,7 @@ import type { DailyCriteriaTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
-import { EditModalFooter } from "@/components/EditModalFooter";
-import { Input } from "@/components/input";
-import { Textarea } from "@/components/textarea";
+import { EditModalFooter } from "@/components/dialogs/EditModalFooter";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 
 interface DailyCriteriaTemplateEditModalProps extends ControlledDialogProps {

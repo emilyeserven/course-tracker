@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 
 import { CheckIcon, PencilIcon } from "lucide-react";
 
-import { Input } from "@/components/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { cn } from "@/lib/utils";
 

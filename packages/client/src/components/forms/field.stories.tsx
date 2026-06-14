@@ -12,7 +12,7 @@ import {
   FieldSet,
 } from "./field";
 
-import { Input } from "@/components/input";
+import { Input } from "@/components/ui/input";
 
 const meta = {
   component: Field,

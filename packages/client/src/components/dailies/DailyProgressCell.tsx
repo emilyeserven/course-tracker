@@ -6,7 +6,7 @@ import {
   Popover,
   PopoverAnchor,
   PopoverContent,
-} from "@/components/popover";
+} from "@/components/ui/popover";
 import { RadialProgress } from "@/components/ui/RadialProgress";
 import {
   Tooltip,

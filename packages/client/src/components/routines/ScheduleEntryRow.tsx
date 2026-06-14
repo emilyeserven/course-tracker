@@ -3,8 +3,8 @@ import type { SelectOption } from "@/utils";
 
 import { buildActionableSentence } from "@emstack/types";
 
-import { Combobox, ComboboxInput } from "@/components/combobox";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
   // Displayed label for the row (e.g. "Monday" or "Mon, Jun 15").

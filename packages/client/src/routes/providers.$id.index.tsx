@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon, ExternalLink } from "lucide-react";
 
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import {
   InfoArea,
   InfoRow,
@@ -10,6 +9,7 @@ import {
   YesNoDisplay,
 } from "@/components/infoCard";
 import { EntityHeaderButton, PageHeader } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils";
 

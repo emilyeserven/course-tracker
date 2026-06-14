@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
 
-import { Input } from "@/components/input";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 
 interface QuickAddNameDialogProps {

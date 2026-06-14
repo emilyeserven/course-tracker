@@ -8,7 +8,7 @@ import {
   ComboboxItem,
   ComboboxList,
   useComboboxAnchor,
-} from "@/components/combobox";
+} from "@/components/ui/combobox";
 
 interface TopicMultiSelectProps {
   options: { value: string;

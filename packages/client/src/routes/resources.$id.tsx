@@ -7,8 +7,8 @@ import {
 } from "@tanstack/react-router";
 import { EditIcon, ExternalLink, EyeIcon } from "lucide-react";
 
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import { PageHeader } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleResource } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";

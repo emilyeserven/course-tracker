@@ -6,8 +6,8 @@ import { ExcludedTopicsList } from "./domains.$id.-components/-ExcludedTopicsLis
 import { RadarChart } from "./domains.$id.-components/-RadarChart";
 import { TopicLinkList } from "./domains.$id.-components/-TopicLinkList";
 
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchRadar, fetchSingleDomain } from "@/utils";
 

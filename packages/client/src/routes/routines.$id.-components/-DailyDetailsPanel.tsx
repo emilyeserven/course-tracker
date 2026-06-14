@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { DailyCompletionsManager } from "@/components/dailies/DailyCompletionsManager";
 import { DailyRecentDaysStrip } from "@/components/dailies/DailyRecentDaysStrip";
 import { DAILY_STATUS_OPTIONS } from "@/components/dailies/dailyStatusMeta";
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   fetchSingleDaily,

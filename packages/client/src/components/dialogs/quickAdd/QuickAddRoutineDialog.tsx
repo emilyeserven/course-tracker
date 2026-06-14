@@ -4,8 +4,6 @@ import type { RoutineMode } from "@emstack/types";
 import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
 import { useQuickAddRoutine } from "./useQuickAddRoutine";
 
-import { Input } from "@/components/input";
-import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 
 export function QuickAddRoutineDialog({

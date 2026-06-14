@@ -1,9 +1,9 @@
-import type { LayoutMenuHandlers } from "@/components/LayoutMenuActions";
+import type { LayoutMenuHandlers } from "@/components/layout/LayoutMenuActions";
 import type { DashboardLayout } from "@emstack/types";
 
 import { LayoutGridIcon, MoreHorizontalIcon } from "lucide-react";
 
-import { LayoutMenuActions } from "@/components/LayoutMenuActions";
+import { LayoutMenuActions } from "@/components/layout/LayoutMenuActions";
 import {
   DropdownMenu,
   DropdownMenuContent,

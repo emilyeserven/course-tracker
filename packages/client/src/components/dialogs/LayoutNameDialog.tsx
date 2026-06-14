@@ -2,7 +2,6 @@ import type { ControlledDialogProps } from "@/types/dialogProps";
 
 import { useEffect, useState } from "react";
 
-import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface LayoutNameDialogProps extends ControlledDialogProps {
   title: string;

@@ -23,10 +23,11 @@ Two homes for components (see `packages/client/CLAUDE.md`):
 
 - **Shared library** — `src/components/**`, imported via the `@/components/...`
   alias and reused across routes. Includes intentionally-shared **primitives**:
-  `components/ui/`, `components/layout/`, `components/formFields/`, and the
-  root-level shadcn files (`button.tsx`, `combobox.tsx`, `popover.tsx`, …).
-  Also feature folders (`dailies/`, `routines/`, `radar/`, `tasks/`,
-  `resources/`, `boxes/`, …).
+  `components/ui/` (the shadcn primitives, incl. `button`, `combobox`, `popover`,
+  `input`, …), `components/layout/`, `components/formFields/`, and the shared
+  `components/dialogs/` family. Also feature folders (`dailies/`, `routines/`,
+  `radar/`, `tasks/`, `resources/`, `boxes/`, …). No component lives directly in
+  `components/` — everything is in a themed subdirectory.
 - **Route-private** — sibling `*.-components/` folders (the `.-` prefix keeps
   them out of TanStack routing), imported by relative path like
   `./dashboard.-components/-DashboardGrid`.
@@ -107,7 +108,7 @@ route has none).
 
 **Guardrails — do not flag:**
 
-- Anything in `ui/`, `layout/`, `formFields/`, or a root shadcn file.
+- Anything in `ui/`, `layout/`, `formFields/`, or `dialogs/`.
 - A component with **more than one** route family in its consumer set.
 - A single-consumer component that is **clearly a reusable primitive by design**
   (generic, presentational, no route coupling — e.g. a generic `ProgressBar`).
@@ -185,6 +186,6 @@ ask you to file a specific bucket.
 ## Guardrails recap — never flag
 
 - Shared primitives: `components/ui/`, `components/layout/`, `components/formFields/`,
-  root shadcn files.
+  `components/dialogs/`.
 - Generated files: `routeTree.gen.ts`.
 - Test/story files as standalone candidates — they follow their component.

@@ -5,9 +5,9 @@ import { useMemo, useState } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
-import { Combobox, ComboboxInput } from "@/components/combobox";
-import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
+import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface WeeklyEntryEditorProps extends WeeklyEntry {
   onChange: (next: WeeklyEntry) => void;

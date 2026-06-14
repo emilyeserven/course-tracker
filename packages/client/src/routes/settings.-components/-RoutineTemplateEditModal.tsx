@@ -5,8 +5,7 @@ import type { RoutineTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
-import { EditModalFooter } from "@/components/EditModalFooter";
-import { Input } from "@/components/input";
+import { EditModalFooter } from "@/components/dialogs/EditModalFooter";
 import { rowsToWeekly, weeklyToRows } from "@/components/routines/weekly";
 import { WeeklyScheduleField } from "@/components/routines/WeeklyScheduleField";
 import {
@@ -16,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface RoutineTemplateEditModalProps extends ControlledDialogProps {
   template: RoutineTemplate | null;

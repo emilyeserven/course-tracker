@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { fetchSettings, updateSettings } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 

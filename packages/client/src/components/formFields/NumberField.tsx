@@ -1,7 +1,7 @@
 import type { BaseFieldProps } from "@/types/fieldProps";
 
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
-import { Input } from "@/components/input";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   changedFieldClass,

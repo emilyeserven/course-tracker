@@ -5,13 +5,13 @@ import { EditIcon } from "lucide-react";
 import { DomainLinkList } from "./topics.$id.-components/-DomainLinkList";
 import { RoutineLinkList } from "./topics.$id.-components/-RoutineLinkList";
 
-import { EntityError, EntityPending } from "@/components/EntityStates";
 import {
   EntityHeaderButton,
   InfoArea,
   PageHeader,
   ResourceLinksSection,
 } from "@/components/layout";
+import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { fetchRoutines, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({

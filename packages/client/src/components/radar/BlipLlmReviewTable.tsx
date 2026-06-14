@@ -19,11 +19,10 @@ import {
   ringChanged,
 } from "./blipLlmReview";
 
-import { Input } from "@/components/input";
-import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -33,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ReviewTableProps {
   // Shared prop shape with the row/cell components; structural overlap only.

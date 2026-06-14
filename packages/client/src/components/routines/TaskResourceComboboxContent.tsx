@@ -5,7 +5,7 @@ import {
   ComboboxEmpty,
   ComboboxItem,
   ComboboxList,
-} from "@/components/combobox";
+} from "@/components/ui/combobox";
 
 /**
  * Dropdown body (empty state + value list) for the task/resource combobox used

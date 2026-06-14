@@ -13,8 +13,8 @@ export {
   tilesEqual,
   toggleTile,
 } from "@/lib/dashboardTiles";
-export { ConfirmDialog } from "@/components/ConfirmDialog";
-export { LayoutNameDialog } from "@/components/LayoutNameDialog";
+export { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
+export { LayoutNameDialog } from "@/components/dialogs/LayoutNameDialog";
 export { PageHeader } from "@/components/layout/PageHeader";
 export { Button } from "@/components/ui/button";
 export { Tabs, TabsList } from "@/components/ui/tabs";

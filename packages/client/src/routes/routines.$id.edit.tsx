@@ -12,9 +12,9 @@ import {
   NewRoutineForm,
 } from "./routines.$id.edit.-components";
 
+import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
 import { EditPageFooter, PageHeader, PageTabs } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { UnsavedChangesDialog } from "@/components/UnsavedChangesDialog";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   deleteSingleRoutine,

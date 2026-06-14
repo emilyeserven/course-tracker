@@ -5,8 +5,8 @@ import { CopyIcon, Loader2 } from "lucide-react";
 import { BulkEditBar } from "./BlipLlmBulkEditBar";
 import { ReviewTable } from "./BlipLlmReviewTable";
 
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useBlipLlmAssist } from "@/hooks/useBlipLlmAssist";
 
 export type BlipLlmAssistProps = UseBlipLlmAssistArgs;

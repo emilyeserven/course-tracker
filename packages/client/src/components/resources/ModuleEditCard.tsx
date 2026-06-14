@@ -8,11 +8,11 @@ import {
   MODULE_DURATION_LABELS,
 } from "@emstack/types";
 
-import { EditFormActions } from "@/components/EditFormActions";
-import { Input } from "@/components/input";
+import { EditFormActions } from "@/components/layout/EditFormActions";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
-import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ModuleEditCard({
   draft: initial,

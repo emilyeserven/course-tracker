@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { LAYOUT_PRESETS } from "./-layoutPresets";
 
-import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,

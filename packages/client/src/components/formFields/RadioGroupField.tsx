@@ -2,8 +2,8 @@ import type { BaseFieldProps } from "@/types/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import { Field, FieldLabel } from "@/components/forms/field";
-import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import {
   changedFieldClass,
