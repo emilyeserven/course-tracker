@@ -9,5 +9,4 @@ export { InteractionQuickLog } from "./InteractionQuickLog";
 export { ModuleDetailsPanel } from "./ModuleDetailsPanel";
 export { ModuleDisplayRow } from "./ModuleDisplayRow";
 export { ModuleEditCard } from "./ModuleEditCard";
-export { ModuleStatusControl } from "./ModuleStatusControl";
 export { ModuleSuggestDialog } from "./ModuleSuggestDialog";
