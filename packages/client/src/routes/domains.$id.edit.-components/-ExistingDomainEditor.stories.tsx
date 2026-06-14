@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { ExistingDomainEditor } from "./-ExistingDomainEditor";
 
 import { makeDomain, makeTopicRows } from "@/test-utils/boxFixtures";
@@ -11,6 +9,7 @@ import {
   queryStubDecorator,
   routerDecorator,
 } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const DOMAIN_ID = "domain-1";
 
@@ -41,35 +40,26 @@ type Story = StoryObj<typeof meta>;
 // (default) Details tab body.
 export const Loaded: Story = {
   decorators: [queryStubDecorator(seededClient)],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: /edit domain/i,
-      }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByRole("tab", {
+  play: smokePlay([
+    {
+      role: "heading",
+      name: /edit domain/i,
+    },
+    {
+      role: "tab",
       name: /details/i,
-    })).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save details/i,
-      }),
-    ).toBeInTheDocument();
-  },
+    },
+    {
+      role: "button",
+      name: /save details/i,
+    },
+  ]),
 };
 
 // Before the domain query resolves the editor renders its loading placeholder.
 export const Loading: Story = {
   decorators: [queryStubDecorator()],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByText(/loading domain/i),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: /loading domain/i,
+  }]),
 };

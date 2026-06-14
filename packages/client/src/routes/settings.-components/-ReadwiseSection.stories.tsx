@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { ReadwiseSection } from "./-ReadwiseSection";
 
 import { seededSettingsClient } from "@/test-utils/settingsFixtures";
 import { queryStubDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta = {
   component: ReadwiseSection,
@@ -18,19 +17,14 @@ type Story = StoryObj<typeof meta>;
 
 // The Readwise integration wraps IntegrationKeySection with its preset copy.
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("heading", {
-        name: "Readwise",
-      }),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("link", {
-        name: /readwise\.io\/access_token/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: "Readwise",
+    },
+    {
+      role: "link",
+      name: /readwise\.io\/access_token/i,
+    },
+  ]),
 };

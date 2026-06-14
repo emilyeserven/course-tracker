@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { IntegrationKeySection } from "./-IntegrationKeySection";
 
 import { seededSettingsClient } from "@/test-utils/settingsFixtures";
 import { queryStubDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 import { queryKeys } from "@/utils/queryKeys";
 
 const meta = {
@@ -32,21 +31,16 @@ type Story = StoryObj<typeof meta>;
 
 // No key saved yet: the input plus a "Save key" action.
 export const Unconfigured: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("heading", {
-        name: "Readwise",
-      }),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save key/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: "Readwise",
+    },
+    {
+      role: "button",
+      name: /save key/i,
+    },
+  ]),
 };
 
 // A saved key surfaces the masked hint plus Update/Remove actions.
@@ -58,17 +52,13 @@ export const Configured: Story = {
         readwiseKeyHint: "aB3x",
       })),
   ],
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByText(/ending aB3x/i),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /remove/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: /ending aB3x/i,
+    },
+    {
+      role: "button",
+      name: /remove/i,
+    },
+  ]),
 };
