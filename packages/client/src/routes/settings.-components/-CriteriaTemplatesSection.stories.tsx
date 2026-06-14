@@ -1,24 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { CriteriaTemplatesSection } from "./-CriteriaTemplatesSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeCriteriaTemplate } from "@/test-utils/templatesFixtures";
 
 function clientWith(templates = [makeCriteriaTemplate()]) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["dailyCriteriaTemplates"], templates);
-  return client;
+  return seededQueryClient([[["dailyCriteriaTemplates"], templates]]);
 }
 
 const meta = {

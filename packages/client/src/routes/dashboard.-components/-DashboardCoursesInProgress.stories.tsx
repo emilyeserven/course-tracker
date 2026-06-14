@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
@@ -9,19 +8,13 @@ import { makeResources } from "@/test-utils/boxFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function clientWith(resources: unknown) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["resources"], resources);
-  client.setQueryData(["dailies"], []);
-  return client;
+  return seededQueryClient([
+    [["resources"], resources],
+    [["dailies"], []],
+  ]);
 }
 
 const meta: Meta<typeof DashboardCoursesInProgress> = {

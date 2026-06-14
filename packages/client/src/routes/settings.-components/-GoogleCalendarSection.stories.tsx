@@ -1,25 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { GoogleCalendarSection } from "./-GoogleCalendarSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeCalendarFeed } from "@/test-utils/settingsFixtures";
 import { queryKeys } from "@/utils/queryKeys";
 
 function clientWith(feeds = [makeCalendarFeed()]) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.googleCalendar.feeds(), feeds);
-  return client;
+  return seededQueryClient([[queryKeys.googleCalendar.feeds(), feeds]]);
 }
 
 const meta = {

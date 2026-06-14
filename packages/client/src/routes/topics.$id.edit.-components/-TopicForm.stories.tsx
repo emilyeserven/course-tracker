@@ -1,7 +1,7 @@
 import type { Topic } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { QueryKey } from "@tanstack/react-query";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { TopicForm } from "./-TopicForm";
@@ -9,6 +9,7 @@ import { TopicForm } from "./-TopicForm";
 import { makeDomain, makeResources } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 const TOPIC_ID = "topic-1";
 
@@ -30,23 +31,17 @@ const topicDetail: Topic = {
 // Seeds the option lists every variant needs; `seedDetail` adds the topic detail
 // for the edit form (the create form leaves it out — its query is disabled).
 function buildClient(seedDetail: boolean) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
+  const entries: [QueryKey, unknown][] = [
+    [["domains"], [makeDomain()]],
+    [["tagGroups"], []],
+    [["resources"], makeResources()],
+    [["module-groups-all"], []],
+    [["modules-all"], []],
+  ];
   if (seedDetail) {
-    client.setQueryData(["topic", TOPIC_ID], topicDetail);
+    entries.unshift([["topic", TOPIC_ID], topicDetail]);
   }
-  client.setQueryData(["domains"], [makeDomain()]);
-  client.setQueryData(["tagGroups"], []);
-  client.setQueryData(["resources"], makeResources());
-  client.setQueryData(["module-groups-all"], []);
-  client.setQueryData(["modules-all"], []);
-  return client;
+  return seededQueryClient(entries);
 }
 
 const meta = {

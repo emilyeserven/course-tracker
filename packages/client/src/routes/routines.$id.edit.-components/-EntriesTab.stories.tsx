@@ -1,33 +1,26 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { EntriesTab } from "./-EntriesTab";
 
 import { makeDaily, makeRecentCompletions } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 const DAILY_ID = "daily-1";
 
 // Seeds the daily projection the tab reads so the completions manager renders
 // instead of the pending/error placeholder.
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(
-    ["daily", DAILY_ID],
-    makeDaily({
-      completions: makeRecentCompletions(["goal", "touched", "goal"]),
-    }),
-  );
-  return client;
+  return seededQueryClient([
+    [
+      ["daily", DAILY_ID],
+      makeDaily({
+        completions: makeRecentCompletions(["goal", "touched", "goal"]),
+      }),
+    ],
+  ]);
 }
 
 const meta = {

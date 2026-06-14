@@ -1,7 +1,6 @@
 import type { Module, ModuleGroup, Resource } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { ResourceModulesAdmin } from "./ResourceModulesAdmin";
@@ -12,6 +11,7 @@ import {
   makeModuleGroup,
   makeTagGroups,
 } from "@/test-utils/resourceModulesFixtures";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryKeys } from "@/utils/queryKeys";
 
 const RESOURCE_ID = "resource-1";
@@ -35,24 +35,17 @@ const resourceDetail: Resource = {
 };
 
 // Seed everything `useResourceModules` reads via useQuery so the admin renders
-// without any network call. staleTime Infinity keeps the seeded entries fresh.
+// without any network call.
 function seededClient(seed: {
   groups: ModuleGroup[];
   modules: Module[];
-}): QueryClient {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.resources.moduleGroups(RESOURCE_ID), seed.groups);
-  client.setQueryData(queryKeys.resources.modules(RESOURCE_ID), seed.modules);
-  client.setQueryData(queryKeys.tagGroups.list(), makeTagGroups());
-  client.setQueryData(queryKeys.resources.detail(RESOURCE_ID), resourceDetail);
-  return client;
+}) {
+  return seededQueryClient([
+    [queryKeys.resources.moduleGroups(RESOURCE_ID), seed.groups],
+    [queryKeys.resources.modules(RESOURCE_ID), seed.modules],
+    [queryKeys.tagGroups.list(), makeTagGroups()],
+    [queryKeys.resources.detail(RESOURCE_ID), resourceDetail],
+  ]);
 }
 
 const meta = {

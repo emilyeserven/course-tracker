@@ -1,26 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, screen, userEvent, within } from "storybook/test";
 
 import { QuickFillMenu } from "./-QuickFillMenu";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeCriteriaTemplate } from "@/test-utils/templatesFixtures";
 
 // Seeds one template list so the menu renders its items without a network call.
 function clientWith(key: string, data: unknown) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData([key], data);
-  return client;
+  return seededQueryClient([[[key], data]]);
 }
 
 const meta: Meta<typeof QuickFillMenu> = {

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { RoutineTodayCard } from "./-RoutineTodayCard";
@@ -9,19 +8,13 @@ import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["tasks"], [makeTask()]);
-  client.setQueryData(["resources"], makeResources());
-  return client;
+  return seededQueryClient([
+    [["tasks"], [makeTask()]],
+    [["resources"], makeResources()],
+  ]);
 }
 
 const meta = {

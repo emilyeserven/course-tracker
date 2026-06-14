@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, userEvent, within } from "storybook/test";
 
 import { DailyDetailsPanel } from "./DailyDetailsPanel";
@@ -8,6 +7,7 @@ import { DailyDetailsPanel } from "./DailyDetailsPanel";
 import { makeDaily, makeRecentCompletions } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 const daily = makeDaily({
   id: "daily-1",
@@ -34,17 +34,7 @@ const daily = makeDaily({
 
 // Seed the cache the panel reads via useQuery(["daily", id]) so it renders the
 // loaded state without a real API.
-// staleTime Infinity so the seeded entry is never refetched — a background
-// refetch would hit no API, flip the query to `error`, and render EntityError.
-const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      staleTime: Infinity,
-    },
-  },
-});
-client.setQueryData(["daily", "daily-1"], daily);
+const client = seededQueryClient([[["daily", "daily-1"], daily]]);
 
 const meta: Meta<typeof DailyDetailsPanel> = {
   component: DailyDetailsPanel,

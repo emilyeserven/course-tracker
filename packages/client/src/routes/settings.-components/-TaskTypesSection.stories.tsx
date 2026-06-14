@@ -1,24 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { TaskTypesSection } from "./-TaskTypesSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeTaskType } from "@/test-utils/settingsFixtures";
 
 function clientWith(taskTypes = [makeTaskType()]) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["taskTypes"], taskTypes);
-  return client;
+  return seededQueryClient([[["taskTypes"], taskTypes]]);
 }
 
 const meta = {

@@ -1,35 +1,31 @@
 import type { AppSettingsSummary } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { QuickAddReadwiseDialog } from "./QuickAddReadwiseDialog";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seed the settings query the dialog reads via useQuery so it renders the right
-// branch without a network call. staleTime Infinity keeps the seed fresh.
-function settingsClient(over: Partial<AppSettingsSummary> = {}): QueryClient {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.settings.detail(), {
-    readwiseConfigured: false,
-    readwiseKeyHint: null,
-    todoistConfigured: false,
-    todoistKeyHint: null,
-    focusedDomainIds: [],
-    ...over,
-  } satisfies AppSettingsSummary);
-  return client;
+// branch without a network call.
+function settingsClient(over: Partial<AppSettingsSummary> = {}) {
+  return seededQueryClient([
+    [
+      queryKeys.settings.detail(),
+      {
+        readwiseConfigured: false,
+        readwiseKeyHint: null,
+        todoistConfigured: false,
+        todoistKeyHint: null,
+        focusedDomainIds: [],
+        ...over,
+      } satisfies AppSettingsSummary,
+    ],
+  ]);
 }
 
 const meta: Meta<typeof QuickAddReadwiseDialog> = {

@@ -1,36 +1,32 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { DashboardLayoutsSection } from "./-DashboardLayoutsSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeLayout } from "@/test-utils/settingsFixtures";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seeds one tab layout + one saved preset so both lists render.
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.dashboardLayouts.list(), [
-    makeLayout({
-      name: "Main",
-    }),
-    makeLayout({
-      id: "layout-2",
-      name: "Reading preset",
-      isTemplate: true,
-      position: null,
-    }),
+  return seededQueryClient([
+    [
+      queryKeys.dashboardLayouts.list(),
+      [
+        makeLayout({
+          name: "Main",
+        }),
+        makeLayout({
+          id: "layout-2",
+          name: "Reading preset",
+          isTemplate: true,
+          position: null,
+        }),
+      ],
+    ],
   ]);
-  return client;
 }
 
 const meta = {

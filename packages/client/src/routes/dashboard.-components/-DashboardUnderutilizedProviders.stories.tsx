@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardUnderutilizedProviders } from "./-DashboardUnderutilizedProviders";
@@ -9,18 +8,10 @@ import { makeProvider } from "@/test-utils/boxFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function clientWith(providers: unknown) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["providers"], providers);
-  return client;
+  return seededQueryClient([[["providers"], providers]]);
 }
 
 const meta: Meta<typeof DashboardUnderutilizedProviders> = {
