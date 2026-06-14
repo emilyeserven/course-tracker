@@ -4,8 +4,8 @@ React 19 + Vite frontend. Read the root CLAUDE.md for commands and setup; this f
 
 ## Routing
 
-- File-based routing with TanStack Router; route files live in `src/routes/`.
-- Naming: `foo.tsx` is the layout, `foo.index.tsx` the index page, `foo.$id.tsx` the dynamic-segment layout, `foo.$id.edit.tsx` a child route. Route-private components live in sibling `foo.-components/` directories (the `.-` prefix keeps them out of routing).
+- Directory-based routing with TanStack Router; route files live in `src/routes/`, with the folder tree mirroring the URL tree (one folder per path segment).
+- Naming: `foo/route.tsx` is the layout for `/foo`, `foo/index.tsx` the index page, `foo/$id/route.tsx` the dynamic-segment layout, `foo/$id/edit/route.tsx` a child route at `/foo/$id/edit`. Every route segment is its own folder with a `route.tsx`/`index.tsx`, even leaf routes. Route-private components live in a sibling `-components/` folder at the matching level (the leading `-` keeps the folder and everything under it out of routing). `__root.tsx` and the top-level `index.tsx` (the `/` route) stay flat at the routes root.
 - `src/routeTree.gen.ts` is **generated — never edit or read it**. Regenerate with `pnpm --filter=@emstack/client run routeTree` (the vite dev server also regenerates it on save).
 - Path alias: `@` → `packages/client/src`.
 
@@ -68,7 +68,7 @@ Theme support via ThemeProvider context (`src/hooks/useTheme.ts`, dark/light mod
 
 ## Adding a new page
 
-1. Create the route file in `src/routes/` following the naming conventions above.
+1. Create the route folder + `route.tsx`/`index.tsx` under `src/routes/` following the directory conventions above (e.g. `src/routes/foo/route.tsx`).
 2. Regenerate the route tree (`pnpm --filter=@emstack/client run routeTree`).
 3. Edit pages: use `useEditFormPage`; loading/error placeholders: `EntityPending` / `EntityError`.
 4. Add navigation in `src/routes/__root.tsx` if the page should appear in the nav.

@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
-import { LinkedRoutinesSection } from "./tasks.$id.-components/-LinkedRoutinesSection";
-import { ResourcesTable } from "./tasks.$id.-components/-ResourcesTable";
-import { TodosChecklist } from "./tasks.$id.-components/-TodosChecklist";
+import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
+import { ResourcesTable } from "./-components/-ResourcesTable";
+import { TodosChecklist } from "./-components/-TodosChecklist";
 
 import { InfoArea, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";

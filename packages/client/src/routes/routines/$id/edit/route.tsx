@@ -10,7 +10,7 @@ import {
   DetailsTab,
   EntriesTab,
   NewRoutineForm,
-} from "./routines.$id.edit.-components";
+} from "./-components";
 
 import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
 import { EditPageFooter, PageHeader, PageTabs } from "@/components/layout";

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 
-import { formSchema } from "./tasks.$id.edit.-components/-taskFormSchema";
+import { formSchema } from "./-components/-taskFormSchema";
 
 import {
   Button,

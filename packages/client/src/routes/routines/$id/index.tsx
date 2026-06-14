@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
-import { DailyDetailsPanel } from "./routines.$id.-components/-DailyDetailsPanel";
-import { RoutineDetailsContent } from "./routines.$id.-components/-RoutineDetailsContent";
-import { RoutineTodayCard } from "./routines.$id.-components/-RoutineTodayCard";
+import { DailyDetailsPanel } from "./-components/-DailyDetailsPanel";
+import { RoutineDetailsContent } from "./-components/-RoutineDetailsContent";
+import { RoutineTodayCard } from "./-components/-RoutineTodayCard";
 
 import { DAILY_DETAIL_TABS } from "@/components/dailies";
 import { PageHeader } from "@/components/layout";

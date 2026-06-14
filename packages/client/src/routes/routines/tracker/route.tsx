@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { TrackerTables } from "./routines.tracker.-components/-TrackerTables";
+import { TrackerTables } from "./-components/-TrackerTables";
 
 import { PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";

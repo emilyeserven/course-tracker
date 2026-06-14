@@ -13,7 +13,7 @@ import {
   TaskTypesSection,
   ThemeSection,
   TodoistSection,
-} from "./settings.-components";
+} from "./-components";
 
 import { PageHeader, PageTabs } from "@/components/layout";
 

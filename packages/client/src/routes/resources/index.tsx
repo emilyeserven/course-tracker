@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { ResourcesList } from "./resources.-components/-ResourcesList";
+import { ResourcesList } from "./-components/-ResourcesList";
 
 import {
   EntityError,

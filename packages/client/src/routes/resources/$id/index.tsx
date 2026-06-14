@@ -9,8 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
-import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceInteractionsLog";
-import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
+import { ResourceInteractionsLog } from "./-components/-ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "./-components/-ResourceModulesAdmin";
 
 import { TopicList } from "@/components/boxElements";
 import { RoutineBox } from "@/components/contentBoxComponents";
