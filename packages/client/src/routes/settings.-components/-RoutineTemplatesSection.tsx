@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { RoutineTemplateEditModal } from "./-RoutineTemplateEditModal";
 
 import { Button } from "@/components/ui/button";
+import { NEW_ROW_ID } from "@/constants/sentinels";
 import {
   createRoutineTemplate,
   deleteSingleRoutineTemplate,
@@ -20,11 +21,9 @@ import {
 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
-const NEW_ROUTINE_TEMPLATE_ID = "__new__";
-
 function makeEmptyRoutineTemplate(): RoutineTemplate {
   return {
-    id: NEW_ROUTINE_TEMPLATE_ID,
+    id: NEW_ROW_ID,
     label: "",
     weekly: {},
   };

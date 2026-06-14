@@ -15,6 +15,7 @@ import {
   UnsavedChangesDialog,
 } from "@/components/editPage";
 import { ResourceLinksPicker, useAppForm } from "@/components/formFields";
+import { NAME_MAX_LENGTH, TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createDomain,
@@ -33,9 +34,9 @@ import {
 } from "@/utils";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(500),
-  reason: z.string().max(500),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
+  description: z.string().max(TEXT_MAX_LENGTH),
+  reason: z.string().max(TEXT_MAX_LENGTH),
   domainIds: z.array(z.string()),
   tagIds: z.array(z.string()),
   resourceLinks: z.array(

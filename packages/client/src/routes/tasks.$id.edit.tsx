@@ -14,6 +14,7 @@ import {
   UnsavedChangesDialog,
 } from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createTask,
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/tasks/$id/edit")({
 });
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   description: z.string().max(2000),
   topicId: z.string(),
   taskTypeId: z.string(),

@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import { routeTree } from "./routeTree.gen.ts";
 
+import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { SettingsProvider } from "@/context/SettingsProvider.tsx";
 import { ThemeProvider } from "@/context/ThemeProvider.tsx";
 
@@ -33,7 +34,7 @@ if (!rootElement.innerHTML) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider
           defaultTheme="light"
-          storageKey="vite-ui-theme"
+          storageKey={STORAGE_KEYS.theme}
         >
           <SettingsProvider>
             <RouterProvider

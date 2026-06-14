@@ -10,6 +10,7 @@ import { TaskTypeEditRow } from "./-TaskTypeEditRow";
 
 import { TagChip } from "@/components/tasks/TagChip";
 import { Button } from "@/components/ui/button";
+import { NEW_ROW_ID } from "@/constants/sentinels";
 import {
   createTaskType,
   deleteSingleTaskType,
@@ -17,11 +18,9 @@ import {
   upsertTaskType,
 } from "@/utils";
 
-const NEW_TASK_TYPE_ID = "__new__";
-
 function makeEmptyTaskType(): TaskType {
   return {
-    id: NEW_TASK_TYPE_ID,
+    id: NEW_ROW_ID,
     name: "",
     whenToUse: "",
     tags: [],

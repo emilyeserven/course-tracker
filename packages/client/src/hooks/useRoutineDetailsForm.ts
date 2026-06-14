@@ -18,6 +18,7 @@ import {
   rowsToWeekly,
   weeklyToRows,
 } from "@/components/routines";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import {
   buildConnectionOptions,
   decodeConnection,
@@ -63,7 +64,7 @@ const curatedRowSchema = z
   });
 
 const detailsSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   description: z.string().max(2000),
   connections: z.array(z.string()),
   status: z.enum(["active", "inactive", "complete", "paused"]),
@@ -132,26 +133,23 @@ export function useRoutineDetailsForm(
 
   const todayKey = getTodayKey();
 
-  const startingValues = useMemo(
-    () => {
-      const curatedEndKey = routine.curated?.endDate ?? null;
-      return {
-        name: routine.name ?? "",
-        description: routine.description ?? "",
-        connections: (routine.connections ?? []).map(encodeConnection),
-        status: routine.status ?? "active",
-        mode: routine.mode ?? "weekly",
-        weekly: weeklyToRows(routine.weekly),
-        curatedEndDate: curatedEndKey ? keyToDate(curatedEndKey) : null,
-        curated: curatedToRows(
-          routine.curated,
-          curatedDateRange(todayKey, curatedEndKey),
-        ),
-        weeklyTarget: routine.weeklyTarget ?? null,
-      };
-    },
-    [routine, todayKey],
-  );
+  const startingValues = useMemo(() => {
+    const curatedEndKey = routine.curated?.endDate ?? null;
+    return {
+      name: routine.name ?? "",
+      description: routine.description ?? "",
+      connections: (routine.connections ?? []).map(encodeConnection),
+      status: routine.status ?? "active",
+      mode: routine.mode ?? "weekly",
+      weekly: weeklyToRows(routine.weekly),
+      curatedEndDate: curatedEndKey ? keyToDate(curatedEndKey) : null,
+      curated: curatedToRows(
+        routine.curated,
+        curatedDateRange(todayKey, curatedEndKey),
+      ),
+      weeklyTarget: routine.weeklyTarget ?? null,
+    };
+  }, [routine, todayKey]);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -189,9 +187,7 @@ export function useRoutineDetailsForm(
             value.mode === "curated"
               ? rowsToCurated(
                 value.curated,
-                value.curatedEndDate
-                  ? dateToKey(value.curatedEndDate)
-                  : null,
+                value.curatedEndDate ? dateToKey(value.curatedEndDate) : null,
               )
               : {
                 endDate: null,

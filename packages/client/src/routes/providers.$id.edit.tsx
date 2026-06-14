@@ -15,6 +15,7 @@ import {
   UnsavedChangesDialog,
 } from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
+import { NAME_MAX_LENGTH, TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
   createProvider,
@@ -31,9 +32,9 @@ export const Route = createFileRoute("/providers/$id/edit")({
 });
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(500),
-  url: z.string().min(1, "URL is required").max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
+  description: z.string().max(TEXT_MAX_LENGTH),
+  url: z.string().min(1, "URL is required").max(NAME_MAX_LENGTH),
   cost: z.number().min(0).nullable(),
   isRecurring: z.string(),
   recurDate: z.date().nullable(),
