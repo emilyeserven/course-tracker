@@ -2,7 +2,12 @@ import type { Module, ModuleGroup, TaskResource } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import { inheritedLevel, linkedResourceLabel } from "./resourceMeta";
+import {
+  getResourceLevelClass,
+  getResourceLevelLabel,
+  inheritedLevel,
+  linkedResourceLabel,
+} from "./resourceMeta";
 
 function makeTaskResource(overrides: Partial<TaskResource> = {}): TaskResource {
   return {
@@ -213,5 +218,35 @@ describe("linkedResourceLabel", () => {
 
   test("returns null when the row is not linked", () => {
     expect(linkedResourceLabel(makeTaskResource())).toBeNull();
+  });
+});
+
+describe("getResourceLevelLabel", () => {
+  test("returns the human label for each level", () => {
+    expect(getResourceLevelLabel("low")).toBe("Low");
+    expect(getResourceLevelLabel("medium")).toBe("Medium");
+    expect(getResourceLevelLabel("high")).toBe("High");
+  });
+
+  test("returns an em dash for a missing level", () => {
+    expect(getResourceLevelLabel(null)).toBe("—");
+    expect(getResourceLevelLabel(undefined)).toBe("—");
+  });
+});
+
+describe("getResourceLevelClass", () => {
+  test("returns a distinct class string per known level", () => {
+    const low = getResourceLevelClass("low");
+    const medium = getResourceLevelClass("medium");
+    const high = getResourceLevelClass("high");
+    expect(low).toContain("emerald");
+    expect(medium).toContain("amber");
+    expect(high).toContain("rose");
+    expect(new Set([low, medium, high]).size).toBe(3);
+  });
+
+  test("returns the muted fallback class for an unknown/absent level", () => {
+    expect(getResourceLevelClass(null)).toContain("muted");
+    expect(getResourceLevelClass(undefined)).toContain("muted");
   });
 });
