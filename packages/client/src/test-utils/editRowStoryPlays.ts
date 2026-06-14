@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from "storybook/test";
+import { expect, within } from "storybook/test";
 
 /**
  * Reusable Storybook `play` smoke-tests shared by the edit-row / footer story
@@ -10,24 +10,9 @@ import { expect, userEvent, within } from "storybook/test";
  * callbacks as optional props — stays assignable to these parameter types.
  */
 
-interface CancelArgs { onCancel?: (...args: never[]) => unknown }
 interface PlayContext<TArgs = unknown> {
   args: TArgs;
   canvasElement: HTMLElement;
-}
-
-/** Clicks the Cancel button and asserts `onCancel` fired. */
-export async function clickCancelFiresOnCancel({
-  args,
-  canvasElement,
-}: PlayContext<CancelArgs>) {
-  const canvas = within(canvasElement);
-  await userEvent.click(
-    canvas.getByRole("button", {
-      name: "Cancel",
-    }),
-  );
-  await expect(args.onCancel).toHaveBeenCalled();
 }
 
 /** Asserts the destructive Remove button is absent (new / unsaved rows). */
