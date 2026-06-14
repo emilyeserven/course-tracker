@@ -9,6 +9,7 @@ import { Textarea } from "@/components/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -100,6 +101,11 @@ export function DailyCriteriaTemplateEditModal({
           <DialogTitle>
             {isNew ? "Add Criteria Template" : "Edit Criteria Template"}
           </DialogTitle>
+          <DialogDescription>
+            {isNew
+              ? "Name the template and describe what each daily status means."
+              : "Update the template's label and the descriptions for each daily status."}
+          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
