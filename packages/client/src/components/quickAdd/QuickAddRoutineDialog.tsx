@@ -1,17 +1,14 @@
 import type { ControlledDialogProps } from "@/components/dialogProps";
 import type { RoutineMode } from "@emstack/types";
 
-import { Loader2 } from "lucide-react";
-
+import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
 import { useQuickAddRoutine } from "./useQuickAddRoutine";
 
 import { Input } from "@/components/input";
 import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -92,22 +89,12 @@ export function QuickAddRoutineDialog({
               </label>
             </RadioGroup>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!canSubmit || isPending}
-            >
-              {isPending && <Loader2 className="animate-spin" />}
-              Create
-            </Button>
-          </DialogFooter>
+          <QuickAddDialogFooter
+            submitLabel="Create"
+            isPending={isPending}
+            canSubmit={canSubmit}
+            onCancel={() => onOpenChange(false)}
+          />
         </form>
       </DialogContent>
     </Dialog>
