@@ -22,11 +22,15 @@ const MODE_OPTIONS = [
     value: "daily",
     label: "Daily Task",
   },
+  {
+    value: "curated",
+    label: "Curated",
+  },
 ];
 
 const newRoutineSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
-  mode: z.enum(["weekly", "daily"]),
+  mode: z.enum(["weekly", "daily", "curated"]),
 });
 
 interface NewRoutineFormProps {

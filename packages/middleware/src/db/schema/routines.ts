@@ -6,14 +6,16 @@ import type {
   DailyCompletion,
   DailyCriteria,
   RoutineConnectionType,
+  RoutineCurated,
   RoutineWeekly,
 } from "./enums";
 
 // A plan that also carries daily completion tracking. In "weekly" mode each day
 // of the week optionally points at a Task or Resource; in "daily" mode the same
-// entry is applied to every day. A routine's categorical links live in the
-// `routine_connections` junction (many Topics/Tasks/Resources); any number may
-// be "active" at once.
+// entry is applied to every day; in "curated" mode the `curated` map points each
+// calendar date (today up to a chosen end date) at its own item. A routine's
+// categorical links live in the `routine_connections` junction (many
+// Topics/Tasks/Resources); any number may be "active" at once.
 export const routines = pgTable("routines", {
   id: varchar().primaryKey(),
   name: varchar({
@@ -22,6 +24,14 @@ export const routines = pgTable("routines", {
   description: varchar(),
   status: statusEnum().default("active"),
   weekly: jsonb().$type<RoutineWeekly>().default({}).notNull(),
+  // Curated-mode schedule (date-keyed). Default empty for weekly/daily routines.
+  curated: jsonb()
+    .$type<RoutineCurated>()
+    .default({
+      endDate: null,
+      entries: {},
+    })
+    .notNull(),
   mode: routineModeEnum().default("weekly").notNull(),
   completions: jsonb().$type<DailyCompletion[]>().default([]).notNull(),
   criteria: jsonb().$type<DailyCriteria>().default({}).notNull(),

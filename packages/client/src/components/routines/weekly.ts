@@ -1,4 +1,5 @@
 import type {
+  RoutineCurated,
   RoutineReferenceItem,
   RoutineReferenceType,
   RoutineWeekday,
@@ -6,6 +7,10 @@ import type {
 } from "@emstack/types";
 
 export type WeeklyRowType = "" | "task" | "resource" | "freeform";
+
+// Curated mode picks an end date at most this many days past today; the per-date
+// editor never shows more rows than that.
+export const MAX_CURATED_DAYS = 14;
 
 export interface WeeklyRow {
   day: RoutineWeekday;
@@ -25,6 +30,12 @@ export interface WeeklyRow {
 // A weekly entry without its day key — the shared item shape Daily Task mode
 // reads/writes (the same entry applies to every weekday).
 export type WeeklyEntry = Omit<WeeklyRow, "day">;
+
+// Curated mode's row: the same editable fields as a weekly row, keyed by an
+// absolute date ("YYYY-MM-DD") instead of a weekday.
+export interface CuratedRow extends WeeklyEntry {
+  date: string;
+}
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
 const ALL_DAYS: RoutineWeekday[] = ["0", "1", "2", "3", "4", "5", "6"];
@@ -62,9 +73,10 @@ export function weeklyToRows(
 }
 
 // A row's reference item, persisting optional text only when present to keep
-// the stored JSON clean.
+// the stored JSON clean. Takes only the shared entry fields, so it serves both
+// weekly rows and curated date rows.
 function referenceItemFromRow(
-  row: WeeklyRow,
+  row: WeeklyEntry,
   type: RoutineReferenceType,
 ): RoutineReferenceItem {
   const item: RoutineReferenceItem = {
@@ -143,6 +155,78 @@ export function fillAllDays(entry: {
     prependText: entry.prependText ?? "",
     appendText: entry.appendText ?? "",
   }));
+}
+
+// The inclusive list of date keys ("YYYY-MM-DD") a curated routine spans:
+// [start, end], clamped so it never reaches past start + MAX_CURATED_DAYS. An
+// absent/earlier end yields an empty range (nothing to schedule yet). Date math
+// is done in UTC so the keys match the entries-tab / server resolution.
+export function curatedDateRange(
+  startKey: string,
+  endKey: string | null | undefined,
+): string[] {
+  if (!startKey || !endKey) {
+    return [];
+  }
+  const start = new Date(`${startKey}T00:00:00Z`);
+  const maxEnd = new Date(start);
+  maxEnd.setUTCDate(maxEnd.getUTCDate() + MAX_CURATED_DAYS);
+  let end = new Date(`${endKey}T00:00:00Z`);
+  if (end > maxEnd) {
+    end = maxEnd;
+  }
+  if (end < start) {
+    return [];
+  }
+  const keys: string[] = [];
+  for (
+    const d = new Date(start);
+    d <= end;
+    d.setUTCDate(d.getUTCDate() + 1)
+  ) {
+    keys.push(d.toISOString().slice(0, 10));
+  }
+  return keys;
+}
+
+// Build the curated editor rows for a set of date keys, defaulting each from the
+// routine's stored entries (empty dates become blank rows).
+export function curatedToRows(
+  curated: RoutineCurated | null | undefined,
+  dateKeys: string[],
+): CuratedRow[] {
+  return dateKeys.map((date) => {
+    const entry = curated?.entries?.[date];
+    return {
+      date,
+      type: entry?.type ?? "",
+      id: entry?.id ?? "",
+      notes: entry?.notes ?? "",
+      location: entry?.location ?? "",
+      prependText: entry?.prependText ?? "",
+      appendText: entry?.appendText ?? "",
+    };
+  });
+}
+
+// Serialize curated rows back to the stored shape, dropping dates without a
+// complete {type, id} pair. Only in-range rows are written, so shortening the
+// end date prunes now-out-of-range entries.
+export function rowsToCurated(
+  rows: CuratedRow[],
+  endDate: string | null,
+): RoutineCurated {
+  const entries: RoutineCurated["entries"] = {};
+  for (const row of rows) {
+    if (row.type === "" || !row.id) {
+      continue;
+    }
+    entries[row.date] = referenceItemFromRow(row, row.type);
+  }
+  return {
+    endDate,
+    entries,
+  };
 }
 
 // Display name for a weekly entry: freeform entries carry their own text in

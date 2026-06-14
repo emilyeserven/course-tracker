@@ -20,6 +20,12 @@ interface CreateHandlerOptions<TBody> {
   bodySchema: object;
   buildRow: (body: TBody, id: string) => Row;
   junctions?: readonly CreateJunctionConfig<TBody>[];
+  /**
+   * Async pre-write transform of the request body, run after `validate` and
+   * before `buildRow` (mirrors createUpsertHandler). Use for db-backed
+   * enrichment that needs the freshly-generated id.
+   */
+  prepareBody?: (body: TBody, id: string) => Promise<TBody>;
   /** Runs after the row and junctions are written (cross-table side effects). */
   afterCreate?: (body: TBody, id: string) => Promise<void>;
   /** Return an error message string to abort with 400, or null to proceed. */
@@ -46,16 +52,20 @@ export function createCreateHandler<TBody = Record<string, unknown>>(
     const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
 
     fastify.post("/", schema, async function (request, reply: FastifyReply) {
-      const body = request.body as TBody;
+      const rawBody = request.body as TBody;
 
       if (options.validate) {
-        const errorMessage = options.validate(body);
+        const errorMessage = options.validate(rawBody);
         if (errorMessage !== null) {
           return sendBadRequest(reply, errorMessage);
         }
       }
 
       const id = uuidv4();
+
+      const body = options.prepareBody
+        ? await options.prepareBody(rawBody, id)
+        : rawBody;
 
       await db.insert(options.table).values(options.buildRow(body, id) as never);
 

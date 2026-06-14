@@ -186,6 +186,26 @@ describe("isScheduledForDay", () => {
       mode: "weekly",
     }, TODAY)).toBe(false);
   });
+
+  test("curated mode: true only when that exact date has an entry", () => {
+    const curated = {
+      endDate: "2026-06-12",
+      entries: {
+        [TODAY]: {
+          type: "task" as const,
+          id: "task-1",
+        },
+      },
+    };
+    expect(isScheduledForDay({
+      curated,
+      mode: "curated",
+    }, TODAY)).toBe(true);
+    expect(isScheduledForDay({
+      curated,
+      mode: "curated",
+    }, "2026-06-12")).toBe(false);
+  });
 });
 
 describe("hasStatusForDay", () => {
@@ -737,6 +757,33 @@ describe("withCompletion", () => {
       }],
     });
     expect(withCompletion(noNote, "2026-06-11", null)).toEqual([]);
+  });
+
+  test("carries a baked entryParts snapshot forward across a status change", () => {
+    const daily = makeDaily({
+      completions: [{
+        date: "2026-06-11",
+        status: "touched",
+        entryParts: {
+          prependText: "Review",
+          name: "Spanish flashcards",
+          appendText: null,
+        },
+      }],
+    });
+    // Re-saving the status must keep the frozen snapshot so the server doesn't
+    // re-bake it to a later schedule.
+    expect(withCompletion(daily, "2026-06-11", "goal")).toEqual([
+      {
+        date: "2026-06-11",
+        status: "goal",
+        entryParts: {
+          prependText: "Review",
+          name: "Spanish flashcards",
+          appendText: null,
+        },
+      },
+    ]);
   });
 });
 

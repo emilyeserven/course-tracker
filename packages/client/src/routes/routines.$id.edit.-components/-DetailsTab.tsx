@@ -7,6 +7,8 @@ import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
 import { EditForm } from "@/components/layout";
 import {
+  CuratedEndDateField,
+  CuratedScheduleField,
   fillAllDays,
   representativeRow,
   weeklyToRows,
@@ -43,6 +45,10 @@ const MODE_OPTIONS = [
     value: "daily",
     label: "Daily Task",
   },
+  {
+    value: "curated",
+    label: "Curated",
+  },
 ];
 
 interface DetailsTabProps {
@@ -62,6 +68,9 @@ export function DetailsTab({
     taskOptions,
     resourceOptions,
     isDaily,
+    isCurated,
+    curatedWindow,
+    setCuratedEndDate,
     isSaving,
   } = useRoutineDetailsForm(routine, onSaved, onChangeStateChange);
 
@@ -117,48 +126,84 @@ export function DetailsTab({
         )}
       </form.AppField>
 
-      <form.Field name="weekly">
-        {field =>
-          isDaily
-            ? (
-              <div className="flex flex-col gap-1">
-                <span className="text-2xl">Daily Task</span>
-                <p className="text-sm text-muted-foreground">
-                  Pick what to work on each day — the same item applies to
-                  every day of the week.
-                </p>
-                <div className="mt-1">
-                  <WeeklyEntryEditor
-                    {...representativeRow(field.state.value)}
-                    onChange={next =>
-                      field.handleChange(fillAllDays(next))}
-                    taskOptions={taskOptions}
-                    resourceOptions={resourceOptions}
-                  />
-                </div>
-              </div>
-            )
-            : (
-              <div className="flex flex-col gap-1">
-                <div
-                  className="flex flex-wrap items-center justify-between gap-2"
-                >
-                  <span className="text-2xl">Weekly Schedule</span>
-                  <QuickFillMenu<RoutineTemplate>
-                    kind="routine"
-                    onSelect={template =>
-                      field.handleChange(weeklyToRows(template.weekly))}
-                  />
-                </div>
-                <WeeklyScheduleField
+      {isCurated
+        ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-2xl">Curated</span>
+              <p className="text-sm text-muted-foreground">
+                Pick an end date up to 14 days out, then set a task for each
+                day from today through then.
+              </p>
+            </div>
+            <form.Field name="curatedEndDate">
+              {field => (
+                <CuratedEndDateField
+                  value={field.state.value}
+                  onSelect={setCuratedEndDate}
+                  minDate={curatedWindow.min}
+                  maxDate={curatedWindow.max}
+                />
+              )}
+            </form.Field>
+            <form.Field name="curated">
+              {field => (
+                <CuratedScheduleField
                   value={field.state.value}
                   onChange={next => field.handleChange(next)}
                   taskOptions={taskOptions}
                   resourceOptions={resourceOptions}
                 />
-              </div>
-            )}
-      </form.Field>
+              )}
+            </form.Field>
+          </div>
+        )
+        : (
+          <form.Field name="weekly">
+            {field =>
+              isDaily
+                ? (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-2xl">Daily Task</span>
+                    <p className="text-sm text-muted-foreground">
+                      Pick what to work on each day — the same item applies to
+                      every day of the week.
+                    </p>
+                    <div className="mt-1">
+                      <WeeklyEntryEditor
+                        {...representativeRow(field.state.value)}
+                        onChange={next =>
+                          field.handleChange(fillAllDays(next))}
+                        taskOptions={taskOptions}
+                        resourceOptions={resourceOptions}
+                      />
+                    </div>
+                  </div>
+                )
+                : (
+                  <div className="flex flex-col gap-1">
+                    <div
+                      className="
+                        flex flex-wrap items-center justify-between gap-2
+                      "
+                    >
+                      <span className="text-2xl">Weekly Schedule</span>
+                      <QuickFillMenu<RoutineTemplate>
+                        kind="routine"
+                        onSelect={template =>
+                          field.handleChange(weeklyToRows(template.weekly))}
+                      />
+                    </div>
+                    <WeeklyScheduleField
+                      value={field.state.value}
+                      onChange={next => field.handleChange(next)}
+                      taskOptions={taskOptions}
+                      resourceOptions={resourceOptions}
+                    />
+                  </div>
+                )}
+          </form.Field>
+        )}
 
       {isDaily && (
         <div className="flex flex-col gap-1">

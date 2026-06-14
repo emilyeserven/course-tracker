@@ -249,14 +249,18 @@ function weekdayForKey(dateKey: string): RoutineWeekday {
   return String(new Date(`${dateKey}T00:00:00`).getDay()) as RoutineWeekday;
 }
 
-// True when the routine has a weekly-grid entry that applies on the given day:
-// weekly-mode routines schedule per weekday, while daily-mode (or unset) ones
-// use the representative entry (the first populated day, mirrored to every day).
-// Mirrors the middleware activeEntry/representativeEntry projection helpers.
+// True when the routine has a scheduled entry that applies on the given day:
+// curated routines key by the exact date, weekly-mode routines schedule per
+// weekday, while daily-mode (or unset) ones use the representative entry (the
+// first populated day, mirrored to every day). Mirrors the middleware
+// entryForCompletionDate/representativeEntry projection helpers.
 export function isScheduledForDay(
-  daily: Pick<Daily, "weekly" | "mode">,
+  daily: Pick<Daily, "weekly" | "mode" | "curated">,
   todayKey: string = getTodayKey(),
 ): boolean {
+  if (daily.mode === "curated") {
+    return Boolean(daily.curated?.entries?.[todayKey]?.id);
+  }
   const weekly = daily.weekly;
   if (!weekly) {
     return false;
@@ -280,7 +284,7 @@ export function hasStatusForDay(
 // Whether a routine still has something to do today: scheduled for today and
 // its weekly target (if any) not yet met for the current window.
 export function hasTaskForDay(
-  daily: Pick<Daily, "weekly" | "mode" | "completions" | "weeklyTarget">,
+  daily: Pick<Daily, "weekly" | "curated" | "mode" | "completions" | "weeklyTarget">,
   todayKey: string,
   window: WeekTargetWindow,
 ): boolean {
@@ -294,7 +298,7 @@ export function hasTaskForDay(
 // and not yet given a real status; "done" = everything else (already statused,
 // or nothing to do today).
 export function classifyDaily(
-  daily: Pick<Daily, "weekly" | "mode" | "completions" | "weeklyTarget">,
+  daily: Pick<Daily, "weekly" | "curated" | "mode" | "completions" | "weeklyTarget">,
   todayKey: string,
   window: WeekTargetWindow,
 ): "now" | "done" {
@@ -320,6 +324,19 @@ export function getDailyProgressPercent(daily: Daily): number {
   return 0;
 }
 
+// Carry a completion's already-baked schedule snapshot forward across status /
+// note edits, so the frozen text survives and the server doesn't re-bake it to a
+// later schedule. Absent on first save → the server bakes it then.
+function carryEntryParts(
+  existing: Daily["completions"][number] | undefined,
+): Pick<Daily["completions"][number], "entryParts"> | object {
+  return existing?.entryParts !== undefined
+    ? {
+      entryParts: existing.entryParts,
+    }
+    : {};
+}
+
 export function withCompletion(
   daily: Daily,
   dateKey: string,
@@ -327,6 +344,7 @@ export function withCompletion(
 ): Daily["completions"] {
   const others = daily.completions.filter(c => c.date !== dateKey);
   const existing = daily.completions.find(c => c.date === dateKey);
+  const carry = carryEntryParts(existing);
   if (status === null) {
     if (existing?.note) {
       return [
@@ -334,6 +352,7 @@ export function withCompletion(
         {
           date: dateKey,
           note: existing.note,
+          ...carry,
         },
       ];
     }
@@ -349,6 +368,7 @@ export function withCompletion(
           note: existing.note,
         }
         : {}),
+      ...carry,
     },
   ];
 }
@@ -360,6 +380,7 @@ export function withCompletionNote(
 ): Daily["completions"] {
   const others = daily.completions.filter(c => c.date !== dateKey);
   const existing = daily.completions.find(c => c.date === dateKey);
+  const carry = carryEntryParts(existing);
   const trimmed = note?.trim() ?? "";
   if (!trimmed) {
     if (existing?.status) {
@@ -368,6 +389,7 @@ export function withCompletionNote(
         {
           date: dateKey,
           status: existing.status,
+          ...carry,
         },
       ];
     }
@@ -383,6 +405,7 @@ export function withCompletionNote(
         }
         : {}),
       note: trimmed,
+      ...carry,
     },
   ];
 }

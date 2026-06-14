@@ -15,6 +15,7 @@ import {
 } from "./completionControls";
 import { DailyStatusCircle, DailyStatusConnector } from "./dailyCells";
 
+import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
 import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import { Button } from "@/components/ui/button";
@@ -132,6 +133,7 @@ export function DailyCompletionsManager({
               showVerticalConnector,
               nextStatus,
               scheduledEntry,
+              bakedParts,
             } = row;
             return (
               <li
@@ -164,16 +166,30 @@ export function DailyCompletionsManager({
                   </div>
                   <div className="flex min-w-0 shrink-0 flex-col">
                     <span className="text-sm font-medium">{dateLabel}</span>
-                    {scheduledEntry && (
-                      <span className="text-xs text-muted-foreground">
-                        <RoutineEntryLabel
-                          entry={scheduledEntry}
-                          taskNames={taskNames}
-                          resourceNames={resourceNames}
-                          showMeta={false}
-                        />
-                      </span>
-                    )}
+                    {/* Prefer the baked snapshot (frozen at save time); fall back
+                        to the live scheduled entry for unbaked/legacy rows. */}
+                    {bakedParts
+                      ? (
+                        <span className="text-xs text-muted-foreground">
+                          <ActionableSentence
+                            prependText={bakedParts.prependText}
+                            appendText={bakedParts.appendText}
+                            name={bakedParts.name}
+                          />
+                        </span>
+                      )
+                      : scheduledEntry
+                        ? (
+                          <span className="text-xs text-muted-foreground">
+                            <RoutineEntryLabel
+                              entry={scheduledEntry}
+                              taskNames={taskNames}
+                              resourceNames={resourceNames}
+                              showMeta={false}
+                            />
+                          </span>
+                        )
+                        : null}
                   </div>
                   {note && (
                     <Popover>

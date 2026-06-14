@@ -39,11 +39,11 @@ export const nullableRoutineStatusEnum = {
   enum: ["active", "inactive", "complete", "paused", null],
 } as const;
 
-// Weekly schedule vs. daily task. Both carry completion tracking; the mode only
-// changes how the weekly grid is edited (per-day vs. same entry every day).
+// Weekly schedule, daily task, or curated date-keyed run. All carry completion
+// tracking; the mode only changes how the schedule grid is edited.
 export const nullableRoutineModeEnum = {
   type: ["string", "null"],
-  enum: ["weekly", "daily", null],
+  enum: ["weekly", "daily", "curated", null],
 } as const;
 
 const routineReferenceItemSchema = {
@@ -78,6 +78,20 @@ export const weeklySchema = {
     4: routineReferenceItemSchema,
     5: routineReferenceItemSchema,
     6: routineReferenceItemSchema,
+  },
+} as const;
+
+// Curated mode's schedule: a chosen end date plus a map of date keys
+// ("YYYY-MM-DD") to that date's item. Unlike weeklySchema (fixed 0–6 keys),
+// `entries` is keyed by arbitrary date strings, so it uses additionalProperties.
+export const curatedSchema = {
+  type: "object",
+  properties: {
+    endDate: nullableString,
+    entries: {
+      type: "object",
+      additionalProperties: routineReferenceItemSchema,
+    },
   },
 } as const;
 
@@ -155,6 +169,19 @@ export const completionSchema = {
     status: dailyCompletionStatusEnum,
     note: {
       type: "string",
+    },
+    // Baked snapshot of the date's scheduled item (set server-side at save time).
+    // Nullable: null means nothing was scheduled that date.
+    entryParts: {
+      type: ["object", "null"],
+      required: ["name"],
+      properties: {
+        prependText: nullableString,
+        name: {
+          type: "string",
+        },
+        appendText: nullableString,
+      },
     },
   },
 } as const;

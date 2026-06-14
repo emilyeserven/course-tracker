@@ -2,6 +2,7 @@ import { routineConnections, routines } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { buildRoutineConnectionRows } from "@/utils/routineConnectionRows";
 
+import { bakeRoutineCompletions } from "./bakeRoutineCompletions";
 import { buildRoutineRow, routineBodySchema } from "./routineRows";
 
 import type { RoutineBody } from "./routineRows";
@@ -11,11 +12,15 @@ export default createUpsertHandler<RoutineBody>({
   table: routines,
   bodySchema: routineBodySchema,
   buildRow: buildRoutineRow,
+  // Freeze the scheduled task text onto newly-statused completions before the
+  // write (weekly & curated routines), so the entries log stays accurate.
+  prepareBody: bakeRoutineCompletions,
   updateableColumns: [
     "name",
     "description",
     "status",
     "weekly",
+    "curated",
     "mode",
     "completions",
     "criteria",
@@ -38,6 +43,9 @@ export default createUpsertHandler<RoutineBody>({
     }
     if (body.weekly !== undefined) {
       set.weekly = body.weekly;
+    }
+    if (body.curated !== undefined) {
+      set.curated = body.curated;
     }
     if (body.mode !== undefined) {
       set.mode = body.mode ?? "weekly";

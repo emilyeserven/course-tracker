@@ -13,6 +13,7 @@ export type {
   DashboardLayoutTile,
   DashboardTileId,
   RoutineConnectionType,
+  RoutineCurated,
   RoutineReferenceItem,
   RoutineWeekday,
   RoutineWeekly,
@@ -22,7 +23,7 @@ export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", 
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
 export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
-export const routineModeEnum = pgEnum("routine_mode", ["weekly", "daily"]);
+export const routineModeEnum = pgEnum("routine_mode", ["weekly", "daily", "curated"]);
 export const interactionProgressEnum = pgEnum("interaction_progress", ["incomplete", "started", "complete"]);
 export const interactionDifficultyEnum = pgEnum("interaction_difficulty", ["easy", "medium", "hard"]);
 export const interactionUnderstandingEnum = pgEnum("interaction_understanding", ["none", "basic", "comfortable", "proficient", "mastered"]);

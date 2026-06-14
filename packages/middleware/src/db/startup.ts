@@ -1,5 +1,6 @@
 import { db } from "@/db/index";
 import { resources } from "@/db/schema";
+import { migrateAddCuratedRoutineMode } from "./migrateAddCuratedRoutineMode.ts";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
@@ -13,6 +14,17 @@ import { seed } from "./seed.ts";
 // dailies → routines copy, routine topic_id → connections, routine location →
 // weekly entries.
 export async function runMigrations() {
+  // Add the "curated" value to the routine_mode enum before drizzle-kit push
+  // diffs it (push can't apply ALTER TYPE ADD VALUE non-interactively). Runs
+  // first so the enum value exists for any later routine writes/migrations.
+  try {
+    await migrateAddCuratedRoutineMode();
+  }
+  catch (err) {
+    console.error("Failed to add curated routine mode enum value:", err);
+    throw err;
+  }
+
   // Drop the legacy `dailies` table. Guarded: keeps the table (with a loud
   // error) if it still has rows that were never copied into `routines`.
   try {

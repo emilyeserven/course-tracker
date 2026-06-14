@@ -1,6 +1,7 @@
 import type { ViewMonth } from "@/components/dailies/MonthYearPicker";
 import type {
   Daily,
+  DailyCompletionEntryParts,
   DailyCompletionStatus,
   RoutineReferenceItem,
   RoutineWeekday,
@@ -118,7 +119,13 @@ export interface DailyCompletionRow {
   isExpanded: boolean;
   showVerticalConnector: boolean;
   nextStatus: DailyCompletionStatus | null;
+  // The live scheduled entry for this date (weekly → weekday, curated → date),
+  // used as a fallback when the completion has no baked snapshot.
   scheduledEntry: RoutineReferenceItem | null;
+  // The frozen schedule snapshot baked onto the completion at save time. When
+  // present it takes precedence over scheduledEntry (the name is already
+  // resolved, so the log keeps reading correctly even if the schedule changes).
+  bakedParts: DailyCompletionEntryParts | null;
 }
 
 /**
@@ -139,26 +146,30 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const [expandedDateKey, setExpandedDateKey] = useState<string | null>(null);
 
-  // Weekly routines schedule a different item per weekday; surface that item on
-  // each date row. The grid carries unresolved ids, so resolve task/resource
-  // names from the (already cached) task/resource lists.
+  // Weekly routines schedule a different item per weekday and curated routines
+  // per date; surface that item on each date row. The grids carry unresolved
+  // ids, so resolve task/resource names from the (already cached) lists.
   const isWeekly = daily.mode === "weekly";
+  const isCurated = daily.mode === "curated";
   const weekly = daily.weekly ?? {};
+  const curatedEntries = daily.curated?.entries ?? {};
 
   const {
     taskNames, resourceNames,
-  } = useTaskResourceNames(isWeekly);
+  } = useTaskResourceNames(isWeekly || isCurated);
 
   const completionsByDate = useMemo(() => {
     const map = new Map<
       string,
       { status: DailyCompletionStatus | null;
-        note: string | null; }
+        note: string | null;
+        entryParts: DailyCompletionEntryParts | null; }
     >();
     for (const c of daily.completions) {
       map.set(c.date, {
         status: c.status ?? null,
         note: c.note ?? null,
+        entryParts: c.entryParts ?? null,
       });
     }
     return map;
@@ -195,7 +206,10 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
           nextStatus,
           scheduledEntry: isWeekly
             ? (weekly[weekdayKey(dateKey)] ?? null)
-            : null,
+            : isCurated
+              ? (curatedEntries[dateKey] ?? null)
+              : null,
+          bakedParts: entry?.entryParts ?? null,
         };
       }),
     [
@@ -205,7 +219,9 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
       effectiveReadOnly,
       expandedDateKey,
       isWeekly,
+      isCurated,
       weekly,
+      curatedEntries,
     ],
   );
 

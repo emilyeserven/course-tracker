@@ -1,6 +1,7 @@
 import {
   completionSchema,
   criteriaSchema,
+  curatedSchema,
   nullableInteger,
   nullableRoutineModeEnum,
   nullableRoutineStatusEnum,
@@ -10,7 +11,7 @@ import {
 } from "../../../utils/schemas.ts";
 
 import type { RoutineConnectionInput } from "@/utils/routineConnectionRows";
-import type { RoutineWeekly } from "@/db/schema";
+import type { RoutineCurated, RoutineWeekly } from "@/db/schema";
 import type { DailyCompletion, DailyCriteria } from "@emstack/types";
 
 // Body schema and row builder shared by the routine create and upsert
@@ -22,7 +23,8 @@ export interface RoutineBody {
   connections?: RoutineConnectionInput[];
   status?: "active" | "inactive" | "complete" | "paused" | null;
   weekly?: RoutineWeekly;
-  mode?: "weekly" | "daily" | null;
+  curated?: RoutineCurated;
+  mode?: "weekly" | "daily" | "curated" | null;
   completions?: DailyCompletion[];
   criteria?: DailyCriteria;
   weeklyTarget?: number | null;
@@ -39,6 +41,7 @@ export const routineBodySchema = {
     connections: routineConnectionsSchema,
     status: nullableRoutineStatusEnum,
     weekly: weeklySchema,
+    curated: curatedSchema,
     mode: nullableRoutineModeEnum,
     completions: {
       type: "array",
@@ -56,6 +59,10 @@ export function buildRoutineRow(body: RoutineBody, id: string) {
     description: body.description ?? null,
     status: body.status ?? "active",
     weekly: body.weekly ?? {},
+    curated: body.curated ?? {
+      endDate: null,
+      entries: {},
+    },
     mode: body.mode ?? "weekly",
     completions: body.completions ?? [],
     criteria: body.criteria ?? {},
