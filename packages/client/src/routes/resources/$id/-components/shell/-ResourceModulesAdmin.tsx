@@ -1,21 +1,14 @@
-import { DndContext } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-
-import {
-  handleListDragEnd,
-  reorderCollisionDetection,
-  reorderModifiers,
-  useReorderSensors,
-} from "../-reorderDnd";
-import { ModuleGroupSection, UngroupedModulesSection } from "../grouping";
+import { ModuleGroupList, UngroupedModulesSection } from "../grouping";
 import { ModuleAdminHeader } from "../header";
 
-import { GroupEditCard } from "@/components/resources/moduleAdminComponents";
+import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
+import {
+  GroupEditCard,
+  ModuleBulkEditTable,
+} from "@/components/resources/moduleAdminComponents";
 import { emptyGroupDraft } from "@/components/resources/moduleDrafts";
 import { useModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
+import { useModuleBulkEdit } from "@/hooks/useModuleBulkEdit";
 import { useResourceModules } from "@/hooks/useResourceModules";
 
 interface Props {
@@ -29,21 +22,20 @@ export function ResourceModulesAdmin({
 }: Props) {
   const api = useResourceModules(resourceId);
   const ui = useModuleAdminUiState();
-  const sensors = useReorderSensors();
+  const bulk = useModuleBulkEdit(api, ui);
 
   const {
     tagGroups,
     groups,
     ungroupedModules,
     createGroupMutation,
-    reorderGroupsList,
     isBook,
     groupLabel,
     moduleLabel,
     groupHint,
   } = api;
   const {
-    creatingGroup, setCreatingGroup, creatingModuleIn, reorderMode,
+    creatingGroup, setCreatingGroup, creatingModuleIn, bulkEditMode,
   } = ui;
 
   const isEmpty
@@ -57,78 +49,80 @@ export function ResourceModulesAdmin({
       <ModuleAdminHeader
         resourceId={resourceId}
         canEditExhaustive={canEditExhaustive}
+        onToggleBulkEdit={bulk.toggle}
         api={api}
         ui={ui}
       />
 
-      {creatingGroup && (
-        <GroupEditCard
-          draft={emptyGroupDraft()}
-          hasEnumeratedModules={false}
-          tagGroups={tagGroups}
-          showPages={isBook}
-          groupLabel={groupLabel}
-          groupNamePlaceholder={groupHint}
-          isNew
-          isSaving={createGroupMutation.isPending}
-          onSave={d =>
-            createGroupMutation.mutate(d, {
-              onSuccess: () => setCreatingGroup(false),
-            })}
-          onCancel={() => setCreatingGroup(false)}
-        />
-      )}
-
-      <UngroupedModulesSection
-        resourceId={resourceId}
-        api={api}
-        ui={ui}
-      />
-
-      {reorderMode
+      {bulkEditMode
         ? (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={reorderCollisionDetection}
-            modifiers={reorderModifiers}
-            onDragEnd={e => handleListDragEnd(e, groups, reorderGroupsList)}
-          >
-            <SortableContext
-              items={groups.map(g => g.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {groups.map((g, gIndex) => (
-                <ModuleGroupSection
-                  key={g.id}
-                  group={g}
-                  groupIndex={gIndex}
-                  resourceId={resourceId}
-                  api={api}
-                  ui={ui}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
+          <ModuleBulkEditTable
+            modules={bulk.modules}
+            groups={groups}
+            tagGroups={tagGroups}
+            isBook={isBook}
+            editor={bulk.editor}
+            isSaving={bulk.isSaving}
+            onSaveAll={bulk.saveAll}
+          />
         )
         : (
-          groups.map((g, gIndex) => (
-            <ModuleGroupSection
-              key={g.id}
-              group={g}
-              groupIndex={gIndex}
+          <>
+            {creatingGroup && (
+              <GroupEditCard
+                draft={emptyGroupDraft()}
+                hasEnumeratedModules={false}
+                tagGroups={tagGroups}
+                showPages={isBook}
+                groupLabel={groupLabel}
+                groupNamePlaceholder={groupHint}
+                isNew
+                isSaving={createGroupMutation.isPending}
+                onSave={d =>
+                  createGroupMutation.mutate(d, {
+                    onSuccess: () => setCreatingGroup(false),
+                  })}
+                onCancel={() => setCreatingGroup(false)}
+              />
+            )}
+
+            <UngroupedModulesSection
               resourceId={resourceId}
               api={api}
               ui={ui}
             />
-          ))
+
+            <ModuleGroupList
+              resourceId={resourceId}
+              api={api}
+              ui={ui}
+            />
+
+            {isEmpty && (
+              <p className="text-sm text-muted-foreground">
+                No {moduleLabel.toLowerCase()}s yet. Add a
+                {" "}
+                {moduleLabel.toLowerCase()}
+                {" "}
+                directly, or create a
+                {" "}
+                {groupLabel.toLowerCase()}
+                {" "}
+                to organize them.
+              </p>
+            )}
+          </>
         )}
 
-      {isEmpty && (
-        <p className="text-sm text-muted-foreground">
-          No {moduleLabel.toLowerCase()}s yet. Add a {moduleLabel.toLowerCase()}{" "}
-          directly, or create a {groupLabel.toLowerCase()} to organize them.
-        </p>
-      )}
+      <ConfirmDialog
+        open={bulk.confirmExitOpen}
+        title="Discard unsaved edits?"
+        description="You have unsaved changes in the bulk editor. Leaving will discard them."
+        confirmLabel="Discard"
+        cancelLabel="Keep editing"
+        onConfirm={bulk.confirmExit}
+        onCancel={bulk.cancelExit}
+      />
     </div>
   );
 }

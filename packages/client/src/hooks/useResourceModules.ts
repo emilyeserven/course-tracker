@@ -241,6 +241,49 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Bulk edit: persist a batch of edited module rows in one shot. Each row
+  // carries a ModuleDraft plus the status/group that live outside the draft, so
+  // the payload mirrors `upsertModuleMutation` exactly. Parallel upserts match
+  // the `reorderModulesListMutation` precedent; a single invalidate + toast.
+  const bulkUpsertModulesMutation = useMutation({
+    mutationFn: (
+      rows: {
+        draft: ModuleDraft;
+        groupId: string | null;
+        status: ModuleStatus;
+      }[],
+    ) =>
+      Promise.all(
+        rows.map(({
+          draft,
+          groupId,
+          status,
+        }) =>
+          upsertModule(draft.id, {
+            resourceId,
+            moduleGroupId: groupId,
+            name: draft.name,
+            description: draft.description || null,
+            url: draft.url || null,
+            length: draftToLength(draft),
+            pageStart: parseCount(draft.pageStart),
+            pageEnd: parseCount(draft.pageEnd),
+            status,
+            easeOfStarting: draft.easeOfStarting || null,
+            timeNeeded: draft.timeNeeded || null,
+            interactivity: draft.interactivity || null,
+            tagIds: draft.tagIds,
+          })),
+      ),
+    onSuccess: (_data, rows) => {
+      invalidateAll();
+      toast.success(
+        `Saved ${rows.length} ${rows.length === 1 ? "module" : "modules"}`,
+      );
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const setStatusMutation = useMutation({
     mutationFn: ({
       module: m,
@@ -500,6 +543,7 @@ export function useResourceModules(resourceId: string) {
     deleteGroupMutation,
     createModuleMutation,
     upsertModuleMutation,
+    bulkUpsertModulesMutation,
     setStatusMutation,
     deleteModuleMutation,
     setModulesExhaustiveMutation,

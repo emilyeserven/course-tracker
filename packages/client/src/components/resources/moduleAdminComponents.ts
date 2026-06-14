@@ -6,6 +6,7 @@
 // there is no circular dependency.
 export { GroupEditCard, GroupMetaChips } from "./GroupEditCard";
 export { InteractionQuickLog } from "./InteractionQuickLog";
+export { ModuleBulkEditTable } from "./ModuleBulkEditTable";
 export { hasModuleDetails } from "./moduleDetails";
 export { ModuleDetailsPanel } from "./ModuleDetailsPanel";
 export { ModuleDisplayRow } from "./ModuleDisplayRow";

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { fn } from "storybook/test";
+
 import { ModuleAdminHeader } from "./-ModuleAdminHeader";
 
 import { useModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
@@ -23,6 +25,7 @@ function Host({
     <ModuleAdminHeader
       resourceId={RESOURCE_ID}
       canEditExhaustive={canEditExhaustive}
+      onToggleBulkEdit={fn()}
       api={api}
       ui={ui}
     />

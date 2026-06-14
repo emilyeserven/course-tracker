@@ -41,6 +41,12 @@ export function useModuleAdminUiState() {
   // deliberately does NOT feed into `isAnyEditing`.
   const [reorderMode, setReorderMode] = useState(false);
 
+  // Bulk edit mode: when on, the group/module cards are replaced by a single
+  // editable table of every module. Like `reorderMode` it is its own full-table
+  // mode (mutually exclusive with reorder) and is deliberately kept out of
+  // `isAnyEditing` — the table owns its own staged-edit/save lifecycle.
+  const [bulkEditMode, setBulkEditMode] = useState(false);
+
   const isAnyEditing
     = editingGroupId !== null
       || creatingGroup
@@ -68,6 +74,8 @@ export function useModuleAdminUiState() {
     setLlmAssistOpen,
     reorderMode,
     setReorderMode,
+    bulkEditMode,
+    setBulkEditMode,
     isAnyEditing,
   };
 }
