@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { BlipLegendItem } from "./radarLegendItem";
 
 import { makeBlip } from "@/test-utils/radarFixtures";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof BlipLegendItem> = {
   component: BlipLegendItem,
@@ -41,15 +42,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A single legend row in isolation (selected, so its actions are visible). */
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Kubernetes")).toBeInTheDocument();
-    await expect(
-      canvas.getByText("Container orchestration"),
-    ).toBeInTheDocument();
-  },
+  play: smokeText("Kubernetes", "Container orchestration"),
 };
 
 export const Active: Story = {

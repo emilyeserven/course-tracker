@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { BlipDisplayRow } from "./BlipDisplayRow";
 
@@ -13,6 +13,7 @@ import {
   makeTopics,
 } from "@/test-utils/radarFixtures";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof BlipDisplayRow> = {
   component: BlipDisplayRow,
@@ -55,12 +56,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Kubernetes")).toBeInTheDocument();
-  },
+  play: smokeText("Kubernetes"),
 };
 
 export const Selected: Story = {

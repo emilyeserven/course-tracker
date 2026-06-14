@@ -1,11 +1,10 @@
 import type { DomainTopic } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { TopicLinkList } from "./-TopicLinkList";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const topics: DomainTopic[] = [
   {
@@ -43,13 +42,7 @@ const meta: Meta<typeof TopicLinkList> = {
   args: {
     topics,
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -57,15 +50,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Reactivity")).toBeInTheDocument();
-    // A multi-course topic pluralizes the count; a single-course one does not.
-    await expect(canvas.getByText("(2 courses)")).toBeInTheDocument();
-    await expect(canvas.getByText("(1 course)")).toBeInTheDocument();
-  },
+  // A multi-course topic pluralizes the count; a single-course one does not.
+  play: smokeText("Reactivity", "(2 courses)", "(1 course)"),
 };
 
 export const Empty: Story = {

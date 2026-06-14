@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RoutineLinkList } from "./-RoutineLinkList";
 
 import { makeRoutine } from "@/test-utils/boxFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeLink } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof RoutineLinkList> = {
   component: RoutineLinkList,
@@ -21,13 +20,7 @@ const meta: Meta<typeof RoutineLinkList> = {
       }),
     ],
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -35,16 +28,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("link", {
-        name: "Daily reading",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokeLink("Daily reading"),
 };
 
 export const Empty: Story = {

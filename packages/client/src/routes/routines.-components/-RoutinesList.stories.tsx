@@ -1,11 +1,12 @@
 import type { Routine } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { RoutinesList } from "./-RoutinesList";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const routines: Routine[] = [
   {
@@ -40,13 +41,7 @@ const meta: Meta<typeof RoutinesList> = {
     routines,
     resolveTodayAction: fn(() => null),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -54,23 +49,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Morning Reading")).toBeInTheDocument();
-    await expect(canvas.getByText("Weekly Review")).toBeInTheDocument();
-  },
+  play: smokeText("Morning Reading", "Weekly Review"),
 };
 
 export const Empty: Story = {
   args: {
     routines: [],
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/No routines yet!/i)).toBeInTheDocument();
-  },
+  play: smokeText(/No routines yet!/i),
 };

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { BookIcon, LayersIcon } from "lucide-react";
-import { expect, within } from "storybook/test";
 
 import { OverviewCardGrid } from "./OverviewCardGrid";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof OverviewCardGrid> = {
   component: OverviewCardGrid,
@@ -25,13 +25,7 @@ const meta: Meta<typeof OverviewCardGrid> = {
       },
     ],
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -39,11 +33,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Topics")).toBeInTheDocument();
-    await expect(await canvas.findByText("Domains")).toBeInTheDocument();
-  },
+  play: smokeText("Topics", "Domains"),
 };
