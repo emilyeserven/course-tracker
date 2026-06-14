@@ -1,18 +1,12 @@
 import type { DashboardLayout } from "@emstack/types";
 
-import {
-  CopyIcon,
-  LayoutGridIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-} from "lucide-react";
+import { LayoutGridIcon, MoreHorizontalIcon } from "lucide-react";
 
 import { LayoutMenuActions } from "@/components/LayoutMenuActions";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TabsTrigger } from "@/components/ui/tabs";
@@ -70,17 +64,10 @@ export function LayoutTab({
             <LayoutGridIcon />
             Visible tiles…
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => onRename(layout)}>
-            <PencilIcon />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onDuplicate(layout)}>
-            <CopyIcon />
-            Duplicate
-          </DropdownMenuItem>
           <LayoutMenuActions
             layout={layout}
+            onRename={onRename}
+            onDuplicate={onDuplicate}
             onSaveAs={onSaveAs}
             onDelete={onDelete}
             saveAsLabel="Save as layout…"

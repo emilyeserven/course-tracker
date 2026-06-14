@@ -1,6 +1,6 @@
 import type { DashboardLayout } from "@emstack/types";
 
-import { BookmarkIcon, Trash2Icon } from "lucide-react";
+import { BookmarkIcon, CopyIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import {
   DropdownMenuItem,
@@ -9,6 +9,8 @@ import {
 
 interface LayoutMenuActionsProps {
   layout: DashboardLayout;
+  onRename: (layout: DashboardLayout) => void;
+  onDuplicate: (layout: DashboardLayout) => void;
   onSaveAs: (layout: DashboardLayout) => void;
   onDelete: (layout: DashboardLayout) => void;
   saveAsLabel: string;
@@ -17,13 +19,17 @@ interface LayoutMenuActionsProps {
 }
 
 /**
- * Shared footer for a layout's dropdown menu: the "Save as…" action, a
- * separator, and the destructive "Delete" action. Render inside a
- * DropdownMenuContent. Used by the dashboard tab menu and the settings
- * layouts/presets list so the two stay in sync.
+ * Shared body for a layout's dropdown menu: a leading separator, the Rename
+ * and Duplicate actions, the "Save as…" action, a separator, and the
+ * destructive "Delete" action. Render inside a DropdownMenuContent after any
+ * caller-specific items (e.g. the dashboard tab's "Visible tiles…"). Used by
+ * the dashboard tab menu and the settings layouts/presets list so the two
+ * stay in sync.
  */
 export function LayoutMenuActions({
   layout,
+  onRename,
+  onDuplicate,
   onSaveAs,
   onDelete,
   saveAsLabel,
@@ -31,6 +37,15 @@ export function LayoutMenuActions({
 }: LayoutMenuActionsProps) {
   return (
     <>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onSelect={() => onRename(layout)}>
+        <PencilIcon />
+        Rename
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => onDuplicate(layout)}>
+        <CopyIcon />
+        Duplicate
+      </DropdownMenuItem>
       {showSaveAs && (
         <DropdownMenuItem onSelect={() => onSaveAs(layout)}>
           <BookmarkIcon />
