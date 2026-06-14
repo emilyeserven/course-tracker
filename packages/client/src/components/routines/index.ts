@@ -8,6 +8,7 @@ export {
   DAY_LABELS,
   DAY_ORDER,
   fillAllDays,
+  formatCuratedDateLabel,
   MAX_CURATED_DAYS,
   representativeRow,
   rowsToCurated,

@@ -189,6 +189,17 @@ export function curatedDateRange(
   return keys;
 }
 
+// Human label for a curated date key ("YYYY-MM-DD"), e.g. "Mon, Jun 15". Read in
+// UTC to match the curated date keys (which curatedDateRange also builds in UTC).
+export function formatCuratedDateLabel(dateKey: string): string {
+  return new Date(`${dateKey}T00:00:00Z`).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 // Build the curated editor rows for a set of date keys, defaulting each from the
 // routine's stored entries (empty dates become blank rows).
 export function curatedToRows(
