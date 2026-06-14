@@ -63,6 +63,36 @@ jobs:
       - name: Lint and format check
         run: pnpm lint
 
+  # Non-Storybook Vitest tests (the "unit-tests" project in
+  # packages/client/vite.config.ts): co-located *.test.ts(x) component/unit tests
+  # in jsdom. Kept separate from the Storybook job so it stays fast — no Playwright
+  # browser install — and runs on every PR alongside typecheck/lint.
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # --project unit-tests selects the jsdom project (excludes the browser-mode
+      # storybook project); `vitest run` keeps it non-interactive.
+      - name: Run unit tests
+        run: pnpm --filter=@emstack/client exec vitest run --project unit-tests
+
   # Storybook stories run as browser-mode Vitest tests in real headless Chromium.
   # Kept as its own job (off typecheck/lint) because the Playwright browser install
   # is slow and shouldn't burden the fast checks.
