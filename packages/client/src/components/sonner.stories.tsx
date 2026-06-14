@@ -5,7 +5,7 @@ import { expect, userEvent, within } from "storybook/test";
 
 import { Toaster } from "./sonner";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 
 // The Toaster renders toasts in a portal; a trigger button fires one so the
 // story has something to assert.

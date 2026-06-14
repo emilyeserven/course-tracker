@@ -4,8 +4,8 @@ import * as React from "react";
 
 import { cva } from "class-variance-authority";
 
-import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function InputGroup({
