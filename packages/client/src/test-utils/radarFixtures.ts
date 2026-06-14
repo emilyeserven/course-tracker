@@ -123,8 +123,10 @@ export function makeRadar(overrides: Partial<Radar> = {}): Radar {
   };
 }
 
-/** A domain with scope topics, mirroring what the edit route passes its tabs. */
-export function makeDomain(overrides: Partial<Domain> = {}): Domain {
+/** A domain with scope topics, mirroring what the edit route passes its tabs.
+ * Distinct from `boxFixtures.makeDomain` (the minimal content-box `Domain`):
+ * this one carries the scope/topic fields the domain edit tabs read. */
+export function makeScopedDomain(overrides: Partial<Domain> = {}): Domain {
   const asDomainTopics = (topics: TopicForTopicsPage[]): DomainTopic[] =>
     topics.map(t => ({
       id: t.id,
