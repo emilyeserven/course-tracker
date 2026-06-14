@@ -1,4 +1,4 @@
-import type { ControlledDialogProps } from "@/components/dialogProps";
+import type { ControlledDialogProps } from "@/types/dialogProps";
 import type { DailyCriteriaTemplate } from "@emstack/types";
 
 import { useEffect, useState } from "react";

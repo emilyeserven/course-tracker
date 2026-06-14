@@ -1,3 +1,4 @@
+import type { LayoutMenuHandlers } from "@/components/LayoutMenuActions";
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
 import { BookmarkIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
@@ -18,13 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { tileVisibilityItems } from "@/lib/dashboardTiles";
 
-interface LayoutRowProps {
-  layout: DashboardLayout;
+interface LayoutRowProps extends LayoutMenuHandlers {
   onToggleTile: (layout: DashboardLayout, tileId: DashboardTileId) => void;
-  onRename: (layout: DashboardLayout) => void;
-  onDuplicate: (layout: DashboardLayout) => void;
-  onSaveAs: (layout: DashboardLayout) => void;
-  onDelete: (layout: DashboardLayout) => void;
 }
 
 /** One layout/preset row with the same actions as the dashboard's tab menu. */

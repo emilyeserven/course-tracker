@@ -1,3 +1,4 @@
+import type { LayoutMenuHandlers } from "@/components/LayoutMenuActions";
 import type { DashboardLayout } from "@emstack/types";
 
 import { LayoutGridIcon, MoreHorizontalIcon } from "lucide-react";
@@ -11,13 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TabsTrigger } from "@/components/ui/tabs";
 
-interface LayoutTabProps {
-  layout: DashboardLayout;
+interface LayoutTabProps extends LayoutMenuHandlers {
   onEditTiles: (layout: DashboardLayout) => void;
-  onRename: (layout: DashboardLayout) => void;
-  onDuplicate: (layout: DashboardLayout) => void;
-  onSaveAs: (layout: DashboardLayout) => void;
-  onDelete: (layout: DashboardLayout) => void;
 }
 
 /** A dashboard tab plus its hover-revealed "More" menu. The trigger is a

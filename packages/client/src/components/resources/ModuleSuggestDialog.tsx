@@ -1,4 +1,4 @@
-import type { ControlledDialogProps } from "@/components/dialogProps";
+import type { ControlledDialogProps } from "@/types/dialogProps";
 
 import { useMemo, useState } from "react";
 

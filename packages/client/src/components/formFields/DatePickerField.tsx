@@ -1,4 +1,4 @@
-import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { BaseFieldProps } from "@/types/fieldProps";
 
 import { CalendarIcon } from "lucide-react";
 

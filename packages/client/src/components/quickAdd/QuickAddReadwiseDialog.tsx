@@ -1,4 +1,4 @@
-import type { ControlledDialogProps } from "@/components/dialogProps";
+import type { ControlledDialogProps } from "@/types/dialogProps";
 
 import { QuickAddIntegrationDialog } from "./QuickAddIntegrationDialog";
 import { useQuickAddReadwise } from "./useQuickAddReadwise";

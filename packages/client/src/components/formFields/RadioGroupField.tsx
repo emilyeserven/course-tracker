@@ -1,4 +1,4 @@
-import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { BaseFieldProps } from "@/types/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import { Field, FieldLabel } from "@/components/forms/field";

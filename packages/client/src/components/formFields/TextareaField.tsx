@@ -1,4 +1,4 @@
-import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { BaseFieldProps } from "@/types/fieldProps";
 
 import { Field, FieldError, FieldLabel } from "@/components/forms/field";
 import { Textarea } from "@/components/textarea";

@@ -1,5 +1,5 @@
 import type { CreateConfig } from "@/components/formFields/ComboboxCreatePanel";
-import type { BaseFieldProps } from "@/components/formFields/fieldProps";
+import type { BaseFieldProps } from "@/types/fieldProps";
 import type { SelectOption } from "@/utils";
 
 import {

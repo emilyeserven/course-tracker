@@ -7,12 +7,15 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-interface LayoutMenuActionsProps {
+export interface LayoutMenuHandlers {
   layout: DashboardLayout;
   onRename: (layout: DashboardLayout) => void;
   onDuplicate: (layout: DashboardLayout) => void;
   onSaveAs: (layout: DashboardLayout) => void;
   onDelete: (layout: DashboardLayout) => void;
+}
+
+interface LayoutMenuActionsProps extends LayoutMenuHandlers {
   saveAsLabel: string;
   /** Hide the "Save as…" item (e.g. for template rows). Defaults to true. */
   showSaveAs?: boolean;
