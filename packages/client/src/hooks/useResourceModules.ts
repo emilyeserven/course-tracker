@@ -360,3 +360,10 @@ export function useResourceModules(resourceId: string) {
     isReordering,
   };
 }
+
+/**
+ * Everything `useResourceModules` exposes. The module-admin section components
+ * accept this controller so the top-level component stays a thin composition
+ * over the hook rather than threading a dozen individual props.
+ */
+export type ResourceModulesController = ReturnType<typeof useResourceModules>;
