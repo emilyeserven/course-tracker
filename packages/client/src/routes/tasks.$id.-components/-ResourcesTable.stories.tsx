@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, within } from "storybook/test";
 
-import { ResourcesTable } from "./ResourcesTable";
+import { ResourcesTable } from "./-ResourcesTable";
 
 import { makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";

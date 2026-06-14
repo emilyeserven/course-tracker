@@ -1,7 +1,7 @@
 import type { Module, ModuleGroup, Resource } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { ResourceModulesAdmin } from "./ResourceModulesAdmin";
+import { ResourceModulesAdmin } from "./-ResourceModulesAdmin";
 
 import {
   makeModule,

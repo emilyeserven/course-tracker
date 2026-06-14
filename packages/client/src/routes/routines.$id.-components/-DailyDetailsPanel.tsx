@@ -1,11 +1,10 @@
-import type { DailyDetailTab } from "./dailyStatusMeta";
+import type { DailyDetailTab } from "@/components/dailies/dailyStatusMeta";
 
 import { useQuery } from "@tanstack/react-query";
 
-import { DailyCompletionsManager } from "./DailyCompletionsManager";
-import { DailyRecentDaysStrip } from "./DailyRecentDaysStrip";
-import { DAILY_STATUS_OPTIONS } from "./dailyStatusMeta";
-
+import { DailyCompletionsManager } from "@/components/dailies/DailyCompletionsManager";
+import { DailyRecentDaysStrip } from "@/components/dailies/DailyRecentDaysStrip";
+import { DAILY_STATUS_OPTIONS } from "@/components/dailies/dailyStatusMeta";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea } from "@/components/layout/InfoArea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

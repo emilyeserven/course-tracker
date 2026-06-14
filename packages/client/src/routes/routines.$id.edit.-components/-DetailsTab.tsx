@@ -3,13 +3,13 @@ import type { Routine, RoutineTemplate } from "@emstack/types";
 import { Loader2 } from "lucide-react";
 
 import { QuickFillMenu } from "./-QuickFillMenu";
+import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
 import { EditForm } from "@/components/layout";
 import {
   fillAllDays,
   representativeRow,
   weeklyToRows,
-  WeeklyEntryEditor,
   WeeklyScheduleField,
 } from "@/components/routines";
 import { Button } from "@/components/ui/button";

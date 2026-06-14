@@ -11,5 +11,4 @@ export {
   weeklyToRows,
 } from "./weekly";
 export { RoutineEntryLabel } from "./RoutineEntryLabel";
-export { WeeklyEntryEditor } from "./WeeklyEntryEditor";
 export { WeeklyScheduleField } from "./WeeklyScheduleField";

@@ -3,11 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { LinkedRoutinesSection } from "./tasks.$id.-components/-LinkedRoutinesSection";
+import { ResourcesTable } from "./tasks.$id.-components/-ResourcesTable";
+import { TodosChecklist } from "./tasks.$id.-components/-TodosChecklist";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
-import { ResourcesTable } from "@/components/tasks/ResourcesTable";
-import { TodosChecklist } from "@/components/tasks/TodosChecklist";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleTask } from "@/utils";
 

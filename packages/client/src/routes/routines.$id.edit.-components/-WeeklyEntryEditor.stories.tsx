@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, within } from "storybook/test";
 
-import { WeeklyEntryEditor } from "./WeeklyEntryEditor";
+import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";

@@ -1,1 +1,24 @@
-pnpm exec lint-staged
+# Run lint-staged, then clean up after it on failure.
+#
+# When lint-staged crashes mid-git-operation (notably when staged changes net out
+# to an empty commit during rapid `git commit --amend` retries — see #439) it can
+# orphan a `git` `index.lock`. A *pre-flight* guard can't help: git acquires the
+# index lock before it ever runs this hook, so a pre-existing lock aborts the
+# commit before we get a say. The fix is to remove the orphaned lock here, before
+# this hook returns, so it doesn't persist to block the *next* commit.
+#
+# git does not hold the index lock while this hook runs, and lint-staged has
+# already exited by this point, so a lock present after a failure is the orphan
+# lint-staged left — safe to remove. Set EMSTACK_KEEP_INDEX_LOCK=1 to opt out.
+status=0
+pnpm exec lint-staged || status=$?
+
+if [ "$status" -ne 0 ] && [ -z "${EMSTACK_KEEP_INDEX_LOCK:-}" ]; then
+  lock="$(git rev-parse --git-path index.lock)"
+  if [ -f "$lock" ]; then
+    echo "husky/pre-commit: lint-staged failed; removing orphaned git index.lock ($lock)" >&2
+    rm -f "$lock"
+  fi
+fi
+
+exit "$status"

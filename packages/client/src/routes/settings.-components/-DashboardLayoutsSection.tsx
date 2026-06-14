@@ -1,12 +1,6 @@
 import type { DashboardLayout, DashboardTileId } from "@emstack/types";
 
-import {
-  BookmarkIcon,
-  CopyIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PlusIcon,
-} from "lucide-react";
+import { BookmarkIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
 
 import { useDashboardLayouts } from "./-useDashboardLayouts";
 
@@ -18,7 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -76,17 +69,10 @@ function LayoutRow({
               {title}
             </DropdownMenuCheckboxItem>
           ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => onRename(layout)}>
-            <PencilIcon />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onDuplicate(layout)}>
-            <CopyIcon />
-            Duplicate
-          </DropdownMenuItem>
           <LayoutMenuActions
             layout={layout}
+            onRename={onRename}
+            onDuplicate={onDuplicate}
             onSaveAs={onSaveAs}
             onDelete={onDelete}
             saveAsLabel="Save as preset…"

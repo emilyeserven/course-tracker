@@ -17,14 +17,13 @@ import {
   ModuleDisplayRow,
   ModuleEditCard,
   ModuleSuggestDialog,
-} from "./moduleAdminComponents";
+} from "@/components/resources/moduleAdminComponents";
 import {
   emptyGroupDraft,
   emptyModuleDraft,
   groupToDraft,
   moduleToDraft,
-} from "./moduleDrafts";
-
+} from "@/components/resources/moduleDrafts";
 import { Button } from "@/components/ui/button";
 import { useResourceModules } from "@/hooks/useResourceModules";
 import { isHttpUrl } from "@/utils";
