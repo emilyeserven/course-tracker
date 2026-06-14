@@ -1,0 +1,30 @@
+name: PR guards
+
+# Warn-only PR check: surfaces suppression/ignore directives ADDED by this PR
+# (fallow-ignore, eslint-disable, @ts-*, skipped/focused tests) as inline
+# annotations plus a job-summary table. It never fails the check — it's
+# visibility for reviewers, not a gate. Complements the /audit-guards skill,
+# which audits *stale* directives after the fact.
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: guards-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  new-suppressions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history so the PR base commit is reachable for the diff.
+          fetch-depth: 0
+
+      - name: Flag new suppression directives
+        shell: bash
+        run: scripts/check-new-suppressions.sh "${{ github.event.pull_request.base.sha }}"
