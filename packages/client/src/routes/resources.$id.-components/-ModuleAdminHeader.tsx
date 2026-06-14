@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
 
 interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
-  modulesAreExhaustive?: boolean;
+  /** When true, render the editable "module list is exhaustive" toggle. */
+  canEditExhaustive?: boolean;
 }
 
 /**
@@ -17,12 +18,12 @@ interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
  */
 export function ModuleAdminHeader({
   resourceId,
-  modulesAreExhaustive,
+  canEditExhaustive,
   api,
   ui,
 }: ModuleAdminHeaderProps) {
   const {
-    completedCount, totalCount,
+    completedCount, totalCount, modulesAreExhaustive, setModulesExhaustiveMutation,
   } = api;
   const {
     isAnyEditing,
@@ -76,6 +77,28 @@ export function ModuleAdminHeader({
           </Button>
         </div>
       </div>
+
+      {canEditExhaustive && (
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={modulesAreExhaustive}
+            onChange={e =>
+              setModulesExhaustiveMutation.mutate(e.target.checked)}
+            className="mt-0.5 size-4"
+          />
+          <span className="flex flex-col gap-0.5">
+            <span className="font-medium">Module list is exhaustive</span>
+            <span className="text-xs text-muted-foreground">
+              Treat the modules below as the full contents of this resource. When
+              on, progress and % complete are calculated from how many modules
+              are marked done — instead of the Current Progress / Total Modules
+              numbers on the Details tab. Leave off if these modules are only a
+              partial breakdown.
+            </span>
+          </span>
+        </label>
+      )}
 
       <ModuleAssistDialog
         resourceId={resourceId}

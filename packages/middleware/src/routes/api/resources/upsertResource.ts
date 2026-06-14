@@ -55,7 +55,6 @@ const updateableColumns = [
   "isExpires",
   "courseProviderId",
   "providerIsSelf",
-  "modulesAreExhaustive",
   "easeOfStarting",
   "timeNeeded",
   "interactivity",

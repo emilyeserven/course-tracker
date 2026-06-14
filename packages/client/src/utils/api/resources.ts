@@ -27,3 +27,20 @@ export async function incrementResourceProgress(
     "Failed to increment resource progress",
   );
 }
+
+export async function setResourceModulesExhaustive(
+  id: string,
+  modulesAreExhaustive: boolean,
+): Promise<{
+  status: string;
+  id: string;
+  modulesAreExhaustive: boolean;
+}> {
+  return postJson(
+    `/api/resources/${id}/modulesExhaustive`,
+    {
+      modulesAreExhaustive,
+    },
+    "Failed to update module-list setting",
+  );
+}
