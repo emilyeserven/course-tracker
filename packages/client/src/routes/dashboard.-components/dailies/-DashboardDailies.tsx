@@ -2,14 +2,14 @@ import type { DashboardTileProps } from "@/lib/dashboardTiles";
 
 import { Link } from "@tanstack/react-router";
 
+import { DashboardDailiesBody } from "./-DashboardDailiesBody";
+import { useDashboardDailies } from "./-useDashboardDailies";
 import {
   CardSettingsFlyout,
   DashboardCard,
   DashboardSectionStatus,
   isAutoHeight,
-} from "./-cardKit";
-import { DashboardDailiesBody } from "./-DashboardDailiesBody";
-import { useDashboardDailies } from "./-useDashboardDailies";
+} from "../shared/-cardKit";
 
 import {
   DailiesViewModeToggle,

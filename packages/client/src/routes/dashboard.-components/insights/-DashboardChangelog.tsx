@@ -9,12 +9,12 @@ import type { ReactNode } from "react";
 // fallow-ignore-next-line unresolved-import
 import changelogMarkdown from "@root/CHANGELOG.md?raw";
 
+import { parseChangelog } from "./-changelog";
 import {
   CardSettingsFlyout,
   DashboardCard,
   isAutoHeight,
-} from "./-cardKit";
-import { parseChangelog } from "./-changelog";
+} from "../shared/-cardKit";
 
 const REPO_URL = "https://github.com/emilyeserven/course-tracker";
 

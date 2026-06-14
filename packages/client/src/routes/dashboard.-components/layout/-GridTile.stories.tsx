@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DndGrid } from "@dnd-grid/react";
 import { expect, waitFor } from "storybook/test";
 
-import { GridTile } from "./-DashboardGrid";
+import { GridTile } from "./-GridTile";
 
 // Regression guard for the dashboard grid: @dnd-grid clones each child to inject
 // the `dnd-grid-item` class, the inline geometry (position/width/transform), drag
