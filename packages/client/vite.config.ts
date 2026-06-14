@@ -87,7 +87,6 @@ export default defineConfig(({
               },
             ],
           },
-          setupFiles: [".storybook/vitest.setup.ts"],
         },
       },
     ],
