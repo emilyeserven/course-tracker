@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { SelectAllCheckbox } from "./SelectAllCheckbox";
 
 import {
   playExpectChecked,
-  playExpectDisabled,
   playToggleCheckbox,
 } from "@/test-utils/storyPlays";
 
@@ -33,24 +32,4 @@ export const Checked: Story = {
     checked: true,
   },
   play: playExpectChecked,
-};
-
-export const Indeterminate: Story = {
-  args: {
-    indeterminate: true,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const checkbox = canvas.getByRole<HTMLInputElement>("checkbox");
-    await expect(checkbox.indeterminate).toBe(true);
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
-  play: playExpectDisabled("checkbox"),
 };

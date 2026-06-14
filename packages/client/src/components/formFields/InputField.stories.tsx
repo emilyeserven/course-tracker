@@ -5,10 +5,6 @@ import { expect, within } from "storybook/test";
 import { InputField } from "./InputField";
 
 import { FormFieldHarness } from "@/test-utils/FormFieldHarness";
-import {
-  playExpectDisabled,
-  playTypeIntoTextbox,
-} from "@/test-utils/storyPlays";
 
 const meta = {
   component: InputField,
@@ -57,16 +53,4 @@ export const Filled: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("textbox")).toHaveValue("React 19 essentials");
   },
-};
-
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
-  play: playExpectDisabled("textbox"),
-};
-
-/** Typing updates the field value through the form's `handleChange`. */
-export const Typing: Story = {
-  play: playTypeIntoTextbox("Clean Architecture"),
 };

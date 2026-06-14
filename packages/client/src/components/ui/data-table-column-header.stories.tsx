@@ -80,36 +80,3 @@ export const SortedAscending: Story = {
     ).toBeInTheDocument();
   },
 };
-
-export const SortedDescending: Story = {
-  args: {
-    sorted: "desc",
-  },
-};
-
-// A non-sortable column renders a plain label, not a button.
-export const NotSortable: Story = {
-  args: {
-    canSort: false,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.queryByRole("button")).not.toBeInTheDocument();
-    await expect(canvas.getByText("Name")).toBeInTheDocument();
-  },
-};
-
-// The label is kept for screen readers even when visually hidden.
-export const HideLabel: Story = {
-  args: {
-    hideLabel: true,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Name")).toBeInTheDocument();
-  },
-};

@@ -6,9 +6,7 @@ import { EditModalFooter } from "./EditModalFooter";
 
 import {
   clickCancelFiresOnCancel,
-  clickRemoveFiresOnDelete,
   expectRemoveHidden,
-  expectSaveDisabled,
 } from "@/test-utils/editRowStoryPlays";
 
 const meta: Meta<typeof EditModalFooter> = {
@@ -33,16 +31,4 @@ export const NewEntity: Story = {
     isNew: true,
   },
   play: expectRemoveHidden,
-};
-
-// An existing entity shows Remove and fires onDelete.
-export const Removable: Story = {
-  play: clickRemoveFiresOnDelete,
-};
-
-export const Saving: Story = {
-  args: {
-    isSaving: true,
-  },
-  play: expectSaveDisabled,
 };

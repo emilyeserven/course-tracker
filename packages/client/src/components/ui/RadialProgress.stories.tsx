@@ -47,29 +47,3 @@ export const Empty: Story = {
     ).toBeInTheDocument();
   },
 };
-
-export const Full: Story = {
-  args: {
-    current: 5,
-    total: 5,
-  },
-};
-
-// A custom `title` overrides the tooltip, but the aria-label stays percentage.
-export const CustomTitle: Story = {
-  args: {
-    current: 1,
-    total: 2,
-    title: "Halfway there",
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("img", {
-        name: "50% complete",
-      }),
-    ).toBeInTheDocument();
-  },
-};

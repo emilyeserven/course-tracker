@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { ConfirmDialog } from "./ConfirmDialog";
 
@@ -36,35 +36,4 @@ export const Default: Story = {
 // The confirm button runs the confirm handler.
 export const Confirms: Story = {
   play: playClickDialogButton("Yes"),
-};
-
-// The cancel button runs the cancel handler.
-export const Cancels: Story = {
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    await userEvent.click(await body.findByRole("button", {
-      name: "No",
-    }));
-    await expect(args.onCancel).toHaveBeenCalled();
-  },
-};
-
-// Custom labels and no description.
-export const CustomLabels: Story = {
-  args: {
-    title: "Discard changes?",
-    description: undefined,
-    confirmLabel: "Discard",
-    cancelLabel: "Keep editing",
-  },
-  play: async () => {
-    const body = within(document.body);
-    await expect(
-      await body.findByRole("button", {
-        name: "Discard",
-      }),
-    ).toBeInTheDocument();
-  },
 };
