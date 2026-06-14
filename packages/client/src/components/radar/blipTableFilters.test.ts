@@ -6,8 +6,11 @@ import type { BlipFilterCriteria, BlipFilterLookups } from "./blipTableFilters";
 
 import {
   ALL,
+  blipSortValue,
   countByField,
   filterAndSortBlips,
+  filterBlips,
+  sortBlips,
   UNASSIGNED,
 } from "./blipTableFilters";
 
@@ -460,6 +463,111 @@ describe("filterAndSortBlips topic-name tiebreak", () => {
       makeLookups(),
     );
     expect(ids(result)).toEqual(["b", "c", "a"]);
+  });
+});
+
+describe("filterBlips (standalone, no sorting)", () => {
+  const blips = [
+    makeBlip({
+      id: "a",
+      quadrantId: "q1",
+      ringId: "r1",
+    }),
+    makeBlip({
+      id: "b",
+      quadrantId: null,
+      ringId: "r2",
+    }),
+  ];
+
+  test("filters without reordering or copying when nothing matches out", () => {
+    const result = filterBlips(blips, makeCriteria());
+    expect(ids(result)).toEqual(["a", "b"]);
+  });
+
+  test("applies the unassigned-quadrant branch", () => {
+    const result = filterBlips(
+      blips,
+      makeCriteria({
+        filterQuadrant: UNASSIGNED,
+      }),
+    );
+    expect(ids(result)).toEqual(["b"]);
+  });
+
+  test("applies a specific-ring branch", () => {
+    const result = filterBlips(
+      blips,
+      makeCriteria({
+        filterRing: "r1",
+      }),
+    );
+    expect(ids(result)).toEqual(["a"]);
+  });
+});
+
+describe("blipSortValue", () => {
+  const lookups = makeLookups({
+    "topic-x": 5,
+  });
+  const blip = makeBlip({
+    id: "x",
+    topicName: "Xylophone",
+    quadrantId: "q2",
+    ringId: "r2",
+    topicId: "topic-x",
+  });
+
+  test("returns the lowercased topic name for the topic key", () => {
+    expect(blipSortValue(blip, "topic", lookups)).toBe("xylophone");
+  });
+
+  test("returns the quadrant position for the slice key", () => {
+    expect(blipSortValue(blip, "slice", lookups)).toBe(1);
+  });
+
+  test("returns the ring position for the ring key", () => {
+    expect(blipSortValue(blip, "ring", lookups)).toBe(1);
+  });
+
+  test("returns the topic item count for the items key", () => {
+    expect(blipSortValue(blip, "items", lookups)).toBe(5);
+  });
+
+  test("falls back to MAX_SAFE_INTEGER for an unassigned slice", () => {
+    const unassigned = makeBlip({
+      id: "u",
+      quadrantId: null,
+    });
+    expect(blipSortValue(unassigned, "slice", lookups)).toBe(
+      Number.MAX_SAFE_INTEGER,
+    );
+  });
+});
+
+describe("sortBlips (standalone, no filtering)", () => {
+  const blips = [
+    makeBlip({
+      id: "a",
+      topicName: "Charlie",
+    }),
+    makeBlip({
+      id: "b",
+      topicName: "Alpha",
+    }),
+  ];
+
+  test("orders by topic name ascending and copies the input", () => {
+    const result = sortBlips(
+      blips,
+      makeCriteria({
+        sortKey: "topic",
+        sortDir: "asc",
+      }),
+      makeLookups(),
+    );
+    expect(ids(result)).toEqual(["b", "a"]);
+    expect(result).not.toBe(blips);
   });
 });
 
