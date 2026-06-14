@@ -1,8 +1,17 @@
-import type { Module } from "@emstack/types";
+import type { Module, ModuleGroup, TagGroup } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import { draftToLength, moduleToDraft, parseCount } from "./moduleDrafts";
+import {
+  draftToLength,
+  emptyGroupDraft,
+  emptyModuleDraft,
+  groupToDraft,
+  levelChipClass,
+  lookupTagsByIds,
+  moduleToDraft,
+  parseCount,
+} from "./moduleDrafts";
 
 const baseModule: Module = {
   id: "mod-1",
@@ -74,5 +83,145 @@ describe("parseCount", () => {
 
   test("a decimal is floored to an integer", () => {
     expect(parseCount("3.7")).toBe(3);
+  });
+});
+
+describe("emptyGroupDraft", () => {
+  test("creates a blank group draft with the new-id sentinel", () => {
+    const draft = emptyGroupDraft();
+    expect(draft.id).toBe("__new__");
+    expect(draft.name).toBe("");
+    expect(draft.totalCount).toBe("");
+    expect(draft.completedCount).toBe("");
+    expect(draft.easeOfStarting).toBe("");
+    expect(draft.tagIds).toEqual([]);
+  });
+});
+
+describe("groupToDraft", () => {
+  test("stringifies counts and carries levels and tag ids", () => {
+    const group: ModuleGroup = {
+      id: "g-1",
+      resourceId: "res-1",
+      name: "Group",
+      description: "desc",
+      url: "https://example.com",
+      totalCount: 10,
+      completedCount: 4,
+      easeOfStarting: "high",
+      timeNeeded: "medium",
+      interactivity: "low",
+      tags: [
+        {
+          id: "t-1",
+          groupId: "tg-1",
+          name: "Tag",
+        },
+      ],
+    };
+    expect(groupToDraft(group)).toEqual({
+      id: "g-1",
+      name: "Group",
+      description: "desc",
+      url: "https://example.com",
+      totalCount: "10",
+      completedCount: "4",
+      easeOfStarting: "high",
+      timeNeeded: "medium",
+      interactivity: "low",
+      tagIds: ["t-1"],
+    });
+  });
+
+  test("falls back to empty strings/arrays for absent fields", () => {
+    const group: ModuleGroup = {
+      id: "g-2",
+      resourceId: "res-1",
+      name: "Bare",
+    };
+    const draft = groupToDraft(group);
+    expect(draft.description).toBe("");
+    expect(draft.url).toBe("");
+    expect(draft.totalCount).toBe("");
+    expect(draft.completedCount).toBe("");
+    expect(draft.easeOfStarting).toBe("");
+    expect(draft.tagIds).toEqual([]);
+  });
+});
+
+describe("emptyModuleDraft", () => {
+  test("creates a blank module draft defaulting to minutes mode", () => {
+    const draft = emptyModuleDraft();
+    expect(draft.id).toBe("__new__");
+    expect(draft.durationMode).toBe("minutes");
+    expect(draft.minutesValue).toBe("");
+    expect(draft.bucketValue).toBe("");
+    expect(draft.tagIds).toEqual([]);
+  });
+});
+
+describe("levelChipClass", () => {
+  test("returns a distinct class per known level", () => {
+    expect(levelChipClass("low")).toContain("emerald");
+    expect(levelChipClass("medium")).toContain("amber");
+    expect(levelChipClass("high")).toContain("rose");
+  });
+
+  test("returns the muted fallback for an absent level", () => {
+    expect(levelChipClass(null)).toContain("muted");
+    expect(levelChipClass(undefined)).toContain("muted");
+  });
+});
+
+describe("lookupTagsByIds", () => {
+  const tagGroups: TagGroup[] = [
+    {
+      id: "tg-1",
+      name: "Group 1",
+      tags: [
+        {
+          id: "t-1",
+          groupId: "tg-1",
+          name: "One",
+        },
+        {
+          id: "t-2",
+          groupId: "tg-1",
+          name: "Two",
+        },
+      ],
+    },
+    {
+      id: "tg-2",
+      name: "Group 2",
+      tags: [
+        {
+          id: "t-3",
+          groupId: "tg-2",
+          name: "Three",
+        },
+      ],
+    },
+  ];
+
+  test("resolves ids to tags in request order across groups", () => {
+    expect(lookupTagsByIds(["t-3", "t-1"], tagGroups).map(t => t.name)).toEqual([
+      "Three",
+      "One",
+    ]);
+  });
+
+  test("silently drops unknown ids", () => {
+    expect(lookupTagsByIds(["t-1", "missing"], tagGroups).map(t => t.id)).toEqual(
+      ["t-1"],
+    );
+  });
+
+  test("handles groups with no tags and an empty id list", () => {
+    expect(lookupTagsByIds([], tagGroups)).toEqual([]);
+    expect(lookupTagsByIds(["t-1"], [{
+      id: "tg-3",
+      name: "Empty",
+    }])).toEqual([]);
   });
 });
