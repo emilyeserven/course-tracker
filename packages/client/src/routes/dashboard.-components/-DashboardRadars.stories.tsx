@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardRadars } from "./-DashboardRadars";
@@ -9,18 +8,10 @@ import { makeDomain } from "@/test-utils/boxFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function clientWith(domains: unknown) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["domains"], domains);
-  return client;
+  return seededQueryClient([[["domains"], domains]]);
 }
 
 const meta: Meta<typeof DashboardRadars> = {

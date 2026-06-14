@@ -1,26 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { CriteriaTab } from "./-CriteriaTab";
 
 import { makeRoutine } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeCriteriaTemplate } from "@/test-utils/templatesFixtures";
 
 // The embedded Quick Fill menu reads the criteria templates.
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["dailyCriteriaTemplates"], [makeCriteriaTemplate()]);
-  return client;
+  return seededQueryClient([
+    [["dailyCriteriaTemplates"], [makeCriteriaTemplate()]],
+  ]);
 }
 
 const meta: Meta<typeof CriteriaTab> = {

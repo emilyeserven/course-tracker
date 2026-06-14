@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { RoutineDetailsContent } from "./-RoutineDetailsContent";
@@ -8,21 +7,15 @@ import { RoutineDetailsContent } from "./-RoutineDetailsContent";
 import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 // useTaskResourceNames reads the task/resource lists to resolve weekly-schedule
 // entry names.
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["tasks"], [makeTask()]);
-  client.setQueryData(["resources"], makeResources());
-  return client;
+  return seededQueryClient([
+    [["tasks"], [makeTask()]],
+    [["resources"], makeResources()],
+  ]);
 }
 
 const meta = {

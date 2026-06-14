@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
@@ -9,19 +8,13 @@ import { makeProvider, makeResources } from "@/test-utils/boxFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["resources"], makeResources());
-  client.setQueryData(["providers"], [makeProvider()]);
-  return client;
+  return seededQueryClient([
+    [["resources"], makeResources()],
+    [["providers"], [makeProvider()]],
+  ]);
 }
 
 const meta: Meta<typeof DashboardCoursesByAmortization> = {

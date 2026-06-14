@@ -1,25 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { ReadwiseSection } from "./-ReadwiseSection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeAppSettings } from "@/test-utils/settingsFixtures";
 import { queryKeys } from "@/utils/queryKeys";
 
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.settings.detail(), makeAppSettings());
-  return client;
+  return seededQueryClient([[queryKeys.settings.detail(), makeAppSettings()]]);
 }
 
 const meta = {

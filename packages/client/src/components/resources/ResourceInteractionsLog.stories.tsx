@@ -1,37 +1,25 @@
 import type { Interaction } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { ResourceInteractionsLog } from "./ResourceInteractionsLog";
 
 import { QueryStub } from "@/test-utils/QueryStub";
 import { makeInteraction } from "@/test-utils/resourceModulesFixtures";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryKeys } from "@/utils/queryKeys";
 
 const RESOURCE_ID = "resource-1";
 
 // Build a QueryClient seeded with the data `useInteractionsLog` reads via
 // useQuery, so the log renders its loaded state without a network call.
-// staleTime Infinity stops a background (networkless) refetch from clobbering
-// the seeded entries in the story environment.
-function seededClient(interactions: Interaction[]): QueryClient {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(
-    queryKeys.resources.interactions(RESOURCE_ID),
-    interactions,
-  );
-  client.setQueryData(queryKeys.resources.moduleGroups(RESOURCE_ID), []);
-  client.setQueryData(queryKeys.resources.modules(RESOURCE_ID), []);
-  return client;
+function seededClient(interactions: Interaction[]) {
+  return seededQueryClient([
+    [queryKeys.resources.interactions(RESOURCE_ID), interactions],
+    [queryKeys.resources.moduleGroups(RESOURCE_ID), []],
+    [queryKeys.resources.modules(RESOURCE_ID), []],
+  ]);
 }
 
 const meta = {

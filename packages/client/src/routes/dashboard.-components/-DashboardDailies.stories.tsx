@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
@@ -10,22 +9,19 @@ import { makeDaily } from "@/test-utils/dailiesFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["dailies"], [
-    makeDaily({
-      status: "active",
-    }),
+  return seededQueryClient([
+    [
+      ["dailies"],
+      [
+        makeDaily({
+          status: "active",
+        }),
+      ],
+    ],
   ]);
-  return client;
 }
 
 const meta: Meta<typeof DashboardDoNow> = {

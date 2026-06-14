@@ -1,27 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { IntegrationKeySection } from "./-IntegrationKeySection";
 
 import { QueryStub } from "@/test-utils/QueryStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeAppSettings } from "@/test-utils/settingsFixtures";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seeds the settings detail the section reads so the configured/unconfigured
 // banner resolves without a network call.
 function clientWith(settings = makeAppSettings()) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(queryKeys.settings.detail(), settings);
-  return client;
+  return seededQueryClient([[queryKeys.settings.detail(), settings]]);
 }
 
 const meta = {

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DashboardTodoist } from "./-DashboardTodoist";
@@ -8,23 +7,20 @@ import { DashboardTodoist } from "./-DashboardTodoist";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryKeys } from "@/utils/queryKeys";
 
 function clientWith(configured: boolean) {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
+  return seededQueryClient([
+    [
+      queryKeys.todoist.tasks(),
+      {
+        configured,
+        overdue: [],
+        today: [],
       },
-    },
-  });
-  client.setQueryData(queryKeys.todoist.tasks(), {
-    configured,
-    overdue: [],
-    today: [],
-  });
-  return client;
+    ],
+  ]);
 }
 
 const meta: Meta<typeof DashboardTodoist> = {

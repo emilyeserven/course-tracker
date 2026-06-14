@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, fn, within } from "storybook/test";
 
 import { DetailsTab } from "./-DetailsTab";
@@ -9,24 +8,18 @@ import { makeRoutine } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
 import { makeRoutineTemplate } from "@/test-utils/routinesFixtures";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 
 // useRoutineDetailsForm reads topics/tasks/resources for its combobox options,
 // and the weekly-mode Quick Fill menu reads the routine templates. Empty lists
 // are enough — the form renders its fields regardless.
 function seededClient() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        staleTime: Infinity,
-      },
-    },
-  });
-  client.setQueryData(["topics"], []);
-  client.setQueryData(["tasks"], []);
-  client.setQueryData(["resources"], []);
-  client.setQueryData(["routineTemplates"], [makeRoutineTemplate()]);
-  return client;
+  return seededQueryClient([
+    [["topics"], []],
+    [["tasks"], []],
+    [["resources"], []],
+    [["routineTemplates"], [makeRoutineTemplate()]],
+  ]);
 }
 
 const meta: Meta<typeof DetailsTab> = {

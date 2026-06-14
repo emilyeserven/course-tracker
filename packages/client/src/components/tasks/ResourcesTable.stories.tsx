@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { QueryClient } from "@tanstack/react-query";
 import { expect, within } from "storybook/test";
 
 import { ResourcesTable } from "./ResourcesTable";
@@ -8,22 +7,17 @@ import { ResourcesTable } from "./ResourcesTable";
 import { makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
+import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { makeTaskResource } from "@/test-utils/tasksFixtures";
 import { queryKeys } from "@/utils/queryKeys";
 
 // Seed the linkable-resource queries the table's hook reads so the stories
-// render without hitting the network (staleTime keeps them from refetching).
-const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      staleTime: Number.POSITIVE_INFINITY,
-    },
-  },
-});
-client.setQueryData(queryKeys.resources.list(), []);
-client.setQueryData(["module-groups-all"], []);
-client.setQueryData(["modules-all"], []);
+// render without hitting the network.
+const client = seededQueryClient([
+  [queryKeys.resources.list(), []],
+  [["module-groups-all"], []],
+  [["modules-all"], []],
+]);
 
 const meta = {
   component: ResourcesTable,
