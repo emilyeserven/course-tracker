@@ -9,11 +9,11 @@ import {
   ReadwiseSection,
   ResourceHintTemplatesSection,
   RoutineTemplatesSection,
+  TagGroupsAdmin,
   TaskTypesSection,
   ThemeSection,
   TodoistSection,
 } from "./settings.-components";
-import { TagGroupsAdmin } from "./settings.-components/-TagGroupsAdmin";
 
 import { PageHeader, PageTabs } from "@/components/layout";
 
