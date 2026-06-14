@@ -1,4 +1,4 @@
-import type { ReadwiseDocument } from "@emstack/types";
+import type { ReadwiseDocument, ReadwiseReadingList } from "@emstack/types";
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
 
@@ -143,10 +143,8 @@ async function fetchLocation(
   return collected;
 }
 
-export interface ReadwiseReadingListData {
-  started: ReadwiseDocument[];
-  unstarted: ReadwiseDocument[];
-}
+// The reading-list payload minus `configured`, which the route stamps on.
+export type ReadwiseReadingListData = Omit<ReadwiseReadingList, "configured">;
 
 /**
  * Fetch article documents across the active reading locations and partition
