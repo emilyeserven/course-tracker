@@ -1,5 +1,6 @@
 import type {
   DailyCompletionEntryParts,
+  DailyCompletionEntryRef,
   RoutineCurated,
   RoutineMode,
   RoutineReferenceItem,
@@ -115,5 +116,21 @@ export function entryToCompletionParts(
     prependText: entry.prependText ?? null,
     name,
     appendText: entry.appendText ?? null,
+  };
+}
+
+// Freeze a scheduled entry's structured reference (kind + id) onto a logged
+// completion, baked alongside entryToCompletionParts. Keeping the id (not just
+// the resolved name) lets a resource's Interactions tab match completions to a
+// specific task/resource even after the schedule changes. Null entry → null.
+export function entryToCompletionRef(
+  entry: RoutineReferenceItem | null,
+): DailyCompletionEntryRef | null {
+  if (!entry) {
+    return null;
+  }
+  return {
+    type: entry.type,
+    id: entry.id,
   };
 }

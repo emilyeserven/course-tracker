@@ -5,6 +5,7 @@ import { routines } from "@/db/schema";
 import {
   entryForCompletionDate,
   entryToCompletionParts,
+  entryToCompletionRef,
 } from "@/utils/routineWeekday";
 
 import type { RoutineBody } from "./routineRows";
@@ -118,13 +119,13 @@ export async function bakeRoutineCompletions(
     if (!(c.status && c.entryParts === undefined)) {
       return c;
     }
+    const entry = entryByDate.get(c.date) ?? null;
     return {
       ...c,
-      entryParts: entryToCompletionParts(
-        entryByDate.get(c.date) ?? null,
-        taskNames,
-        resourceNames,
-      ),
+      entryParts: entryToCompletionParts(entry, taskNames, resourceNames),
+      // Frozen alongside entryParts: the structured ref keeps the scheduled
+      // item's id so resource-side consumers can match by id later.
+      entryRef: entryToCompletionRef(entry),
     };
   });
 
