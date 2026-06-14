@@ -1,3 +1,9 @@
+// Every path.*/spawn/fetch sink here takes literal or constant args
+// (CLIENT_DIST/MIDDLEWARE_DIR resolved from __dirname, hardcoded
+// "node"/drizzle-kit commands, fixed 127.0.0.1 health/readiness probes). No
+// request input reaches these sinks, so the candidates are not exploitable. The
+// localhost http:// probes are intentionally cleartext.
+// fallow-ignore-file security-sink
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
