@@ -1,23 +1,9 @@
+import type { Interaction } from "@emstack/types";
 import { interactions } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { interactionBodySchema } from "@/utils/schemas";
 
-interface InteractionBody {
-  resourceId: string;
-  moduleGroupId?: string | null;
-  moduleId?: string | null;
-  date: string;
-  progress: "incomplete" | "started" | "complete";
-  note?: string | null;
-  difficulty?: "easy" | "medium" | "hard" | null;
-  understanding?:
-    | "none"
-    | "basic"
-    | "comfortable"
-    | "proficient"
-    | "mastered"
-    | null;
-}
+type InteractionBody = Omit<Interaction, "id">;
 
 const updateableColumns = [
   "resourceId",

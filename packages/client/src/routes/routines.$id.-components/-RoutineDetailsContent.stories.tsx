@@ -8,6 +8,15 @@ import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryStoryDecorator } from "@/test-utils/storyDecorators";
 import { smokePlay } from "@/test-utils/storyPlay";
+import { getTodayKey } from "@/utils";
+
+// A "YYYY-MM-DD" key `days` after today, built in UTC to match the curated date
+// keys (curatedDateRange resolves them the same way).
+function dateKeyOffset(days: number): string {
+  const d = new Date(`${getTodayKey()}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 const meta = {
   component: RoutineDetailsContent,
@@ -61,4 +70,35 @@ export const Weekly: Story = {
     const headings = await canvas.findAllByText("Weekly Schedule");
     await expect(headings.length).toBeGreaterThanOrEqual(2);
   },
+};
+
+// Curated routine: the Type tile reads "Curated" and the schedule renders one
+// row per date from today through the end date (date-keyed, not by weekday).
+export const Curated: Story = {
+  args: {
+    data: makeRoutine({
+      mode: "curated",
+      weekly: {},
+      curated: {
+        endDate: dateKeyOffset(2),
+        entries: {
+          [getTodayKey()]: {
+            type: "resource",
+            id: "resource-1",
+          },
+        },
+      },
+    }),
+  },
+  play: smokePlay([
+    {
+      text: "Curated",
+    },
+    {
+      text: "Curated Schedule",
+    },
+    {
+      text: "Course 1",
+    },
+  ]),
 };

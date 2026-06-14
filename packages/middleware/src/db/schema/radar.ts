@@ -1,4 +1,4 @@
-import type { RadarConfigEntry } from "@emstack/types";
+import type { DomainRadarConfig, RadarConfigEntry } from "@emstack/types";
 
 import { boolean, jsonb, pgTable, primaryKey, unique, varchar } from "drizzle-orm/pg-core";
 
@@ -7,13 +7,7 @@ import { topics } from "./topics";
 // JSONB column shape comes from the shared types package — the single source of
 // truth the client uses too (type-only re-export, erased at build time). The
 // local copy this replaces had drifted from @emstack/types.
-export type { RadarConfigEntry };
-
-export interface RadarConfig {
-  quadrants: RadarConfigEntry[];
-  rings: RadarConfigEntry[];
-  hasAdoptedSection?: boolean;
-}
+export type { DomainRadarConfig, RadarConfigEntry };
 
 export const domains = pgTable("domains", {
   id: varchar().primaryKey(),
@@ -21,7 +15,7 @@ export const domains = pgTable("domains", {
     length: 255,
   }).notNull(),
   description: varchar(),
-  radarConfig: jsonb("radar_config").$type<RadarConfig>().notNull().default({
+  radarConfig: jsonb("radar_config").$type<DomainRadarConfig>().notNull().default({
     quadrants: [],
     rings: [],
   }),

@@ -1,7 +1,8 @@
 import type { Daily, RoutineReferenceItem } from "@emstack/types";
 
-// Resolved task/resource rows the handler loads for an active entry. They
-// mirror the column selection mapDaily expects (see dailyProjection.ts).
+// Resolved task/resource rows the handler loads for an active entry. These are
+// the resource/task blocks mapDaily reads — DailyProjectionRow references them
+// directly (see dailyProjection.ts) so the two can't drift.
 export interface ResolvedTask {
   id: string;
   name: string;

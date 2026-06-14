@@ -25,6 +25,7 @@ export interface DomainTopic {
 export interface DomainRadarConfig {
   quadrants: RadarConfigEntry[];
   rings: RadarConfigEntry[];
+  hasAdoptedSection?: boolean;
 }
 
 export interface Domain {

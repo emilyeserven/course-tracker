@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import type { TaskResourceLevel } from "@emstack/types";
 import { db } from "@/db";
 import {
   courseProviders,
@@ -36,9 +37,9 @@ interface CourseBody {
   courseProviderId?: string | null;
   providerIsSelf?: boolean;
   modulesAreExhaustive?: boolean;
-  easeOfStarting?: "low" | "medium" | "high" | null;
-  timeNeeded?: "low" | "medium" | "high" | null;
-  interactivity?: "low" | "medium" | "high" | null;
+  easeOfStarting?: TaskResourceLevel | null;
+  timeNeeded?: TaskResourceLevel | null;
+  interactivity?: TaskResourceLevel | null;
   tagIds?: string[];
 }
 
@@ -55,7 +56,6 @@ const updateableColumns = [
   "isExpires",
   "courseProviderId",
   "providerIsSelf",
-  "modulesAreExhaustive",
   "easeOfStarting",
   "timeNeeded",
   "interactivity",

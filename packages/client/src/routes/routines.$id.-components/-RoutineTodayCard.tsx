@@ -35,16 +35,21 @@ export function RoutineTodayCard({
   const todayDateKey = getTodayKey();
   const weekly = data.weekly ?? {};
   const isDaily = data.mode === "daily";
+  const isCurated = data.mode === "curated";
   const dailyEntry = isDaily
     ? Object.values(weekly).find(Boolean) ?? null
     : null;
   // The same day of the week as today (JS getDay: "0" = Sunday … "6" = Saturday).
   // Daily routines mirror their entry onto every day, so this resolves to the
   // single daily item; weekly routines resolve to today's scheduled entry (if any).
+  // Curated routines key by the absolute date instead, so they look today up in
+  // the date-keyed `curated.entries` map (weekly is empty for them).
   const todayKey = String(new Date().getDay());
-  const todayEntry = isDaily
-    ? dailyEntry
-    : (weekly[todayKey as keyof typeof weekly] ?? null);
+  const todayEntry = isCurated
+    ? (data.curated?.entries?.[todayDateKey] ?? null)
+    : isDaily
+      ? dailyEntry
+      : (weekly[todayKey as keyof typeof weekly] ?? null);
   // When today's item has a URL location, surface a "Go" button beside the
   // task text so it can be opened in a new tab (non-URL locations show no button).
   const todayLocation = todayEntry?.location ?? null;

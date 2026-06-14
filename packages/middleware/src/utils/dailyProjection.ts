@@ -4,6 +4,7 @@ import type {
   DailyCriteria,
 } from "@emstack/types";
 import { toProviderBlock } from "./providerProjection";
+import type { ResolvedResource, ResolvedTask } from "./routineActionParts";
 
 // The fields mapDaily reads. Both the single-daily and list daily queries
 // produce a superset of this shape, so their Drizzle rows are assignable here.
@@ -20,20 +21,8 @@ export interface DailyProjectionRow {
   moduleId: string | null;
   courseProvider: { id: string;
     name: string | null; } | null;
-  resource: {
-    id: string;
-    name: string;
-    progressCurrent: number | null;
-    progressTotal: number | null;
-  } | null;
-  task: {
-    id: string;
-    name: string;
-    todos?: { id: string;
-      isComplete: boolean; }[];
-    resources?: { id: string;
-      usedYet: boolean; }[];
-  } | null;
+  resource: ResolvedResource | null;
+  task: ResolvedTask | null;
 }
 
 // Collapse the joined task row into the Daily's task progress block. Returns
