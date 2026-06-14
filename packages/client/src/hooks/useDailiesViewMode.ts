@@ -1,7 +1,10 @@
-import type { DailiesViewMode } from "@/context/SettingsProviderContext";
+import type { DailiesViewMode } from "@/stores/settingsStore";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useSettings } from "@/hooks/useSettings";
+import {
+  useDailiesViewModeSetting,
+  useSetDailiesViewModeSetting,
+} from "@/stores/settingsStore";
 
 interface UseDailiesViewModeResult {
   mode: DailiesViewMode;
@@ -10,12 +13,11 @@ interface UseDailiesViewModeResult {
 
 export function useDailiesViewMode(): UseDailiesViewModeResult {
   const isMobile = useIsMobile();
-  const {
-    settings, setDailiesViewMode,
-  } = useSettings();
+  const dailiesViewMode = useDailiesViewModeSetting();
+  const setDailiesViewMode = useSetDailiesViewModeSetting();
 
-  const mode: DailiesViewMode = settings.dailiesViewMode
-    ?? (isMobile ? "list" : "table");
+  const mode: DailiesViewMode
+    = dailiesViewMode ?? (isMobile ? "list" : "table");
 
   return {
     mode,

@@ -1,10 +1,7 @@
 import type { DashboardLayout } from "@emstack/types";
 
-import { useState } from "react";
-
 import { STORAGE_KEYS } from "@/constants/storageKeys";
-
-const STORAGE_KEY = STORAGE_KEYS.dashboardLayoutId;
+import { createPersistedValueStore } from "@/stores/createPersistedValue";
 
 /**
  * Persists the dashboard's selected layout tab in localStorage. When the
@@ -14,25 +11,12 @@ const STORAGE_KEY = STORAGE_KEYS.dashboardLayoutId;
 export function useActiveDashboardLayoutId(
   layouts: DashboardLayout[] | undefined,
 ) {
-  const [storedId, setStoredId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    }
-    catch {
-      return null;
-    }
-  });
-
-  const setActiveId = (id: string) => {
-    setStoredId(id);
-    try {
-      localStorage.setItem(STORAGE_KEY, id);
-    }
-    catch {
-      // Ignore storage failures (private mode / quota) — selection still
-      // works for the session.
-    }
-  };
+  const useStore = createPersistedValueStore<string | null>(
+    STORAGE_KEYS.dashboardLayoutId,
+    null,
+  );
+  const storedId = useStore(s => s.value);
+  const setValue = useStore(s => s.setValue);
 
   const activeId = layouts?.some(l => l.id === storedId)
     ? storedId
@@ -40,6 +24,6 @@ export function useActiveDashboardLayoutId(
 
   return {
     activeId,
-    setActiveId,
+    setActiveId: (id: string) => setValue(id),
   };
 }

@@ -5,7 +5,6 @@ import { expect, fn, within } from "storybook/test";
 
 import { DashboardDailiesBody } from "./-DashboardDailiesBody";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeDaily } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
@@ -41,11 +40,9 @@ const meta: Meta<typeof DashboardDailiesBody> = {
   decorators: [
     Story => (
       <RouterStub>
-        <SettingsProvider>
-          <QueryStub>
-            <Story />
-          </QueryStub>
-        </SettingsProvider>
+        <QueryStub>
+          <Story />
+        </QueryStub>
       </RouterStub>
     ),
   ],

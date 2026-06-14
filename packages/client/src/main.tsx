@@ -7,7 +7,6 @@ import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen.ts";
 
 import { STORAGE_KEYS } from "@/constants/storageKeys";
-import { SettingsProvider } from "@/context/SettingsProvider.tsx";
 import { ThemeProvider } from "@/context/ThemeProvider.tsx";
 
 const router = createRouter({
@@ -36,12 +35,10 @@ if (!rootElement.innerHTML) {
           defaultTheme="light"
           storageKey={STORAGE_KEYS.theme}
         >
-          <SettingsProvider>
-            <RouterProvider
-              router={router}
-              context={queryClient}
-            />
-          </SettingsProvider>
+          <RouterProvider
+            router={router}
+            context={queryClient}
+          />
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,

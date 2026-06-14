@@ -1,4 +1,4 @@
-import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
+import type { WeekTargetWindow } from "@/stores/settingsStore";
 
 import { useState } from "react";
 
@@ -18,8 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WEEK_TARGET_WINDOWS } from "@/context/SettingsProviderContext";
-import { useSettings } from "@/hooks/useSettings";
+import {
+  useMaxActiveDailies,
+  useSetMaxActiveDailies,
+  useSetWeekTargetWindow,
+  useWeekTargetWindow,
+  WEEK_TARGET_WINDOWS,
+} from "@/stores/settingsStore";
 
 const WEEK_WINDOW_LABELS: Record<WeekTargetWindow, string> = {
   sunday: "Week starts Sunday",
@@ -28,11 +33,12 @@ const WEEK_WINDOW_LABELS: Record<WeekTargetWindow, string> = {
 };
 
 export function DailiesLimitSetting() {
-  const {
-    settings, setMaxActiveDailies, setWeekTargetWindow,
-  } = useSettings();
+  const maxActiveDailies = useMaxActiveDailies();
+  const weekTargetWindow = useWeekTargetWindow();
+  const setMaxActiveDailies = useSetMaxActiveDailies();
+  const setWeekTargetWindow = useSetWeekTargetWindow();
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(String(settings.maxActiveDailies));
+  const [draft, setDraft] = useState(String(maxActiveDailies));
 
   function handleSave() {
     const value = Number(draft);
@@ -48,7 +54,7 @@ export function DailiesLimitSetting() {
       onOpenChange={(next) => {
         setOpen(next);
         if (next) {
-          setDraft(String(settings.maxActiveDailies));
+          setDraft(String(maxActiveDailies));
         }
       }}
     >
@@ -118,7 +124,7 @@ export function DailiesLimitSetting() {
             How a daily routine&apos;s “days per week” target counts a week.
           </p>
           <Select
-            value={settings.weekTargetWindow}
+            value={weekTargetWindow}
             onValueChange={value =>
               setWeekTargetWindow(value as WeekTargetWindow)}
           >

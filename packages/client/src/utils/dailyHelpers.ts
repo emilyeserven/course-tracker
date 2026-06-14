@@ -1,4 +1,4 @@
-import type { WeekTargetWindow } from "@/context/SettingsProviderContext";
+import type { WeekTargetWindow } from "@/stores/settingsStore";
 import type {
   Daily,
   DailyCompletionStatus,
@@ -284,7 +284,10 @@ export function hasStatusForDay(
 // Whether a routine still has something to do today: scheduled for today and
 // its weekly target (if any) not yet met for the current window.
 export function hasTaskForDay(
-  daily: Pick<Daily, "weekly" | "curated" | "mode" | "completions" | "weeklyTarget">,
+  daily: Pick<
+    Daily,
+    "weekly" | "curated" | "mode" | "completions" | "weeklyTarget"
+  >,
   todayKey: string,
   window: WeekTargetWindow,
 ): boolean {
@@ -298,7 +301,10 @@ export function hasTaskForDay(
 // and not yet given a real status; "done" = everything else (already statused,
 // or nothing to do today).
 export function classifyDaily(
-  daily: Pick<Daily, "weekly" | "curated" | "mode" | "completions" | "weeklyTarget">,
+  daily: Pick<
+    Daily,
+    "weekly" | "curated" | "mode" | "completions" | "weeklyTarget"
+  >,
   todayKey: string,
   window: WeekTargetWindow,
 ): "now" | "done" {
@@ -349,7 +355,10 @@ export const REBAKE_WINDOW_DAYS = 7;
 // or within REBAKE_WINDOW_DAYS in the past — that re-updating its status should
 // drop the frozen snapshot and let the server re-bake to the current schedule.
 // Both keys are compared in UTC to match the rest of the daily date math.
-export function isWithinRebakeWindow(dateKey: string, todayKey: string): boolean {
+export function isWithinRebakeWindow(
+  dateKey: string,
+  todayKey: string,
+): boolean {
   const diffDays = Math.round(
     (Date.parse(`${todayKey}T00:00:00Z`) - Date.parse(`${dateKey}T00:00:00Z`))
     / 86_400_000,

@@ -4,7 +4,6 @@ import { expect, fn, within } from "storybook/test";
 
 import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeDaily } from "@/test-utils/dailiesFixtures";
 import { makeTile } from "@/test-utils/dashboardFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
@@ -33,11 +32,9 @@ const meta: Meta<typeof DashboardDoNow> = {
   decorators: [
     Story => (
       <RouterStub>
-        <SettingsProvider>
-          <QueryStub client={seededClient()}>
-            <Story />
-          </QueryStub>
-        </SettingsProvider>
+        <QueryStub client={seededClient()}>
+          <Story />
+        </QueryStub>
       </RouterStub>
     ),
   ],

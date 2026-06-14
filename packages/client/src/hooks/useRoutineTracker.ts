@@ -9,7 +9,7 @@ import {
   useDailySort,
   useDailyStatusMutation,
 } from "@/hooks/useDailyTracker";
-import { useSettings } from "@/hooks/useSettings";
+import { useMaxActiveDailies } from "@/stores/settingsStore";
 import { fetchDailies, fetchResources, fetchTasks, getTodayKey } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -25,9 +25,7 @@ const RECENT_DAYS_COUNT = 6;
  */
 export function useRoutineTracker(filterTopicId: string | undefined) {
   const todayKey = getTodayKey();
-  const {
-    settings,
-  } = useSettings();
+  const maxActiveDailies = useMaxActiveDailies();
   const {
     mode, setMode,
   } = useDailiesViewMode();
@@ -124,7 +122,7 @@ export function useRoutineTracker(filterTopicId: string | undefined) {
   );
 
   return {
-    maxActiveDailies: settings.maxActiveDailies,
+    maxActiveDailies,
     mode,
     setMode,
     sorting,

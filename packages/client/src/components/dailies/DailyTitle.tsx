@@ -7,8 +7,8 @@ import type {
 
 import { ActionableSentence } from "./ActionableSentence";
 
-import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
+import { useWeekTargetWindow } from "@/stores/settingsStore";
 import { getTodayKey, isWeeklyTargetMet } from "@/utils";
 
 // The action name (the assigned task/resource/freeform the routine points at,
@@ -22,9 +22,7 @@ import { getTodayKey, isWeeklyTargetMet } from "@/utils";
 // stays a single line.
 export function DailyTitle({
   daily,
-}: {
-  daily: Daily;
-}) {
+}: { daily: Daily }) {
   // Dailies here come from the routine projection (mapRoutineToDaily), which
   // carries the routine's mode and weekly grid even though the base Daily type
   // doesn't declare them. Read them through a narrow local view.
@@ -33,9 +31,7 @@ export function DailyTitle({
     weekly?: RoutineWeekly | null;
   };
 
-  const {
-    settings,
-  } = useSettings();
+  const weekTargetWindow = useWeekTargetWindow();
 
   const isWeekly = routineView.mode === "weekly";
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
@@ -48,7 +44,7 @@ export function DailyTitle({
   const targetMet
     = !isWeekly
       && isActive
-      && isWeeklyTargetMet(daily, getTodayKey(), settings.weekTargetWindow);
+      && isWeeklyTargetMet(daily, getTodayKey(), weekTargetWindow);
 
   // Weekly: today's note when scheduled, else a placeholder. Daily: the
   // "nothing required today" note when the target is met, otherwise description.

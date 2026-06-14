@@ -5,7 +5,6 @@ import { expect, fn, within } from "storybook/test";
 
 import { TrackerTables } from "./-TrackerTables";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeDaily, makeRecentCompletions } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
@@ -60,11 +59,9 @@ const meta: Meta<typeof TrackerTables> = {
   decorators: [
     Story => (
       <RouterStub>
-        <SettingsProvider>
-          <QueryStub>
-            <Story />
-          </QueryStub>
-        </SettingsProvider>
+        <QueryStub>
+          <Story />
+        </QueryStub>
       </RouterStub>
     ),
   ],

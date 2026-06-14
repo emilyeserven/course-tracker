@@ -1,4 +1,4 @@
-import type { DailiesViewMode } from "@/context/SettingsProviderContext";
+import type { DailiesViewMode } from "@/stores/settingsStore";
 
 import { LayoutListIcon, TableIcon } from "lucide-react";
 

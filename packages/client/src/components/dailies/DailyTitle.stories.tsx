@@ -5,7 +5,6 @@ import { expect, within } from "storybook/test";
 
 import { DailyTitle } from "./DailyTitle";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeDaily } from "@/test-utils/dailiesFixtures";
 
 // Populate every weekday key so the "today" entry resolves regardless of which
@@ -27,13 +26,6 @@ const weeklyGrid: RoutineWeekly = {
 
 const meta = {
   component: DailyTitle,
-  decorators: [
-    Story => (
-      <SettingsProvider>
-        <Story />
-      </SettingsProvider>
-    ),
-  ],
 } satisfies Meta<typeof DailyTitle>;
 
 export default meta;
