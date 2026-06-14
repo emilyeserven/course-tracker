@@ -34,16 +34,12 @@ export function queryStubDecorator(
   };
 }
 
-/** RouterStub-only wrapper, for metas whose variants add their own QueryStub. */
-export function routerStubDecorator(): Decorator {
-  return function RouterStubWrapper(Story) {
-    return (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    );
-  };
-}
+/** Bare stub-router wrapper — for stories whose only context need is `<Link>`. */
+export const routerDecorator: Decorator = Story => (
+  <RouterStub>
+    <Story />
+  </RouterStub>
+);
 
 /**
  * Shared Storybook decorator for the card / table library stories, which all

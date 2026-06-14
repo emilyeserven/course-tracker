@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { BlipsPanel } from "./-BlipsPanel";
 
@@ -10,7 +10,8 @@ import {
   makeRings,
   makeTopics,
 } from "@/test-utils/radarFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const topics = makeTopics();
 
@@ -46,13 +47,7 @@ const meta: Meta<typeof BlipsPanel> = {
     onTableRemove: fn(() => Promise.resolve()),
     onTableBulkSave: fn(() => Promise.resolve()),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -60,10 +55,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Kubernetes")).toBeInTheDocument();
-  },
+  play: smokeText("Kubernetes"),
 };

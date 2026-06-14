@@ -4,8 +4,11 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { QuickAddProviderDialog } from "./QuickAddProviderDialog";
 
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
+import {
+  expectCancelClosesDialog,
+  expectDialogFields,
+  routerQueryDecorator,
+} from "@/test-utils/quickAddStoryHelpers";
 
 const meta: Meta<typeof QuickAddProviderDialog> = {
   component: QuickAddProviderDialog,
@@ -14,15 +17,7 @@ const meta: Meta<typeof QuickAddProviderDialog> = {
     onOpenChange: fn(),
   },
   // useMutation + useNavigate → QueryStub + RouterStub.
-  decorators: [
-    Story => (
-      <RouterStub>
-        <QueryStub>
-          <Story />
-        </QueryStub>
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerQueryDecorator()],
 };
 
 export default meta;
@@ -31,25 +26,15 @@ type Story = StoryObj<typeof meta>;
 
 // Dialog content portals to document.body.
 export const Default: Story = {
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Add Provider")).toBeInTheDocument();
-    await expect(await body.findByLabelText("Name")).toBeInTheDocument();
-    await expect(await body.findByLabelText("URL")).toBeInTheDocument();
-  },
+  play: expectDialogFields({
+    title: "Add Provider",
+    fields: ["Name", "URL"],
+  }),
 };
 
 // Cancel closes the dialog via onOpenChange(false).
 export const Cancel: Story = {
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    await userEvent.click(await body.findByRole("button", {
-      name: "Cancel",
-    }));
-    await expect(args.onOpenChange).toHaveBeenCalledWith(false);
-  },
+  play: expectCancelClosesDialog,
 };
 
 // Create stays disabled until both Name and URL are filled.

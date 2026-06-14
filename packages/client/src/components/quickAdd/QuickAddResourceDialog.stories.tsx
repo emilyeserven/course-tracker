@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { QuickAddResourceDialog } from "./QuickAddResourceDialog";
 
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
+import {
+  expectCancelClosesDialog,
+  expectDialogFields,
+  routerQueryDecorator,
+} from "@/test-utils/quickAddStoryHelpers";
 
 const meta: Meta<typeof QuickAddResourceDialog> = {
   component: QuickAddResourceDialog,
@@ -14,15 +17,7 @@ const meta: Meta<typeof QuickAddResourceDialog> = {
     onOpenChange: fn(),
   },
   // useMutation + useNavigate → QueryStub + RouterStub.
-  decorators: [
-    Story => (
-      <RouterStub>
-        <QueryStub>
-          <Story />
-        </QueryStub>
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerQueryDecorator()],
 };
 
 export default meta;
@@ -31,11 +26,10 @@ type Story = StoryObj<typeof meta>;
 
 // Dialog content portals to document.body.
 export const Default: Story = {
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Add Resource")).toBeInTheDocument();
-    await expect(await body.findByLabelText("Name")).toBeInTheDocument();
-  },
+  play: expectDialogFields({
+    title: "Add Resource",
+    fields: ["Name"],
+  }),
 };
 
 // initialName seeds the name input when the dialog opens.
@@ -53,13 +47,5 @@ export const WithInitialName: Story = {
 
 // Cancel closes the dialog via onOpenChange(false).
 export const Cancel: Story = {
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    await userEvent.click(await body.findByRole("button", {
-      name: "Cancel",
-    }));
-    await expect(args.onOpenChange).toHaveBeenCalledWith(false);
-  },
+  play: expectCancelClosesDialog,
 };

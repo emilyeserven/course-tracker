@@ -4,7 +4,8 @@ import { expect, within } from "storybook/test";
 
 import { ResourceLinksSection } from "./ResourceLinksSection";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeLink } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof ResourceLinksSection> = {
   component: ResourceLinksSection,
@@ -21,13 +22,7 @@ const meta: Meta<typeof ResourceLinksSection> = {
     ],
     resourceCount: 2,
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -35,21 +30,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("link", {
-        name: "React Fundamentals",
-      }),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("link", {
-        name: "Advanced TypeScript",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokeLink("React Fundamentals", "Advanced TypeScript"),
 };
 
 // With no resources the InfoArea's condition is false — the section is empty.

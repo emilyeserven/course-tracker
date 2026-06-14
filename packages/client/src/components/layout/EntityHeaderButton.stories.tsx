@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { EyeIcon } from "lucide-react";
-import { expect, within } from "storybook/test";
 
 import { EntityHeaderButton } from "./EntityHeaderButton";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeLink } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof EntityHeaderButton> = {
   component: EntityHeaderButton,
@@ -17,13 +17,7 @@ const meta: Meta<typeof EntityHeaderButton> = {
     label: "View Provider",
     icon: <EyeIcon className="size-4" />,
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -31,14 +25,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("link", {
-        name: /View Provider/,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokeLink(/View Provider/),
 };

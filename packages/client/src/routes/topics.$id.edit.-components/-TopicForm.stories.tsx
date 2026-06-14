@@ -10,7 +10,7 @@ import { makeDomain, makeResources } from "@/test-utils/boxFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import {
   queryStubDecorator,
-  routerStubDecorator,
+  routerDecorator,
 } from "@/test-utils/storyDecorators";
 
 const TOPIC_ID = "topic-1";
@@ -48,7 +48,7 @@ function buildClient(seedDetail: boolean) {
 
 const meta = {
   component: TopicForm,
-  decorators: [routerStubDecorator()],
+  decorators: [routerDecorator],
 } satisfies Meta<typeof TopicForm>;
 
 export default meta;

@@ -9,7 +9,7 @@ import { makeRadar } from "@/test-utils/radarFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import {
   queryStubDecorator,
-  routerStubDecorator,
+  routerDecorator,
 } from "@/test-utils/storyDecorators";
 
 const DOMAIN_ID = "domain-1";
@@ -30,7 +30,7 @@ const meta = {
     id: DOMAIN_ID,
     tab: "details",
   },
-  decorators: [routerStubDecorator()],
+  decorators: [routerDecorator],
 } satisfies Meta<typeof ExistingDomainEditor>;
 
 export default meta;

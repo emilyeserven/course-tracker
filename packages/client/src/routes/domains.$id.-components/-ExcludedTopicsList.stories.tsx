@@ -1,11 +1,10 @@
 import type { DomainExcludedTopic } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { ExcludedTopicsList } from "./-ExcludedTopicsList";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerDecorator } from "@/test-utils/storyDecorators";
+import { smokeText } from "@/test-utils/storyPlay";
 
 const topics: DomainExcludedTopic[] = [
   {
@@ -24,13 +23,7 @@ const meta: Meta<typeof ExcludedTopicsList> = {
   args: {
     topics,
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerDecorator],
 };
 
 export default meta;
@@ -38,14 +31,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Legacy Mixins")).toBeInTheDocument();
-    // The optional reason renders alongside the topic that has one.
-    await expect(canvas.getByText(/Superseded by hooks/)).toBeInTheDocument();
-  },
+  // The optional reason renders alongside the topic that has one.
+  play: smokeText("Legacy Mixins", /Superseded by hooks/),
 };
 
 export const Empty: Story = {
