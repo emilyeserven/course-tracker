@@ -1,5 +1,5 @@
 import type { Tag } from "./Tag";
-import type { TaskResourceLevel } from "./TaskResource";
+import type { ResourceLevelAttributes } from "./TaskResource";
 
 export const MODULE_DURATION_BUCKETS = [
   "extra_short",
@@ -19,7 +19,7 @@ export const MODULE_DURATION_LABELS: Record<ModuleDurationBucket, string> = {
   extra_long: "Extra Long (1h+)",
 };
 
-export interface Module {
+export interface Module extends ResourceLevelAttributes {
   id: string;
   resourceId: string;
   moduleGroupId?: string | null;
@@ -33,9 +33,6 @@ export interface Module {
   minutesLength?: number | null;
   isComplete: boolean;
   position?: number | null;
-  easeOfStarting?: TaskResourceLevel | null;
-  timeNeeded?: TaskResourceLevel | null;
-  interactivity?: TaskResourceLevel | null;
   tags?: Tag[];
 }
 
