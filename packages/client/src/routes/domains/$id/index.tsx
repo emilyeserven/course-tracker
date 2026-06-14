@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
-import { RadarChart } from "./domains.$id.-components/radar";
+import { RadarChart } from "./-components/radar";
 import {
   ExcludedTopicsList,
   TopicLinkList,
-} from "./domains.$id.-components/topicLists";
+} from "./-components/topicLists";
 
 import { InfoArea, PageHeader } from "@/components/layout";
 import {

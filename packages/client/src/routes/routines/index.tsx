@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarCheckIcon, PlusIcon } from "lucide-react";
 
-import { RoutinesList } from "./routines.-components/-RoutinesList";
+import { RoutinesList } from "./-components/-RoutinesList";
 
 import {
   EntityError,

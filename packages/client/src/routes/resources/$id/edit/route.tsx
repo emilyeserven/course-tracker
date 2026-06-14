@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { ResourceInteractionsLog } from "./resources.$id.-components/-ResourceInteractionsLog";
-import { ResourceModulesAdmin } from "./resources.$id.-components/-ResourceModulesAdmin";
-import { DetailsTab } from "./resources.$id.edit.-components";
+import { DetailsTab } from "./-components";
+import { ResourceInteractionsLog } from "../-components/-ResourceInteractionsLog";
+import { ResourceModulesAdmin } from "../-components/-ResourceModulesAdmin";
 
 import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
 import { PageTabs } from "@/components/layout";
@@ -173,7 +173,9 @@ function SingleResourceEdit() {
             ]}
           />
         )}
-      <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(controller.hasChanges)} />
+      <UnsavedChangesDialog
+        shouldBlockFn={shouldBlockFn(controller.hasChanges)}
+      />
     </div>
   );
 }

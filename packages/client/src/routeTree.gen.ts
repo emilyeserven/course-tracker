@@ -9,114 +9,114 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TopicsRouteImport } from './routes/topics'
-import { Route as TasksRouteImport } from './routes/tasks'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as RoutinesRouteImport } from './routes/routines'
-import { Route as ResourcesRouteImport } from './routes/resources'
-import { Route as RecordsRouteImport } from './routes/records'
-import { Route as ProvidersRouteImport } from './routes/providers'
-import { Route as PlansRouteImport } from './routes/plans'
-import { Route as OnboardRouteImport } from './routes/onboard'
-import { Route as DomainsRouteImport } from './routes/domains'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as DailiesRouteImport } from './routes/dailies'
-import { Route as ActionsRouteImport } from './routes/actions'
+import { Route as TopicsRouteRouteImport } from './routes/topics/route'
+import { Route as TasksRouteRouteImport } from './routes/tasks/route'
+import { Route as SettingsRouteRouteImport } from './routes/settings/route'
+import { Route as RoutinesRouteRouteImport } from './routes/routines/route'
+import { Route as ResourcesRouteRouteImport } from './routes/resources/route'
+import { Route as RecordsRouteRouteImport } from './routes/records/route'
+import { Route as ProvidersRouteRouteImport } from './routes/providers/route'
+import { Route as PlansRouteRouteImport } from './routes/plans/route'
+import { Route as OnboardRouteRouteImport } from './routes/onboard/route'
+import { Route as DomainsRouteRouteImport } from './routes/domains/route'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as DailiesRouteRouteImport } from './routes/dailies/route'
+import { Route as ActionsRouteRouteImport } from './routes/actions/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TopicsIndexRouteImport } from './routes/topics.index'
-import { Route as TasksIndexRouteImport } from './routes/tasks.index'
-import { Route as RoutinesIndexRouteImport } from './routes/routines.index'
-import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
-import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
-import { Route as DomainsIndexRouteImport } from './routes/domains.index'
-import { Route as DailiesIndexRouteImport } from './routes/dailies.index'
-import { Route as TopicsIdRouteImport } from './routes/topics.$id'
-import { Route as TasksIdRouteImport } from './routes/tasks.$id'
-import { Route as RoutinesTrackerRouteImport } from './routes/routines.tracker'
-import { Route as RoutinesIdRouteImport } from './routes/routines.$id'
-import { Route as ResourcesIdRouteImport } from './routes/resources.$id'
-import { Route as ProvidersIdRouteImport } from './routes/providers.$id'
-import { Route as DomainsIdRouteImport } from './routes/domains.$id'
-import { Route as DailiesIdRouteImport } from './routes/dailies.$id'
-import { Route as TopicsIdIndexRouteImport } from './routes/topics.$id.index'
-import { Route as TasksIdIndexRouteImport } from './routes/tasks.$id.index'
-import { Route as RoutinesIdIndexRouteImport } from './routes/routines.$id.index'
-import { Route as ResourcesIdIndexRouteImport } from './routes/resources.$id.index'
-import { Route as ProvidersIdIndexRouteImport } from './routes/providers.$id.index'
-import { Route as DomainsIdIndexRouteImport } from './routes/domains.$id.index'
-import { Route as DailiesIdIndexRouteImport } from './routes/dailies.$id.index'
-import { Route as TopicsIdEditRouteImport } from './routes/topics.$id.edit'
-import { Route as TasksIdEditRouteImport } from './routes/tasks.$id.edit'
-import { Route as RoutinesIdEditRouteImport } from './routes/routines.$id.edit'
-import { Route as ResourcesIdEditRouteImport } from './routes/resources.$id.edit'
-import { Route as ProvidersIdEditRouteImport } from './routes/providers.$id.edit'
-import { Route as DomainsIdRadarRouteImport } from './routes/domains.$id.radar'
-import { Route as DomainsIdEditRouteImport } from './routes/domains.$id.edit'
-import { Route as DailiesIdEditRouteImport } from './routes/dailies.$id.edit'
-import { Route as DomainsIdRadarIndexRouteImport } from './routes/domains.$id.radar.index'
-import { Route as DomainsIdRadarEditRouteImport } from './routes/domains.$id.radar.edit'
+import { Route as TopicsIndexRouteImport } from './routes/topics/index'
+import { Route as TasksIndexRouteImport } from './routes/tasks/index'
+import { Route as RoutinesIndexRouteImport } from './routes/routines/index'
+import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
+import { Route as ProvidersIndexRouteImport } from './routes/providers/index'
+import { Route as DomainsIndexRouteImport } from './routes/domains/index'
+import { Route as DailiesIndexRouteImport } from './routes/dailies/index'
+import { Route as TopicsIdRouteRouteImport } from './routes/topics/$id/route'
+import { Route as TasksIdRouteRouteImport } from './routes/tasks/$id/route'
+import { Route as RoutinesTrackerRouteRouteImport } from './routes/routines/tracker/route'
+import { Route as RoutinesIdRouteRouteImport } from './routes/routines/$id/route'
+import { Route as ResourcesIdRouteRouteImport } from './routes/resources/$id/route'
+import { Route as ProvidersIdRouteRouteImport } from './routes/providers/$id/route'
+import { Route as DomainsIdRouteRouteImport } from './routes/domains/$id/route'
+import { Route as DailiesIdRouteRouteImport } from './routes/dailies/$id/route'
+import { Route as TopicsIdIndexRouteImport } from './routes/topics/$id/index'
+import { Route as TasksIdIndexRouteImport } from './routes/tasks/$id/index'
+import { Route as RoutinesIdIndexRouteImport } from './routes/routines/$id/index'
+import { Route as ResourcesIdIndexRouteImport } from './routes/resources/$id/index'
+import { Route as ProvidersIdIndexRouteImport } from './routes/providers/$id/index'
+import { Route as DomainsIdIndexRouteImport } from './routes/domains/$id/index'
+import { Route as DailiesIdIndexRouteImport } from './routes/dailies/$id/index'
+import { Route as TopicsIdEditRouteRouteImport } from './routes/topics/$id/edit/route'
+import { Route as TasksIdEditRouteRouteImport } from './routes/tasks/$id/edit/route'
+import { Route as RoutinesIdEditRouteRouteImport } from './routes/routines/$id/edit/route'
+import { Route as ResourcesIdEditRouteRouteImport } from './routes/resources/$id/edit/route'
+import { Route as ProvidersIdEditRouteRouteImport } from './routes/providers/$id/edit/route'
+import { Route as DomainsIdRadarRouteRouteImport } from './routes/domains/$id/radar/route'
+import { Route as DomainsIdEditRouteRouteImport } from './routes/domains/$id/edit/route'
+import { Route as DailiesIdEditRouteRouteImport } from './routes/dailies/$id/edit/route'
+import { Route as DomainsIdRadarIndexRouteImport } from './routes/domains/$id/radar/index'
+import { Route as DomainsIdRadarEditRouteRouteImport } from './routes/domains/$id/radar/edit/route'
 
-const TopicsRoute = TopicsRouteImport.update({
+const TopicsRouteRoute = TopicsRouteRouteImport.update({
   id: '/topics',
   path: '/topics',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TasksRoute = TasksRouteImport.update({
+const TasksRouteRoute = TasksRouteRouteImport.update({
   id: '/tasks',
   path: '/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoutinesRoute = RoutinesRouteImport.update({
+const RoutinesRouteRoute = RoutinesRouteRouteImport.update({
   id: '/routines',
   path: '/routines',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResourcesRoute = ResourcesRouteImport.update({
+const ResourcesRouteRoute = ResourcesRouteRouteImport.update({
   id: '/resources',
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RecordsRoute = RecordsRouteImport.update({
+const RecordsRouteRoute = RecordsRouteRouteImport.update({
   id: '/records',
   path: '/records',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProvidersRoute = ProvidersRouteImport.update({
+const ProvidersRouteRoute = ProvidersRouteRouteImport.update({
   id: '/providers',
   path: '/providers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlansRoute = PlansRouteImport.update({
+const PlansRouteRoute = PlansRouteRouteImport.update({
   id: '/plans',
   path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardRoute = OnboardRouteImport.update({
+const OnboardRouteRoute = OnboardRouteRouteImport.update({
   id: '/onboard',
   path: '/onboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DomainsRoute = DomainsRouteImport.update({
+const DomainsRouteRoute = DomainsRouteRouteImport.update({
   id: '/domains',
   path: '/domains',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DailiesRoute = DailiesRouteImport.update({
+const DailiesRouteRoute = DailiesRouteRouteImport.update({
   id: '/dailies',
   path: '/dailies',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ActionsRoute = ActionsRouteImport.update({
+const ActionsRouteRoute = ActionsRouteRouteImport.update({
   id: '/actions',
   path: '/actions',
   getParentRoute: () => rootRouteImport,
@@ -129,187 +129,187 @@ const IndexRoute = IndexRouteImport.update({
 const TopicsIndexRoute = TopicsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TopicsRoute,
+  getParentRoute: () => TopicsRouteRoute,
 } as any)
 const TasksIndexRoute = TasksIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TasksRoute,
+  getParentRoute: () => TasksRouteRoute,
 } as any)
 const RoutinesIndexRoute = RoutinesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => RoutinesRoute,
+  getParentRoute: () => RoutinesRouteRoute,
 } as any)
 const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ResourcesRoute,
+  getParentRoute: () => ResourcesRouteRoute,
 } as any)
 const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProvidersRoute,
+  getParentRoute: () => ProvidersRouteRoute,
 } as any)
 const DomainsIndexRoute = DomainsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DomainsRoute,
+  getParentRoute: () => DomainsRouteRoute,
 } as any)
 const DailiesIndexRoute = DailiesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DailiesRoute,
+  getParentRoute: () => DailiesRouteRoute,
 } as any)
-const TopicsIdRoute = TopicsIdRouteImport.update({
+const TopicsIdRouteRoute = TopicsIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => TopicsRoute,
+  getParentRoute: () => TopicsRouteRoute,
 } as any)
-const TasksIdRoute = TasksIdRouteImport.update({
+const TasksIdRouteRoute = TasksIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => TasksRoute,
+  getParentRoute: () => TasksRouteRoute,
 } as any)
-const RoutinesTrackerRoute = RoutinesTrackerRouteImport.update({
+const RoutinesTrackerRouteRoute = RoutinesTrackerRouteRouteImport.update({
   id: '/tracker',
   path: '/tracker',
-  getParentRoute: () => RoutinesRoute,
+  getParentRoute: () => RoutinesRouteRoute,
 } as any)
-const RoutinesIdRoute = RoutinesIdRouteImport.update({
+const RoutinesIdRouteRoute = RoutinesIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => RoutinesRoute,
+  getParentRoute: () => RoutinesRouteRoute,
 } as any)
-const ResourcesIdRoute = ResourcesIdRouteImport.update({
+const ResourcesIdRouteRoute = ResourcesIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => ResourcesRoute,
+  getParentRoute: () => ResourcesRouteRoute,
 } as any)
-const ProvidersIdRoute = ProvidersIdRouteImport.update({
+const ProvidersIdRouteRoute = ProvidersIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => ProvidersRoute,
+  getParentRoute: () => ProvidersRouteRoute,
 } as any)
-const DomainsIdRoute = DomainsIdRouteImport.update({
+const DomainsIdRouteRoute = DomainsIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => DomainsRoute,
+  getParentRoute: () => DomainsRouteRoute,
 } as any)
-const DailiesIdRoute = DailiesIdRouteImport.update({
+const DailiesIdRouteRoute = DailiesIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => DailiesRoute,
+  getParentRoute: () => DailiesRouteRoute,
 } as any)
 const TopicsIdIndexRoute = TopicsIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TopicsIdRoute,
+  getParentRoute: () => TopicsIdRouteRoute,
 } as any)
 const TasksIdIndexRoute = TasksIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TasksIdRoute,
+  getParentRoute: () => TasksIdRouteRoute,
 } as any)
 const RoutinesIdIndexRoute = RoutinesIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => RoutinesIdRoute,
+  getParentRoute: () => RoutinesIdRouteRoute,
 } as any)
 const ResourcesIdIndexRoute = ResourcesIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ResourcesIdRoute,
+  getParentRoute: () => ResourcesIdRouteRoute,
 } as any)
 const ProvidersIdIndexRoute = ProvidersIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProvidersIdRoute,
+  getParentRoute: () => ProvidersIdRouteRoute,
 } as any)
 const DomainsIdIndexRoute = DomainsIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DomainsIdRoute,
+  getParentRoute: () => DomainsIdRouteRoute,
 } as any)
 const DailiesIdIndexRoute = DailiesIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DailiesIdRoute,
+  getParentRoute: () => DailiesIdRouteRoute,
 } as any)
-const TopicsIdEditRoute = TopicsIdEditRouteImport.update({
+const TopicsIdEditRouteRoute = TopicsIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => TopicsIdRoute,
+  getParentRoute: () => TopicsIdRouteRoute,
 } as any)
-const TasksIdEditRoute = TasksIdEditRouteImport.update({
+const TasksIdEditRouteRoute = TasksIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => TasksIdRoute,
+  getParentRoute: () => TasksIdRouteRoute,
 } as any)
-const RoutinesIdEditRoute = RoutinesIdEditRouteImport.update({
+const RoutinesIdEditRouteRoute = RoutinesIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => RoutinesIdRoute,
+  getParentRoute: () => RoutinesIdRouteRoute,
 } as any)
-const ResourcesIdEditRoute = ResourcesIdEditRouteImport.update({
+const ResourcesIdEditRouteRoute = ResourcesIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => ResourcesIdRoute,
+  getParentRoute: () => ResourcesIdRouteRoute,
 } as any)
-const ProvidersIdEditRoute = ProvidersIdEditRouteImport.update({
+const ProvidersIdEditRouteRoute = ProvidersIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => ProvidersIdRoute,
+  getParentRoute: () => ProvidersIdRouteRoute,
 } as any)
-const DomainsIdRadarRoute = DomainsIdRadarRouteImport.update({
+const DomainsIdRadarRouteRoute = DomainsIdRadarRouteRouteImport.update({
   id: '/radar',
   path: '/radar',
-  getParentRoute: () => DomainsIdRoute,
+  getParentRoute: () => DomainsIdRouteRoute,
 } as any)
-const DomainsIdEditRoute = DomainsIdEditRouteImport.update({
+const DomainsIdEditRouteRoute = DomainsIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => DomainsIdRoute,
+  getParentRoute: () => DomainsIdRouteRoute,
 } as any)
-const DailiesIdEditRoute = DailiesIdEditRouteImport.update({
+const DailiesIdEditRouteRoute = DailiesIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => DailiesIdRoute,
+  getParentRoute: () => DailiesIdRouteRoute,
 } as any)
 const DomainsIdRadarIndexRoute = DomainsIdRadarIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DomainsIdRadarRoute,
+  getParentRoute: () => DomainsIdRadarRouteRoute,
 } as any)
-const DomainsIdRadarEditRoute = DomainsIdRadarEditRouteImport.update({
+const DomainsIdRadarEditRouteRoute = DomainsIdRadarEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
-  getParentRoute: () => DomainsIdRadarRoute,
+  getParentRoute: () => DomainsIdRadarRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/actions': typeof ActionsRoute
-  '/dailies': typeof DailiesRouteWithChildren
-  '/dashboard': typeof DashboardRoute
-  '/domains': typeof DomainsRouteWithChildren
-  '/onboard': typeof OnboardRoute
-  '/plans': typeof PlansRoute
-  '/providers': typeof ProvidersRouteWithChildren
-  '/records': typeof RecordsRoute
-  '/resources': typeof ResourcesRouteWithChildren
-  '/routines': typeof RoutinesRouteWithChildren
-  '/settings': typeof SettingsRoute
-  '/tasks': typeof TasksRouteWithChildren
-  '/topics': typeof TopicsRouteWithChildren
-  '/dailies/$id': typeof DailiesIdRouteWithChildren
-  '/domains/$id': typeof DomainsIdRouteWithChildren
-  '/providers/$id': typeof ProvidersIdRouteWithChildren
-  '/resources/$id': typeof ResourcesIdRouteWithChildren
-  '/routines/$id': typeof RoutinesIdRouteWithChildren
-  '/routines/tracker': typeof RoutinesTrackerRoute
-  '/tasks/$id': typeof TasksIdRouteWithChildren
-  '/topics/$id': typeof TopicsIdRouteWithChildren
+  '/actions': typeof ActionsRouteRoute
+  '/dailies': typeof DailiesRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRoute
+  '/domains': typeof DomainsRouteRouteWithChildren
+  '/onboard': typeof OnboardRouteRoute
+  '/plans': typeof PlansRouteRoute
+  '/providers': typeof ProvidersRouteRouteWithChildren
+  '/records': typeof RecordsRouteRoute
+  '/resources': typeof ResourcesRouteRouteWithChildren
+  '/routines': typeof RoutinesRouteRouteWithChildren
+  '/settings': typeof SettingsRouteRoute
+  '/tasks': typeof TasksRouteRouteWithChildren
+  '/topics': typeof TopicsRouteRouteWithChildren
+  '/dailies/$id': typeof DailiesIdRouteRouteWithChildren
+  '/domains/$id': typeof DomainsIdRouteRouteWithChildren
+  '/providers/$id': typeof ProvidersIdRouteRouteWithChildren
+  '/resources/$id': typeof ResourcesIdRouteRouteWithChildren
+  '/routines/$id': typeof RoutinesIdRouteRouteWithChildren
+  '/routines/tracker': typeof RoutinesTrackerRouteRoute
+  '/tasks/$id': typeof TasksIdRouteRouteWithChildren
+  '/topics/$id': typeof TopicsIdRouteRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
   '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
@@ -317,14 +317,14 @@ export interface FileRoutesByFullPath {
   '/routines/': typeof RoutinesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/topics/': typeof TopicsIndexRoute
-  '/dailies/$id/edit': typeof DailiesIdEditRoute
-  '/domains/$id/edit': typeof DomainsIdEditRoute
-  '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
-  '/providers/$id/edit': typeof ProvidersIdEditRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRoute
-  '/routines/$id/edit': typeof RoutinesIdEditRoute
-  '/tasks/$id/edit': typeof TasksIdEditRoute
-  '/topics/$id/edit': typeof TopicsIdEditRoute
+  '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
+  '/domains/$id/edit': typeof DomainsIdEditRouteRoute
+  '/domains/$id/radar': typeof DomainsIdRadarRouteRouteWithChildren
+  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
+  '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
+  '/tasks/$id/edit': typeof TasksIdEditRouteRoute
+  '/topics/$id/edit': typeof TopicsIdEditRouteRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
@@ -332,18 +332,18 @@ export interface FileRoutesByFullPath {
   '/routines/$id/': typeof RoutinesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
-  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRouteRoute
   '/domains/$id/radar/': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/actions': typeof ActionsRoute
-  '/dashboard': typeof DashboardRoute
-  '/onboard': typeof OnboardRoute
-  '/plans': typeof PlansRoute
-  '/records': typeof RecordsRoute
-  '/settings': typeof SettingsRoute
-  '/routines/tracker': typeof RoutinesTrackerRoute
+  '/actions': typeof ActionsRouteRoute
+  '/dashboard': typeof DashboardRouteRoute
+  '/onboard': typeof OnboardRouteRoute
+  '/plans': typeof PlansRouteRoute
+  '/records': typeof RecordsRouteRoute
+  '/settings': typeof SettingsRouteRoute
+  '/routines/tracker': typeof RoutinesTrackerRouteRoute
   '/dailies': typeof DailiesIndexRoute
   '/domains': typeof DomainsIndexRoute
   '/providers': typeof ProvidersIndexRoute
@@ -351,13 +351,13 @@ export interface FileRoutesByTo {
   '/routines': typeof RoutinesIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/topics': typeof TopicsIndexRoute
-  '/dailies/$id/edit': typeof DailiesIdEditRoute
-  '/domains/$id/edit': typeof DomainsIdEditRoute
-  '/providers/$id/edit': typeof ProvidersIdEditRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRoute
-  '/routines/$id/edit': typeof RoutinesIdEditRoute
-  '/tasks/$id/edit': typeof TasksIdEditRoute
-  '/topics/$id/edit': typeof TopicsIdEditRoute
+  '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
+  '/domains/$id/edit': typeof DomainsIdEditRouteRoute
+  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
+  '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
+  '/tasks/$id/edit': typeof TasksIdEditRouteRoute
+  '/topics/$id/edit': typeof TopicsIdEditRouteRoute
   '/dailies/$id': typeof DailiesIdIndexRoute
   '/domains/$id': typeof DomainsIdIndexRoute
   '/providers/$id': typeof ProvidersIdIndexRoute
@@ -365,33 +365,33 @@ export interface FileRoutesByTo {
   '/routines/$id': typeof RoutinesIdIndexRoute
   '/tasks/$id': typeof TasksIdIndexRoute
   '/topics/$id': typeof TopicsIdIndexRoute
-  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRouteRoute
   '/domains/$id/radar': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/actions': typeof ActionsRoute
-  '/dailies': typeof DailiesRouteWithChildren
-  '/dashboard': typeof DashboardRoute
-  '/domains': typeof DomainsRouteWithChildren
-  '/onboard': typeof OnboardRoute
-  '/plans': typeof PlansRoute
-  '/providers': typeof ProvidersRouteWithChildren
-  '/records': typeof RecordsRoute
-  '/resources': typeof ResourcesRouteWithChildren
-  '/routines': typeof RoutinesRouteWithChildren
-  '/settings': typeof SettingsRoute
-  '/tasks': typeof TasksRouteWithChildren
-  '/topics': typeof TopicsRouteWithChildren
-  '/dailies/$id': typeof DailiesIdRouteWithChildren
-  '/domains/$id': typeof DomainsIdRouteWithChildren
-  '/providers/$id': typeof ProvidersIdRouteWithChildren
-  '/resources/$id': typeof ResourcesIdRouteWithChildren
-  '/routines/$id': typeof RoutinesIdRouteWithChildren
-  '/routines/tracker': typeof RoutinesTrackerRoute
-  '/tasks/$id': typeof TasksIdRouteWithChildren
-  '/topics/$id': typeof TopicsIdRouteWithChildren
+  '/actions': typeof ActionsRouteRoute
+  '/dailies': typeof DailiesRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRoute
+  '/domains': typeof DomainsRouteRouteWithChildren
+  '/onboard': typeof OnboardRouteRoute
+  '/plans': typeof PlansRouteRoute
+  '/providers': typeof ProvidersRouteRouteWithChildren
+  '/records': typeof RecordsRouteRoute
+  '/resources': typeof ResourcesRouteRouteWithChildren
+  '/routines': typeof RoutinesRouteRouteWithChildren
+  '/settings': typeof SettingsRouteRoute
+  '/tasks': typeof TasksRouteRouteWithChildren
+  '/topics': typeof TopicsRouteRouteWithChildren
+  '/dailies/$id': typeof DailiesIdRouteRouteWithChildren
+  '/domains/$id': typeof DomainsIdRouteRouteWithChildren
+  '/providers/$id': typeof ProvidersIdRouteRouteWithChildren
+  '/resources/$id': typeof ResourcesIdRouteRouteWithChildren
+  '/routines/$id': typeof RoutinesIdRouteRouteWithChildren
+  '/routines/tracker': typeof RoutinesTrackerRouteRoute
+  '/tasks/$id': typeof TasksIdRouteRouteWithChildren
+  '/topics/$id': typeof TopicsIdRouteRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
   '/domains/': typeof DomainsIndexRoute
   '/providers/': typeof ProvidersIndexRoute
@@ -399,14 +399,14 @@ export interface FileRoutesById {
   '/routines/': typeof RoutinesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/topics/': typeof TopicsIndexRoute
-  '/dailies/$id/edit': typeof DailiesIdEditRoute
-  '/domains/$id/edit': typeof DomainsIdEditRoute
-  '/domains/$id/radar': typeof DomainsIdRadarRouteWithChildren
-  '/providers/$id/edit': typeof ProvidersIdEditRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRoute
-  '/routines/$id/edit': typeof RoutinesIdEditRoute
-  '/tasks/$id/edit': typeof TasksIdEditRoute
-  '/topics/$id/edit': typeof TopicsIdEditRoute
+  '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
+  '/domains/$id/edit': typeof DomainsIdEditRouteRoute
+  '/domains/$id/radar': typeof DomainsIdRadarRouteRouteWithChildren
+  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
+  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
+  '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
+  '/tasks/$id/edit': typeof TasksIdEditRouteRoute
+  '/topics/$id/edit': typeof TopicsIdEditRouteRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
   '/domains/$id/': typeof DomainsIdIndexRoute
   '/providers/$id/': typeof ProvidersIdIndexRoute
@@ -414,7 +414,7 @@ export interface FileRoutesById {
   '/routines/$id/': typeof RoutinesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
   '/topics/$id/': typeof TopicsIdIndexRoute
-  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRoute
+  '/domains/$id/radar/edit': typeof DomainsIdRadarEditRouteRoute
   '/domains/$id/radar/': typeof DomainsIdRadarIndexRoute
 }
 export interface FileRouteTypes {
@@ -551,19 +551,19 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ActionsRoute: typeof ActionsRoute
-  DailiesRoute: typeof DailiesRouteWithChildren
-  DashboardRoute: typeof DashboardRoute
-  DomainsRoute: typeof DomainsRouteWithChildren
-  OnboardRoute: typeof OnboardRoute
-  PlansRoute: typeof PlansRoute
-  ProvidersRoute: typeof ProvidersRouteWithChildren
-  RecordsRoute: typeof RecordsRoute
-  ResourcesRoute: typeof ResourcesRouteWithChildren
-  RoutinesRoute: typeof RoutinesRouteWithChildren
-  SettingsRoute: typeof SettingsRoute
-  TasksRoute: typeof TasksRouteWithChildren
-  TopicsRoute: typeof TopicsRouteWithChildren
+  ActionsRouteRoute: typeof ActionsRouteRoute
+  DailiesRouteRoute: typeof DailiesRouteRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRoute
+  DomainsRouteRoute: typeof DomainsRouteRouteWithChildren
+  OnboardRouteRoute: typeof OnboardRouteRoute
+  PlansRouteRoute: typeof PlansRouteRoute
+  ProvidersRouteRoute: typeof ProvidersRouteRouteWithChildren
+  RecordsRouteRoute: typeof RecordsRouteRoute
+  ResourcesRouteRoute: typeof ResourcesRouteRouteWithChildren
+  RoutinesRouteRoute: typeof RoutinesRouteRouteWithChildren
+  SettingsRouteRoute: typeof SettingsRouteRoute
+  TasksRouteRoute: typeof TasksRouteRouteWithChildren
+  TopicsRouteRoute: typeof TopicsRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -572,91 +572,91 @@ declare module '@tanstack/react-router' {
       id: '/topics'
       path: '/topics'
       fullPath: '/topics'
-      preLoaderRoute: typeof TopicsRouteImport
+      preLoaderRoute: typeof TopicsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tasks': {
       id: '/tasks'
       path: '/tasks'
       fullPath: '/tasks'
-      preLoaderRoute: typeof TasksRouteImport
+      preLoaderRoute: typeof TasksRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+      preLoaderRoute: typeof SettingsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/routines': {
       id: '/routines'
       path: '/routines'
       fullPath: '/routines'
-      preLoaderRoute: typeof RoutinesRouteImport
+      preLoaderRoute: typeof RoutinesRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
-      preLoaderRoute: typeof ResourcesRouteImport
+      preLoaderRoute: typeof ResourcesRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/records': {
       id: '/records'
       path: '/records'
       fullPath: '/records'
-      preLoaderRoute: typeof RecordsRouteImport
+      preLoaderRoute: typeof RecordsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/providers': {
       id: '/providers'
       path: '/providers'
       fullPath: '/providers'
-      preLoaderRoute: typeof ProvidersRouteImport
+      preLoaderRoute: typeof ProvidersRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plans': {
       id: '/plans'
       path: '/plans'
       fullPath: '/plans'
-      preLoaderRoute: typeof PlansRouteImport
+      preLoaderRoute: typeof PlansRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboard': {
       id: '/onboard'
       path: '/onboard'
       fullPath: '/onboard'
-      preLoaderRoute: typeof OnboardRouteImport
+      preLoaderRoute: typeof OnboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/domains': {
       id: '/domains'
       path: '/domains'
       fullPath: '/domains'
-      preLoaderRoute: typeof DomainsRouteImport
+      preLoaderRoute: typeof DomainsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dailies': {
       id: '/dailies'
       path: '/dailies'
       fullPath: '/dailies'
-      preLoaderRoute: typeof DailiesRouteImport
+      preLoaderRoute: typeof DailiesRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/actions': {
       id: '/actions'
       path: '/actions'
       fullPath: '/actions'
-      preLoaderRoute: typeof ActionsRouteImport
+      preLoaderRoute: typeof ActionsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -671,451 +671,454 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/topics/'
       preLoaderRoute: typeof TopicsIndexRouteImport
-      parentRoute: typeof TopicsRoute
+      parentRoute: typeof TopicsRouteRoute
     }
     '/tasks/': {
       id: '/tasks/'
       path: '/'
       fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexRouteImport
-      parentRoute: typeof TasksRoute
+      parentRoute: typeof TasksRouteRoute
     }
     '/routines/': {
       id: '/routines/'
       path: '/'
       fullPath: '/routines/'
       preLoaderRoute: typeof RoutinesIndexRouteImport
-      parentRoute: typeof RoutinesRoute
+      parentRoute: typeof RoutinesRouteRoute
     }
     '/resources/': {
       id: '/resources/'
       path: '/'
       fullPath: '/resources/'
       preLoaderRoute: typeof ResourcesIndexRouteImport
-      parentRoute: typeof ResourcesRoute
+      parentRoute: typeof ResourcesRouteRoute
     }
     '/providers/': {
       id: '/providers/'
       path: '/'
       fullPath: '/providers/'
       preLoaderRoute: typeof ProvidersIndexRouteImport
-      parentRoute: typeof ProvidersRoute
+      parentRoute: typeof ProvidersRouteRoute
     }
     '/domains/': {
       id: '/domains/'
       path: '/'
       fullPath: '/domains/'
       preLoaderRoute: typeof DomainsIndexRouteImport
-      parentRoute: typeof DomainsRoute
+      parentRoute: typeof DomainsRouteRoute
     }
     '/dailies/': {
       id: '/dailies/'
       path: '/'
       fullPath: '/dailies/'
       preLoaderRoute: typeof DailiesIndexRouteImport
-      parentRoute: typeof DailiesRoute
+      parentRoute: typeof DailiesRouteRoute
     }
     '/topics/$id': {
       id: '/topics/$id'
       path: '/$id'
       fullPath: '/topics/$id'
-      preLoaderRoute: typeof TopicsIdRouteImport
-      parentRoute: typeof TopicsRoute
+      preLoaderRoute: typeof TopicsIdRouteRouteImport
+      parentRoute: typeof TopicsRouteRoute
     }
     '/tasks/$id': {
       id: '/tasks/$id'
       path: '/$id'
       fullPath: '/tasks/$id'
-      preLoaderRoute: typeof TasksIdRouteImport
-      parentRoute: typeof TasksRoute
+      preLoaderRoute: typeof TasksIdRouteRouteImport
+      parentRoute: typeof TasksRouteRoute
     }
     '/routines/tracker': {
       id: '/routines/tracker'
       path: '/tracker'
       fullPath: '/routines/tracker'
-      preLoaderRoute: typeof RoutinesTrackerRouteImport
-      parentRoute: typeof RoutinesRoute
+      preLoaderRoute: typeof RoutinesTrackerRouteRouteImport
+      parentRoute: typeof RoutinesRouteRoute
     }
     '/routines/$id': {
       id: '/routines/$id'
       path: '/$id'
       fullPath: '/routines/$id'
-      preLoaderRoute: typeof RoutinesIdRouteImport
-      parentRoute: typeof RoutinesRoute
+      preLoaderRoute: typeof RoutinesIdRouteRouteImport
+      parentRoute: typeof RoutinesRouteRoute
     }
     '/resources/$id': {
       id: '/resources/$id'
       path: '/$id'
       fullPath: '/resources/$id'
-      preLoaderRoute: typeof ResourcesIdRouteImport
-      parentRoute: typeof ResourcesRoute
+      preLoaderRoute: typeof ResourcesIdRouteRouteImport
+      parentRoute: typeof ResourcesRouteRoute
     }
     '/providers/$id': {
       id: '/providers/$id'
       path: '/$id'
       fullPath: '/providers/$id'
-      preLoaderRoute: typeof ProvidersIdRouteImport
-      parentRoute: typeof ProvidersRoute
+      preLoaderRoute: typeof ProvidersIdRouteRouteImport
+      parentRoute: typeof ProvidersRouteRoute
     }
     '/domains/$id': {
       id: '/domains/$id'
       path: '/$id'
       fullPath: '/domains/$id'
-      preLoaderRoute: typeof DomainsIdRouteImport
-      parentRoute: typeof DomainsRoute
+      preLoaderRoute: typeof DomainsIdRouteRouteImport
+      parentRoute: typeof DomainsRouteRoute
     }
     '/dailies/$id': {
       id: '/dailies/$id'
       path: '/$id'
       fullPath: '/dailies/$id'
-      preLoaderRoute: typeof DailiesIdRouteImport
-      parentRoute: typeof DailiesRoute
+      preLoaderRoute: typeof DailiesIdRouteRouteImport
+      parentRoute: typeof DailiesRouteRoute
     }
     '/topics/$id/': {
       id: '/topics/$id/'
       path: '/'
       fullPath: '/topics/$id/'
       preLoaderRoute: typeof TopicsIdIndexRouteImport
-      parentRoute: typeof TopicsIdRoute
+      parentRoute: typeof TopicsIdRouteRoute
     }
     '/tasks/$id/': {
       id: '/tasks/$id/'
       path: '/'
       fullPath: '/tasks/$id/'
       preLoaderRoute: typeof TasksIdIndexRouteImport
-      parentRoute: typeof TasksIdRoute
+      parentRoute: typeof TasksIdRouteRoute
     }
     '/routines/$id/': {
       id: '/routines/$id/'
       path: '/'
       fullPath: '/routines/$id/'
       preLoaderRoute: typeof RoutinesIdIndexRouteImport
-      parentRoute: typeof RoutinesIdRoute
+      parentRoute: typeof RoutinesIdRouteRoute
     }
     '/resources/$id/': {
       id: '/resources/$id/'
       path: '/'
       fullPath: '/resources/$id/'
       preLoaderRoute: typeof ResourcesIdIndexRouteImport
-      parentRoute: typeof ResourcesIdRoute
+      parentRoute: typeof ResourcesIdRouteRoute
     }
     '/providers/$id/': {
       id: '/providers/$id/'
       path: '/'
       fullPath: '/providers/$id/'
       preLoaderRoute: typeof ProvidersIdIndexRouteImport
-      parentRoute: typeof ProvidersIdRoute
+      parentRoute: typeof ProvidersIdRouteRoute
     }
     '/domains/$id/': {
       id: '/domains/$id/'
       path: '/'
       fullPath: '/domains/$id/'
       preLoaderRoute: typeof DomainsIdIndexRouteImport
-      parentRoute: typeof DomainsIdRoute
+      parentRoute: typeof DomainsIdRouteRoute
     }
     '/dailies/$id/': {
       id: '/dailies/$id/'
       path: '/'
       fullPath: '/dailies/$id/'
       preLoaderRoute: typeof DailiesIdIndexRouteImport
-      parentRoute: typeof DailiesIdRoute
+      parentRoute: typeof DailiesIdRouteRoute
     }
     '/topics/$id/edit': {
       id: '/topics/$id/edit'
       path: '/edit'
       fullPath: '/topics/$id/edit'
-      preLoaderRoute: typeof TopicsIdEditRouteImport
-      parentRoute: typeof TopicsIdRoute
+      preLoaderRoute: typeof TopicsIdEditRouteRouteImport
+      parentRoute: typeof TopicsIdRouteRoute
     }
     '/tasks/$id/edit': {
       id: '/tasks/$id/edit'
       path: '/edit'
       fullPath: '/tasks/$id/edit'
-      preLoaderRoute: typeof TasksIdEditRouteImport
-      parentRoute: typeof TasksIdRoute
+      preLoaderRoute: typeof TasksIdEditRouteRouteImport
+      parentRoute: typeof TasksIdRouteRoute
     }
     '/routines/$id/edit': {
       id: '/routines/$id/edit'
       path: '/edit'
       fullPath: '/routines/$id/edit'
-      preLoaderRoute: typeof RoutinesIdEditRouteImport
-      parentRoute: typeof RoutinesIdRoute
+      preLoaderRoute: typeof RoutinesIdEditRouteRouteImport
+      parentRoute: typeof RoutinesIdRouteRoute
     }
     '/resources/$id/edit': {
       id: '/resources/$id/edit'
       path: '/edit'
       fullPath: '/resources/$id/edit'
-      preLoaderRoute: typeof ResourcesIdEditRouteImport
-      parentRoute: typeof ResourcesIdRoute
+      preLoaderRoute: typeof ResourcesIdEditRouteRouteImport
+      parentRoute: typeof ResourcesIdRouteRoute
     }
     '/providers/$id/edit': {
       id: '/providers/$id/edit'
       path: '/edit'
       fullPath: '/providers/$id/edit'
-      preLoaderRoute: typeof ProvidersIdEditRouteImport
-      parentRoute: typeof ProvidersIdRoute
+      preLoaderRoute: typeof ProvidersIdEditRouteRouteImport
+      parentRoute: typeof ProvidersIdRouteRoute
     }
     '/domains/$id/radar': {
       id: '/domains/$id/radar'
       path: '/radar'
       fullPath: '/domains/$id/radar'
-      preLoaderRoute: typeof DomainsIdRadarRouteImport
-      parentRoute: typeof DomainsIdRoute
+      preLoaderRoute: typeof DomainsIdRadarRouteRouteImport
+      parentRoute: typeof DomainsIdRouteRoute
     }
     '/domains/$id/edit': {
       id: '/domains/$id/edit'
       path: '/edit'
       fullPath: '/domains/$id/edit'
-      preLoaderRoute: typeof DomainsIdEditRouteImport
-      parentRoute: typeof DomainsIdRoute
+      preLoaderRoute: typeof DomainsIdEditRouteRouteImport
+      parentRoute: typeof DomainsIdRouteRoute
     }
     '/dailies/$id/edit': {
       id: '/dailies/$id/edit'
       path: '/edit'
       fullPath: '/dailies/$id/edit'
-      preLoaderRoute: typeof DailiesIdEditRouteImport
-      parentRoute: typeof DailiesIdRoute
+      preLoaderRoute: typeof DailiesIdEditRouteRouteImport
+      parentRoute: typeof DailiesIdRouteRoute
     }
     '/domains/$id/radar/': {
       id: '/domains/$id/radar/'
       path: '/'
       fullPath: '/domains/$id/radar/'
       preLoaderRoute: typeof DomainsIdRadarIndexRouteImport
-      parentRoute: typeof DomainsIdRadarRoute
+      parentRoute: typeof DomainsIdRadarRouteRoute
     }
     '/domains/$id/radar/edit': {
       id: '/domains/$id/radar/edit'
       path: '/edit'
       fullPath: '/domains/$id/radar/edit'
-      preLoaderRoute: typeof DomainsIdRadarEditRouteImport
-      parentRoute: typeof DomainsIdRadarRoute
+      preLoaderRoute: typeof DomainsIdRadarEditRouteRouteImport
+      parentRoute: typeof DomainsIdRadarRouteRoute
     }
   }
 }
 
-interface DailiesIdRouteChildren {
-  DailiesIdEditRoute: typeof DailiesIdEditRoute
+interface DailiesIdRouteRouteChildren {
+  DailiesIdEditRouteRoute: typeof DailiesIdEditRouteRoute
   DailiesIdIndexRoute: typeof DailiesIdIndexRoute
 }
 
-const DailiesIdRouteChildren: DailiesIdRouteChildren = {
-  DailiesIdEditRoute: DailiesIdEditRoute,
+const DailiesIdRouteRouteChildren: DailiesIdRouteRouteChildren = {
+  DailiesIdEditRouteRoute: DailiesIdEditRouteRoute,
   DailiesIdIndexRoute: DailiesIdIndexRoute,
 }
 
-const DailiesIdRouteWithChildren = DailiesIdRoute._addFileChildren(
-  DailiesIdRouteChildren,
+const DailiesIdRouteRouteWithChildren = DailiesIdRouteRoute._addFileChildren(
+  DailiesIdRouteRouteChildren,
 )
 
-interface DailiesRouteChildren {
-  DailiesIdRoute: typeof DailiesIdRouteWithChildren
+interface DailiesRouteRouteChildren {
+  DailiesIdRouteRoute: typeof DailiesIdRouteRouteWithChildren
   DailiesIndexRoute: typeof DailiesIndexRoute
 }
 
-const DailiesRouteChildren: DailiesRouteChildren = {
-  DailiesIdRoute: DailiesIdRouteWithChildren,
+const DailiesRouteRouteChildren: DailiesRouteRouteChildren = {
+  DailiesIdRouteRoute: DailiesIdRouteRouteWithChildren,
   DailiesIndexRoute: DailiesIndexRoute,
 }
 
-const DailiesRouteWithChildren =
-  DailiesRoute._addFileChildren(DailiesRouteChildren)
+const DailiesRouteRouteWithChildren = DailiesRouteRoute._addFileChildren(
+  DailiesRouteRouteChildren,
+)
 
-interface DomainsIdRadarRouteChildren {
-  DomainsIdRadarEditRoute: typeof DomainsIdRadarEditRoute
+interface DomainsIdRadarRouteRouteChildren {
+  DomainsIdRadarEditRouteRoute: typeof DomainsIdRadarEditRouteRoute
   DomainsIdRadarIndexRoute: typeof DomainsIdRadarIndexRoute
 }
 
-const DomainsIdRadarRouteChildren: DomainsIdRadarRouteChildren = {
-  DomainsIdRadarEditRoute: DomainsIdRadarEditRoute,
+const DomainsIdRadarRouteRouteChildren: DomainsIdRadarRouteRouteChildren = {
+  DomainsIdRadarEditRouteRoute: DomainsIdRadarEditRouteRoute,
   DomainsIdRadarIndexRoute: DomainsIdRadarIndexRoute,
 }
 
-const DomainsIdRadarRouteWithChildren = DomainsIdRadarRoute._addFileChildren(
-  DomainsIdRadarRouteChildren,
-)
+const DomainsIdRadarRouteRouteWithChildren =
+  DomainsIdRadarRouteRoute._addFileChildren(DomainsIdRadarRouteRouteChildren)
 
-interface DomainsIdRouteChildren {
-  DomainsIdEditRoute: typeof DomainsIdEditRoute
-  DomainsIdRadarRoute: typeof DomainsIdRadarRouteWithChildren
+interface DomainsIdRouteRouteChildren {
+  DomainsIdEditRouteRoute: typeof DomainsIdEditRouteRoute
+  DomainsIdRadarRouteRoute: typeof DomainsIdRadarRouteRouteWithChildren
   DomainsIdIndexRoute: typeof DomainsIdIndexRoute
 }
 
-const DomainsIdRouteChildren: DomainsIdRouteChildren = {
-  DomainsIdEditRoute: DomainsIdEditRoute,
-  DomainsIdRadarRoute: DomainsIdRadarRouteWithChildren,
+const DomainsIdRouteRouteChildren: DomainsIdRouteRouteChildren = {
+  DomainsIdEditRouteRoute: DomainsIdEditRouteRoute,
+  DomainsIdRadarRouteRoute: DomainsIdRadarRouteRouteWithChildren,
   DomainsIdIndexRoute: DomainsIdIndexRoute,
 }
 
-const DomainsIdRouteWithChildren = DomainsIdRoute._addFileChildren(
-  DomainsIdRouteChildren,
+const DomainsIdRouteRouteWithChildren = DomainsIdRouteRoute._addFileChildren(
+  DomainsIdRouteRouteChildren,
 )
 
-interface DomainsRouteChildren {
-  DomainsIdRoute: typeof DomainsIdRouteWithChildren
+interface DomainsRouteRouteChildren {
+  DomainsIdRouteRoute: typeof DomainsIdRouteRouteWithChildren
   DomainsIndexRoute: typeof DomainsIndexRoute
 }
 
-const DomainsRouteChildren: DomainsRouteChildren = {
-  DomainsIdRoute: DomainsIdRouteWithChildren,
+const DomainsRouteRouteChildren: DomainsRouteRouteChildren = {
+  DomainsIdRouteRoute: DomainsIdRouteRouteWithChildren,
   DomainsIndexRoute: DomainsIndexRoute,
 }
 
-const DomainsRouteWithChildren =
-  DomainsRoute._addFileChildren(DomainsRouteChildren)
+const DomainsRouteRouteWithChildren = DomainsRouteRoute._addFileChildren(
+  DomainsRouteRouteChildren,
+)
 
-interface ProvidersIdRouteChildren {
-  ProvidersIdEditRoute: typeof ProvidersIdEditRoute
+interface ProvidersIdRouteRouteChildren {
+  ProvidersIdEditRouteRoute: typeof ProvidersIdEditRouteRoute
   ProvidersIdIndexRoute: typeof ProvidersIdIndexRoute
 }
 
-const ProvidersIdRouteChildren: ProvidersIdRouteChildren = {
-  ProvidersIdEditRoute: ProvidersIdEditRoute,
+const ProvidersIdRouteRouteChildren: ProvidersIdRouteRouteChildren = {
+  ProvidersIdEditRouteRoute: ProvidersIdEditRouteRoute,
   ProvidersIdIndexRoute: ProvidersIdIndexRoute,
 }
 
-const ProvidersIdRouteWithChildren = ProvidersIdRoute._addFileChildren(
-  ProvidersIdRouteChildren,
-)
+const ProvidersIdRouteRouteWithChildren =
+  ProvidersIdRouteRoute._addFileChildren(ProvidersIdRouteRouteChildren)
 
-interface ProvidersRouteChildren {
-  ProvidersIdRoute: typeof ProvidersIdRouteWithChildren
+interface ProvidersRouteRouteChildren {
+  ProvidersIdRouteRoute: typeof ProvidersIdRouteRouteWithChildren
   ProvidersIndexRoute: typeof ProvidersIndexRoute
 }
 
-const ProvidersRouteChildren: ProvidersRouteChildren = {
-  ProvidersIdRoute: ProvidersIdRouteWithChildren,
+const ProvidersRouteRouteChildren: ProvidersRouteRouteChildren = {
+  ProvidersIdRouteRoute: ProvidersIdRouteRouteWithChildren,
   ProvidersIndexRoute: ProvidersIndexRoute,
 }
 
-const ProvidersRouteWithChildren = ProvidersRoute._addFileChildren(
-  ProvidersRouteChildren,
+const ProvidersRouteRouteWithChildren = ProvidersRouteRoute._addFileChildren(
+  ProvidersRouteRouteChildren,
 )
 
-interface ResourcesIdRouteChildren {
-  ResourcesIdEditRoute: typeof ResourcesIdEditRoute
+interface ResourcesIdRouteRouteChildren {
+  ResourcesIdEditRouteRoute: typeof ResourcesIdEditRouteRoute
   ResourcesIdIndexRoute: typeof ResourcesIdIndexRoute
 }
 
-const ResourcesIdRouteChildren: ResourcesIdRouteChildren = {
-  ResourcesIdEditRoute: ResourcesIdEditRoute,
+const ResourcesIdRouteRouteChildren: ResourcesIdRouteRouteChildren = {
+  ResourcesIdEditRouteRoute: ResourcesIdEditRouteRoute,
   ResourcesIdIndexRoute: ResourcesIdIndexRoute,
 }
 
-const ResourcesIdRouteWithChildren = ResourcesIdRoute._addFileChildren(
-  ResourcesIdRouteChildren,
-)
+const ResourcesIdRouteRouteWithChildren =
+  ResourcesIdRouteRoute._addFileChildren(ResourcesIdRouteRouteChildren)
 
-interface ResourcesRouteChildren {
-  ResourcesIdRoute: typeof ResourcesIdRouteWithChildren
+interface ResourcesRouteRouteChildren {
+  ResourcesIdRouteRoute: typeof ResourcesIdRouteRouteWithChildren
   ResourcesIndexRoute: typeof ResourcesIndexRoute
 }
 
-const ResourcesRouteChildren: ResourcesRouteChildren = {
-  ResourcesIdRoute: ResourcesIdRouteWithChildren,
+const ResourcesRouteRouteChildren: ResourcesRouteRouteChildren = {
+  ResourcesIdRouteRoute: ResourcesIdRouteRouteWithChildren,
   ResourcesIndexRoute: ResourcesIndexRoute,
 }
 
-const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
-  ResourcesRouteChildren,
+const ResourcesRouteRouteWithChildren = ResourcesRouteRoute._addFileChildren(
+  ResourcesRouteRouteChildren,
 )
 
-interface RoutinesIdRouteChildren {
-  RoutinesIdEditRoute: typeof RoutinesIdEditRoute
+interface RoutinesIdRouteRouteChildren {
+  RoutinesIdEditRouteRoute: typeof RoutinesIdEditRouteRoute
   RoutinesIdIndexRoute: typeof RoutinesIdIndexRoute
 }
 
-const RoutinesIdRouteChildren: RoutinesIdRouteChildren = {
-  RoutinesIdEditRoute: RoutinesIdEditRoute,
+const RoutinesIdRouteRouteChildren: RoutinesIdRouteRouteChildren = {
+  RoutinesIdEditRouteRoute: RoutinesIdEditRouteRoute,
   RoutinesIdIndexRoute: RoutinesIdIndexRoute,
 }
 
-const RoutinesIdRouteWithChildren = RoutinesIdRoute._addFileChildren(
-  RoutinesIdRouteChildren,
+const RoutinesIdRouteRouteWithChildren = RoutinesIdRouteRoute._addFileChildren(
+  RoutinesIdRouteRouteChildren,
 )
 
-interface RoutinesRouteChildren {
-  RoutinesIdRoute: typeof RoutinesIdRouteWithChildren
-  RoutinesTrackerRoute: typeof RoutinesTrackerRoute
+interface RoutinesRouteRouteChildren {
+  RoutinesIdRouteRoute: typeof RoutinesIdRouteRouteWithChildren
+  RoutinesTrackerRouteRoute: typeof RoutinesTrackerRouteRoute
   RoutinesIndexRoute: typeof RoutinesIndexRoute
 }
 
-const RoutinesRouteChildren: RoutinesRouteChildren = {
-  RoutinesIdRoute: RoutinesIdRouteWithChildren,
-  RoutinesTrackerRoute: RoutinesTrackerRoute,
+const RoutinesRouteRouteChildren: RoutinesRouteRouteChildren = {
+  RoutinesIdRouteRoute: RoutinesIdRouteRouteWithChildren,
+  RoutinesTrackerRouteRoute: RoutinesTrackerRouteRoute,
   RoutinesIndexRoute: RoutinesIndexRoute,
 }
 
-const RoutinesRouteWithChildren = RoutinesRoute._addFileChildren(
-  RoutinesRouteChildren,
+const RoutinesRouteRouteWithChildren = RoutinesRouteRoute._addFileChildren(
+  RoutinesRouteRouteChildren,
 )
 
-interface TasksIdRouteChildren {
-  TasksIdEditRoute: typeof TasksIdEditRoute
+interface TasksIdRouteRouteChildren {
+  TasksIdEditRouteRoute: typeof TasksIdEditRouteRoute
   TasksIdIndexRoute: typeof TasksIdIndexRoute
 }
 
-const TasksIdRouteChildren: TasksIdRouteChildren = {
-  TasksIdEditRoute: TasksIdEditRoute,
+const TasksIdRouteRouteChildren: TasksIdRouteRouteChildren = {
+  TasksIdEditRouteRoute: TasksIdEditRouteRoute,
   TasksIdIndexRoute: TasksIdIndexRoute,
 }
 
-const TasksIdRouteWithChildren =
-  TasksIdRoute._addFileChildren(TasksIdRouteChildren)
+const TasksIdRouteRouteWithChildren = TasksIdRouteRoute._addFileChildren(
+  TasksIdRouteRouteChildren,
+)
 
-interface TasksRouteChildren {
-  TasksIdRoute: typeof TasksIdRouteWithChildren
+interface TasksRouteRouteChildren {
+  TasksIdRouteRoute: typeof TasksIdRouteRouteWithChildren
   TasksIndexRoute: typeof TasksIndexRoute
 }
 
-const TasksRouteChildren: TasksRouteChildren = {
-  TasksIdRoute: TasksIdRouteWithChildren,
+const TasksRouteRouteChildren: TasksRouteRouteChildren = {
+  TasksIdRouteRoute: TasksIdRouteRouteWithChildren,
   TasksIndexRoute: TasksIndexRoute,
 }
 
-const TasksRouteWithChildren = TasksRoute._addFileChildren(TasksRouteChildren)
+const TasksRouteRouteWithChildren = TasksRouteRoute._addFileChildren(
+  TasksRouteRouteChildren,
+)
 
-interface TopicsIdRouteChildren {
-  TopicsIdEditRoute: typeof TopicsIdEditRoute
+interface TopicsIdRouteRouteChildren {
+  TopicsIdEditRouteRoute: typeof TopicsIdEditRouteRoute
   TopicsIdIndexRoute: typeof TopicsIdIndexRoute
 }
 
-const TopicsIdRouteChildren: TopicsIdRouteChildren = {
-  TopicsIdEditRoute: TopicsIdEditRoute,
+const TopicsIdRouteRouteChildren: TopicsIdRouteRouteChildren = {
+  TopicsIdEditRouteRoute: TopicsIdEditRouteRoute,
   TopicsIdIndexRoute: TopicsIdIndexRoute,
 }
 
-const TopicsIdRouteWithChildren = TopicsIdRoute._addFileChildren(
-  TopicsIdRouteChildren,
+const TopicsIdRouteRouteWithChildren = TopicsIdRouteRoute._addFileChildren(
+  TopicsIdRouteRouteChildren,
 )
 
-interface TopicsRouteChildren {
-  TopicsIdRoute: typeof TopicsIdRouteWithChildren
+interface TopicsRouteRouteChildren {
+  TopicsIdRouteRoute: typeof TopicsIdRouteRouteWithChildren
   TopicsIndexRoute: typeof TopicsIndexRoute
 }
 
-const TopicsRouteChildren: TopicsRouteChildren = {
-  TopicsIdRoute: TopicsIdRouteWithChildren,
+const TopicsRouteRouteChildren: TopicsRouteRouteChildren = {
+  TopicsIdRouteRoute: TopicsIdRouteRouteWithChildren,
   TopicsIndexRoute: TopicsIndexRoute,
 }
 
-const TopicsRouteWithChildren =
-  TopicsRoute._addFileChildren(TopicsRouteChildren)
+const TopicsRouteRouteWithChildren = TopicsRouteRoute._addFileChildren(
+  TopicsRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActionsRoute: ActionsRoute,
-  DailiesRoute: DailiesRouteWithChildren,
-  DashboardRoute: DashboardRoute,
-  DomainsRoute: DomainsRouteWithChildren,
-  OnboardRoute: OnboardRoute,
-  PlansRoute: PlansRoute,
-  ProvidersRoute: ProvidersRouteWithChildren,
-  RecordsRoute: RecordsRoute,
-  ResourcesRoute: ResourcesRouteWithChildren,
-  RoutinesRoute: RoutinesRouteWithChildren,
-  SettingsRoute: SettingsRoute,
-  TasksRoute: TasksRouteWithChildren,
-  TopicsRoute: TopicsRouteWithChildren,
+  ActionsRouteRoute: ActionsRouteRoute,
+  DailiesRouteRoute: DailiesRouteRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRoute,
+  DomainsRouteRoute: DomainsRouteRouteWithChildren,
+  OnboardRouteRoute: OnboardRouteRoute,
+  PlansRouteRoute: PlansRouteRoute,
+  ProvidersRouteRoute: ProvidersRouteRouteWithChildren,
+  RecordsRouteRoute: RecordsRouteRoute,
+  ResourcesRouteRoute: ResourcesRouteRouteWithChildren,
+  RoutinesRouteRoute: RoutinesRouteRouteWithChildren,
+  SettingsRouteRoute: SettingsRouteRoute,
+  TasksRouteRoute: TasksRouteRouteWithChildren,
+  TopicsRouteRoute: TopicsRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { TopicForm } from "./topics.$id.edit.-components/-TopicForm";
+import { TopicForm } from "./-components/-TopicForm";
 
 export const Route = createFileRoute("/topics/$id/edit")({
   component: SingleTopicEdit,

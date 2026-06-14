@@ -13,7 +13,7 @@ import { useAppForm } from "@/components/formFields";
 import {
   buildResourcePayload,
   formSchema,
-} from "@/routes/resources.$id.edit.-components/-buildResourcePayload";
+} from "@/routes/resources/$id/edit/-components/-buildResourcePayload";
 import {
   createProvider,
   createTag,

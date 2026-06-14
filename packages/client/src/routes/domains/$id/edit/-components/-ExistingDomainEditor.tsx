@@ -1,4 +1,4 @@
-import type { EditTab } from "../domains.$id.edit";
+import type { EditTab } from "../route";
 
 import { useCallback, useState } from "react";
 

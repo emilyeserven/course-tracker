@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
-import { DomainLinkList } from "./topics.$id.-components/-DomainLinkList";
-import { RoutineLinkList } from "./topics.$id.-components/-RoutineLinkList";
+import { DomainLinkList } from "./-components/-DomainLinkList";
+import { RoutineLinkList } from "./-components/-RoutineLinkList";
 
 import {
   EntityHeaderButton,

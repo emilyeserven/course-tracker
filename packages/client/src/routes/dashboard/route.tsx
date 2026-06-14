@@ -27,7 +27,7 @@ import {
   tilesEqual,
   toggleTile,
   VisibleTilesDialog,
-} from "./dashboard.-components";
+} from "./-components";
 
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
 import { useDashboardLayoutManager } from "@/hooks/useDashboardLayoutManager";
