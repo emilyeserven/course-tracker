@@ -1,8 +1,4 @@
-import type { ResolvedLlmEntry } from "@/components/radar/blipLlmReview";
-import type { PositionedBlip } from "@/components/radar/radarLayout";
 import type {
-  Domain,
-  DomainTopic,
   Radar,
   RadarBlip,
   RadarQuadrant,
@@ -55,7 +51,7 @@ export function makeRings(count = 4): RadarRing[] {
   );
 }
 
-export function makeBlip(
+function makeBlip(
   overrides: Partial<RadarBlip> & { id: string },
 ): RadarBlip {
   return {
@@ -121,78 +117,4 @@ export function makeRadar(overrides: Partial<Radar> = {}): Radar {
     blips: makeBlips(6, quadrants, rings),
     ...overrides,
   };
-}
-
-/** A domain with scope topics, mirroring what the edit route passes its tabs.
- * Distinct from `boxFixtures.makeDomain` (the minimal content-box `Domain`):
- * this one carries the scope/topic fields the domain edit tabs read. */
-export function makeScopedDomain(overrides: Partial<Domain> = {}): Domain {
-  const asDomainTopics = (topics: TopicForTopicsPage[]): DomainTopic[] =>
-    topics.map(t => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-    }));
-  const topics = makeTopics();
-  return {
-    id: "domain-1",
-    title: "Backend Platform",
-    description: "Services, infra, and tooling owned by the platform team.",
-    withinScopeDescription: "Anything the platform team operates.",
-    outOfScopeDescription: "Frontend frameworks.",
-    topics: asDomainTopics(topics.slice(0, 4)),
-    withinScopeTopics: asDomainTopics(topics.slice(0, 2)),
-    excludedTopics: [],
-    ...overrides,
-  };
-}
-
-/** Lays the blips out on a simple grid so SVG/legend stories have positions. */
-export function makePositionedBlips(
-  blips = makeBlips(),
-  size = 400,
-): PositionedBlip[] {
-  const center = size / 2;
-  return blips.map((blip, index) => ({
-    blip,
-    x: center + (index % 2 === 0 ? 1 : -1) * (40 + index * 12),
-    y: center + (index % 3 === 0 ? 1 : -1) * (30 + index * 10),
-    index: index + 1,
-  }));
-}
-
-export function makeResolvedEntry(
-  overrides: Partial<ResolvedLlmEntry> = {},
-): ResolvedLlmEntry {
-  return {
-    topicName: "Kubernetes",
-    matchedTopicId: "topic-0",
-    willCreateTopic: false,
-    quadrantInput: "Tools",
-    ringInput: "Adopt",
-    description: "Container orchestration",
-    radarNote: "Standardized across teams",
-    quadrantId: "q1",
-    ringId: "r0",
-    existingBlipId: null,
-    existingQuadrantId: null,
-    existingRingId: null,
-    existingRadarNote: null,
-    existingTopicDescription: null,
-    topicCourseCount: 0,
-    topicTaskCount: 0,
-    topicDailyCount: 0,
-    resolution: "create",
-    deleteTopicOnRemove: false,
-    editing: false,
-    editDraft: null,
-    selected: false,
-    problems: [],
-    ...overrides,
-  };
-}
-
-/** Build an id→item lookup map (quadrantById / ringById / topicById). */
-export function byId<T extends { id: string }>(items: T[]): Map<string, T> {
-  return new Map(items.map(item => [item.id, item]));
 }

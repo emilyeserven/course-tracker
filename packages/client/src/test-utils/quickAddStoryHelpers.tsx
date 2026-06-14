@@ -51,55 +51,6 @@ export function expectDialogFields({
   };
 }
 
-/** Asserts the configured branch: title + input field + submit button. */
-export function expectConfiguredForm({
-  title,
-  field,
-  submit,
-}: {
-  title: string;
-  field: string;
-  submit: string;
-}) {
-  return async () => {
-    const body = within(document.body);
-    await expect(await body.findByText(title)).toBeInTheDocument();
-    await expect(await body.findByLabelText(field)).toBeInTheDocument();
-    await expect(
-      await body.findByRole("button", {
-        name: submit,
-      }),
-    ).toBeInTheDocument();
-  };
-}
-
-/**
- * Asserts the unconfigured branch: title + the "add an API key in Settings"
- * helper text + the Settings link. (The footer's "Close" button shares its
- * accessible name with the dialog's built-in X, so we assert on the link +
- * helper text, which are unique to this branch.)
- */
-export function expectSettingsPrompt({
-  title,
-  provider,
-}: {
-  title: string;
-  provider: string;
-}) {
-  return async () => {
-    const body = within(document.body);
-    await expect(await body.findByText(title)).toBeInTheDocument();
-    await expect(
-      await body.findByText(new RegExp(`Add a ${provider} API key in`)),
-    ).toBeInTheDocument();
-    await expect(
-      await body.findByRole("link", {
-        name: "Settings",
-      }),
-    ).toBeInTheDocument();
-  };
-}
-
 /** Clicking Cancel closes the dialog via `onOpenChange(false)`. */
 export async function expectCancelClosesDialog({
   args,
