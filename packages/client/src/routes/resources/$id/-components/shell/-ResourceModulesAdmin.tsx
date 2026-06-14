@@ -4,15 +4,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import { ModuleAdminHeader } from "./-ModuleAdminHeader";
-import { ModuleGroupSection } from "./-ModuleGroupSection";
 import {
   handleListDragEnd,
   reorderCollisionDetection,
   reorderModifiers,
   useReorderSensors,
-} from "./-reorderDnd";
-import { UngroupedModulesSection } from "./-UngroupedModulesSection";
+} from "../-reorderDnd";
+import { ModuleGroupSection, UngroupedModulesSection } from "../grouping";
+import { ModuleAdminHeader } from "../header";
 
 import { GroupEditCard } from "@/components/resources/moduleAdminComponents";
 import { emptyGroupDraft } from "@/components/resources/moduleDrafts";
@@ -26,8 +25,7 @@ interface Props {
 }
 
 export function ResourceModulesAdmin({
-  resourceId,
-  canEditExhaustive,
+  resourceId, canEditExhaustive,
 }: Props) {
   const api = useResourceModules(resourceId);
   const ui = useModuleAdminUiState();
@@ -127,15 +125,8 @@ export function ResourceModulesAdmin({
 
       {isEmpty && (
         <p className="text-sm text-muted-foreground">
-          No {moduleLabel.toLowerCase()}s yet. Add a
-          {" "}
-          {moduleLabel.toLowerCase()}
-          {" "}
-          directly, or create a
-          {" "}
-          {groupLabel.toLowerCase()}
-          {" "}
-          to organize them.
+          No {moduleLabel.toLowerCase()}s yet. Add a {moduleLabel.toLowerCase()}{" "}
+          directly, or create a {groupLabel.toLowerCase()} to organize them.
         </p>
       )}
     </div>

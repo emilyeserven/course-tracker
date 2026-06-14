@@ -1,4 +1,4 @@
-import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
+import type { ModuleAdminSectionProps } from "../-moduleAdminSectionProps";
 import type { Resource } from "@emstack/types";
 
 import { ModuleSuggestDialog } from "@/components/resources/moduleAdminComponents";
