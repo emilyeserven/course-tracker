@@ -4,8 +4,7 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { QuickAddRoutineDialog } from "./QuickAddRoutineDialog";
 
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerQueryDecorator } from "@/test-utils/quickAddStoryHelpers";
 
 const meta: Meta<typeof QuickAddRoutineDialog> = {
   component: QuickAddRoutineDialog,
@@ -14,15 +13,7 @@ const meta: Meta<typeof QuickAddRoutineDialog> = {
     onOpenChange: fn(),
   },
   // useMutation + useNavigate (via useQuickAddRoutine) → QueryStub + RouterStub.
-  decorators: [
-    Story => (
-      <RouterStub>
-        <QueryStub>
-          <Story />
-        </QueryStub>
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerQueryDecorator()],
 };
 
 export default meta;
