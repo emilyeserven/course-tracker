@@ -2,6 +2,34 @@
 
 All notable changes to this project are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0](https://github.com/emilyeserven/course-tracker/compare/v1.0.0...v1.1.0) (2026-06-14)
+
+
+### Features
+
+* add calendar dashboard card backed by iCal feeds ([#287](https://github.com/emilyeserven/course-tracker/issues/287)) ([6ad28eb](https://github.com/emilyeserven/course-tracker/commit/6ad28eb8b1bffc44f4b6744f5c3034c645f6cc28))
+* add most-connected entity pills to overview tiles ([#329](https://github.com/emilyeserven/course-tracker/issues/329)) ([4b82e14](https://github.com/emilyeserven/course-tracker/commit/4b82e14b2516133c1165e36fe6ef2d7afd0de4fc))
+* add Quick Add menu for rapid record creation ([#273](https://github.com/emilyeserven/course-tracker/issues/273)) ([5a0de61](https://github.com/emilyeserven/course-tracker/commit/5a0de61d956364f4f0f40b05ef1e981b18ae10c0))
+* **client:** add changelog dashboard tile ([#276](https://github.com/emilyeserven/course-tracker/issues/276)) ([a52d7b5](https://github.com/emilyeserven/course-tracker/commit/a52d7b52ebad9209f7dff4c8ed29781a5b927415))
+* **client:** add external link button for URL-based routine locations ([#376](https://github.com/emilyeserven/course-tracker/issues/376)) ([33411b9](https://github.com/emilyeserven/course-tracker/commit/33411b9f362e17ebef09d43fd61b4a0d220a99b7))
+* **client:** add inline resource creation in routine comboboxes ([#344](https://github.com/emilyeserven/course-tracker/issues/344)) ([c38b580](https://github.com/emilyeserven/course-tracker/commit/c38b5807c51282c255de5eea2c884c1c9cbc45a7))
+* **client:** add numeric input for fixed tile height in dashboard settings ([#281](https://github.com/emilyeserven/course-tracker/issues/281)) ([7167a13](https://github.com/emilyeserven/course-tracker/commit/7167a13508ceb98933b53037bf2a3386114797a6))
+* **client:** add success toast on entity deletion ([#385](https://github.com/emilyeserven/course-tracker/issues/385)) ([7dba3e5](https://github.com/emilyeserven/course-tracker/commit/7dba3e50eb03180073f153e09dff7311b29ad473))
+* **client:** add tile settings and auto-height to changelog card ([#303](https://github.com/emilyeserven/course-tracker/issues/303)) ([a812037](https://github.com/emilyeserven/course-tracker/commit/a8120378ad0e54cebfafe5c3c10c0081c7df255b))
+* **client:** extract tile visibility picker into modal dialog ([#294](https://github.com/emilyeserven/course-tracker/issues/294)) ([285ffa5](https://github.com/emilyeserven/course-tracker/commit/285ffa5674d925ae1c84df5ec7c2f7b3138858a0))
+* **client:** introduce DataTable component and migrate tables to TanStack Table ([#300](https://github.com/emilyeserven/course-tracker/issues/300)) ([0aedc3a](https://github.com/emilyeserven/course-tracker/commit/0aedc3a433e548febe0b42c4e063782a93379ba8))
+* improve Explore Something card with grid, descriptions, and focus hint ([#271](https://github.com/emilyeserven/course-tracker/issues/271)) ([edbd772](https://github.com/emilyeserven/course-tracker/commit/edbd7727ac4d827a18fe7c31d31c9ce4d10425cd))
+* split dailies into Do Now and Done for the Day cards with per-card settings ([#272](https://github.com/emilyeserven/course-tracker/issues/272)) ([b321374](https://github.com/emilyeserven/course-tracker/commit/b321374b1a09b69a60c82bc48c29595ca378081d))
+
+
+### Bug Fixes
+
+* **client:** clarify routine assignment warning to include resources ([#386](https://github.com/emilyeserven/course-tracker/issues/386)) ([de1cefd](https://github.com/emilyeserven/course-tracker/commit/de1cefd8b8e5b8d9297acd0bacf3e498cb65f689))
+* **client:** forward grid props to GridTile to enable positioning and dragging ([#279](https://github.com/emilyeserven/course-tracker/issues/279)) ([819672e](https://github.com/emilyeserven/course-tracker/commit/819672e44ee2aee4baa95c3c9dc0586cd8acb97a))
+* **client:** include routine name in criteria upsert request ([#378](https://github.com/emilyeserven/course-tracker/issues/378)) ([37cf755](https://github.com/emilyeserven/course-tracker/commit/37cf755a66b2a41dc8aabbaf802b831a46f13b10))
+* **client:** prevent auto-height tiles from clamping to layout height ([#280](https://github.com/emilyeserven/course-tracker/issues/280)) ([ee8ea9f](https://github.com/emilyeserven/course-tracker/commit/ee8ea9f8a361c929be1bdee4364ece156b233540))
+* **deps:** patch dependabot security advisories and prune stale overrides ([#288](https://github.com/emilyeserven/course-tracker/issues/288)) ([bcd481a](https://github.com/emilyeserven/course-tracker/commit/bcd481a23ba984241f0a807bff322e62bff94e5f))
+
 ## [1.0.0] - 2026-06-13
 
 ### Bug Fixes
