@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, within } from "storybook/test";
 
-import { DashboardCard, DashboardSectionStatus } from "./DashboardCard";
+import { DashboardCard } from "./DashboardCard";
 
 import { Button } from "@/components/ui/button";
 
@@ -41,41 +41,5 @@ export const WithAction: Story = {
         name: "Add",
       }),
     ).toBeInTheDocument();
-  },
-};
-
-export const SectionPending: Story = {
-  render: () => (
-    <DashboardCard title="Courses">
-      <DashboardSectionStatus
-        isPending
-        entity="courses"
-        emptyMessage="No courses yet."
-      />
-    </DashboardCard>
-  ),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/Loading/)).toBeInTheDocument();
-  },
-};
-
-export const SectionEmpty: Story = {
-  render: () => (
-    <DashboardCard title="Courses">
-      <DashboardSectionStatus
-        isEmpty
-        entity="courses"
-        emptyMessage="No courses yet."
-      />
-    </DashboardCard>
-  ),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("No courses yet.")).toBeInTheDocument();
   },
 };

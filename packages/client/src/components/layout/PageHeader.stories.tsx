@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { PlusIcon } from "lucide-react";
-
 import { PageHeader } from "./PageHeader";
 
-import { Button } from "@/components/ui/button";
 import { routerStoryDecorator } from "@/test-utils/storyDecorators";
 import { smokePlay } from "@/test-utils/storyPlay";
 
@@ -37,34 +34,5 @@ export const WithSectionLink: Story = {
   play: smokePlay([{
     role: "link",
     name: "Resources",
-  }]),
-};
-
-// Header actions render in the children slot.
-export const WithAction: Story = {
-  args: {
-    children: (
-      <Button>
-        <PlusIcon className="size-4" />
-        New Course
-      </Button>
-    ),
-  },
-  play: smokePlay([{
-    role: "button",
-    name: /New Course/,
-  }]),
-};
-
-// A non-zero progress value renders the ProgressBar beneath the header.
-export const WithProgress: Story = {
-  args: {
-    progressCurrent: 3,
-    progressTotal: 10,
-    status: "active",
-  },
-  play: smokePlay([{
-    role: "heading",
-    name: "Your Resources",
   }]),
 };

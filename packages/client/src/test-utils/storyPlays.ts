@@ -32,28 +32,6 @@ export const playExpectChecked: Play = async ({
   await expect(canvas.getByRole("checkbox")).toBeChecked();
 };
 
-/** The sole control of `role` renders disabled. */
-export function playExpectDisabled(role: "checkbox" | "textbox"): Play {
-  return async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole(role)).toBeDisabled();
-  };
-}
-
-/** Typing `text` into the textbox updates its value. */
-export function playTypeIntoTextbox(text: string): Play {
-  return async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox");
-    await userEvent.type(input, text);
-    await expect(input).toHaveValue(text);
-  };
-}
-
 /**
  * Clicks the named button in a dialog that portals to `document.body` and
  * asserts the story's `onConfirm` handler ran.

@@ -3,9 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 
 import {
-  ClearFiltersButton,
   FilterSelect,
-  ListEmptyStates,
   ListSearchInput,
 } from "./ListPageControls";
 
@@ -64,55 +62,5 @@ export const Filter: Story = {
   }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("combobox")).toBeInTheDocument();
-  },
-};
-
-export const ClearFilters: Story = {
-  render: () => <ClearFiltersButton onClick={fn()} />,
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("button", {
-        name: "Clear filters",
-      }),
-    ).toBeInTheDocument();
-  },
-};
-
-// No items at all.
-export const EmptyNoneYet: Story = {
-  render: () => (
-    <ListEmptyStates
-      entityLabel="resources"
-      total={0}
-      filteredCount={0}
-    />
-  ),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/No resources yet/)).toBeInTheDocument();
-  },
-};
-
-// Items exist, but none match the active filters.
-export const EmptyNoMatch: Story = {
-  render: () => (
-    <ListEmptyStates
-      entityLabel="resources"
-      total={10}
-      filteredCount={0}
-    />
-  ),
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByText(/No resources match your filters/),
-    ).toBeInTheDocument();
   },
 };

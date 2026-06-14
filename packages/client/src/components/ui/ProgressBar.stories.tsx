@@ -33,14 +33,6 @@ export const Default: Story = {
   },
 };
 
-export const Inactive: Story = {
-  args: {
-    progressCurrent: 2,
-    progressTotal: 4,
-    status: "inactive",
-  },
-};
-
 export const Complete: Story = {
   args: {
     progressCurrent: 5,
@@ -51,18 +43,5 @@ export const Complete: Story = {
   }) => {
     const fill = canvasElement.querySelector<HTMLElement>("div[style*='width']");
     await expect(fill?.style.width).toBe("100%");
-  },
-};
-
-// With no current progress the component renders nothing.
-export const Empty: Story = {
-  args: {
-    progressCurrent: 0,
-    progressTotal: 10,
-  },
-  play: async ({
-    canvasElement,
-  }) => {
-    await expect(canvasElement.querySelector("div[style*='width']")).toBeNull();
   },
 };

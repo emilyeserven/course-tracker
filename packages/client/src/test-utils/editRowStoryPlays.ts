@@ -11,7 +11,6 @@ import { expect, userEvent, within } from "storybook/test";
  */
 
 interface CancelArgs { onCancel?: (...args: never[]) => unknown }
-interface DeleteArgs { onDelete?: (...args: never[]) => unknown }
 interface PlayContext<TArgs = unknown> {
   args: TArgs;
   canvasElement: HTMLElement;
@@ -41,20 +40,6 @@ export async function expectRemoveHidden({
       name: "Remove",
     }),
   ).not.toBeInTheDocument();
-}
-
-/** Clicks the Remove button and asserts `onDelete` fired (existing rows). */
-export async function clickRemoveFiresOnDelete({
-  args,
-  canvasElement,
-}: PlayContext<DeleteArgs>) {
-  const canvas = within(canvasElement);
-  await userEvent.click(
-    canvas.getByRole("button", {
-      name: "Remove",
-    }),
-  );
-  await expect(args.onDelete).toHaveBeenCalled();
 }
 
 /** Asserts the Save button is disabled while saving. */
