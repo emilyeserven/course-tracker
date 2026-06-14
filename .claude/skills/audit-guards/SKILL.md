@@ -4,13 +4,17 @@ description: >-
   Audit the project's manually-added "guards" — the escape hatches that exist to
   work around a problem and should be removed once that problem is fixed: fallow
   ignore comments (`// fallow-ignore-*`), the ignore lists in `.fallowrc.json`
-  (`duplicates.ignore`, `ignoreDependencies`, `entry`), and `pnpm.overrides` in
-  the root `package.json`. For each, decides whether it is still load-bearing or
-  has gone stale, and reports removable ones with ready-to-run fixes. Reads and
-  reports only — it never deletes a guard on its own. Use when asked to "check
-  fallow ignores", "are the pnpm overrides still needed", "prune stale
-  suppressions/overrides", "clean up ignores", or via /audit-guards. Accepts an
-  optional scope (a package path, or `fallow`/`overrides` to run just one half).
+  (`duplicates.ignore`, `ignoreDependencies`, `entry`), `eslint-disable` /
+  `@ts-ignore` / `@ts-expect-error` suppressions, skipped or focused tests
+  (`.skip`/`.only`/`xit`), and `pnpm.overrides` in the root `package.json`. Also
+  surfaces scope gaps — files or tests that no check ever runs (untypechecked
+  configs, tests not wired into CI). For each, decides whether it is still
+  load-bearing or has gone stale, and reports removable ones with ready-to-run
+  fixes. Reads and reports only — it never deletes a guard on its own. Use when
+  asked to "check fallow ignores", "find disable directives", "are the pnpm
+  overrides still needed", "prune stale suppressions/overrides", "find skipped
+  tests", "clean up ignores", or via /audit-guards. Accepts an optional scope (a
+  package path, or `fallow`/`lint`/`overrides` to run just one part).
 ---
 
 # Audit guards (course-tracker)
@@ -25,7 +29,7 @@ outlived their cause.
 `.fallowrc.json`, or removes an override on its own — it hands you the exact edit
 or command. Run from the repo root. If given a scope arg, limit accordingly
 (`fallow` = guards A1–A3 only, `overrides` = guard B only, a path = scope the
-fallow scans to that path).
+fallow scans to that path; `lint` = guards C1–C3 only).
 
 ## What counts as a guard here
 
@@ -35,6 +39,10 @@ fallow scans to that path).
 | A2. Security-sink ignores | `// fallow-ignore-* security-sink` | The flagged sink call is gone — **not** caught by A1's stale check (see below) |
 | A3. `.fallowrc.json` ignore lists | `duplicates.ignore`, `ignoreDependencies`, `entry`, plus `--ignore*` config | Glob matches no file; ignored dep no longer declared |
 | B. pnpm overrides | `pnpm.overrides` in root `package.json` | Natural resolution now already satisfies the constraint |
+| C1. ESLint disables | `// eslint-disable*` comments in source | The rule no longer fires on the guarded code (directive suppresses nothing) |
+| C2. TS suppressions | `// @ts-ignore` / `@ts-nocheck` / `@ts-expect-error` | The type error is gone (`@ts-expect-error` then itself errors) |
+| C3. Skipped/focused tests | `.skip` / `.only` / `.todo`, `xit`, `fit` in test files | A temporary skip that outlived its reason, or a `.only` left in by accident |
+| D. Scope gaps (not guards, but blind spots) | files/tests no check covers — `tsconfig` excludes, configs no `typecheck` script invokes, tests absent from CI | A path silently drifts out of coverage |
 
 ---
 
@@ -164,9 +172,102 @@ a `docs/` note).
 
 ---
 
+## C. ESLint / TypeScript / test guards
+
+These are the non-fallow suppressions. Scope arg `lint` runs just this section.
+
+### C1 — ESLint disable directives
+
+The strongest stale-detector is built into ESLint: a disable directive that
+suppresses **nothing** is reported by `--report-unused-disable-directives`.
+
+```bash
+# Stale directives (suppress nothing now) — these are safe to delete:
+pnpm exec eslint . --report-unused-disable-directives 2>&1 | grep -i "unused eslint-disable"
+
+# Full inventory of every disable in source (skip generated/vendored):
+grep -rEn 'eslint-disable' --include='*.ts' --include='*.tsx' --include='*.js' \
+  packages | grep -v node_modules | grep -v routeTree.gen.ts | grep -v '/dist/'
+```
+
+For each live directive, classify before recommending removal — most here are
+**intentional and load-bearing**, not stale:
+
+- **`import/max-dependencies` on a barrel or route page** → intentional; paired
+  with the `reduce-imports` skill's threshold. Keep unless the file's import
+  count has since dropped under 10 (re-run lint without the disable to confirm).
+- **Vendored shadcn/base-ui files** (`combobox.tsx`, `calendar.tsx`,
+  `data-table.tsx`) → intentional; these track upstream and shouldn't be relinted.
+- **A directive `--report-unused-disable-directives` names** → genuinely stale,
+  delete it.
+
+`packages/types/dist/index.js` carrying a disable is **generated output** — ignore
+it; the source `src/index.ts` is the real one.
+
+### C2 — TypeScript suppressions
+
+```bash
+grep -rEn '@ts-(ignore|nocheck|expect-error)' --include='*.ts' --include='*.tsx' \
+  --include='*.js' packages | grep -v node_modules | grep -v '/dist/'
+```
+
+- **`@ts-expect-error` self-detects staleness**: if the line below it no longer
+  errors, `tsc` (and the `@typescript-eslint/ban-ts-comment` rule) flags the
+  directive itself → remove it. So a clean `pnpm typecheck` already proves every
+  `@ts-expect-error` is still load-bearing.
+- **`@ts-ignore` / `@ts-nocheck` are silent** — they suppress whether or not an
+  error exists, so they can rot undetected. To test one: delete it in a scratch
+  worktree and run `pnpm typecheck`; no new error = stale, remove it. (As of
+  writing the repo has **zero** TS suppressions — flag any newly-introduced
+  `@ts-ignore` and prefer converting it to `@ts-expect-error`, which can't rot.)
+
+### C3 — Skipped / focused tests
+
+```bash
+grep -rEn '\b(describe|it|test)\.(skip|only|todo)\b|\b(xit|xdescribe|fit|fdescribe)\b' \
+  --include='*.test.*' --include='*.spec.*' --include='*.stories.tsx' packages | grep -v node_modules
+```
+
+- **`.only` / `fit` / `fdescribe`** → almost always an accident that silently
+  narrows the suite; always flag for removal.
+- **`.skip` / `xit` / `.todo`** → a guard. Find the reason (commit message, a
+  nearby comment, a linked issue). Skip whose cause is fixed → re-enable; skip for
+  a still-broken thing → keep but confirm there's a tracking issue.
+- **npm helper**: `eslint-plugin-vitest`'s `no-disabled-tests` / `no-focused-tests`
+  rules turn these into lint failures so CI catches them automatically — recommend
+  wiring them in if skipped tests keep reappearing.
+
+---
+
+## D. Scope gaps (coverage blind spots)
+
+Not guards-with-a-fix, but the same spirit: a file or test that **no check ever
+runs** is an invisible escape hatch. Report these as findings (no auto-fix —
+they're judgement calls about CI/config policy). Known gaps to verify each run:
+
+- **`tsconfig` excludes** → read each `tsconfig*.json` `exclude`/`include`. Flag
+  excludes that point at a path which no longer exists (e.g. `tsconfig.app.json`'s
+  `exclude: ["./storybook"]` — only `.storybook/` exists), and any source file
+  outside every `include`.
+- **Configs no `typecheck` script invokes** → `pnpm typecheck` only runs
+  `tsconfig.build.json` (types/middleware) and `tsconfig.app.json` (client).
+  `tsconfig.node.json` (which includes `vite.config.ts`) is **never invoked**, so
+  `vite.config.ts` is untypechecked. Confirm: `grep -rn 'tsconfig.node' package.json packages/*/package.json .github/`.
+- **Plain-JS packages with no typecheck** → `packages/gateway/server.js` has no
+  `typecheck` script (by design — plain JS), so it's typecheck-exempt despite
+  being a fallow `security-sink` source. Note it; don't "fix".
+- **Tests absent from CI** → root `pnpm test` runs `pnpm run -r test` (includes
+  middleware's `node --test`), but `.github/workflows/ci.yml` only runs the client
+  `unit-tests` and `storybook` vitest projects. The **middleware `node --test`
+  suite never runs in CI**. Confirm: `grep -n 'middleware' .github/workflows/ci.yml`
+  (only a comment hit = not wired). Also note the `storybook` job is gated by
+  `dorny/paths-filter` — non-client PRs get a green check without running it.
+
+---
+
 ## Output
 
-Produce one report with two sections (or just the scoped half):
+Produce one report with the relevant sections (or just the scoped part):
 
 ```
 ## fallow guards
@@ -175,6 +276,17 @@ Produce one report with two sections (or just the scoped half):
 - OK     packages/x.ts:80        security-sink still fires (reappeared in rescan)
 - STALE  .fallowrc.json:42       ignoreDependencies "foo" — not declared anywhere → remove
 
+## lint / type / test guards
+- STALE  packages/a.tsx:3        eslint-disable no-unused-vars → suppresses nothing (--report-unused) → delete
+- KEEP   packages/b/index.ts:1   eslint-disable import/max-dependencies → cohesive barrel, still >10 imports
+- FLAG   packages/c.test.ts:40   it.only → narrows suite, almost certainly accidental → remove
+- KEEP   packages/d.test.ts:8    it.skip → guards still-broken thing, tracked by #123
+
+## scope gaps
+- GAP    vite.config.ts          untypechecked — tsconfig.node.json never invoked by any script
+- GAP    packages/middleware     node --test suite not run in CI (only client projects run)
+- GAP    tsconfig.app.json:exclude  "./storybook" path doesn't exist (only .storybook/) → vestigial
+
 ## pnpm overrides
 - REDUNDANT  esbuild >=0.28.1  → natural resolves 0.28.5, satisfies; safe to remove
 - KEEP       shell-quote >=1.8.4 → natural resolves 1.7.3 (< constraint); still needed
@@ -182,5 +294,6 @@ Produce one report with two sections (or just the scoped half):
 
 Then hand the user the concrete edits/commands and **ask before applying** any
 removal. If guards are removed, re-run the relevant verifier (`fallow security`,
-`fallow dead-code --stale-suppressions`, or `pnpm install`) to confirm nothing
-regressed, and surface real findings that a stale guard had been masking.
+`fallow dead-code --stale-suppressions`, `pnpm lint`, `pnpm typecheck`,
+`pnpm test`, or `pnpm install`) to confirm nothing regressed, and surface real
+findings that a stale guard had been masking.
