@@ -12,6 +12,7 @@ import { Input } from "@/components/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -72,6 +73,9 @@ export function QuickAddProviderDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>Add Provider</DialogTitle>
+          <DialogDescription>
+            Enter a name and URL to add a new provider.
+          </DialogDescription>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"

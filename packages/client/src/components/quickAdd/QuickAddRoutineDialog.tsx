@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -38,6 +39,9 @@ export function QuickAddRoutineDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>Add Routine</DialogTitle>
+          <DialogDescription>
+            Name your routine and choose whether it repeats weekly or daily.
+          </DialogDescription>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
