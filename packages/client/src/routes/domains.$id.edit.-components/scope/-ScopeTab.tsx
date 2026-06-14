@@ -1,20 +1,15 @@
+import type { IgnoreRowValue } from "./-IgnoreRow";
 import type { Domain, Radar, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Loader2, PlusIcon, TrashIcon } from "lucide-react";
+import { Loader2, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { IgnoreRow } from "./-IgnoreRow";
 import { TopicMultiSelect } from "./-TopicMultiSelect";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createRadarBlip,
@@ -31,22 +26,13 @@ interface ScopeTabProps {
   onChangeStateChange?: (hasChanges: boolean) => void;
 }
 
-// An "ignore" row maps to a radar blip with `isIgnored = true`. `blipId` is
-// absent for rows the user just added (created on save).
-interface IgnoreRow {
-  blipId?: string;
-  topicId: string;
-  reason: string;
-  localKey: string;
-}
-
 let ignoreKeyCounter = 0;
 function nextIgnoreKey() {
   ignoreKeyCounter += 1;
   return `ignore-${ignoreKeyCounter}`;
 }
 
-function buildIgnoreRows(radar: Radar | undefined): IgnoreRow[] {
+function buildIgnoreRows(radar: Radar | undefined): IgnoreRowValue[] {
   return (radar?.blips ?? [])
     .filter(b => b.isIgnored)
     .map(b => ({
@@ -78,7 +64,7 @@ export function ScopeTab({
   const [withinTopicIds, setWithinTopicIds] = useState<string[]>(
     startingWithinTopicIds,
   );
-  const [ignoreRows, setIgnoreRows] = useState<IgnoreRow[]>(() =>
+  const [ignoreRows, setIgnoreRows] = useState<IgnoreRowValue[]>(() =>
     buildIgnoreRows(radar));
   const [isSaving, setIsSaving] = useState(false);
   const lastSavedRef = useRef({
@@ -166,7 +152,7 @@ export function ScopeTab({
     setIgnoreRows(prev => prev.filter(r => r.localKey !== localKey));
   }
 
-  function updateIgnore(localKey: string, patch: Partial<IgnoreRow>) {
+  function updateIgnore(localKey: string, patch: Partial<IgnoreRowValue>) {
     setIgnoreRows(prev =>
       prev.map(r =>
         r.localKey === localKey
@@ -309,76 +295,16 @@ export function ScopeTab({
           </div>
           <ul className="flex flex-col gap-3">
             {ignoreRows.map(row => (
-              <li
+              <IgnoreRow
                 key={row.localKey}
-                className="flex flex-col gap-2 rounded-sm border p-3"
-              >
-                <div
-                  className={`
-                    grid grid-cols-1 gap-2
-                    sm:grid-cols-[minmax(0,1fr)_auto]
-                  `}
-                >
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground uppercase">
-                      Topic
-                    </label>
-                    <Select
-                      value={row.topicId}
-                      onValueChange={value =>
-                        updateIgnore(row.localKey, {
-                          topicId: value,
-                        })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose topic" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {topics
-                          .filter(
-                            t =>
-                              t.id === row.topicId
-                              || (!usedIgnoreTopicIds.has(t.id)
-                                && !withinTopicIds.includes(t.id)
-                                && !onRadarTopicIds.has(t.id)),
-                          )
-                          .map(t => (
-                            <SelectItem
-                              key={t.id}
-                              value={t.id}
-                            >
-                              {t.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-row items-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeIgnore(row.localKey)}
-                      aria-label="Remove ignored topic"
-                    >
-                      <TrashIcon />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground uppercase">
-                    Reason (optional)
-                  </label>
-                  <Textarea
-                    value={row.reason}
-                    onChange={e =>
-                      updateIgnore(row.localKey, {
-                        reason: e.target.value,
-                      })}
-                    placeholder="Why should the radar ignore this topic?"
-                  />
-                </div>
-              </li>
+                row={row}
+                topics={topics}
+                usedIgnoreTopicIds={usedIgnoreTopicIds}
+                withinTopicIds={withinTopicIds}
+                onRadarTopicIds={onRadarTopicIds}
+                onChange={patch => updateIgnore(row.localKey, patch)}
+                onRemove={() => removeIgnore(row.localKey)}
+              />
             ))}
           </ul>
           <div>

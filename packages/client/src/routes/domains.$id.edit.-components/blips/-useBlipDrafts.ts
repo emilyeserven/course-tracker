@@ -5,11 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { toast } from "sonner";
 
-import { BlipsPanel } from "./-BlipsPanel";
-
 import { createRadarBlip, deleteRadarBlip, upsertRadarBlip } from "@/utils";
 
-interface BlipsTabContainerProps {
+interface UseBlipDraftsArgs {
   radar: Radar | undefined;
   topics: TopicForTopicsPage[];
   domainId: string;
@@ -22,12 +20,15 @@ function nextLocalKey() {
   return `local-${localKeyCounter}`;
 }
 
-export function BlipsTabContainer({
+// All the state, derivation, and persistence handlers behind the Blips tab.
+// Extracted from the container so -BlipsTab stays a slim orchestrator that just
+// wires this hook into the presentational <BlipsPanel>.
+export function useBlipDrafts({
   radar,
   topics,
   domainId,
   onSaved,
-}: BlipsTabContainerProps) {
+}: UseBlipDraftsArgs) {
   const [newBlipDrafts, setNewBlipDrafts] = useState<BlipDraft[]>([]);
   const [pendingBlipKey, setPendingBlipKey] = useState<string | null>(null);
 
@@ -285,28 +286,25 @@ export function BlipsTabContainer({
     }
   }
 
-  return (
-    <BlipsPanel
-      allConfigPersisted={allConfigPersisted}
-      savedBlipsForTable={savedBlipsForTable}
-      newBlipDrafts={newBlipDrafts}
-      persistedQuadrants={persistedQuadrants}
-      persistedRings={persistedRings}
-      topics={topics}
-      usedTopicIds={usedTopicIds}
-      pendingBlipKey={pendingBlipKey}
-      topicById={topicById}
-      topicNameById={topicNameById}
-      onAddBlip={addBlipDraft}
-      onChangeBlipTopic={changeBlipTopic}
-      onChangeBlipQuadrant={changeBlipQuadrant}
-      onChangeBlipRing={changeBlipRing}
-      onChangeBlipDescription={changeBlipDescription}
-      onSaveBlip={saveBlip}
-      onRemoveBlip={removeBlip}
-      onTableSave={handleTableSave}
-      onTableRemove={handleTableRemove}
-      onTableBulkSave={handleTableBulkSave}
-    />
-  );
+  return {
+    allConfigPersisted,
+    savedBlipsForTable,
+    newBlipDrafts,
+    persistedQuadrants,
+    persistedRings,
+    usedTopicIds,
+    pendingBlipKey,
+    topicById,
+    topicNameById,
+    addBlipDraft,
+    changeBlipTopic,
+    changeBlipQuadrant,
+    changeBlipRing,
+    changeBlipDescription,
+    saveBlip,
+    removeBlip,
+    handleTableSave,
+    handleTableRemove,
+    handleTableBulkSave,
+  };
 }

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ExistingDomainEditor } from "./domains.$id.edit.-components/-ExistingDomainEditor";
-import { NewDomainForm } from "./domains.$id.edit.-components/-NewDomainForm";
+import { NewDomainForm } from "./domains.$id.edit.-components/details";
 
 const TAB_VALUES = ["details", "scope", "config", "blips", "llm"] as const;
 export type EditTab = (typeof TAB_VALUES)[number];
