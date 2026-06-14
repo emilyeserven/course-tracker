@@ -45,6 +45,7 @@ export function DashboardDailiesBody({
     <DataTable
       columns={buildDailyTrackerColumns({
         dayHeaders,
+        progressLabel: "Prog",
         statusHeadClassName: "p-2 font-medium whitespace-nowrap",
         titleHeadClassName: "w-full",
       })}
