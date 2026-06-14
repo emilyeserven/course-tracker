@@ -5,12 +5,12 @@ import { CalendarCheckIcon, ListTodoIcon } from "lucide-react";
 import { OverviewCardGrid, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchRoutines, fetchTasks } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 import {
   routineConnectionCount,
   taskConnectionCount,
-  topConnected,
-} from "@/utils/topConnected";
+} from "@/utils/connectionCounts";
+import { queryKeys } from "@/utils/queryKeys";
+import { topConnected } from "@/utils/topConnected";
 
 export const Route = createFileRoute("/actions")({
   component: Actions,

@@ -5,8 +5,9 @@ import { RadarIcon } from "lucide-react";
 import { OverviewCardGrid, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchDomains } from "@/utils";
+import { domainConnectionCount } from "@/utils/connectionCounts";
 import { queryKeys } from "@/utils/queryKeys";
-import { domainConnectionCount, topConnected } from "@/utils/topConnected";
+import { topConnected } from "@/utils/topConnected";
 
 export const Route = createFileRoute("/plans")({
   component: Plans,

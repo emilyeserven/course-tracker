@@ -5,13 +5,13 @@ import { BookOpenIcon, Building2Icon, LightbulbIcon } from "lucide-react";
 import { OverviewCardGrid, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchProviders, fetchResources, fetchTopics } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 import {
   providerConnectionCount,
   resourceConnectionCount,
-  topConnected,
   topicConnectionCount,
-} from "@/utils/topConnected";
+} from "@/utils/connectionCounts";
+import { queryKeys } from "@/utils/queryKeys";
+import { topConnected } from "@/utils/topConnected";
 
 export const Route = createFileRoute("/records")({
   component: Records,
