@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
+
+import { DomainLinkList } from "./topics.$id.-components/-DomainLinkList";
+import { RoutineLinkList } from "./topics.$id.-components/-RoutineLinkList";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import {
@@ -80,27 +83,7 @@ function SingleTopic() {
             header="Domains"
             condition={!!data?.domains && data.domains.length > 0}
           >
-            <ul className="ml-5 list-disc">
-              {data?.domains
-                && data.domains
-                  .filter(domain => domain.id !== undefined)
-                  .map(domain => (
-                    <li key={domain.id}>
-                      <Link
-                        to="/domains/$id"
-                        params={{
-                          id: domain.id + "",
-                        }}
-                        className={`
-                          font-bold text-blue-800
-                          hover:text-blue-600
-                        `}
-                      >
-                        {domain.title}
-                      </Link>
-                    </li>
-                  ))}
-            </ul>
+            <DomainLinkList domains={data?.domains ?? []} />
           </InfoArea>
         </div>
         <ResourceLinksSection
@@ -112,24 +95,7 @@ function SingleTopic() {
             header="Routines"
             condition={linkedRoutines.length > 0}
           >
-            <ul className="ml-5 list-disc">
-              {linkedRoutines.map(r => (
-                <li key={r.id}>
-                  <Link
-                    to="/routines/$id"
-                    params={{
-                      id: r.id,
-                    }}
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                    `}
-                  >
-                    {r.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <RoutineLinkList routines={linkedRoutines} />
           </InfoArea>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { EditIcon, PlusIcon } from "lucide-react";
+import { EditIcon } from "lucide-react";
+
+import { LinkedRoutinesSection } from "./tasks.$id.-components/-LinkedRoutinesSection";
 
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
@@ -81,64 +83,10 @@ function SingleTask() {
           header="Routines"
           condition={true}
         >
-          {linkedRoutines.length > 0
-            ? (
-              <ul className="flex flex-col gap-2">
-                {linkedRoutines.map(r => (
-                  <li
-                    key={r.id}
-                    className="
-                      flex flex-row items-center justify-between gap-2
-                      rounded-md border bg-card p-3
-                    "
-                  >
-                    <Link
-                      to="/routines/$id"
-                      params={{
-                        id: r.id,
-                      }}
-                      className="
-                        font-medium
-                        hover:text-blue-600
-                      "
-                    >
-                      {r.name}
-                    </Link>
-                    <span className="text-xs text-muted-foreground">
-                      {r.mode === "daily" ? "Daily" : "Weekly"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )
-            : (
-              <div
-                className="
-                  flex flex-row items-center justify-between gap-2 rounded-md
-                  border border-dashed bg-card p-4
-                "
-              >
-                <span className="text-sm text-muted-foreground">
-                  No routines include this task.
-                </span>
-                <Link
-                  to="/routines/$id/edit"
-                  params={{
-                    id: "new",
-                  }}
-                  search={{
-                    mode: "daily",
-                    entryType: "task",
-                    entryId: data.id,
-                  }}
-                >
-                  <Button>
-                    <PlusIcon />
-                    Create Routine for this Task
-                  </Button>
-                </Link>
-              </div>
-            )}
+          <LinkedRoutinesSection
+            routines={linkedRoutines}
+            taskId={data.id}
+          />
         </InfoArea>
         <InfoArea
           header="Topic"

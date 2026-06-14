@@ -1,12 +1,11 @@
-import type { DomainTopic } from "@emstack/types";
-
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon, RadarIcon } from "lucide-react";
 
+import { ExcludedTopicsList } from "./domains.$id.-components/-ExcludedTopicsList";
 import { RadarChart } from "./domains.$id.-components/-RadarChart";
+import { TopicLinkList } from "./domains.$id.-components/-TopicLinkList";
 
-import { EntityLink } from "@/components/boxElements";
 import { EntityError, EntityPending } from "@/components/EntityStates";
 import { InfoArea, PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -15,37 +14,6 @@ import { fetchRadar, fetchSingleDomain } from "@/utils";
 export const Route = createFileRoute("/domains/$id/")({
   component: SingleDomain,
 });
-
-/** Bulleted list of topic links with an optional course count. */
-function TopicLinkList({
-  topics,
-}: { topics: DomainTopic[] }) {
-  return (
-    <ul className="ml-5 list-disc">
-      {topics.map(topic => (
-        <li key={topic.id}>
-          <EntityLink
-            entity="topics"
-            id={String(topic.id)}
-            className="
-              font-bold text-blue-800
-              hover:text-blue-600
-            "
-          >
-            {topic.name}
-          </EntityLink>
-          {topic.courses && topic.courses.length > 0 && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              ({topic.courses.length}
-              {" course"}
-              {topic.courses.length === 1 ? "" : "s"})
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function SingleDomain() {
   const {
@@ -191,29 +159,7 @@ function SingleDomain() {
           header="Topics excluded from Radar"
           condition={excludedTopics.length > 0}
         >
-          <ul className="ml-5 flex list-disc flex-col gap-1">
-            {excludedTopics.map(topic => (
-              <li key={topic.id}>
-                <Link
-                  to="/topics/$id"
-                  params={{
-                    id: topic.id,
-                  }}
-                  className={`
-                    font-bold text-blue-800
-                    hover:text-blue-600
-                  `}
-                >
-                  {topic.name}
-                </Link>
-                {topic.reason && (
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    — {topic.reason}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <ExcludedTopicsList topics={excludedTopics} />
         </InfoArea>
       </div>
     </div>
