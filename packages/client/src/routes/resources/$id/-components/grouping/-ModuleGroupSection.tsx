@@ -72,7 +72,10 @@ function PageRange({
   );
 }
 
-/** The group title — a link when it carries an http(s) url, plain text otherwise. */
+/**
+ * The group title — plain text (the external link, when present, is its own
+ * button in the header controls). A non-http url is surfaced as a tooltip.
+ */
 function GroupTitle({
   group: g,
 }: { group: ModuleGroup }) {
@@ -82,15 +85,7 @@ function GroupTitle({
       end={g.pageEnd}
     />
   );
-  if (!g.url) {
-    return (
-      <>
-        {g.name}
-        {pages}
-      </>
-    );
-  }
-  if (!isHttpUrl(g.url)) {
+  if (g.url && !isHttpUrl(g.url)) {
     return (
       <>
         <span title={g.url}>{g.name}</span>
@@ -100,17 +95,7 @@ function GroupTitle({
   }
   return (
     <>
-      <a
-        href={g.url}
-        target="_blank"
-        rel="noreferrer"
-        className="hover:text-blue-600"
-        onClick={e => e.stopPropagation()}
-      >
-        {g.name}
-        {" "}
-        <ExternalLinkIcon className="inline size-3.5" />
-      </a>
+      {g.name}
       {pages}
     </>
   );
@@ -128,7 +113,6 @@ function GroupStatusBadge({
       className={cn(
         `
           inline-flex size-5 shrink-0 items-center justify-center rounded-full
-          border-2
           [&_svg]:size-3.5
         `,
         option.circleClass,
@@ -259,6 +243,24 @@ function GroupHeaderControls({
       >
         <PencilIcon className="size-3.5" />
       </Button>
+      {g.url && isHttpUrl(g.url) && (
+        <Button
+          asChild
+          size="icon-sm"
+          variant="ghost"
+          aria-label={`Open link for ${g.name}`}
+          title="Open link"
+        >
+          <a
+            href={g.url}
+            target="_blank"
+            rel="noreferrer"
+            onClick={e => e.stopPropagation()}
+          >
+            <ExternalLinkIcon className="size-3.5" />
+          </a>
+        </Button>
+      )}
     </div>
   );
 }
@@ -457,10 +459,10 @@ export function ModuleGroupSection({
                   <ChevronDownIcon className="size-4" />
                 )}
             </button>
+            <GroupStatusBadge status={groupStatus} />
             <h3 className="font-medium">
               <GroupTitle group={g} />
             </h3>
-            <GroupStatusBadge status={groupStatus} />
           </div>
           {g.description && (
             <span className="text-xs text-muted-foreground">
