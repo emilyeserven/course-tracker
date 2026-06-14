@@ -297,3 +297,35 @@ assert with `findBy*`. `ResourcesTable` drives the `useTaskResources` hook
 only needs `QueryStub` (it calls `useQueryClient`/`useMutation`, no reads).
 `ResourceLinkInput` in `ResourceLinksPicker` is a non-exported local interface —
 `Meta<typeof X>` checks the `value` literals structurally, so no export needed.
+
+### route-private (#363)
+All `routes/*.-components/*` leaves covered (dashboard 16, settings 11, the three
+remaining `domains.$id.edit`, routines-edit 5, routines.$id 2, routines.tracker 1,
+topics.$id.edit 1). The issue's per-folder counts were a stale snapshot —
+`domains.$id.edit` was already 8/11 stored, so re-inventory before starting. New
+fixtures: **`dashboardFixtures.ts`** (`makeTile(tileId, overrides)` →
+`DashboardLayoutTile`), **`settingsFixtures.ts`** (`makeAppSettings`,
+`makeTaskType`, `makeCalendarFeed`, `makeLayout`), **`templatesFixtures.ts`**
+(`makeCriteriaTemplate` only — routine templates already live in
+`routinesFixtures.makeRoutineTemplate`; don't re-add). Key patterns:
+**Dashboard tiles** take `DashboardTileProps` (`tile` + `onUpdateTile`) but
+**self-fetch**, so they're Tier B not Tier A: nest `RouterStub > QueryStub` and
+seed each tile's key (`["domains"]`, `["resources"]`+`["dailies"]`, `["providers"]`,
+…) on a `staleTime: Infinity` client. **Integration tiles**
+(`-DashboardReadwise`/`-DashboardTodoist`/`-DashboardGoogleCalendar`) cover both
+branches without fabricating full API payloads: seed `{ configured: false, …[] }`
+for the connect-prompt and `{ configured: true, …[] }` for the configured-empty
+state — `setQueryData` on an untyped/`as const` key takes a plain object, so no
+payload-type import. `-DashboardChangelog` is pure render-only (build-time
+`@root/CHANGELOG.md`, no decorators). **`-DashboardDailiesBody`** and
+**`-TrackerTables`** take a whole hook-return bundle (`DashboardDailiesData` /
+`RoutineTrackerState`): build it inline and cast `as unknown as <T>`, stubbing
+`mutation` as `{ isPending: false, mutate: fn() }`. **Route-shell-like leaves**
+(`-ExistingDomainEditor`, `-TopicForm`) are storied by seeding their `useEditFormPage`
++ list queries plus a loading/unseeded variant — `useEditFormPage`'s detail query
+is `enabled: !isNew`, so the `isNew`/New story skips the detail seed.
+`-ThemeSection` needs `ThemeProvider` (`@/context/ThemeProvider`). `useSettings`
+needs `SettingsProvider` but never fetches (local state), so no seeding. Watch
+ambiguous `getByText`: "Weekly Schedule" (Type-tile value **and** schedule header)
+and "Cost per Unit" (card title **and** column header) both match twice — assert on
+a unique `role`/`tab`/count signal instead.
