@@ -10,6 +10,7 @@ export * from "./formatCurrency";
 export * from "./formHasChanges";
 export * from "./isHttpUrl";
 export * from "./makePercentageComplete";
+export * from "./moduleProgress";
 export * from "./parseCost";
 export * from "./queryKeys";
 export * from "./routineConnections";

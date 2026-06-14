@@ -2,10 +2,12 @@
 // route-private pieces plus the shared dialogs/chrome it composes. Members
 // import their own dependencies directly (never this index), so this re-export
 // barrel introduces no cycle.
-export { AddLayoutDialog } from "./-AddLayoutDialog";
-export { DashboardGrid } from "./-DashboardGrid";
-export { VisibleTilesDialog } from "./-VisibleTilesDialog";
-export { LayoutTab } from "./-LayoutTab";
+export {
+  AddLayoutDialog,
+  DashboardGrid,
+  LayoutTab,
+  VisibleTilesDialog,
+} from "./layout";
 export {
   buildDefaultTiles,
   needsNormalization,

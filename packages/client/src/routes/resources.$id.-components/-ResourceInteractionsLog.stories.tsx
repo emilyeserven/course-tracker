@@ -135,8 +135,10 @@ export const WithRoutineInteractions: Story = {
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    // The routine completion renders its routine, action, and note.
-    await expect(canvas.getByText("routine: Daily Spanish")).toBeInTheDocument();
+    // The routine completion renders its routine name (plain text, far right),
+    // its status as an icon (label conveyed via title), action, and note.
+    await expect(canvas.getByText("Daily Spanish")).toBeInTheDocument();
+    await expect(canvas.getByTitle("Goal")).toBeInTheDocument();
     await expect(
       canvas.getByText("Review Spanish flashcards"),
     ).toBeInTheDocument();

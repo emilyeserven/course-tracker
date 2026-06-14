@@ -3,12 +3,12 @@ import type { GoogleCalendarEvent } from "@emstack/types";
 
 import { useQuery } from "@tanstack/react-query";
 
+import { formatEventTime, groupEventsByDay } from "./-googleCalendarAgenda";
 import {
   DashboardIntegrationCard,
   queryKeys,
   SettingsLink,
-} from "./-cardKit";
-import { formatEventTime, groupEventsByDay } from "./-googleCalendarAgenda";
+} from "../shared/-cardKit";
 
 import { fetchGoogleCalendarEvents } from "@/utils";
 

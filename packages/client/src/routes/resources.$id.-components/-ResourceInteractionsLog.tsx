@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import { PencilIcon, PlusIcon } from "lucide-react";
 
+import { DailyStatusCircle } from "@/components/dailies/DailyStatusCircle";
 import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import { EditFormActions } from "@/components/layout/EditFormActions";
 import {
@@ -287,19 +288,12 @@ function RoutineInteractionRow({
   return (
     <li className="flex flex-col gap-1 p-3">
       <div className="flex flex-wrap items-center gap-2">
+        <DailyStatusCircle
+          status={item.status}
+          size="sm"
+          title={statusOption.label}
+        />
         <span className="text-sm font-medium">{item.date}</span>
-        <Badge
-          variant="outline"
-          className={statusOption.pillClass}
-        >
-          {statusOption.label}
-        </Badge>
-        <Badge
-          variant="outline"
-          className="border-blue-200 bg-blue-50 text-blue-900"
-        >
-          routine: {item.routineName}
-        </Badge>
         {item.via === "task" && (
           <Badge
             variant="outline"
@@ -308,6 +302,7 @@ function RoutineInteractionRow({
             via task
           </Badge>
         )}
+        <span className="ml-auto text-sm">{item.routineName}</span>
       </div>
       {showAction && (
         <p className="text-sm text-muted-foreground">{item.actionLabel}</p>

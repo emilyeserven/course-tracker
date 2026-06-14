@@ -1,16 +1,22 @@
 import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { DashboardTileId } from "@emstack/types";
 
-import { DashboardChangelog } from "./-DashboardChangelog";
-import { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";
-import { DashboardCoursesInProgress } from "./-DashboardCoursesInProgress";
-import { DashboardDoneForDay, DashboardDoNow } from "./-DashboardDailies";
-import { DashboardExplore } from "./-DashboardExplore";
-import { DashboardGoogleCalendar } from "./-DashboardGoogleCalendar";
-import { DashboardRadars } from "./-DashboardRadars";
-import { DashboardReadwise } from "./-DashboardReadwise";
-import { DashboardTodoist } from "./-DashboardTodoist";
-import { DashboardUnderutilizedProviders } from "./-DashboardUnderutilizedProviders";
+import {
+  DashboardCoursesByAmortization,
+  DashboardCoursesInProgress,
+  DashboardUnderutilizedProviders,
+} from "./courses";
+import { DashboardDoneForDay, DashboardDoNow } from "./dailies";
+import {
+  DashboardChangelog,
+  DashboardExplore,
+  DashboardRadars,
+} from "./insights";
+import {
+  DashboardGoogleCalendar,
+  DashboardReadwise,
+  DashboardTodoist,
+} from "./integrations";
 
 export const TILE_COMPONENTS: Record<
   DashboardTileId,
