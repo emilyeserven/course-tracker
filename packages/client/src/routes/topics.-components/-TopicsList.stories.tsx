@@ -1,12 +1,13 @@
 import type { Domain } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { TopicsList } from "./-TopicsList";
 
 import { makeTopics } from "@/test-utils/radarFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokeText, playTableViewToggle } from "@/test-utils/storyPlay";
 
 const topics = makeTopics(4);
 
@@ -30,13 +31,7 @@ const meta: Meta<typeof TopicsList> = {
     domains,
     onBulkDelete: fn(() => Promise.resolve()),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator()],
   // Reset persisted view-mode so each story starts in card view.
   beforeEach: () => {
     window.localStorage.clear();
@@ -48,12 +43,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Kubernetes")).toBeInTheDocument();
-  },
+  play: smokeText("Kubernetes"),
 };
 
 export const Empty: Story = {
@@ -61,24 +51,9 @@ export const Empty: Story = {
     topics: [],
     domains: [],
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("No courses yet!")).toBeInTheDocument();
-  },
+  play: smokeText("No courses yet!"),
 };
 
 export const TableView: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", {
-        name: "Table view",
-      }),
-    );
-    await expect(canvas.getByRole("table")).toBeInTheDocument();
-  },
+  play: playTableViewToggle,
 };

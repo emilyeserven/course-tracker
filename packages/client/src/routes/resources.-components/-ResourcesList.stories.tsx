@@ -1,12 +1,11 @@
 import type { CourseProvider, ResourceInResources } from "@emstack/types";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, userEvent, within } from "storybook/test";
-
 import { ResourcesList } from "./-ResourcesList";
 
 import { makeTopics } from "@/test-utils/radarFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { cardStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokeText, playTableViewToggle } from "@/test-utils/storyPlay";
 
 const cost = {
   cost: "100",
@@ -66,13 +65,7 @@ const meta: Meta<typeof ResourcesList> = {
     providers,
     topics,
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [cardStoryDecorator()],
   // Reset persisted view-mode so each story starts in grid view.
   beforeEach: () => {
     window.localStorage.clear();
@@ -84,13 +77,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("React Fundamentals")).toBeInTheDocument();
-    await expect(canvas.getByText("Advanced TypeScript")).toBeInTheDocument();
-  },
+  play: smokeText("React Fundamentals", "Advanced TypeScript"),
 };
 
 export const Empty: Story = {
@@ -99,24 +86,9 @@ export const Empty: Story = {
     providers: [],
     topics: [],
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("No resources yet!")).toBeInTheDocument();
-  },
+  play: smokeText("No resources yet!"),
 };
 
 export const TableView: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", {
-        name: "Table view",
-      }),
-    );
-    await expect(canvas.getByRole("table")).toBeInTheDocument();
-  },
+  play: playTableViewToggle,
 };
