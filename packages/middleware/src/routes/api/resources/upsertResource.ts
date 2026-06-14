@@ -1,6 +1,17 @@
+import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { resources, resourceTags, topicsToResources } from "@/db/schema";
+import { db } from "@/db";
+import {
+  courseProviders,
+  resources,
+  resourceTags,
+  topicsToResources,
+} from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
+import {
+  resolveCourseProviderId,
+  selfProviderError,
+} from "./resourceProviderSelf";
 import {
   courseStatusEnum,
   nullableBoolean,
@@ -23,6 +34,7 @@ interface CourseBody {
   isExpires?: boolean | null;
   topicId?: string | null;
   courseProviderId?: string | null;
+  providerIsSelf?: boolean;
   modulesAreExhaustive?: boolean;
   easeOfStarting?: "low" | "medium" | "high" | null;
   timeNeeded?: "low" | "medium" | "high" | null;
@@ -42,6 +54,7 @@ const updateableColumns = [
   "dateExpires",
   "isExpires",
   "courseProviderId",
+  "providerIsSelf",
   "modulesAreExhaustive",
   "easeOfStarting",
   "timeNeeded",
@@ -51,6 +64,7 @@ const updateableColumns = [
 export default createUpsertHandler<CourseBody>({
   description: "Create or update a resource",
   table: resources,
+  validate: selfProviderError,
   bodySchema: {
     type: "object",
     required: ["name"],
@@ -71,6 +85,9 @@ export default createUpsertHandler<CourseBody>({
       isExpires: nullableBoolean,
       topicId: nullableString,
       courseProviderId: nullableString,
+      providerIsSelf: {
+        type: "boolean",
+      },
       modulesAreExhaustive: {
         type: "boolean",
       },
@@ -92,7 +109,8 @@ export default createUpsertHandler<CourseBody>({
     isCostFromPlatform: body.isCostFromPlatform ?? false,
     dateExpires: body.dateExpires ?? null,
     isExpires: body.isExpires ?? null,
-    courseProviderId: body.courseProviderId ?? null,
+    courseProviderId: resolveCourseProviderId(body, id),
+    providerIsSelf: body.providerIsSelf ?? false,
     modulesAreExhaustive: body.modulesAreExhaustive ?? false,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
@@ -101,6 +119,31 @@ export default createUpsertHandler<CourseBody>({
   updateableColumns,
   generateIdIfMissing: true,
   returnId: true,
+  // Keep the self-provider in lockstep with the resource. The provider shares
+  // the resource's id, so the upsert re-syncs its title (name) + location (url)
+  // on every save; clearing the flag removes the auto-created provider (only a
+  // self-provider can share this id, so the delete is targeted).
+  afterUpsert: async (body, id) => {
+    if (body.providerIsSelf && body.url) {
+      await db
+        .insert(courseProviders)
+        .values({
+          id,
+          name: body.name,
+          url: body.url,
+        })
+        .onConflictDoUpdate({
+          target: courseProviders.id,
+          set: {
+            name: body.name,
+            url: body.url,
+          },
+        });
+    }
+    else {
+      await db.delete(courseProviders).where(eq(courseProviders.id, id));
+    }
+  },
   junctions: [
     {
       table: topicsToResources,
