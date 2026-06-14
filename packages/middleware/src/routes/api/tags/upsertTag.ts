@@ -1,13 +1,9 @@
+import type { Tag } from "@emstack/types";
 import { tags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { nullableInteger, nullableString } from "@/utils/schemas";
 
-interface TagBody {
-  name: string;
-  groupId: string;
-  color?: string | null;
-  position?: number | null;
-}
+type TagBody = Omit<Tag, "id">;
 
 const updateableColumns = ["name", "groupId", "color", "position"] as const;
 

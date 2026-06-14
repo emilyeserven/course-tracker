@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
+import type { TaskResourceLink } from "@emstack/types";
+
 import {
   nullableString,
   resourceLinksArraySchema,
@@ -16,11 +18,10 @@ export interface TopicBodyFields {
   reason?: string | null;
 }
 
-export interface TopicResourceLinkInput {
-  resourceId: string;
-  moduleGroupId?: string | null;
-  moduleId?: string | null;
-}
+export type TopicResourceLinkInput = Pick<
+  TaskResourceLink,
+  "resourceId" | "moduleGroupId" | "moduleId"
+>;
 
 export interface TopicBody extends TopicBodyFields {
   domainIds?: string[];
