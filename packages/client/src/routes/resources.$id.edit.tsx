@@ -160,7 +160,7 @@ function SingleResourceEdit() {
                 content: (
                   <ResourceModulesAdmin
                     resourceId={id}
-                    modulesAreExhaustive={data?.modulesAreExhaustive}
+                    canEditExhaustive
                   />
                 ),
               },

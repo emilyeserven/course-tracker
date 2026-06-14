@@ -116,7 +116,6 @@ function SingleCourse() {
             content: (
               <ResourceModulesAdmin
                 resourceId={id}
-                modulesAreExhaustive={data?.modulesAreExhaustive}
               />
             ),
           },

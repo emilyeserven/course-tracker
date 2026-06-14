@@ -22,6 +22,7 @@ interface ResourceProjectionRow {
   progressTotal: number | null;
   status: Resource["status"] | null;
   providerIsSelf: boolean | null;
+  modulesAreExhaustive: boolean | null;
   easeOfStarting: Resource["easeOfStarting"];
   timeNeeded: Resource["timeNeeded"];
   interactivity: Resource["interactivity"];
@@ -48,6 +49,7 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
     progressTotal: resource.progressTotal ? resource.progressTotal : 0,
     status: resource.status ?? "inactive",
     providerIsSelf: resource.providerIsSelf ?? false,
+    modulesAreExhaustive: resource.modulesAreExhaustive ?? false,
     topics: processResourceLinks(resource.topicsToResources, "topic"),
     provider: toProviderBlock(resource.courseProvider),
     easeOfStarting: resource.easeOfStarting ?? null,

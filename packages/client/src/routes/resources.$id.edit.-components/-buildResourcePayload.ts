@@ -14,7 +14,6 @@ export const formSchema = z.object({
   topicId: z.string(),
   courseProviderId: z.string(),
   providerIsSelf: z.boolean(),
-  modulesAreExhaustive: z.boolean(),
   easeOfStarting: z.enum(["", "low", "medium", "high"]),
   timeNeeded: z.enum(["", "low", "medium", "high"]),
   interactivity: z.enum(["", "low", "medium", "high"]),
@@ -39,7 +38,6 @@ export interface ResourceFormValues {
   topicId: string;
   courseProviderId: string;
   providerIsSelf: boolean;
-  modulesAreExhaustive: boolean;
   easeOfStarting: string;
   timeNeeded: string;
   interactivity: string;
@@ -90,7 +88,6 @@ export function buildResourcePayload(
     topicId: value.topicId || null,
     courseProviderId: value.courseProviderId || null,
     providerIsSelf: value.providerIsSelf,
-    modulesAreExhaustive: value.modulesAreExhaustive,
     easeOfStarting: value.easeOfStarting || null,
     timeNeeded: value.timeNeeded || null,
     interactivity: value.interactivity || null,

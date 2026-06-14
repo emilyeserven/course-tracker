@@ -9,12 +9,13 @@ import { useResourceModules } from "@/hooks/useResourceModules";
 
 interface Props {
   resourceId: string;
-  modulesAreExhaustive?: boolean;
+  /** When true, show the editable "module list is exhaustive" toggle. */
+  canEditExhaustive?: boolean;
 }
 
 export function ResourceModulesAdmin({
   resourceId,
-  modulesAreExhaustive,
+  canEditExhaustive,
 }: Props) {
   const api = useResourceModules(resourceId);
   const ui = useModuleAdminUiState();
@@ -36,7 +37,7 @@ export function ResourceModulesAdmin({
     <div className="flex flex-col gap-4">
       <ModuleAdminHeader
         resourceId={resourceId}
-        modulesAreExhaustive={modulesAreExhaustive}
+        canEditExhaustive={canEditExhaustive}
         api={api}
         ui={ui}
       />
