@@ -23,6 +23,13 @@ function calendar(...vevents: string[]): string {
   ].join("\r\n");
 }
 
+const RANGE_START = new Date("2026-06-14T00:00:00Z");
+const RANGE_END = new Date("2026-06-28T00:00:00Z");
+
+function expand(ics: string, end: Date = RANGE_END) {
+  return expandIcsToEvents(ics, RANGE_START, end, FEED);
+}
+
 test("expandIcsToEvents maps a single timed event in range", () => {
   const ics = calendar(
     [
@@ -36,12 +43,7 @@ test("expandIcsToEvents maps a single timed event in range", () => {
       "END:VEVENT",
     ].join("\r\n"),
   );
-  const events = expandIcsToEvents(
-    ics,
-    new Date("2026-06-14T00:00:00Z"),
-    new Date("2026-06-28T00:00:00Z"),
-    FEED,
-  );
+  const events = expand(ics);
   assert.strictEqual(events.length, 1);
   assert.strictEqual(events[0].summary, "One off");
   assert.strictEqual(events[0].allDay, false);
@@ -62,12 +64,7 @@ test("expandIcsToEvents flags all-day events with a date-only start", () => {
       "END:VEVENT",
     ].join("\r\n"),
   );
-  const events = expandIcsToEvents(
-    ics,
-    new Date("2026-06-14T00:00:00Z"),
-    new Date("2026-06-28T00:00:00Z"),
-    FEED,
-  );
+  const events = expand(ics);
   assert.strictEqual(events.length, 1);
   assert.strictEqual(events[0].allDay, true);
   assert.strictEqual(events[0].start, "2026-06-16");
@@ -87,12 +84,7 @@ test("expandIcsToEvents expands a weekly recurrence within the window", () => {
       "END:VEVENT",
     ].join("\r\n"),
   );
-  const events = expandIcsToEvents(
-    ics,
-    new Date("2026-06-14T00:00:00Z"),
-    new Date("2026-07-05T00:00:00Z"),
-    FEED,
-  );
+  const events = expand(ics, new Date("2026-07-05T00:00:00Z"));
   assert.strictEqual(events.length, 3);
   assert.ok(events.every(e => e.summary === "Standup"));
   // Distinct occurrences a week apart.

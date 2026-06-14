@@ -4,6 +4,10 @@ import { DASHBOARD_TILE_IDS } from "@emstack/types";
 import { describe, expect, test } from "vitest";
 
 import {
+  expectTilesRespectMinSize,
+  tilesOverlap,
+} from "@/test-utils/dashboardTileAssertions";
+import {
   buildDefaultTiles,
   layoutItemsToTiles,
   needsNormalization,
@@ -16,12 +20,6 @@ import {
   TILE_META,
   toggleTile,
 } from "./dashboardTiles";
-
-function overlaps(a: DashboardLayoutTile, b: DashboardLayoutTile): boolean {
-  return (
-    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
-  );
-}
 
 describe("buildDefaultTiles", () => {
   test("contains every tile exactly once", () => {
@@ -46,16 +44,13 @@ describe("buildDefaultTiles", () => {
       expect(tile.x + tile.w).toBeLessThanOrEqual(4);
       for (const other of tiles) {
         if (other.tileId === tile.tileId) continue;
-        expect(overlaps(tile, other)).toBe(false);
+        expect(tilesOverlap(tile, other)).toBe(false);
       }
     }
   });
 
   test("respects each tile's minimum size", () => {
-    for (const tile of buildDefaultTiles()) {
-      expect(tile.w).toBeGreaterThanOrEqual(TILE_META[tile.tileId].minW);
-      expect(tile.h).toBeGreaterThanOrEqual(TILE_META[tile.tileId].minH);
-    }
+    expectTilesRespectMinSize(buildDefaultTiles());
   });
 });
 
