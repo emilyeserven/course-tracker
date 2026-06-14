@@ -1,3 +1,4 @@
+import type { TaskResourceLevel } from "@emstack/types";
 import { moduleGroups, moduleGroupTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import {
@@ -15,9 +16,9 @@ interface ModuleGroupBody {
   position?: number | null;
   totalCount?: number | null;
   completedCount?: number | null;
-  easeOfStarting?: "low" | "medium" | "high" | null;
-  timeNeeded?: "low" | "medium" | "high" | null;
-  interactivity?: "low" | "medium" | "high" | null;
+  easeOfStarting?: TaskResourceLevel | null;
+  timeNeeded?: TaskResourceLevel | null;
+  interactivity?: TaskResourceLevel | null;
   tagIds?: string[];
 }
 
