@@ -18,6 +18,10 @@ The single source of truth for cross-package shapes is **`packages/types/src/`**
 (`@emstack/types`). The client and middleware both consume it; local
 re-declarations drift. Most condensing is pulling things back toward that.
 
+> _Types named below (e.g. `BlipLegendHandlers`, `RadarQuadrant`) are
+> illustrations from earlier runs of this skill — they show the **shape** of a
+> fix, not required targets. Apply the method to whatever's in your scope._
+
 ## 1. Inventory the target area
 
 List every type/interface in scope and where each is used:
@@ -77,8 +81,8 @@ interface they each `extend`. Adding/changing a field then touches one place.
   (`*Payload`, `BulkBlipEntry`) deliberately differ from persisted shapes.
   Leave them.
 - **Don't force an `extends` when a member is sourced differently.** Verify the
-  candidate actually *receives* every base field. `RadarLegend` looked like it
-  could extend `BlipLegendHandlers`, but it builds `registerRef` internally
+  candidate actually *receives* every base field. Example: `RadarLegend` looked
+  like it could extend `BlipLegendHandlers`, but it builds `registerRef` internally
   (`useCallback`) rather than taking it as a prop — so it shares the callbacks
   but not the full set. The typecheck catches this; if forcing the fit needs
   ever-smaller tiers, stop and leave it separate.
