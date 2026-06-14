@@ -83,6 +83,30 @@ export default createUpsertHandler<ModuleGroupBody>({
     interactivity: body.interactivity ?? null,
   }),
   updateableColumns,
+  // Partial merge: only write columns the request actually carries, so a save
+  // that omits a field never resets it. `position` is owned by the reorder flow
+  // — clobbering it to null sorts the group to the end of the list.
+  buildSetClause: (body, row) => {
+    const provided: Record<string, boolean> = {
+      name: body.name !== undefined,
+      resourceId: body.resourceId !== undefined,
+      description: body.description !== undefined,
+      url: body.url !== undefined,
+      position: body.position !== undefined,
+      totalCount: body.totalCount !== undefined,
+      completedCount: body.completedCount !== undefined,
+      pageStart: body.pageStart !== undefined,
+      pageEnd: body.pageEnd !== undefined,
+      easeOfStarting: body.easeOfStarting !== undefined,
+      timeNeeded: body.timeNeeded !== undefined,
+      interactivity: body.interactivity !== undefined,
+    };
+    const set: Record<string, unknown> = {};
+    for (const col of updateableColumns) {
+      if (provided[col]) set[col] = row[col];
+    }
+    return set;
+  },
   junctions: [
     {
       table: moduleGroupTags,
