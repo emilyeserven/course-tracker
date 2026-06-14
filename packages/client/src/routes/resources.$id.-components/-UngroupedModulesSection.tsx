@@ -1,5 +1,4 @@
-import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
-import type { ResourceModulesController } from "@/hooks/useResourceModules";
+import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 
 import { ModuleListItem } from "./-ModuleListItem";
 
@@ -7,11 +6,7 @@ import { ModuleEditCard } from "@/components/resources/moduleAdminComponents";
 import { emptyModuleDraft } from "@/components/resources/moduleDrafts";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
 
-interface UngroupedModulesSectionProps {
-  resourceId: string;
-  api: ResourceModulesController;
-  ui: ModuleAdminUiState;
-}
+type UngroupedModulesSectionProps = ModuleAdminSectionProps;
 
 /**
  * The top-level "Ungrouped" block: an optional inline create card plus the list

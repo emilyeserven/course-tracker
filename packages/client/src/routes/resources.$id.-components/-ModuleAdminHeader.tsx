@@ -1,5 +1,4 @@
-import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
-import type { ResourceModulesController } from "@/hooks/useResourceModules";
+import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 
 import { PlusIcon, SparklesIcon } from "lucide-react";
 
@@ -8,11 +7,8 @@ import { ModuleAssistDialog } from "./-ModuleAssistDialog";
 import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
 
-interface ModuleAdminHeaderProps {
-  resourceId: string;
+interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
   modulesAreExhaustive?: boolean;
-  api: ResourceModulesController;
-  ui: ModuleAdminUiState;
 }
 
 /**
