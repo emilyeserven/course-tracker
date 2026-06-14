@@ -240,3 +240,23 @@ primitives are pure Tier A; `CourseFields` takes a whole `form`, so its story us
 a tiny inline wrapper that builds the form and casts it
 (`as unknown as ReturnType<typeof useAppForm>`, mirroring the onboarding route)
 and types the meta against the wrapper to keep the required `form` out of args.
+
+### tasks (#357)
+All 9 `components/tasks/*` stored. Added **`test-utils/tasksFixtures.ts`**
+(`makeTaskResource`, `makeTaskTodo`, `makeModule`, `makeModuleGroup`,
+`makeTagGroup`); the `Task` shell reuses `boxFixtures.makeTask` with a
+`resources`/`todos` override. Tiers: `LevelBadge`/`TagChip` pure Tier A
+(`satisfies`); `TagPicker`/`TagsInput`/`ResourceLinksPicker` are presentational
+with `fn()` spies (`const meta`) — the two Combobox pickers need no provider, a
+`max-w-sm` sizing wrapper is enough, and `TagsInput`'s add-tag `play` types
+`"graphql{Enter}"` and asserts the `onChange` spy. The `<tr>` rows
+(`TaskResourceRow`, `EditingRow`) need a `<table><tbody>` decorator;
+`TaskResourceRow` also renders an `EntityLink` so it wraps in `RouterStub` →
+assert with `findBy*`. `ResourcesTable` drives the `useTaskResources` hook
+(three `useQuery`s + a mutation) and renders linked rows, so it nests
+`RouterStub > QueryStub` with a module-level `QueryClient` seeded
+(`setQueryData`) for `queryKeys.resources.list()`, `["module-groups-all"]`,
+`["modules-all"]` at `staleTime: Infinity` so nothing refetches. `TodosChecklist`
+only needs `QueryStub` (it calls `useQueryClient`/`useMutation`, no reads).
+`ResourceLinkInput` in `ResourceLinksPicker` is a non-exported local interface —
+`Meta<typeof X>` checks the `value` literals structurally, so no export needed.
