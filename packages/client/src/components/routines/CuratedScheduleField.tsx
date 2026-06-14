@@ -5,16 +5,7 @@ import { useState } from "react";
 
 import { QuickAddResourceDialog } from "@/components/quickAdd/QuickAddResourceDialog";
 import { ScheduleEntryRow } from "@/components/routines/ScheduleEntryRow";
-
-// "Mon, Jun 15" — read in UTC to match the curated date keys.
-function formatDateLabel(dateKey: string): string {
-  return new Date(`${dateKey}T00:00:00Z`).toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
+import { formatCuratedDateLabel } from "@/components/routines/weekly";
 
 interface CuratedScheduleFieldProps {
   value: CuratedRow[];
@@ -63,7 +54,7 @@ export function CuratedScheduleField({
         {value.map(row => (
           <ScheduleEntryRow
             key={row.date}
-            label={formatDateLabel(row.date)}
+            label={formatCuratedDateLabel(row.date)}
             ariaPrefix={row.date}
             row={row}
             taskOptions={taskOptions}
