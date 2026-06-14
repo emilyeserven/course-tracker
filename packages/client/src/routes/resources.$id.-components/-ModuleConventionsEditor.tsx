@@ -5,13 +5,13 @@ import { useState } from "react";
 import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
 import { TextCursorInputIcon } from "lucide-react";
 
-import { Input } from "@/components/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/popover";
 
 /**
  * Lets the user rename what a "group" and a "module" are called for this
