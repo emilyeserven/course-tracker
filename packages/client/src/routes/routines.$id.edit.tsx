@@ -55,7 +55,9 @@ export const Route = createFileRoute("/routines/$id/edit")({
         ? search.connectedId
         : undefined,
     mode:
-      search.mode === "weekly" || search.mode === "daily"
+      search.mode === "weekly"
+      || search.mode === "daily"
+      || search.mode === "curated"
         ? search.mode
         : undefined,
     entryType:

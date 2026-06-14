@@ -1,8 +1,16 @@
-import type { RoutineWeekly } from "@emstack/types";
+import type { RoutineCurated, RoutineWeekly } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import { fillAllDays, representativeRow, rowsToWeekly, weeklyToRows } from "./weekly";
+import {
+  curatedDateRange,
+  curatedToRows,
+  fillAllDays,
+  representativeRow,
+  rowsToCurated,
+  rowsToWeekly,
+  weeklyToRows,
+} from "./weekly";
 
 describe("weekly schedule item notes", () => {
   test("weeklyToRows surfaces an item's notes", () => {
@@ -229,6 +237,105 @@ describe("representativeRow (Daily Task mode)", () => {
       location: "",
       prependText: "",
       appendText: "",
+    });
+  });
+});
+
+describe("curated schedule helpers", () => {
+  test("curatedDateRange returns an inclusive UTC range", () => {
+    expect(curatedDateRange("2026-06-14", "2026-06-16")).toEqual([
+      "2026-06-14",
+      "2026-06-15",
+      "2026-06-16",
+    ]);
+  });
+
+  test("curatedDateRange caps the range at 14 days past the start", () => {
+    const keys = curatedDateRange("2026-06-01", "2026-07-01");
+    expect(keys[0]).toBe("2026-06-01");
+    // 14 days past June 1 is June 15; anything later is clamped away.
+    expect(keys.at(-1)).toBe("2026-06-15");
+    expect(keys).toHaveLength(15);
+  });
+
+  test("curatedDateRange is empty without an end date or for an earlier end", () => {
+    expect(curatedDateRange("2026-06-14", null)).toEqual([]);
+    expect(curatedDateRange("2026-06-14", "2026-06-13")).toEqual([]);
+  });
+
+  test("curatedToRows defaults each date from the stored entries", () => {
+    const curated: RoutineCurated = {
+      endDate: "2026-06-15",
+      entries: {
+        "2026-06-15": {
+          type: "task",
+          id: "task-1",
+          prependText: "Read",
+        },
+      },
+    };
+    const rows = curatedToRows(curated, ["2026-06-14", "2026-06-15"]);
+    expect(rows[0]).toEqual({
+      date: "2026-06-14",
+      type: "",
+      id: "",
+      notes: "",
+      location: "",
+      prependText: "",
+      appendText: "",
+    });
+    expect(rows[1]).toMatchObject({
+      date: "2026-06-15",
+      type: "task",
+      id: "task-1",
+      prependText: "Read",
+    });
+  });
+
+  test("rowsToCurated drops incomplete rows and keeps the end date", () => {
+    const rows = curatedToRows(null, ["2026-06-14", "2026-06-15"]);
+    rows[1] = {
+      ...rows[1],
+      type: "resource",
+      id: "res-9",
+      appendText: "for 20 minutes",
+    };
+    const curated = rowsToCurated(rows, "2026-06-15");
+    expect(curated.endDate).toBe("2026-06-15");
+    // The blank 06-14 row is dropped; the populated 06-15 row is kept.
+    expect(curated.entries["2026-06-14"]).toBeUndefined();
+    expect(curated.entries["2026-06-15"]).toEqual({
+      type: "resource",
+      id: "res-9",
+      appendText: "for 20 minutes",
+    });
+  });
+
+  test("a curated grid survives a rows round-trip", () => {
+    const original: RoutineCurated = {
+      endDate: "2026-06-16",
+      entries: {
+        "2026-06-15": {
+          type: "task",
+          id: "task-1",
+          notes: "warm up",
+        },
+        "2026-06-16": {
+          type: "freeform",
+          id: "Stretch",
+        },
+      },
+    };
+    const keys = curatedDateRange("2026-06-14", original.endDate);
+    const restored = rowsToCurated(curatedToRows(original, keys), original.endDate);
+    expect(restored.entries["2026-06-15"]).toEqual({
+      type: "task",
+      id: "task-1",
+      notes: "warm up",
+    });
+    expect(restored.entries["2026-06-16"]).toEqual({
+      type: "freeform",
+      id: "Stretch",
     });
   });
 });

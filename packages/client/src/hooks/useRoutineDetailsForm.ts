@@ -9,8 +9,12 @@ import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import {
+  curatedDateRange,
+  curatedToRows,
   fillAllDays,
+  MAX_CURATED_DAYS,
   representativeRow,
+  rowsToCurated,
   rowsToWeekly,
   weeklyToRows,
 } from "@/components/routines";
@@ -22,6 +26,7 @@ import {
   fetchTasks,
   fetchTopics,
   formHasChanges,
+  getTodayKey,
   toOptions,
   upsertRoutine,
 } from "@/utils";
@@ -42,17 +47,50 @@ const weeklyRowSchema = z
     path: ["id"],
   });
 
+const curatedRowSchema = z
+  .object({
+    date: z.string(),
+    type: z.enum(["", "task", "resource", "freeform"]),
+    id: z.string(),
+    notes: z.string(),
+    location: z.string(),
+    prependText: z.string(),
+    appendText: z.string(),
+  })
+  .refine(row => row.type === "" || row.id.length > 0, {
+    message: "Required",
+    path: ["id"],
+  });
+
 const detailsSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(2000),
   connections: z.array(z.string()),
   status: z.enum(["active", "inactive", "complete", "paused"]),
-  mode: z.enum(["weekly", "daily"]),
+  mode: z.enum(["weekly", "daily", "curated"]),
   weekly: z.array(weeklyRowSchema).length(7),
+  // Curated-mode only: the chosen end date (≤ 14 days out) and a row per date
+  // from today through it. Date stored as a Date for the picker; null = unset.
+  curatedEndDate: z.date().nullable(),
+  curated: z.array(curatedRowSchema),
   // Daily-mode only: how many days a week the routine needs doing. Null = no
   // target (every day).
   weeklyTarget: z.number().int().min(1).max(7).nullable(),
 });
+
+// Curated dates are keyed in UTC (matching the entries-tab / server resolution),
+// but the picker yields a local-midnight Date — convert via the local Y/M/D so a
+// selected calendar day maps to the same key the user sees.
+function dateToKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function keyToDate(key: string): Date {
+  return new Date(`${key}T00:00:00`);
+}
 
 /**
  * Bundles the Details tab's data layer: the topics/tasks/resources queries and
@@ -92,17 +130,27 @@ export function useRoutineDetailsForm(
     [topics, tasks, resources],
   );
 
+  const todayKey = getTodayKey();
+
   const startingValues = useMemo(
-    () => ({
-      name: routine.name ?? "",
-      description: routine.description ?? "",
-      connections: (routine.connections ?? []).map(encodeConnection),
-      status: routine.status ?? "active",
-      mode: routine.mode ?? "weekly",
-      weekly: weeklyToRows(routine.weekly),
-      weeklyTarget: routine.weeklyTarget ?? null,
-    }),
-    [routine],
+    () => {
+      const curatedEndKey = routine.curated?.endDate ?? null;
+      return {
+        name: routine.name ?? "",
+        description: routine.description ?? "",
+        connections: (routine.connections ?? []).map(encodeConnection),
+        status: routine.status ?? "active",
+        mode: routine.mode ?? "weekly",
+        weekly: weeklyToRows(routine.weekly),
+        curatedEndDate: curatedEndKey ? keyToDate(curatedEndKey) : null,
+        curated: curatedToRows(
+          routine.curated,
+          curatedDateRange(todayKey, curatedEndKey),
+        ),
+        weeklyTarget: routine.weeklyTarget ?? null,
+      };
+    },
+    [routine, todayKey],
   );
 
   const [isSaving, setIsSaving] = useState(false);
@@ -128,13 +176,29 @@ export function useRoutineDetailsForm(
           status: value.status,
           mode: value.mode,
           // Daily mode mirrors the single chosen entry onto all 7 days so
-          // "today's item" resolves identically every day.
+          // "today's item" resolves identically every day. Curated mode keys by
+          // date instead, so its weekly grid is cleared.
           weekly:
             value.mode === "daily"
               ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
-              : rowsToWeekly(value.weekly),
+              : value.mode === "curated"
+                ? {}
+                : rowsToWeekly(value.weekly),
+          // Curated schedule (date-keyed); cleared for weekly/daily routines.
+          curated:
+            value.mode === "curated"
+              ? rowsToCurated(
+                value.curated,
+                value.curatedEndDate
+                  ? dateToKey(value.curatedEndDate)
+                  : null,
+              )
+              : {
+                endDate: null,
+                entries: {},
+              },
           // The weekly target only applies to daily routines; clear it for
-          // weekly schedules.
+          // weekly and curated schedules.
           weeklyTarget: value.mode === "daily" ? value.weeklyTarget : null,
         });
         onChangeStateChange?.(false);
@@ -155,10 +219,49 @@ export function useRoutineDetailsForm(
   }));
   const hasChanges = formHasChanges(currentValues, startingValues);
   const isDaily = currentValues.mode === "daily";
+  const isCurated = currentValues.mode === "curated";
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);
   }, [hasChanges, onChangeStateChange]);
+
+  // Selectable curated window: today through today + 14 days. Memoized so the
+  // picker's disabled matcher is referentially stable.
+  const curatedWindow = useMemo(() => {
+    const min = keyToDate(todayKey);
+    const max = keyToDate(todayKey);
+    max.setDate(max.getDate() + MAX_CURATED_DAYS);
+    return {
+      min,
+      max,
+    };
+  }, [todayKey]);
+
+  // Apply a new curated end date, regenerating the per-date rows for the new
+  // range while preserving any edits the user already made to dates still in it.
+  function setCuratedEndDate(date: Date | null) {
+    form.setFieldValue("curatedEndDate", date);
+    const endKey = date ? dateToKey(date) : null;
+    const keys = curatedDateRange(todayKey, endKey);
+    const existing = new Map(
+      form.getFieldValue("curated").map(r => [r.date, r]),
+    );
+    form.setFieldValue(
+      "curated",
+      keys.map(
+        key =>
+          existing.get(key) ?? {
+            date: key,
+            type: "" as const,
+            id: "",
+            notes: "",
+            location: "",
+            prependText: "",
+            appendText: "",
+          },
+      ),
+    );
+  }
 
   return {
     form,
@@ -166,6 +269,9 @@ export function useRoutineDetailsForm(
     taskOptions,
     resourceOptions,
     isDaily,
+    isCurated,
+    curatedWindow,
+    setCuratedEndDate,
     isSaving,
   };
 }
