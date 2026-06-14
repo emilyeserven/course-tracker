@@ -1,14 +1,19 @@
-// One import surface for the section components the /settings route composes.
-// Each section imports its own dependencies directly (never this index), so
-// this re-export barrel introduces no cycle.
-export { CriteriaTemplatesSection } from "./-CriteriaTemplatesSection";
-export { DashboardLayoutsSection } from "./-DashboardLayoutsSection";
-export { DataToolsSection } from "./-DataToolsSection";
-export { FocusedDomainsSection } from "./-FocusedDomainsSection";
-export { GoogleCalendarSection } from "./-GoogleCalendarSection";
-export { ReadwiseSection } from "./-ReadwiseSection";
-export { ResourceHintTemplatesSection } from "./-ResourceHintTemplatesSection";
-export { RoutineTemplatesSection } from "./-RoutineTemplatesSection";
-export { TaskTypesSection } from "./-TaskTypesSection";
-export { ThemeSection } from "./-ThemeSection";
-export { TodoistSection } from "./-TodoistSection";
+// One import surface for the section components the /settings route composes,
+// grouped by tab into subfolder barrels. Each section imports its own
+// dependencies directly (never this index), so this re-export barrel introduces
+// no cycle.
+export { TaskTypesSection, TagGroupsAdmin } from "./tasks";
+export {
+  CriteriaTemplatesSection,
+  RoutineTemplatesSection,
+} from "./routineTemplates";
+export { FocusedDomainsSection } from "./domains";
+export { ResourceHintTemplatesSection } from "./resources";
+export { DashboardLayoutsSection } from "./dashboard";
+export {
+  ReadwiseSection,
+  TodoistSection,
+  GoogleCalendarSection,
+} from "./connections";
+export { ThemeSection } from "./display";
+export { DataToolsSection } from "./advanced";

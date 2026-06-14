@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { FEED_COLORS, FeedColorPicker } from "./-FeedColorPicker";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,9 +13,6 @@ import {
   removeCalendarFeed,
 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
-
-// A few preset swatches so multiple feeds get distinguishable dots on the card.
-const FEED_COLORS = ["#2563eb", "#16a34a", "#dc2626", "#d97706", "#7c3aed"];
 
 export function GoogleCalendarSection() {
   const queryClient = useQueryClient();
@@ -72,10 +71,12 @@ export function GoogleCalendarSection() {
         {" "}
         <span className="font-medium">Settings → Integrate calendar</span>
         {" "}
-        and copy its
+        and
+        copy its
         {" "}
         <span className="font-medium">Secret address in iCal format</span>
-        . Outlook and iCloud iCal links work too. Changes can take a few hours to
+        .
+        Outlook and iCloud iCal links work too. Changes can take a few hours to
         appear (the feed is cached by the provider).
       </p>
 
@@ -89,11 +90,13 @@ export function GoogleCalendarSection() {
               <span
                 aria-hidden
                 className="size-2 shrink-0 rounded-full bg-muted-foreground/40"
-                style={feed.color
-                  ? {
-                    backgroundColor: feed.color,
-                  }
-                  : undefined}
+                style={
+                  feed.color
+                    ? {
+                      backgroundColor: feed.color,
+                    }
+                    : undefined
+                }
               />
               <span className="min-w-0 flex-1">
                 <span className="font-medium">{feed.name}</span>
@@ -129,25 +132,10 @@ export function GoogleCalendarSection() {
           placeholder="Paste the secret iCal URL (…/basic.ics)"
           className="sm:max-w-md"
         />
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Colour</span>
-          {FEED_COLORS.map(c => (
-            <button
-              key={c}
-              type="button"
-              aria-label={`Use colour ${c}`}
-              aria-pressed={color === c}
-              onClick={() => setColor(c)}
-              className={`
-                size-5 rounded-full border-2
-                ${color === c ? "border-foreground" : "border-transparent"}
-              `}
-              style={{
-                backgroundColor: c,
-              }}
-            />
-          ))}
-        </div>
+        <FeedColorPicker
+          value={color}
+          onChange={setColor}
+        />
         <div>
           <Button
             onClick={() => addMutation.mutate()}
