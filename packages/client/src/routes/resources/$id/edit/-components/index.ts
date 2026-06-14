@@ -2,4 +2,4 @@
 // them from one module. These components don't import this index, so there is
 // no cycle. The `.-components/` folder is excluded from route generation, so
 // this index.ts produces no route.
-export { DetailsTab } from "./-DetailsTab";
+export { DetailsTab } from "./form";

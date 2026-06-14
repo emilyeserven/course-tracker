@@ -1,4 +1,4 @@
-import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
+import type { ModuleAdminSectionProps } from "../-moduleAdminSectionProps";
 import type { Module } from "@emstack/types";
 
 import { Fragment } from "react";
@@ -59,14 +59,11 @@ export function ModuleListItem({
   } = ui;
 
   const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({
-    id: m.id,
-  });
+    attributes, listeners, setNodeRef, transform, transition,
+  }
+    = useSortable({
+      id: m.id,
+    });
   const dragStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -114,10 +111,11 @@ export function ModuleListItem({
         canMoveDown={index < list.length - 1}
         onMoveUp={() => moveModule(list, index, "up")}
         onMoveDown={() => moveModule(list, index, "down")}
-        onSetStatus={status => setStatusMutation.mutate({
-          module: m,
-          status,
-        })}
+        onSetStatus={status =>
+          setStatusMutation.mutate({
+            module: m,
+            status,
+          })}
         onOpenDetails={() =>
           setExpandedModuleId(expandedModuleId === m.id ? null : m.id)}
         onEdit={() => setEditingModuleId(m.id)}

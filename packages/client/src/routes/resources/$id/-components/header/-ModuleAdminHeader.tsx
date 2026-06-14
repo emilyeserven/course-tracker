@@ -1,4 +1,4 @@
-import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
+import type { ModuleAdminSectionProps } from "../-moduleAdminSectionProps";
 
 import {
   ArrowUpDownIcon,
@@ -121,11 +121,11 @@ export function ModuleAdminHeader({
         )}
       >
         {modulesAreExhaustive
-          ? <CircleCheckBig className="mt-0.5 size-4 shrink-0" />
+          ? (
+            <CircleCheckBig className="mt-0.5 size-4 shrink-0" />
+          )
           : (
-            <InfoIcon
-              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-            />
+            <InfoIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           )}
         <span className="flex flex-col gap-0.5">
           <span className="font-medium">
@@ -136,9 +136,11 @@ export function ModuleAdminHeader({
                 + "progress"}
           </span>
           <span
-            className={cn("text-xs", !modulesAreExhaustive && `
-              text-muted-foreground
-            `)}
+            className={cn(
+              "text-xs",
+              !modulesAreExhaustive
+              && "text-muted-foreground",
+            )}
           >
             {modulesAreExhaustive
               ? "Progress and % complete come from how many are marked done."

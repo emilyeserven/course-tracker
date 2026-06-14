@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { MODE_OPTIONS } from "./-routineFormMeta";
+import { MODE_OPTIONS } from "../-routineFormMeta";
 
 import { useAppForm } from "@/components/formFields";
 import { EditForm, EditPageFooter, PageHeader } from "@/components/layout";

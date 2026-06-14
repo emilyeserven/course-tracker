@@ -1,4 +1,4 @@
-import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
+import type { ModuleAdminSectionProps } from "../-moduleAdminSectionProps";
 import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
 import type { ResourceModulesController } from "@/hooks/useResourceModules";
 import type { Module, ModuleGroup, ModuleStatus } from "@emstack/types";
@@ -24,13 +24,13 @@ import {
   PlusIcon,
 } from "lucide-react";
 
-import { ModuleListItem } from "./-ModuleListItem";
 import {
   handleListDragEnd,
   reorderCollisionDetection,
   reorderModifiers,
   useReorderSensors,
-} from "./-reorderDnd";
+} from "../-reorderDnd";
+import { ModuleListItem } from "../item";
 
 import {
   GroupEditCard,
@@ -385,14 +385,11 @@ export function ModuleGroupSection({
   } = ui;
 
   const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({
-    id: g.id,
-  });
+    attributes, listeners, setNodeRef, transform, transition,
+  }
+    = useSortable({
+      id: g.id,
+    });
   const [collapsed, setCollapsed] = useState(false);
 
   const groupModules = modulesByGroup.get(g.id) ?? [];
@@ -453,8 +450,12 @@ export function ModuleGroupSection({
               "
             >
               {collapsed
-                ? <ChevronRightIcon className="size-4" />
-                : <ChevronDownIcon className="size-4" />}
+                ? (
+                  <ChevronRightIcon className="size-4" />
+                )
+                : (
+                  <ChevronDownIcon className="size-4" />
+                )}
             </button>
             <h3 className="font-medium">
               <GroupTitle group={g} />

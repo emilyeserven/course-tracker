@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { QuickFillMenu } from "./-QuickFillMenu";
+import { QuickFillMenu } from "../weekly-entry";
 
 import { DAILY_STATUS_OPTIONS } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";

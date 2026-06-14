@@ -1,4 +1,4 @@
-import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
+import type { ModuleAdminSectionProps } from "../-moduleAdminSectionProps";
 
 import { DndContext } from "@dnd-kit/core";
 import {
@@ -6,13 +6,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import { ModuleListItem } from "./-ModuleListItem";
 import {
   handleListDragEnd,
   reorderCollisionDetection,
   reorderModifiers,
   useReorderSensors,
-} from "./-reorderDnd";
+} from "../-reorderDnd";
+import { ModuleListItem } from "../item";
 
 import { ModuleEditCard } from "@/components/resources/moduleAdminComponents";
 import { emptyModuleDraft } from "@/components/resources/moduleDrafts";
@@ -32,7 +32,10 @@ export function UngroupedModulesSection({
   ui,
 }: UngroupedModulesSectionProps) {
   const {
-    tagGroups, ungroupedModules, createModuleMutation, reorderModulesList,
+    tagGroups,
+    ungroupedModules,
+    createModuleMutation,
+    reorderModulesList,
   } = api;
   const {
     creatingModuleIn, setCreatingModuleIn, reorderMode,

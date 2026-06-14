@@ -2,9 +2,14 @@ import type {
   Interaction,
   Module,
   ModuleGroup,
+  Resource,
   Tag,
   TagGroup,
 } from "@emstack/types";
+
+import { seededQueryClient } from "./seededQueryClient";
+
+import { queryKeys } from "@/utils/queryKeys";
 
 /**
  * Mock-data builders for the resource-detail module / interaction admin stories
@@ -108,6 +113,54 @@ export function makeModuleGroup(
     tags: [],
     ...overrides,
   };
+}
+
+export function makeModuleAdminResource(
+  overrides: Partial<Resource> = {},
+): Resource {
+  return {
+    id: "resource-1",
+    name: "Intro to TypeScript",
+    description: "A practical introduction.",
+    url: "https://example.com/course",
+    cost: {
+      cost: "0",
+      isCostFromPlatform: false,
+      splitBy: 1,
+    },
+    progressCurrent: 0,
+    progressTotal: 0,
+    status: "active",
+    modulesAreExhaustive: false,
+    topics: [],
+    ...overrides,
+  };
+}
+
+/**
+ * A QueryClient seeded with everything `useResourceModules` reads via useQuery,
+ * so module-admin sections render their loaded state without a network call.
+ * Shared by the module-admin section stories (header / grouping / item).
+ */
+export function seededModuleAdminClient(seed: {
+  resourceId?: string;
+  groups?: ModuleGroup[];
+  modules?: Module[];
+  modulesAreExhaustive?: boolean;
+} = {}) {
+  const resourceId = seed.resourceId ?? "resource-1";
+  return seededQueryClient([
+    [queryKeys.resources.moduleGroups(resourceId), seed.groups ?? []],
+    [queryKeys.resources.modules(resourceId), seed.modules ?? []],
+    [queryKeys.tagGroups.list(), makeTagGroups()],
+    [
+      queryKeys.resources.detail(resourceId),
+      makeModuleAdminResource({
+        id: resourceId,
+        modulesAreExhaustive: seed.modulesAreExhaustive ?? false,
+      }),
+    ],
+  ]);
 }
 
 export function makeInteraction(

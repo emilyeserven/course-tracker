@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
+import {
+  ResourceInteractionsLog,
+  ResourceModulesAdmin,
+} from "../-components";
 import { DetailsTab } from "./-components";
-import { ResourceInteractionsLog } from "../-components/-ResourceInteractionsLog";
-import { ResourceModulesAdmin } from "../-components/-ResourceModulesAdmin";
 
 import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
 import { PageTabs } from "@/components/layout";
