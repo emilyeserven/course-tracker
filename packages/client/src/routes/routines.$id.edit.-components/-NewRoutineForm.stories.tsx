@@ -4,7 +4,8 @@ import { expect, fn, userEvent, within } from "storybook/test";
 
 import { NewRoutineForm } from "./-NewRoutineForm";
 
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof NewRoutineForm> = {
   component: NewRoutineForm,
@@ -13,13 +14,7 @@ const meta: Meta<typeof NewRoutineForm> = {
     onCreated: fn(() => Promise.resolve()),
     onCancel: fn(),
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerStoryDecorator()],
 };
 
 export default meta;
@@ -29,22 +24,19 @@ type Story = StoryObj<typeof meta>;
 // The empty create form: name + type, with create/cancel actions. We don't
 // submit (that would call createRoutine).
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: /new routine/i,
-      }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByText("Routine Name")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /create routine/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      role: "heading",
+      name: /new routine/i,
+    },
+    {
+      text: "Routine Name",
+    },
+    {
+      role: "button",
+      name: /create routine/i,
+    },
+  ]),
 };
 
 // Cancel fires the caller's onCancel handler.

@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { RoutineTodayCard } from "./-RoutineTodayCard";
 
 import { SettingsProvider } from "@/context/SettingsProvider";
@@ -9,13 +7,7 @@ import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
-
-function seededClient() {
-  return seededQueryClient([
-    [["tasks"], [makeTask()]],
-    [["resources"], makeResources()],
-  ]);
-}
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta = {
   component: RoutineTodayCard,
@@ -26,7 +18,12 @@ const meta = {
     Story => (
       <RouterStub>
         <SettingsProvider>
-          <QueryStub client={seededClient()}>
+          <QueryStub
+            client={seededQueryClient([
+              [["tasks"], [makeTask()]],
+              [["resources"], makeResources()],
+            ])}
+          >
             <Story />
           </QueryStub>
         </SettingsProvider>
@@ -41,12 +38,9 @@ type Story = StoryObj<typeof meta>;
 
 // Daily routine: today's entry plus the today-status control.
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Today's Task")).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: "Today's Task",
+  }]),
 };
 
 // A routine with nothing scheduled today shows the rest-day copy.
@@ -57,12 +51,7 @@ export const NothingToday: Story = {
       weekly: {},
     }),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByText(/nothing, take a break/i),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: /nothing, take a break/i,
+  }]),
 };

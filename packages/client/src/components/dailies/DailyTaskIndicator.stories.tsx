@@ -1,21 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, within } from "storybook/test";
-
 import { DailyTaskIndicator } from "./DailyTaskIndicator";
 
 import { makeDaily, makeTask } from "@/test-utils/dailiesFixtures";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta = {
   component: DailyTaskIndicator,
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerStoryDecorator()],
 } satisfies Meta<typeof DailyTaskIndicator>;
 
 export default meta;
@@ -30,13 +23,8 @@ export const WithTask: Story = {
       }),
     }),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    const link = await canvas.findByRole("link", {
-      name: /go to task build the widget/i,
-    });
-    await expect(link).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "link",
+    name: /go to task build the widget/i,
+  }]),
 };

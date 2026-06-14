@@ -5,31 +5,23 @@ import { expect, within } from "storybook/test";
 import { RoutineDetailsContent } from "./-RoutineDetailsContent";
 
 import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
-import { QueryStub } from "@/test-utils/QueryStub";
-import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
-
-// useTaskResourceNames reads the task/resource lists to resolve weekly-schedule
-// entry names.
-function seededClient() {
-  return seededQueryClient([
-    [["tasks"], [makeTask()]],
-    [["resources"], makeResources()],
-  ]);
-}
+import { queryStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta = {
   component: RoutineDetailsContent,
   args: {
     data: makeRoutine(),
   },
+  // useTaskResourceNames reads the task/resource lists to resolve weekly-schedule
+  // entry names.
   decorators: [
-    Story => (
-      <RouterStub>
-        <QueryStub client={seededClient()}>
-          <Story />
-        </QueryStub>
-      </RouterStub>
+    queryStoryDecorator(
+      seededQueryClient([
+        [["tasks"], [makeTask()]],
+        [["resources"], makeResources()],
+      ]),
     ),
   ],
 } satisfies Meta<typeof RoutineDetailsContent>;
@@ -40,14 +32,17 @@ type Story = StoryObj<typeof meta>;
 
 // Daily routine (fixture default): Type/Status/Stats tiles + connected entities.
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText("Daily Task")).toBeInTheDocument();
-    await expect(canvas.getByText("Connected To")).toBeInTheDocument();
-    await expect(canvas.getByText("Read a chapter")).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: "Daily Task",
+    },
+    {
+      text: "Connected To",
+    },
+    {
+      text: "Read a chapter",
+    },
+  ]),
 };
 
 // Weekly routine adds the day-by-day schedule section.

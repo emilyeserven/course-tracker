@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { PlusIcon } from "lucide-react";
-import { expect, within } from "storybook/test";
 
 import { PageHeader } from "./PageHeader";
 
 import { Button } from "@/components/ui/button";
-import { RouterStub } from "@/test-utils/RouterStub";
+import { routerStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof PageHeader> = {
   component: PageHeader,
@@ -14,13 +14,7 @@ const meta: Meta<typeof PageHeader> = {
     pageTitle: "Your Resources",
     description: "Everything you're learning from, in one place.",
   },
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
+  decorators: [routerStoryDecorator()],
 };
 
 export default meta;
@@ -28,16 +22,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: "Your Resources",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "heading",
+    name: "Your Resources",
+  }]),
 };
 
 // With a `pageSection` set, a breadcrumb-style section <Link> renders.
@@ -46,16 +34,10 @@ export const WithSectionLink: Story = {
     pageSection: "resources",
     pageTitle: "React Fundamentals",
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("link", {
-        name: "Resources",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "link",
+    name: "Resources",
+  }]),
 };
 
 // Header actions render in the children slot.
@@ -68,16 +50,10 @@ export const WithAction: Story = {
       </Button>
     ),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("button", {
-        name: /New Course/,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "button",
+    name: /New Course/,
+  }]),
 };
 
 // A non-zero progress value renders the ProgressBar beneath the header.
@@ -87,14 +63,8 @@ export const WithProgress: Story = {
     progressTotal: 10,
     status: "active",
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", {
-        name: "Your Resources",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    role: "heading",
+    name: "Your Resources",
+  }]),
 };

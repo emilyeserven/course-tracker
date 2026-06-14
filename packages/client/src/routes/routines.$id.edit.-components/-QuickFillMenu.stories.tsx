@@ -14,6 +14,15 @@ function clientWith(key: string, data: unknown) {
   return seededQueryClient([[[key], data]]);
 }
 
+// Each story opens the menu the same way (click the trigger) before asserting on
+// its contents.
+async function openQuickFill(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByRole("button", {
+    name: /quick fill/i,
+  }));
+}
+
 const meta: Meta<typeof QuickFillMenu> = {
   component: QuickFillMenu,
   args: {
@@ -40,12 +49,7 @@ export const RoutineTemplates: Story = {
   play: async ({
     canvasElement, args,
   }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", {
-        name: /quick fill/i,
-      }),
-    );
+    await openQuickFill(canvasElement);
     const item = await screen.findByText("Summer Japanese");
     await userEvent.click(item);
     await expect(args.onSelect).toHaveBeenCalled();
@@ -69,12 +73,7 @@ export const CriteriaTemplates: Story = {
   play: async ({
     canvasElement,
   }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", {
-        name: /quick fill/i,
-      }),
-    );
+    await openQuickFill(canvasElement);
     await expect(await screen.findByText("Reading goals")).toBeInTheDocument();
   },
 };
@@ -94,14 +93,7 @@ export const NoTemplates: Story = {
   play: async ({
     canvasElement,
   }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", {
-        name: /quick fill/i,
-      }),
-    );
-    await expect(
-      await screen.findByText(/no templates/i),
-    ).toBeInTheDocument();
+    await openQuickFill(canvasElement);
+    await expect(await screen.findByText(/no templates/i)).toBeInTheDocument();
   },
 };
