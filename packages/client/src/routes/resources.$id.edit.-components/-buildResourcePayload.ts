@@ -2,10 +2,12 @@ import type { EntityStatus } from "@emstack/types";
 
 import * as z from "zod";
 
+import { NAME_MAX_LENGTH, TEXT_MAX_LENGTH } from "@/constants/stringLimits";
+
 export const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(500),
-  url: z.string().max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
+  description: z.string().max(TEXT_MAX_LENGTH),
+  url: z.string().max(NAME_MAX_LENGTH),
   status: z.enum(["active", "inactive", "complete"]),
   progressCurrent: z.number().int().min(0).nullable(),
   progressTotal: z.number().int().min(0).nullable(),

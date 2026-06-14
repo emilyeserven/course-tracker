@@ -3,6 +3,7 @@ import type { Routine, RoutineTemplate } from "@emstack/types";
 import { Loader2 } from "lucide-react";
 
 import { QuickFillMenu } from "./-QuickFillMenu";
+import { MODE_OPTIONS, STATUS_OPTIONS } from "./-routineFormMeta";
 import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
 import { EditForm } from "@/components/layout";
@@ -16,40 +17,6 @@ import {
 } from "@/components/routines";
 import { Button } from "@/components/ui/button";
 import { useRoutineDetailsForm } from "@/hooks/useRoutineDetailsForm";
-
-const STATUS_OPTIONS = [
-  {
-    value: "active",
-    label: "Active",
-  },
-  {
-    value: "inactive",
-    label: "Inactive",
-  },
-  {
-    value: "complete",
-    label: "Complete",
-  },
-  {
-    value: "paused",
-    label: "Paused",
-  },
-];
-
-const MODE_OPTIONS = [
-  {
-    value: "weekly",
-    label: "Weekly Schedule",
-  },
-  {
-    value: "daily",
-    label: "Daily Task",
-  },
-  {
-    value: "curated",
-    label: "Curated",
-  },
-];
 
 interface DetailsTabProps {
   routine: Routine;
@@ -132,8 +99,8 @@ export function DetailsTab({
             <div className="flex flex-col gap-1">
               <span className="text-2xl">Curated</span>
               <p className="text-sm text-muted-foreground">
-                Pick an end date up to 14 days out, then set a task for each
-                day from today through then.
+                Pick an end date up to 14 days out, then set a task for each day
+                from today through then.
               </p>
             </div>
             <form.Field name="curatedEndDate">
@@ -166,14 +133,13 @@ export function DetailsTab({
                   <div className="flex flex-col gap-1">
                     <span className="text-2xl">Daily Task</span>
                     <p className="text-sm text-muted-foreground">
-                      Pick what to work on each day — the same item applies to
-                      every day of the week.
+                      Pick what to work on each day — the same item applies to every
+                      day of the week.
                     </p>
                     <div className="mt-1">
                       <WeeklyEntryEditor
                         {...representativeRow(field.state.value)}
-                        onChange={next =>
-                          field.handleChange(fillAllDays(next))}
+                        onChange={next => field.handleChange(fillAllDays(next))}
                         taskOptions={taskOptions}
                         resourceOptions={resourceOptions}
                       />

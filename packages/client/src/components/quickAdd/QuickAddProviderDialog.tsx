@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import { createProvider } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -102,7 +103,7 @@ export function QuickAddProviderDialog({
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Provider name"
-              maxLength={255}
+              maxLength={NAME_MAX_LENGTH}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -118,7 +119,7 @@ export function QuickAddProviderDialog({
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="https://example.com"
-              maxLength={255}
+              maxLength={NAME_MAX_LENGTH}
             />
           </div>
           <QuickAddDialogFooter

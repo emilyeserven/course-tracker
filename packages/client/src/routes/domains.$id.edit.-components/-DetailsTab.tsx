@@ -10,6 +10,7 @@ import * as z from "zod";
 import { useAppForm } from "@/components/formFields";
 import { EditForm } from "@/components/layout";
 import { Button } from "@/components/ui/button";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import { upsertDomain, formHasChanges } from "@/utils";
 
 interface DetailsTabProps {
@@ -20,7 +21,7 @@ interface DetailsTabProps {
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
+  title: z.string().min(1, "Title is required").max(NAME_MAX_LENGTH),
   description: z.string().max(1000),
   topicIds: z.array(z.string()),
 });

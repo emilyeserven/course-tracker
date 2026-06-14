@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 
 interface DailyCriteriaTemplateEditModalProps extends ControlledDialogProps {
   template: DailyCriteriaTemplate | null;
@@ -149,7 +150,7 @@ export function DailyCriteriaTemplateEditModal({
                     [f.key]: e.target.value,
                   })}
                 placeholder={f.placeholder}
-                maxLength={500}
+                maxLength={TEXT_MAX_LENGTH}
               />
             </div>
           ))}

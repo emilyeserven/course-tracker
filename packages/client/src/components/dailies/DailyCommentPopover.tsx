@@ -6,20 +6,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from "@/components/popover";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/popover";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
+import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { useHoverPopover } from "@/hooks/useHoverPopover";
 import { cn } from "@/lib/utils";
-import {
-  getTodayKey,
-  upsertDaily,
-  withCompletionNote,
-} from "@/utils";
+import { getTodayKey, upsertDaily, withCompletionNote } from "@/utils";
 
 interface DailyCommentPopoverProps {
   daily: Daily;
@@ -116,9 +109,11 @@ export function DailyCommentPopover({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={hasNote
-            ? `View comment for ${daily.name}`
-            : `Add comment for ${daily.name}`}
+          aria-label={
+            hasNote
+              ? `View comment for ${daily.name}`
+              : `Add comment for ${daily.name}`
+          }
           aria-haspopup="dialog"
           aria-expanded={open}
           title={hasNote ? "View comment" : "Add comment"}
@@ -134,9 +129,7 @@ export function DailyCommentPopover({
           onFocus={handleHoverOpen}
           onBlur={handleHoverClose}
           className={cn(
-            hasNote
-              ? "text-foreground"
-              : "text-muted-foreground/40",
+            hasNote ? "text-foreground" : "text-muted-foreground/40",
             buttonClassName,
           )}
         >
@@ -184,7 +177,7 @@ export function DailyCommentPopover({
                 onChange={e => setDraft(e.target.value)}
                 placeholder="Add a comment..."
                 autoFocus
-                maxLength={500}
+                maxLength={TEXT_MAX_LENGTH}
                 className="min-h-20"
               />
               <div className="flex justify-end gap-2">

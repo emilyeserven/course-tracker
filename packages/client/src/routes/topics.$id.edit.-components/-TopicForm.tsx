@@ -4,7 +4,8 @@ import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
-import * as z from "zod";
+
+import { formSchema } from "./-topicFormSchema";
 
 import {
   Button,
@@ -31,22 +32,6 @@ import {
   tagGroupsToOptions,
   upsertTopic,
 } from "@/utils";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(500),
-  reason: z.string().max(500),
-  domainIds: z.array(z.string()),
-  tagIds: z.array(z.string()),
-  resourceLinks: z.array(
-    z.object({
-      key: z.string(),
-      resourceId: z.string(),
-      moduleGroupId: z.string().nullable(),
-      moduleId: z.string().nullable(),
-    }),
-  ),
-});
 
 interface TopicFormProps {
   id: string;
