@@ -11,6 +11,12 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/input";
+import {
+  DIFFICULTY_OPTIONS,
+  PROGRESS_LABEL,
+  PROGRESS_OPTIONS,
+  UNDERSTANDING_OPTIONS,
+} from "@/components/resources/interactionMeta";
 import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/ui/button";
@@ -25,28 +31,6 @@ interface Props {
   onCancel: () => void;
   onSaved?: () => void;
 }
-
-const PROGRESS_OPTIONS: InteractionProgress[] = [
-  "incomplete",
-  "started",
-  "complete",
-];
-
-const DIFFICULTY_OPTIONS: InteractionDifficulty[] = ["easy", "medium", "hard"];
-
-const UNDERSTANDING_OPTIONS: InteractionUnderstanding[] = [
-  "none",
-  "basic",
-  "comfortable",
-  "proficient",
-  "mastered",
-];
-
-const PROGRESS_LABEL: Record<InteractionProgress, string> = {
-  incomplete: "Incomplete",
-  started: "Started",
-  complete: "Complete",
-};
 
 function todayIso() {
   const d = new Date();

@@ -1,9 +1,7 @@
 import type { InteractionDraft } from "@/hooks/useInteractionsLog";
 import type {
   Interaction,
-  InteractionDifficulty,
   InteractionProgress,
-  InteractionUnderstanding,
   Module,
   ModuleGroup,
 } from "@emstack/types";
@@ -14,10 +12,18 @@ import { PencilIcon, PlusIcon } from "lucide-react";
 
 import { EditFormActions } from "@/components/EditFormActions";
 import { Input } from "@/components/input";
+import {
+  DIFFICULTY_OPTIONS,
+  PROGRESS_COLOR,
+  PROGRESS_LABEL,
+  PROGRESS_OPTIONS,
+  UNDERSTANDING_OPTIONS,
+} from "@/components/resources/interactionMeta";
 import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
 import { Textarea } from "@/components/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { NEW_ROW_ID } from "@/constants/sentinels";
 import { useInteractionsLog } from "@/hooks/useInteractionsLog";
 
 interface Props {
@@ -25,24 +31,6 @@ interface Props {
 }
 
 type Draft = InteractionDraft;
-
-const NEW_ID = "__new__";
-
-const PROGRESS_OPTIONS: InteractionProgress[] = [
-  "incomplete",
-  "started",
-  "complete",
-];
-
-const DIFFICULTY_OPTIONS: InteractionDifficulty[] = ["easy", "medium", "hard"];
-
-const UNDERSTANDING_OPTIONS: InteractionUnderstanding[] = [
-  "none",
-  "basic",
-  "comfortable",
-  "proficient",
-  "mastered",
-];
 
 // Small local date helper; intentionally duplicated alongside InteractionQuickLog.
 // fallow-ignore-next-line code-duplication
@@ -56,7 +44,7 @@ function todayIso() {
 
 function emptyDraft(): Draft {
   return {
-    id: NEW_ID,
+    id: NEW_ROW_ID,
     date: todayIso(),
     progress: "started",
     note: "",
@@ -79,18 +67,6 @@ function fromInteraction(i: Interaction): Draft {
     moduleId: i.moduleId ?? "",
   };
 }
-
-const PROGRESS_LABEL: Record<InteractionProgress, string> = {
-  incomplete: "Incomplete",
-  started: "Started",
-  complete: "Complete",
-};
-
-const PROGRESS_COLOR: Record<InteractionProgress, string> = {
-  incomplete: "bg-rose-100 text-rose-900 border-rose-200",
-  started: "bg-amber-100 text-amber-900 border-amber-200",
-  complete: "bg-emerald-100 text-emerald-900 border-emerald-200",
-};
 
 export function ResourceInteractionsLog({
   resourceId,
@@ -201,9 +177,7 @@ export function ResourceInteractionsLog({
                         variant="outline"
                         className="border-blue-200 bg-blue-50 text-blue-900"
                       >
-                        group:
-                        {" "}
-                        {targetGroup.name}
+                        group: {targetGroup.name}
                       </Badge>
                     )}
                     {targetModule && (
@@ -211,9 +185,7 @@ export function ResourceInteractionsLog({
                         variant="outline"
                         className="border-blue-200 bg-blue-50 text-blue-900"
                       >
-                        module:
-                        {" "}
-                        {targetModule.name}
+                        module: {targetModule.name}
                       </Badge>
                     )}
                     {i.difficulty && (
@@ -221,9 +193,7 @@ export function ResourceInteractionsLog({
                         variant="outline"
                         className="bg-muted/40"
                       >
-                        difficulty:
-                        {" "}
-                        {i.difficulty}
+                        difficulty: {i.difficulty}
                       </Badge>
                     )}
                     {i.understanding && (
@@ -231,9 +201,7 @@ export function ResourceInteractionsLog({
                         variant="outline"
                         className="bg-muted/40"
                       >
-                        understanding:
-                        {" "}
-                        {i.understanding}
+                        understanding: {i.understanding}
                       </Badge>
                     )}
                   </div>
@@ -307,9 +275,10 @@ function InteractionEditCard({
           <Input
             type="date"
             value={draft.date}
-            onChange={e => update({
-              date: e.target.value,
-            })}
+            onChange={e =>
+              update({
+                date: e.target.value,
+              })}
             required
           />
         </div>
@@ -423,17 +392,19 @@ function InteractionEditCard({
           label="Difficulty (optional)"
           value={draft.difficulty}
           options={DIFFICULTY_OPTIONS}
-          onValueChange={difficulty => update({
-            difficulty,
-          })}
+          onValueChange={difficulty =>
+            update({
+              difficulty,
+            })}
         />
         <OptionalSelectField
           label="Understanding (optional)"
           value={draft.understanding}
           options={UNDERSTANDING_OPTIONS}
-          onValueChange={understanding => update({
-            understanding,
-          })}
+          onValueChange={understanding =>
+            update({
+              understanding,
+            })}
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -442,9 +413,10 @@ function InteractionEditCard({
         </label>
         <Textarea
           value={draft.note}
-          onChange={e => update({
-            note: e.target.value,
-          })}
+          onChange={e =>
+            update({
+              note: e.target.value,
+            })}
           placeholder="What did you do? Anything notable?"
         />
       </div>
