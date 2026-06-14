@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 
 import type { RoutineConnectionType } from "@/db/schema";
+import type { RoutineConnection } from "@emstack/types";
 
-export interface RoutineConnectionInput {
-  type: RoutineConnectionType;
-  id: string;
-}
+// The write-side slice of a RoutineConnection: the client sends only type + id;
+// the display `name` is resolved on read (see resolveRoutineConnections).
+export type RoutineConnectionInput = Pick<RoutineConnection, "type" | "id">;
 
 // Dedupe by (type, id) and produce routine_connections rows with stable
 // positions, matching the junction-build pattern used for topics/tasks links.
