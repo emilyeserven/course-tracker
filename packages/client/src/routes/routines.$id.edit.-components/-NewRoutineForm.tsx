@@ -7,29 +7,17 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { MODE_OPTIONS } from "./-routineFormMeta";
+
 import { useAppForm } from "@/components/formFields";
 import { EditForm, EditPageFooter, PageHeader } from "@/components/layout";
 import { fillAllDays, rowsToWeekly } from "@/components/routines";
 import { Button } from "@/components/ui/button";
+import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
 import { createRoutine } from "@/utils";
 
-const MODE_OPTIONS = [
-  {
-    value: "weekly",
-    label: "Weekly Schedule",
-  },
-  {
-    value: "daily",
-    label: "Daily Task",
-  },
-  {
-    value: "curated",
-    label: "Curated",
-  },
-];
-
 const newRoutineSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   mode: z.enum(["weekly", "daily", "curated"]),
 });
 
