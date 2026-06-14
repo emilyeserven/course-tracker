@@ -1,7 +1,7 @@
-export interface TopicForTopicsPageDomain {
-  id: string;
-  title: string;
-}
+import type { TopicDomain } from "./Topic";
+
+// Same {id, title} domain reference as the full Topic view.
+export type TopicForTopicsPageDomain = TopicDomain;
 
 export interface TopicForTopicsPage {
   id: string;
