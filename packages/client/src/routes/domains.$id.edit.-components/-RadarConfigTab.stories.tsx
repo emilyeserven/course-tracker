@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { RadarConfigTab } from "./-RadarConfigTab";
 
 import { makeQuadrants, makeRings } from "@/test-utils/radarFixtures";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const quadrantDrafts = makeQuadrants().map((q, i) => ({
   id: q.id,
@@ -43,17 +44,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByDisplayValue("Techniques")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save configuration/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      displayValue: "Techniques",
+    },
+    {
+      role: "button",
+      name: /save configuration/i,
+    },
+  ]),
 };
 
 export const Saving: Story = {

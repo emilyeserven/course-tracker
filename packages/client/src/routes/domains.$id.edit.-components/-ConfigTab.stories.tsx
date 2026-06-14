@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { ConfigTab } from "./-ConfigTab";
 
 import { makeRadar } from "@/test-utils/radarFixtures";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof ConfigTab> = {
   component: ConfigTab,
@@ -21,17 +22,15 @@ type Story = StoryObj<typeof meta>;
 
 // Hydrates the slice/ring editors from the persisted radar config.
 export const FromConfig: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByDisplayValue("Techniques")).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save configuration/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      displayValue: "Techniques",
+    },
+    {
+      role: "button",
+      name: /save configuration/i,
+    },
+  ]),
 };
 
 // With no persisted radar the container seeds the default slices and rings.
@@ -43,10 +42,7 @@ export const Defaults: Story = {
       blips: [],
     }),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByDisplayValue("Adopt")).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    displayValue: "Adopt",
+  }]),
 };

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { RadarBlipDot } from "./RadarBlipDot";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { makeBlip } from "@/test-utils/radarFixtures";
+import { svgStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof RadarBlipDot> = {
   component: RadarBlipDot,
@@ -28,18 +29,11 @@ const meta: Meta<typeof RadarBlipDot> = {
     onHover: fn(),
     onClick: fn(),
   },
-  decorators: [
-    Story => (
-      <TooltipProvider>
-        <svg
-          width={200}
-          height={160}
-        >
-          <Story />
-        </svg>
-      </TooltipProvider>
-    ),
-  ],
+  decorators: [svgStoryDecorator({
+    width: 200,
+    height: 160,
+    tooltip: true,
+  })],
 };
 
 export default meta;
@@ -47,12 +41,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("1")).toBeInTheDocument();
-  },
+  play: smokePlay([{
+    text: "1",
+  }]),
 };
 
 export const Active: Story = {

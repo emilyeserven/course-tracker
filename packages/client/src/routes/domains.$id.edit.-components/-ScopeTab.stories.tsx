@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { ScopeTab } from "./-ScopeTab";
 
@@ -9,6 +9,7 @@ import {
   makeScopedDomain,
   makeTopics,
 } from "@/test-utils/radarFixtures";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof ScopeTab> = {
   component: ScopeTab,
@@ -26,18 +27,18 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Within Scope")).toBeInTheDocument();
-    await expect(canvas.getByText(/Out of Scope/)).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: /save scope/i,
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: "Within Scope",
+    },
+    {
+      text: /Out of Scope/,
+    },
+    {
+      role: "button",
+      name: /save scope/i,
+    },
+  ]),
 };
 
 // A domain whose radar already has ignored blips renders pre-filled

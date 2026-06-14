@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { fn } from "storybook/test";
 
 import { GroupEditCard } from "./GroupEditCard";
 import { emptyGroupDraft, groupToDraft } from "./moduleDrafts";
@@ -9,6 +9,8 @@ import {
   makeModuleGroup,
   makeTagGroups,
 } from "@/test-utils/resourceModulesFixtures";
+import { constrainedStoryDecorator } from "@/test-utils/storyDecorators";
+import { smokePlay } from "@/test-utils/storyPlay";
 
 const meta: Meta<typeof GroupEditCard> = {
   component: GroupEditCard,
@@ -21,13 +23,7 @@ const meta: Meta<typeof GroupEditCard> = {
     onSave: fn(),
     onCancel: fn(),
   },
-  decorators: [
-    Story => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [constrainedStoryDecorator("max-w-xl")],
 };
 
 export default meta;
@@ -35,15 +31,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const New: Story = {
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText("Group Name")).toBeInTheDocument();
-    await expect(
-      canvas.getByPlaceholderText("e.g. Section 1: Fundamentals"),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      text: "Group Name",
+    },
+    {
+      placeholder: "e.g. Section 1: Fundamentals",
+    },
+  ]),
 };
 
 export const Editing: Story = {
@@ -58,17 +53,13 @@ export const Editing: Story = {
     isNew: false,
     onDelete: fn(),
   },
-  play: async ({
-    canvasElement,
-  }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByDisplayValue("Section 2: Advanced"),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByRole("button", {
-        name: "Remove Group",
-      }),
-    ).toBeInTheDocument();
-  },
+  play: smokePlay([
+    {
+      displayValue: "Section 2: Advanced",
+    },
+    {
+      role: "button",
+      name: "Remove Group",
+    },
+  ]),
 };
