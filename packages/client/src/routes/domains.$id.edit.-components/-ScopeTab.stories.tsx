@@ -4,12 +4,16 @@ import { expect, fn, within } from "storybook/test";
 
 import { ScopeTab } from "./-ScopeTab";
 
-import { makeDomain, makeRadar, makeTopics } from "@/test-utils/radarFixtures";
+import {
+  makeRadar,
+  makeScopedDomain,
+  makeTopics,
+} from "@/test-utils/radarFixtures";
 
 const meta: Meta<typeof ScopeTab> = {
   component: ScopeTab,
   args: {
-    domain: makeDomain(),
+    domain: makeScopedDomain(),
     radar: makeRadar(),
     topics: makeTopics(),
     onSaved: fn(() => Promise.resolve()),

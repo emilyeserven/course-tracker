@@ -4,13 +4,17 @@ import { expect, fn, within } from "storybook/test";
 
 import { LlmTabContainer } from "./-LlmTab";
 
-import { makeDomain, makeRadar, makeTopics } from "@/test-utils/radarFixtures";
+import {
+  makeRadar,
+  makeScopedDomain,
+  makeTopics,
+} from "@/test-utils/radarFixtures";
 
 const meta: Meta<typeof LlmTabContainer> = {
   component: LlmTabContainer,
   args: {
     radar: makeRadar(),
-    domain: makeDomain(),
+    domain: makeScopedDomain(),
     topics: makeTopics(),
     onComplete: fn(() => Promise.resolve()),
   },
