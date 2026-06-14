@@ -11,6 +11,7 @@ import {
   expandIcsToEvents,
   mergeAndSortEvents,
 } from "@/services/googleCalendarIcs";
+import { assertSafeOutboundUrl } from "@/utils/safeOutboundUrl";
 
 // How far ahead the dashboard agenda looks.
 const DAYS_AHEAD = 14;
@@ -75,6 +76,14 @@ async function saveFeeds(feeds: CalendarFeed[]): Promise<void> {
 
 /** Fetch a feed's raw ICS text, mapping failures to a GoogleCalendarError. */
 async function fetchIcsText(url: string): Promise<string> {
+  // SSRF gate: validate the destination before any network call.
+  try {
+    assertSafeOutboundUrl(url);
+  }
+  catch {
+    throw new GoogleCalendarError("Invalid or disallowed feed URL.", 400);
+  }
+
   let response: Response;
   try {
     response = await fetch(url, {
