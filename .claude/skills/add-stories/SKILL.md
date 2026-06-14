@@ -260,6 +260,24 @@ is a Radix `Dialog` so set `open: true` and assert via `within(document.body)`.
 `tagGroups.list()` and `resources.detail()` for the admin — and pass it as the
 `QueryStub client`. Neither renders a `<Link>` (plain `<a>`), so no `RouterStub`.
 
+### routines (#356)
+All 5 covered. New fixture file `test-utils/routinesFixtures.ts`
+(`taskOptions`/`resourceOptions` `SelectOption[]`, `taskNames`/`resourceNames`
+id→name maps, `makeReferenceItem`, `makeRoutineTemplate`) — the existing
+`boxFixtures.makeRoutine` is the content-box `Routine` shape, not the
+`RoutineReferenceItem`/`RoutineTemplate`/`SelectOption` shapes these editors use.
+Build `WeeklyRow[]` from the exported `weeklyToRows(weekly)` helper rather than
+hand-rolling row literals. Tier B all round: `RoutineEntryLabel` renders an
+`EntityLink` → `RouterStub` (assert with `findBy*`). `WeeklyScheduleField`,
+`WeeklyEntryEditor`, and `RoutineTemplateEditModal` **unconditionally** mount
+`QuickAddResourceDialog` (`useNavigate` + `useQueryClient` + `useMutation`), so
+they need `RouterStub > QueryStub` even when the dialog stays closed. The modal is
+a Radix `Dialog` → set `open: true` and assert via `within(document.body)`.
+`TaskResourceComboboxContent` is a base-ui combobox popup: it portals and renders
+only inside an **open** `Combobox` root, so wrap it in a decorator that reads
+`ctx.args.optionsMap` for the root's `items` and sets `defaultOpen`, then assert
+in `document.body`.
+
 ### tasks (#357)
 All 9 `components/tasks/*` stored. Added **`test-utils/tasksFixtures.ts`**
 (`makeTaskResource`, `makeTaskTodo`, `makeModule`, `makeModuleGroup`,
