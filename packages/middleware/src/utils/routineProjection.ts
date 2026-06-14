@@ -27,7 +27,6 @@ import {
 // Pure helpers live in dependency-free leaf modules so they can be unit-tested
 // directly; re-export them here so callers keep a single import site.
 export { activeEntry, currentWeekday, representativeEntry };
-export { resolveActionParts };
 export type { ResolvedConnections, ResolvedResource, ResolvedTask };
 
 // The routine columns (plus its resolved connections) the projection reads.
