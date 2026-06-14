@@ -35,9 +35,13 @@ export function ConfirmDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          {description && (
-            <AlertDialogDescription>{description}</AlertDialogDescription>
-          )}
+          {description
+            ? <AlertDialogDescription>{description}</AlertDialogDescription>
+            : (
+              <AlertDialogDescription className="sr-only">
+                Confirm or cancel this action.
+              </AlertDialogDescription>
+            )}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onCancel()}>
