@@ -3,6 +3,7 @@ import type { ModuleAdminUiState } from "@/hooks/useModuleAdminUiState";
 import type { ResourceModulesController } from "@/hooks/useResourceModules";
 import type { Module, ModuleGroup } from "@emstack/types";
 
+import { formatPageRange } from "@emstack/types";
 import {
   ActivityIcon,
   ChevronDownIcon,
@@ -32,23 +33,63 @@ interface ModuleGroupSectionProps extends ModuleAdminSectionProps {
   groupIndex: number;
 }
 
+/** De-emphasized page range shown after a group/module title (book resources). */
+function PageRange({
+  start,
+  end,
+}: {
+  start?: number | null;
+  end?: number | null;
+}) {
+  const label = formatPageRange(start, end);
+  if (!label) return null;
+  return (
+    <span className="ml-2 text-xs font-normal text-muted-foreground">
+      {label}
+    </span>
+  );
+}
+
 /** The group title — a link when it carries an http(s) url, plain text otherwise. */
 function GroupTitle({
   group: g,
 }: { group: ModuleGroup }) {
-  if (!g.url) return <>{g.name}</>;
-  if (!isHttpUrl(g.url)) return <span title={g.url}>{g.name}</span>;
+  const pages = (
+    <PageRange
+      start={g.pageStart}
+      end={g.pageEnd}
+    />
+  );
+  if (!g.url) {
+    return (
+      <>
+        {g.name}
+        {pages}
+      </>
+    );
+  }
+  if (!isHttpUrl(g.url)) {
+    return (
+      <>
+        <span title={g.url}>{g.name}</span>
+        {pages}
+      </>
+    );
+  }
   return (
-    <a
-      href={g.url}
-      target="_blank"
-      rel="noreferrer"
-      className="hover:text-blue-600"
-    >
-      {g.name}
-      {" "}
-      <ExternalLinkIcon className="inline size-3.5" />
-    </a>
+    <>
+      <a
+        href={g.url}
+        target="_blank"
+        rel="noreferrer"
+        className="hover:text-blue-600"
+      >
+        {g.name}
+        {" "}
+        <ExternalLinkIcon className="inline size-3.5" />
+      </a>
+      {pages}
+    </>
   );
 }
 
@@ -121,7 +162,9 @@ function GroupHeaderControls({
         disabled={isAnyEditing}
       >
         <PlusIcon className="size-3.5" />
-        Add Module
+        Add
+        {" "}
+        {api.moduleLabel}
       </Button>
       <Button
         size="icon-sm"
@@ -250,6 +293,8 @@ export function ModuleGroupSection({
         draft={groupToDraft(g)}
         hasEnumeratedModules={groupModules.length > 0}
         tagGroups={tagGroups}
+        showPages={api.isBook}
+        groupLabel={api.groupLabel}
         isSaving={
           upsertGroupMutation.isPending || deleteGroupMutation.isPending
         }
@@ -302,6 +347,8 @@ export function ModuleGroupSection({
           tagGroups={tagGroups}
           isNew
           isComplete={false}
+          showPages={api.isBook}
+          moduleLabel={api.moduleLabel}
           isSaving={createModuleMutation.isPending}
           onSave={d =>
             createModuleMutation.mutate(

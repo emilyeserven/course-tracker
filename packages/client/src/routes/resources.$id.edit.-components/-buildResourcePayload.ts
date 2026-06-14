@@ -1,9 +1,10 @@
-import type { EntityStatus } from "@emstack/types";
+import type { EntityStatus, ResourceType } from "@emstack/types";
 
 import * as z from "zod";
 
 export const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
+  type: z.enum(["website", "book"]),
   description: z.string().max(500),
   url: z.string().max(255),
   status: z.enum(["active", "inactive", "complete"]),
@@ -29,6 +30,7 @@ export const formSchema = z.object({
 // stays decoupled from the form and is straightforward to unit test.
 export interface ResourceFormValues {
   name: string;
+  type: ResourceType;
   description: string;
   url: string;
   status: EntityStatus;
@@ -72,6 +74,7 @@ export function buildResourcePayload(
 ) {
   return {
     name: value.name,
+    type: value.type,
     description: value.description || null,
     url: value.url || null,
     status: value.status,

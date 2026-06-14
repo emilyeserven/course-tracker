@@ -1,6 +1,6 @@
 import type { Module } from "@emstack/types";
 
-import { formatModuleLength } from "@emstack/types";
+import { formatModuleLength, formatPageRange } from "@emstack/types";
 import {
   ActivityIcon,
   ChevronDownIcon,
@@ -56,19 +56,10 @@ export function ModuleDisplayRow({
         >
           {m.name}
         </span>
-        {m.url && isHttpUrl(m.url) && (
-          <a
-            href={m.url}
-            target="_blank"
-            rel="noreferrer"
-            className="
-              text-xs text-muted-foreground
-              hover:text-blue-600
-            "
-            onClick={e => e.stopPropagation()}
-          >
-            <ExternalLinkIcon className="inline size-3" />
-          </a>
+        {formatPageRange(m.pageStart, m.pageEnd) && (
+          <span className="text-xs text-muted-foreground">
+            {formatPageRange(m.pageStart, m.pageEnd)}
+          </span>
         )}
         {formatModuleLength(m.length) && (
           <span className="text-xs text-muted-foreground">
@@ -77,6 +68,23 @@ export function ModuleDisplayRow({
         )}
       </label>
       <div className="flex items-center gap-0.5">
+        {m.url && isHttpUrl(m.url) && (
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+          >
+            <a
+              href={m.url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={e => e.stopPropagation()}
+            >
+              Go
+              <ExternalLinkIcon className="size-3.5" />
+            </a>
+          </Button>
+        )}
         <Button
           size="icon-sm"
           variant="ghost"

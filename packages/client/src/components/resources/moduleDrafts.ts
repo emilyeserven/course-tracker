@@ -27,6 +27,10 @@ interface BaseModuleEditDraft extends LevelAndTagsValue {
   name: string;
   description: string;
   url: string;
+  // Page range (book resources). Strings for the form inputs; parsed to
+  // number | null via parseCount on save.
+  pageStart: string;
+  pageEnd: string;
 }
 
 export interface GroupDraft extends BaseModuleEditDraft {
@@ -50,6 +54,8 @@ export function emptyGroupDraft(): GroupDraft {
     name: "",
     description: "",
     url: "",
+    pageStart: "",
+    pageEnd: "",
     totalCount: "",
     completedCount: "",
     easeOfStarting: "",
@@ -65,6 +71,8 @@ export function groupToDraft(g: ModuleGroup): GroupDraft {
     name: g.name,
     description: g.description ?? "",
     url: g.url ?? "",
+    pageStart: g.pageStart != null ? String(g.pageStart) : "",
+    pageEnd: g.pageEnd != null ? String(g.pageEnd) : "",
     totalCount: g.totalCount != null ? String(g.totalCount) : "",
     completedCount: g.completedCount != null ? String(g.completedCount) : "",
     easeOfStarting: g.easeOfStarting ?? "",
@@ -80,6 +88,8 @@ export function emptyModuleDraft(): ModuleDraft {
     name: "",
     description: "",
     url: "",
+    pageStart: "",
+    pageEnd: "",
     durationMode: "minutes",
     minutesValue: "",
     bucketValue: "",
@@ -97,6 +107,8 @@ export function moduleToDraft(m: Module): ModuleDraft {
     name: m.name,
     description: m.description ?? "",
     url: m.url ?? "",
+    pageStart: m.pageStart != null ? String(m.pageStart) : "",
+    pageEnd: m.pageEnd != null ? String(m.pageEnd) : "",
     easeOfStarting: m.easeOfStarting ?? ("" as const),
     timeNeeded: m.timeNeeded ?? ("" as const),
     interactivity: m.interactivity ?? ("" as const),

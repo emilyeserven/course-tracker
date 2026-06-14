@@ -20,6 +20,8 @@ export function ModuleEditCard({
   isNew = false,
   isComplete: _isComplete,
   isSaving = false,
+  showPages = false,
+  moduleLabel = "Module",
   onSave,
   onCancel,
   onDelete,
@@ -29,6 +31,10 @@ export function ModuleEditCard({
   isNew?: boolean;
   isComplete: boolean;
   isSaving?: boolean;
+  /** When true (book resources), show start/end page inputs. */
+  showPages?: boolean;
+  /** Per-resource label for a module (e.g. "Section"). */
+  moduleLabel?: string;
   onSave: (d: ModuleDraft) => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -50,7 +56,7 @@ export function ModuleEditCard({
     >
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          Module Name
+          {moduleLabel} Name
         </label>
         <Input
           type="text"
@@ -65,7 +71,7 @@ export function ModuleEditCard({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          Location (optional)
+          {showPages ? "URL (optional)" : "Location (optional)"}
         </label>
         <Input
           type="text"
@@ -76,6 +82,42 @@ export function ModuleEditCard({
             })}
         />
       </div>
+      {showPages && (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Start page (optional)
+            </label>
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={draft.pageStart}
+              onChange={e =>
+                update({
+                  pageStart: e.target.value,
+                })}
+              placeholder="e.g. 42"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              End page (optional)
+            </label>
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={draft.pageEnd}
+              onChange={e =>
+                update({
+                  pageEnd: e.target.value,
+                })}
+              placeholder="e.g. 58"
+            />
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <div className="flex flex-row items-center justify-between gap-2">
           <label className="text-xs font-medium text-muted-foreground">

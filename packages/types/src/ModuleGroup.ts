@@ -15,6 +15,9 @@ export interface ModuleGroup {
   // those modules in that case.
   totalCount?: number | null;
   completedCount?: number | null;
+  // For book resources: the page range this group spans. Both optional.
+  pageStart?: number | null;
+  pageEnd?: number | null;
   modules?: Module[];
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;

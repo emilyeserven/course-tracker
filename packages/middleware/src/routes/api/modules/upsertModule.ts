@@ -19,6 +19,8 @@ interface ModuleBody {
   minutesLength?: number | null;
   isComplete?: boolean;
   position?: number | null;
+  pageStart?: number | null;
+  pageEnd?: number | null;
   easeOfStarting?: "low" | "medium" | "high" | null;
   timeNeeded?: "low" | "medium" | "high" | null;
   interactivity?: "low" | "medium" | "high" | null;
@@ -34,6 +36,8 @@ const updateableColumns = [
   "length",
   "isComplete",
   "position",
+  "pageStart",
+  "pageEnd",
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
@@ -63,6 +67,8 @@ export default createUpsertHandler<ModuleBody>({
         type: "boolean",
       },
       position: nullableInteger,
+      pageStart: nullableInteger,
+      pageEnd: nullableInteger,
       easeOfStarting: nullableResourceLevelEnum,
       timeNeeded: nullableResourceLevelEnum,
       interactivity: nullableResourceLevelEnum,
@@ -79,6 +85,8 @@ export default createUpsertHandler<ModuleBody>({
     length: coerceModuleLength(body.length, body.minutesLength),
     isComplete: body.isComplete ?? false,
     position: body.position ?? null,
+    pageStart: body.pageStart ?? null,
+    pageEnd: body.pageEnd ?? null,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
     interactivity: body.interactivity ?? null,

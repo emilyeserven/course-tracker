@@ -3,6 +3,7 @@ import type { ModuleAdminSectionProps } from "./-moduleAdminSectionProps";
 import { PlusIcon, SparklesIcon } from "lucide-react";
 
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
+import { ModuleConventionsEditor } from "./-ModuleConventionsEditor";
 
 import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
@@ -22,7 +23,7 @@ export function ModuleAdminHeader({
   ui,
 }: ModuleAdminHeaderProps) {
   const {
-    completedCount, totalCount,
+    completedCount, totalCount, groupLabel, moduleLabel,
   } = api;
   const {
     isAnyEditing,
@@ -45,7 +46,8 @@ export function ModuleAdminHeader({
             </p>
           )}
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
+          <ModuleConventionsEditor api={api} />
           <Button
             variant="outline"
             size="sm"
@@ -63,7 +65,9 @@ export function ModuleAdminHeader({
             disabled={isAnyEditing}
           >
             <PlusIcon className="size-4" />
-            Add Module
+            Add
+            {" "}
+            {moduleLabel}
           </Button>
           <Button
             variant="outline"
@@ -72,7 +76,9 @@ export function ModuleAdminHeader({
             disabled={isAnyEditing}
           >
             <PlusIcon className="size-4" />
-            New Group
+            New
+            {" "}
+            {groupLabel}
           </Button>
         </div>
       </div>

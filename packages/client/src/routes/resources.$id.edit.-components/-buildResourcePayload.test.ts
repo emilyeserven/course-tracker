@@ -6,6 +6,7 @@ import { buildResourcePayload } from "./-buildResourcePayload.ts";
 
 const baseValues: ResourceFormValues = {
   name: "Intro to TypeScript",
+  type: "website",
   description: "A course",
   url: "https://example.com",
   status: "active",
@@ -31,6 +32,7 @@ describe("buildResourcePayload", () => {
 
     expect(payload).toEqual({
       name: "Intro to TypeScript",
+      type: "website",
       description: "A course",
       url: "https://example.com",
       status: "active",

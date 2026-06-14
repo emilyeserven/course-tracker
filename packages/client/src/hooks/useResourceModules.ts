@@ -1,8 +1,9 @@
 import type { GroupDraft, ModuleDraft } from "@/components/resources/moduleDrafts";
-import type { Module, ModuleGroup } from "@emstack/types";
+import type { Module, ModuleGroup, ModulesConfig } from "@emstack/types";
 
 import { useMemo } from "react";
 
+import { DEFAULT_MODULES_CONFIG } from "@emstack/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ import {
   fetchModules,
   fetchSingleResource,
   fetchTagGroups,
+  updateResourceModulesConfig,
   upsertModule,
   upsertModuleGroup,
 } from "@/utils/fetchFunctions";
@@ -91,6 +93,15 @@ export function useResourceModules(resourceId: string) {
       + groupsWithoutModulesCounts.completed;
   const totalCount = allModules.length + groupsWithoutModulesCounts.total;
 
+  // Book resources get per-module/group page ranges; the edit cards key off this.
+  const isBook = resourceQuery.data?.type === "book";
+  // Per-resource naming conventions (group vs module labels), with defaults.
+  const modulesConfig: ModulesConfig
+    = resourceQuery.data?.modulesConfig ?? DEFAULT_MODULES_CONFIG;
+  const groupLabel = modulesConfig.groupLabel || DEFAULT_MODULES_CONFIG.groupLabel;
+  const moduleLabel
+    = modulesConfig.moduleLabel || DEFAULT_MODULES_CONFIG.moduleLabel;
+
   function invalidateAll() {
     queryClient.invalidateQueries({
       queryKey: queryKeys.resources.moduleGroups(resourceId),
@@ -111,6 +122,8 @@ export function useResourceModules(resourceId: string) {
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
+        pageStart: parseCount(draft.pageStart),
+        pageEnd: parseCount(draft.pageEnd),
         totalCount: parseCount(draft.totalCount),
         completedCount: parseCount(draft.completedCount),
         easeOfStarting: draft.easeOfStarting || null,
@@ -132,6 +145,8 @@ export function useResourceModules(resourceId: string) {
         name: draft.name,
         description: draft.description || null,
         url: draft.url || null,
+        pageStart: parseCount(draft.pageStart),
+        pageEnd: parseCount(draft.pageEnd),
         totalCount: parseCount(draft.totalCount),
         completedCount: parseCount(draft.completedCount),
         easeOfStarting: draft.easeOfStarting || null,
@@ -171,6 +186,8 @@ export function useResourceModules(resourceId: string) {
         description: draft.description || null,
         url: draft.url || null,
         length: draftToLength(draft),
+        pageStart: parseCount(draft.pageStart),
+        pageEnd: parseCount(draft.pageEnd),
         easeOfStarting: draft.easeOfStarting || null,
         timeNeeded: draft.timeNeeded || null,
         interactivity: draft.interactivity || null,
@@ -200,6 +217,8 @@ export function useResourceModules(resourceId: string) {
         description: draft.description || null,
         url: draft.url || null,
         length: draftToLength(draft),
+        pageStart: parseCount(draft.pageStart),
+        pageEnd: parseCount(draft.pageEnd),
         isComplete,
         easeOfStarting: draft.easeOfStarting || null,
         timeNeeded: draft.timeNeeded || null,
@@ -222,6 +241,8 @@ export function useResourceModules(resourceId: string) {
         description: m.description ?? null,
         url: m.url ?? null,
         length: m.length ?? null,
+        pageStart: m.pageStart ?? null,
+        pageEnd: m.pageEnd ?? null,
         isComplete: !m.isComplete,
       }),
     onSuccess: () => invalidateAll(),
@@ -233,6 +254,20 @@ export function useResourceModules(resourceId: string) {
     onSuccess: () => {
       invalidateAll();
       toast.success("Module deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Naming conventions: a surgical update of just the resource's group/module
+  // labels (own endpoint so the rest of the resource is never re-sent).
+  const updateModulesConfigMutation = useMutation({
+    mutationFn: (config: ModulesConfig) =>
+      updateResourceModulesConfig(resourceId, config),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resources.detail(resourceId),
+      });
+      toast.success("Naming conventions saved");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -260,6 +295,8 @@ export function useResourceModules(resourceId: string) {
           description: a.description ?? null,
           url: a.url ?? null,
           length: a.length ?? null,
+          pageStart: a.pageStart ?? null,
+          pageEnd: a.pageEnd ?? null,
           isComplete: a.isComplete,
           position: aPosition,
         }),
@@ -270,6 +307,8 @@ export function useResourceModules(resourceId: string) {
           description: b.description ?? null,
           url: b.url ?? null,
           length: b.length ?? null,
+          pageStart: b.pageStart ?? null,
+          pageEnd: b.pageEnd ?? null,
           isComplete: b.isComplete,
           position: bPosition,
         }),
@@ -296,6 +335,8 @@ export function useResourceModules(resourceId: string) {
           name: a.name,
           description: a.description ?? null,
           url: a.url ?? null,
+          pageStart: a.pageStart ?? null,
+          pageEnd: a.pageEnd ?? null,
           totalCount: a.totalCount ?? null,
           completedCount: a.completedCount ?? null,
           position: aPosition,
@@ -305,6 +346,8 @@ export function useResourceModules(resourceId: string) {
           name: b.name,
           description: b.description ?? null,
           url: b.url ?? null,
+          pageStart: b.pageStart ?? null,
+          pageEnd: b.pageEnd ?? null,
           totalCount: b.totalCount ?? null,
           completedCount: b.completedCount ?? null,
           position: bPosition,
@@ -347,6 +390,10 @@ export function useResourceModules(resourceId: string) {
     modulesByGroup,
     completedCount,
     totalCount,
+    isBook,
+    modulesConfig,
+    groupLabel,
+    moduleLabel,
     invalidateAll,
     createGroupMutation,
     upsertGroupMutation,
@@ -355,6 +402,7 @@ export function useResourceModules(resourceId: string) {
     upsertModuleMutation,
     toggleCompleteMutation,
     deleteModuleMutation,
+    updateModulesConfigMutation,
     moveModule,
     moveGroup,
     isReordering,

@@ -56,6 +56,8 @@ export function ModuleListItem({
         draft={moduleToDraft(m)}
         tagGroups={tagGroups}
         isComplete={m.isComplete}
+        showPages={api.isBook}
+        moduleLabel={api.moduleLabel}
         isSaving={
           upsertModuleMutation.isPending || deleteModuleMutation.isPending
         }

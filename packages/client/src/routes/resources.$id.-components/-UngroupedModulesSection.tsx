@@ -38,6 +38,8 @@ export function UngroupedModulesSection({
           tagGroups={tagGroups}
           isNew
           isComplete={false}
+          showPages={api.isBook}
+          moduleLabel={api.moduleLabel}
           isSaving={createModuleMutation.isPending}
           onSave={d =>
             createModuleMutation.mutate(

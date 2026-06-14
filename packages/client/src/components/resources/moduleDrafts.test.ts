@@ -93,6 +93,8 @@ describe("emptyGroupDraft", () => {
     expect(draft.name).toBe("");
     expect(draft.totalCount).toBe("");
     expect(draft.completedCount).toBe("");
+    expect(draft.pageStart).toBe("");
+    expect(draft.pageEnd).toBe("");
     expect(draft.easeOfStarting).toBe("");
     expect(draft.tagIds).toEqual([]);
   });
@@ -106,6 +108,8 @@ describe("groupToDraft", () => {
       name: "Group",
       description: "desc",
       url: "https://example.com",
+      pageStart: 42,
+      pageEnd: 58,
       totalCount: 10,
       completedCount: 4,
       easeOfStarting: "high",
@@ -124,6 +128,8 @@ describe("groupToDraft", () => {
       name: "Group",
       description: "desc",
       url: "https://example.com",
+      pageStart: "42",
+      pageEnd: "58",
       totalCount: "10",
       completedCount: "4",
       easeOfStarting: "high",
@@ -144,6 +150,8 @@ describe("groupToDraft", () => {
     expect(draft.url).toBe("");
     expect(draft.totalCount).toBe("");
     expect(draft.completedCount).toBe("");
+    expect(draft.pageStart).toBe("");
+    expect(draft.pageEnd).toBe("");
     expect(draft.easeOfStarting).toBe("");
     expect(draft.tagIds).toEqual([]);
   });
@@ -156,7 +164,19 @@ describe("emptyModuleDraft", () => {
     expect(draft.durationMode).toBe("minutes");
     expect(draft.minutesValue).toBe("");
     expect(draft.bucketValue).toBe("");
+    expect(draft.pageStart).toBe("");
+    expect(draft.pageEnd).toBe("");
     expect(draft.tagIds).toEqual([]);
+  });
+
+  test("stringifies a module's page range", () => {
+    const draft = moduleToDraft({
+      ...baseModule,
+      pageStart: 12,
+      pageEnd: 20,
+    });
+    expect(draft.pageStart).toBe("12");
+    expect(draft.pageEnd).toBe("20");
   });
 });
 

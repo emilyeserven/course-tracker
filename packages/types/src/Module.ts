@@ -33,10 +33,29 @@ export interface Module {
   minutesLength?: number | null;
   isComplete: boolean;
   position?: number | null;
+  // For book resources: the page range this module spans. Both optional.
+  pageStart?: number | null;
+  pageEnd?: number | null;
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;
   tags?: Tag[];
+}
+
+/**
+ * Render a page range for display: "" when neither is set, "p. N" for a single
+ * page (only one endpoint set), or "pp. N–M" when both are set.
+ */
+export function formatPageRange(
+  start?: number | null,
+  end?: number | null,
+): string {
+  if (start != null && end != null) {
+    return start === end ? `p. ${start}` : `pp. ${start}–${end}`;
+  }
+  if (start != null) return `p. ${start}`;
+  if (end != null) return `p. ${end}`;
+  return "";
 }
 
 export function isModuleDurationBucket(

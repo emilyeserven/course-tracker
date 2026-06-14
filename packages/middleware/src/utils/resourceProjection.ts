@@ -15,6 +15,7 @@ import type {
 interface ResourceProjectionRow {
   id: string;
   name: string;
+  type: Resource["type"] | null;
   description: string | null;
   url: string | null;
   dateExpires: string | null;
@@ -26,6 +27,7 @@ interface ResourceProjectionRow {
   timeNeeded: Resource["timeNeeded"];
   interactivity: Resource["interactivity"];
   cost: string | null;
+  modulesConfig: Resource["modulesConfig"];
   courseProvider: { id: string;
     name: string | null;
     cost: string | null;
@@ -40,6 +42,7 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
   return {
     id: resource.id,
     name: resource.name,
+    type: resource.type ?? "website",
     description: resource.description,
     url: resource.url,
     cost,
@@ -54,5 +57,6 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
     timeNeeded: resource.timeNeeded ?? null,
     interactivity: resource.interactivity ?? null,
     tags: (resource.resourceTags ?? []).map(j => j.tag),
+    modulesConfig: resource.modulesConfig ?? null,
   };
 }
