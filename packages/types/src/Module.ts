@@ -1,3 +1,4 @@
+import type { ModuleStatus } from "./ModuleStatus";
 import type { Tag } from "./Tag";
 import type { TaskResourceLevel } from "./TaskResource";
 
@@ -31,7 +32,7 @@ export interface Module {
   length?: string | null;
   /** @deprecated use `length` instead. Kept for migration compatibility. */
   minutesLength?: number | null;
-  isComplete: boolean;
+  status: ModuleStatus;
   position?: number | null;
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;

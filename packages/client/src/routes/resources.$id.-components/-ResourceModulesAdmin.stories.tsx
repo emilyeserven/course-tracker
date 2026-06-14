@@ -98,12 +98,13 @@ export const Populated: Story = {
               id: "m1",
               moduleGroupId: "g1",
               name: "Variables",
-              isComplete: true,
+              status: "complete",
             }),
             makeModule({
               id: "m2",
               moduleGroupId: "g1",
               name: "Functions",
+              status: "in_progress",
             }),
             makeModule({
               id: "m3",

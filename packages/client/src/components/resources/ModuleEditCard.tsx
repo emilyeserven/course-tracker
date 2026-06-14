@@ -18,7 +18,6 @@ export function ModuleEditCard({
   draft: initial,
   tagGroups,
   isNew = false,
-  isComplete: _isComplete,
   isSaving = false,
   onSave,
   onCancel,
@@ -27,7 +26,6 @@ export function ModuleEditCard({
   draft: ModuleDraft;
   tagGroups: TagGroup[];
   isNew?: boolean;
-  isComplete: boolean;
   isSaving?: boolean;
   onSave: (d: ModuleDraft) => void;
   onCancel: () => void;

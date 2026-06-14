@@ -24,7 +24,7 @@ function makeModule(overrides: Partial<Module> = {}): Module {
     id: "module-1",
     resourceId: "res-1",
     name: "Module 1",
-    isComplete: false,
+    status: "unstarted",
     ...overrides,
   };
 }

@@ -16,10 +16,11 @@ const meta: Meta<typeof ModuleDisplayRow> = {
     canMoveDown: true,
     onMoveUp: fn(),
     onMoveDown: fn(),
-    onToggleComplete: fn(),
+    onSetStatus: fn(),
+    onOpenDetails: fn(),
     onEdit: fn(),
     onLogInteraction: fn(),
-    isToggling: false,
+    isStatusPending: false,
   },
   // The component renders an <li>, so host it in a <ul>.
   decorators: [
@@ -41,21 +42,47 @@ export const Default: Story = {
   }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Getting Started")).toBeInTheDocument();
-    await expect(canvas.getByRole("checkbox")).not.toBeChecked();
+    await expect(
+      canvas.getByRole("button", {
+        name: /Status: Unstarted/i,
+      }),
+    ).toBeInTheDocument();
   },
 };
 
-export const Complete: Story = {
+export const InProgress: Story = {
   args: {
     module: makeModule({
-      isComplete: true,
+      status: "in_progress",
     }),
   },
   play: async ({
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("checkbox")).toBeChecked();
+    await expect(
+      canvas.getByRole("button", {
+        name: /Status: In Progress/i,
+      }),
+    ).toBeInTheDocument();
+  },
+};
+
+export const Complete: Story = {
+  args: {
+    module: makeModule({
+      status: "complete",
+    }),
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("button", {
+        name: /Status: Complete/i,
+      }),
+    ).toBeInTheDocument();
   },
 };
 

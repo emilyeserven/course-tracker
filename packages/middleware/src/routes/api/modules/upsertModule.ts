@@ -2,6 +2,7 @@ import { modules, moduleTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import { coerceModuleLength } from "@/utils/moduleLength";
 import {
+  moduleStatusEnum,
   nullableInteger,
   nullableResourceLevelEnum,
   nullableString,
@@ -17,7 +18,7 @@ interface ModuleBody {
   length?: string | null;
   /** @deprecated kept for backwards compat; coerced into `length` */
   minutesLength?: number | null;
-  isComplete?: boolean;
+  status?: "unstarted" | "in_progress" | "complete";
   position?: number | null;
   easeOfStarting?: "low" | "medium" | "high" | null;
   timeNeeded?: "low" | "medium" | "high" | null;
@@ -32,7 +33,7 @@ const updateableColumns = [
   "description",
   "url",
   "length",
-  "isComplete",
+  "status",
   "position",
   "easeOfStarting",
   "timeNeeded",
@@ -59,9 +60,7 @@ export default createUpsertHandler<ModuleBody>({
       url: nullableString,
       length: nullableString,
       minutesLength: nullableInteger,
-      isComplete: {
-        type: "boolean",
-      },
+      status: moduleStatusEnum,
       position: nullableInteger,
       easeOfStarting: nullableResourceLevelEnum,
       timeNeeded: nullableResourceLevelEnum,
@@ -77,7 +76,7 @@ export default createUpsertHandler<ModuleBody>({
     description: body.description ?? null,
     url: body.url ?? null,
     length: coerceModuleLength(body.length, body.minutesLength),
-    isComplete: body.isComplete ?? false,
+    status: body.status ?? "unstarted",
     position: body.position ?? null,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,

@@ -301,7 +301,6 @@ export function ModuleGroupSection({
           draft={emptyModuleDraft()}
           tagGroups={tagGroups}
           isNew
-          isComplete={false}
           isSaving={createModuleMutation.isPending}
           onSave={d =>
             createModuleMutation.mutate(
