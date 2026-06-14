@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
+
 import { Input } from "@/components/input";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -118,22 +117,12 @@ export function QuickAddProviderDialog({
               maxLength={255}
             />
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!canSubmit || mutation.isPending}
-            >
-              {mutation.isPending && <Loader2 className="animate-spin" />}
-              Create
-            </Button>
-          </DialogFooter>
+          <QuickAddDialogFooter
+            submitLabel="Create"
+            isPending={mutation.isPending}
+            canSubmit={canSubmit}
+            onCancel={() => onOpenChange(false)}
+          />
         </form>
       </DialogContent>
     </Dialog>

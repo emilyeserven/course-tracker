@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { Loader2 } from "lucide-react";
+import { QuickAddDialogFooter } from "./QuickAddDialogFooter";
 
 import { Input } from "@/components/input";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -85,22 +83,12 @@ export function QuickAddNameDialog({
               maxLength={255}
             />
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!trimmed || isPending}
-            >
-              {isPending && <Loader2 className="animate-spin" />}
-              Create
-            </Button>
-          </DialogFooter>
+          <QuickAddDialogFooter
+            submitLabel="Create"
+            isPending={isPending}
+            canSubmit={Boolean(trimmed)}
+            onCancel={() => onOpenChange(false)}
+          />
         </form>
       </DialogContent>
     </Dialog>
