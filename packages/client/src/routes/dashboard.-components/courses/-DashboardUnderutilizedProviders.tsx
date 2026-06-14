@@ -12,7 +12,7 @@ import {
   DashboardCard,
   DashboardSectionStatus,
   isAutoHeight,
-} from "./-cardKit";
+} from "../shared/-cardKit";
 
 import { DataTable } from "@/components/ui/data-table";
 import { fetchProviders, formatCurrency, parseCost } from "@/utils";

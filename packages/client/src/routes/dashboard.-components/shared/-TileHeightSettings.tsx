@@ -1,27 +1,16 @@
-import type { DashboardTileProps } from "@/lib/dashboardTiles";
 import type { TileHeightMode } from "@emstack/types";
-import type * as React from "react";
 
 import { useEffect, useRef, useState } from "react";
 
-import { SettingsIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { MAX_TILE_ROWS, TILE_META } from "@/lib/dashboardTiles";
-import { cn } from "@/lib/utils";
 
 /** Auto / Fixed height chooser shared by every card's settings flyout. When
  * "Fixed" is selected, a numeric input lets the user set the height (in grid
  * rows) directly, as a precise alternative to the resize handle. */
-function TileHeightSettings({
+export function TileHeightSettings({
   mode,
   onChange,
   h,
@@ -106,92 +95,3 @@ function TileHeightSettings({
     </div>
   );
 }
-
-/**
- * A label + switch-style toggle row. No Switch primitive exists in the repo, so
- * this is a self-contained accessible toggle built from a button.
- */
-function SettingToggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className="flex items-center justify-between gap-3 text-sm"
-    >
-      <span>{label}</span>
-      <span
-        aria-hidden
-        className={cn(
-          "relative h-5 w-9 shrink-0 rounded-full transition-colors",
-          checked ? "bg-primary" : "bg-input",
-        )}
-      >
-        <span
-          className={cn(
-            `
-              absolute top-0.5 left-0.5 size-4 rounded-full bg-background
-              shadow-sm transition-transform
-            `,
-            checked && "translate-x-4",
-          )}
-        />
-      </span>
-    </button>
-  );
-}
-
-/**
- * The gear-icon flyout shown at the right of a card header. Always offers the
- * Auto/Fixed height choice; `children` add card-specific controls (e.g. the
- * Todoist display toggles or a link to Settings).
- */
-function CardSettingsFlyout({
-  tile,
-  onUpdateTile,
-  children,
-}: DashboardTileProps & { children?: React.ReactNode }) {
-  const mode = tile.heightMode ?? "auto";
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Card settings"
-        >
-          <SettingsIcon />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="flex flex-col gap-3"
-      >
-        <TileHeightSettings
-          mode={mode}
-          onChange={heightMode => onUpdateTile({
-            heightMode,
-          })}
-          h={tile.h}
-          minH={TILE_META[tile.tileId].minH}
-          maxH={MAX_TILE_ROWS}
-          onHeightChange={h => onUpdateTile({
-            h,
-          })}
-        />
-        {children}
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-export { CardSettingsFlyout, SettingToggle };

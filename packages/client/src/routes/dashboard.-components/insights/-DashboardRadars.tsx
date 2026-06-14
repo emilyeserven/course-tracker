@@ -10,7 +10,7 @@ import {
   DashboardCard,
   DashboardSectionStatus,
   isAutoHeight,
-} from "./-cardKit";
+} from "../shared/-cardKit";
 
 import { fetchDomains } from "@/utils";
 
