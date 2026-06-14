@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { RoutineTodayCard } from "./-RoutineTodayCard";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
 import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
@@ -26,16 +25,14 @@ const meta = {
   decorators: [
     Story => (
       <RouterStub>
-        <SettingsProvider>
-          <QueryStub
-            client={seededQueryClient([
-              [["tasks"], [makeTask()]],
-              [["resources"], makeResources()],
-            ])}
-          >
-            <Story />
-          </QueryStub>
-        </SettingsProvider>
+        <QueryStub
+          client={seededQueryClient([
+            [["tasks"], [makeTask()]],
+            [["resources"], makeResources()],
+          ])}
+        >
+          <Story />
+        </QueryStub>
       </RouterStub>
     ),
   ],

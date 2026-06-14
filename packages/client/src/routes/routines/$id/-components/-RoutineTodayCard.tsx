@@ -7,9 +7,14 @@ import { TodayStatusCell } from "@/components/dailies";
 import { RoutineEntryLabel } from "@/components/routines";
 import { Button } from "@/components/ui/button";
 import { useRoutineStatusMutation } from "@/hooks/useRoutineStatusMutation";
-import { useSettings } from "@/hooks/useSettings";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
-import { findStatusForDate, getTodayKey, isHttpUrl, isWeeklyTargetMet } from "@/utils";
+import { useWeekTargetWindow } from "@/stores/settingsStore";
+import {
+  findStatusForDate,
+  getTodayKey,
+  isHttpUrl,
+  isWeeklyTargetMet,
+} from "@/utils";
 
 interface RoutineTodayCardProps {
   data: Routine;
@@ -23,12 +28,9 @@ interface RoutineTodayCardProps {
 export function RoutineTodayCard({
   data,
 }: RoutineTodayCardProps) {
+  const weekTargetWindow = useWeekTargetWindow();
   const {
-    settings,
-  } = useSettings();
-  const {
-    taskNames,
-    resourceNames,
+    taskNames, resourceNames,
   } = useTaskResourceNames();
   const statusMutation = useRoutineStatusMutation(data.id);
 
@@ -37,7 +39,7 @@ export function RoutineTodayCard({
   const isDaily = data.mode === "daily";
   const isCurated = data.mode === "curated";
   const dailyEntry = isDaily
-    ? Object.values(weekly).find(Boolean) ?? null
+    ? (Object.values(weekly).find(Boolean) ?? null)
     : null;
   // The same day of the week as today (JS getDay: "0" = Sunday … "6" = Saturday).
   // Daily routines mirror their entry onto every day, so this resolves to the
@@ -64,7 +66,7 @@ export function RoutineTodayCard({
           weeklyTarget: data.weeklyTarget ?? null,
         },
         todayDateKey,
-        settings.weekTargetWindow,
+        weekTargetWindow,
       );
 
   // A Daily-shaped view of this routine for the shared today's-status modal,
@@ -129,16 +131,12 @@ export function RoutineTodayCard({
               )}
             </div>
             {todayEntry.notes && (
-              <p className="text-sm text-muted-foreground">
-                {todayEntry.notes}
-              </p>
+              <p className="text-sm text-muted-foreground">{todayEntry.notes}</p>
             )}
           </>
         )
         : (
-          <p className="text-muted-foreground italic">
-            Nothing, take a break!
-          </p>
+          <p className="text-muted-foreground italic">Nothing, take a break!</p>
         )}
       {weekTargetMet && (
         <p className="mt-2 text-sm text-muted-foreground italic">

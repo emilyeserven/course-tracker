@@ -11,7 +11,10 @@ import {
   useDailySort,
   useDailyStatusMutation,
 } from "@/hooks/useDailyTracker";
-import { useSettings } from "@/hooks/useSettings";
+import {
+  useMaxActiveDailies,
+  useWeekTargetWindow,
+} from "@/stores/settingsStore";
 import { classifyDaily, fetchDailies, getTodayKey } from "@/utils";
 
 export const RECENT_DAYS_COUNT = 6;
@@ -24,9 +27,8 @@ export const RECENT_DAYS_COUNT = 6;
  */
 export function useDashboardDailies() {
   const todayKey = getTodayKey();
-  const {
-    settings,
-  } = useSettings();
+  const maxActiveDailies = useMaxActiveDailies();
+  const weekTargetWindow = useWeekTargetWindow();
   const {
     mode, setMode,
   } = useDailiesViewMode();
@@ -60,7 +62,7 @@ export function useDashboardDailies() {
       if (!partitionRef.current.has(d.id)) {
         partitionRef.current.set(
           d.id,
-          classifyDaily(d, todayKey, settings.weekTargetWindow),
+          classifyDaily(d, todayKey, weekTargetWindow),
         );
       }
     }
@@ -85,7 +87,7 @@ export function useDashboardDailies() {
     sorting,
     onSortingChange,
     mutation,
-    maxActiveDailies: settings.maxActiveDailies,
+    maxActiveDailies,
   };
 }
 

@@ -1,8 +1,6 @@
-import { useState } from "react";
-
 import { STORAGE_KEYS } from "@/constants/storageKeys";
+import { createPersistedValueStore } from "@/stores/createPersistedValue";
 
-const STORAGE_KEY = STORAGE_KEYS.exploreRing;
 const DEFAULT_RING = "Trial";
 
 /**
@@ -11,25 +9,12 @@ const DEFAULT_RING = "Trial";
  * first use), falls back to "Trial" if present, otherwise the first ring.
  */
 export function useExploreRing(rings: string[] | undefined) {
-  const [storedRing, setStoredRing] = useState<string>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) ?? DEFAULT_RING;
-    }
-    catch {
-      return DEFAULT_RING;
-    }
-  });
-
-  const setRing = (ring: string) => {
-    setStoredRing(ring);
-    try {
-      localStorage.setItem(STORAGE_KEY, ring);
-    }
-    catch {
-      // Ignore storage failures (private mode / quota) — selection still works
-      // for the session.
-    }
-  };
+  const useStore = createPersistedValueStore<string>(
+    STORAGE_KEYS.exploreRing,
+    DEFAULT_RING,
+  );
+  const storedRing = useStore(s => s.value);
+  const setValue = useStore(s => s.setValue);
 
   // While rings are still loading, surface the stored value as-is so the
   // <Select> has a stable value and doesn't flicker.
@@ -42,6 +27,6 @@ export function useExploreRing(rings: string[] | undefined) {
 
   return {
     ring,
-    setRing,
+    setRing: (next: string) => setValue(next),
   };
 }
