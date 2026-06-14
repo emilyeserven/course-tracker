@@ -62,9 +62,32 @@ export const DailyNoTask: Story = {
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    // The "no task assigned" caution surfaces an accessible label.
+    // The "nothing assigned" caution surfaces an accessible label.
     await expect(
-      await canvas.findByLabelText("No task assigned"),
+      await canvas.findByLabelText("Nothing assigned"),
     ).toBeInTheDocument();
+  },
+};
+
+export const DailyResourceNoWarning: Story = {
+  args: makeRoutine({
+    name: "Read the docs",
+    connections: [],
+    // A daily routine assigned a resource (not a task) still counts as
+    // assigned, so the caution must not appear.
+    weekly: {
+      1: {
+        type: "resource",
+        id: "res-1",
+      },
+    },
+  }),
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.queryByLabelText("Nothing assigned"),
+    ).not.toBeInTheDocument();
   },
 };
