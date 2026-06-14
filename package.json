@@ -33,6 +33,7 @@
     "dev": "docker compose up --wait db && pnpm --filter=@emstack/middleware run push:dev && concurrently -n \"models,server,ui\" -c \"yellow,blue,green\" \"pnpm --filter=@emstack/types --stream run dev\" \"pnpm --filter=@emstack/middleware --stream run dev\" \"pnpm --filter=@emstack/client --stream run dev\"",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/ --cache-strategy content",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/ --cache-strategy content",
+    "verify:changed": "node scripts/verify-changed.mjs",
     "fallow": "fallow",
     "fallow:sync-skill": "rm -rf .claude/skills/fallow && cp -R node_modules/fallow/skills/fallow .claude/skills/fallow",
     "typecheck": "pnpm --filter=@emstack/types build && pnpm -r --filter=@emstack/middleware --filter=@emstack/client run typecheck",

@@ -35,6 +35,7 @@ pnpm dev              # Start db + all packages concurrently (client + middlewar
 pnpm build            # Build all packages
 pnpm start            # Start the gateway (production mode, requires pnpm build first)
 pnpm test             # Run all tests
+pnpm verify:changed   # Fast inner loop: scoped lint/typecheck/tests for changed files only
 pnpm typecheck        # Type-check all buildable packages (no emit)
 pnpm lint             # Lint all files (ESLint flat config, cached)
 pnpm lint:fix         # Auto-fix lint issues
@@ -49,6 +50,21 @@ pnpm push:prod        # Run runtime migrations + push DB schema to prod
 # Single middleware test: pnpm --filter=@emstack/middleware exec node --test src/tests/<file>.test.js
 # Regenerate route tree:  pnpm --filter=@emstack/client run routeTree
 ```
+
+### Verification — fast inner loop
+
+The full suite is slow: client tests run as **two Vitest projects** — a fast
+`unit-tests` project (jsdom) and a `storybook` project that mounts **every story
+in a real headless Chromium**. Don't run the whole thing after every edit.
+
+- **While iterating:** `pnpm verify:changed` (or the `/verify-changed` skill) —
+  it lints/typechecks only the changed packages and runs Vitest `related` (the
+  affected jsdom unit tests + only the Storybook stories that import a changed
+  module). Use `BASE=origin/master pnpm verify:changed` for a branch-wide sweep.
+- **Before committing (the full gate, mirrors CI):**
+  `pnpm typecheck && pnpm lint && pnpm --filter=@emstack/client exec vitest run`.
+  `verify:changed` is scoped, so it can miss stories affected by a change to a
+  shared primitive/theme it can't trace — the full gate is the source of truth.
 
 ## Local Development Setup
 
