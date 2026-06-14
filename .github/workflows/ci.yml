@@ -181,6 +181,13 @@ jobs:
 
       # `vitest run` (not watch) keeps it non-interactive; --project storybook selects
       # the browser-mode project defined in packages/client/vite.config.ts.
+      #
+      # Failsafe timeout: the browser suite can deadlock under parallelism (#504) —
+      # a >28-min crawl at low CPU that never emits a summary. A healthy full run is
+      # ~1.5-8 min, so bound this step well under the 6h job default to fail fast on
+      # a hang instead of burning the whole runner. Scoped to the test step so the
+      # cold-cache Playwright install / Vite optimize steps above don't count against it.
       - name: Run Storybook component tests
         if: steps.changes.outputs.client == 'true'
+        timeout-minutes: 15
         run: pnpm --filter=@emstack/client exec vitest run --project storybook
