@@ -1,3 +1,5 @@
+import type { RecurPeriodUnit } from "@emstack/types";
+
 import {
   nullableBoolean,
   nullableInteger,
@@ -14,7 +16,7 @@ export interface ProviderBody {
   cost?: string | null;
   isRecurring?: boolean | null;
   recurDate?: string | null;
-  recurPeriodUnit?: "days" | "months" | "years" | null;
+  recurPeriodUnit?: RecurPeriodUnit | null;
   recurPeriod?: number | null;
   isCourseFeesShared?: boolean | null;
 }

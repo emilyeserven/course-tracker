@@ -12,7 +12,12 @@ import {
 
 import type { RoutineConnectionInput } from "@/utils/routineConnectionRows";
 import type { RoutineCurated, RoutineWeekly } from "@/db/schema";
-import type { DailyCompletion, DailyCriteria } from "@emstack/types";
+import type {
+  DailyCompletion,
+  DailyCriteria,
+  EntityStatus,
+  RoutineMode,
+} from "@emstack/types";
 
 // Body schema and row builder shared by the routine create and upsert
 // handlers.
@@ -21,10 +26,10 @@ export interface RoutineBody {
   name: string;
   description?: string | null;
   connections?: RoutineConnectionInput[];
-  status?: "active" | "inactive" | "complete" | "paused" | null;
+  status?: EntityStatus | null;
   weekly?: RoutineWeekly;
   curated?: RoutineCurated;
-  mode?: "weekly" | "daily" | "curated" | null;
+  mode?: RoutineMode | null;
   completions?: DailyCompletion[];
   criteria?: DailyCriteria;
   weeklyTarget?: number | null;
