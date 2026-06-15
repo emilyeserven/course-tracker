@@ -15,8 +15,8 @@ import {
   taskOptions,
 } from "@/test-utils/routinesFixtures";
 
-// resource-1 carries a link, so a routine entry pointing at it can offer/autofill
-// that url into its location field.
+// resource-1 carries a link, so a routine entry pointing at it shows that url as
+// its location placeholder (and can offer it when the field holds custom text).
 const resourceOptionsWithLink: SelectOption[] = [
   {
     value: "resource-1",
@@ -197,9 +197,10 @@ export const OffersLinkWhenLocationFilled: Story = {
   },
 };
 
-// Narrowing a resource entry (empty location) to a linked module group autofills
-// the location from the group's link.
-export const AutofillsOnNarrowing: Story = {
+// A resource entry with a blank location shows the resource's link as the
+// location placeholder (the value stays empty; it's persisted as the link on
+// save). No "use link" offer appears, since there's no different value to replace.
+export const ShowsResourceLinkAsPlaceholder: Story = {
   args: {
     value: weeklyToRows({
       1: {
@@ -207,25 +208,46 @@ export const AutofillsOnNarrowing: Story = {
         id: "resource-1",
       },
     }),
-    resourceOptions,
+    resourceOptions: resourceOptionsWithLink,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    const location = canvas.getByLabelText("Monday location");
+    await expect(location).toHaveValue("");
+    await expect(location).toHaveAttribute(
+      "placeholder",
+      "https://duolingo.com",
+    );
+    await expect(
+      canvas.queryByLabelText("Monday use resource link"),
+    ).not.toBeInTheDocument();
+  },
+};
+
+// Narrowing a resource entry to a linked module group surfaces the group's link
+// (which wins over the resource's) as the location placeholder.
+export const ShowsNarrowedLinkAsPlaceholder: Story = {
+  args: {
+    value: weeklyToRows({
+      1: {
+        type: "resource",
+        id: "resource-1",
+        moduleGroupId: "group-1",
+      },
+    }),
+    resourceOptions: resourceOptionsWithLink,
     moduleGroupsByResource: moduleGroupsByResourceWithLink,
     modulesByResource,
   },
   play: async ({
     canvasElement,
-    args,
   }) => {
     const canvas = within(canvasElement);
-    const groupSelect = await canvas.findByLabelText("Monday module group");
-    await userEvent.selectOptions(groupSelect, "group-1");
-    await expect(args.onChange).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          day: "1",
-          moduleGroupId: "group-1",
-          location: "https://example.com/unit-1",
-        }),
-      ]),
+    await expect(canvas.getByLabelText("Monday location")).toHaveAttribute(
+      "placeholder",
+      "https://example.com/unit-1",
     );
   },
 };

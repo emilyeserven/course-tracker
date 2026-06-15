@@ -296,40 +296,38 @@ export function effectiveEntryUrl(
   return selectedModule?.url || groupUrl || resourceUrl || "";
 }
 
-// Augment a selection-changing patch with a location autofilled from the entry's
-// link, when the field is empty or still holds the previous autofill (so it
-// tracks a re-narrowing) — never clobbering text the user typed. Returns the
-// patch unchanged when there's no link to apply. Shared by the weekly/curated
-// row editor and the daily editor so the autofill rule lives in one place.
-export function withLocationAutofill(
-  row: WeeklyEntry,
-  patch: Partial<WeeklyEntry>,
+// Default an empty location to the entry's effective link, so a resource entry
+// whose location is left blank persists (and elsewhere renders) its resource /
+// module / group url. Rows with text the user typed are left untouched, as are
+// task / freeform / no-link rows (effectiveEntryUrl returns "" for them). Applied
+// at save time — the editors show the link as a placeholder rather than baking it
+// into the field value, so this is where the placeholder url becomes the stored
+// value. Generic over the row shape so it serves both weekly rows (keyed by
+// `day`) and curated rows (keyed by `date`). `moduleGroupsByResource` /
+// `modulesByResource` are the same per-resource narrowing maps the editor uses.
+export function fillEffectiveLocations<T extends WeeklyEntry>(
+  rows: T[],
   resourceOptions: SelectOption[],
-  groupOptions: SelectOption[],
-  moduleOptions: SelectOption[],
-): Partial<WeeklyEntry> {
-  const prevUrl = effectiveEntryUrl(
-    row,
-    resourceOptions,
-    groupOptions,
-    moduleOptions,
-  );
-  const nextUrl = effectiveEntryUrl(
-    {
-      ...row,
-      ...patch,
-    },
-    resourceOptions,
-    groupOptions,
-    moduleOptions,
-  );
-  if (nextUrl && (row.location === "" || row.location === prevUrl)) {
-    return {
-      ...patch,
-      location: nextUrl,
-    };
-  }
-  return patch;
+  moduleGroupsByResource: Map<string, SelectOption[]>,
+  modulesByResource: Map<string, SelectOption[]>,
+): T[] {
+  return rows.map((row) => {
+    if (row.location) {
+      return row;
+    }
+    const url = effectiveEntryUrl(
+      row,
+      resourceOptions,
+      moduleGroupsByResource.get(row.id) ?? [],
+      modulesByResource.get(row.id) ?? [],
+    );
+    return url
+      ? {
+        ...row,
+        location: url,
+      }
+      : row;
+  });
 }
 
 // Display name for a weekly entry: freeform entries carry their own text in
