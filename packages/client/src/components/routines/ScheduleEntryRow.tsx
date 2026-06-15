@@ -5,6 +5,10 @@ import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import {
+  effectiveEntryUrl,
+  withLocationAutofill,
+} from "@/components/routines/weekly";
 import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
@@ -25,6 +29,44 @@ interface ScheduleEntryRowProps {
   onAddResource: () => void;
   // Surface the combobox's typed text so the parent can seed the add dialog.
   onInputValueChange: (val: string) => void;
+}
+
+// The resolved item name and its actionable-sentence preview for a row, pulled
+// out of the component to keep its complexity down. A resource entry's narrowing
+// (module/group) name replaces the resource name in the label (see
+// resourceEntryLabel); the preview only shows once there's prepend/append text.
+function rowPreview(
+  row: WeeklyEntry,
+  optionsMap: Map<string, string>,
+  groupOptions: SelectOption[],
+  moduleOptions: SelectOption[],
+): { showPreview: boolean;
+  preview: string; } {
+  const moduleLabel = row.moduleId
+    ? moduleOptions.find(o => o.value === row.moduleId)?.label
+    : null;
+  const groupLabel = row.moduleGroupId
+    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
+    : null;
+  const itemName
+    = row.type === "freeform"
+      ? row.id
+      : row.type === "resource"
+        ? resourceEntryLabel({
+          resourceName: optionsMap.get(row.id) ?? "",
+          moduleName: moduleLabel,
+          groupName: groupLabel,
+        })
+        : (optionsMap.get(row.id) ?? "");
+  return {
+    showPreview:
+      !!itemName && (!!row.prependText.trim() || !!row.appendText.trim()),
+    preview: buildActionableSentence({
+      prependText: row.prependText,
+      name: itemName,
+      appendText: row.appendText,
+    }),
+  };
 }
 
 // One schedule row's editor: type select, task/resource picker (or freeform
@@ -50,38 +92,43 @@ export function ScheduleEntryRow({
         ? resourceOptions
         : [];
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
-  // A resource entry may narrow to a module / group; show that narrower name in
-  // the preview (matching how the entry renders everywhere else). A chosen
-  // module wins over its group in the label (see resourceEntryLabel).
-  const moduleLabel = row.moduleId
-    ? moduleOptions.find(o => o.value === row.moduleId)?.label
-    : null;
-  const groupLabel = row.moduleGroupId
-    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
-    : null;
-  const itemName
-    = row.type === "freeform"
-      ? row.id
-      : row.type === "resource"
-        ? resourceEntryLabel({
-          resourceName: optionsMap.get(row.id) ?? "",
-          moduleName: moduleLabel,
-          groupName: groupLabel,
-        })
-        : (optionsMap.get(row.id) ?? "");
-  const showPreview
-    = !!itemName && (!!row.prependText.trim() || !!row.appendText.trim());
-  const preview = buildActionableSentence({
-    prependText: row.prependText,
-    name: itemName,
-    appendText: row.appendText,
-  });
+  // Item name + live preview (a resource entry's narrowing name replaces the
+  // resource name); derived in a helper to keep this component's complexity down.
+  const {
+    showPreview,
+    preview,
+  } = rowPreview(row, optionsMap, groupOptions, moduleOptions);
   // The module narrowing only makes sense once a resource is chosen, and only
   // when that resource actually has modules / groups to pick from.
   const showModulePickers
     = row.type === "resource"
       && !!row.id
       && (groupOptions.length > 0 || moduleOptions.length > 0);
+
+  // The most-specific link for the current resource / module / group selection,
+  // and whether to offer applying it (a link exists and the location differs).
+  const linkUrl = effectiveEntryUrl(
+    row,
+    resourceOptions,
+    groupOptions,
+    moduleOptions,
+  );
+  const showLinkOffer = !!linkUrl && row.location !== linkUrl;
+
+  // Apply a selection-changing patch, autofilling the location from the new
+  // selection's link (see withLocationAutofill). Only routed through the
+  // type-determining controls (resource picker / module narrowing); the location
+  // input itself keeps the plain onChange so typed text is never clobbered.
+  const applyWithAutofill = (patch: Partial<WeeklyEntry>) =>
+    onChange(
+      withLocationAutofill(
+        row,
+        patch,
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    );
 
   return (
     <li
@@ -138,8 +185,9 @@ export function ScheduleEntryRow({
               value={row.id || null}
               onValueChange={val =>
                 // A different resource has different modules, so clear any
-                // existing narrowing when the picked item changes.
-                onChange({
+                // existing narrowing when the picked item changes. Autofill the
+                // location from the newly-picked resource's link when possible.
+                applyWithAutofill({
                   id: val ?? "",
                   moduleId: "",
                   moduleGroupId: "",
@@ -172,7 +220,7 @@ export function ScheduleEntryRow({
           row={row}
           groupOptions={groupOptions}
           moduleOptions={moduleOptions}
-          onChange={onChange}
+          onChange={applyWithAutofill}
         />
       )}
 
@@ -202,6 +250,22 @@ export function ScheduleEntryRow({
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
+          {showLinkOffer && (
+            <button
+              type="button"
+              aria-label={`${ariaPrefix} use resource link`}
+              onClick={() =>
+                onChange({
+                  location: linkUrl,
+                })}
+              className="
+                self-start text-xs text-primary underline-offset-2
+                hover:underline
+              "
+            >
+              Use link from resource
+            </button>
+          )}
           <div
             className="
               grid grid-cols-1 gap-1.5

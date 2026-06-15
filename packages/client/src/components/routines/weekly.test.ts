@@ -2,9 +2,12 @@ import type { RoutineCurated, RoutineWeekly } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
+import type { SelectOption } from "@/utils";
+
 import {
   curatedDateRange,
   curatedToRows,
+  effectiveEntryUrl,
   fillAllDays,
   representativeRow,
   rowsToCurated,
@@ -467,5 +470,171 @@ describe("resource entry module narrowing", () => {
         moduleGroupNames,
       ),
     ).toBe("Duolingo Spanish");
+  });
+});
+
+describe("effectiveEntryUrl", () => {
+  const resourceOptions: SelectOption[] = [
+    {
+      value: "res-1",
+      label: "Duolingo",
+      url: "https://duolingo.com",
+    },
+    {
+      value: "res-2",
+      label: "Some Book",
+    },
+  ];
+  const groupOptions: SelectOption[] = [
+    {
+      value: "grp-1",
+      label: "Unit 1",
+      group: "",
+      url: "https://example.com/unit-1",
+    },
+    {
+      value: "grp-2",
+      label: "Unit 2",
+      group: "",
+    },
+  ];
+  const moduleOptions: SelectOption[] = [
+    {
+      value: "mod-1",
+      label: "Lesson 1",
+      group: "grp-1",
+      url: "https://example.com/lesson-1",
+    },
+    {
+      value: "mod-2",
+      label: "Lesson 2",
+      group: "grp-1",
+    },
+  ];
+
+  test("returns the resource's url for a whole-resource entry", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleId: "",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("https://duolingo.com");
+  });
+
+  test("a chosen module's url wins over its group and resource", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleId: "mod-1",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("https://example.com/lesson-1");
+  });
+
+  test("falls back to the module's group url when the module has none", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-1",
+          // mod-2 has no url but belongs to grp-1, which does.
+          moduleId: "mod-2",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("https://example.com/unit-1");
+  });
+
+  test("uses an explicitly chosen group's url", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleId: "",
+          moduleGroupId: "grp-1",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("https://example.com/unit-1");
+  });
+
+  test("falls back to the resource url when the chosen group has none", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleId: "",
+          moduleGroupId: "grp-2",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("https://duolingo.com");
+  });
+
+  test("returns '' when nothing in the chain has a link", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "resource",
+          id: "res-2",
+          moduleId: "",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("");
+  });
+
+  test("returns '' for task / freeform entries even if ids collide", () => {
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "task",
+          id: "res-1",
+          moduleId: "",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("");
+    expect(
+      effectiveEntryUrl(
+        {
+          type: "freeform",
+          id: "res-1",
+          moduleId: "",
+          moduleGroupId: "",
+        },
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
+    ).toBe("");
   });
 });

@@ -1,6 +1,7 @@
+import type { SelectOption } from "@/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 
 import { weeklyToRows } from "./weekly";
 import { WeeklyScheduleField } from "./WeeklyScheduleField";
@@ -13,6 +14,35 @@ import {
   resourceOptions,
   taskOptions,
 } from "@/test-utils/routinesFixtures";
+
+// resource-1 carries a link, so a routine entry pointing at it can offer/autofill
+// that url into its location field.
+const resourceOptionsWithLink: SelectOption[] = [
+  {
+    value: "resource-1",
+    label: "Duolingo Spanish",
+    url: "https://duolingo.com",
+  },
+  {
+    value: "resource-2",
+    label: "SICP",
+  },
+];
+
+// A module group of resource-1 that carries its own link (modules left linkless,
+// so narrowing to the group falls back to the group's url).
+const moduleGroupsByResourceWithLink = new Map([
+  [
+    "resource-1",
+    [
+      {
+        value: "group-1",
+        label: "Unit 1",
+        url: "https://example.com/unit-1",
+      },
+    ],
+  ],
+]);
 
 const meta: Meta<typeof WeeklyScheduleField> = {
   component: WeeklyScheduleField,
@@ -129,5 +159,73 @@ export const WholeGroup: Story = {
     await expect(moduleSelect).toHaveValue("");
     await expect(moduleSelect).toBeEnabled();
     await expect(within(moduleSelect).getByText("Whole Group")).toBeInTheDocument();
+  },
+};
+
+// A resource entry on a linked resource whose location already holds custom text:
+// rather than overwrite it, the row offers a one-click button to apply the link.
+export const OffersLinkWhenLocationFilled: Story = {
+  args: {
+    value: weeklyToRows({
+      1: {
+        type: "resource",
+        id: "resource-1",
+        location: "my own note",
+      },
+    }),
+    resourceOptions: resourceOptionsWithLink,
+  },
+  play: async ({
+    canvasElement,
+    args,
+  }) => {
+    const canvas = within(canvasElement);
+    // The typed location is left untouched; an offer button appears instead.
+    await expect(canvas.getByLabelText("Monday location")).toHaveValue(
+      "my own note",
+    );
+    const offer = await canvas.findByLabelText("Monday use resource link");
+    await userEvent.click(offer);
+    await expect(args.onChange).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          day: "1",
+          location: "https://duolingo.com",
+        }),
+      ]),
+    );
+  },
+};
+
+// Narrowing a resource entry (empty location) to a linked module group autofills
+// the location from the group's link.
+export const AutofillsOnNarrowing: Story = {
+  args: {
+    value: weeklyToRows({
+      1: {
+        type: "resource",
+        id: "resource-1",
+      },
+    }),
+    resourceOptions,
+    moduleGroupsByResource: moduleGroupsByResourceWithLink,
+    modulesByResource,
+  },
+  play: async ({
+    canvasElement,
+    args,
+  }) => {
+    const canvas = within(canvasElement);
+    const groupSelect = await canvas.findByLabelText("Monday module group");
+    await userEvent.selectOptions(groupSelect, "group-1");
+    await expect(args.onChange).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          day: "1",
+          moduleGroupId: "group-1",
+          location: "https://example.com/unit-1",
+        }),
+      ]),
+    );
   },
 };

@@ -2,7 +2,11 @@ import type { TagGroup } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
-import { tagGroupsToOptions, toOptions } from "./selectOptions.ts";
+import {
+  groupOptionsByResource,
+  tagGroupsToOptions,
+  toOptions,
+} from "./selectOptions.ts";
 
 describe("toOptions", () => {
   test("maps {id, name} entities to {value, label}", () => {
@@ -32,6 +36,50 @@ describe("toOptions", () => {
   test("returns an empty array for null/undefined", () => {
     expect(toOptions(null)).toEqual([]);
     expect(toOptions(undefined)).toEqual([]);
+  });
+
+  test("carries a url when the entity has one", () => {
+    const [option] = toOptions([
+      {
+        id: "a",
+        name: "Alpha",
+        url: "https://example.com/a",
+      },
+    ]);
+    expect(option.url).toBe("https://example.com/a");
+  });
+});
+
+describe("groupOptionsByResource", () => {
+  test("buckets by resource and carries group + url", () => {
+    const byResource = groupOptionsByResource([
+      {
+        id: "mod-1",
+        name: "Lesson 1",
+        resourceId: "res-1",
+        moduleGroupId: "grp-1",
+        url: "https://example.com/lesson-1",
+      },
+      {
+        id: "mod-2",
+        name: "Lesson 2",
+        resourceId: "res-1",
+        moduleGroupId: "grp-1",
+      },
+    ]);
+    expect(byResource.get("res-1")).toEqual([
+      {
+        value: "mod-1",
+        label: "Lesson 1",
+        group: "grp-1",
+        url: "https://example.com/lesson-1",
+      },
+      {
+        value: "mod-2",
+        label: "Lesson 2",
+        group: "grp-1",
+      },
+    ]);
   });
 });
 
