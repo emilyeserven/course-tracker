@@ -94,12 +94,18 @@ export function useEditFormPage<TData>({
       async () => {
         try {
           await deleteFn(id);
-          await invalidateRelated();
+          // Leave the edit page before invalidating. While this route is still
+          // mounted the entity's detail query is active, so invalidating it
+          // refetches a now-deleted record -> 404 -> (under the app's default
+          // retry: 3) ~7s of retry backoff that blocks the redirect + toast.
+          // Navigating first makes that query inactive, so invalidateRelated
+          // only marks it stale.
           skipBlock();
           await navigateToList();
           toast.success(
             `${entityLabel.charAt(0).toUpperCase()}${entityLabel.slice(1)} deleted.`,
           );
+          await invalidateRelated();
         }
         catch {
           toast.error(`Failed to delete ${entityLabel}. Please try again.`);
