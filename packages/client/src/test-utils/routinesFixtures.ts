@@ -32,15 +32,16 @@ export const resourceOptions: SelectOption[] = [
 ];
 
 // Module groups / modules belonging to resource-1 (Duolingo Spanish), used to
-// exercise the resource-entry narrowing pickers.
-export const moduleGroupOptions: SelectOption[] = [
+// exercise the resource-entry narrowing pickers. Module-local: only the
+// per-resource maps and name lookups below are consumed by stories.
+const moduleGroupOptions: SelectOption[] = [
   {
     value: "group-1",
     label: "Unit 1",
   },
 ];
 
-export const moduleOptions: SelectOption[] = [
+const moduleOptions: SelectOption[] = [
   {
     value: "module-1",
     label: "Basics 1",
