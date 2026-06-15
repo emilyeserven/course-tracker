@@ -26,6 +26,8 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
     inputValue,
     setInputValue,
     emit,
+    emitPicked,
+    linkUrl,
     showPreview,
     preview,
   } = useWeeklyEntryEditor(props);
@@ -41,7 +43,7 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
         id={id}
         itemOptions={itemOptions}
         optionsMap={optionsMap}
-        onEmit={emit}
+        onEmit={emitPicked}
         onInputValueChange={setInputValue}
         onRequestAddResource={() => setAddOpen(true)}
       />
@@ -72,6 +74,22 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
+          {linkUrl && location !== linkUrl && (
+            <button
+              type="button"
+              aria-label="Daily task use resource link"
+              onClick={() =>
+                emit({
+                  location: linkUrl,
+                })}
+              className="
+                self-start text-xs text-primary underline-offset-2
+                hover:underline
+              "
+            >
+              Use link from resource
+            </button>
+          )}
           <div
             className="
               grid grid-cols-1 gap-1.5

@@ -5,6 +5,7 @@ import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import { effectiveEntryUrl } from "@/components/routines/weekly";
 import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
@@ -83,6 +84,40 @@ export function ScheduleEntryRow({
       && !!row.id
       && (groupOptions.length > 0 || moduleOptions.length > 0);
 
+  // The most-specific link for the current resource / module / group selection.
+  const linkUrl = effectiveEntryUrl(
+    row,
+    resourceOptions,
+    groupOptions,
+    moduleOptions,
+  );
+
+  // Apply a selection-changing patch, autofilling the location from the new
+  // selection's link when the field is empty or still holds the previous
+  // autofill (so it tracks a re-narrowing) — but never clobbering text the user
+  // typed. Only routed through the type-determining controls (resource picker /
+  // module narrowing); the location input itself keeps the plain onChange.
+  function applyWithAutofill(patch: Partial<WeeklyEntry>) {
+    const next = {
+      ...row,
+      ...patch,
+    };
+    const nextUrl = effectiveEntryUrl(
+      next,
+      resourceOptions,
+      groupOptions,
+      moduleOptions,
+    );
+    if (nextUrl && (row.location === "" || row.location === linkUrl)) {
+      onChange({
+        ...patch,
+        location: nextUrl,
+      });
+      return;
+    }
+    onChange(patch);
+  }
+
   return (
     <li
       className="
@@ -138,8 +173,9 @@ export function ScheduleEntryRow({
               value={row.id || null}
               onValueChange={val =>
                 // A different resource has different modules, so clear any
-                // existing narrowing when the picked item changes.
-                onChange({
+                // existing narrowing when the picked item changes. Autofill the
+                // location from the newly-picked resource's link when possible.
+                applyWithAutofill({
                   id: val ?? "",
                   moduleId: "",
                   moduleGroupId: "",
@@ -172,7 +208,7 @@ export function ScheduleEntryRow({
           row={row}
           groupOptions={groupOptions}
           moduleOptions={moduleOptions}
-          onChange={onChange}
+          onChange={applyWithAutofill}
         />
       )}
 
@@ -202,6 +238,22 @@ export function ScheduleEntryRow({
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
+          {linkUrl && row.location !== linkUrl && (
+            <button
+              type="button"
+              aria-label={`${ariaPrefix} use resource link`}
+              onClick={() =>
+                onChange({
+                  location: linkUrl,
+                })}
+              className="
+                self-start text-xs text-primary underline-offset-2
+                hover:underline
+              "
+            >
+              Use link from resource
+            </button>
+          )}
           <div
             className="
               grid grid-cols-1 gap-1.5

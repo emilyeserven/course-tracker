@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 
 import { buildActionableSentence } from "@emstack/types";
 
+import { effectiveEntryUrl } from "@/components/routines/weekly";
+
 export interface WeeklyEntryEditorProps extends WeeklyEntry {
   onChange: (next: WeeklyEntry) => void;
   taskOptions: SelectOption[];
@@ -57,6 +59,46 @@ export function useWeeklyEntryEditor({
     });
   }
 
+  // Daily mode has no module narrowing, so the entry's link is just the chosen
+  // resource's url (empty for task / freeform).
+  const linkUrl = effectiveEntryUrl(
+    {
+      type,
+      id,
+      moduleId,
+      moduleGroupId,
+    },
+    resourceOptions,
+    [],
+    [],
+  );
+
+  // Like emit, but autofills the location from the picked resource's link when
+  // the field is empty or still holds the previous autofill — never overwriting
+  // text the user typed. Used by the item picker; the location input keeps emit.
+  function emitPicked(patch: Partial<WeeklyEntry>) {
+    const nextUrl = effectiveEntryUrl(
+      {
+        type,
+        id,
+        moduleId,
+        moduleGroupId,
+        ...patch,
+      },
+      resourceOptions,
+      [],
+      [],
+    );
+    if (nextUrl && (location === "" || location === linkUrl)) {
+      emit({
+        ...patch,
+        location: nextUrl,
+      });
+      return;
+    }
+    emit(patch);
+  }
+
   const itemName = type === "freeform" ? id : (optionsMap.get(id) ?? "");
   const showPreview
     = !!itemName && (!!prependText.trim() || !!appendText.trim());
@@ -74,6 +116,8 @@ export function useWeeklyEntryEditor({
     inputValue,
     setInputValue,
     emit,
+    emitPicked,
+    linkUrl,
     showPreview,
     preview,
   };

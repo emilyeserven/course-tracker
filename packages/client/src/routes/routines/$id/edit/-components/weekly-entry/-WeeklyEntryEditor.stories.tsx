@@ -1,6 +1,7 @@
+import type { SelectOption } from "@/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { fn } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 
 import { WeeklyEntryEditor } from "./-WeeklyEntryEditor";
 
@@ -10,6 +11,20 @@ import {
   resourceOptions,
   taskOptions,
 } from "@/test-utils/routinesFixtures";
+
+// resource-1 carries a link, so a daily entry pointing at it can offer/autofill
+// that url into its location field.
+const resourceOptionsWithLink: SelectOption[] = [
+  {
+    value: "resource-1",
+    label: "Duolingo Spanish",
+    url: "https://duolingo.com",
+  },
+  {
+    value: "resource-2",
+    label: "SICP",
+  },
+];
 
 const meta: Meta<typeof WeeklyEntryEditor> = {
   component: WeeklyEntryEditor,
@@ -73,5 +88,33 @@ export const None: Story = {
   args: {
     type: "",
     id: "",
+  },
+};
+
+// A resource entry on a linked resource whose location already holds custom text:
+// the editor offers a one-click button to apply the resource's link rather than
+// overwriting what the user typed.
+export const OffersLinkWhenLocationFilled: Story = {
+  args: {
+    type: "resource",
+    id: "resource-1",
+    location: "my own note",
+    resourceOptions: resourceOptionsWithLink,
+  },
+  play: async ({
+    canvasElement,
+    args,
+  }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText("Daily task location")).toHaveValue(
+      "my own note",
+    );
+    const offer = await canvas.findByLabelText("Daily task use resource link");
+    await userEvent.click(offer);
+    await expect(args.onChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        location: "https://duolingo.com",
+      }),
+    );
   },
 };

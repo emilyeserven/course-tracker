@@ -1,3 +1,4 @@
+import type { SelectOption } from "@/utils";
 import type {
   RoutineCurated,
   RoutineReferenceItem,
@@ -266,6 +267,33 @@ export function rowsToCurated(
     endDate,
     entries,
   };
+}
+
+// The most-specific link for a resource entry, used to autofill/offer its
+// location: a chosen module's url wins over its group's, which wins over the
+// resource's (mirroring resourceEntryLabel's narrowing precedence). A chosen
+// module implies its parent group, so an absent explicit group falls back to the
+// module's own `group`. Returns "" for task / freeform entries, or when nothing
+// in the chain carries a link. `groupOptions` / `moduleOptions` are the chosen
+// resource's narrowing options (empty when none, e.g. Daily mode).
+export function effectiveEntryUrl(
+  row: Pick<WeeklyEntry, "type" | "id" | "moduleId" | "moduleGroupId">,
+  resourceOptions: SelectOption[],
+  groupOptions: SelectOption[],
+  moduleOptions: SelectOption[],
+): string {
+  if (row.type !== "resource") {
+    return "";
+  }
+  const selectedModule = row.moduleId
+    ? moduleOptions.find(o => o.value === row.moduleId)
+    : undefined;
+  const effectiveGroupId = row.moduleGroupId || selectedModule?.group || "";
+  const groupUrl = effectiveGroupId
+    ? groupOptions.find(o => o.value === effectiveGroupId)?.url
+    : undefined;
+  const resourceUrl = resourceOptions.find(o => o.value === row.id)?.url;
+  return selectedModule?.url || groupUrl || resourceUrl || "";
 }
 
 // Display name for a weekly entry: freeform entries carry their own text in
