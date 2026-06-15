@@ -85,7 +85,7 @@ export const Empty: Story = {
     },
     {
       role: "button",
-      name: "LLM Assist",
+      name: "More",
     },
   ]),
 };
