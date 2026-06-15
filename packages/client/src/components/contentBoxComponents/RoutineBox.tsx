@@ -5,7 +5,7 @@ import type {
 } from "@emstack/types";
 
 import { Link } from "@tanstack/react-router";
-import { AlertTriangleIcon, FlameIcon } from "lucide-react";
+import { AlertTriangleIcon, FlameIcon, LaughIcon } from "lucide-react";
 
 import { Description, EntityLink } from "@/components/boxElements";
 import {
@@ -200,62 +200,58 @@ export function RoutineBox({
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>
-        {isDaily
-          ? (
-            <div className="flex flex-row items-center gap-4 text-xs">
+        <div
+          className="flex flex-row gap-1"
+          title={`${scheduledCount} day${scheduledCount === 1 ? "" : "s"} scheduled`}
+        >
+          {DAY_STRIP.map(({
+            day, letter,
+          }, index) => {
+            const scheduled = !!weekly?.[day];
+            return (
               <span
-                className="inline-flex items-center gap-1"
-                title="Current day chain"
+                key={`${day}-${index}`}
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-full text-xs",
+                  scheduled
+                    ? `
+                      bg-blue-600 font-bold text-white
+                      dark:bg-blue-700
+                    `
+                    : "bg-muted text-muted-foreground",
+                )}
               >
-                <FlameIcon
-                  size={14}
-                  className={
-                    chain > 0 ? "text-orange-600" : "text-muted-foreground"
-                  }
-                />
-                <strong>{chain}</strong>
-                <span className="text-muted-foreground">chain</span>
+                {letter}
               </span>
-              <span
-                className="inline-flex items-center gap-1"
-                title="Total completed days"
-              >
-                <strong>{totalDays}</strong>
-                <span className="text-muted-foreground">total days</span>
-              </span>
-            </div>
-          )
-          : (
-            <div
-              className="flex flex-row gap-1"
-              title={`${scheduledCount} day${scheduledCount === 1 ? "" : "s"} scheduled`}
-            >
-              {DAY_STRIP.map(({
-                day, letter,
-              }, index) => {
-                const scheduled = !!weekly?.[day];
-                return (
-                  <span
-                    key={`${day}-${index}`}
-                    className={cn(
-                      `
-                        flex size-5 items-center justify-center rounded-full
-                        text-xs
-                      `,
-                      scheduled
-                        ? `
-                          bg-blue-600 font-bold text-white
-                          dark:bg-blue-700
-                        `
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {letter}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+            );
+          })}
+        </div>
+        <div className="flex flex-row items-center gap-4 text-xs">
+          <span
+            className="inline-flex items-center gap-1"
+            title="Current day chain"
+          >
+            <FlameIcon
+              size={14}
+              className={
+                chain > 0 ? "text-orange-600" : "text-muted-foreground"
+              }
+            />
+            <strong>{chain}</strong>
+          </span>
+          <span
+            className="inline-flex items-center gap-1"
+            title="Total completed days"
+          >
+            <LaughIcon
+              className={cn(
+                "size-3.5",
+                totalDays > 0 ? "text-emerald-600" : "text-muted-foreground",
+              )}
+            />
+            <strong>{totalDays}</strong>
+          </span>
+        </div>
       </ContentBoxFooter>
     </ContentBox>
   );
