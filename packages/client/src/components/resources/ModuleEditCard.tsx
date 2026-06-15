@@ -10,6 +10,7 @@ import {
 
 import { EditFormActions } from "@/components/layout/EditFormActions";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
+import { UrlAndPagesFields } from "@/components/resources/UrlAndPagesFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,55 +72,11 @@ export function ModuleEditCard({
           placeholder={moduleNamePlaceholder || undefined}
         />
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {showPages ? "URL (optional)" : "Location (optional)"}
-        </label>
-        <Input
-          type="text"
-          value={draft.url}
-          onChange={e =>
-            update({
-              url: e.target.value,
-            })}
-        />
-      </div>
-      {showPages && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Start page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageStart}
-              onChange={e =>
-                update({
-                  pageStart: e.target.value,
-                })}
-              placeholder="e.g. 42"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              End page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageEnd}
-              onChange={e =>
-                update({
-                  pageEnd: e.target.value,
-                })}
-              placeholder="e.g. 58"
-            />
-          </div>
-        </div>
-      )}
+      <UrlAndPagesFields
+        draft={draft}
+        showPages={showPages}
+        onChange={update}
+      />
       <div className="flex flex-col gap-1">
         <div className="flex flex-row items-center justify-between gap-2">
           <label className="text-xs font-medium text-muted-foreground">

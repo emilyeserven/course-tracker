@@ -22,17 +22,23 @@ export interface LevelAndTagsValue {
   tagIds: string[];
 }
 
-// Fields common to both edit drafts (the editable header plus the level/tag
-// block). Group- and module-specific fields are added by the leaf interfaces.
-interface BaseModuleEditDraft extends LevelAndTagsValue {
+// The shared "location/URL + page range" block rendered near the top of both
+// the module and module-group edit cards (see UrlAndPagesFields). Strings for
+// the form inputs; the page range is parsed to number | null via parseCount on
+// save, and only shows for book resources (showPages).
+export interface UrlAndPagesValue {
+  url: string;
+  pageStart: string;
+  pageEnd: string;
+}
+
+// Fields common to both edit drafts (the editable header plus the shared
+// level/tag and URL/page-range blocks). Group- and module-specific fields are
+// added by the leaf interfaces.
+interface BaseModuleEditDraft extends LevelAndTagsValue, UrlAndPagesValue {
   id: string;
   name: string;
   description: string;
-  url: string;
-  // Page range (book resources). Strings for the form inputs; parsed to
-  // number | null via parseCount on save.
-  pageStart: string;
-  pageEnd: string;
 }
 
 export interface GroupDraft extends BaseModuleEditDraft {
