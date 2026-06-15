@@ -5,7 +5,10 @@ import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
-import { effectiveEntryUrl } from "@/components/routines/weekly";
+import {
+  effectiveEntryUrl,
+  withLocationAutofill,
+} from "@/components/routines/weekly";
 import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
@@ -26,6 +29,44 @@ interface ScheduleEntryRowProps {
   onAddResource: () => void;
   // Surface the combobox's typed text so the parent can seed the add dialog.
   onInputValueChange: (val: string) => void;
+}
+
+// The resolved item name and its actionable-sentence preview for a row, pulled
+// out of the component to keep its complexity down. A resource entry's narrowing
+// (module/group) name replaces the resource name in the label (see
+// resourceEntryLabel); the preview only shows once there's prepend/append text.
+function rowPreview(
+  row: WeeklyEntry,
+  optionsMap: Map<string, string>,
+  groupOptions: SelectOption[],
+  moduleOptions: SelectOption[],
+): { showPreview: boolean;
+  preview: string; } {
+  const moduleLabel = row.moduleId
+    ? moduleOptions.find(o => o.value === row.moduleId)?.label
+    : null;
+  const groupLabel = row.moduleGroupId
+    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
+    : null;
+  const itemName
+    = row.type === "freeform"
+      ? row.id
+      : row.type === "resource"
+        ? resourceEntryLabel({
+          resourceName: optionsMap.get(row.id) ?? "",
+          moduleName: moduleLabel,
+          groupName: groupLabel,
+        })
+        : (optionsMap.get(row.id) ?? "");
+  return {
+    showPreview:
+      !!itemName && (!!row.prependText.trim() || !!row.appendText.trim()),
+    preview: buildActionableSentence({
+      prependText: row.prependText,
+      name: itemName,
+      appendText: row.appendText,
+    }),
+  };
 }
 
 // One schedule row's editor: type select, task/resource picker (or freeform
@@ -51,32 +92,12 @@ export function ScheduleEntryRow({
         ? resourceOptions
         : [];
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
-  // A resource entry may narrow to a module / group; show that narrower name in
-  // the preview (matching how the entry renders everywhere else). A chosen
-  // module wins over its group in the label (see resourceEntryLabel).
-  const moduleLabel = row.moduleId
-    ? moduleOptions.find(o => o.value === row.moduleId)?.label
-    : null;
-  const groupLabel = row.moduleGroupId
-    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
-    : null;
-  const itemName
-    = row.type === "freeform"
-      ? row.id
-      : row.type === "resource"
-        ? resourceEntryLabel({
-          resourceName: optionsMap.get(row.id) ?? "",
-          moduleName: moduleLabel,
-          groupName: groupLabel,
-        })
-        : (optionsMap.get(row.id) ?? "");
-  const showPreview
-    = !!itemName && (!!row.prependText.trim() || !!row.appendText.trim());
-  const preview = buildActionableSentence({
-    prependText: row.prependText,
-    name: itemName,
-    appendText: row.appendText,
-  });
+  // Item name + live preview (a resource entry's narrowing name replaces the
+  // resource name); derived in a helper to keep this component's complexity down.
+  const {
+    showPreview,
+    preview,
+  } = rowPreview(row, optionsMap, groupOptions, moduleOptions);
   // The module narrowing only makes sense once a resource is chosen, and only
   // when that resource actually has modules / groups to pick from.
   const showModulePickers
@@ -84,39 +105,30 @@ export function ScheduleEntryRow({
       && !!row.id
       && (groupOptions.length > 0 || moduleOptions.length > 0);
 
-  // The most-specific link for the current resource / module / group selection.
+  // The most-specific link for the current resource / module / group selection,
+  // and whether to offer applying it (a link exists and the location differs).
   const linkUrl = effectiveEntryUrl(
     row,
     resourceOptions,
     groupOptions,
     moduleOptions,
   );
+  const showLinkOffer = !!linkUrl && row.location !== linkUrl;
 
   // Apply a selection-changing patch, autofilling the location from the new
-  // selection's link when the field is empty or still holds the previous
-  // autofill (so it tracks a re-narrowing) — but never clobbering text the user
-  // typed. Only routed through the type-determining controls (resource picker /
-  // module narrowing); the location input itself keeps the plain onChange.
-  function applyWithAutofill(patch: Partial<WeeklyEntry>) {
-    const next = {
-      ...row,
-      ...patch,
-    };
-    const nextUrl = effectiveEntryUrl(
-      next,
-      resourceOptions,
-      groupOptions,
-      moduleOptions,
+  // selection's link (see withLocationAutofill). Only routed through the
+  // type-determining controls (resource picker / module narrowing); the location
+  // input itself keeps the plain onChange so typed text is never clobbered.
+  const applyWithAutofill = (patch: Partial<WeeklyEntry>) =>
+    onChange(
+      withLocationAutofill(
+        row,
+        patch,
+        resourceOptions,
+        groupOptions,
+        moduleOptions,
+      ),
     );
-    if (nextUrl && (row.location === "" || row.location === linkUrl)) {
-      onChange({
-        ...patch,
-        location: nextUrl,
-      });
-      return;
-    }
-    onChange(patch);
-  }
 
   return (
     <li
@@ -238,7 +250,7 @@ export function ScheduleEntryRow({
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
-          {linkUrl && row.location !== linkUrl && (
+          {showLinkOffer && (
             <button
               type="button"
               aria-label={`${ariaPrefix} use resource link`}

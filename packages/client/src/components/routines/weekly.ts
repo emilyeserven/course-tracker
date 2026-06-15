@@ -296,6 +296,42 @@ export function effectiveEntryUrl(
   return selectedModule?.url || groupUrl || resourceUrl || "";
 }
 
+// Augment a selection-changing patch with a location autofilled from the entry's
+// link, when the field is empty or still holds the previous autofill (so it
+// tracks a re-narrowing) — never clobbering text the user typed. Returns the
+// patch unchanged when there's no link to apply. Shared by the weekly/curated
+// row editor and the daily editor so the autofill rule lives in one place.
+export function withLocationAutofill(
+  row: WeeklyEntry,
+  patch: Partial<WeeklyEntry>,
+  resourceOptions: SelectOption[],
+  groupOptions: SelectOption[],
+  moduleOptions: SelectOption[],
+): Partial<WeeklyEntry> {
+  const prevUrl = effectiveEntryUrl(
+    row,
+    resourceOptions,
+    groupOptions,
+    moduleOptions,
+  );
+  const nextUrl = effectiveEntryUrl(
+    {
+      ...row,
+      ...patch,
+    },
+    resourceOptions,
+    groupOptions,
+    moduleOptions,
+  );
+  if (nextUrl && (row.location === "" || row.location === prevUrl)) {
+    return {
+      ...patch,
+      location: nextUrl,
+    };
+  }
+  return patch;
+}
+
 // Display name for a weekly entry: freeform entries carry their own text in
 // `id`; task / resource entries resolve through the id → name maps and fall
 // back to the raw id when the lookup misses. A resource entry that narrows to a

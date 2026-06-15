@@ -7,7 +7,6 @@ export {
   curatedToRows,
   DAY_LABELS,
   DAY_ORDER,
-  effectiveEntryUrl,
   fillAllDays,
   formatCuratedDateLabel,
   MAX_CURATED_DAYS,
