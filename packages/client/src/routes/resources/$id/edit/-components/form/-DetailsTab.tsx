@@ -204,6 +204,7 @@ export function DetailsTab({
         <ProgressModeField
           form={form}
           modulesAreExhaustive={modulesAreExhaustive}
+          tracksProgress={currentValues.tracksProgress}
           isNew={isNew}
           onModeChange={setProgressMode}
           onGoToModules={onGoToModules}

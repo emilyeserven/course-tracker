@@ -12,6 +12,7 @@ export const formSchema = z.object({
   status: z.enum(["active", "inactive", "complete"]),
   progressCurrent: z.number().int().min(0).nullable(),
   progressTotal: z.number().int().min(0).nullable(),
+  tracksProgress: z.boolean(),
   cost: z.number().min(0).nullable(),
   dateExpires: z.date().nullable(),
   topicId: z.string(),
@@ -37,6 +38,7 @@ export interface ResourceFormValues {
   status: EntityStatus;
   progressCurrent: number | null;
   progressTotal: number | null;
+  tracksProgress: boolean;
   cost: number | null;
   dateExpires: Date | null;
   topicId: string;
@@ -80,6 +82,7 @@ export function buildResourcePayload(
     status: value.status,
     progressCurrent: value.progressCurrent ?? 0,
     progressTotal: value.progressTotal ?? 0,
+    tracksProgress: value.tracksProgress,
     cost: isCostFromPlatform
       ? null
       : value.cost != null

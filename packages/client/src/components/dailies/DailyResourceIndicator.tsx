@@ -62,26 +62,29 @@ export function DailyResourceIndicator({
         tooltip={dailyLinkTooltip(course.name, daily.name, "Go to Course")}
         ariaLabel={`Go to course ${course.name}`}
       />
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            disabled={mutation.isPending}
-            onClick={() => mutation.mutate(course.id)}
-            aria-label={`Progress ${course.name} by 1`}
-            className="
-              invisible inline-flex size-5 items-center justify-center
-              rounded-sm text-muted-foreground
-              group-hover:visible
-              hover:bg-accent hover:text-accent-foreground
-              disabled:opacity-50
-            "
-          >
-            <PlusIcon className="size-3.5" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>Progress course by 1</TooltipContent>
-      </Tooltip>
+      {/* No "+1" affordance when the resource opts out of progress tracking. */}
+      {course.tracksProgress !== false && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              disabled={mutation.isPending}
+              onClick={() => mutation.mutate(course.id)}
+              aria-label={`Progress ${course.name} by 1`}
+              className="
+                invisible inline-flex size-5 items-center justify-center
+                rounded-sm text-muted-foreground
+                group-hover:visible
+                hover:bg-accent hover:text-accent-foreground
+                disabled:opacity-50
+              "
+            >
+              <PlusIcon className="size-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Progress course by 1</TooltipContent>
+        </Tooltip>
+      )}
     </span>
   );
 }

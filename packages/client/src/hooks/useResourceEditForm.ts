@@ -100,6 +100,7 @@ export function useResourceEditForm({
       status: data?.status ?? ("active" as const),
       progressCurrent: data?.progressCurrent ?? null,
       progressTotal: data?.progressTotal ?? null,
+      tracksProgress: data?.tracksProgress ?? true,
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
       topicId:
@@ -218,14 +219,23 @@ export function useResourceEditForm({
     return result.id;
   };
 
-  // Progress-mode toggle. Reuses the same optimistic mutation the Modules tab
+  // Progress-mode chooser across three modes: manual numbers, module-derived,
+  // or "none" (the resource opts out of tracking and shows an infinity icon).
+  // The modules dimension reuses the same optimistic mutation the Modules tab
   // uses, so toggling here (Details tab) and the Modules-tab callout stay in
-  // sync. No-op for new resources (no id/modules yet).
+  // sync; it's a no-op for new resources (no id/modules yet). The "tracks
+  // progress" dimension is a regular form field, so it persists on save and
+  // works for new resources too.
   const modulesAreExhaustive = data?.modulesAreExhaustive ?? false;
   const setModulesExhaustiveMutation = useSetModulesExhaustive(id);
-  const setProgressMode = (mode: "manual" | "modules") => {
+  const setProgressMode = (mode: "manual" | "modules" | "none") => {
+    form.setFieldValue("tracksProgress", mode !== "none");
     if (isNew) return;
-    setModulesExhaustiveMutation.mutate(mode === "modules");
+    // "none" leaves the modules flag untouched — the display ignores it while
+    // tracking is off, and it's restored if the user re-enables tracking.
+    if (mode !== "none") {
+      setModulesExhaustiveMutation.mutate(mode === "modules");
+    }
   };
 
   return {

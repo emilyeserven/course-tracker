@@ -28,6 +28,12 @@ export interface Resource extends ResourceLevelAttributes {
   progressCurrent: number;
   progressTotal: number;
   status: ResourceStatus;
+  /**
+   * When false, the resource opts out of progress tracking entirely: progress
+   * displays render an infinity icon instead of a bar/percentage. Defaults to
+   * true (tracked) for existing and new resources.
+   */
+  tracksProgress?: boolean;
   modulesAreExhaustive?: boolean;
   topics?: MinimalTopic[];
   provider?: {

@@ -38,6 +38,7 @@ interface CourseBody {
   courseProviderId?: string | null;
   providerIsSelf?: boolean;
   modulesAreExhaustive?: boolean;
+  tracksProgress?: boolean;
   easeOfStarting?: TaskResourceLevel | null;
   timeNeeded?: TaskResourceLevel | null;
   interactivity?: TaskResourceLevel | null;
@@ -62,6 +63,9 @@ const updateableColumns = [
   "easeOfStarting",
   "timeNeeded",
   "interactivity",
+  // tracksProgress rides the regular save (unlike modulesAreExhaustive, which
+  // an immediate toggle owns) so the "No Progress" radio persists on submit.
+  "tracksProgress",
   // modulesConfig is intentionally omitted: it's owned by the dedicated
   // PUT /:id/modulesConfig endpoint, so the general upsert (whose body never
   // carries it) must not clobber a resource's picked hint template on save.
@@ -101,6 +105,9 @@ export default createUpsertHandler<CourseBody>({
       modulesAreExhaustive: {
         type: "boolean",
       },
+      tracksProgress: {
+        type: "boolean",
+      },
       easeOfStarting: nullableResourceLevelEnum,
       timeNeeded: nullableResourceLevelEnum,
       interactivity: nullableResourceLevelEnum,
@@ -131,6 +138,7 @@ export default createUpsertHandler<CourseBody>({
     courseProviderId: resolveCourseProviderId(body, id),
     providerIsSelf: body.providerIsSelf ?? false,
     modulesAreExhaustive: body.modulesAreExhaustive ?? false,
+    tracksProgress: body.tracksProgress ?? true,
     easeOfStarting: body.easeOfStarting ?? null,
     timeNeeded: body.timeNeeded ?? null,
     interactivity: body.interactivity ?? null,
