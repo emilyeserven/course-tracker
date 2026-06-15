@@ -25,7 +25,8 @@ export function toOptions(
 export function groupOptionsByResource(
   items: { id: string;
     name: string;
-    resourceId: string; }[] | null | undefined,
+    resourceId: string;
+    moduleGroupId?: string | null; }[] | null | undefined,
 ): Map<string, SelectOption[]> {
   const byResource = new Map<string, SelectOption[]>();
   for (const item of items ?? []) {
@@ -33,6 +34,9 @@ export function groupOptionsByResource(
     options.push({
       value: item.id,
       label: item.name,
+      // Modules carry their parent group so a resource entry can scope its
+      // module dropdown to the chosen group; module groups have none → "".
+      group: item.moduleGroupId ?? "",
     });
     byResource.set(item.resourceId, options);
   }

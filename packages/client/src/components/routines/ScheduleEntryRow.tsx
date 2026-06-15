@@ -51,12 +51,21 @@ export function ScheduleEntryRow({
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
   // A resource entry may narrow to a module / group; show that narrower name in
   // the preview (matching how the entry renders everywhere else).
-  const moduleLabel = row.moduleId
-    ? moduleOptions.find(o => o.value === row.moduleId)?.label
+  const selectedModule = row.moduleId
+    ? moduleOptions.find(o => o.value === row.moduleId)
+    : undefined;
+  const moduleLabel = selectedModule?.label ?? null;
+  // A chosen module implies its parent group; otherwise use the explicitly
+  // chosen group. "" = whole resource (no narrowing).
+  const effectiveGroupId = row.moduleGroupId || selectedModule?.group || "";
+  const groupLabel = effectiveGroupId
+    ? groupOptions.find(o => o.value === effectiveGroupId)?.label
     : null;
-  const groupLabel = row.moduleGroupId
-    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
-    : null;
+  // The module dropdown is scoped to the chosen group and disabled until one is
+  // picked — a module can only be chosen from within a group.
+  const groupModuleOptions = effectiveGroupId
+    ? moduleOptions.filter(o => (o.group ?? "") === effectiveGroupId)
+    : [];
   const itemName
     = row.type === "freeform"
       ? row.id
@@ -173,17 +182,13 @@ export function ScheduleEntryRow({
         >
           <select
             aria-label={`${ariaPrefix} module group`}
-            value={row.moduleGroupId}
+            value={effectiveGroupId}
             onChange={e =>
-              // Group and module are mutually exclusive — picking a group clears
-              // any specific module.
+              // Choosing a group (or clearing to whole resource) always resets
+              // the specific module — the module list changes with the group.
               onChange({
                 moduleGroupId: e.target.value,
-                ...(e.target.value
-                  ? {
-                    moduleId: "",
-                  }
-                  : {}),
+                moduleId: "",
               })}
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
@@ -202,21 +207,25 @@ export function ScheduleEntryRow({
           <select
             aria-label={`${ariaPrefix} module`}
             value={row.moduleId}
-            onChange={e =>
+            disabled={!effectiveGroupId}
+            onChange={(e) => {
+              const moduleId = e.target.value;
+              // Picking a module: its group is implied, so drop the explicit
+              // group. Clearing back to "Whole Group": keep the group so it
+              // doesn't fall back to the whole resource.
               onChange({
-                moduleId: e.target.value,
-                ...(e.target.value
-                  ? {
-                    moduleGroupId: "",
-                  }
-                  : {}),
-              })}
+                moduleId,
+                moduleGroupId: moduleId ? "" : effectiveGroupId,
+              });
+            }}
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           >
-            <option value="">— Whole resource —</option>
-            {moduleOptions.map(m => (
+            <option value="">
+              {effectiveGroupId ? "Whole Group" : "— Select a group first —"}
+            </option>
+            {groupModuleOptions.map(m => (
               <option
                 key={m.value}
                 value={m.value}

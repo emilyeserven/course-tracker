@@ -78,7 +78,8 @@ export const Populated: Story = {
 };
 
 // A resource entry on a resource that has a module hierarchy: the module-group
-// and module narrowing selects appear, with the chosen module reflected.
+// and module narrowing selects appear. A chosen module reflects its parent group
+// in the group select (the group is derived from the module).
 export const WithModule: Story = {
   args: {
     value: weeklyToRows({
@@ -97,6 +98,36 @@ export const WithModule: Story = {
     const canvas = within(canvasElement);
     const moduleSelect = await canvas.findByLabelText("Monday module");
     await expect(moduleSelect).toHaveValue("module-2");
-    await expect(canvas.getByLabelText("Monday module group")).toHaveValue("");
+    await expect(canvas.getByLabelText("Monday module group")).toHaveValue(
+      "group-1",
+    );
+  },
+};
+
+// A resource entry narrowed to a whole group (no specific module): the module
+// select is enabled and offers "Whole Group" as its empty option.
+export const WholeGroup: Story = {
+  args: {
+    value: weeklyToRows({
+      1: {
+        type: "resource",
+        id: "resource-1",
+        moduleGroupId: "group-1",
+      },
+    }),
+    moduleGroupsByResource,
+    modulesByResource,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByLabelText("Monday module group")).toHaveValue(
+      "group-1",
+    );
+    const moduleSelect = canvas.getByLabelText("Monday module");
+    await expect(moduleSelect).toHaveValue("");
+    await expect(moduleSelect).toBeEnabled();
+    await expect(within(moduleSelect).getByText("Whole Group")).toBeInTheDocument();
   },
 };
