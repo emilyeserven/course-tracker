@@ -2,7 +2,6 @@ import type { Resource } from "@emstack/types";
 
 import { useMemo } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { useSetModulesExhaustive } from "./useSetModulesExhaustive";
 
 import { useAppForm } from "@/components/formFields";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
   buildResourcePayload,
   formSchema,
@@ -20,9 +20,7 @@ import {
   createTopic,
   fetchProviders,
   fetchTagGroups,
-  fetchTopics,
-  formHasChanges,
-  tagGroupsToOptions,
+  fetchTopics, tagGroupsToOptions,
   toOptions,
   upsertResource,
   uuidv4,
@@ -163,11 +161,11 @@ export function useResourceEditForm({
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const isSubmitting = useStore(form.store, state => state.isSubmitting);
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    currentValues,
+    isSubmitting,
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
   // A self-provider mirrors the resource's url, which a provider requires, so
   // the option is only offered once the resource has a url.

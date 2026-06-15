@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
@@ -16,15 +15,14 @@ import {
 } from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
   createTask,
   deleteSingleTask,
   fetchSingleTask,
   fetchTagGroups,
   fetchTaskTypes,
-  fetchTopics,
-  formHasChanges,
-  queryKeys,
+  fetchTopics, queryKeys,
   tagGroupsToOptions,
   toOptions,
   upsertTask,
@@ -153,11 +151,10 @@ function SingleTaskEdit() {
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const isSubmitting = useStore(form.store, state => state.isSubmitting);
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    isSubmitting,
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleTask,

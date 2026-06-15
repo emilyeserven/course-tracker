@@ -2,7 +2,6 @@ import type { DailyCriteriaTemplate, Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -13,7 +12,8 @@ import { DAILY_STATUS_OPTIONS } from "@/components/dailies";
 import { useAppForm } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
-import { formHasChanges, upsertRoutine } from "@/utils";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
+import { upsertRoutine } from "@/utils";
 
 const criteriaSchema = z.object({
   criteriaIncomplete: z.string().max(TEXT_MAX_LENGTH),
@@ -94,10 +94,9 @@ export function CriteriaTab({
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);

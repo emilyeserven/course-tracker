@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 
-import { useStore } from "@tanstack/react-form";
 // fallow-ignore-next-line code-duplication
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
@@ -17,11 +16,11 @@ import {
 import { useAppForm } from "@/components/formFields";
 import { NAME_MAX_LENGTH, TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
   createProvider,
   deleteSingleProvider,
   fetchSingleProvider,
-  formHasChanges,
   queryKeys,
   upsertProvider,
 } from "@/utils";
@@ -116,16 +115,13 @@ function SingleProviderEdit() {
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const isSubmitting = useStore(form.store, state => state.isSubmitting);
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    currentValues,
+    isSubmitting,
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
-  const isRecurring = useStore(
-    form.store,
-    state => state.values.isRecurring === "true",
-  );
+  const isRecurring = currentValues.isRecurring === "true";
 
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleProvider,

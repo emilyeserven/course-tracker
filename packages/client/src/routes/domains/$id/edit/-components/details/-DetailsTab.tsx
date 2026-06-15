@@ -2,7 +2,6 @@ import type { Domain, TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -11,7 +10,8 @@ import { useAppForm } from "@/components/formFields";
 import { EditForm } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
-import { upsertDomain, formHasChanges } from "@/utils";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
+import { upsertDomain } from "@/utils";
 
 interface DetailsTabProps {
   domain: Domain;
@@ -82,10 +82,9 @@ export function DetailsTab({
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);
