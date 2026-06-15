@@ -50,7 +50,18 @@
       "**/routes/api/**/root.ts",
       "**/routes/api/modules/upsertModule.ts",
       "**/routes/api/domains/createBlip.ts",
-      "**/routes/api/domains/upsertBlip.ts"
+      "**/routes/api/domains/upsertBlip.ts",
+      // Test and story files duplicate by nature — the shared decorator/seed
+      // setup in *.stories.tsx and the fixture scaffolding in *.test.* are
+      // intentional, readable boilerplate (the add-stories skill emits similar
+      // decorators per story), not actionable product duplication. Scoped to
+      // dupes only — these files stay in the dead-code, complexity, and boundary
+      // analyses.
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.test.js",
+      "**/*.stories.ts",
+      "**/*.stories.tsx"
     ]
   },
   "health": {

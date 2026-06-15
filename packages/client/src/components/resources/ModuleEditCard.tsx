@@ -8,9 +8,10 @@ import {
   MODULE_DURATION_LABELS,
 } from "@emstack/types";
 
+import { CardField, CardLocationAndPages, CardTextField } from "./moduleCardFields";
+
 import { EditFormActions } from "@/components/layout/EditFormActions";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
-import { UrlAndPagesFields } from "@/components/resources/UrlAndPagesFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,25 +57,22 @@ export function ModuleEditCard({
       }}
       className="flex flex-col gap-2 rounded-sm border bg-muted/40 p-2"
     >
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {moduleLabel} Name
-        </label>
-        <Input
-          type="text"
-          value={draft.name}
-          onChange={e =>
-            update({
-              name: e.target.value,
-            })}
-          required
-          autoFocus
-          placeholder={moduleNamePlaceholder || undefined}
-        />
-      </div>
-      <UrlAndPagesFields
-        draft={draft}
+      <CardTextField
+        label={`${moduleLabel} Name`}
+        value={draft.name}
+        onChange={name =>
+          update({
+            name,
+          })}
+        required
+        autoFocus
+        placeholder={moduleNamePlaceholder || undefined}
+      />
+      <CardLocationAndPages
         showPages={showPages}
+        url={draft.url}
+        pageStart={draft.pageStart}
+        pageEnd={draft.pageEnd}
         onChange={update}
       />
       <div className="flex flex-col gap-1">
@@ -153,10 +151,7 @@ export function ModuleEditCard({
             </select>
           )}
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          Description (optional)
-        </label>
+      <CardField label="Description (optional)">
         <Textarea
           value={draft.description}
           onChange={e =>
@@ -164,7 +159,7 @@ export function ModuleEditCard({
               description: e.target.value,
             })}
         />
-      </div>
+      </CardField>
       <LevelAndTagsFields
         draft={draft}
         tagGroups={tagGroups}

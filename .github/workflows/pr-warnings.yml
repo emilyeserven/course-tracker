@@ -45,8 +45,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Save the previous sticky comment so the build script can diff resolved
+      # warnings out of it and mark them resolved (empty file when there's none).
+      - name: Fetch previous warning comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+
+            const marker = "<!-- pr-warning-report -->";
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 },
+            );
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+
+            fs.writeFileSync(
+              `${process.env.RUNNER_TEMP}/pr-warning-prev.md`,
+              existing?.body ?? "",
+            );
+
       - name: Build warning comment
-        run: node scripts/build-pr-warning-comment.mjs "${{ github.event.pull_request.base.sha }}"
+        run: node scripts/build-pr-warning-comment.mjs "${{ github.event.pull_request.base.sha }}" "${RUNNER_TEMP}/pr-warning-prev.md"
 
       - name: Upsert sticky comment
         uses: actions/github-script@v7

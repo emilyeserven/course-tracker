@@ -3,6 +3,8 @@ import type { PersistStorage, StorageValue } from "zustand/middleware";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { persistedRemoveItem, persistedSetItem } from "./persistStorageWrite";
+
 import { STORAGE_KEYS } from "@/constants/storageKeys";
 
 export type DailiesViewMode = "table" | "list";
@@ -98,24 +100,8 @@ const settingsStorage: PersistStorage<SettingsState> = {
       version: 0,
     };
   },
-  setItem: (name, value) => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(name, JSON.stringify(value));
-    }
-    catch {
-      // ignore quota / private-mode failures
-    }
-  },
-  removeItem: (name) => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.removeItem(name);
-    }
-    catch {
-      // ignore
-    }
-  },
+  setItem: persistedSetItem,
+  removeItem: persistedRemoveItem,
 };
 
 export const useSettingsStore = create<SettingsState>()(

@@ -150,8 +150,7 @@ export function useResourceEditForm({
             : {},
         });
       }
-      catch (err) {
-        console.error("Failed to save resource:", err);
+      catch {
         toast.error(
           isNew
             ? "Failed to create resource. Please try again."

@@ -2,6 +2,7 @@ import type { RoutineCurated, RoutineWeekly } from "@emstack/types";
 
 import { describe, expect, test } from "vitest";
 
+import type { WeeklyRow } from "./weekly";
 import type { SelectOption } from "@/utils";
 
 import {
@@ -9,6 +10,7 @@ import {
   curatedToRows,
   effectiveEntryUrl,
   fillAllDays,
+  fillEffectiveLocations,
   representativeRow,
   rowsToCurated,
   rowsToWeekly,
@@ -636,5 +638,123 @@ describe("effectiveEntryUrl", () => {
         moduleOptions,
       ),
     ).toBe("");
+  });
+});
+
+describe("fillEffectiveLocations", () => {
+  const resourceOptions: SelectOption[] = [
+    {
+      value: "res-1",
+      label: "Duolingo",
+      url: "https://duolingo.com",
+    },
+    {
+      value: "res-2",
+      label: "Some Book",
+    },
+  ];
+  // res-1 narrows to grp-1 (which carries a url) and mod-1 (which also does).
+  const moduleGroupsByResource = new Map<string, SelectOption[]>([
+    [
+      "res-1",
+      [
+        {
+          value: "grp-1",
+          label: "Unit 1",
+          group: "",
+          url: "https://example.com/unit-1",
+        },
+      ],
+    ],
+  ]);
+  const modulesByResource = new Map<string, SelectOption[]>([
+    [
+      "res-1",
+      [
+        {
+          value: "mod-1",
+          label: "Lesson 1",
+          group: "grp-1",
+          url: "https://example.com/lesson-1",
+        },
+      ],
+    ],
+  ]);
+
+  // A full weekly row with overridable fields; defaults to a blank-location
+  // whole-resource entry on res-1.
+  function row(over: Partial<WeeklyRow> = {}): WeeklyRow {
+    return {
+      day: "1",
+      type: "resource",
+      id: "res-1",
+      moduleId: "",
+      moduleGroupId: "",
+      notes: "",
+      location: "",
+      prependText: "",
+      appendText: "",
+      ...over,
+    };
+  }
+
+  const fill = (rows: WeeklyRow[]) =>
+    fillEffectiveLocations(
+      rows,
+      resourceOptions,
+      moduleGroupsByResource,
+      modulesByResource,
+    );
+
+  test("fills a blank location from the resource's url", () => {
+    expect(fill([row()])[0].location).toBe("https://duolingo.com");
+  });
+
+  test("fills from the most-specific narrowing (module > group)", () => {
+    expect(fill([row({
+      moduleGroupId: "grp-1",
+    })])[0].location).toBe(
+      "https://example.com/unit-1",
+    );
+    expect(fill([row({
+      moduleId: "mod-1",
+    })])[0].location).toBe(
+      "https://example.com/lesson-1",
+    );
+  });
+
+  test("leaves a user-typed location untouched", () => {
+    expect(fill([row({
+      location: "my own note",
+    })])[0].location).toBe(
+      "my own note",
+    );
+  });
+
+  test("leaves the location blank when nothing in the chain has a link", () => {
+    expect(fill([row({
+      id: "res-2",
+    })])[0].location).toBe("");
+  });
+
+  test("ignores task / freeform entries", () => {
+    expect(fill([row({
+      type: "task",
+      id: "res-1",
+    })])[0].location).toBe("");
+    expect(fill([row({
+      type: "freeform",
+      id: "res-1",
+    })])[0].location).toBe("");
+  });
+
+  test("preserves the row's other fields (e.g. its day key)", () => {
+    const [filled] = fill([row({
+      day: "3",
+      notes: "hi",
+    })]);
+    expect(filled.day).toBe("3");
+    expect(filled.notes).toBe("hi");
+    expect(filled.location).toBe("https://duolingo.com");
   });
 });

@@ -11,6 +11,7 @@ import {
   curatedDateRange,
   curatedToRows,
   fillAllDays,
+  fillEffectiveLocations,
   MAX_CURATED_DAYS,
   representativeRow,
   rowsToCurated,
@@ -27,7 +28,9 @@ import {
   fetchModules,
   fetchResources,
   fetchTasks,
-  fetchTopics, getTodayKey,
+  fetchTopics,
+  getDateKey,
+  getTodayKey,
   groupOptionsByResource,
   toOptions,
   upsertRoutine,
@@ -83,16 +86,6 @@ const detailsSchema = z.object({
   // target (every day).
   weeklyTarget: z.number().int().min(1).max(7).nullable(),
 });
-
-// Curated dates are keyed in UTC (matching the entries-tab / server resolution),
-// but the picker yields a local-midnight Date — convert via the local Y/M/D so a
-// selected calendar day maps to the same key the user sees.
-function dateToKey(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 function keyToDate(key: string): Date {
   return new Date(`${key}T00:00:00`);
@@ -203,19 +196,40 @@ export function useRoutineDetailsForm(
           mode: value.mode,
           // Daily mode mirrors the single chosen entry onto all 7 days so
           // "today's item" resolves identically every day. Curated mode keys by
-          // date instead, so its weekly grid is cleared.
+          // date instead, so its weekly grid is cleared. fillEffectiveLocations
+          // bakes the resource link into any blank location (shown as a
+          // placeholder in the editor) so it's persisted.
           weekly:
             value.mode === "daily"
-              ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
+              ? rowsToWeekly(
+                fillEffectiveLocations(
+                  fillAllDays(representativeRow(value.weekly)),
+                  resourceOptions,
+                  moduleGroupsByResource,
+                  modulesByResource,
+                ),
+              )
               : value.mode === "curated"
                 ? {}
-                : rowsToWeekly(value.weekly),
+                : rowsToWeekly(
+                  fillEffectiveLocations(
+                    value.weekly,
+                    resourceOptions,
+                    moduleGroupsByResource,
+                    modulesByResource,
+                  ),
+                ),
           // Curated schedule (date-keyed); cleared for weekly/daily routines.
           curated:
             value.mode === "curated"
               ? rowsToCurated(
-                value.curated,
-                value.curatedEndDate ? dateToKey(value.curatedEndDate) : null,
+                fillEffectiveLocations(
+                  value.curated,
+                  resourceOptions,
+                  moduleGroupsByResource,
+                  modulesByResource,
+                ),
+                value.curatedEndDate ? getDateKey(value.curatedEndDate) : null,
               )
               : {
                 endDate: null,
@@ -265,7 +279,7 @@ export function useRoutineDetailsForm(
   // range while preserving any edits the user already made to dates still in it.
   function setCuratedEndDate(date: Date | null) {
     form.setFieldValue("curatedEndDate", date);
-    const endKey = date ? dateToKey(date) : null;
+    const endKey = date ? getDateKey(date) : null;
     const keys = curatedDateRange(todayKey, endKey);
     const existing = new Map(
       form.getFieldValue("curated").map(r => [r.date, r]),
