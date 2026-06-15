@@ -1,36 +1,15 @@
-import type { RoutineConnectionType, RoutineMode } from "@emstack/types";
+import type { NewRoutineSearch } from "./-useNewRoutineForm";
 
-import { useMemo, useState } from "react";
-
-import { useStore } from "@tanstack/react-form";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import * as z from "zod";
 
 import { MODE_OPTIONS } from "../-routineFormMeta";
+import { useNewRoutineForm } from "./-useNewRoutineForm";
 
-import { useAppForm } from "@/components/formFields";
 import { EditForm, EditPageFooter, PageHeader } from "@/components/layout";
-import { fillAllDays, rowsToWeekly } from "@/components/routines";
 import { Button } from "@/components/ui/button";
-import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
-import { createRoutine } from "@/utils";
-
-const newRoutineSchema = z.object({
-  name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
-  mode: z.enum(["weekly", "daily", "curated"]),
-});
 
 interface NewRoutineFormProps {
-  /** Prefill source: the create page's validated search params. */
-  search: {
-    topicId?: string;
-    connectedType?: RoutineConnectionType;
-    connectedId?: string;
-    mode?: RoutineMode;
-    entryType?: "task" | "resource";
-    entryId?: string;
-  };
+  search: NewRoutineSearch;
   onCreated: (id: string) => void | Promise<void>;
   onCancel: () => void;
 }
@@ -40,70 +19,12 @@ export function NewRoutineForm({
   onCreated,
   onCancel,
 }: NewRoutineFormProps) {
-  const [isSaving, setIsSaving] = useState(false);
-
-  // New routines can be prefilled via search params: the generic
-  // `?connectedType=&connectedId=` or the legacy `?topicId=` alias, plus an
-  // optional `?entryType=&entryId=` that seeds the weekly grid.
-  const prefilledConnections = useMemo(() => {
-    const out: { type: RoutineConnectionType;
-      id: string; }[] = [];
-    if (search.connectedType && search.connectedId) {
-      out.push({
-        type: search.connectedType,
-        id: search.connectedId,
-      });
-    }
-    if (search.topicId) {
-      out.push({
-        type: "topic",
-        id: search.topicId,
-      });
-    }
-    return out;
-  }, [search.connectedType, search.connectedId, search.topicId]);
-
-  const form = useAppForm({
-    defaultValues: {
-      name: "",
-      mode: search.mode ?? "weekly",
-    },
-    validators: {
-      onSubmit: newRoutineSchema,
-    },
-    onSubmit: async ({
-      value,
-    }) => {
-      setIsSaving(true);
-      try {
-        const weekly
-          = search.entryType && search.entryId
-            ? rowsToWeekly(
-              fillAllDays({
-                type: search.entryType,
-                id: search.entryId,
-              }),
-            )
-            : {};
-        const result = await createRoutine({
-          name: value.name,
-          mode: value.mode,
-          status: "active",
-          connections: prefilledConnections,
-          weekly,
-        });
-        await onCreated(result.id);
-      }
-      catch {
-        toast.error("Failed to create routine. Please try again.");
-      }
-      finally {
-        setIsSaving(false);
-      }
-    },
+  const {
+    form, isSaving, isSubmitting,
+  } = useNewRoutineForm({
+    search,
+    onCreated,
   });
-
-  const isSubmitting = useStore(form.store, state => state.isSubmitting);
 
   return (
     <div>
