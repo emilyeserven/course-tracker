@@ -1,8 +1,8 @@
-import type { BlipEditDraft } from "@/components/radar/BlipEditRow";
 import type {
+  BlipEditDraft,
   BulkPatch,
   SortKey,
-} from "@/components/radar/blipTableFilters";
+} from "@/components/radar/blipTableParts";
 import type { SortDirection } from "@/components/ui/manualSort";
 import type {
   RadarBlip,
@@ -10,10 +10,7 @@ import type {
   RadarRing,
   TopicForTopicsPage,
 } from "@emstack/types";
-import type {
-  ColumnDef,
-  RowSelectionState,
-} from "@tanstack/react-table";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -21,20 +18,17 @@ import { toast } from "sonner";
 
 import {
   ALL,
-  countByField,
-  filterAndSortBlips,
-  NO_CHANGE,
-} from "@/components/radar/blipTableFilters";
-import {
   BlipBulkBar,
   BlipDisplayRow,
   BlipEditRow,
-} from "@/components/radar/blipTableRows";
-import { BlipTableToolbar } from "@/components/radar/BlipTableToolbar";
+  BlipTableToolbar,
+  buildBlipColumns,
+  countByField,
+  filterAndSortBlips,
+  NO_CHANGE,
+} from "@/components/radar/blipTableParts";
 import { DataTable } from "@/components/ui/data-table";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
-import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import {
   TableCell,
   TableRow,
@@ -264,96 +258,10 @@ export function BlipTable({
 
   const colCount = (showItemsColumn ? 6 : 5) + 1;
 
-  const columns = useMemo<ColumnDef<RadarBlip>[]>(() => {
-    const cols: ColumnDef<RadarBlip>[] = [
-      {
-        id: "select",
-        enableSorting: false,
-        meta: {
-          headClassName: "w-1",
-        },
-        header: ({
-          table,
-        }) => (
-          <SelectAllCheckbox
-            aria-label="Select all visible"
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={table.getIsSomeRowsSelected()}
-            onCheckedChange={value => table.toggleAllRowsSelected(value)}
-            disabled={table.getRowModel().rows.length === 0}
-          />
-        ),
-      },
-      {
-        id: "topic",
-        sortDescFirst: false,
-        header: ({
-          column,
-        }) => (
-          <DataTableColumnHeader
-            column={column}
-            label="Topic"
-          />
-        ),
-      },
-      {
-        id: "slice",
-        sortDescFirst: false,
-        header: ({
-          column,
-        }) => (
-          <DataTableColumnHeader
-            column={column}
-            label="Slice"
-          />
-        ),
-      },
-      {
-        id: "ring",
-        sortDescFirst: false,
-        header: ({
-          column,
-        }) => (
-          <DataTableColumnHeader
-            column={column}
-            label="Ring"
-          />
-        ),
-      },
-      {
-        id: "radarNote",
-        enableSorting: false,
-        header: "Radar Note",
-      },
-    ];
-
-    if (showItemsColumn) {
-      cols.push({
-        id: "items",
-        sortDescFirst: false,
-        header: ({
-          column,
-        }) => (
-          <DataTableColumnHeader
-            column={column}
-            label="Topic Items"
-          />
-        ),
-      });
-    }
-
-    cols.push({
-      id: "actions",
-      enableSorting: false,
-      meta: {
-        align: "right",
-        headClassName: "w-1",
-      },
-      header: "Actions",
-    });
-
-    return cols;
-  }, [showItemsColumn]);
+  const columns = useMemo(
+    () => buildBlipColumns(showItemsColumn),
+    [showItemsColumn],
+  );
 
   return (
     <div className="flex flex-col gap-3">

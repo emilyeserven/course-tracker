@@ -2,17 +2,15 @@ import type { Daily } from "@emstack/types";
 
 import { useEffect, useState } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, MessageSquareIcon, PencilIcon } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
+import { useDailyComment } from "@/hooks/useDailyComment";
 import { useHoverPopover } from "@/hooks/useHoverPopover";
 import { cn } from "@/lib/utils";
-import { getTodayKey, upsertDaily, withCompletionNote } from "@/utils";
 
 interface DailyCommentPopoverProps {
   daily: Daily;
@@ -23,11 +21,9 @@ export function DailyCommentPopover({
   daily,
   buttonClassName,
 }: DailyCommentPopoverProps) {
-  const todayKey = getTodayKey();
-  const queryClient = useQueryClient();
-  const note
-    = daily.completions.find(c => c.date === todayKey)?.note?.trim() || "";
-  const hasNote = note.length > 0;
+  const {
+    note, hasNote, mutation,
+  } = useDailyComment(daily);
 
   const {
     open, setOpen, cancelClose, handleOpen, handleClose,
@@ -58,40 +54,11 @@ export function DailyCommentPopover({
     handleClose();
   };
 
-  const mutation = useMutation({
-    mutationFn: (nextNote: string | null) => {
-      const completions = withCompletionNote(daily, todayKey, nextNote);
-      return upsertDaily(daily.id, {
-        name: daily.name,
-        location: daily.location ?? null,
-        description: daily.description ?? null,
-        completions,
-        courseProviderId: daily.provider?.id ?? null,
-        resourceId: daily.resource?.id ?? null,
-        taskId: daily.taskId ?? daily.task?.id ?? null,
-        status: daily.status ?? "active",
-        criteria: daily.criteria ?? {},
-      });
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["dailies"],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ["daily", daily.id],
-        }),
-      ]);
-      setOpen(false);
-    },
-    onError: () => {
-      toast.error("Failed to save comment.");
-    },
-  });
-
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    mutation.mutate(draft.trim() || null);
+    mutation.mutate(draft.trim() || null, {
+      onSuccess: () => setOpen(false),
+    });
   }
 
   return (

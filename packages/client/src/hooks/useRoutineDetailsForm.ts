@@ -12,6 +12,7 @@ import {
   curatedDateRange,
   curatedToRows,
   fillAllDays,
+  fillEffectiveLocations,
   MAX_CURATED_DAYS,
   representativeRow,
   rowsToCurated,
@@ -196,18 +197,39 @@ export function useRoutineDetailsForm(
           mode: value.mode,
           // Daily mode mirrors the single chosen entry onto all 7 days so
           // "today's item" resolves identically every day. Curated mode keys by
-          // date instead, so its weekly grid is cleared.
+          // date instead, so its weekly grid is cleared. fillEffectiveLocations
+          // bakes the resource link into any blank location (shown as a
+          // placeholder in the editor) so it's persisted.
           weekly:
             value.mode === "daily"
-              ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
+              ? rowsToWeekly(
+                fillEffectiveLocations(
+                  fillAllDays(representativeRow(value.weekly)),
+                  resourceOptions,
+                  moduleGroupsByResource,
+                  modulesByResource,
+                ),
+              )
               : value.mode === "curated"
                 ? {}
-                : rowsToWeekly(value.weekly),
+                : rowsToWeekly(
+                  fillEffectiveLocations(
+                    value.weekly,
+                    resourceOptions,
+                    moduleGroupsByResource,
+                    modulesByResource,
+                  ),
+                ),
           // Curated schedule (date-keyed); cleared for weekly/daily routines.
           curated:
             value.mode === "curated"
               ? rowsToCurated(
-                value.curated,
+                fillEffectiveLocations(
+                  value.curated,
+                  resourceOptions,
+                  moduleGroupsByResource,
+                  modulesByResource,
+                ),
                 value.curatedEndDate ? getDateKey(value.curatedEndDate) : null,
               )
               : {
