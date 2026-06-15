@@ -43,3 +43,61 @@ export function computeModuleProgress(
     percentComplete,
   };
 }
+
+export interface GroupProgress {
+  id: string;
+  name: string;
+  /** Enumerated module count, or the group's direct `totalCount` when empty. */
+  moduleCount: number;
+  /** Completed enumerated modules, or the direct `completedCount` when empty. */
+  completedCount: number;
+  /** Integer 0–100; 0 when the group has nothing to count. */
+  percentComplete: number;
+  /** True when every counted module is done (and there is something to count). */
+  isComplete: boolean;
+}
+
+/**
+ * Per-group progress breakdown for a resource. Mirrors `computeModuleProgress`'s
+ * rule at the group level: a group with enumerated modules is measured by those
+ * modules' statuses; a group without them falls back to its direct
+ * `totalCount`/`completedCount`. Sorted by `position` then name for stable display.
+ */
+export function computeGroupProgress(
+  modules: Module[],
+  groups: ModuleGroup[],
+): GroupProgress[] {
+  const modulesByGroup = new Map<string, Module[]>();
+  for (const m of modules) {
+    if (!m.moduleGroupId) continue;
+    const arr = modulesByGroup.get(m.moduleGroupId);
+    if (arr) arr.push(m);
+    else modulesByGroup.set(m.moduleGroupId, [m]);
+  }
+
+  return [...groups]
+    .sort(
+      (a, b) =>
+        (a.position ?? Infinity) - (b.position ?? Infinity)
+        || a.name.localeCompare(b.name),
+    )
+    .map((g) => {
+      const enumerated = modulesByGroup.get(g.id) ?? [];
+      const hasEnumerated = enumerated.length > 0;
+      const moduleCount = hasEnumerated ? enumerated.length : g.totalCount ?? 0;
+      const completedCount = hasEnumerated
+        ? enumerated.filter(m => isModuleComplete(m.status)).length
+        : g.completedCount ?? 0;
+      const percentComplete
+        = moduleCount > 0 ? Math.round((completedCount / moduleCount) * 100) : 0;
+
+      return {
+        id: g.id,
+        name: g.name,
+        moduleCount,
+        completedCount,
+        percentComplete,
+        isComplete: moduleCount > 0 && completedCount >= moduleCount,
+      };
+    });
+}

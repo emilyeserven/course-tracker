@@ -1,5 +1,6 @@
 /* eslint-disable import/max-dependencies */
-import type { ModuleProgress } from "@/utils/moduleProgress";
+import type { ResourceModuleProgress } from "@/hooks/useResourceModuleProgress";
+import type { GroupProgress, ModuleProgress } from "@/utils/moduleProgress";
 import type { Resource } from "@emstack/types";
 
 import { useState } from "react";
@@ -10,6 +11,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import {
+  ModuleGroupBreakdown,
   ResourceInteractionsLog,
   ResourceModulesAdmin,
 } from "./-components";
@@ -226,7 +228,7 @@ function ResourceDetailsTab({
 }: {
   data: Resource;
   percentComplete: string | undefined;
-  moduleProgress: ModuleProgress;
+  moduleProgress: ResourceModuleProgress;
 }) {
   const topics = data.topics ?? null;
   // Labels are no longer renamed per resource; always use the default.
@@ -288,7 +290,8 @@ function ResourceDetailsTab({
         {data.modulesAreExhaustive
           ? (
             <ModuleProgressDisplay
-              moduleProgress={moduleProgress}
+              progress={moduleProgress.progress}
+              groups={moduleProgress.groups}
               moduleLabel={moduleLabel}
             />
           )
@@ -378,34 +381,54 @@ function ResourceDetailsTab({
 
 // Module Tracking progress: completed/total/% derived from the resource's
 // modules (and count-only groups), shown instead of the manual progress fields.
+// When the resource has groups, group-level stats sit above the module stats and
+// an expandable table breaks progress down per group.
 function ModuleProgressDisplay({
-  moduleProgress,
+  progress,
+  groups,
   moduleLabel,
 }: {
-  moduleProgress: ModuleProgress;
+  progress: ModuleProgress;
+  groups: GroupProgress[];
   moduleLabel: string;
 }) {
   const {
     completedCount,
     totalCount,
     percentComplete,
-  } = moduleProgress;
+  } = progress;
 
   if (totalCount === 0) {
     return <span>No {moduleLabel.toLowerCase()}s added yet.</span>;
   }
 
+  const totalGroups = groups.length;
+  const groupsCompleted = groups.filter(g => g.isComplete).length;
+
   return (
-    <>
-      <InfoArea header={`${moduleLabel}s Completed`}>
-        <p>{completedCount}</p>
-      </InfoArea>
-      <InfoArea header={`Total ${moduleLabel}s`}>
-        <p>{totalCount}</p>
-      </InfoArea>
-      <InfoArea header="% Complete">
-        <p>{percentComplete}%</p>
-      </InfoArea>
-    </>
+    <div className="flex w-full flex-col gap-4">
+      {totalGroups > 0 && (
+        <div className="flex flex-row gap-8">
+          <InfoArea header="Groups Completed">
+            <p>{groupsCompleted}</p>
+          </InfoArea>
+          <InfoArea header="Total Groups">
+            <p>{totalGroups}</p>
+          </InfoArea>
+        </div>
+      )}
+      <div className="flex flex-row gap-8">
+        <InfoArea header={`${moduleLabel}s Completed`}>
+          <p>{completedCount}</p>
+        </InfoArea>
+        <InfoArea header={`Total ${moduleLabel}s`}>
+          <p>{totalCount}</p>
+        </InfoArea>
+        <InfoArea header="% Complete">
+          <p>{percentComplete}%</p>
+        </InfoArea>
+      </div>
+      {totalGroups > 0 && <ModuleGroupBreakdown groups={groups} />}
+    </div>
   );
 }
