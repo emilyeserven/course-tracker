@@ -11,7 +11,6 @@ export { DailyTrackerRow } from "./DailyTrackerRow";
 export {
   buildDailyTrackerColumns,
   DAILY_TRACKER_COLUMN_OPTIONS,
-  DEFAULT_DAILY_TRACKER_COLUMNS,
   resolveDailyTrackerColumns,
 } from "./dailyTrackerColumns";
 export {
