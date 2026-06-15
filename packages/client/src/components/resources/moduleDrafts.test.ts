@@ -11,6 +11,7 @@ import {
   levelChipClass,
   lookupTagsByIds,
   moduleToDraft,
+  parseBulkModuleNames,
   parseCount,
 } from "./moduleDrafts";
 
@@ -84,6 +85,32 @@ describe("parseCount", () => {
 
   test("a decimal is floored to an integer", () => {
     expect(parseCount("3.7")).toBe(3);
+  });
+});
+
+describe("parseBulkModuleNames", () => {
+  test("splits one name per line, preserving order", () => {
+    expect(parseBulkModuleNames("Intro\nSetup\nFirst lesson")).toEqual([
+      "Intro",
+      "Setup",
+      "First lesson",
+    ]);
+  });
+
+  test("trims each line and drops blank lines", () => {
+    expect(parseBulkModuleNames("  Intro  \n\n   \n Setup\n")).toEqual([
+      "Intro",
+      "Setup",
+    ]);
+  });
+
+  test("returns an empty array for blank input", () => {
+    expect(parseBulkModuleNames("")).toEqual([]);
+    expect(parseBulkModuleNames("   \n\n  ")).toEqual([]);
+  });
+
+  test("handles carriage-return newlines from pasted text", () => {
+    expect(parseBulkModuleNames("Intro\r\nSetup")).toEqual(["Intro", "Setup"]);
   });
 });
 
