@@ -29,6 +29,7 @@ import {
   fetchTasks,
   fetchTopics,
   formHasChanges,
+  getDateKey,
   getTodayKey,
   groupOptionsByResource,
   toOptions,
@@ -85,16 +86,6 @@ const detailsSchema = z.object({
   // target (every day).
   weeklyTarget: z.number().int().min(1).max(7).nullable(),
 });
-
-// Curated dates are keyed in UTC (matching the entries-tab / server resolution),
-// but the picker yields a local-midnight Date — convert via the local Y/M/D so a
-// selected calendar day maps to the same key the user sees.
-function dateToKey(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 function keyToDate(key: string): Date {
   return new Date(`${key}T00:00:00`);
@@ -217,7 +208,7 @@ export function useRoutineDetailsForm(
             value.mode === "curated"
               ? rowsToCurated(
                 value.curated,
-                value.curatedEndDate ? dateToKey(value.curatedEndDate) : null,
+                value.curatedEndDate ? getDateKey(value.curatedEndDate) : null,
               )
               : {
                 endDate: null,
@@ -267,7 +258,7 @@ export function useRoutineDetailsForm(
   // range while preserving any edits the user already made to dates still in it.
   function setCuratedEndDate(date: Date | null) {
     form.setFieldValue("curatedEndDate", date);
-    const endKey = date ? dateToKey(date) : null;
+    const endKey = date ? getDateKey(date) : null;
     const keys = curatedDateRange(todayKey, endKey);
     const existing = new Map(
       form.getFieldValue("curated").map(r => [r.date, r]),

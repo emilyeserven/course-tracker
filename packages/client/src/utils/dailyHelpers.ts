@@ -5,7 +5,10 @@ import type {
   RoutineWeekday,
 } from "@emstack/types";
 
-function getDateKey(date: Date = new Date()): string {
+// Local-time "YYYY-MM-DD" key for a date. Read in local time (not UTC) so a
+// calendar day the user picks maps to the same key they see — matching the
+// curated-schedule resolution and getTodayKey().
+export function getDateKey(date: Date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
