@@ -38,7 +38,7 @@ export function DashboardReadwise({
       tile={tile}
       onUpdateTile={onUpdateTile}
       title="Readwise"
-      action={
+      action={(
         <Button
           asChild
           size="sm"
@@ -53,14 +53,14 @@ export function DashboardReadwise({
             <ExternalLink />
           </a>
         </Button>
-      }
+      )}
       settingsLink={
         <SettingsLink className="text-sm">Set Readwise API key</SettingsLink>
       }
       configured={configured}
       isPending={isPending}
       error={error}
-      connectPrompt={
+      connectPrompt={(
         <p className="text-sm text-muted-foreground">
           Add your Readwise API key in
           {" "}
@@ -69,7 +69,7 @@ export function DashboardReadwise({
           to
           see your reading list.
         </p>
-      }
+      )}
     >
       <Tabs defaultValue="started">
         <TabsList className="h-8">

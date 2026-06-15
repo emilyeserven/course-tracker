@@ -34,7 +34,7 @@ export function DashboardUnderutilizedProviders({
     <DashboardCard
       autoHeight={isAutoHeight(tile)}
       title="Underutilized Providers"
-      action={
+      action={(
         <Link
           to="/providers"
           className="
@@ -44,7 +44,7 @@ export function DashboardUnderutilizedProviders({
         >
           View all
         </Link>
-      }
+      )}
       settings={(
         <CardSettingsFlyout
           tile={tile}

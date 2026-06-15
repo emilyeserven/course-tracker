@@ -31,6 +31,33 @@ export default tseslint.config([
     },
   },
   {
+    // Wrap *every* multiline JSX context in parens-on-new-lines, including JSX
+    // that is a prop value (`settings={<Flyout … />}`) or an object-property
+    // value. The shared config leaves `prop`/`propertyValue` at "ignore", which
+    // lets a multiline multi-prop JSX prop value stay unwrapped — and there
+    // `@stylistic/jsx-closing-bracket-location` (tag-aligned) and
+    // `@stylistic/indent` fight over the closing `/>`, so `eslint --fix` cannot
+    // converge and emits `ESLintCircularFixesWarning`. Forcing the wrap
+    // (`settings={(\n  <Flyout … />\n)}`) — the form already used across the
+    // dashboard cards — removes the conflict. See #517.
+    files: ["packages/client/src/**/*.tsx"],
+    rules: {
+      "@stylistic/jsx-wrap-multilines": [
+        "error",
+        {
+          declaration: "parens-new-line",
+          assignment: "parens-new-line",
+          return: "parens-new-line",
+          arrow: "parens-new-line",
+          condition: "parens-new-line",
+          logical: "parens-new-line",
+          prop: "parens-new-line",
+          propertyValue: "parens-new-line",
+        },
+      ],
+    },
+  },
+  {
     files: ["packages/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
