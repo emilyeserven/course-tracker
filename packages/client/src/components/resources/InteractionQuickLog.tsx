@@ -12,16 +12,15 @@ import { toast } from "sonner";
 
 import {
   DIFFICULTY_OPTIONS,
+  OptionalSelectField,
   PROGRESS_LABEL,
   PROGRESS_OPTIONS,
   UNDERSTANDING_OPTIONS,
-} from "@/components/resources/interactionMeta";
-import { OptionalSelectField } from "@/components/resources/OptionalSelectField";
+} from "@/components/resources/interactionFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createInteraction } from "@/utils/fetchFunctions";
-import { queryKeys } from "@/utils/queryKeys";
+import { createInteraction, queryKeys } from "@/utils";
 
 interface Props {
   resourceId: string;
