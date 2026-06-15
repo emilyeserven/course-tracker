@@ -22,6 +22,32 @@ export type DashboardTileId = (typeof DASHBOARD_TILE_IDS)[number];
 // An undefined `heightMode` is treated as "auto" (the default).
 export type TileHeightMode = "auto" | "fixed";
 
+// The daily-tracker table columns the user can show/hide from the Do Now /
+// Done for the Day card settings. Lives here (a runtime const) so the client
+// table builder and the middleware JSON schema derive from the same list — the
+// always-on Title and Today's Status columns are deliberately not toggleable.
+// "days" toggles the recent-day columns as a group.
+export const DAILY_TRACKER_TOGGLEABLE_COLUMNS = [
+  "progress",
+  "routine",
+  "type",
+  "cadence",
+  "streak",
+  "total",
+  "comment",
+  "days",
+  "location",
+] as const;
+
+export type DailyTrackerColumnKey
+  = (typeof DAILY_TRACKER_TOGGLEABLE_COLUMNS)[number];
+
+// Per-tile show/hide state for the toggleable columns. Partial: a missing key
+// means "use the default" (all on except the routine column).
+export type DailyTrackerColumnVisibility = Partial<
+  Record<DailyTrackerColumnKey, boolean>
+>;
+
 // Position/size of one enabled tile in the 4-column dashboard grid. A tile
 // that is disabled is simply absent from the layout's `tiles` array. The grid
 // `h` unit is 4em per row (see the client grid config).
@@ -40,6 +66,8 @@ export interface DashboardLayoutTile {
   showLabels?: boolean;
   showDescription?: boolean;
   showOverdue?: boolean;
+  // Do Now / Done for the Day tiles only — which tracker-table columns to show.
+  columns?: DailyTrackerColumnVisibility;
 }
 
 export interface DashboardLayout {

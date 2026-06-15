@@ -1,4 +1,5 @@
 import type {
+  DailyTrackerColumnVisibility,
   DashboardLayout,
   DashboardLayoutTile,
   DashboardTileId,
@@ -331,6 +332,7 @@ interface GridItemSettings {
   showLabels?: boolean;
   showDescription?: boolean;
   showOverdue?: boolean;
+  columns?: DailyTrackerColumnVisibility;
 }
 
 export interface GridLayoutItem extends GridItemSettings {
@@ -354,6 +356,7 @@ function pickSettings(source: GridItemSettings): GridItemSettings {
     out.showDescription = source.showDescription;
   }
   if (source.showOverdue !== undefined) out.showOverdue = source.showOverdue;
+  if (source.columns !== undefined) out.columns = source.columns;
   return out;
 }
 

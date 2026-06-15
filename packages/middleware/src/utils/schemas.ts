@@ -274,6 +274,41 @@ const dashboardLayoutTileSchema = {
     showOverdue: {
       type: "boolean",
     },
+    // Do Now / Done for the Day tiles only — per-column show/hide state. Keys
+    // mirror DAILY_TRACKER_TOGGLEABLE_COLUMNS in @emstack/types.
+    columns: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        progress: {
+          type: "boolean",
+        },
+        routine: {
+          type: "boolean",
+        },
+        type: {
+          type: "boolean",
+        },
+        cadence: {
+          type: "boolean",
+        },
+        streak: {
+          type: "boolean",
+        },
+        total: {
+          type: "boolean",
+        },
+        comment: {
+          type: "boolean",
+        },
+        days: {
+          type: "boolean",
+        },
+        location: {
+          type: "boolean",
+        },
+      },
+    },
   },
 } as const;
 

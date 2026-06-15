@@ -1,5 +1,5 @@
 import type { DashboardDailiesData } from "./-useDashboardDailies";
-import type { Daily } from "@emstack/types";
+import type { Daily, DailyTrackerColumnVisibility } from "@emstack/types";
 
 import { RECENT_DAYS_COUNT } from "./-useDashboardDailies";
 
@@ -14,9 +14,12 @@ import { DataTable } from "@/components/ui/data-table";
 export function DashboardDailiesBody({
   list,
   data,
+  columns,
 }: {
   list: Daily[];
   data: DashboardDailiesData;
+  /** Per-tile column show/hide state from the card's settings menu. */
+  columns?: DailyTrackerColumnVisibility;
 }) {
   const {
     mode, mutation, dayHeaders, todayKey, sorting, onSortingChange,
@@ -48,6 +51,7 @@ export function DashboardDailiesBody({
         progressLabel: "Prog",
         statusHeadClassName: "p-2 font-medium whitespace-nowrap",
         titleHeadClassName: "w-full",
+        columns,
       })}
       data={list}
       getRowId={daily => daily.id}
@@ -78,6 +82,7 @@ export function DashboardDailiesBody({
             z-0 -translate-y-1/2
           "
           taskId={null}
+          columns={columns}
         />
       )}
     />

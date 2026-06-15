@@ -8,7 +8,12 @@ export { TodayStatusCell } from "./TodayStatusCell";
 export { TooManyDailiesWarning } from "./TooManyDailiesWarning";
 export { DailiesLimitSetting } from "./DailiesLimitSetting";
 export { DailyTrackerRow } from "./DailyTrackerRow";
-export { buildDailyTrackerColumns } from "./dailyTrackerColumns";
+export {
+  buildDailyTrackerColumns,
+  DAILY_TRACKER_COLUMN_OPTIONS,
+  DEFAULT_DAILY_TRACKER_COLUMNS,
+  resolveDailyTrackerColumns,
+} from "./dailyTrackerColumns";
 export {
   DAILY_DETAIL_TABS,
   DAILY_STATUS_OPTIONS,
