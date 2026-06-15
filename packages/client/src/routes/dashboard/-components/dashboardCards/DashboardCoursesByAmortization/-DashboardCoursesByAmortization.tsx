@@ -101,7 +101,7 @@ export function DashboardCoursesByAmortization({
     <DashboardCard
       autoHeight={isAutoHeight(tile)}
       title="Cost per Unit"
-      action={
+      action={(
         <Link
           to="/resources"
           className="
@@ -111,7 +111,7 @@ export function DashboardCoursesByAmortization({
         >
           View all
         </Link>
-      }
+      )}
       settings={(
         <CardSettingsFlyout
           tile={tile}

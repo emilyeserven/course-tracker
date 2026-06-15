@@ -15,7 +15,7 @@ export function ReadwiseSection() {
         hint: data?.readwiseKeyHint ?? null,
       })}
       dataQueryKey={queryKeys.readwise.readingList()}
-      description={
+      description={(
         <>
           Connect your Readwise Reader account to show your reading list on the
           dashboard. Paste a token from
@@ -33,7 +33,7 @@ export function ReadwiseSection() {
           </a>
           .
         </>
-      }
+      )}
     />
   );
 }

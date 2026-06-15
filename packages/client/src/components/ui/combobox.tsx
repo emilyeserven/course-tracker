@@ -1,6 +1,3 @@
-/* eslint-disable @stylistic/indent -- vendored shadcn/base-ui file; the
-   indent fixer conflicts with JSX wrapping rules on nested render={...}
-   props (circular fixes) */
 "use client";
 
 import * as React from "react";
@@ -45,10 +42,12 @@ function ComboboxClear({
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear"
-      render={<InputGroupButton
-        variant="ghost"
-        size="icon-xs"
-              />}
+      render={(
+        <InputGroupButton
+          variant="ghost"
+          size="icon-xs"
+        />
+      )}
       className={cn(className)}
       {...props}
     >
@@ -197,14 +196,14 @@ function ComboboxItem({
       {children}
       <ComboboxPrimitive.ItemIndicator
         data-slot="combobox-item-indicator"
-        render={
+        render={(
           <span
             className="
               pointer-events-none absolute right-2 flex size-4 items-center
               justify-center
             "
           />
-        }
+        )}
       >
         <CheckIcon
           className="
@@ -334,10 +333,12 @@ function ComboboxChip({
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
-          render={<Button
-            variant="ghost"
-            size="icon-xs"
-                  />}
+          render={(
+            <Button
+              variant="ghost"
+              size="icon-xs"
+            />
+          )}
           className="
             -ml-1 opacity-50
             hover:opacity-100

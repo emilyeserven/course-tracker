@@ -155,7 +155,7 @@ export function TrackerTables({
 
       {activeDailies.length > 0 && (
         <DashboardCard
-          title={
+          title={(
             <span className="inline-flex items-center gap-2">
               Active Routines
               <TooManyDailiesWarning
@@ -164,8 +164,8 @@ export function TrackerTables({
                 size="sm"
               />
             </span>
-          }
-          action={
+          )}
+          action={(
             <>
               <DailiesViewModeToggle
                 mode={mode}
@@ -173,7 +173,7 @@ export function TrackerTables({
               />
               <DailiesLimitSetting />
             </>
-          }
+          )}
         >
           {mode === "list" && (
             <DailiesActiveListView

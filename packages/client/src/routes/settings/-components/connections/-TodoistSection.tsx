@@ -15,7 +15,7 @@ export function TodoistSection() {
         hint: data?.todoistKeyHint ?? null,
       })}
       dataQueryKey={queryKeys.todoist.tasks()}
-      description={
+      description={(
         <>
           Connect your Todoist account to show tasks due today and overdue on
           the dashboard. Copy your API token from
@@ -33,7 +33,7 @@ export function TodoistSection() {
           </a>
           .
         </>
-      }
+      )}
     />
   );
 }
