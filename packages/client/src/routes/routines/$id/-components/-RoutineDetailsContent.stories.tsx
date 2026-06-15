@@ -30,6 +30,8 @@ const meta = {
       seededQueryClient([
         [["tasks"], [makeTask()]],
         [["resources"], makeResources()],
+        [["modules-all"], []],
+        [["module-groups-all"], []],
       ]),
     ),
   ],

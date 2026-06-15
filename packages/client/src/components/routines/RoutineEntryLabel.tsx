@@ -1,5 +1,6 @@
 import type { RoutineReferenceItem } from "@emstack/types";
 
+import { resourceEntryLabel } from "@emstack/types";
 import { MapPinIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements";
@@ -9,6 +10,11 @@ interface RoutineEntryLabelProps {
   entry: RoutineReferenceItem;
   taskNames: Map<string, string>;
   resourceNames: Map<string, string>;
+  // A resource entry may narrow to a module or module group; these resolve that
+  // narrower name, which stands in for the resource name. Optional — omitted
+  // means "whole resource" rendering only.
+  moduleNames?: Map<string, string>;
+  moduleGroupNames?: Map<string, string>;
   // When true (default), render the full presentation: a leading TYPE badge plus
   // any notes/location. When false, render only the actionable sentence (compact
   // form used inline, e.g. inside a Day Entries row).
@@ -17,11 +23,15 @@ interface RoutineEntryLabelProps {
 
 // Renders a routine's per-day reference item (task / resource / freeform) as an
 // actionable sentence, resolving the task/resource name from the supplied maps
-// and linking task/resource entries to their detail pages.
+// and linking task/resource entries to their detail pages. A resource entry that
+// narrows to a module/group shows that narrower name (linking still targets the
+// owning resource).
 export function RoutineEntryLabel({
   entry,
   taskNames,
   resourceNames,
+  moduleNames,
+  moduleGroupNames,
   showMeta = true,
 }: RoutineEntryLabelProps) {
   // The entry's name as a clickable link (task / resource) or plain text
@@ -40,7 +50,15 @@ export function RoutineEntryLabel({
       >
         {entry.type === "task"
           ? (taskNames.get(entry.id) ?? entry.id)
-          : (resourceNames.get(entry.id) ?? entry.id)}
+          : resourceEntryLabel({
+            resourceName: resourceNames.get(entry.id) ?? entry.id,
+            moduleName: entry.moduleId
+              ? moduleNames?.get(entry.moduleId)
+              : null,
+            groupName: entry.moduleGroupId
+              ? moduleGroupNames?.get(entry.moduleGroupId)
+              : null,
+          })}
       </EntityLink>
     );
 

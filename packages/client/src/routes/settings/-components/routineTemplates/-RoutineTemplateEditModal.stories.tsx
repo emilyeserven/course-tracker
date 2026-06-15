@@ -8,6 +8,8 @@ import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
 import {
   makeRoutineTemplate,
+  moduleGroupsByResource,
+  modulesByResource,
   resourceOptions,
   taskOptions,
 } from "@/test-utils/routinesFixtures";
@@ -22,6 +24,8 @@ const meta: Meta<typeof RoutineTemplateEditModal> = {
     onDelete: fn(),
     taskOptions,
     resourceOptions,
+    moduleGroupsByResource,
+    modulesByResource,
   },
   // The embedded WeeklyScheduleField renders QuickAddResourceDialog (router +
   // query hooks), so both stubs are required even though the dialog stays closed.

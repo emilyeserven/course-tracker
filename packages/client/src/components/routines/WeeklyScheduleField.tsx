@@ -13,6 +13,10 @@ interface WeeklyScheduleFieldProps {
   onChange: (next: WeeklyRow[]) => void;
   taskOptions: SelectOption[];
   resourceOptions: SelectOption[];
+  // Per-resource module groups / modules, keyed by resource id, for narrowing a
+  // resource entry.
+  moduleGroupsByResource: Map<string, SelectOption[]>;
+  modulesByResource: Map<string, SelectOption[]>;
 }
 
 export function WeeklyScheduleField({
@@ -20,6 +24,8 @@ export function WeeklyScheduleField({
   onChange,
   taskOptions,
   resourceOptions,
+  moduleGroupsByResource,
+  modulesByResource,
 }: WeeklyScheduleFieldProps) {
   const rowsByDay = useMemo(
     () => new Map(value.map(r => [r.day, r])),
@@ -52,11 +58,14 @@ export function WeeklyScheduleField({
             day,
             type: "" as WeeklyRow["type"],
             id: "",
+            moduleId: "",
+            moduleGroupId: "",
             notes: "",
             location: "",
             prependText: "",
             appendText: "",
           };
+          const isResource = row.type === "resource" && !!row.id;
           return (
             <ScheduleEntryRow
               key={day}
@@ -65,6 +74,12 @@ export function WeeklyScheduleField({
               row={row}
               taskOptions={taskOptions}
               resourceOptions={resourceOptions}
+              groupOptions={
+                isResource ? (moduleGroupsByResource.get(row.id) ?? []) : []
+              }
+              moduleOptions={
+                isResource ? (modulesByResource.get(row.id) ?? []) : []
+              }
               onChange={patch => update(day, patch)}
               onInputValueChange={setInputValue}
               onAddResource={() => {

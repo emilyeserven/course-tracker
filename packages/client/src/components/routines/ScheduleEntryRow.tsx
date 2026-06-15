@@ -1,7 +1,7 @@
 import type { WeeklyEntry, WeeklyRowType } from "./weekly";
 import type { SelectOption } from "@/utils";
 
-import { buildActionableSentence } from "@emstack/types";
+import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 import { Combobox, ComboboxInput } from "@/components/ui/combobox";
@@ -15,6 +15,10 @@ interface ScheduleEntryRowProps {
   row: WeeklyEntry;
   taskOptions: SelectOption[];
   resourceOptions: SelectOption[];
+  // Module groups / modules belonging to the row's currently-chosen resource.
+  // Empty unless the entry is a resource with a populated module hierarchy.
+  groupOptions: SelectOption[];
+  moduleOptions: SelectOption[];
   onChange: (patch: Partial<WeeklyEntry>) => void;
   // Open the "add resource" dialog targeting this row.
   onAddResource: () => void;
@@ -23,14 +27,17 @@ interface ScheduleEntryRowProps {
 }
 
 // One schedule row's editor: type select, task/resource picker (or freeform
-// input), then optional notes / location / prepend / append with a live preview.
-// Shared by WeeklyScheduleField (per weekday) and CuratedScheduleField (per date).
+// input), an optional module-group/module narrowing for resource entries, then
+// optional notes / location / prepend / append with a live preview. Shared by
+// WeeklyScheduleField (per weekday) and CuratedScheduleField (per date).
 export function ScheduleEntryRow({
   label,
   ariaPrefix,
   row,
   taskOptions,
   resourceOptions,
+  groupOptions,
+  moduleOptions,
   onChange,
   onAddResource,
   onInputValueChange,
@@ -42,8 +49,24 @@ export function ScheduleEntryRow({
         ? resourceOptions
         : [];
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
+  // A resource entry may narrow to a module / group; show that narrower name in
+  // the preview (matching how the entry renders everywhere else).
+  const moduleLabel = row.moduleId
+    ? moduleOptions.find(o => o.value === row.moduleId)?.label
+    : null;
+  const groupLabel = row.moduleGroupId
+    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
+    : null;
   const itemName
-    = row.type === "freeform" ? row.id : (optionsMap.get(row.id) ?? "");
+    = row.type === "freeform"
+      ? row.id
+      : row.type === "resource"
+        ? resourceEntryLabel({
+          resourceName: optionsMap.get(row.id) ?? "",
+          moduleName: moduleLabel,
+          groupName: groupLabel,
+        })
+        : (optionsMap.get(row.id) ?? "");
   const showPreview
     = !!itemName && (!!row.prependText.trim() || !!row.appendText.trim());
   const preview = buildActionableSentence({
@@ -51,6 +74,12 @@ export function ScheduleEntryRow({
     name: itemName,
     appendText: row.appendText,
   });
+  // The module narrowing only makes sense once a resource is chosen, and only
+  // when that resource actually has modules / groups to pick from.
+  const showModulePickers
+    = row.type === "resource"
+      && !!row.id
+      && (groupOptions.length > 0 || moduleOptions.length > 0);
 
   return (
     <li
@@ -65,11 +94,13 @@ export function ScheduleEntryRow({
           aria-label={`${ariaPrefix} type`}
           value={row.type}
           onChange={(e) => {
-            // Changing the type clears the chosen item (different option set)
-            // and any note/location.
+            // Changing the type clears the chosen item (different option set),
+            // any module narrowing, and any note/location.
             onChange({
               type: e.target.value as WeeklyRowType,
               id: "",
+              moduleId: "",
+              moduleGroupId: "",
               notes: "",
               location: "",
             });
@@ -104,8 +135,12 @@ export function ScheduleEntryRow({
               items={itemOptions.map(o => o.value)}
               value={row.id || null}
               onValueChange={val =>
+                // A different resource has different modules, so clear any
+                // existing narrowing when the picked item changes.
                 onChange({
                   id: val ?? "",
+                  moduleId: "",
+                  moduleGroupId: "",
                 })}
               onInputValueChange={val => onInputValueChange(val)}
               itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
@@ -128,6 +163,70 @@ export function ScheduleEntryRow({
             </Combobox>
           )}
       </div>
+
+      {showModulePickers && (
+        <div
+          className="
+            grid grid-cols-1 gap-1.5
+            sm:grid-cols-2
+          "
+        >
+          <select
+            aria-label={`${ariaPrefix} module group`}
+            value={row.moduleGroupId}
+            onChange={e =>
+              // Group and module are mutually exclusive — picking a group clears
+              // any specific module.
+              onChange({
+                moduleGroupId: e.target.value,
+                ...(e.target.value
+                  ? {
+                    moduleId: "",
+                  }
+                  : {}),
+              })}
+            className="
+              flex h-9 w-full rounded-md border bg-background px-2 text-sm
+            "
+          >
+            <option value="">— Whole resource —</option>
+            {groupOptions.map(g => (
+              <option
+                key={g.value}
+                value={g.value}
+              >
+                {g.label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label={`${ariaPrefix} module`}
+            value={row.moduleId}
+            onChange={e =>
+              onChange({
+                moduleId: e.target.value,
+                ...(e.target.value
+                  ? {
+                    moduleGroupId: "",
+                  }
+                  : {}),
+              })}
+            className="
+              flex h-9 w-full rounded-md border bg-background px-2 text-sm
+            "
+          >
+            <option value="">— Whole resource —</option>
+            {moduleOptions.map(m => (
+              <option
+                key={m.value}
+                value={m.value}
+              >
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {row.type !== "" && (
         <>

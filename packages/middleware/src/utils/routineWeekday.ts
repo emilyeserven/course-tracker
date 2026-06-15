@@ -1,3 +1,5 @@
+import { resourceEntryLabel } from "@emstack/types";
+
 import type {
   DailyCompletionEntryParts,
   DailyCompletionEntryRef,
@@ -97,11 +99,15 @@ export function entryForCompletionDate(
 // Freeze a scheduled entry into the parts stored on a logged completion. The
 // freeform name is the entry's own text; a task/resource resolves via the given
 // name maps, falling back to its id when the target was deleted (matching the
-// client's `?? entry.id` rendering). Null entry → null (nothing was scheduled).
+// client's `?? entry.id` rendering). A resource entry that narrows to a module or
+// module group freezes that narrower name in place of the resource name (see
+// resourceEntryLabel). Null entry → null (nothing was scheduled).
 export function entryToCompletionParts(
   entry: RoutineReferenceItem | null,
   taskNames: Map<string, string>,
   resourceNames: Map<string, string>,
+  moduleNames = new Map<string, string>(),
+  moduleGroupNames = new Map<string, string>(),
 ): DailyCompletionEntryParts | null {
   if (!entry) {
     return null;
@@ -111,7 +117,13 @@ export function entryToCompletionParts(
       ? entry.id
       : entry.type === "task"
         ? taskNames.get(entry.id) ?? entry.id
-        : resourceNames.get(entry.id) ?? entry.id;
+        : resourceEntryLabel({
+          resourceName: resourceNames.get(entry.id) ?? entry.id,
+          moduleName: entry.moduleId ? moduleNames.get(entry.moduleId) : null,
+          groupName: entry.moduleGroupId
+            ? moduleGroupNames.get(entry.moduleGroupId)
+            : null,
+        });
   return {
     prependText: entry.prependText ?? null,
     name,

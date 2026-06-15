@@ -64,9 +64,13 @@ export default async function (server: FastifyInstance) {
     // routines key by date, weekly by weekday, daily by representative entry.
     const dateKey = currentDateKey();
 
-    // Batch-resolve every active task/resource id up front to avoid N+1.
+    // Batch-resolve every active task/resource id up front to avoid N+1. A
+    // resource entry may narrow to a module / group, whose name stands in for the
+    // resource name in the projected action title — collect those ids too.
     const taskIds: string[] = [];
     const resourceIds: string[] = [];
+    const moduleIds: string[] = [];
+    const moduleGroupIds: string[] = [];
     for (const routine of withConnections) {
       const entry = entryForCompletionDate(
         routine.mode,
@@ -79,6 +83,12 @@ export default async function (server: FastifyInstance) {
       }
       else if (entry?.type === "resource") {
         resourceIds.push(entry.id);
+        if (entry.moduleId) {
+          moduleIds.push(entry.moduleId);
+        }
+        if (entry.moduleGroupId) {
+          moduleGroupIds.push(entry.moduleGroupId);
+        }
       }
     }
 
@@ -122,8 +132,34 @@ export default async function (server: FastifyInstance) {
       })
       : [];
 
+    const moduleRows = moduleIds.length
+      ? await db.query.modules.findMany({
+        where: (modules, {
+          inArray,
+        }) => inArray(modules.id, moduleIds),
+        columns: {
+          id: true,
+          name: true,
+        },
+      })
+      : [];
+
+    const moduleGroupRows = moduleGroupIds.length
+      ? await db.query.moduleGroups.findMany({
+        where: (moduleGroups, {
+          inArray,
+        }) => inArray(moduleGroups.id, moduleGroupIds),
+        columns: {
+          id: true,
+          name: true,
+        },
+      })
+      : [];
+
     const taskMap = new Map(taskRows.map(t => [t.id, t]));
     const resourceMap = new Map(resourceRows.map(r => [r.id, r]));
+    const moduleMap = new Map(moduleRows.map(m => [m.id, m]));
+    const moduleGroupMap = new Map(moduleGroupRows.map(g => [g.id, g]));
 
     return withConnections.map((routine) => {
       const entry = entryForCompletionDate(
@@ -138,9 +174,17 @@ export default async function (server: FastifyInstance) {
       const resource = entry?.type === "resource"
         ? resourceMap.get(entry.id) ?? null
         : null;
+      const module = entry?.moduleId
+        ? moduleMap.get(entry.moduleId) ?? null
+        : null;
+      const moduleGroup = entry?.moduleGroupId
+        ? moduleGroupMap.get(entry.moduleGroupId) ?? null
+        : null;
       return mapRoutineToDaily(routine as RoutineRow, {
         task,
         resource,
+        module,
+        moduleGroup,
       }, dateKey);
     });
   });

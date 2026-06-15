@@ -19,6 +19,26 @@ export function toOptions(
   }));
 }
 
+// Bucket resource-owned entities (modules / module groups) by their resource id,
+// each mapped to combobox/select options. Used to offer a resource entry the
+// narrowing choices for its chosen resource.
+export function groupOptionsByResource(
+  items: { id: string;
+    name: string;
+    resourceId: string; }[] | null | undefined,
+): Map<string, SelectOption[]> {
+  const byResource = new Map<string, SelectOption[]>();
+  for (const item of items ?? []) {
+    const options = byResource.get(item.resourceId) ?? [];
+    options.push({
+      value: item.id,
+      label: item.name,
+    });
+    byResource.set(item.resourceId, options);
+  }
+  return byResource;
+}
+
 // Flatten tag groups into a flat list of {value, label} tag options.
 export function tagGroupsToOptions(
   tagGroups: TagGroup[] | null | undefined,

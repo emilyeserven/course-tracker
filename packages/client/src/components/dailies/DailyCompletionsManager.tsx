@@ -46,6 +46,8 @@ export function DailyCompletionsManager({
     toggleExpanded,
     taskNames,
     resourceNames,
+    moduleNames,
+    moduleGroupNames,
     rows,
     hasRows,
     mutationPending,
@@ -185,6 +187,8 @@ export function DailyCompletionsManager({
                               entry={scheduledEntry}
                               taskNames={taskNames}
                               resourceNames={resourceNames}
+                              moduleNames={moduleNames}
+                              moduleGroupNames={moduleGroupNames}
                               showMeta={false}
                             />
                           </span>

@@ -1,4 +1,5 @@
 import type { Daily, RoutineReferenceItem } from "@emstack/types";
+import { resourceEntryLabel } from "@emstack/types";
 
 // Resolved task/resource rows the handler loads for an active entry. These are
 // the resource/task blocks mapDaily reads — DailyProjectionRow references them
@@ -19,23 +20,38 @@ export interface ResolvedResource {
   progressTotal: number | null;
 }
 
-// The task/resource rows a handler has already resolved for the active entry.
+// A resolved module / module-group name for a resource entry that narrows to one.
+export interface ResolvedNamed {
+  id: string;
+  name: string;
+}
+
+// The task/resource rows a handler has already resolved for the active entry,
+// plus any module/group a resource entry narrows to (used for the display name).
 export interface ResolvedConnections {
   task?: ResolvedTask | null;
   resource?: ResolvedResource | null;
+  module?: ResolvedNamed | null;
+  moduleGroup?: ResolvedNamed | null;
 }
 
-// The name the action sentence wraps: a resolved resource, then a resolved
-// task, then a freeform entry's own id (which holds the freeform text). Null
-// when nothing resolves, so the projection falls back to the routine title.
+// The name the action sentence wraps: a resolved resource (narrowed to its
+// module / group name when the entry targets one), then a resolved task, then a
+// freeform entry's own id (which holds the freeform text). Null when nothing
+// resolves, so the projection falls back to the routine title.
 function resolveBaseName(
   entry: RoutineReferenceItem | null,
   resolved: ResolvedConnections,
 ): string | null {
+  if (resolved.resource) {
+    return resourceEntryLabel({
+      resourceName: resolved.resource.name,
+      moduleName: resolved.module?.name,
+      groupName: resolved.moduleGroup?.name,
+    });
+  }
   return (
-    resolved.resource?.name
-    ?? resolved.task?.name
-    ?? (entry?.type === "freeform" ? entry.id : null)
+    resolved.task?.name ?? (entry?.type === "freeform" ? entry.id : null)
   );
 }
 

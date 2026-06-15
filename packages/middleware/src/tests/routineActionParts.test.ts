@@ -34,6 +34,61 @@ test("resolveActionParts prefers the resolved resource name over the task name",
   );
 });
 
+test("resolveActionParts shows a resolved module / group name over the resource", () => {
+  const resourceEntry: RoutineReferenceItem = {
+    type: "resource",
+    id: "res-1",
+    moduleId: "mod-1",
+  };
+  assert.deepStrictEqual(
+    resolveActionParts(resourceEntry, {
+      resource: {
+        id: "res-1",
+        name: "Duolingo Spanish",
+        progressCurrent: 0,
+        progressTotal: 10,
+      },
+      module: {
+        id: "mod-1",
+        name: "Basics 1",
+      },
+    }),
+    {
+      prependText: null,
+      name: "Basics 1",
+      appendText: null,
+    },
+  );
+
+  // A module group narrows to the group name.
+  assert.deepStrictEqual(
+    resolveActionParts(
+      {
+        type: "resource",
+        id: "res-1",
+        moduleGroupId: "grp-1",
+      },
+      {
+        resource: {
+          id: "res-1",
+          name: "Duolingo Spanish",
+          progressCurrent: 0,
+          progressTotal: 10,
+        },
+        moduleGroup: {
+          id: "grp-1",
+          name: "Unit 1",
+        },
+      },
+    ),
+    {
+      prependText: null,
+      name: "Unit 1",
+      appendText: null,
+    },
+  );
+});
+
 test("resolveActionParts falls back to the resolved task name", () => {
   assert.deepStrictEqual(
     resolveActionParts(taskEntry, {

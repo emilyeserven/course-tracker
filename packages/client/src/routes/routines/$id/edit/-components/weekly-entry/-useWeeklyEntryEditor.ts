@@ -20,6 +20,10 @@ export interface WeeklyEntryEditorProps extends WeeklyEntry {
 export function useWeeklyEntryEditor({
   type,
   id,
+  // Daily mode doesn't expose the module narrowing (Curated/Weekly only), but the
+  // fields are part of WeeklyEntry, so carry them through unchanged.
+  moduleId,
+  moduleGroupId,
   notes,
   location,
   prependText,
@@ -43,6 +47,8 @@ export function useWeeklyEntryEditor({
     onChange({
       type,
       id,
+      moduleId,
+      moduleGroupId,
       notes,
       location,
       prependText,

@@ -33,6 +33,8 @@ export function RoutineDetailsContent({
   const {
     taskNames,
     resourceNames,
+    moduleNames,
+    moduleGroupNames,
   } = useTaskResourceNames();
 
   const weekly = data.weekly ?? {};
@@ -164,6 +166,8 @@ export function RoutineDetailsContent({
                         entry={entry}
                         taskNames={taskNames}
                         resourceNames={resourceNames}
+                        moduleNames={moduleNames}
+                        moduleGroupNames={moduleGroupNames}
                       />
                     )
                     : (
@@ -213,6 +217,8 @@ export function RoutineDetailsContent({
                             entry={entry}
                             taskNames={taskNames}
                             resourceNames={resourceNames}
+                            moduleNames={moduleNames}
+                            moduleGroupNames={moduleGroupNames}
                           />
                         )
                         : (

@@ -26,6 +26,8 @@ export function DetailsTab({
     connectionOptions,
     taskOptions,
     resourceOptions,
+    modulesByResource,
+    moduleGroupsByResource,
     isDaily,
     isCurated,
     curatedWindow,
@@ -93,6 +95,8 @@ export function DetailsTab({
             curatedWindow={curatedWindow}
             taskOptions={taskOptions}
             resourceOptions={resourceOptions}
+            moduleGroupsByResource={moduleGroupsByResource}
+            modulesByResource={modulesByResource}
           />
         )
         : (
@@ -101,6 +105,8 @@ export function DetailsTab({
             isDaily={isDaily}
             taskOptions={taskOptions}
             resourceOptions={resourceOptions}
+            moduleGroupsByResource={moduleGroupsByResource}
+            modulesByResource={modulesByResource}
           />
         )}
 
