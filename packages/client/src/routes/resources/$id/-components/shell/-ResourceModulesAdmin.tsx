@@ -3,6 +3,7 @@ import { ModuleAdminHeader } from "../header";
 
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
+  BulkNameAddCard,
   GroupEditCard,
   ModuleBulkEditTable,
 } from "@/components/resources/moduleAdminComponents";
@@ -29,19 +30,26 @@ export function ResourceModulesAdmin({
     groups,
     ungroupedModules,
     createGroupMutation,
+    bulkCreateGroupsMutation,
     isBook,
     groupLabel,
     moduleLabel,
     groupHint,
   } = api;
   const {
-    creatingGroup, setCreatingGroup, creatingModuleIn, bulkEditMode,
+    creatingGroup,
+    setCreatingGroup,
+    bulkAddingGroups,
+    setBulkAddingGroups,
+    creatingModuleIn,
+    bulkEditMode,
   } = ui;
 
   const isEmpty
     = groups.length === 0
       && ungroupedModules.length === 0
       && !creatingGroup
+      && !bulkAddingGroups
       && creatingModuleIn === null;
 
   return (
@@ -83,6 +91,19 @@ export function ResourceModulesAdmin({
                     onSuccess: () => setCreatingGroup(false),
                   })}
                 onCancel={() => setCreatingGroup(false)}
+              />
+            )}
+
+            {bulkAddingGroups && (
+              <BulkNameAddCard
+                itemLabel={groupLabel}
+                namePlaceholder={groupHint}
+                isSaving={bulkCreateGroupsMutation.isPending}
+                onSave={names =>
+                  bulkCreateGroupsMutation.mutate(names, {
+                    onSuccess: () => setBulkAddingGroups(false),
+                  })}
+                onCancel={() => setBulkAddingGroups(false)}
               />
             )}
 

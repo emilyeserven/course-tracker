@@ -15,6 +15,7 @@ export * from "./parseCost";
 export * from "./queryKeys";
 export * from "./routineConnections";
 export * from "./selectOptions";
+export * from "./sortByPage";
 export * from "./stripCodeFence";
 export * from "./topConnected";
 export * from "./useIsFieldInvalid";

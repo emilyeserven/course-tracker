@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useSetModulesExhaustive } from "./useSetModulesExhaustive";
 
 import { draftToLength, parseCount } from "@/components/resources/moduleDrafts";
-import { fetchSettings } from "@/utils";
+import { fetchSettings, sortByPage } from "@/utils";
 import {
   createModule,
   createModuleGroup,
@@ -58,20 +58,26 @@ export function useResourceModules(resourceId: string) {
   const modulesAreExhaustive
     = resourceQuery.data?.modulesAreExhaustive ?? false;
 
-  const groups = useMemo(
-    () => (groupsQuery.data ?? []).filter(g => g.resourceId === resourceId),
-    [groupsQuery.data, resourceId],
-  );
+  // Book resources get per-module/group page ranges; the edit cards key off this,
+  // and the lists below are sorted into page (reading) order when it's set.
+  const isBook = resourceQuery.data?.type === "book";
+
+  const groups = useMemo(() => {
+    const filtered = (groupsQuery.data ?? []).filter(
+      g => g.resourceId === resourceId,
+    );
+    return isBook ? sortByPage(filtered) : filtered;
+  }, [groupsQuery.data, resourceId, isBook]);
   const allModules = useMemo(
     () =>
       (allModulesQuery.data ?? []).filter(m => m.resourceId === resourceId),
     [allModulesQuery.data, resourceId],
   );
 
-  const ungroupedModules = useMemo(
-    () => allModules.filter(m => !m.moduleGroupId),
-    [allModules],
-  );
+  const ungroupedModules = useMemo(() => {
+    const filtered = allModules.filter(m => !m.moduleGroupId);
+    return isBook ? sortByPage(filtered) : filtered;
+  }, [allModules, isBook]);
   const modulesByGroup = useMemo(() => {
     const map = new Map<string, Module[]>();
     for (const m of allModules) {
@@ -81,8 +87,13 @@ export function useResourceModules(resourceId: string) {
         else map.set(m.moduleGroupId, [m]);
       }
     }
+    if (isBook) {
+      for (const [groupId, members] of map) {
+        map.set(groupId, sortByPage(members));
+      }
+    }
     return map;
-  }, [allModules]);
+  }, [allModules, isBook]);
 
   // Aggregate progress: sum enumerated modules + groups-with-counts (only
   // groups that have NO enumerated modules contribute their direct counts;
@@ -95,8 +106,6 @@ export function useResourceModules(resourceId: string) {
     [allModules, groups],
   );
 
-  // Book resources get per-module/group page ranges; the edit cards key off this.
-  const isBook = resourceQuery.data?.type === "book";
   // The hierarchy labels are no longer renamed per resource — always the
   // defaults. Instead a resource picks a hint template whose hints surface as
   // placeholders in the group/module name fields.
@@ -175,6 +184,28 @@ export function useResourceModules(resourceId: string) {
     onSuccess: () => {
       invalidateAll();
       toast.success("Module group deleted; member modules ungrouped");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Bulk add: create several name-only groups in one shot from the bulk-add
+  // card's one-name-per-line input. Mirrors `bulkCreateModulesMutation`; every
+  // field but the name takes its default, ready to flesh out via the group edit
+  // card afterwards.
+  const bulkCreateGroupsMutation = useMutation({
+    mutationFn: (names: string[]) =>
+      Promise.all(
+        names.map(name =>
+          createModuleGroup({
+            resourceId,
+            name,
+          })),
+      ),
+    onSuccess: (_data, names) => {
+      invalidateAll();
+      toast.success(
+        `Added ${names.length} ${names.length === 1 ? "group" : "groups"}`,
+      );
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -570,6 +601,7 @@ export function useResourceModules(resourceId: string) {
     hintTemplates,
     invalidateAll,
     createGroupMutation,
+    bulkCreateGroupsMutation,
     upsertGroupMutation,
     deleteGroupMutation,
     createModuleMutation,

@@ -34,10 +34,10 @@ import {
 import { ModuleListItem } from "../item";
 
 import {
+  BulkNameAddCard,
   GroupEditCard,
   GroupMetaChips,
   InteractionQuickLog,
-  ModuleBulkAddCard,
   ModuleEditCard,
 } from "@/components/resources/moduleAdminComponents";
 import {
@@ -533,9 +533,9 @@ export function ModuleGroupSection({
             />
           )}
           {isBulkAddingHere && (
-            <ModuleBulkAddCard
-              moduleLabel={api.moduleLabel}
-              moduleNamePlaceholder={api.moduleHint}
+            <BulkNameAddCard
+              itemLabel={api.moduleLabel}
+              namePlaceholder={api.moduleHint}
               isSaving={bulkCreateModulesMutation.isPending}
               onSave={names =>
                 bulkCreateModulesMutation.mutate(

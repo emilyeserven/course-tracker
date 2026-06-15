@@ -8,29 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 /**
- * Inline card for adding several modules to a group at once: one module name per
- * line. Only names are captured here — every other field takes its default and
- * can be filled in afterwards via the edit card or the bulk-edit table. Saving
- * is disabled until at least one non-blank line is present.
+ * Inline card for adding several items at once: one name per line. Only names
+ * are captured here — every other field takes its default and can be filled in
+ * afterwards via the edit card. Saving is disabled until at least one non-blank
+ * line is present. Reused for both modules and module groups (the noun is set by
+ * `itemLabel`).
  */
-export function ModuleBulkAddCard({
+export function BulkNameAddCard({
   isSaving = false,
-  moduleLabel = "Module",
-  moduleNamePlaceholder,
+  itemLabel = "Module",
+  namePlaceholder,
   onSave,
   onCancel,
 }: {
   isSaving?: boolean;
-  /** Per-resource label for a module (e.g. "Lesson"). */
-  moduleLabel?: string;
+  /** Singular noun for the thing being added (e.g. "Module", "Group"). */
+  itemLabel?: string;
   /** Hint (placeholder) for the name lines, from the resource's hint template. */
-  moduleNamePlaceholder?: string;
+  namePlaceholder?: string;
   onSave: (names: string[]) => void;
   onCancel: () => void;
 }) {
   const [text, setText] = useState("");
   const names = useMemo(() => parseBulkModuleNames(text), [text]);
-  const lowerLabel = moduleLabel.toLowerCase();
+  const lowerLabel = itemLabel.toLowerCase();
 
   return (
     <form
@@ -43,7 +44,7 @@ export function ModuleBulkAddCard({
     >
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground">
-          {moduleLabel} names — one per line
+          {itemLabel} names — one per line
         </label>
         <Textarea
           value={text}
@@ -51,8 +52,8 @@ export function ModuleBulkAddCard({
           rows={6}
           autoFocus
           placeholder={
-            moduleNamePlaceholder
-              ? `${moduleNamePlaceholder}\n…`
+            namePlaceholder
+              ? `${namePlaceholder}\n…`
               : `e.g.\nIntroduction\nGetting set up\nFirst ${lowerLabel}`
           }
         />
