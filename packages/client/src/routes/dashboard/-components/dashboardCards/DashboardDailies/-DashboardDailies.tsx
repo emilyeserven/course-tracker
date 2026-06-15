@@ -2,6 +2,7 @@ import type { DashboardTileProps } from "@/lib/dashboardTiles";
 
 import { Link } from "@tanstack/react-router";
 
+import { DailiesColumnSettings } from "./-DailiesColumnSettings";
 import { DashboardDailiesBody } from "./-DashboardDailiesBody";
 import { useDashboardDailies } from "./-useDashboardDailies";
 import {
@@ -60,7 +61,12 @@ export function DashboardDoNow({
         <CardSettingsFlyout
           tile={tile}
           onUpdateTile={onUpdateTile}
-        />
+        >
+          <DailiesColumnSettings
+            tile={tile}
+            onUpdateTile={onUpdateTile}
+          />
+        </CardSettingsFlyout>
       )}
     >
       <DashboardSectionStatus
@@ -73,6 +79,7 @@ export function DashboardDoNow({
       <DashboardDailiesBody
         list={doNow}
         data={data}
+        columns={tile.columns}
       />
     </DashboardCard>
   );
@@ -96,7 +103,12 @@ export function DashboardDoneForDay({
         <CardSettingsFlyout
           tile={tile}
           onUpdateTile={onUpdateTile}
-        />
+        >
+          <DailiesColumnSettings
+            tile={tile}
+            onUpdateTile={onUpdateTile}
+          />
+        </CardSettingsFlyout>
       )}
     >
       <DashboardSectionStatus
@@ -107,6 +119,7 @@ export function DashboardDoneForDay({
       <DashboardDailiesBody
         list={doneForDay}
         data={data}
+        columns={tile.columns}
       />
     </DashboardCard>
   );
