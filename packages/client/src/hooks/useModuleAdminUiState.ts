@@ -17,6 +17,11 @@ export function useModuleAdminUiState() {
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [creatingGroup, setCreatingGroup] = useState(false);
 
+  // Bulk-add groups: the top-level "add several groups at once" card (one group
+  // name per line). A single boolean — unlike module bulk-add it isn't scoped to
+  // a parent group.
+  const [bulkAddingGroups, setBulkAddingGroups] = useState(false);
+
   // Module state — keyed by either groupId (string) or UNGROUPED_KEY for top level
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [creatingModuleIn, setCreatingModuleIn] = useState<string | null>(null);
@@ -56,6 +61,7 @@ export function useModuleAdminUiState() {
   const isAnyEditing
     = editingGroupId !== null
       || creatingGroup
+      || bulkAddingGroups
       || editingModuleId !== null
       || creatingModuleIn !== null
       || bulkAddingInGroupId !== null
@@ -67,6 +73,8 @@ export function useModuleAdminUiState() {
     setEditingGroupId,
     creatingGroup,
     setCreatingGroup,
+    bulkAddingGroups,
+    setBulkAddingGroups,
     editingModuleId,
     setEditingModuleId,
     creatingModuleIn,

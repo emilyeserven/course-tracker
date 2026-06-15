@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { expect, fn, userEvent, within } from "storybook/test";
 
-import { ModuleBulkAddCard } from "./ModuleBulkAddCard";
+import { BulkNameAddCard } from "./BulkNameAddCard";
 
 import { constrainedStoryDecorator } from "@/test-utils/storyDecorators";
 import { smokePlay } from "@/test-utils/storyPlay";
 
-const meta: Meta<typeof ModuleBulkAddCard> = {
-  component: ModuleBulkAddCard,
+const meta: Meta<typeof BulkNameAddCard> = {
+  component: BulkNameAddCard,
   args: {
-    moduleLabel: "Module",
+    itemLabel: "Module",
     isSaving: false,
     onSave: fn(),
     onCancel: fn(),
@@ -52,6 +52,21 @@ export const AddsTypedNames: Story = {
     await userEvent.click(addButton);
     await expect(args.onSave).toHaveBeenCalledWith(["Intro", "Setup", "Wrap up"]);
   },
+};
+
+// The same card relabelled for bulk-adding module groups.
+export const Groups: Story = {
+  args: {
+    itemLabel: "Group",
+  },
+  play: smokePlay([
+    {
+      text: "Group names — one per line",
+    },
+    {
+      text: "No groups yet",
+    },
+  ]),
 };
 
 export const Saving: Story = {

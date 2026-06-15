@@ -4,9 +4,9 @@
 // dependency. This barrel only re-exports leaf sub-components — it does not
 // import the folder, and the sub-components keep their own direct imports, so
 // there is no circular dependency.
+export { BulkNameAddCard } from "./BulkNameAddCard";
 export { GroupEditCard, GroupMetaChips } from "./GroupEditCard";
 export { InteractionQuickLog } from "./InteractionQuickLog";
-export { ModuleBulkAddCard } from "./ModuleBulkAddCard";
 export { ModuleBulkEditTable } from "./ModuleBulkEditTable";
 export { hasModuleDetails } from "./moduleDetails";
 export { ModuleDetailsPanel } from "./ModuleDetailsPanel";

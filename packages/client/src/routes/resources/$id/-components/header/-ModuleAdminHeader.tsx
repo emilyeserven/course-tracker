@@ -4,6 +4,7 @@ import {
   ArrowUpDownIcon,
   CircleCheckBig,
   InfoIcon,
+  ListPlusIcon,
   PlusIcon,
   SparklesIcon,
   Table2Icon,
@@ -49,6 +50,7 @@ export function ModuleAdminHeader({
     setLlmAssistOpen,
     setCreatingModuleIn,
     setCreatingGroup,
+    setBulkAddingGroups,
     reorderMode,
     setReorderMode,
     bulkEditMode,
@@ -128,6 +130,19 @@ export function ModuleAdminHeader({
             New
             {" "}
             {groupLabel}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setBulkAddingGroups(true)}
+            disabled={otherActionsDisabled}
+            title={`Add several ${groupLabel.toLowerCase()}s at once`}
+          >
+            <ListPlusIcon className="size-4" />
+            Bulk Add
+            {" "}
+            {groupLabel}
+            s
           </Button>
         </div>
       </div>
