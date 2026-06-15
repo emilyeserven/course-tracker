@@ -15,7 +15,12 @@ function Host({
   mode,
 }: { mode: RoutineMode }) {
   const {
-    form, isDaily, taskOptions, resourceOptions,
+    form,
+    isDaily,
+    taskOptions,
+    resourceOptions,
+    moduleGroupsByResource,
+    modulesByResource,
   } = useRoutineDetailsForm(
     makeRoutine({
       mode,
@@ -28,6 +33,8 @@ function Host({
       isDaily={isDaily}
       taskOptions={taskOptions}
       resourceOptions={resourceOptions}
+      moduleGroupsByResource={moduleGroupsByResource}
+      modulesByResource={modulesByResource}
     />
   );
 }
@@ -40,6 +47,8 @@ const meta: Meta<typeof WeeklyScheduleSection> = {
         [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
+        [["modules-all"], []],
+        [["module-groups-all"], []],
         [["routineTemplates"], [makeRoutineTemplate()]],
       ]),
     ),

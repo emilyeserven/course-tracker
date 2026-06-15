@@ -13,6 +13,8 @@ interface CuratedScheduleSectionProps {
   curatedWindow: DetailsForm["curatedWindow"];
   taskOptions: DetailsForm["taskOptions"];
   resourceOptions: DetailsForm["resourceOptions"];
+  moduleGroupsByResource: DetailsForm["moduleGroupsByResource"];
+  modulesByResource: DetailsForm["modulesByResource"];
 }
 
 // The "Curated" schedule block: an end-date picker (capped at 14 days out) plus a
@@ -23,6 +25,8 @@ export function CuratedScheduleSection({
   curatedWindow,
   taskOptions,
   resourceOptions,
+  moduleGroupsByResource,
+  modulesByResource,
 }: CuratedScheduleSectionProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -50,6 +54,8 @@ export function CuratedScheduleSection({
             onChange={next => field.handleChange(next)}
             taskOptions={taskOptions}
             resourceOptions={resourceOptions}
+            moduleGroupsByResource={moduleGroupsByResource}
+            modulesByResource={modulesByResource}
           />
         )}
       </form.Field>

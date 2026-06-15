@@ -9,6 +9,7 @@ import {
   representativeRow,
   rowsToCurated,
   rowsToWeekly,
+  weeklyEntryName,
   weeklyToRows,
 } from "./weekly";
 
@@ -203,6 +204,8 @@ describe("representativeRow (Daily Task mode)", () => {
     expect(representativeRow(rows)).toEqual({
       type: "task",
       id: "",
+      moduleId: "",
+      moduleGroupId: "",
       notes: "",
       location: "",
       prependText: "",
@@ -222,6 +225,8 @@ describe("representativeRow (Daily Task mode)", () => {
     expect(representativeRow(rows)).toEqual({
       type: "resource",
       id: "res-1",
+      moduleId: "",
+      moduleGroupId: "",
       notes: "chapter 3",
       location: "the gym",
       prependText: "Review",
@@ -233,6 +238,8 @@ describe("representativeRow (Daily Task mode)", () => {
     expect(representativeRow(weeklyToRows(undefined))).toEqual({
       type: "",
       id: "",
+      moduleId: "",
+      moduleGroupId: "",
       notes: "",
       location: "",
       prependText: "",
@@ -279,6 +286,8 @@ describe("curated schedule helpers", () => {
       date: "2026-06-14",
       type: "",
       id: "",
+      moduleId: "",
+      moduleGroupId: "",
       notes: "",
       location: "",
       prependText: "",
@@ -337,5 +346,126 @@ describe("curated schedule helpers", () => {
       type: "freeform",
       id: "Stretch",
     });
+  });
+});
+
+describe("resource entry module narrowing", () => {
+  test("weeklyToRows surfaces a resource entry's module / group ids", () => {
+    const weekly: RoutineWeekly = {
+      1: {
+        type: "resource",
+        id: "res-1",
+        moduleId: "mod-1",
+      },
+      2: {
+        type: "resource",
+        id: "res-2",
+        moduleGroupId: "grp-1",
+      },
+    };
+    const rows = weeklyToRows(weekly);
+    expect(rows.find(r => r.day === "1")).toMatchObject({
+      moduleId: "mod-1",
+      moduleGroupId: "",
+    });
+    expect(rows.find(r => r.day === "2")).toMatchObject({
+      moduleId: "",
+      moduleGroupId: "grp-1",
+    });
+  });
+
+  test("rowsToWeekly persists a resource module but omits empty narrowing", () => {
+    const withModule = rowsToWeekly(
+      weeklyToRows({
+        1: {
+          type: "resource",
+          id: "res-1",
+          moduleId: "mod-1",
+        },
+      }),
+    );
+    expect(withModule[1]).toEqual({
+      type: "resource",
+      id: "res-1",
+      moduleId: "mod-1",
+    });
+
+    const plainResource = rowsToWeekly(
+      weeklyToRows({
+        2: {
+          type: "resource",
+          id: "res-2",
+        },
+      }),
+    );
+    expect(plainResource[2]).not.toHaveProperty("moduleId");
+    expect(plainResource[2]).not.toHaveProperty("moduleGroupId");
+  });
+
+  test("rowsToWeekly never persists module narrowing on a task entry", () => {
+    // moduleId would only ever land on a row through a resource selection, but
+    // guard the invariant that task entries stay module-free.
+    const rows = weeklyToRows({
+      3: {
+        type: "task",
+        id: "task-1",
+      },
+    });
+    const tweaked = rows.map(r =>
+      r.day === "3"
+        ? {
+          ...r,
+          moduleId: "mod-9",
+        }
+        : r);
+    expect(rowsToWeekly(tweaked)[3]).not.toHaveProperty("moduleId");
+  });
+
+  test("weeklyEntryName shows the module name in place of the resource", () => {
+    const resourceNames = new Map([["res-1", "Duolingo Spanish"]]);
+    const moduleNames = new Map([["mod-1", "Basics 1"]]);
+    const moduleGroupNames = new Map([["grp-1", "Unit 1"]]);
+
+    expect(
+      weeklyEntryName(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleId: "mod-1",
+        },
+        new Map(),
+        resourceNames,
+        moduleNames,
+        moduleGroupNames,
+      ),
+    ).toBe("Basics 1");
+
+    expect(
+      weeklyEntryName(
+        {
+          type: "resource",
+          id: "res-1",
+          moduleGroupId: "grp-1",
+        },
+        new Map(),
+        resourceNames,
+        moduleNames,
+        moduleGroupNames,
+      ),
+    ).toBe("Unit 1");
+
+    // No narrowing → the resource name stands.
+    expect(
+      weeklyEntryName(
+        {
+          type: "resource",
+          id: "res-1",
+        },
+        new Map(),
+        resourceNames,
+        moduleNames,
+        moduleGroupNames,
+      ),
+    ).toBe("Duolingo Spanish");
   });
 });

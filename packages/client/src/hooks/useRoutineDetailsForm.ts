@@ -23,11 +23,14 @@ import {
   buildConnectionOptions,
   decodeConnection,
   encodeConnection,
+  fetchModuleGroups,
+  fetchModules,
   fetchResources,
   fetchTasks,
   fetchTopics,
   formHasChanges,
   getTodayKey,
+  groupOptionsByResource,
   toOptions,
   upsertRoutine,
 } from "@/utils";
@@ -38,6 +41,8 @@ const weeklyRowSchema = z
     day: z.enum(["0", "1", "2", "3", "4", "5", "6"]),
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
+    moduleId: z.string(),
+    moduleGroupId: z.string(),
     notes: z.string(),
     location: z.string(),
     prependText: z.string(),
@@ -53,6 +58,8 @@ const curatedRowSchema = z
     date: z.string(),
     type: z.enum(["", "task", "resource", "freeform"]),
     id: z.string(),
+    moduleId: z.string(),
+    moduleGroupId: z.string(),
     notes: z.string(),
     location: z.string(),
     prependText: z.string(),
@@ -124,8 +131,31 @@ export function useRoutineDetailsForm(
     queryFn: () => fetchResources(),
   });
 
+  // All modules / module groups, fetched once and bucketed by resource so a
+  // resource entry's row can offer the narrowing pickers (see ScheduleEntryRow).
+  const {
+    data: modules,
+  } = useQuery({
+    queryKey: queryKeys.modules.list(),
+    queryFn: () => fetchModules(),
+  });
+  const {
+    data: moduleGroups,
+  } = useQuery({
+    queryKey: queryKeys.moduleGroups.list(),
+    queryFn: () => fetchModuleGroups(),
+  });
+
   const taskOptions = useMemo(() => toOptions(tasks), [tasks]);
   const resourceOptions = useMemo(() => toOptions(resources), [resources]);
+  const modulesByResource = useMemo(
+    () => groupOptionsByResource(modules),
+    [modules],
+  );
+  const moduleGroupsByResource = useMemo(
+    () => groupOptionsByResource(moduleGroups),
+    [moduleGroups],
+  );
   const connectionOptions = useMemo(
     () => buildConnectionOptions(topics, tasks, resources),
     [topics, tasks, resources],
@@ -250,6 +280,8 @@ export function useRoutineDetailsForm(
             date: key,
             type: "" as const,
             id: "",
+            moduleId: "",
+            moduleGroupId: "",
             notes: "",
             location: "",
             prependText: "",
@@ -264,6 +296,8 @@ export function useRoutineDetailsForm(
     connectionOptions,
     taskOptions,
     resourceOptions,
+    modulesByResource,
+    moduleGroupsByResource,
     isDaily,
     isCurated,
     curatedWindow,

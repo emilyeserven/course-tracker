@@ -26,6 +26,8 @@ interface RoutineTemplateEditModalProps extends ControlledDialogProps {
   deleteDisabled?: boolean;
   taskOptions: SelectOption[];
   resourceOptions: SelectOption[];
+  moduleGroupsByResource: Map<string, SelectOption[]>;
+  modulesByResource: Map<string, SelectOption[]>;
 }
 
 export function RoutineTemplateEditModal({
@@ -39,6 +41,8 @@ export function RoutineTemplateEditModal({
   deleteDisabled = false,
   taskOptions,
   resourceOptions,
+  moduleGroupsByResource,
+  modulesByResource,
 }: RoutineTemplateEditModalProps) {
   const [label, setLabel] = useState(template?.label ?? "");
   const [rows, setRows] = useState<WeeklyRow[]>(weeklyToRows(template?.weekly));
@@ -107,6 +111,8 @@ export function RoutineTemplateEditModal({
               onChange={setRows}
               taskOptions={taskOptions}
               resourceOptions={resourceOptions}
+              moduleGroupsByResource={moduleGroupsByResource}
+              modulesByResource={modulesByResource}
             />
           </div>
           <EditModalFooter

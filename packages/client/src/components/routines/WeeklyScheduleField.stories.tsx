@@ -8,6 +8,8 @@ import { WeeklyScheduleField } from "./WeeklyScheduleField";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
 import {
+  moduleGroupsByResource,
+  modulesByResource,
   resourceOptions,
   taskOptions,
 } from "@/test-utils/routinesFixtures";
@@ -19,6 +21,8 @@ const meta: Meta<typeof WeeklyScheduleField> = {
     onChange: fn(),
     taskOptions,
     resourceOptions,
+    moduleGroupsByResource: new Map(),
+    modulesByResource: new Map(),
   },
   // Always renders QuickAddResourceDialog (useNavigate + useQueryClient +
   // useMutation), so both a router and a query client are required.
@@ -70,5 +74,29 @@ export const Populated: Story = {
     const mondayType = await canvas.findByLabelText("Monday type");
     await expect(mondayType).toHaveValue("task");
     await expect(canvas.getByLabelText("Friday type")).toHaveValue("freeform");
+  },
+};
+
+// A resource entry on a resource that has a module hierarchy: the module-group
+// and module narrowing selects appear, with the chosen module reflected.
+export const WithModule: Story = {
+  args: {
+    value: weeklyToRows({
+      1: {
+        type: "resource",
+        id: "resource-1",
+        moduleId: "module-2",
+      },
+    }),
+    moduleGroupsByResource,
+    modulesByResource,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    const moduleSelect = await canvas.findByLabelText("Monday module");
+    await expect(moduleSelect).toHaveValue("module-2");
+    await expect(canvas.getByLabelText("Monday module group")).toHaveValue("");
   },
 };

@@ -31,9 +31,40 @@ export const resourceOptions: SelectOption[] = [
   },
 ];
 
+// Module groups / modules belonging to resource-1 (Duolingo Spanish), used to
+// exercise the resource-entry narrowing pickers.
+export const moduleGroupOptions: SelectOption[] = [
+  {
+    value: "group-1",
+    label: "Unit 1",
+  },
+];
+
+export const moduleOptions: SelectOption[] = [
+  {
+    value: "module-1",
+    label: "Basics 1",
+  },
+  {
+    value: "module-2",
+    label: "Basics 2",
+  },
+];
+
+// Per-resource option maps keyed by resource id (the shape the schedule fields
+// take). Only resource-1 has a module hierarchy.
+export const moduleGroupsByResource = new Map([
+  ["resource-1", moduleGroupOptions],
+]);
+export const modulesByResource = new Map([["resource-1", moduleOptions]]);
+
 // id → name maps for RoutineEntryLabel (keys align with the option values above).
 export const taskNames = new Map(taskOptions.map(o => [o.value, o.label]));
 export const resourceNames = new Map(resourceOptions.map(o => [o.value, o.label]));
+export const moduleNames = new Map(moduleOptions.map(o => [o.value, o.label]));
+export const moduleGroupNames = new Map(
+  moduleGroupOptions.map(o => [o.value, o.label]),
+);
 
 export function makeReferenceItem(
   overrides: Partial<RoutineReferenceItem> = {},

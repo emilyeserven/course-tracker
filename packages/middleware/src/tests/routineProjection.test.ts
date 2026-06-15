@@ -188,6 +188,72 @@ test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot
   );
 });
 
+test("entryToCompletionParts freezes the module/group name for a narrowed resource", () => {
+  const taskNames = new Map<string, string>();
+  const resourceNames = new Map([["res-1", "Duolingo Spanish"]]);
+  const moduleNames = new Map([["mod-1", "Basics 1"]]);
+  const moduleGroupNames = new Map([["grp-1", "Unit 1"]]);
+
+  // A specific module → the module name stands in for the resource name.
+  assert.deepStrictEqual(
+    entryToCompletionParts(
+      {
+        type: "resource",
+        id: "res-1",
+        moduleId: "mod-1",
+      },
+      taskNames,
+      resourceNames,
+      moduleNames,
+      moduleGroupNames,
+    ),
+    {
+      prependText: null,
+      name: "Basics 1",
+      appendText: null,
+    },
+  );
+
+  // A module group → the group name stands in.
+  assert.deepStrictEqual(
+    entryToCompletionParts(
+      {
+        type: "resource",
+        id: "res-1",
+        moduleGroupId: "grp-1",
+      },
+      taskNames,
+      resourceNames,
+      moduleNames,
+      moduleGroupNames,
+    ),
+    {
+      prependText: null,
+      name: "Unit 1",
+      appendText: null,
+    },
+  );
+
+  // No narrowing → the resource name stands.
+  assert.deepStrictEqual(
+    entryToCompletionParts(
+      {
+        type: "resource",
+        id: "res-1",
+      },
+      taskNames,
+      resourceNames,
+      moduleNames,
+      moduleGroupNames,
+    ),
+    {
+      prependText: null,
+      name: "Duolingo Spanish",
+      appendText: null,
+    },
+  );
+});
+
 test("entryToCompletionRef freezes the scheduled item's kind + id", () => {
   // Task / resource entries keep their type + id (affixes are dropped — the ref
   // is for matching by id, not display).

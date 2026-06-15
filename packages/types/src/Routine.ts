@@ -25,6 +25,12 @@ export type RoutineMode = "weekly" | "daily" | "curated";
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;
   id: string;
+  // Resource entries (type === "resource") may narrow to a specific part of the
+  // resource: either a single module or a whole module group. Mutually exclusive
+  // — at most one is set; both empty/absent means the whole resource. Meaningless
+  // for task/freeform entries.
+  moduleId?: string | null;
+  moduleGroupId?: string | null;
   // Optional free-text annotation for this day's scheduled item (e.g. "focus
   // on the subjunctive"). Empty/absent means no note.
   notes?: string | null;

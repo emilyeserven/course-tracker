@@ -71,11 +71,14 @@ export async function bakeRoutineCompletions(
     entries: {},
   };
 
-  // Resolve each pending date's scheduled entry; collect task/resource ids to
-  // look up names in two batched queries (avoids N+1).
+  // Resolve each pending date's scheduled entry; collect task/resource ids (plus
+  // any narrowing module/module-group ids on resource entries) to look up names
+  // in batched queries (avoids N+1).
   const entryByDate = new Map<string, RoutineReferenceItem | null>();
   const taskIds = new Set<string>();
   const resourceIds = new Set<string>();
+  const moduleIds = new Set<string>();
+  const moduleGroupIds = new Set<string>();
   for (const c of pending) {
     const entry = entryForCompletionDate(mode, weekly, curated, c.date);
     entryByDate.set(c.date, entry);
@@ -84,10 +87,16 @@ export async function bakeRoutineCompletions(
     }
     else if (entry?.type === "resource") {
       resourceIds.add(entry.id);
+      if (entry.moduleId) {
+        moduleIds.add(entry.moduleId);
+      }
+      if (entry.moduleGroupId) {
+        moduleGroupIds.add(entry.moduleGroupId);
+      }
     }
   }
 
-  const [taskRows, resourceRows] = await Promise.all([
+  const [taskRows, resourceRows, moduleRows, moduleGroupRows] = await Promise.all([
     taskIds.size
       ? db.query.tasks.findMany({
         where: (t, {
@@ -110,10 +119,34 @@ export async function bakeRoutineCompletions(
         },
       })
       : Promise.resolve([]),
+    moduleIds.size
+      ? db.query.modules.findMany({
+        where: (m, {
+          inArray,
+        }) => inArray(m.id, [...moduleIds]),
+        columns: {
+          id: true,
+          name: true,
+        },
+      })
+      : Promise.resolve([]),
+    moduleGroupIds.size
+      ? db.query.moduleGroups.findMany({
+        where: (g, {
+          inArray,
+        }) => inArray(g.id, [...moduleGroupIds]),
+        columns: {
+          id: true,
+          name: true,
+        },
+      })
+      : Promise.resolve([]),
   ]);
 
   const taskNames = new Map(taskRows.map(r => [r.id, r.name]));
   const resourceNames = new Map(resourceRows.map(r => [r.id, r.name]));
+  const moduleNames = new Map(moduleRows.map(r => [r.id, r.name]));
+  const moduleGroupNames = new Map(moduleGroupRows.map(r => [r.id, r.name]));
 
   const baked: DailyCompletion[] = completions.map((c) => {
     if (!(c.status && c.entryParts === undefined)) {
@@ -122,7 +155,13 @@ export async function bakeRoutineCompletions(
     const entry = entryByDate.get(c.date) ?? null;
     return {
       ...c,
-      entryParts: entryToCompletionParts(entry, taskNames, resourceNames),
+      entryParts: entryToCompletionParts(
+        entry,
+        taskNames,
+        resourceNames,
+        moduleNames,
+        moduleGroupNames,
+      ),
       // Frozen alongside entryParts: the structured ref keeps the scheduled
       // item's id so resource-side consumers can match by id later.
       entryRef: entryToCompletionRef(entry),

@@ -5,6 +5,8 @@ import { RoutineEntryLabel } from "./RoutineEntryLabel";
 import { RouterStub } from "@/test-utils/RouterStub";
 import {
   makeReferenceItem,
+  moduleGroupNames,
+  moduleNames,
   resourceNames,
   taskNames,
 } from "@/test-utils/routinesFixtures";
@@ -15,6 +17,8 @@ const meta = {
     entry: makeReferenceItem(),
     taskNames,
     resourceNames,
+    moduleNames,
+    moduleGroupNames,
   },
   // Task/resource entries render an EntityLink (<Link>), so a router is required.
   decorators: [
@@ -48,6 +52,18 @@ export const ResourceEntry: Story = {
     entry: makeReferenceItem({
       type: "resource",
       id: "resource-1",
+    }),
+  },
+};
+
+// A resource entry narrowed to a specific module shows the module name in place
+// of the resource name.
+export const ResourceModuleEntry: Story = {
+  args: {
+    entry: makeReferenceItem({
+      type: "resource",
+      id: "resource-1",
+      moduleId: "module-2",
     }),
   },
 };

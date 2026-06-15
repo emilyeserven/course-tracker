@@ -155,7 +155,7 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
   const curatedEntries = daily.curated?.entries ?? {};
 
   const {
-    taskNames, resourceNames,
+    taskNames, resourceNames, moduleNames, moduleGroupNames,
   } = useTaskResourceNames(isWeekly || isCurated);
 
   const completionsByDate = useMemo(() => {
@@ -305,6 +305,8 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
     isWeekly,
     taskNames,
     resourceNames,
+    moduleNames,
+    moduleGroupNames,
 
     rows,
     hasRows: visibleDateKeys.length > 0,

@@ -6,6 +6,8 @@ import type {
   RoutineWeekly,
 } from "@emstack/types";
 
+import { resourceEntryLabel } from "@emstack/types";
+
 export type WeeklyRowType = "" | "task" | "resource" | "freeform";
 
 // Curated mode picks an end date at most this many days past today; the per-date
@@ -17,6 +19,10 @@ export interface WeeklyRow {
   // "" = no entry scheduled for this day.
   type: WeeklyRowType;
   id: string;
+  // Resource entries may narrow to a specific module or module group (mutually
+  // exclusive). "" = the whole resource. Ignored for task/freeform entries.
+  moduleId: string;
+  moduleGroupId: string;
   // Optional free-text note for this day's item. "" = no note.
   notes: string;
   // Optional place/link where this day's item happens. "" = no location.
@@ -64,6 +70,8 @@ export function weeklyToRows(
       day,
       type: entry?.type ?? "",
       id: entry?.id ?? "",
+      moduleId: entry?.moduleId ?? "",
+      moduleGroupId: entry?.moduleGroupId ?? "",
       notes: entry?.notes ?? "",
       location: entry?.location ?? "",
       prependText: entry?.prependText ?? "",
@@ -83,6 +91,16 @@ function referenceItemFromRow(
     type,
     id: row.id,
   };
+  // Module narrowing only applies to resource entries, and the two are mutually
+  // exclusive — persist at most one.
+  if (type === "resource") {
+    if (row.moduleId) {
+      item.moduleId = row.moduleId;
+    }
+    else if (row.moduleGroupId) {
+      item.moduleGroupId = row.moduleGroupId;
+    }
+  }
   if (row.notes) {
     item.notes = row.notes;
   }
@@ -123,6 +141,8 @@ export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
     ? {
       type: found.type,
       id: found.id,
+      moduleId: found.moduleId,
+      moduleGroupId: found.moduleGroupId,
       notes: found.notes,
       location: found.location,
       prependText: found.prependText,
@@ -131,6 +151,8 @@ export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
     : {
       type: "",
       id: "",
+      moduleId: "",
+      moduleGroupId: "",
       notes: "",
       location: "",
       prependText: "",
@@ -141,6 +163,8 @@ export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
 export function fillAllDays(entry: {
   type: WeeklyRowType;
   id: string;
+  moduleId?: string;
+  moduleGroupId?: string;
   notes?: string;
   location?: string;
   prependText?: string;
@@ -150,6 +174,8 @@ export function fillAllDays(entry: {
     day,
     type: entry.type,
     id: entry.id,
+    moduleId: entry.moduleId ?? "",
+    moduleGroupId: entry.moduleGroupId ?? "",
     notes: entry.notes ?? "",
     location: entry.location ?? "",
     prependText: entry.prependText ?? "",
@@ -212,6 +238,8 @@ export function curatedToRows(
       date,
       type: entry?.type ?? "",
       id: entry?.id ?? "",
+      moduleId: entry?.moduleId ?? "",
+      moduleGroupId: entry?.moduleGroupId ?? "",
       notes: entry?.notes ?? "",
       location: entry?.location ?? "",
       prependText: entry?.prependText ?? "",
@@ -242,15 +270,27 @@ export function rowsToCurated(
 
 // Display name for a weekly entry: freeform entries carry their own text in
 // `id`; task / resource entries resolve through the id → name maps and fall
-// back to the raw id when the lookup misses.
+// back to the raw id when the lookup misses. A resource entry that narrows to a
+// module or module group shows that narrower name in place of the resource name
+// (see resourceEntryLabel).
 export function weeklyEntryName(
   entry: RoutineReferenceItem,
   taskNames: Map<string, string>,
   resourceNames: Map<string, string>,
+  moduleNames = new Map<string, string>(),
+  moduleGroupNames = new Map<string, string>(),
 ): string {
   if (entry.type === "freeform") {
     return entry.id;
   }
-  const names = entry.type === "task" ? taskNames : resourceNames;
-  return names.get(entry.id) ?? entry.id;
+  if (entry.type === "task") {
+    return taskNames.get(entry.id) ?? entry.id;
+  }
+  return resourceEntryLabel({
+    resourceName: resourceNames.get(entry.id) ?? entry.id,
+    moduleName: entry.moduleId ? moduleNames.get(entry.moduleId) : null,
+    groupName: entry.moduleGroupId
+      ? moduleGroupNames.get(entry.moduleGroupId)
+      : null,
+  });
 }

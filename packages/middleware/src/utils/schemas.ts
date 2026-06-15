@@ -62,6 +62,10 @@ const routineReferenceItemSchema = {
     id: {
       type: "string",
     },
+    // Resource entries may narrow to a specific module or module group (mutually
+    // exclusive). Absent/null = the whole resource.
+    moduleId: nullableString,
+    moduleGroupId: nullableString,
     notes: nullableString,
     location: nullableString,
     prependText: nullableString,

@@ -16,6 +16,8 @@ function Host() {
     curatedWindow,
     taskOptions,
     resourceOptions,
+    moduleGroupsByResource,
+    modulesByResource,
   } = useRoutineDetailsForm(makeRoutine({
     mode: "curated",
   }), () =>
@@ -27,6 +29,8 @@ function Host() {
       curatedWindow={curatedWindow}
       taskOptions={taskOptions}
       resourceOptions={resourceOptions}
+      moduleGroupsByResource={moduleGroupsByResource}
+      modulesByResource={modulesByResource}
     />
   );
 }
@@ -40,6 +44,8 @@ const meta: Meta<typeof CuratedScheduleSection> = {
         [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
+        [["modules-all"], []],
+        [["module-groups-all"], []],
       ]),
     ),
   ],

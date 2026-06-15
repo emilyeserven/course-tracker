@@ -26,6 +26,8 @@ const meta: Meta<typeof DetailsTab> = {
         [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
+        [["modules-all"], []],
+        [["module-groups-all"], []],
         [["routineTemplates"], [makeRoutineTemplate()]],
       ]),
     ),

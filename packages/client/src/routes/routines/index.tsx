@@ -74,10 +74,11 @@ function Routines() {
     queryFn: () => fetchRoutines(),
   });
 
-  // Resolve scheduled task / resource names so a weekly routine can show today's
-  // entry in place of its name (freeform entries carry their own text in `id`).
+  // Resolve scheduled task / resource / module names so a weekly routine can show
+  // today's entry in place of its name (freeform entries carry their own text in
+  // `id`; a resource entry may narrow to a module or group).
   const {
-    taskNames, resourceNames,
+    taskNames, resourceNames, moduleNames, moduleGroupNames,
   } = useTaskResourceNames();
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
 
@@ -93,7 +94,13 @@ function Routines() {
       return null;
     }
     return {
-      name: weeklyEntryName(entry, taskNames, resourceNames),
+      name: weeklyEntryName(
+        entry,
+        taskNames,
+        resourceNames,
+        moduleNames,
+        moduleGroupNames,
+      ),
       prependText: entry.prependText,
       appendText: entry.appendText,
     };
