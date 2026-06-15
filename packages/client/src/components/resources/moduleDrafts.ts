@@ -176,3 +176,15 @@ export function parseCount(s: string): number | null {
   if (!Number.isFinite(n) || n < 0) return null;
   return Math.floor(n);
 }
+
+/**
+ * Split a bulk-add textarea (one module name per line) into a clean list of
+ * names: trims each line and drops blank ones. Order is preserved, so the
+ * created modules keep the order they were pasted in.
+ */
+export function parseBulkModuleNames(text: string): string[] {
+  return text
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+}

@@ -21,6 +21,12 @@ export function useModuleAdminUiState() {
   const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
   const [creatingModuleIn, setCreatingModuleIn] = useState<string | null>(null);
 
+  // Bulk-add: which group is showing its inline "add several modules at once"
+  // card (one module name per line). Group-scoped, so it holds a groupId.
+  const [bulkAddingInGroupId, setBulkAddingInGroupId] = useState<string | null>(
+    null,
+  );
+
   // Which module has its read-only details panel expanded (only one at a time).
   // Independent of editing — expanding details must not disable other rows.
   const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
@@ -52,6 +58,7 @@ export function useModuleAdminUiState() {
       || creatingGroup
       || editingModuleId !== null
       || creatingModuleIn !== null
+      || bulkAddingInGroupId !== null
       || loggingForGroupId !== null
       || loggingForModuleId !== null;
 
@@ -64,6 +71,8 @@ export function useModuleAdminUiState() {
     setEditingModuleId,
     creatingModuleIn,
     setCreatingModuleIn,
+    bulkAddingInGroupId,
+    setBulkAddingInGroupId,
     expandedModuleId,
     setExpandedModuleId,
     loggingForGroupId,

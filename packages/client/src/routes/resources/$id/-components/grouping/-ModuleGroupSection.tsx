@@ -20,6 +20,7 @@ import {
   ChevronUpIcon,
   ExternalLinkIcon,
   GripVerticalIcon,
+  ListPlusIcon,
   PencilIcon,
   PlusIcon,
 } from "lucide-react";
@@ -36,6 +37,7 @@ import {
   GroupEditCard,
   GroupMetaChips,
   InteractionQuickLog,
+  ModuleBulkAddCard,
   ModuleEditCard,
 } from "@/components/resources/moduleAdminComponents";
 import {
@@ -158,6 +160,7 @@ function GroupHeaderControls({
     isAnyEditing,
     reorderMode,
     setCreatingModuleIn,
+    setBulkAddingInGroupId,
     setLoggingForGroupId,
     setEditingGroupId,
   } = ui;
@@ -224,6 +227,16 @@ function GroupHeaderControls({
         Add
         {" "}
         {api.moduleLabel}
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setBulkAddingInGroupId(g.id)}
+        disabled={isAnyEditing}
+        title={`Add several ${api.moduleLabel.toLowerCase()}s at once`}
+      >
+        <ListPlusIcon className="size-3.5" />
+        Bulk Add
       </Button>
       <Button
         size="icon-sm"
@@ -376,12 +389,15 @@ export function ModuleGroupSection({
     upsertGroupMutation,
     deleteGroupMutation,
     createModuleMutation,
+    bulkCreateModulesMutation,
   } = api;
   const {
     editingGroupId,
     setEditingGroupId,
     creatingModuleIn,
     setCreatingModuleIn,
+    bulkAddingInGroupId,
+    setBulkAddingInGroupId,
     loggingForGroupId,
     setLoggingForGroupId,
   } = ui;
@@ -396,6 +412,7 @@ export function ModuleGroupSection({
 
   const groupModules = modulesByGroup.get(g.id) ?? [];
   const isCreatingHere = creatingModuleIn === g.id;
+  const isBulkAddingHere = bulkAddingInGroupId === g.id;
   const groupStatus = getGroupStatus(g, groupModules);
 
   if (editingGroupId === g.id) {
@@ -515,6 +532,24 @@ export function ModuleGroupSection({
               onCancel={() => setCreatingModuleIn(null)}
             />
           )}
+          {isBulkAddingHere && (
+            <ModuleBulkAddCard
+              moduleLabel={api.moduleLabel}
+              moduleNamePlaceholder={api.moduleHint}
+              isSaving={bulkCreateModulesMutation.isPending}
+              onSave={names =>
+                bulkCreateModulesMutation.mutate(
+                  {
+                    names,
+                    groupId: g.id,
+                  },
+                  {
+                    onSuccess: () => setBulkAddingInGroupId(null),
+                  },
+                )}
+              onCancel={() => setBulkAddingInGroupId(null)}
+            />
+          )}
           <GroupModuleList
             group={g}
             resourceId={resourceId}
@@ -525,7 +560,7 @@ export function ModuleGroupSection({
           <GroupProgressHint
             group={g}
             groupModules={groupModules}
-            isCreatingHere={isCreatingHere}
+            isCreatingHere={isCreatingHere || isBulkAddingHere}
           />
         </>
       )}

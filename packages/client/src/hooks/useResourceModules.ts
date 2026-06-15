@@ -209,6 +209,37 @@ export function useResourceModules(resourceId: string) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Bulk add: create several name-only modules in a group (or ungrouped) in one
+  // shot from the bulk-add card's one-name-per-line input. Parallel creates
+  // mirror `bulkUpsertModulesMutation`; everything but the name takes defaults,
+  // ready to flesh out later via the edit card or bulk-edit table.
+  const bulkCreateModulesMutation = useMutation({
+    mutationFn: ({
+      names,
+      groupId,
+    }: {
+      names: string[];
+      groupId: string | null;
+    }) =>
+      Promise.all(
+        names.map(name =>
+          createModule({
+            resourceId,
+            moduleGroupId: groupId,
+            name,
+          })),
+      ),
+    onSuccess: (_data, {
+      names,
+    }) => {
+      invalidateAll();
+      toast.success(
+        `Added ${names.length} ${names.length === 1 ? "module" : "modules"}`,
+      );
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const upsertModuleMutation = useMutation({
     mutationFn: ({
       draft,
@@ -542,6 +573,7 @@ export function useResourceModules(resourceId: string) {
     upsertGroupMutation,
     deleteGroupMutation,
     createModuleMutation,
+    bulkCreateModulesMutation,
     upsertModuleMutation,
     bulkUpsertModulesMutation,
     setStatusMutation,
