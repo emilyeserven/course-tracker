@@ -4,6 +4,8 @@ import type { PersistStorage, StorageValue } from "zustand/middleware";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { persistedRemoveItem, persistedSetItem } from "./persistStorageWrite";
+
 /** A store holding a single persisted value plus its setter. */
 export interface PersistedValue<T> {
   value: T;
@@ -57,24 +59,8 @@ function createLegacyTolerantStorage<T>(
         version: 0,
       };
     },
-    setItem: (name, value) => {
-      if (typeof window === "undefined") return;
-      try {
-        window.localStorage.setItem(name, JSON.stringify(value));
-      }
-      catch {
-        // ignore quota / private-mode failures
-      }
-    },
-    removeItem: (name) => {
-      if (typeof window === "undefined") return;
-      try {
-        window.localStorage.removeItem(name);
-      }
-      catch {
-        // ignore
-      }
-    },
+    setItem: persistedSetItem,
+    removeItem: persistedRemoveItem,
   };
 }
 

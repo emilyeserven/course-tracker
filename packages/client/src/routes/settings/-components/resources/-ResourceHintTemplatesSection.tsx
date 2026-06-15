@@ -10,6 +10,43 @@ import { Input } from "@/components/ui/input";
 import { fetchSettings, updateSettings, uuidv4 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
+/** The name/group-hint/module-hint inputs shared by the add form and edit row. */
+function HintTemplateFields({
+  name,
+  groupHint,
+  moduleHint,
+  onName,
+  onGroupHint,
+  onModuleHint,
+}: {
+  name: string;
+  groupHint: string;
+  moduleHint: string;
+  onName: (value: string) => void;
+  onGroupHint: (value: string) => void;
+  onModuleHint: (value: string) => void;
+}) {
+  return (
+    <>
+      <Input
+        value={name}
+        onChange={e => onName(e.target.value)}
+        placeholder="Template name (e.g. Book)"
+      />
+      <Input
+        value={groupHint}
+        onChange={e => onGroupHint(e.target.value)}
+        placeholder="Group hint (e.g. Part I: Foundations)"
+      />
+      <Input
+        value={moduleHint}
+        onChange={e => onModuleHint(e.target.value)}
+        placeholder="Module hint (e.g. Chapter 3: Forms)"
+      />
+    </>
+  );
+}
+
 /**
  * Manage reusable hint templates for naming a resource's module hierarchy. Each
  * template holds a Group hint and a Module hint (example/placeholder text); a
@@ -120,20 +157,13 @@ export function ResourceHintTemplatesSection() {
         "
       >
         <h3 className="text-sm font-medium">Add a template</h3>
-        <Input
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Template name (e.g. Book)"
-        />
-        <Input
-          value={groupHint}
-          onChange={e => setGroupHint(e.target.value)}
-          placeholder="Group hint (e.g. Part I: Foundations)"
-        />
-        <Input
-          value={moduleHint}
-          onChange={e => setModuleHint(e.target.value)}
-          placeholder="Module hint (e.g. Chapter 3: Forms)"
+        <HintTemplateFields
+          name={name}
+          groupHint={groupHint}
+          moduleHint={moduleHint}
+          onName={setName}
+          onGroupHint={setGroupHint}
+          onModuleHint={setModuleHint}
         />
         <div>
           <Button
@@ -190,20 +220,13 @@ function HintTemplateRow({
           flex max-w-xl flex-col gap-2 rounded-md border bg-muted/30 p-3
         "
       >
-        <Input
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Template name (e.g. Book)"
-        />
-        <Input
-          value={groupHint}
-          onChange={e => setGroupHint(e.target.value)}
-          placeholder="Group hint (e.g. Part I: Foundations)"
-        />
-        <Input
-          value={moduleHint}
-          onChange={e => setModuleHint(e.target.value)}
-          placeholder="Module hint (e.g. Chapter 3: Forms)"
+        <HintTemplateFields
+          name={name}
+          groupHint={groupHint}
+          moduleHint={moduleHint}
+          onName={setName}
+          onGroupHint={setGroupHint}
+          onModuleHint={setModuleHint}
         />
         <div className="flex justify-end gap-2">
           <Button

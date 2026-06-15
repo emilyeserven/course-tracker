@@ -3,6 +3,7 @@ import type { Tag, TagGroup, TaskResourceLevel } from "@emstack/types";
 
 import { useState } from "react";
 
+import { CardField, CardLocationAndPages, CardTextField } from "./moduleCardFields";
 import { levelChipClass } from "./moduleDrafts";
 
 import { EditFormActions } from "@/components/layout/EditFormActions";
@@ -95,26 +96,18 @@ export function GroupEditCard({
       }}
       className="flex flex-col gap-3 rounded-md border bg-muted/30 p-3"
     >
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {groupLabel} Name
-        </label>
-        <Input
-          type="text"
-          value={draft.name}
-          onChange={e =>
-            update({
-              name: e.target.value,
-            })}
-          required
-          autoFocus
-          placeholder={groupNamePlaceholder || "e.g. Section 1: Fundamentals"}
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          Description (optional)
-        </label>
+      <CardTextField
+        label={`${groupLabel} Name`}
+        value={draft.name}
+        onChange={name =>
+          update({
+            name,
+          })}
+        required
+        autoFocus
+        placeholder={groupNamePlaceholder || "e.g. Section 1: Fundamentals"}
+      />
+      <CardField label="Description (optional)">
         <Textarea
           value={draft.description}
           onChange={e =>
@@ -122,56 +115,14 @@ export function GroupEditCard({
               description: e.target.value,
             })}
         />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {showPages ? "URL (optional)" : "Location (optional)"}
-        </label>
-        <Input
-          type="text"
-          value={draft.url}
-          onChange={e =>
-            update({
-              url: e.target.value,
-            })}
-        />
-      </div>
-      {showPages && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Start page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageStart}
-              onChange={e =>
-                update({
-                  pageStart: e.target.value,
-                })}
-              placeholder="e.g. 42"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              End page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageEnd}
-              onChange={e =>
-                update({
-                  pageEnd: e.target.value,
-                })}
-              placeholder="e.g. 58"
-            />
-          </div>
-        </div>
-      )}
+      </CardField>
+      <CardLocationAndPages
+        showPages={showPages}
+        url={draft.url}
+        pageStart={draft.pageStart}
+        pageEnd={draft.pageEnd}
+        onChange={update}
+      />
       {!hasEnumeratedModules && (
         <fieldset
           className="flex flex-col gap-2 rounded-md border border-border/60 p-2"
@@ -180,10 +131,7 @@ export function GroupEditCard({
             Direct counts (no enumerated modules)
           </legend>
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted-foreground">
-                Completed
-              </label>
+            <CardField label="Completed">
               <Input
                 type="number"
                 min={0}
@@ -195,11 +143,8 @@ export function GroupEditCard({
                   })}
                 placeholder="0"
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-muted-foreground">
-                Total
-              </label>
+            </CardField>
+            <CardField label="Total">
               <Input
                 type="number"
                 min={0}
@@ -211,7 +156,7 @@ export function GroupEditCard({
                   })}
                 placeholder="0"
               />
-            </div>
+            </CardField>
           </div>
         </fieldset>
       )}
