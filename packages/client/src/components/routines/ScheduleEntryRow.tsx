@@ -3,6 +3,7 @@ import type { SelectOption } from "@/utils";
 
 import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
+import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
@@ -50,7 +51,8 @@ export function ScheduleEntryRow({
         : [];
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
   // A resource entry may narrow to a module / group; show that narrower name in
-  // the preview (matching how the entry renders everywhere else).
+  // the preview (matching how the entry renders everywhere else). A chosen
+  // module wins over its group in the label (see resourceEntryLabel).
   const moduleLabel = row.moduleId
     ? moduleOptions.find(o => o.value === row.moduleId)?.label
     : null;
@@ -165,67 +167,13 @@ export function ScheduleEntryRow({
       </div>
 
       {showModulePickers && (
-        <div
-          className="
-            grid grid-cols-1 gap-1.5
-            sm:grid-cols-2
-          "
-        >
-          <select
-            aria-label={`${ariaPrefix} module group`}
-            value={row.moduleGroupId}
-            onChange={e =>
-              // Group and module are mutually exclusive — picking a group clears
-              // any specific module.
-              onChange({
-                moduleGroupId: e.target.value,
-                ...(e.target.value
-                  ? {
-                    moduleId: "",
-                  }
-                  : {}),
-              })}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-2 text-sm
-            "
-          >
-            <option value="">— Whole resource —</option>
-            {groupOptions.map(g => (
-              <option
-                key={g.value}
-                value={g.value}
-              >
-                {g.label}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label={`${ariaPrefix} module`}
-            value={row.moduleId}
-            onChange={e =>
-              onChange({
-                moduleId: e.target.value,
-                ...(e.target.value
-                  ? {
-                    moduleGroupId: "",
-                  }
-                  : {}),
-              })}
-            className="
-              flex h-9 w-full rounded-md border bg-background px-2 text-sm
-            "
-          >
-            <option value="">— Whole resource —</option>
-            {moduleOptions.map(m => (
-              <option
-                key={m.value}
-                value={m.value}
-              >
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ModuleNarrowingFields
+          ariaPrefix={ariaPrefix}
+          row={row}
+          groupOptions={groupOptions}
+          moduleOptions={moduleOptions}
+          onChange={onChange}
+        />
       )}
 
       {row.type !== "" && (

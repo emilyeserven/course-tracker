@@ -45,10 +45,12 @@ const moduleOptions: SelectOption[] = [
   {
     value: "module-1",
     label: "Basics 1",
+    group: "group-1",
   },
   {
     value: "module-2",
     label: "Basics 2",
+    group: "group-1",
   },
 ];
 
