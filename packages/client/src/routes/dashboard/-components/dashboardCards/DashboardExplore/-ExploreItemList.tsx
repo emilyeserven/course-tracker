@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-import { cn } from "../shared/-cardKit";
+import { cn } from "../DashboardCard/-cardKit";
 
 // Two-line description with an inline toggle that expands the full text within
 // the tile. Renders nothing when there's no description to show.

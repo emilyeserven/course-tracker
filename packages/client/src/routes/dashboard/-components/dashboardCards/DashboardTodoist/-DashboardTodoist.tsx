@@ -13,7 +13,7 @@ import {
   queryKeys,
   SettingsLink,
   SettingToggle,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { closeTodoistTask, fetchTodoistTasks } from "@/utils";
 

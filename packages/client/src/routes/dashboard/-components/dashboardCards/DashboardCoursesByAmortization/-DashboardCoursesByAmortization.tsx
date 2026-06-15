@@ -24,7 +24,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { DataTable } from "@/components/ui/data-table";
 import {

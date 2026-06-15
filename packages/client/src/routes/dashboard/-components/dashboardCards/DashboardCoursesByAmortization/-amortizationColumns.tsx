@@ -14,7 +14,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { formatCurrency } from "@/utils";

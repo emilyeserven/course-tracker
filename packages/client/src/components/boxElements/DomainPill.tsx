@@ -1,6 +1,7 @@
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-type DomainPillProps = React.ComponentProps<"span">;
+type DomainPillProps = React.ComponentProps<typeof Badge>;
 
 /** Static (non-link) domain chip used in topic boxes and the topics table. */
 export function DomainPill({
@@ -9,14 +10,15 @@ export function DomainPill({
   ...props
 }: DomainPillProps) {
   return (
-    <span
+    <Badge
+      variant="secondary"
       className={cn(
-        "rounded-sm bg-muted px-2 py-0.5 text-xs text-muted-foreground",
+        "rounded-sm bg-muted font-normal text-muted-foreground",
         className,
       )}
       {...props}
     >
       {children}
-    </span>
+    </Badge>
   );
 }

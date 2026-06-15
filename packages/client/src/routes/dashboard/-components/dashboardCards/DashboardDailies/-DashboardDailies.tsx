@@ -9,7 +9,7 @@ import {
   DashboardCard,
   DashboardSectionStatus,
   isAutoHeight,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import {
   DailiesViewModeToggle,

@@ -14,7 +14,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { fetchReadwiseReadingList } from "@/utils";
 

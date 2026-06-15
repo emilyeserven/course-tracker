@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { StatusCircle } from "@/components/ui/StatusCircle";
 import { cn } from "@/lib/utils";
 
 /**
@@ -45,17 +46,16 @@ export function ModuleStatusControl({
           onClick={e => e.stopPropagation()}
           aria-label={`Status: ${current.label}. Change status`}
           title={`Status: ${current.label}`}
-          className={cn(
-            `
-              inline-flex size-6 shrink-0 items-center justify-center
-              rounded-full border-2
-              [&_svg]:size-4
-            `,
-            current.circleClass,
-            disabled && "opacity-50",
-          )}
+          className={cn("inline-flex shrink-0 rounded-full", disabled && `
+            opacity-50
+          `)}
         >
-          {current.icon}
+          <StatusCircle
+            size="sm"
+            circleClass={current.circleClass}
+            icon={current.icon}
+            className="[&_svg]:size-4"
+          />
         </button>
       </PopoverTrigger>
       <PopoverContent

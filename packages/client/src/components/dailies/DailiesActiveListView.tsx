@@ -75,11 +75,11 @@ export function DailiesActiveListView({
               lg:even:border-l lg:even:pl-6
             "
           >
-            <div className="flex min-w-0 flex-row items-start gap-3">
+            <div className="flex w-full min-w-0 flex-row items-start gap-3">
               <div className="mt-0.5 shrink-0">
                 <DailyProgressCell daily={daily} />
               </div>
-              <div className="flex min-w-0 flex-col gap-1">
+              <div className="flex w-full min-w-0 flex-col gap-1">
                 <Link
                   to="/routines/$id"
                   params={{
@@ -94,42 +94,45 @@ export function DailiesActiveListView({
                 </Link>
                 <div
                   className="
-                    flex flex-row flex-wrap items-center gap-x-4 gap-y-2 text-sm
+                    flex w-full flex-row flex-wrap items-center justify-between
+                    gap-x-4 gap-y-2 text-sm
                   "
                 >
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5",
-                      currentStatus === "incomplete"
-                        ? "text-muted-foreground"
-                        : chain > 0
-                          ? "text-orange-600"
-                          : "text-muted-foreground",
-                    )}
-                    title={chain > 0 ? `${chain}-day chain` : "No active chain"}
-                  >
-                    <FlameIcon className="size-4" />
-                    {chain}
-                  </span>
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5",
-                      total > 0 ? "text-emerald-600" : "text-muted-foreground",
-                    )}
-                    title={`${total} total day${total === 1 ? "" : "s"} completed`}
-                  >
-                    <LaughIcon className="size-4" />
-                    {total}
-                  </span>
-                  <span
-                    className="
-                      inline-flex items-center gap-2
-                      [&_a>svg]:size-5
-                    "
-                  >
-                    <DailyResourceIndicator daily={daily} />
-                    <DailyTaskIndicator daily={daily} />
-                  </span>
+                  <div className="flex flex-row items-center gap-6">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5",
+                        currentStatus === "incomplete"
+                          ? "text-muted-foreground"
+                          : chain > 0
+                            ? "text-orange-600"
+                            : "text-muted-foreground",
+                      )}
+                      title={chain > 0 ? `${chain}-day chain` : "No active chain"}
+                    >
+                      <FlameIcon className="size-4" />
+                      {chain}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5",
+                        total > 0 ? "text-emerald-600" : "text-muted-foreground",
+                      )}
+                      title={`${total} total day${total === 1 ? "" : "s"} completed`}
+                    >
+                      <LaughIcon className="size-4" />
+                      {total}
+                    </span>
+                    <span
+                      className="
+                        inline-flex items-center gap-2
+                        [&_a>svg]:size-5
+                      "
+                    >
+                      <DailyResourceIndicator daily={daily} />
+                      <DailyTaskIndicator daily={daily} />
+                    </span>
+                  </div>
                   <span
                     className="
                       [&_a]:px-2.5 [&_a]:py-1.5 [&_a]:text-sm
@@ -145,11 +148,15 @@ export function DailiesActiveListView({
               </div>
             </div>
 
-            <div className="flex flex-col items-start">
-              <div className="flex flex-row items-center gap-2">
+            <div className="flex w-full flex-col items-start">
+              <div
+                className="
+                  flex w-full flex-row items-center justify-between gap-2
+                "
+              >
                 <div
                   className="
-                    w-44
+                    w-full
                     [&_button]:px-3 [&_button]:py-1 [&_button]:text-sm
                     [&_svg]:size-4
                   "
@@ -175,14 +182,14 @@ export function DailiesActiveListView({
                 right={mostRecentPast?.status ?? null}
                 className="ml-[11px] h-3 shrink-0"
               />
-              <div className="flex flex-row items-start">
+              <div className="flex w-full flex-row items-start">
                 {recentDays.map((day, i) => (
                   <Fragment key={day.dateKey}>
                     {i > 0 && (
                       <DailyStatusConnector
                         left={recentDays[i - 1].status}
                         right={day.status}
-                        className="mt-[11px] w-2.5 shrink-0"
+                        className="mt-[11px] w-full min-w-2.5"
                       />
                     )}
                     <div className="flex shrink-0 flex-col items-center gap-0.5">
