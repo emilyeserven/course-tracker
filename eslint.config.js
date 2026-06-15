@@ -19,9 +19,15 @@ export default tseslint.config([
     },
   },
   {
+    // The gateway is the production Node entrypoint (Fastify proxy + child-process
+    // supervisor); console is its intended logging mechanism for startup and
+    // crash/respawn diagnostics, so `no-console` doesn't apply here.
     files: ["packages/gateway/**/*.js"],
     languageOptions: {
       globals: globals.node,
+    },
+    rules: {
+      "no-console": "off",
     },
   },
   {
