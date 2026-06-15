@@ -8,6 +8,8 @@ import {
   MODULE_DURATION_LABELS,
 } from "@emstack/types";
 
+import { CardField, CardLocationAndPages, CardTextField } from "./moduleCardFields";
+
 import { EditFormActions } from "@/components/layout/EditFormActions";
 import { LevelAndTagsFields } from "@/components/resources/LevelAndTagsFields";
 import { Button } from "@/components/ui/button";
@@ -55,71 +57,24 @@ export function ModuleEditCard({
       }}
       className="flex flex-col gap-2 rounded-sm border bg-muted/40 p-2"
     >
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {moduleLabel} Name
-        </label>
-        <Input
-          type="text"
-          value={draft.name}
-          onChange={e =>
-            update({
-              name: e.target.value,
-            })}
-          required
-          autoFocus
-          placeholder={moduleNamePlaceholder || undefined}
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          {showPages ? "URL (optional)" : "Location (optional)"}
-        </label>
-        <Input
-          type="text"
-          value={draft.url}
-          onChange={e =>
-            update({
-              url: e.target.value,
-            })}
-        />
-      </div>
-      {showPages && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Start page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageStart}
-              onChange={e =>
-                update({
-                  pageStart: e.target.value,
-                })}
-              placeholder="e.g. 42"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              End page (optional)
-            </label>
-            <Input
-              type="number"
-              min={0}
-              step={1}
-              value={draft.pageEnd}
-              onChange={e =>
-                update({
-                  pageEnd: e.target.value,
-                })}
-              placeholder="e.g. 58"
-            />
-          </div>
-        </div>
-      )}
+      <CardTextField
+        label={`${moduleLabel} Name`}
+        value={draft.name}
+        onChange={name =>
+          update({
+            name,
+          })}
+        required
+        autoFocus
+        placeholder={moduleNamePlaceholder || undefined}
+      />
+      <CardLocationAndPages
+        showPages={showPages}
+        url={draft.url}
+        pageStart={draft.pageStart}
+        pageEnd={draft.pageEnd}
+        onChange={update}
+      />
       <div className="flex flex-col gap-1">
         <div className="flex flex-row items-center justify-between gap-2">
           <label className="text-xs font-medium text-muted-foreground">
@@ -196,10 +151,7 @@ export function ModuleEditCard({
             </select>
           )}
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-muted-foreground">
-          Description (optional)
-        </label>
+      <CardField label="Description (optional)">
         <Textarea
           value={draft.description}
           onChange={e =>
@@ -207,7 +159,7 @@ export function ModuleEditCard({
               description: e.target.value,
             })}
         />
-      </div>
+      </CardField>
       <LevelAndTagsFields
         draft={draft}
         tagGroups={tagGroups}
