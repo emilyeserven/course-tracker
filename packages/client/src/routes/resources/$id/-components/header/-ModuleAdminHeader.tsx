@@ -4,14 +4,12 @@ import {
   ArrowUpDownIcon,
   CircleCheckBig,
   InfoIcon,
-  ListPlusIcon,
   PlusIcon,
-  SparklesIcon,
   Table2Icon,
 } from "lucide-react";
 
+import { ModuleAdminMoreMenu } from "./-ModuleAdminMoreMenu";
 import { ModuleAssistDialog } from "./-ModuleAssistDialog";
-import { ModuleHintTemplatePicker } from "./-ModuleHintTemplatePicker";
 
 import { Button } from "@/components/ui/button";
 import { UNGROUPED_KEY } from "@/hooks/useModuleAdminUiState";
@@ -28,8 +26,9 @@ interface ModuleAdminHeaderProps extends ModuleAdminSectionProps {
 }
 
 /**
- * Top bar for the module admin: the progress summary, the LLM-assist / add /
- * new-group actions, and the (portalled) suggest dialog those actions drive.
+ * Top bar for the module admin: the progress summary, the bulk-edit / reorder /
+ * add / new-group actions, an overflow "More" menu (hints, LLM assist, bulk-add
+ * groups), and the (portalled) suggest dialog the LLM-assist action drives.
  */
 export function ModuleAdminHeader({
   resourceId,
@@ -47,10 +46,8 @@ export function ModuleAdminHeader({
   } = api;
   const {
     isAnyEditing,
-    setLlmAssistOpen,
     setCreatingModuleIn,
     setCreatingGroup,
-    setBulkAddingGroups,
     reorderMode,
     setReorderMode,
     bulkEditMode,
@@ -76,17 +73,6 @@ export function ModuleAdminHeader({
           )}
         </div>
         <div className="flex flex-row flex-wrap gap-2">
-          <ModuleHintTemplatePicker api={api} />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLlmAssistOpen(true)}
-            disabled={otherActionsDisabled}
-            title="Suggest module groups and modules via Claude"
-          >
-            <SparklesIcon className="size-4" />
-            LLM Assist
-          </Button>
           <Button
             variant={bulkEditMode ? "secondary" : "outline"}
             size="sm"
@@ -131,19 +117,11 @@ export function ModuleAdminHeader({
             {" "}
             {groupLabel}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setBulkAddingGroups(true)}
+          <ModuleAdminMoreMenu
+            api={api}
+            ui={ui}
             disabled={otherActionsDisabled}
-            title={`Add several ${groupLabel.toLowerCase()}s at once`}
-          >
-            <ListPlusIcon className="size-4" />
-            Bulk Add
-            {" "}
-            {groupLabel}
-            s
-          </Button>
+          />
         </div>
       </div>
 
