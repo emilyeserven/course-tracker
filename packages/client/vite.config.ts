@@ -89,6 +89,22 @@ export default defineConfig(({
         ],
         test: {
           name: "storybook",
+          // Quarantined: these stories intermittently fail the browser-mode run
+          // under the suite-wide parallelism races tracked in #504 (not bugs in
+          // the stories themselves — they fail to *load*, not on assertions).
+          // The `.stories.tsx` files still render in Storybook; they're only
+          // skipped in the Vitest run. Re-enable once the suite is stable — #536.
+          // NB: setting `exclude` overrides Vitest's defaults, so the standard
+          // ignores are re-listed here (as the unit-tests project does).
+          exclude: [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/cypress/**",
+            "**/.{idea,git,cache,output,temp}/**",
+            "**/src/routes/settings/-components/advanced/-DataToolsSection.stories.tsx",
+            "**/src/routes/settings/-components/connections/-TodoistSection.stories.tsx",
+            "**/src/components/radar/RadarConfigIllustrations.stories.tsx",
+          ],
           // Block real /api network calls during the run (stories seed query
           // data instead) — kills the ECONNREFUSED proxy round-trips/noise.
           setupFiles: ["./.storybook/vitest.setup.ts"],

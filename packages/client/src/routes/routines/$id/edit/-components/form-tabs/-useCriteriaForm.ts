@@ -2,13 +2,13 @@ import type { Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 import { useAppForm } from "@/components/formFields";
 import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
-import { formHasChanges, upsertRoutine } from "@/utils";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
+import { upsertRoutine } from "@/utils";
 
 const criteriaSchema = z.object({
   criteriaIncomplete: z.string().max(TEXT_MAX_LENGTH),
@@ -95,10 +95,9 @@ export function useCriteriaForm({
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
 
   useEffect(() => {
     onChangeStateChange?.(hasChanges);

@@ -2,7 +2,6 @@ import type { Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -20,6 +19,7 @@ import {
   weeklyToRows,
 } from "@/components/routines";
 import { NAME_MAX_LENGTH } from "@/constants/stringLimits";
+import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
   buildConnectionOptions,
   decodeConnection,
@@ -29,7 +29,6 @@ import {
   fetchResources,
   fetchTasks,
   fetchTopics,
-  formHasChanges,
   getDateKey,
   getTodayKey,
   groupOptionsByResource,
@@ -253,10 +252,10 @@ export function useRoutineDetailsForm(
     },
   });
 
-  const currentValues = useStore(form.store, state => ({
-    ...state.values,
-  }));
-  const hasChanges = formHasChanges(currentValues, startingValues);
+  const {
+    currentValues,
+    hasChanges,
+  } = useFormChangeState(form, startingValues);
   const isDaily = currentValues.mode === "daily";
   const isCurated = currentValues.mode === "curated";
 
