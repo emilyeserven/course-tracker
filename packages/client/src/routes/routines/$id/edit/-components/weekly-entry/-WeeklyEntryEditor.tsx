@@ -26,7 +26,6 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
     inputValue,
     setInputValue,
     emit,
-    emitPicked,
     linkUrl,
     showPreview,
     preview,
@@ -43,7 +42,7 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
         id={id}
         itemOptions={itemOptions}
         optionsMap={optionsMap}
-        onEmit={emitPicked}
+        onEmit={emit}
         onInputValueChange={setInputValue}
         onRequestAddResource={() => setAddOpen(true)}
       />
@@ -64,17 +63,21 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
           />
           <input
             aria-label="Daily task location"
-            value={location}
+            // Show the resource link as a placeholder rather than baking it into
+            // the value, so a blank field reads as "uses the resource link".
+            value={location === linkUrl ? "" : location}
             onChange={e =>
               emit({
                 location: e.target.value,
               })}
-            placeholder="Location (e.g. gym, Spanish app, or a URL)…"
+            placeholder={
+              linkUrl || "Location (e.g. gym, Spanish app, or a URL)…"
+            }
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
-          {linkUrl && location !== linkUrl && (
+          {linkUrl && location !== "" && location !== linkUrl && (
             <button
               type="button"
               aria-label="Daily task use resource link"

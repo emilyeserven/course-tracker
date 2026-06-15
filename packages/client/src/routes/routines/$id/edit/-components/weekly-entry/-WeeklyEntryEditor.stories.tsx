@@ -12,8 +12,8 @@ import {
   taskOptions,
 } from "@/test-utils/routinesFixtures";
 
-// resource-1 carries a link, so a daily entry pointing at it can offer/autofill
-// that url into its location field.
+// resource-1 carries a link, so a daily entry pointing at it shows that url as
+// its location placeholder (and can offer it when the field holds custom text).
 const resourceOptionsWithLink: SelectOption[] = [
   {
     value: "resource-1",
@@ -116,5 +116,30 @@ export const OffersLinkWhenLocationFilled: Story = {
         location: "https://duolingo.com",
       }),
     );
+  },
+};
+
+// A resource entry with a blank location shows the resource's link as the
+// location placeholder (persisted as the link on save); no "use link" offer
+// appears, since there's no different value to replace.
+export const ShowsResourceLinkAsPlaceholder: Story = {
+  args: {
+    type: "resource",
+    id: "resource-1",
+    resourceOptions: resourceOptionsWithLink,
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    const location = canvas.getByLabelText("Daily task location");
+    await expect(location).toHaveValue("");
+    await expect(location).toHaveAttribute(
+      "placeholder",
+      "https://duolingo.com",
+    );
+    await expect(
+      canvas.queryByLabelText("Daily task use resource link"),
+    ).not.toBeInTheDocument();
   },
 };
