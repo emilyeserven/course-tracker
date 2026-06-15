@@ -1,12 +1,19 @@
-import type { ModuleProgress } from "@/utils/moduleProgress";
+import type { GroupProgress, ModuleProgress } from "@/utils/moduleProgress";
 
 import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchModuleGroups, fetchModules } from "@/utils/fetchFunctions";
-import { computeModuleProgress } from "@/utils/moduleProgress";
+import { computeGroupProgress, computeModuleProgress } from "@/utils/moduleProgress";
 import { queryKeys } from "@/utils/queryKeys";
+
+export interface ResourceModuleProgress {
+  /** Overall module-derived progress (completed/total/% across the resource). */
+  progress: ModuleProgress;
+  /** Per-group breakdown for the Details-tab progress table. */
+  groups: GroupProgress[];
+}
 
 /**
  * Read-only module progress for a resource, used by the Details tab to show
@@ -19,7 +26,7 @@ import { queryKeys } from "@/utils/queryKeys";
 export function useResourceModuleProgress(
   resourceId: string,
   enabled: boolean,
-): ModuleProgress {
+): ResourceModuleProgress {
   const groupsQuery = useQuery({
     queryKey: queryKeys.resources.moduleGroups(resourceId),
     queryFn: () => fetchModuleGroups(),
@@ -38,6 +45,9 @@ export function useResourceModuleProgress(
     const modules = (modulesQuery.data ?? []).filter(
       m => m.resourceId === resourceId,
     );
-    return computeModuleProgress(modules, groups);
+    return {
+      progress: computeModuleProgress(modules, groups),
+      groups: computeGroupProgress(modules, groups),
+    };
   }, [groupsQuery.data, modulesQuery.data, resourceId]);
 }
