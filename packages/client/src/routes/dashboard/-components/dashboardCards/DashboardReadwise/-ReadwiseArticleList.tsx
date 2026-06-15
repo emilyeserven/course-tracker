@@ -2,13 +2,8 @@ import type { ReadwiseDocument } from "@emstack/types";
 
 import { ExternalLink } from "lucide-react";
 
-import { RadialProgress } from "../shared/-cardKit";
-
-function readingTime(wordCount: number | null): string | null {
-  if (!wordCount || wordCount <= 0) return null;
-  // ~200 words per minute is the usual reading-speed estimate.
-  return `${Math.max(1, Math.round(wordCount / 200))} min`;
-}
+import { readingTime } from "./-readwiseFormat";
+import { RadialProgress } from "../DashboardCard/-cardKit";
 
 function ArticleMeta({
   doc,

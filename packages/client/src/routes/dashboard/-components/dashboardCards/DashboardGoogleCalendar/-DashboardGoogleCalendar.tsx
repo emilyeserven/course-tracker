@@ -8,7 +8,7 @@ import {
   DashboardIntegrationCard,
   queryKeys,
   SettingsLink,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { fetchGoogleCalendarEvents } from "@/utils";
 

@@ -2,13 +2,7 @@ import type { DashboardLayoutTile, TodoistTask } from "@emstack/types";
 
 import { Check, ExternalLink, Repeat } from "lucide-react";
 
-// Todoist priority is 1–4 with 4 the most urgent (shown as "P1" in the app).
-// Only the two highest priorities get a coloured dot; the rest stay muted.
-function priorityDotClass(priority: number): string {
-  if (priority >= 4) return "bg-red-500";
-  if (priority === 3) return "bg-orange-500";
-  return "bg-muted-foreground/40";
-}
+import { priorityDotClass } from "./-todoistFormat";
 
 export type TaskDisplay = Required<
   Pick<DashboardLayoutTile, "showProject" | "showLabels" | "showDescription">
@@ -100,9 +94,7 @@ export function TodoistTaskList({
                 <span
                   className={`
                     flex items-center gap-1 truncate text-xs
-                    ${
-                overdue ? "text-destructive" : "text-muted-foreground"
-                }
+                    ${overdue ? "text-destructive" : "text-muted-foreground"}
                   `}
                 >
                   {task.due}

@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
   queryKeys,
   RadialProgress,
-} from "../shared/-cardKit";
+} from "../DashboardCard/-cardKit";
 
 import { fetchDailies, fetchResources } from "@/utils";
 
