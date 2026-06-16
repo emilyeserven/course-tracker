@@ -79,7 +79,7 @@ export function DashboardDailiesBody({
           statusCellClassName="p-2"
           firstConnectorClassName="
             absolute top-1/2 right-[calc(50%+12px)] -left-2
-            z-0 -translate-y-1/2
+            z-0 w-auto -translate-y-1/2
           "
           taskId={null}
           columns={columns}
