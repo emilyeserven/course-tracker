@@ -14,9 +14,11 @@ import { queryStubDecorator } from "@/test-utils/storyDecorators";
 function Host({
   isNew,
   modulesAreExhaustive,
+  tracksProgress = true,
 }: {
   isNew: boolean;
   modulesAreExhaustive: boolean;
+  tracksProgress?: boolean;
 }) {
   const controller = useResourceEditForm({
     id: isNew ? "new" : "resource-1",
@@ -29,6 +31,7 @@ function Host({
     <ProgressModeField
       form={controller.form}
       modulesAreExhaustive={modulesAreExhaustive}
+      tracksProgress={tracksProgress}
       isNew={isNew}
       onModeChange={fn()}
       onGoToModules={fn()}
@@ -73,6 +76,18 @@ export const ModuleTracking: Story = {
     <Host
       isNew={false}
       modulesAreExhaustive
+    />
+  ),
+};
+
+// No-progress mode: the resource opts out of tracking; the number fields and
+// the modules shortcut collapse to an infinity-icon explanation.
+export const NoProgress: Story = {
+  render: () => (
+    <Host
+      isNew={false}
+      modulesAreExhaustive={false}
+      tracksProgress={false}
     />
   ),
 };

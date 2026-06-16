@@ -18,6 +18,10 @@ export interface ResolvedResource {
   name: string;
   progressCurrent: number | null;
   progressTotal: number | null;
+  // When false, the resource opts out of progress tracking (shows an infinity
+  // icon in the tracker). Optional so callers that don't select it default to
+  // tracked via mapDaily's `?? true`.
+  tracksProgress?: boolean | null;
 }
 
 // A resolved module / module-group name for a resource entry that narrows to one.

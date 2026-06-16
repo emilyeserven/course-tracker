@@ -54,6 +54,7 @@ function toResourceBlock(
       name: resource.name,
       progressCurrent: resource.progressCurrent ?? 0,
       progressTotal: resource.progressTotal ?? 0,
+      tracksProgress: resource.tracksProgress ?? true,
     }
     : undefined;
 }

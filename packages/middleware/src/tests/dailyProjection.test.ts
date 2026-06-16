@@ -144,7 +144,23 @@ test("mapDaily defaults resource progress to 0 when null", () => {
     name: "Spanish reader",
     progressCurrent: 0,
     progressTotal: 0,
+    tracksProgress: true,
   });
+});
+
+test("mapDaily carries through a resource that opts out of tracking", () => {
+  const result = mapDaily({
+    ...baseRow,
+    resource: {
+      id: "res-3",
+      name: "Reference site",
+      progressCurrent: null,
+      progressTotal: null,
+      tracksProgress: false,
+    },
+  });
+
+  assert.strictEqual(result.resource?.tracksProgress, false);
 });
 
 // --- mapDaily passthrough & defaults ---

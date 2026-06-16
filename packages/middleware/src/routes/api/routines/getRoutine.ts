@@ -93,6 +93,7 @@ export default async function (server: FastifyInstance) {
             name: true,
             progressCurrent: true,
             progressTotal: true,
+            tracksProgress: true,
           },
         })) ?? null;
       }

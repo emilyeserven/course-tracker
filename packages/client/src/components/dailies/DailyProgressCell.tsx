@@ -91,6 +91,20 @@ export function DailyProgressCell({
   const taskProgress = daily.task?.progress;
 
   if (course) {
+    // The resource opted out of progress tracking: show the infinity icon
+    // instead of a radial, mirroring the no-link "Daily Drills" treatment.
+    if (course.tracksProgress === false) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex text-muted-foreground">
+              <InfinityIcon className="size-5" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>{`${course.name} · No progress tracked`}</TooltipContent>
+        </Tooltip>
+      );
+    }
     const progressTotal = course.progressTotal ?? 0;
     const progressCurrent = course.progressCurrent ?? 0;
     const percent = progressTotal > 0

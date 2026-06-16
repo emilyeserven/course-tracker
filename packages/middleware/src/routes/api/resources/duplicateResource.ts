@@ -60,6 +60,7 @@ export default async function (server: FastifyInstance) {
         timeNeeded: source.timeNeeded ?? null,
         interactivity: source.interactivity ?? null,
         modulesConfig: source.modulesConfig ?? null,
+        tracksProgress: source.tracksProgress ?? true,
       });
 
       const topicLinks = (source.topicsToResources ?? []).map(t => ({

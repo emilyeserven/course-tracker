@@ -98,6 +98,9 @@ export interface Daily {
     name: string;
     progressCurrent: number;
     progressTotal: number;
+    // When false, the linked resource opts out of progress tracking — the
+    // tracker's Progress column shows an infinity icon instead of a radial.
+    tracksProgress?: boolean;
   };
   // Optional sub-target within the linked course. At most one of these
   // is set; both null = the daily targets the whole course.

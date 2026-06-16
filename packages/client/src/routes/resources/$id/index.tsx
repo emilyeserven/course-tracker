@@ -8,7 +8,7 @@ import { useState } from "react";
 import { DEFAULT_MODULE_LABEL } from "@emstack/types";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
+import { InfinityIcon, PlusIcon } from "lucide-react";
 
 import {
   ModuleGroupBreakdown,
@@ -287,39 +287,48 @@ function ResourceDetailsTab({
         </InfoArea>
       </InfoRow>
       <InfoRow header="Progress">
-        {data.modulesAreExhaustive
+        {data.tracksProgress === false
           ? (
-            <ModuleProgressDisplay
-              progress={moduleProgress.progress}
-              groups={moduleProgress.groups}
-              moduleLabel={moduleLabel}
-            />
+            <span
+              className="inline-flex items-center gap-1.5 text-muted-foreground"
+            >
+              <InfinityIcon className="size-5" />
+              No progress tracked
+            </span>
           )
-          : (
-            <>
-              <InfoArea
-                header="Current Progress"
-                condition={!!data.progressCurrent}
-              >
-                <p>{data.progressCurrent}</p>
-              </InfoArea>
-              <InfoArea
-                header="Total Modules"
-                condition={!!data.progressTotal}
-              >
-                <p>{data.progressTotal}</p>
-              </InfoArea>
-              <InfoArea
-                header="% Complete"
-                condition={!!data.progressTotal && !!data.progressCurrent}
-              >
-                <p>{percentComplete}%</p>
-              </InfoArea>
-              {!data.progressCurrent && !data.progressTotal && (
-                <span>No progress information given.</span>
-              )}
-            </>
-          )}
+          : data.modulesAreExhaustive
+            ? (
+              <ModuleProgressDisplay
+                progress={moduleProgress.progress}
+                groups={moduleProgress.groups}
+                moduleLabel={moduleLabel}
+              />
+            )
+            : (
+              <>
+                <InfoArea
+                  header="Current Progress"
+                  condition={!!data.progressCurrent}
+                >
+                  <p>{data.progressCurrent}</p>
+                </InfoArea>
+                <InfoArea
+                  header="Total Modules"
+                  condition={!!data.progressTotal}
+                >
+                  <p>{data.progressTotal}</p>
+                </InfoArea>
+                <InfoArea
+                  header="% Complete"
+                  condition={!!data.progressTotal && !!data.progressCurrent}
+                >
+                  <p>{percentComplete}%</p>
+                </InfoArea>
+                {!data.progressCurrent && !data.progressTotal && (
+                  <span>No progress information given.</span>
+                )}
+              </>
+            )}
       </InfoRow>
       <InfoRow
         header="Effort & Engagement"

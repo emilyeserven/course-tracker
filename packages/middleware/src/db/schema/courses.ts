@@ -61,6 +61,11 @@ export const resources = pgTable("resources", {
   // When true, completion is computed from finished modules rather than from
   // progressCurrent/progressTotal.
   modulesAreExhaustive: boolean("modules_are_exhaustive").default(false).notNull(),
+  // When false, the resource opts out of progress tracking: progress displays
+  // (the daily tracker's Progress column, the detail view) render an infinity
+  // icon instead of a bar/percentage. Defaults true so existing rows keep
+  // tracking after the column is added.
+  tracksProgress: boolean("tracks_progress").default(true).notNull(),
   easeOfStarting: resourceLevelEnum("ease_of_starting"),
   timeNeeded: resourceLevelEnum("time_needed"),
   interactivity: resourceLevelEnum(),

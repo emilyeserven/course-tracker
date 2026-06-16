@@ -26,6 +26,21 @@ export const CourseProgress: Story = {
   },
 };
 
+// Resource that opts out of progress tracking: shows the infinity icon.
+export const NoProgressResource: Story = {
+  args: {
+    daily: makeDaily({
+      resource: {
+        id: "r2",
+        name: "MDN Web Docs",
+        progressCurrent: 0,
+        progressTotal: 0,
+        tracksProgress: false,
+      },
+    }),
+  },
+};
+
 // Task path: progress derived from todos + resources.
 export const TaskProgress: Story = {
   args: {
