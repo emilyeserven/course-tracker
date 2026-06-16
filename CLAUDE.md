@@ -135,6 +135,8 @@ Project skills live in `.claude/skills/<name>/SKILL.md`. The `/`-command name co
 | `POSTGRES_USER` | docker-compose | Database user | `postgres` |
 | `POSTGRES_PASSWORD` | docker-compose | Database password | `password` |
 | `POSTGRES_DB` | docker-compose | Database name | `coursetracker` |
+| `POSTGRES_HOST_PORT` | docker-compose | Host port mapped to the db container's `5432` | `5432` |
+| `GATEWAY_HOST_PORT` | docker-compose | Host port mapped to the gateway container's `3000` | `3000` |
 
 See `packages/middleware/.env.example` for env templates.
 
