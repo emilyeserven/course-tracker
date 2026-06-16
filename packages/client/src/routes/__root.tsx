@@ -71,7 +71,6 @@ const RootComponent: React.FunctionComponent = () => {
           >
             <DropdownNavItem to="/providers">Providers</DropdownNavItem>
             <DropdownNavItem to="/resources">Resources</DropdownNavItem>
-            <DropdownNavItem to="/topics">Topics</DropdownNavItem>
           </NavDropdown>
 
           <NavDropdown
@@ -79,6 +78,7 @@ const RootComponent: React.FunctionComponent = () => {
             to="/plans"
           >
             <DropdownNavItem to="/domains">Domains</DropdownNavItem>
+            <DropdownNavItem to="/topics">Topics</DropdownNavItem>
           </NavDropdown>
 
           <NavDropdown
@@ -142,7 +142,6 @@ const RootComponent: React.FunctionComponent = () => {
                 </DropdownNavItem>
                 <DropdownNavItem to="/providers">Providers</DropdownNavItem>
                 <DropdownNavItem to="/resources">Resources</DropdownNavItem>
-                <DropdownNavItem to="/topics">Topics</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
@@ -153,6 +152,7 @@ const RootComponent: React.FunctionComponent = () => {
                   Plans
                 </DropdownNavItem>
                 <DropdownNavItem to="/domains">Domains</DropdownNavItem>
+                <DropdownNavItem to="/topics">Topics</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
