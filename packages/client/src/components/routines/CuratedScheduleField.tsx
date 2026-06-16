@@ -5,7 +5,10 @@ import { useState } from "react";
 
 import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 import { ScheduleEntryRow } from "@/components/routines/ScheduleEntryRow";
-import { formatCuratedDateLabel } from "@/components/routines/weekly";
+import {
+  formatCuratedDateLabel,
+  rowNarrowingOptions,
+} from "@/components/routines/weekly";
 
 interface CuratedScheduleFieldProps {
   value: CuratedRow[];
@@ -58,7 +61,13 @@ export function CuratedScheduleField({
     <div className="flex flex-col gap-2">
       <ul className="flex flex-col gap-2">
         {value.map((row) => {
-          const isResource = row.type === "resource" && !!row.id;
+          const {
+            groupOptions, moduleOptions,
+          } = rowNarrowingOptions(
+            row,
+            moduleGroupsByResource,
+            modulesByResource,
+          );
           return (
             <ScheduleEntryRow
               key={row.date}
@@ -67,12 +76,8 @@ export function CuratedScheduleField({
               row={row}
               taskOptions={taskOptions}
               resourceOptions={resourceOptions}
-              groupOptions={
-                isResource ? (moduleGroupsByResource.get(row.id) ?? []) : []
-              }
-              moduleOptions={
-                isResource ? (modulesByResource.get(row.id) ?? []) : []
-              }
+              groupOptions={groupOptions}
+              moduleOptions={moduleOptions}
               onChange={patch => update(row.date, patch)}
               onInputValueChange={setInputValue}
               onAddResource={() => {

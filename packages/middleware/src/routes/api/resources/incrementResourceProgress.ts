@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { resources } from "@/db/schema";
-import { sendNotFound } from "@/utils/errors";
+import { findResourceOr404 } from "@/utils/findResourceOr404";
 import { idParamSchema } from "@/utils/schemas";
 
 const incrementSchema = {
@@ -24,14 +24,9 @@ export default async function (server: FastifyInstance) {
         id,
       } = request.params;
 
-      const resource = await db.query.resources.findFirst({
-        where: (resources, {
-          eq,
-        }) => eq(resources.id, id),
-      });
-
+      const resource = await findResourceOr404(reply, id);
       if (!resource) {
-        return sendNotFound(reply, "Resource");
+        return reply;
       }
 
       const current = resource.progressCurrent ?? 0;
