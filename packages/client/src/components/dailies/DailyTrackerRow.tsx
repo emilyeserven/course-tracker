@@ -96,7 +96,7 @@ export function DailyTrackerRow({
         </EntityLink>
       </td>
       {vis.routine && (
-        <td className="p-2 whitespace-nowrap">{daily.name}</td>
+        <td className="max-w-48 p-2 wrap-break-word">{daily.name}</td>
       )}
       {vis.type && (
         <td className="p-2">
