@@ -274,14 +274,14 @@ export function isScheduledForDay(
   return DAY_KEYS.some(key => Boolean(weekly[key]?.id));
 }
 
-// True when today already carries a "real" completion status. "incomplete" is
-// deliberately excluded — an explicitly-incomplete day still needs doing.
+// True when today already carries a "real" completion status. "incomplete" and
+// "touched" are deliberately excluded — both mean the item still needs doing.
 export function hasStatusForDay(
   daily: Pick<Daily, "completions">,
   todayKey: string = getTodayKey(),
 ): boolean {
   const status = findStatusForDate(daily, todayKey);
-  return status !== null && status !== "incomplete";
+  return status !== null && status !== "incomplete" && status !== "touched";
 }
 
 // Whether a routine still has something to do today: scheduled for today and

@@ -211,7 +211,7 @@ describe("isScheduledForDay", () => {
 });
 
 describe("hasStatusForDay", () => {
-  test("real statuses count; incomplete and no-entry do not", () => {
+  test("goal/exceeded/freeze count; touched, incomplete and no-entry do not", () => {
     const real = (status: DailyCompletion["status"]) =>
       hasStatusForDay({
         completions: [{
@@ -221,8 +221,8 @@ describe("hasStatusForDay", () => {
       }, TODAY);
     expect(real("goal")).toBe(true);
     expect(real("exceeded")).toBe(true);
-    expect(real("touched")).toBe(true);
     expect(real("freeze")).toBe(true);
+    expect(real("touched")).toBe(false);
     expect(real("incomplete")).toBe(false);
     expect(hasStatusForDay({
       completions: [],
@@ -305,6 +305,20 @@ describe("classifyDaily", () => {
         completions: [{
           date: TODAY,
           status: "incomplete",
+        }],
+        weeklyTarget: null,
+      }, TODAY, "sunday"),
+    ).toBe("now");
+  });
+
+  test("touched today stays in now", () => {
+    expect(
+      classifyDaily({
+        weekly: thursdayWeekly,
+        mode: "weekly",
+        completions: [{
+          date: TODAY,
+          status: "touched",
         }],
         weeklyTarget: null,
       }, TODAY, "sunday"),
