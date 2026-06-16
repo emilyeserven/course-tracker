@@ -18,24 +18,11 @@
 // full gate:
 //   pnpm typecheck && pnpm lint && pnpm --filter=@emstack/client exec vitest run
 //
-import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { git, hasExt, LINT_EXTS, onDisk, repoRoot } from "./lib.mjs";
 
-const repoRoot = process.cwd();
-const LINT_EXTS = [".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx"];
 const TEST_EXTS = [".js", ".jsx", ".ts", ".tsx"];
-
-function git(args) {
-  try {
-    return execFileSync("git", args, {
-      encoding: "utf8",
-    });
-  }
-  catch {
-    return "";
-  }
-}
 
 // Working tree + staged + untracked (and, with BASE set, everything this branch
 // changed vs the merge-base) — deduped.
@@ -58,8 +45,6 @@ function changedFiles() {
 }
 
 const inPkg = (f, pkg) => f.startsWith(`packages/${pkg}/`);
-const hasExt = (f, exts) => exts.includes(path.extname(f));
-const onDisk = f => existsSync(path.join(repoRoot, f)); // skip deleted files
 const isGenerated = f => f.endsWith("routeTree.gen.ts") || f.includes("/dist/");
 
 const failures = [];

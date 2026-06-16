@@ -7,7 +7,9 @@ import type {
   RoutineWeekly,
 } from "@emstack/types";
 
-import { resourceEntryLabel } from "@emstack/types";
+// Display name for a routine entry — kept under its long-standing client name; the
+// implementation is the cross-package `@emstack/types` helper the middleware shares.
+export { routineEntryName as weeklyEntryName } from "@emstack/types";
 
 export type WeeklyRowType = "" | "task" | "resource" | "freeform";
 
@@ -60,25 +62,30 @@ export const DAY_LABELS: Record<RoutineWeekday, string> = {
   6: "Saturday",
 };
 
+// The shared editable fields of a schedule row, defaulted from an optional stored
+// entry (empty slots become blank strings). Callers add the `day` / `date` key.
+function entryRowFields(entry: RoutineReferenceItem | undefined): WeeklyEntry {
+  return {
+    type: entry?.type ?? "",
+    id: entry?.id ?? "",
+    moduleId: entry?.moduleId ?? "",
+    moduleGroupId: entry?.moduleGroupId ?? "",
+    notes: entry?.notes ?? "",
+    location: entry?.location ?? "",
+    prependText: entry?.prependText ?? "",
+    appendText: entry?.appendText ?? "",
+  };
+}
+
 // Build the fixed length-7 row array the form holds, defaulting from an
 // existing routine's weekly object (empty days become blank rows).
 export function weeklyToRows(
   weekly: RoutineWeekly | null | undefined,
 ): WeeklyRow[] {
-  return ALL_DAYS.map((day) => {
-    const entry = weekly?.[day];
-    return {
-      day,
-      type: entry?.type ?? "",
-      id: entry?.id ?? "",
-      moduleId: entry?.moduleId ?? "",
-      moduleGroupId: entry?.moduleGroupId ?? "",
-      notes: entry?.notes ?? "",
-      location: entry?.location ?? "",
-      prependText: entry?.prependText ?? "",
-      appendText: entry?.appendText ?? "",
-    };
-  });
+  return ALL_DAYS.map(day => ({
+    day,
+    ...entryRowFields(weekly?.[day]),
+  }));
 }
 
 // A row's reference item, persisting optional text only when present to keep
@@ -233,20 +240,10 @@ export function curatedToRows(
   curated: RoutineCurated | null | undefined,
   dateKeys: string[],
 ): CuratedRow[] {
-  return dateKeys.map((date) => {
-    const entry = curated?.entries?.[date];
-    return {
-      date,
-      type: entry?.type ?? "",
-      id: entry?.id ?? "",
-      moduleId: entry?.moduleId ?? "",
-      moduleGroupId: entry?.moduleGroupId ?? "",
-      notes: entry?.notes ?? "",
-      location: entry?.location ?? "",
-      prependText: entry?.prependText ?? "",
-      appendText: entry?.appendText ?? "",
-    };
-  });
+  return dateKeys.map(date => ({
+    date,
+    ...entryRowFields(curated?.entries?.[date]),
+  }));
 }
 
 // Serialize curated rows back to the stored shape, dropping dates without a
@@ -330,29 +327,18 @@ export function fillEffectiveLocations<T extends WeeklyEntry>(
   });
 }
 
-// Display name for a weekly entry: freeform entries carry their own text in
-// `id`; task / resource entries resolve through the id → name maps and fall
-// back to the raw id when the lookup misses. A resource entry that narrows to a
-// module or module group shows that narrower name in place of the resource name
-// (see resourceEntryLabel).
-export function weeklyEntryName(
-  entry: RoutineReferenceItem,
-  taskNames: Map<string, string>,
-  resourceNames: Map<string, string>,
-  moduleNames = new Map<string, string>(),
-  moduleGroupNames = new Map<string, string>(),
-): string {
-  if (entry.type === "freeform") {
-    return entry.id;
-  }
-  if (entry.type === "task") {
-    return taskNames.get(entry.id) ?? entry.id;
-  }
-  return resourceEntryLabel({
-    resourceName: resourceNames.get(entry.id) ?? entry.id,
-    moduleName: entry.moduleId ? moduleNames.get(entry.moduleId) : null,
-    groupName: entry.moduleGroupId
-      ? moduleGroupNames.get(entry.moduleGroupId)
-      : null,
-  });
+// The per-resource module-group / module narrowing options for a schedule row —
+// empty for non-resource rows (or a resource without a chosen id), so the shared
+// ScheduleEntryRow shows no narrowing UI. Shared by the weekly + curated editors.
+export function rowNarrowingOptions(
+  row: Pick<WeeklyEntry, "type" | "id">,
+  moduleGroupsByResource: Map<string, SelectOption[]>,
+  modulesByResource: Map<string, SelectOption[]>,
+): { groupOptions: SelectOption[];
+  moduleOptions: SelectOption[]; } {
+  const isResource = row.type === "resource" && !!row.id;
+  return {
+    groupOptions: isResource ? (moduleGroupsByResource.get(row.id) ?? []) : [],
+    moduleOptions: isResource ? (modulesByResource.get(row.id) ?? []) : [],
+  };
 }

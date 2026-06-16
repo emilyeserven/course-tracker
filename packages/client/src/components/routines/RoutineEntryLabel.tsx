@@ -1,6 +1,6 @@
 import type { RoutineReferenceItem } from "@emstack/types";
 
-import { resourceEntryLabel } from "@emstack/types";
+import { routineEntryName } from "@emstack/types";
 import { MapPinIcon } from "lucide-react";
 
 import { EntityLink } from "@/components/boxElements";
@@ -48,17 +48,13 @@ export function RoutineEntryLabel({
           dark:text-blue-300
         "
       >
-        {entry.type === "task"
-          ? (taskNames.get(entry.id) ?? entry.id)
-          : resourceEntryLabel({
-            resourceName: resourceNames.get(entry.id) ?? entry.id,
-            moduleName: entry.moduleId
-              ? moduleNames?.get(entry.moduleId)
-              : null,
-            groupName: entry.moduleGroupId
-              ? moduleGroupNames?.get(entry.moduleGroupId)
-              : null,
-          })}
+        {routineEntryName(
+          entry,
+          taskNames,
+          resourceNames,
+          moduleNames,
+          moduleGroupNames,
+        )}
       </EntityLink>
     );
 

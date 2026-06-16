@@ -6,7 +6,11 @@ import { useMemo, useState } from "react";
 
 import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 import { ScheduleEntryRow } from "@/components/routines/ScheduleEntryRow";
-import { DAY_LABELS, DAY_ORDER } from "@/components/routines/weekly";
+import {
+  DAY_LABELS,
+  DAY_ORDER,
+  rowNarrowingOptions,
+} from "@/components/routines/weekly";
 
 interface WeeklyScheduleFieldProps {
   value: WeeklyRow[];
@@ -65,7 +69,13 @@ export function WeeklyScheduleField({
             prependText: "",
             appendText: "",
           };
-          const isResource = row.type === "resource" && !!row.id;
+          const {
+            groupOptions, moduleOptions,
+          } = rowNarrowingOptions(
+            row,
+            moduleGroupsByResource,
+            modulesByResource,
+          );
           return (
             <ScheduleEntryRow
               key={day}
@@ -74,12 +84,8 @@ export function WeeklyScheduleField({
               row={row}
               taskOptions={taskOptions}
               resourceOptions={resourceOptions}
-              groupOptions={
-                isResource ? (moduleGroupsByResource.get(row.id) ?? []) : []
-              }
-              moduleOptions={
-                isResource ? (modulesByResource.get(row.id) ?? []) : []
-              }
+              groupOptions={groupOptions}
+              moduleOptions={moduleOptions}
               onChange={patch => update(day, patch)}
               onInputValueChange={setInputValue}
               onAddResource={() => {
