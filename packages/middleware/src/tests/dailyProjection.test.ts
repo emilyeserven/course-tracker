@@ -40,15 +40,15 @@ test("mapDaily counts only completed todos and used resources", () => {
       todos: [
         {
           id: "td-1",
-          isComplete: true,
+          status: "goal",
         },
         {
           id: "td-2",
-          isComplete: false,
+          status: "incomplete",
         },
         {
           id: "td-3",
-          isComplete: true,
+          status: "exceeded",
         },
       ],
       resources: [

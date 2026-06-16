@@ -3,7 +3,7 @@ import type { Routine } from "@emstack/types";
 import { Loader2 } from "lucide-react";
 
 import { CuratedScheduleSection } from "./-CuratedScheduleSection";
-import { MODE_OPTIONS, STATUS_OPTIONS } from "../-routineFormMeta";
+import { modeOptionsFor, STATUS_OPTIONS } from "../-routineFormMeta";
 import { WeeklyScheduleSection } from "./-WeeklyScheduleSection";
 
 import { EditForm } from "@/components/layout";
@@ -53,7 +53,7 @@ export function DetailsTab({
         {field => (
           <field.RadioGroupField
             label="Type"
-            options={MODE_OPTIONS}
+            options={modeOptionsFor(field.state.value)}
           />
         )}
       </form.AppField>

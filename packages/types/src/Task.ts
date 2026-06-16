@@ -7,6 +7,9 @@ export interface Task {
   id: string;
   name: string;
   description?: string | null;
+  // Optional due date for the whole Task List ("YYYY-MM-DD"), paralleling a
+  // Curated Routine's end date.
+  dueDate?: string | null;
   topicId?: string | null;
   topic?: { id: string;
     name: string; } | null;

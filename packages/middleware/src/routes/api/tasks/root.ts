@@ -96,7 +96,40 @@ export default async function (server: FastifyInstance) {
             },
           },
         },
-        todos: true,
+        todos: {
+          with: {
+            resource: {
+              columns: {
+                id: true,
+                name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
+              },
+            },
+            moduleGroup: {
+              columns: {
+                id: true,
+                name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
+              },
+            },
+            module: {
+              columns: {
+                id: true,
+                name: true,
+                easeOfStarting: true,
+                timeNeeded: true,
+                interactivity: true,
+              },
+            },
+          },
+          orderBy: (t, {
+            asc,
+          }) => asc(t.position),
+        },
       },
     });
 

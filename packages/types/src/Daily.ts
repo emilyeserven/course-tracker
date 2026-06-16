@@ -64,6 +64,13 @@ export interface DailyTaskProgress {
 export interface Daily {
   id: string;
   name: string;
+  // What this projected row is backed by. "routine" (default) writes status
+  // changes back to a routine's completions; "todo" writes back to a single
+  // Task List todo via taskId + todoId. Lets the Do Now tracker handle both
+  // sources through one table.
+  kind?: "routine" | "todo";
+  // Set when kind === "todo": the Task List and todo this row projects.
+  todoId?: string | null;
   // The representative entry's resolved name (task/resource/freeform), wrapped
   // with any prepend/append text into a natural sentence (e.g. "Review Spanish
   // flashcards for 10 minutes"). Null unless the daily is assigned to something;

@@ -2,7 +2,6 @@ import type {
   Module,
   ModuleGroup,
   TagGroup,
-  TaskResource,
   TaskTodo,
 } from "@emstack/types";
 
@@ -13,30 +12,20 @@ import type {
  * `dailiesFixtures.ts`. The `Task` shell itself comes from `boxFixtures.makeTask`.
  */
 
-export function makeTaskResource(
-  overrides: Partial<TaskResource> = {},
-): TaskResource {
-  return {
-    id: "task-resource-1",
-    taskId: "task-1",
-    name: "Reference docs",
-    url: "https://example.com/docs",
-    usedYet: false,
-    resourceId: null,
-    moduleGroupId: null,
-    moduleId: null,
-    ...overrides,
-  };
-}
-
 export function makeTaskTodo(overrides: Partial<TaskTodo> = {}): TaskTodo {
   return {
     id: "todo-1",
     taskId: "task-1",
     name: "Read the introduction",
-    isComplete: false,
+    status: "incomplete",
+    dueDate: null,
+    note: null,
+    location: null,
     url: null,
     position: 0,
+    resourceId: null,
+    moduleGroupId: null,
+    moduleId: null,
     ...overrides,
   };
 }

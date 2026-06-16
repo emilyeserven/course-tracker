@@ -80,18 +80,35 @@ export function DailiesActiveListView({
                 <DailyProgressCell daily={daily} />
               </div>
               <div className="flex w-full min-w-0 flex-col gap-1">
-                <Link
-                  to="/routines/$id"
-                  params={{
-                    id: daily.id,
-                  }}
-                  className="
-                    truncate font-medium
-                    hover:text-blue-600
-                  "
-                >
-                  <DailyTitle daily={daily} />
-                </Link>
+                {daily.kind === "todo" && daily.taskId
+                  ? (
+                    <Link
+                      to="/tasks/$id"
+                      params={{
+                        id: daily.taskId,
+                      }}
+                      className="
+                        truncate font-medium
+                        hover:text-blue-600
+                      "
+                    >
+                      <DailyTitle daily={daily} />
+                    </Link>
+                  )
+                  : (
+                    <Link
+                      to="/routines/$id"
+                      params={{
+                        id: daily.id,
+                      }}
+                      className="
+                        truncate font-medium
+                        hover:text-blue-600
+                      "
+                    >
+                      <DailyTitle daily={daily} />
+                    </Link>
+                  )}
                 <div
                   className="
                     flex w-full flex-row flex-wrap items-center justify-between

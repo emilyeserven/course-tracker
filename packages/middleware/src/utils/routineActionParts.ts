@@ -1,4 +1,4 @@
-import type { Daily, RoutineReferenceItem } from "@emstack/types";
+import type { DailyCompletionStatus, Daily, RoutineReferenceItem } from "@emstack/types";
 import { resourceEntryLabel } from "@emstack/types";
 
 // Resolved task/resource rows the handler loads for an active entry. These are
@@ -8,7 +8,7 @@ export interface ResolvedTask {
   id: string;
   name: string;
   todos?: { id: string;
-    isComplete: boolean; }[];
+    status: DailyCompletionStatus; }[];
   resources?: { id: string;
     usedYet: boolean; }[];
 }

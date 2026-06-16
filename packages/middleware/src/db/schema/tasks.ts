@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
-import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
 import { moduleGroups, modules, resources } from "./courses";
+import { dailyCompletionStatusEnum } from "./enums";
 
 // TODO(tag-reform-followup): drop this table once the Tag Groups + Tags system
 // (tagGroups, tags, tasksToTags) has fully replaced the Task Type concept on
@@ -21,16 +22,20 @@ export const tasks = pgTable("tasks", {
     length: 255,
   }).notNull(),
   description: varchar(),
+  // Optional due date for the whole Task List, paralleling a Curated Routine's
+  // end date.
+  dueDate: date("due_date"),
   topicId: varchar("topic_id"),
   // TODO(tag-reform-followup): drop taskTypeId once the new Tag Groups + Tags
   // system fully replaces Task Types on tasks.
   taskTypeId: varchar("task_type_id"),
 });
 
-// Task-local resource entries for things that don't (yet) warrant a real
-// top-level Resource. Ease/time/interactivity/tags now live on Resource,
-// ModuleGroup, and Module — a task that links to one of those inherits the
-// metadata from the linked entity rather than overriding it here.
+// DEPRECATED. Task-local resource entries now live on individual todos
+// (task_todos.resource_id + narrowing). Kept only so migrateTodosRicherShape can
+// read existing rows; once that migration has shipped to prod, drop this table
+// and tasks_to_courses together.
+// TODO(taskresource-followup): drop after migrateTodosRicherShape ships to prod.
 export const taskResources = pgTable("task_resources", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id").notNull(),
@@ -54,15 +59,35 @@ export const taskResources = pgTable("task_resources", {
   }),
 });
 
+// A todo within a Task List, shaped like a Curated Routine entry: it carries a
+// status (same 5-state set as routine tasks), an optional due date, optional
+// note/location, and an optional link to a single Resource (narrowed to a
+// module group or module). All three resource columns null = a plain checklist
+// item.
 export const taskTodos = pgTable("task_todos", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id").notNull(),
   name: varchar({
     length: 500,
   }).notNull(),
-  isComplete: boolean("is_complete").default(false).notNull(),
+  status: dailyCompletionStatusEnum("status").default("incomplete").notNull(),
+  dueDate: date("due_date"),
+  note: varchar(),
+  location: varchar(),
   url: varchar(),
   position: integer(),
+  // Optional link to a top-level Resource, narrowed to a module group or single
+  // module. Both null = whole-resource link; all three null = no link (plain
+  // checklist todo).
+  resourceId: varchar("resource_id").references(() => resources.id, {
+    onDelete: "set null",
+  }),
+  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
+    onDelete: "set null",
+  }),
+  moduleId: varchar("module_id").references(() => modules.id, {
+    onDelete: "set null",
+  }),
 });
 
 // New junction so tasks can reference resources. Optionally narrowed to a

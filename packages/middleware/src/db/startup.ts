@@ -5,6 +5,7 @@ import { migrateDropDailies } from "./migrateDropDailies.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
 import { migrateModuleStatus } from "./migrateModuleStatus.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
+import { migrateTodosRicherShape } from "./migrateTodosRicherShape.ts";
 import { seed } from "./seed.ts";
 
 // Runtime migrations run on every server start and must be idempotent (see
@@ -69,6 +70,19 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to migrate module status:", err);
+    throw err;
+  }
+
+  // Evolve task_todos into Curated-entry-like items (status enum + due date +
+  // single resource link) and fold the deprecated task-level resources into
+  // todos. Creates the dailyCompletionStatus enum + drops the old is_complete
+  // boolean before drizzle-kit push diffs task_todos (push can't do either
+  // non-interactively). Independent of the migrations above.
+  try {
+    await migrateTodosRicherShape();
+  }
+  catch (err) {
+    console.error("Failed to migrate todos to richer shape:", err);
     throw err;
   }
 }

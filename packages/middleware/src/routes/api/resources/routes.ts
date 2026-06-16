@@ -10,6 +10,7 @@ import incrementResourceProgress from "./incrementResourceProgress";
 import modulesExhaustive from "./modulesExhaustive";
 import updateResourceModulesConfig from "./updateResourceModulesConfig";
 import getResourceRoutineInteractions from "./getResourceRoutineInteractions";
+import getResourceTodoInteractions from "./getResourceTodoInteractions";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -23,4 +24,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(modulesExhaustive);
   fastify.register(updateResourceModulesConfig);
   fastify.register(getResourceRoutineInteractions);
+  fastify.register(getResourceTodoInteractions);
 }

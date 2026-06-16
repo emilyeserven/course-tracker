@@ -16,6 +16,7 @@ import {
   fetchModuleGroups,
   fetchModules,
   fetchResourceRoutineInteractions,
+  fetchResourceTodoInteractions,
   upsertInteraction,
 } from "@/utils/fetchFunctions";
 import { queryKeys } from "@/utils/queryKeys";
@@ -56,9 +57,17 @@ export function useInteractionsLog(resourceId: string) {
     queryFn: () => fetchResourceRoutineInteractions(resourceId),
   });
 
+  // Task List todo completions whose linked resource is this one (derived
+  // server-side). Read-only, surfaced alongside the routine + manual interactions.
+  const todoInteractionsQuery = useQuery({
+    queryKey: queryKeys.resources.todoInteractions(resourceId),
+    queryFn: () => fetchResourceTodoInteractions(resourceId),
+  });
+
   const allInteractions = interactionsQuery.data ?? [];
   const interactions = allInteractions.filter(i => i.resourceId === resourceId);
   const routineInteractions = routineInteractionsQuery.data ?? [];
+  const todoInteractions = todoInteractionsQuery.data ?? [];
 
   const moduleGroups = useMemo(
     () =>
@@ -126,6 +135,7 @@ export function useInteractionsLog(resourceId: string) {
   return {
     interactions,
     routineInteractions,
+    todoInteractions,
     moduleGroups,
     modules,
     createMutation,

@@ -77,7 +77,7 @@ export default async function (server: FastifyInstance) {
             todos: {
               columns: {
                 id: true,
-                isComplete: true,
+                status: true,
               },
             },
           },

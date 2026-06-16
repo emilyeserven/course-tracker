@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import type { TaskResourceLink } from "@emstack/types";
+import type { DailyCompletionStatus, TaskResourceLink } from "@emstack/types";
 
 import {
   nullableString,
@@ -18,6 +18,7 @@ import {
 export interface TaskBodyFields {
   name: string;
   description?: string | null;
+  dueDate?: string | null;
   topicId?: string | null;
   taskTypeId?: string | null;
 }
@@ -40,8 +41,14 @@ export interface TaskResourceInput {
 export interface TodoInput {
   id?: string | null;
   name: string;
-  isComplete?: boolean | null;
+  status?: DailyCompletionStatus | null;
+  dueDate?: string | null;
+  note?: string | null;
+  location?: string | null;
   url?: string | null;
+  resourceId?: string | null;
+  moduleGroupId?: string | null;
+  moduleId?: string | null;
 }
 
 export interface TaskBody extends TaskBodyFields {
@@ -79,6 +86,7 @@ export function buildTaskRow(body: TaskBodyFields, id: string) {
     id,
     name: body.name,
     description: body.description ?? null,
+    dueDate: body.dueDate || null,
     topicId: body.topicId || null,
     taskTypeId: body.taskTypeId || null,
   };
@@ -161,8 +169,16 @@ export function buildTodoRows(
     id: t.id || makeId(),
     taskId,
     name: t.name,
-    isComplete: t.isComplete ?? false,
+    status: t.status ?? "incomplete",
+    dueDate: t.dueDate || null,
+    note: t.note ?? null,
+    location: t.location ?? null,
     url: t.url ?? null,
     position: index,
+    resourceId: t.resourceId ?? null,
+    // A module-group / module narrowing only makes sense under a resource link;
+    // drop it when no resourceId is set.
+    moduleGroupId: t.resourceId ? t.moduleGroupId ?? null : null,
+    moduleId: t.resourceId ? t.moduleId ?? null : null,
   }));
 }

@@ -3,6 +3,7 @@ import type {
   Resource,
   ResourceInResources,
   RoutineInteraction,
+  TodoInteraction,
 } from "@emstack/types";
 
 import { createEntityClient, fetchJson, postJson, putJson } from "./client";
@@ -25,6 +26,16 @@ export async function fetchResourceRoutineInteractions(
 ): Promise<RoutineInteraction[]> {
   return fetchJson<RoutineInteraction[]>(
     `/api/resources/${id}/routine-interactions`,
+  );
+}
+
+// Task List todo completions whose linked resource is this resource. Derived
+// server-side; read-only for the Interactions tab.
+export async function fetchResourceTodoInteractions(
+  id: string,
+): Promise<TodoInteraction[]> {
+  return fetchJson<TodoInteraction[]>(
+    `/api/resources/${id}/todo-interactions`,
   );
 }
 

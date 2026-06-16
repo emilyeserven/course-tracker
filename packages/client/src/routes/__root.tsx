@@ -86,7 +86,7 @@ const RootComponent: React.FunctionComponent = () => {
             to="/actions"
           >
             <DropdownNavItem to="/routines">Routines</DropdownNavItem>
-            <DropdownNavItem to="/tasks">Tasks</DropdownNavItem>
+            <DropdownNavItem to="/tasks">Task Lists</DropdownNavItem>
           </NavDropdown>
         </div>
         <div
@@ -163,7 +163,7 @@ const RootComponent: React.FunctionComponent = () => {
                   Actions
                 </DropdownNavItem>
                 <DropdownNavItem to="/routines">Routines</DropdownNavItem>
-                <DropdownNavItem to="/tasks">Tasks</DropdownNavItem>
+                <DropdownNavItem to="/tasks">Task Lists</DropdownNavItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>

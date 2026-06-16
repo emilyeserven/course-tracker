@@ -3,6 +3,7 @@ import type {
   DailyCompletion,
   DailyCriteria,
 } from "@emstack/types";
+import { isTodoComplete } from "@emstack/types";
 import { toProviderBlock } from "./providerProjection.ts";
 import type { ResolvedResource, ResolvedTask } from "./routineActionParts.ts";
 
@@ -36,7 +37,7 @@ function toTaskBlock(task: DailyProjectionRow["task"]): Daily["task"] {
     name: task.name,
     progress: {
       todosTotal: task.todos?.length ?? 0,
-      todosComplete: task.todos?.filter(t => t.isComplete).length ?? 0,
+      todosComplete: task.todos?.filter(t => isTodoComplete(t.status)).length ?? 0,
       resourcesTotal: task.resources?.length ?? 0,
       resourcesUsed: task.resources?.filter(r => r.usedYet).length ?? 0,
     },

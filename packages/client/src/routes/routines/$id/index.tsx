@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
+import { ConvertToTaskListButton } from "./-components/-ConvertToTaskListButton";
 import { DailyDetailsPanel } from "./-components/-DailyDetailsPanel";
 import { RoutineDetailsContent } from "./-components/-RoutineDetailsContent";
 import { RoutineTodayCard } from "./-components/-RoutineTodayCard";
@@ -86,18 +87,23 @@ function SingleRoutine() {
         pageTitle={data.name}
         pageSection="routines"
       >
-        <Link
-          to="/routines/$id/edit"
-          params={{
-            id: data.id,
-          }}
-        >
-          <Button variant="secondary">
-            Edit Routine
-            {" "}
-            <EditIcon />
-          </Button>
-        </Link>
+        <div className="flex flex-row flex-wrap gap-2">
+          {data.mode === "curated" && (
+            <ConvertToTaskListButton routineId={data.id} />
+          )}
+          <Link
+            to="/routines/$id/edit"
+            params={{
+              id: data.id,
+            }}
+          >
+            <Button variant="secondary">
+              Edit Routine
+              {" "}
+              <EditIcon />
+            </Button>
+          </Link>
+        </div>
       </PageHeader>
       <div className="container flex flex-col gap-12">
         <RoutineTodayCard data={data} />
