@@ -1,7 +1,8 @@
 import type { Task } from "@emstack/types";
 
+import { isTodoComplete } from "@emstack/types";
 import { Link } from "@tanstack/react-router";
-import { CheckSquareIcon } from "lucide-react";
+import { CalendarIcon, CheckSquareIcon } from "lucide-react";
 
 import { CourseMetaItem, Description, EntityLink } from "@/components/boxElements";
 import {
@@ -16,10 +17,10 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyHint } from "@/components/ui/EmptyHint";
 
 export function TaskBox({
-  id, name, description, topic, resources,
+  id, name, description, topic, dueDate, todos,
 }: Task) {
-  const totalResources = resources?.length ?? 0;
-  const usedResources = resources?.filter(r => r.usedYet).length ?? 0;
+  const totalTodos = todos?.length ?? 0;
+  const doneTodos = todos?.filter(t => isTodoComplete(t.status)).length ?? 0;
 
   return (
     <ContentBox>
@@ -68,10 +69,16 @@ export function TaskBox({
       </ContentBoxBody>
       <ContentBoxFooter>
         <CourseMetaItem
-          value={`${usedResources} / ${totalResources} resources used`}
+          value={`${doneTodos} / ${totalTodos} to-dos done`}
           condition={true}
           iconNode={<CheckSquareIcon size={16} />}
-          emptyText="No resources"
+          emptyText="No to-dos"
+        />
+        <CourseMetaItem
+          value={dueDate ? `Due ${dueDate}` : ""}
+          condition={!!dueDate}
+          iconNode={<CalendarIcon size={16} />}
+          emptyText=""
         />
       </ContentBoxFooter>
     </ContentBox>

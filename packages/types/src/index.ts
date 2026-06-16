@@ -39,3 +39,4 @@ export * from "./TaskResourceLink.js";
 export * from "./TaskTodo.js";
 export * from "./TaskType.js";
 export * from "./Todoist.js";
+export * from "./TodoInteraction.js";

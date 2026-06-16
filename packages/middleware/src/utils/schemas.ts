@@ -387,9 +387,16 @@ export const todoSchema = {
     name: {
       type: "string",
     },
-    isComplete: {
-      type: "boolean",
-    },
+    // Same 5-state set as routine tasks.
+    status: dailyCompletionStatusEnum,
+    dueDate: nullableString,
+    note: nullableString,
+    location: nullableString,
     url: nullableString,
+    // Optional link to a single top-level Resource, narrowed to a module group
+    // or module. resourceId null = plain checklist todo.
+    resourceId: nullableString,
+    moduleGroupId: nullableString,
+    moduleId: nullableString,
   },
 } as const;

@@ -34,9 +34,15 @@ export function makeTaskTodo(overrides: Partial<TaskTodo> = {}): TaskTodo {
     id: "todo-1",
     taskId: "task-1",
     name: "Read the introduction",
-    isComplete: false,
+    status: "incomplete",
+    dueDate: null,
+    note: null,
+    location: null,
     url: null,
     position: 0,
+    resourceId: null,
+    moduleGroupId: null,
+    moduleId: null,
     ...overrides,
   };
 }

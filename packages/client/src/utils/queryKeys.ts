@@ -14,6 +14,8 @@ export const queryKeys = {
       ["resource-interactions", resourceId] as const,
     routineInteractions: (resourceId: string) =>
       ["resource-routine-interactions", resourceId] as const,
+    todoInteractions: (resourceId: string) =>
+      ["resource-todo-interactions", resourceId] as const,
   },
   topics: {
     list: () => ["topics"] as const,

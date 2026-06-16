@@ -85,8 +85,8 @@ export function DailyTrackerRow({
       )}
       <td className="p-2">
         <EntityLink
-          entity="routines"
-          id={daily.id}
+          entity={daily.kind === "todo" ? "tasks" : "routines"}
+          id={daily.kind === "todo" && daily.taskId ? daily.taskId : daily.id}
           className="
             font-medium
             hover:text-blue-600

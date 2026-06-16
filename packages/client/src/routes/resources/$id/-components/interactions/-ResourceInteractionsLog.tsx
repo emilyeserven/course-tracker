@@ -1,5 +1,9 @@
 import type { InteractionDraft } from "@/hooks/useInteractionsLog";
-import type { Interaction, RoutineInteraction } from "@emstack/types";
+import type {
+  Interaction,
+  RoutineInteraction,
+  TodoInteraction,
+} from "@emstack/types";
 
 import { useState } from "react";
 
@@ -7,6 +11,7 @@ import { PencilIcon, PlusIcon } from "lucide-react";
 
 import { InteractionEditCard } from "./-InteractionEditCard";
 import { RoutineInteractionRow } from "./-RoutineInteractionRow";
+import { TodoInteractionRow } from "./-TodoInteractionRow";
 
 import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import {
@@ -68,12 +73,19 @@ type LogRow
     manual: Interaction; }
     | { source: "routine";
       date: string;
-      routine: RoutineInteraction; };
+      routine: RoutineInteraction; }
+      | { source: "todo";
+        date: string;
+        todo: TodoInteraction; };
 
 function touchLabel(row: LogRow): string {
-  return row.source === "manual"
-    ? PROGRESS_LABEL[row.manual.progress]
-    : getDailyStatusOption(row.routine.status).label;
+  if (row.source === "manual") {
+    return PROGRESS_LABEL[row.manual.progress];
+  }
+  if (row.source === "routine") {
+    return getDailyStatusOption(row.routine.status).label;
+  }
+  return getDailyStatusOption(row.todo.status).label;
 }
 
 export function ResourceInteractionsLog({
@@ -82,6 +94,7 @@ export function ResourceInteractionsLog({
   const {
     interactions,
     routineInteractions,
+    todoInteractions,
     moduleGroups,
     modules,
     createMutation,
@@ -109,6 +122,13 @@ export function ResourceInteractionsLog({
         source: "routine",
         date: r.date,
         routine: r,
+      }),
+    ),
+    ...todoInteractions.map(
+      (t): LogRow => ({
+        source: "todo",
+        date: t.date,
+        todo: t,
       }),
     ),
   ].sort((a, b) => b.date.localeCompare(a.date));
@@ -161,6 +181,14 @@ export function ResourceInteractionsLog({
                 <RoutineInteractionRow
                   key={row.routine.id}
                   item={row.routine}
+                />
+              );
+            }
+            if (row.source === "todo") {
+              return (
+                <TodoInteractionRow
+                  key={row.todo.id}
+                  item={row.todo}
                 />
               );
             }

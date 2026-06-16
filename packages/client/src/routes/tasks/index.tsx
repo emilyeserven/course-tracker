@@ -108,7 +108,7 @@ function Tasks() {
   return (
     <div>
       <PageHeader
-        pageTitle="Tasks"
+        pageTitle="Task Lists"
         pageSection=""
         description={ENTITY_DESCRIPTIONS.tasks}
       >
@@ -120,7 +120,7 @@ function Tasks() {
         >
           <Button variant="outline">
             <PlusIcon className="size-4" />
-            New Task
+            New Task List
           </Button>
         </Link>
       </PageHeader>
@@ -128,7 +128,7 @@ function Tasks() {
         {data && data.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <ListSearchInput
-              placeholder="Search tasks..."
+              placeholder="Search task lists..."
               value={search}
               onChange={setSearch}
             />

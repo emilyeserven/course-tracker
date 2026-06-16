@@ -3,8 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
 import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
-import { ResourcesTable } from "./-components/-ResourcesTable";
-import { TodosChecklist } from "./-components/-TodosChecklist";
+import { TodosEditor } from "./-components/-TodosEditor";
 
 import { InfoArea, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
@@ -71,7 +70,7 @@ function SingleTask() {
             }}
           >
             <Button variant="secondary">
-              Edit Task
+              Edit Task List
               {" "}
               <EditIcon />
             </Button>
@@ -107,22 +106,22 @@ function SingleTask() {
           </Link>
         </InfoArea>
         <InfoArea
+          header="Due Date"
+          condition={!!data.dueDate}
+        >
+          <p>{data.dueDate}</p>
+        </InfoArea>
+        <InfoArea
           header="Description"
           condition={!!data.description}
         >
           <p>{data.description}</p>
         </InfoArea>
         <InfoArea
-          header="ToDo's"
+          header="To-Do's"
           condition={true}
         >
-          <TodosChecklist task={data} />
-        </InfoArea>
-        <InfoArea
-          header="Resources"
-          condition={true}
-        >
-          <ResourcesTable task={data} />
+          <TodosEditor task={data} />
         </InfoArea>
       </div>
     </div>

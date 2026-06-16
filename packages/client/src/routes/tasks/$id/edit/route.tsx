@@ -14,6 +14,7 @@ import {
   UnsavedChangesDialog,
 } from "@/components/editPage";
 import { useAppForm } from "@/components/formFields";
+import { toTodoInput } from "@/components/tasks/todoPayload";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
@@ -105,6 +106,7 @@ function SingleTaskEdit() {
     () => ({
       name: data?.name ?? "",
       description: data?.description ?? "",
+      dueDate: data?.dueDate ? new Date(data.dueDate) : null,
       topicId: data?.topicId ?? (isNew ? (search.topicId ?? "") : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
@@ -120,32 +122,19 @@ function SingleTaskEdit() {
     onSubmit: async ({
       value,
     }) => {
-      // fallow-ignore-next-line code-duplication
-      const existingResources = (data?.resources ?? []).map(r => ({
-        id: r.id,
-        name: r.name,
-        url: r.url ?? null,
-        usedYet: r.usedYet,
-        resourceId: r.resourceId ?? null,
-        moduleGroupId: r.moduleGroupId ?? null,
-        moduleId: r.moduleId ?? null,
-      }));
-
-      const existingTodos = (data?.todos ?? []).map(t => ({
-        id: t.id,
-        name: t.name,
-        isComplete: t.isComplete,
-        url: t.url ?? null,
-      }));
+      // Todos are edited on the detail page; preserve them untouched here.
+      const existingTodos = (data?.todos ?? []).map(toTodoInput);
 
       // fallow-ignore-next-line code-duplication
       await submitTask({
         name: value.name,
         description: value.description || null,
+        dueDate: value.dueDate
+          ? value.dueDate.toISOString().split("T")[0]
+          : null,
         topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
         tagIds: value.tagIds,
-        resources: existingResources,
         todos: existingTodos,
       });
     },
@@ -168,7 +157,7 @@ function SingleTaskEdit() {
   return (
     <div>
       <PageHeader
-        pageTitle={isNew ? "New Task" : "Edit Task"}
+        pageTitle={isNew ? "New Task List" : "Edit Task List"}
         pageSection="tasks"
       >
         {!isNew && (
@@ -177,7 +166,7 @@ function SingleTaskEdit() {
             params={{
               id,
             }}
-            label="View Task"
+            label="View Task List"
             icon={<EyeIcon />}
           />
         )}
@@ -191,7 +180,16 @@ function SingleTaskEdit() {
           className="flex max-w-3xl flex-col gap-8"
         >
           <form.AppField name="name">
-            {field => <field.InputField label="Task Name" />}
+            {field => <field.InputField label="Task List Name" />}
+          </form.AppField>
+
+          <form.AppField name="dueDate">
+            {field => (
+              <field.DatePickerField
+                label="Due Date"
+                placeholder="No due date"
+              />
+            )}
           </form.AppField>
 
           <form.AppField name="topicId">
@@ -237,14 +235,14 @@ function SingleTaskEdit() {
           <EditPageFooter
             isNew={isNew}
             onDelete={handleDelete}
-            deleteLabel="Delete Task"
+            deleteLabel="Delete Task List"
           >
             <Button
               type="submit"
               disabled={isSubmitting}
             >
               {isSubmitting && <Loader2 className="animate-spin" />}
-              {isNew ? "Create Task" : "Save Changes"}
+              {isNew ? "Create Task List" : "Save Changes"}
             </Button>
             <Button
               type="button"

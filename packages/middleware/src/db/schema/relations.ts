@@ -164,6 +164,18 @@ export const taskTodosRelations = relations(taskTodos, ({
     fields: [taskTodos.taskId],
     references: [tasks.id],
   }),
+  resource: one(resources, {
+    fields: [taskTodos.resourceId],
+    references: [resources.id],
+  }),
+  moduleGroup: one(moduleGroups, {
+    fields: [taskTodos.moduleGroupId],
+    references: [moduleGroups.id],
+  }),
+  module: one(modules, {
+    fields: [taskTodos.moduleId],
+    references: [modules.id],
+  }),
 }));
 
 export const courseProviderRelations = relations(courseProviders, ({

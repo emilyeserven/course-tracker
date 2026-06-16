@@ -1,4 +1,5 @@
 import type {
+  DailyCompletionStatus,
   ResourceLinkTarget,
   Tag,
   Task,
@@ -44,9 +45,18 @@ interface TaskTodoRow {
   id: string;
   taskId: string;
   name: string;
-  isComplete: boolean;
+  status: DailyCompletionStatus;
+  dueDate: string | null;
+  note: string | null;
+  location: string | null;
   url: string | null;
   position: number | null;
+  resourceId: string | null;
+  moduleGroupId: string | null;
+  moduleId: string | null;
+  resource: LinkTargetRow | null;
+  moduleGroup: LinkTargetRow | null;
+  module: LinkTargetRow | null;
 }
 
 // The fields mapTask reads. The single-task and list task queries produce a
@@ -138,9 +148,18 @@ export function mapTask(task: TaskProjectionRow): Task {
         id: t.id,
         taskId: t.taskId,
         name: t.name,
-        isComplete: t.isComplete,
+        status: t.status,
+        dueDate: t.dueDate ?? null,
+        note: t.note ?? null,
+        location: t.location ?? null,
         url: t.url ?? null,
         position: t.position,
+        resourceId: t.resourceId ?? null,
+        resource: mapLinkTarget(t.resource),
+        moduleGroupId: t.moduleGroupId ?? null,
+        moduleGroup: mapLinkTarget(t.moduleGroup),
+        moduleId: t.moduleId ?? null,
+        module: mapLinkTarget(t.module),
       })),
   };
 }

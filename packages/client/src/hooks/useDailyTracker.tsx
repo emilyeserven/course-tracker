@@ -10,6 +10,7 @@ import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSor
 import {
   getDailyProgressPercent,
   getRecentDays,
+  updateTodoStatus,
   upsertDaily,
   withCompletion,
   withCompletionNote,
@@ -83,6 +84,11 @@ export function useDailyStatusMutation(todayKey: string) {
       status: DailyCompletionStatus;
       note?: string | null;
     }) => {
+      // Todo-backed rows (Task List todos due today) write their status straight
+      // back to the todo rather than a routine's completions.
+      if (daily.kind === "todo" && daily.taskId && daily.todoId) {
+        return updateTodoStatus(daily.taskId, daily.todoId, status);
+      }
       // Re-updating today's status re-bakes the entry to the current schedule.
       const withStatus = withCompletion(daily, todayKey, status, todayKey);
       const completions

@@ -15,7 +15,7 @@ import {
   useMaxActiveDailies,
   useWeekTargetWindow,
 } from "@/stores/settingsStore";
-import { classifyDaily, fetchDailies, getTodayKey } from "@/utils";
+import { classifyDaily, fetchDailies, fetchTaskDailies, getTodayKey } from "@/utils";
 
 export const RECENT_DAYS_COUNT = 6;
 
@@ -45,10 +45,25 @@ export function useDashboardDailies() {
     queryFn: () => fetchDailies(),
   });
 
+  // Task List todos due today (or overdue) projected into the Daily shape, so
+  // they share the Do Now / Done-for-the-Day tracker with routines. Keyed by the
+  // same ["dailies"] mutations invalidate, refetched alongside.
+  const {
+    data: todoDailies,
+  } = useQuery({
+    queryKey: ["dailies", "todos"],
+    queryFn: () => fetchTaskDailies(),
+  });
+
   const mutation = useDailyStatusMutation(todayKey);
 
-  const filtered = dailies
-    ? dailies.filter(d => d.status !== "complete" && d.status !== "paused")
+  const combined
+    = dailies || todoDailies
+      ? [...(dailies ?? []), ...(todoDailies ?? [])]
+      : undefined;
+
+  const filtered = combined
+    ? combined.filter(d => d.status !== "complete" && d.status !== "paused")
     : undefined;
 
   // Snapshot each routine's card the first time it's seen this mount, so

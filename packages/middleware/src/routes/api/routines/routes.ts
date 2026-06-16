@@ -7,6 +7,7 @@ import createRoutine from "./createRoutine";
 import upsertRoutine from "./upsertRoutine";
 import deleteRoutine from "./deleteRoutine";
 import duplicateRoutine from "./duplicateRoutine";
+import convertToTaskList from "./convertToTaskList";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -17,4 +18,5 @@ export default async function (server: FastifyInstance) {
   fastify.register(upsertRoutine);
   fastify.register(deleteRoutine);
   fastify.register(duplicateRoutine);
+  fastify.register(convertToTaskList);
 }
