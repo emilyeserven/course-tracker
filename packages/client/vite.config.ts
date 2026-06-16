@@ -76,6 +76,17 @@ export default defineConfig(({
             "**/*.stories.{js,jsx,ts,tsx}",
           ],
           setupFiles: ["./setupTests.js"],
+          // Run as its own scheduler group, separate from the browser project.
+          // Vitest 4 refuses to schedule sibling projects that share a
+          // `groupOrder` (both default to 0) but declare different `maxWorkers`
+          // — the storybook project pins `maxWorkers: 2` while this one inherits
+          // the CPU-based default, so without a distinct group the run aborts
+          // before any test ("…have different 'maxWorkers' but same
+          // 'sequence.groupOrder'"). Lower order runs first: fast jsdom, then
+          // the slow browser suite.
+          sequence: {
+            groupOrder: 0,
+          },
         },
       },
       {
@@ -116,6 +127,12 @@ export default defineConfig(({
           // trustworthy *full* local run still passes `--no-file-parallelism`
           // (fully serial); day-to-day, prefer `pnpm verify:changed`.
           maxWorkers: 2,
+          // Its own scheduler group, distinct from unit-tests (see that
+          // project's note) — keeps the bounded browser run from sharing a group
+          // with the higher-parallelism jsdom suite.
+          sequence: {
+            groupOrder: 1,
+          },
           browser: {
             enabled: true,
             headless: true,
