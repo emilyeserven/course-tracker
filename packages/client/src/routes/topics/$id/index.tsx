@@ -8,6 +8,7 @@ import { RoutineLinkList } from "./-components/-RoutineLinkList";
 import {
   EntityHeaderButton,
   InfoArea,
+  PageActions,
   PageHeader,
   ResourceLinksSection,
 } from "@/components/layout";
@@ -50,21 +51,20 @@ function SingleTopic() {
 
   return (
     <div>
+      <PageActions>
+        <EntityHeaderButton
+          to="/topics/$id/edit"
+          params={{
+            id: data?.id + "",
+          }}
+          label="Edit Topic"
+          icon={<EditIcon />}
+        />
+      </PageActions>
       <PageHeader
         pageTitle={data?.name}
         pageSection="topics"
-      >
-        <div className="flex flex-row gap-2">
-          <EntityHeaderButton
-            to="/topics/$id/edit"
-            params={{
-              id: data?.id + "",
-            }}
-            label="Edit Topic"
-            icon={<EditIcon />}
-          />
-        </div>
-      </PageHeader>
+      />
       <div className="container flex flex-col gap-12">
         <InfoArea
           header="About"

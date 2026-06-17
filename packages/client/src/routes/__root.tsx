@@ -13,9 +13,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { PageActionsProvider } from "@/context/PageActionsProvider";
+import { usePageActionsSlot } from "@/hooks/usePageActionsSlot";
 
-const RootComponent: React.FunctionComponent = () => {
+const RootLayout: React.FunctionComponent = () => {
   const [activeQuickAdd, setActiveQuickAdd] = useState<QuickAddKey | null>(null);
+  const {
+    setNode,
+  } = usePageActionsSlot();
 
   return (
     <SidebarProvider>
@@ -30,8 +35,12 @@ const RootComponent: React.FunctionComponent = () => {
             className="mr-2 h-4"
           />
           <AppBreadcrumb />
+          <div
+            ref={setNode}
+            className="ml-auto flex items-center gap-2"
+          />
         </header>
-        <div className="container mb-8 py-4">
+        <div className="container mb-8 flex-col py-4">
           <Outlet />
         </div>
       </SidebarInset>
@@ -43,6 +52,12 @@ const RootComponent: React.FunctionComponent = () => {
     </SidebarProvider>
   );
 };
+
+const RootComponent: React.FunctionComponent = () => (
+  <PageActionsProvider>
+    <RootLayout />
+  </PageActionsProvider>
+);
 
 export const Route = createRootRoute({
   component: RootComponent,

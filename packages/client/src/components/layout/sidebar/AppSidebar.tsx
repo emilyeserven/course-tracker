@@ -57,7 +57,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
+        <NavMain onQuickAdd={onQuickAdd} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

@@ -11,6 +11,7 @@ import { CalendarCheckIcon, PlusIcon } from "lucide-react";
 
 import { RoutinesList } from "./-components/-RoutinesList";
 
+import { PageActions } from "@/components/layout/PageActions";
 import {
   EntityError,
   EntityPending,
@@ -108,16 +109,7 @@ function Routines() {
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Routines"
-        pageSection=""
-      >
-        <Link to="/routines/tracker">
-          <Button variant="outline">
-            <CalendarCheckIcon className="size-4" />
-            Daily Tracker
-          </Button>
-        </Link>
+      <PageActions>
         <Link
           to="/routines/$id/edit"
           params={{
@@ -127,6 +119,17 @@ function Routines() {
           <Button variant="outline">
             <PlusIcon className="size-4" />
             New Routine
+          </Button>
+        </Link>
+      </PageActions>
+      <PageHeader
+        pageTitle="Routines"
+        pageSection=""
+      >
+        <Link to="/routines/tracker">
+          <Button variant="outline">
+            <CalendarCheckIcon className="size-4" />
+            Daily Tracker
           </Button>
         </Link>
       </PageHeader>

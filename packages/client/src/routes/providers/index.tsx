@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { ContentBox, ProviderBox } from "@/components/contentBoxComponents";
+import { PageActions } from "@/components/layout/PageActions";
 import {
   EntityError,
   EntityPending,
@@ -39,11 +40,7 @@ function Providers() {
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Providers"
-        pageSection=""
-        description={ENTITY_DESCRIPTIONS.providers}
-      >
+      <PageActions>
         <Link
           to="/providers/$id/edit"
           params={{
@@ -55,7 +52,12 @@ function Providers() {
             New Provider
           </Button>
         </Link>
-      </PageHeader>
+      </PageActions>
+      <PageHeader
+        pageTitle="Providers"
+        pageSection=""
+        description={ENTITY_DESCRIPTIONS.providers}
+      />
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (

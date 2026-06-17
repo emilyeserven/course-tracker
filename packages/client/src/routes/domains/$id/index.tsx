@@ -8,7 +8,7 @@ import {
   TopicLinkList,
 } from "./-components/topicLists";
 
-import { InfoArea, PageHeader } from "@/components/layout";
+import { InfoArea, PageActions, PageHeader } from "@/components/layout";
 import {
   EntityError,
   EntityPending,
@@ -88,20 +88,22 @@ function SingleDomain() {
               </Button>
             </Link>
           )}
-          <Link
-            to="/domains/$id/edit"
-            params={{
-              id: data?.id + "",
-            }}
-          >
-            <Button variant="secondary">
-              Edit Domain
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
         </div>
       </PageHeader>
+      <PageActions>
+        <Link
+          to="/domains/$id/edit"
+          params={{
+            id: data?.id + "",
+          }}
+        >
+          <Button variant="secondary">
+            Edit Domain
+            {" "}
+            <EditIcon />
+          </Button>
+        </Link>
+      </PageActions>
       <div className="container flex flex-col gap-12">
         <div
           className={`

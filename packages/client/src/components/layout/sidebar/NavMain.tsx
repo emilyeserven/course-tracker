@@ -1,3 +1,5 @@
+import type { QuickAddKey } from "@/components/dialogs/quickAdd";
+
 import { Link } from "@tanstack/react-router";
 
 import { NavCategory } from "./NavCategory";
@@ -13,7 +15,11 @@ import {
 import { useShowOnboard } from "@/hooks/useShowOnboard";
 
 /** The sidebar body: standalone links plus the collapsible record sections. */
-export function NavMain() {
+export function NavMain({
+  onQuickAdd,
+}: {
+  onQuickAdd: (key: QuickAddKey) => void;
+}) {
   const showOnboard = useShowOnboard();
   const standaloneLinks = showOnboard
     ? [...STANDALONE_LINKS, ONBOARD_LINK]
@@ -52,6 +58,7 @@ export function NavMain() {
               <NavCategory
                 key={category.label}
                 category={category}
+                onQuickAdd={onQuickAdd}
               />
             ))}
           </SidebarMenu>

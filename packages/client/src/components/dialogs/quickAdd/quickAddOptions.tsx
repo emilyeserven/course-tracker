@@ -4,9 +4,11 @@ import {
   BookOpenIcon,
   Building2Icon,
   CircleCheckIcon,
+  CompassIcon,
   LibraryIcon,
   ListTodoIcon,
   RepeatIcon,
+  TagIcon,
 } from "lucide-react";
 
 export type QuickAddKey
@@ -14,6 +16,8 @@ export type QuickAddKey
     | "todoist"
     | "resource"
     | "provider"
+    | "topic"
+    | "domain"
     | "routine"
     | "task";
 
@@ -51,6 +55,18 @@ export const QUICK_ADD_OPTIONS: QuickAddOption[] = [
     key: "provider",
     label: "Provider",
     icon: Building2Icon,
+    group: "tracker",
+  },
+  {
+    key: "topic",
+    label: "Topic",
+    icon: TagIcon,
+    group: "tracker",
+  },
+  {
+    key: "domain",
+    label: "Domain",
+    icon: CompassIcon,
     group: "tracker",
   },
   {

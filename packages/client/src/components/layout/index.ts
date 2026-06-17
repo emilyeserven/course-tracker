@@ -7,6 +7,7 @@ export { EntityHeaderButton } from "./EntityHeaderButton";
 export { InfoArea } from "./InfoArea";
 export { InfoRow } from "./InfoRow";
 export { OverviewCardGrid } from "./OverviewCardGrid";
+export { PageActions } from "./PageActions";
 export { PageHeader } from "./PageHeader";
 export { PageTabs } from "./PageTabs";
 export { ResourceLinksSection } from "./ResourceLinksSection";
