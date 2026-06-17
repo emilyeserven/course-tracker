@@ -46,6 +46,13 @@ interface TopicsTableProps extends TopicsTableSortControl {
   selection?: TopicsTableSelection;
 }
 
+// Responsive column hiding: DataTable applies these to both the <th> and <td>,
+// so `hidden <bp>:table-cell` collapses a column below the breakpoint and
+// restores it above it. Keeps narrow phones to select + name.
+const HIDE_SM = "hidden sm:table-cell";
+const HIDE_MD = "hidden md:table-cell";
+const HIDE_LG = "hidden lg:table-cell";
+
 // name/domains sort ascending on first click; the count columns sort descending.
 const SORT_DESC_FIRST: Record<TopicsTableSortColumn, boolean> = {
   name: false,
@@ -176,8 +183,8 @@ export function TopicsTable({
           />
         ),
         meta: {
-          headClassName: "whitespace-nowrap",
-          cellClassName: "whitespace-nowrap",
+          headClassName: `whitespace-nowrap ${HIDE_LG}`,
+          cellClassName: `whitespace-nowrap ${HIDE_LG}`,
         },
         cell: ({
           row,
@@ -188,7 +195,8 @@ export function TopicsTable({
         enableSorting: false,
         header: "Description",
         meta: {
-          cellClassName: "max-w-md",
+          headClassName: HIDE_MD,
+          cellClassName: `max-w-md ${HIDE_MD}`,
         },
         cell: ({
           row,
@@ -217,8 +225,8 @@ export function TopicsTable({
         ),
         meta: {
           align: "right",
-          headClassName: "whitespace-nowrap",
-          cellClassName: "tabular-nums",
+          headClassName: `whitespace-nowrap ${HIDE_SM}`,
+          cellClassName: `tabular-nums ${HIDE_SM}`,
         },
         cell: ({
           row,
@@ -238,8 +246,8 @@ export function TopicsTable({
         ),
         meta: {
           align: "right",
-          headClassName: "whitespace-nowrap",
-          cellClassName: "tabular-nums",
+          headClassName: `whitespace-nowrap ${HIDE_SM}`,
+          cellClassName: `tabular-nums ${HIDE_SM}`,
         },
         cell: ({
           row,
@@ -259,8 +267,8 @@ export function TopicsTable({
         ),
         meta: {
           align: "right",
-          headClassName: "whitespace-nowrap",
-          cellClassName: "tabular-nums",
+          headClassName: `whitespace-nowrap ${HIDE_SM}`,
+          cellClassName: `tabular-nums ${HIDE_SM}`,
         },
         cell: ({
           row,

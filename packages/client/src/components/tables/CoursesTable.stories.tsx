@@ -30,3 +30,19 @@ export const Default: Story = {
     await expect(await canvas.findByText("Course 3")).toBeInTheDocument();
   },
 };
+
+// Low-priority columns collapse on narrow screens via `hidden <bp>:table-cell`
+// (applied to the column's <th> and <td>); essential columns stay visible.
+export const ResponsiveColumns: Story = {
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    // Essential columns are never hidden.
+    await expect(await canvas.findByText("Name")).not.toHaveClass("hidden");
+    // Detail columns hide below their breakpoint.
+    await expect(await canvas.findByText("Provider")).toHaveClass("hidden");
+    await expect(await canvas.findByText("Cost")).toHaveClass("hidden");
+    await expect(await canvas.findByText("Expires")).toHaveClass("hidden");
+  },
+};
