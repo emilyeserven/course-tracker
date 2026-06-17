@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 
 import { cn } from "@/lib/utils";
@@ -108,27 +108,8 @@ function BreadcrumbSeparator({
   );
 }
 
-function BreadcrumbEllipsis({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  return (
-    <span
-      data-slot="breadcrumb-ellipsis"
-      role="presentation"
-      aria-hidden="true"
-      className={cn("flex size-9 items-center justify-center", className)}
-      {...props}
-    >
-      <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More</span>
-    </span>
-  );
-}
-
 export {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
