@@ -11,7 +11,7 @@ import { RoutineDetailsContent } from "./-components/-RoutineDetailsContent";
 import { RoutineTodayCard } from "./-components/-RoutineTodayCard";
 
 import { DAILY_DETAIL_TABS } from "@/components/dailies";
-import { PageHeader } from "@/components/layout";
+import { PageActions, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleRoutine } from "@/utils";
@@ -91,20 +91,22 @@ function SingleRoutine() {
           {data.mode === "curated" && (
             <ConvertToTaskListButton routineId={data.id} />
           )}
-          <Link
-            to="/routines/$id/edit"
-            params={{
-              id: data.id,
-            }}
-          >
-            <Button variant="secondary">
-              Edit Routine
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
         </div>
       </PageHeader>
+      <PageActions>
+        <Link
+          to="/routines/$id/edit"
+          params={{
+            id: data.id,
+          }}
+        >
+          <Button variant="secondary">
+            Edit Routine
+            {" "}
+            <EditIcon />
+          </Button>
+        </Link>
+      </PageActions>
       <div className="container flex flex-col gap-12">
         <RoutineTodayCard data={data} />
         <DailyDetailsPanel

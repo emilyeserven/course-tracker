@@ -4,6 +4,7 @@ import { PlusIcon } from "lucide-react";
 
 import { ResourcesList } from "./-components/-ResourcesList";
 
+import { PageActions } from "@/components/layout/PageActions";
 import {
   EntityError,
   EntityPending,
@@ -64,11 +65,7 @@ function Courses() {
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Your Resources"
-        pageSection=""
-        description={ENTITY_DESCRIPTIONS.resources}
-      >
+      <PageActions>
         <Link
           to="/resources/$id/edit"
           params={{
@@ -80,7 +77,12 @@ function Courses() {
             New Course
           </Button>
         </Link>
-      </PageHeader>
+      </PageActions>
+      <PageHeader
+        pageTitle="Your Resources"
+        pageSection=""
+        description={ENTITY_DESCRIPTIONS.resources}
+      />
       <ResourcesList
         resources={resources ?? []}
         providers={providers ?? []}

@@ -5,7 +5,7 @@ import { EditIcon } from "lucide-react";
 import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
 import { TodosEditor } from "./-components/-TodosEditor";
 
-import { InfoArea, PageHeader } from "@/components/layout";
+import { InfoArea, PageActions, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleTask } from "@/utils";
@@ -58,25 +58,24 @@ function SingleTask() {
 
   return (
     <div>
+      <PageActions>
+        <Link
+          to="/tasks/$id/edit"
+          params={{
+            id: data.id,
+          }}
+        >
+          <Button variant="secondary">
+            Edit Task List
+            {" "}
+            <EditIcon />
+          </Button>
+        </Link>
+      </PageActions>
       <PageHeader
         pageTitle={data.name}
         pageSection="tasks"
-      >
-        <div className="flex flex-row flex-wrap gap-2">
-          <Link
-            to="/tasks/$id/edit"
-            params={{
-              id: data.id,
-            }}
-          >
-            <Button variant="secondary">
-              Edit Task List
-              {" "}
-              <EditIcon />
-            </Button>
-          </Link>
-        </div>
-      </PageHeader>
+      />
       <div className="container flex flex-col gap-12">
         <InfoArea
           header="Routines"

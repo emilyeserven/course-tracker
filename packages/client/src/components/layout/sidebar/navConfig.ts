@@ -1,3 +1,4 @@
+import type { QuickAddKey } from "@/components/dialogs/quickAdd";
 import type { LinkProps } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +39,8 @@ export interface NavCategory {
   icon: LucideIcon;
   /** "See All" target — the category's list page. */
   listTo: LinkProps["to"];
+  /** Quick Add entity key opened by the category's "+" button. */
+  quickAddKey: QuickAddKey;
   /** Per-item detail link descriptor (e.g. `/providers/$id`). */
   getDetailLink: (id: string) => LinkProps;
   /** TanStack Query cache key for the category's list. */
@@ -82,6 +85,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Providers",
         icon: Building2Icon,
         listTo: "/providers",
+        quickAddKey: "provider",
         getDetailLink: id => ({
           to: "/providers/$id",
           params: {
@@ -99,6 +103,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Resources",
         icon: LibraryIcon,
         listTo: "/resources",
+        quickAddKey: "resource",
         getDetailLink: id => ({
           to: "/resources/$id",
           params: {
@@ -116,6 +121,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Topics",
         icon: TagIcon,
         listTo: "/topics",
+        quickAddKey: "topic",
         getDetailLink: id => ({
           to: "/topics/$id",
           params: {
@@ -138,6 +144,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Domains",
         icon: CompassIcon,
         listTo: "/domains",
+        quickAddKey: "domain",
         getDetailLink: id => ({
           to: "/domains/$id",
           params: {
@@ -161,6 +168,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Routines",
         icon: RepeatIcon,
         listTo: "/routines",
+        quickAddKey: "routine",
         getDetailLink: id => ({
           to: "/routines/$id",
           params: {
@@ -178,6 +186,7 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Task Lists",
         icon: CircleCheckIcon,
         listTo: "/tasks",
+        quickAddKey: "task",
         getDetailLink: id => ({
           to: "/tasks/$id",
           params: {

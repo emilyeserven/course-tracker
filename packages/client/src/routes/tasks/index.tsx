@@ -7,6 +7,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { TaskBox } from "@/components/contentBoxComponents";
+import { PageActions } from "@/components/layout/PageActions";
 import {
   ClearFiltersButton,
   EntityError,
@@ -107,11 +108,7 @@ function Tasks() {
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Task Lists"
-        pageSection=""
-        description={ENTITY_DESCRIPTIONS.tasks}
-      >
+      <PageActions>
         <Link
           to="/tasks/$id/edit"
           params={{
@@ -123,7 +120,12 @@ function Tasks() {
             New Task List
           </Button>
         </Link>
-      </PageHeader>
+      </PageActions>
+      <PageHeader
+        pageTitle="Task Lists"
+        pageSection=""
+        description={ENTITY_DESCRIPTIONS.tasks}
+      />
       <div className="container flex flex-col gap-4">
         {data && data.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">

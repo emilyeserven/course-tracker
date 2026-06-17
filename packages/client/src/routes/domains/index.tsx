@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon, PlusIcon } from "lucide-react";
 
 import { ContentBox, DomainBox } from "@/components/contentBoxComponents";
+import { PageActions } from "@/components/layout/PageActions";
 import {
   EntityError,
   EntityPending,
@@ -66,11 +67,7 @@ function DomainsIndex() {
 
   return (
     <div>
-      <PageHeader
-        pageTitle="Domains"
-        pageSection=""
-        description={ENTITY_DESCRIPTIONS.domains}
-      >
+      <PageActions>
         <Link
           to="/domains/$id/edit"
           params={{
@@ -82,7 +79,12 @@ function DomainsIndex() {
             New Domain
           </Button>
         </Link>
-      </PageHeader>
+      </PageActions>
+      <PageHeader
+        pageTitle="Domains"
+        pageSection=""
+        description={ENTITY_DESCRIPTIONS.domains}
+      />
       <div className="container">
         <div className="card-grid">
           {(!data || data.length === 0) && (

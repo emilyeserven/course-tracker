@@ -8,7 +8,7 @@ import {
   ResourceLinksSection,
   YesNoDisplay,
 } from "@/components/infoCard";
-import { EntityHeaderButton, PageHeader } from "@/components/layout";
+import { EntityHeaderButton, PageActions, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleProvider } from "@/utils";
@@ -56,16 +56,18 @@ function SingleProviders() {
               </Button>
             </a>
           )}
-          <EntityHeaderButton
-            to="/providers/$id/edit"
-            params={{
-              id: data?.id + "",
-            }}
-            label="Edit Provider"
-            icon={<EditIcon />}
-          />
         </div>
       </PageHeader>
+      <PageActions>
+        <EntityHeaderButton
+          to="/providers/$id/edit"
+          params={{
+            id: data?.id + "",
+          }}
+          label="Edit Provider"
+          icon={<EditIcon />}
+        />
+      </PageActions>
       <div className="container flex flex-col gap-12">
         <InfoArea
           header="About"

@@ -1,13 +1,15 @@
 import type { NavCategory as NavCategoryConfig } from "./navConfig";
+import type { QuickAddKey } from "@/components/dialogs/quickAdd";
 
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ChevronRightIcon } from "lucide-react";
+import { ArrowRightIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
 
 import { NAV_CATEGORY_LIMIT } from "./navConfig";
 
+import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
@@ -29,8 +31,10 @@ import {
  */
 export function NavCategory({
   category,
+  onQuickAdd,
 }: {
   category: NavCategoryConfig;
+  onQuickAdd: (key: QuickAddKey) => void;
 }) {
   const [open, setOpen] = useState(false);
   const Icon = category.icon;
@@ -109,9 +113,23 @@ export function NavCategory({
                   to={category.listTo}
                   className="[&.active]:font-medium"
                 >
+                  <ArrowRightIcon className="size-4" />
                   See All
                 </Link>
               </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => onQuickAdd(category.quickAddKey)}
+              >
+                <PlusIcon className="size-4" />
+                New
+                {" "}
+                {category.label}
+              </Button>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
         </CollapsibleContent>
