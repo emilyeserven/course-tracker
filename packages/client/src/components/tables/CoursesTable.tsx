@@ -12,6 +12,14 @@ interface CoursesTableProps {
   courses: ResourceInResources[];
 }
 
+// Responsive column hiding: DataTable applies these classes to both the
+// column's <th> and <td>, so `hidden <bp>:table-cell` collapses a column below
+// the breakpoint and restores it above it (the table still scrolls as a
+// fallback). Keeps narrow phones to the essential identity/action columns.
+const HIDE_SM = "hidden sm:table-cell";
+const HIDE_MD = "hidden md:table-cell";
+const HIDE_LG = "hidden lg:table-cell";
+
 function formatProgress(course: ResourceInResources): string {
   if (!course.progressTotal) return "—";
   const pct = Math.round((course.progressCurrent / course.progressTotal) * 100);
@@ -64,8 +72,8 @@ const columns: ColumnDef<ResourceInResources>[] = [
     id: "provider",
     header: "Provider",
     meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
+      headClassName: `whitespace-nowrap ${HIDE_MD}`,
+      cellClassName: `whitespace-nowrap ${HIDE_MD}`,
     },
     cell: ({
       row,
@@ -92,8 +100,8 @@ const columns: ColumnDef<ResourceInResources>[] = [
     id: "topics",
     header: "Topics",
     meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
+      headClassName: `whitespace-nowrap ${HIDE_LG}`,
+      cellClassName: `whitespace-nowrap ${HIDE_LG}`,
     },
     cell: ({
       row,
@@ -113,8 +121,8 @@ const columns: ColumnDef<ResourceInResources>[] = [
     id: "progress",
     header: "Progress",
     meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
+      headClassName: `whitespace-nowrap ${HIDE_SM}`,
+      cellClassName: `whitespace-nowrap ${HIDE_SM}`,
     },
     cell: ({
       row,
@@ -124,8 +132,8 @@ const columns: ColumnDef<ResourceInResources>[] = [
     id: "cost",
     header: "Cost",
     meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
+      headClassName: `whitespace-nowrap ${HIDE_LG}`,
+      cellClassName: `whitespace-nowrap ${HIDE_LG}`,
     },
     cell: ({
       row,
@@ -135,8 +143,8 @@ const columns: ColumnDef<ResourceInResources>[] = [
     id: "expires",
     header: "Expires",
     meta: {
-      headClassName: "whitespace-nowrap",
-      cellClassName: "whitespace-nowrap",
+      headClassName: `whitespace-nowrap ${HIDE_LG}`,
+      cellClassName: `whitespace-nowrap ${HIDE_LG}`,
     },
     cell: ({
       row,

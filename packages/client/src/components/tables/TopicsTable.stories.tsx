@@ -29,6 +29,23 @@ export const Default: Story = {
   },
 };
 
+// Low-priority columns collapse on narrow screens via `hidden <bp>:table-cell`
+// (applied to the column's <th> and <td>); name stays visible.
+export const ResponsiveColumns: Story = {
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    // Name header (wrapped in a sort button) lives in a never-hidden <th>.
+    const nameHead = (await canvas.findByText("Name")).closest("th");
+    await expect(nameHead).not.toHaveClass("hidden");
+    // Detail columns hide below their breakpoint.
+    await expect(await canvas.findByText("Description")).toHaveClass("hidden");
+    const domainsHead = (await canvas.findByText("Domains")).closest("th");
+    await expect(domainsHead).toHaveClass("hidden");
+  },
+};
+
 export const WithSelection: Story = {
   args: {
     selection: {
