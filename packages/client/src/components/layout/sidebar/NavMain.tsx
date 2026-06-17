@@ -1,0 +1,62 @@
+import { Link } from "@tanstack/react-router";
+
+import { NavCategory } from "./NavCategory";
+import { NAV_SECTIONS, ONBOARD_LINK, STANDALONE_LINKS } from "./navConfig";
+
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { useShowOnboard } from "@/hooks/useShowOnboard";
+
+/** The sidebar body: standalone links plus the collapsible record sections. */
+export function NavMain() {
+  const showOnboard = useShowOnboard();
+  const standaloneLinks = showOnboard
+    ? [...STANDALONE_LINKS, ONBOARD_LINK]
+    : STANDALONE_LINKS;
+
+  return (
+    <>
+      <SidebarGroup>
+        <SidebarMenu>
+          {standaloneLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <SidebarMenuItem key={link.label}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={link.label}
+                >
+                  <Link
+                    to={link.to}
+                    className="[&.active]:font-medium"
+                  >
+                    <Icon />
+                    <span>{link.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroup>
+      {NAV_SECTIONS.map(section => (
+        <SidebarGroup key={section.label}>
+          <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+          <SidebarMenu>
+            {section.categories.map(category => (
+              <NavCategory
+                key={category.label}
+                category={category}
+              />
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      ))}
+    </>
+  );
+}
