@@ -29,16 +29,6 @@ export default async function (server: FastifyInstance) {
             resources: true,
           },
         },
-        topicsToResources: {
-          with: {
-            topic: {
-              columns: {
-                name: true,
-                id: true,
-              },
-            },
-          },
-        },
         resourceTags: {
           with: {
             tag: true,

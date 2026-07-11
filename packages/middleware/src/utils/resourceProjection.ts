@@ -2,12 +2,10 @@
 // test runner can load this module directly — see the middleware CLAUDE.md.
 import { processCost } from "./processCost.ts";
 import { toProviderBlock } from "./providerProjection.ts";
-import { processResourceLinks } from "./processResourceLinks.ts";
 import type {
   CostData,
   Resource,
   Tag,
-  TopicsToResources,
 } from "@emstack/types";
 
 // The fields mapResource reads. Both resource queries produce a superset of
@@ -37,7 +35,6 @@ interface ResourceProjectionRow {
     cost: string | null;
     isCourseFeesShared: boolean | null;
     resources: unknown[]; } | null;
-  topicsToResources: TopicsToResources[];
   resourceTags: { tag: Tag }[];
 }
 
@@ -57,7 +54,6 @@ export function mapResource(resource: ResourceProjectionRow): Resource {
     providerIsSelf: resource.providerIsSelf ?? false,
     modulesAreExhaustive: resource.modulesAreExhaustive ?? false,
     tracksProgress: resource.tracksProgress ?? true,
-    topics: processResourceLinks(resource.topicsToResources, "topic"),
     provider: toProviderBlock(resource.courseProvider),
     easeOfStarting: resource.easeOfStarting ?? null,
     timeNeeded: resource.timeNeeded ?? null,

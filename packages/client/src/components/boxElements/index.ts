@@ -5,4 +5,3 @@ export { CourseMetaItem } from "./CourseMetaItem";
 export { Description } from "./Description";
 export { EntityLink } from "./EntityLink";
 export { StatusIndicator } from "./StatusIndicator";
-export { TopicList } from "./TopicList";

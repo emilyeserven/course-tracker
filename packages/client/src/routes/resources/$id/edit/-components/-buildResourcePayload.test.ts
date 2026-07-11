@@ -15,7 +15,6 @@ const baseValues: ResourceFormValues = {
   tracksProgress: true,
   cost: 49.99,
   dateExpires: new Date("2026-12-31T00:00:00.000Z"),
-  topicId: "topic-1",
   courseProviderId: "provider-1",
   providerIsSelf: false,
   easeOfStarting: "high",
@@ -43,7 +42,6 @@ describe("buildResourcePayload", () => {
       isCostFromPlatform: false,
       dateExpires: "2026-12-31",
       isExpires: true,
-      topicId: "topic-1",
       courseProviderId: "provider-1",
       providerIsSelf: false,
       easeOfStarting: "high",
@@ -63,7 +61,6 @@ describe("buildResourcePayload", () => {
         progressTotal: null,
         cost: null,
         dateExpires: null,
-        topicId: "",
         courseProviderId: "",
         easeOfStarting: "",
         timeNeeded: "",
@@ -81,7 +78,6 @@ describe("buildResourcePayload", () => {
     expect(payload.cost).toBeNull();
     expect(payload.dateExpires).toBeNull();
     expect(payload.isExpires).toBe(false);
-    expect(payload.topicId).toBeNull();
     expect(payload.courseProviderId).toBeNull();
     expect(payload.easeOfStarting).toBeNull();
     expect(payload.timeNeeded).toBeNull();

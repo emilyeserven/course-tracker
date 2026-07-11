@@ -25,9 +25,9 @@ Two homes, by audience:
 ## Fetch layer (`src/utils/api/`)
 
 - `client.ts` exports `fetchJson`/`postJson`/`putJson`/`deleteJson` and `createEntityClient<TEntity, TList>(endpoint, label)`, which returns `{ list, get, create, upsert, delete, duplicate }` against `/api/<endpoint>`.
-- Each entity has a file (`topics.ts`, `resources.ts`, `routines.ts`, …) exporting a `<name>Api` client plus named function re-exports (`upsertTopic`, `fetchSingleTopic`, …). Custom endpoints (e.g. `incrementResourceProgress`) are added as extra functions in the entity file.
+- Each entity has a file (`tasks.ts`, `resources.ts`, `routines.ts`, …) exporting a `<name>Api` client plus named function re-exports (`upsertTask`, `fetchSingleTask`, …). Custom endpoints (e.g. `incrementResourceProgress`) are added as extra functions in the entity file.
 - Reuse `createEntityClient` and the JSON helpers rather than hand-rolling `fetch`.
-- **Query keys:** take TanStack Query keys from the factory in `src/utils/queryKeys.ts` (`queryKeys.resources.list()`, `queryKeys.topics.detail(id)`, …) instead of inlining string arrays — invalidation breaks silently when keys drift.
+- **Query keys:** take TanStack Query keys from the factory in `src/utils/queryKeys.ts` (`queryKeys.resources.list()`, `queryKeys.tasks.detail(id)`, …) instead of inlining string arrays — invalidation breaks silently when keys drift.
 - `src/utils/fetchFunctions.ts` is a legacy shim that re-exports `./api` — import from `@/utils/api` (or the barrel) in new code.
 
 ## Forms
@@ -55,8 +55,8 @@ Organized by purpose under `src/components/`:
 - `ui/` — shadcn-style primitives (add new ones via the shadcn CLI, which now writes here). Includes the vendored shadcn-derived files (`button.tsx`, `calendar.tsx`, `combobox.tsx`, `input.tsx`, `input-group.tsx`, `popover.tsx`, `radio-group.tsx`, `textarea.tsx`, `sonner.tsx`): keep edits minimal and preserve their scoped eslint-disable comments. Imported by direct file path (`@/components/ui/button`) — no barrel.
 - `dialogs/` — shared app dialogs that compose the `ui/` `Dialog`/`AlertDialog` primitives (`ConfirmDialog`, `UnsavedChangesDialog`, `LayoutNameDialog`, `EditModalFooter`), imported by direct path like `ui/`. `dialogs/quickAdd/` holds the quick-add dialog family (`QuickAddMenu` + per-entity `QuickAdd*Dialog`, with its own `index.ts` barrel). Dialogs coupled to a single feature stay in that feature folder (e.g. `dailies/DailyStatusModal`, `resources/ModuleSuggestDialog`).
 - `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, `OverviewCardGrid`, `EditFormActions`, `LayoutMenuActions`, …)
-- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. Import boxes from `contentBoxComponents/` (the `index.ts` barrel re-exports the boxes plus the two tables, so a page rendering several imports from one module). The entity boxes (`CourseBox`, `DomainBox`, `ProviderBox`, `TaskBox`, `TopicBox`) are a deliberate cohesive card family — they share `ContentBox` and the `boxElements/` primitives — so they stay centralized here even though each has a single consuming index route (decided in #323); don't colocate them into `*.-components/`.
-- `tables/` — table components (`CoursesTable`, `TopicsTable`)
+- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. Import boxes from `contentBoxComponents/` (the `index.ts` barrel re-exports the boxes plus the table, so a page rendering several imports from one module). The entity boxes (`CourseBox`, `DomainBox`, `ProviderBox`, `TaskBox`) are a deliberate cohesive card family — they share `ContentBox` and the `boxElements/` primitives — so they stay centralized here even though each has a single consuming index route (decided in #323); don't colocate them into `*.-components/`.
+- `tables/` — table components (`CoursesTable`)
 - `resources/` — resource/module components
 - `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)
 - `forms/` — field-composition primitives; `formFields/` — TanStack Form-aware fields

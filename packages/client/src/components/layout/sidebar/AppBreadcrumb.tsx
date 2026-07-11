@@ -60,14 +60,6 @@ const SEGMENT_MAP: Record<string, SegmentEntry> = {
     label: "Resources",
     to: "/resources",
   },
-  topics: {
-    section: {
-      label: "Records",
-      to: "/records",
-    },
-    label: "Topics",
-    to: "/topics",
-  },
   actions: {
     label: "Actions",
     to: "/actions",

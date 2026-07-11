@@ -4,25 +4,18 @@ import { PlusIcon } from "lucide-react";
 import { TrackerTables } from "./-components/-TrackerTables";
 
 import { PageHeader } from "@/components/layout";
-import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
+import {
+  EntityError,
+  EntityPending,
+} from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { useRoutineTracker } from "@/hooks/useRoutineTracker";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-
-export interface TrackerSearch {
-  topicId?: string;
-}
 
 export const Route = createFileRoute("/routines/tracker")({
   component: DailyTracker,
   errorComponent: TrackerError,
   pendingComponent: TrackerPending,
-  validateSearch: (search: Record<string, unknown>): TrackerSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
-  }),
 });
 
 function TrackerPending() {
@@ -34,10 +27,7 @@ function TrackerError() {
 }
 
 function DailyTracker() {
-  const {
-    topicId,
-  } = Route.useSearch();
-  const tracker = useRoutineTracker(topicId);
+  const tracker = useRoutineTracker();
 
   return (
     <div>

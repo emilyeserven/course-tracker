@@ -41,14 +41,6 @@ export function PageHeader({
                   Resources
                 </Link>
               )}
-              {pageSection === "topics" && (
-                <Link
-                  to="/topics"
-                  className="text-sm uppercase"
-                >
-                  Topics
-                </Link>
-              )}
               {pageSection === "providers" && (
                 <Link
                   to="/providers"

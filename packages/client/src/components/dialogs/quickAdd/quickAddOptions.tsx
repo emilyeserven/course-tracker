@@ -7,7 +7,6 @@ import {
   LibraryIcon,
   ListTodoIcon,
   RepeatIcon,
-  TagIcon,
 } from "lucide-react";
 
 export type QuickAddKey
@@ -15,7 +14,6 @@ export type QuickAddKey
     | "todoist"
     | "resource"
     | "provider"
-    | "topic"
     | "routine"
     | "task";
 
@@ -53,12 +51,6 @@ export const QUICK_ADD_OPTIONS: QuickAddOption[] = [
     key: "provider",
     label: "Provider",
     icon: Building2Icon,
-    group: "tracker",
-  },
-  {
-    key: "topic",
-    label: "Topic",
-    icon: TagIcon,
     group: "tracker",
   },
   {

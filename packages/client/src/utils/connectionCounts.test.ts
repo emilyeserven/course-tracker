@@ -12,11 +12,9 @@ import {
   resourceConnectionCount,
   routineConnectionCount,
   taskConnectionCount,
-  topicConnectionCount,
 } from "./connectionCounts.ts";
 
-// Minimal valid resource shell for the resource-count tests (only `topics`
-// matters, but the type requires these fields).
+// Minimal valid resource shell for the resource-count tests.
 const baseResource: ResourceInResources = {
   id: "r",
   name: "R",
@@ -31,25 +29,7 @@ const baseResource: ResourceInResources = {
 };
 
 describe("connection count formulas", () => {
-  test("topic sums resource, task and daily counts", () => {
-    expect(
-      topicConnectionCount({
-        id: "t",
-        name: "T",
-        resourceCount: 2,
-        taskCount: 3,
-        dailyCount: 1,
-      }),
-    ).toBe(6);
-  });
-
   test("missing optional counts are treated as zero", () => {
-    expect(
-      topicConnectionCount({
-        id: "t",
-        name: "T",
-      }),
-    ).toBe(0);
     expect(resourceConnectionCount(baseResource)).toBe(0);
     expect(
       providerConnectionCount({
@@ -72,24 +52,6 @@ describe("connection count formulas", () => {
     ).toBe(0);
   });
 
-  test("resource counts only its linked topics", () => {
-    expect(
-      resourceConnectionCount({
-        ...baseResource,
-        topics: [
-          {
-            id: "1",
-            name: "a",
-          },
-          {
-            id: "2",
-            name: "b",
-          },
-        ],
-      }),
-    ).toBe(2);
-  });
-
   test("provider uses resourceCount", () => {
     expect(
       providerConnectionCount({
@@ -108,7 +70,7 @@ describe("connection count formulas", () => {
         name: "R",
         connections: [
           {
-            type: "topic",
+            type: "resource",
             id: "1",
           },
           {
@@ -120,19 +82,15 @@ describe("connection count formulas", () => {
     ).toBe(2);
   });
 
-  test("task sums topic, tags and both kinds of resource link", () => {
+  test("task sums tags and both kinds of resource link", () => {
     expect(
       taskConnectionCount({
         id: "k",
         name: "K",
-        topic: {
-          id: "t",
-          name: "T",
-        },
         tags: [{}, {}] as Tag[],
         resourceLinks: [{}] as TaskResourceLink[],
         resources: [{}, {}, {}] as TaskResource[],
       }),
-    ).toBe(1 + 2 + 1 + 3);
+    ).toBe(2 + 1 + 3);
   });
 });

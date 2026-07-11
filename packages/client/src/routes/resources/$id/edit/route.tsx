@@ -1,9 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import {
-  ResourceInteractionsLog,
-  ResourceModulesAdmin,
-} from "../-components";
+import { ResourceInteractionsLog, ResourceModulesAdmin } from "../-components";
 import { DetailsTab } from "./-components";
 
 import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
@@ -21,17 +18,12 @@ const TAB_VALUES = ["details", "modules", "interactions"] as const;
 type ResourceTab = (typeof TAB_VALUES)[number];
 
 export interface ResourceEditSearch {
-  topicId?: string;
   tab?: ResourceTab;
 }
 
 export const Route = createFileRoute("/resources/$id/edit")({
   component: SingleResourceEdit,
   validateSearch: (search: Record<string, unknown>): ResourceEditSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
     tab:
       typeof search.tab === "string"
       && (TAB_VALUES as readonly string[]).includes(search.tab)
@@ -62,7 +54,7 @@ function SingleResourceEdit() {
     isNew,
     queryKey: queryKeys.resources.detail(id),
     queryFn: () => fetchSingleResource(id),
-    relatedQueryKeys: [queryKeys.resources.list(), queryKeys.topics.list()],
+    relatedQueryKeys: [queryKeys.resources.list()],
   });
 
   // The form lives here (not in DetailsTab) so its state survives tab switches,
@@ -71,7 +63,6 @@ function SingleResourceEdit() {
     id,
     isNew,
     data,
-    topicIdSearch: search.topicId,
     skipBlock,
     invalidateRelated,
   });

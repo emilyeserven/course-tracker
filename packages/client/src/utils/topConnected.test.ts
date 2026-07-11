@@ -67,25 +67,25 @@ describe("topConnected ranker", () => {
     interface TitledRow {
       id: string;
       title: string;
-      topicCount: number;
+      linkCount: number;
     }
     const rows: TitledRow[] = [
       {
         id: "d1",
         title: "Backend",
-        topicCount: 4,
+        linkCount: 4,
       },
       {
         id: "d2",
         title: "Frontend",
-        topicCount: 7,
+        linkCount: 7,
       },
     ];
     expect(
       topConnected(
         rows,
         r => r.title,
-        r => r.topicCount,
+        r => r.linkCount,
       ),
     ).toEqual([
       {

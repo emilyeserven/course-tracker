@@ -6,9 +6,8 @@ import { relations } from "drizzle-orm";
 
 import { courseProviders, interactions, moduleGroups, modules, resources } from "./courses";
 import { routineConnections, routines } from "./routines";
-import { moduleGroupTags, moduleTags, resourceTags, tagGroups, tags, tasksToTags, topicsToTags } from "./tags";
+import { moduleGroupTags, moduleTags, resourceTags, tagGroups, tags, tasksToTags } from "./tags";
 import { taskBookmarks, taskResources, tasks, tasksToResources, taskTodos, taskTypes, todoBookmarks } from "./tasks";
-import { topics, topicsToResources } from "./topics";
 
 export const interactionsRelations = relations(interactions, ({
   one,
@@ -41,7 +40,6 @@ export const tagsRelations = relations(tags, ({
     references: [tagGroups.id],
   }),
   tasksToTags: many(tasksToTags),
-  topicsToTags: many(topicsToTags),
   resourceTags: many(resourceTags),
   moduleGroupTags: many(moduleGroupTags),
   moduleTags: many(moduleTags),
@@ -99,26 +97,9 @@ export const moduleTagsRelations = relations(moduleTags, ({
   }),
 }));
 
-export const topicsToTagsRelations = relations(topicsToTags, ({
-  one,
-}) => ({
-  topic: one(topics, {
-    fields: [topicsToTags.topicId],
-    references: [topics.id],
-  }),
-  tag: one(tags, {
-    fields: [topicsToTags.tagId],
-    references: [tags.id],
-  }),
-}));
-
 export const tasksRelations = relations(tasks, ({
   one, many,
 }) => ({
-  topic: one(topics, {
-    fields: [tasks.topicId],
-    references: [topics.id],
-  }),
   taskType: one(taskTypes, {
     fields: [tasks.taskTypeId],
     references: [taskTypes.id],
@@ -225,7 +206,6 @@ export const resourcesRelations = relations(resources, ({
     fields: [resources.courseProviderId],
     references: [courseProviders.id],
   }),
-  topicsToResources: many(topicsToResources),
   tasksToResources: many(tasksToResources),
   moduleGroups: many(moduleGroups),
   modules: many(modules),
@@ -258,35 +238,6 @@ export const modulesRelations = relations(modules, ({
   }),
   interactions: many(interactions),
   moduleTags: many(moduleTags),
-}));
-
-export const topicsRelations = relations(topics, ({
-  many,
-}) => ({
-  topicsToResources: many(topicsToResources),
-  topicsToTags: many(topicsToTags),
-  tasks: many(tasks),
-}));
-
-export const topicsToResourcesRelation = relations(topicsToResources, ({
-  one,
-}) => ({
-  topic: one(topics, {
-    fields: [topicsToResources.topicId],
-    references: [topics.id],
-  }),
-  resource: one(resources, {
-    fields: [topicsToResources.resourceId],
-    references: [resources.id],
-  }),
-  moduleGroup: one(moduleGroups, {
-    fields: [topicsToResources.moduleGroupId],
-    references: [moduleGroups.id],
-  }),
-  module: one(modules, {
-    fields: [topicsToResources.moduleId],
-    references: [modules.id],
-  }),
 }));
 
 export const tasksToResourcesRelations = relations(tasksToResources, ({

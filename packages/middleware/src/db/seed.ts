@@ -4,13 +4,10 @@ import {
   dailyCriteriaTemplates,
   tagGroups,
   tags,
-  topics,
-  topicsToResources,
   usersTable,
 } from "@/db/schema";
 import { db } from "@/db/index";
 import { clearData } from "@/db/clearData";
-import { v4 as uuidv4 } from "uuid";
 
 export async function seed() {
   await clearData();
@@ -63,52 +60,6 @@ export async function seed() {
     .onConflictDoNothing()
     .returning();
 
-  const topicReactData: typeof topics.$inferInsert = {
-    id: "80d8e391-6140-493c-b5a8-2f788d3d1245",
-    name: "React",
-    description: "That one framework.",
-    reason: "That's where the jobs are!",
-  };
-  const topicTypescriptData: typeof topics.$inferInsert = {
-    id: "32574ce7-cd41-4a1f-a860-3bb16641e10f",
-    name: "Typescript",
-    description: "JavaScript but typier.",
-  };
-  const topicJapaneseData: typeof topics.$inferInsert = {
-    id: "15795947-e6fd-4f17-892d-284906a10c53",
-    name: "Japanese",
-    reason: "I want to understand anime.",
-  };
-
-  const topicDevopsData: typeof topics.$inferInsert = {
-    id: "84a376ba-5701-4407-8794-10e24894680b",
-    name: "DevOps",
-  };
-
-  const topicReact = await db
-    .insert(topics)
-    .values([topicReactData])
-    .onConflictDoNothing()
-    .returning();
-
-  const topicTypescript = await db
-    .insert(topics)
-    .values([topicTypescriptData])
-    .onConflictDoNothing()
-    .returning();
-
-  const topicJapanese = await db
-    .insert(topics)
-    .values([topicJapaneseData])
-    .onConflictDoNothing()
-    .returning();
-
-  await db
-    .insert(topics)
-    .values([topicDevopsData])
-    .onConflictDoNothing()
-    .returning();
-
   const reactCourseData: typeof resources.$inferInsert = {
     id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
     name: "react.gg",
@@ -156,90 +107,29 @@ export async function seed() {
     courseProviderId: providerUdemy[0] ? providerUdemy[0].id : null,
   };
 
-  const courseReact = await db
+  await db
     .insert(resources)
     .values([reactCourseData])
     .onConflictDoNothing()
     .returning();
 
-  const courseTypescript = await db
+  await db
     .insert(resources)
     .values([typescriptCourseData])
     .onConflictDoNothing()
     .returning();
 
-  const courseNpmPackage = await db
+  await db
     .insert(resources)
     .values([npmPackageCourseData])
     .onConflictDoNothing()
     .returning();
 
-  const courseAkiko = await db
+  await db
     .insert(resources)
     .values([akikoData])
     .onConflictDoNothing()
     .returning();
-
-  if (courseReact[0] && topicReact[0]) {
-    await db
-      .insert(topicsToResources)
-      .values([
-        {
-          id: uuidv4(),
-          resourceId: courseReact[0].id,
-          topicId: topicReact[0].id,
-        },
-      ])
-      .onConflictDoNothing();
-  }
-  if (courseReact[0] && topicTypescript[0]) {
-    await db
-      .insert(topicsToResources)
-      .values([
-        {
-          id: uuidv4(),
-          resourceId: courseReact[0].id,
-          topicId: topicTypescript[0].id,
-        },
-      ])
-      .onConflictDoNothing();
-  }
-  if (courseTypescript[0] && topicTypescript[0]) {
-    await db
-      .insert(topicsToResources)
-      .values([
-        {
-          id: uuidv4(),
-          resourceId: courseTypescript[0].id,
-          topicId: topicTypescript[0].id,
-        },
-      ])
-      .onConflictDoNothing();
-  }
-  if (courseNpmPackage[0] && topicTypescript[0]) {
-    await db
-      .insert(topicsToResources)
-      .values([
-        {
-          id: uuidv4(),
-          resourceId: courseNpmPackage[0].id,
-          topicId: topicTypescript[0].id,
-        },
-      ])
-      .onConflictDoNothing();
-  }
-  if (courseAkiko[0] && topicJapanese[0]) {
-    await db
-      .insert(topicsToResources)
-      .values([
-        {
-          id: uuidv4(),
-          resourceId: courseAkiko[0].id,
-          topicId: topicJapanese[0].id,
-        },
-      ])
-      .onConflictDoNothing();
-  }
 
   await db
     .insert(usersTable)

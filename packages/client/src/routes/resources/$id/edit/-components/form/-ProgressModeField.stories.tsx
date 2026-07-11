@@ -45,7 +45,6 @@ const meta: Meta<typeof ProgressModeField> = {
     queryStubDecorator(
       () =>
         seededQueryClient([
-          [["topics"], []],
           [["providers"], []],
           [["tagGroups"], []],
         ]),

@@ -7,7 +7,7 @@ export type RoutineReferenceType = "task" | "resource" | "freeform" | "bookmark"
 // connection is the routine's categorical link (what it's "about"); it is
 // separate from the weekly grid, which is the per-day activity. "bookmark"
 // points at an external Simple Bookmarks bookmark (no local row).
-export type RoutineConnectionType = "topic" | "task" | "resource" | "bookmark";
+export type RoutineConnectionType = "task" | "resource" | "bookmark";
 
 // A single polymorphic connection. For local types, `name` is resolved on read
 // and the client sends only `type` + `id`. For "bookmark", the bookmark lives in

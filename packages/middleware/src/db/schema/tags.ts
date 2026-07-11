@@ -2,7 +2,6 @@ import { integer, pgTable, primaryKey, unique, varchar } from "drizzle-orm/pg-co
 
 import { moduleGroups, modules, resources } from "./courses";
 import { tasks } from "./tasks";
-import { topics } from "./topics";
 
 export const tagGroups = pgTable("tag_groups", {
   id: varchar().primaryKey(),
@@ -104,24 +103,6 @@ export const moduleTags = pgTable(
   t => [
     primaryKey({
       columns: [t.moduleId, t.tagId],
-    }),
-  ],
-);
-
-export const topicsToTags = pgTable(
-  "topics_to_tags",
-  {
-    topicId: varchar("topic_id")
-      .notNull()
-      .references(() => topics.id),
-    tagId: varchar("tag_id")
-      .notNull()
-      .references(() => tags.id),
-    position: integer(),
-  },
-  t => [
-    primaryKey({
-      columns: [t.topicId, t.tagId],
     }),
   ],
 );

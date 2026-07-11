@@ -24,7 +24,6 @@ test("buildTaskRow normalizes optional fields", () => {
       name: "Task",
       description: null,
       dueDate: null,
-      topicId: null,
       taskTypeId: null,
     },
   );
@@ -33,7 +32,6 @@ test("buildTaskRow normalizes optional fields", () => {
     buildTaskRow({
       name: "Task",
       description: "",
-      topicId: "",
       taskTypeId: "tt1",
     }, "t1"),
     {
@@ -41,7 +39,6 @@ test("buildTaskRow normalizes optional fields", () => {
       name: "Task",
       description: "",
       dueDate: null,
-      topicId: null,
       taskTypeId: "tt1",
     },
   );

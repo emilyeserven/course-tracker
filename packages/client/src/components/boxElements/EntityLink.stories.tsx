@@ -8,7 +8,7 @@ import { smokeLink } from "@/test-utils/storyPlay";
 const meta: Meta<typeof EntityLink> = {
   component: EntityLink,
   args: {
-    entity: "topics",
+    entity: "resources",
     id: 1,
     children: "React",
   },

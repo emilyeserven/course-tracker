@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { ResourcesList } from "./-ResourcesList";
 
-import { makeTopics } from "@/test-utils/radarFixtures";
 import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 import { smokeText, playTableViewToggle } from "@/test-utils/storyPlay";
 
@@ -27,12 +26,6 @@ const resources: ResourceInResources[] = [
       id: "p1",
       name: "Frontend Masters",
     },
-    topics: [
-      {
-        id: "t1",
-        name: "React",
-      },
-    ],
   },
   {
     id: "r2",
@@ -43,7 +36,6 @@ const resources: ResourceInResources[] = [
     progressCurrent: 10,
     progressTotal: 10,
     status: "complete",
-    topics: [],
   },
 ];
 
@@ -56,14 +48,11 @@ const providers: CourseProvider[] = [
   },
 ];
 
-const topics = makeTopics(3);
-
 const meta: Meta<typeof ResourcesList> = {
   component: ResourcesList,
   args: {
     resources,
     providers,
-    topics,
   },
   decorators: [cardStoryDecorator()],
   // Reset persisted view-mode so each story starts in grid view.
@@ -84,7 +73,6 @@ export const Empty: Story = {
   args: {
     resources: [],
     providers: [],
-    topics: [],
   },
   play: smokeText("No resources yet!"),
 };

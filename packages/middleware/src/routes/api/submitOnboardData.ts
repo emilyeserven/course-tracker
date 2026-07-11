@@ -1,6 +1,6 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import { resources, topics, topicsToResources } from "@/db/schema";
+import { resources } from "@/db/schema";
 import { db } from "@/db";
 import { v4 as uuidv4 } from "uuid";
 
@@ -13,12 +13,6 @@ const testSchema = {
         name: {
           type: "string",
         },
-        topics: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
         resources: {
           type: "array",
           items: {
@@ -26,9 +20,6 @@ const testSchema = {
             required: ["name"],
             properties: {
               name: {
-                type: "string",
-              },
-              topic: {
                 type: "string",
               },
               url: {
@@ -48,21 +39,8 @@ const testSchema = {
 interface FormCourseData {
   [x: string]: unknown;
   name: string;
-  topic?: string;
   url?: string;
   id?: string;
-}
-
-function makeTopicData(topicData: string[] | undefined) {
-  if (topicData) {
-    return topicData.map((topic: string) => {
-      return {
-        id: uuidv4(),
-        name: topic,
-      };
-    });
-  }
-  return [];
 }
 
 function makeCourseData(courseData: FormCourseData[] | undefined) {
@@ -88,30 +66,12 @@ export default async function (server: FastifyInstance) {
     async (request, reply) => {
       // make user or edit user with name, url param for user? session thing? idk
 
-      const topicsData = makeTopicData(request.body.topics);
-
       const reqCourses = request.body.resources;
 
       const resourcesData = makeCourseData(reqCourses);
 
       if (resourcesData && reqCourses) {
-        const topicsDb = await db.insert(topics).values(topicsData).onConflictDoNothing().returning();
-        const coursesDb = await db.insert(resources).values(resourcesData).onConflictDoNothing().returning();
-
-        coursesDb.map(async (course) => {
-          const courseTopicName = reqCourses.find(resources => course.name === resources.name);
-          if (courseTopicName) {
-            const courseTopic = topicsDb.find(topic => topic.name === courseTopicName.topic);
-
-            if (courseTopic) {
-              await db.insert(topicsToResources).values([{
-                id: uuidv4(),
-                resourceId: course.id,
-                topicId: courseTopic.id,
-              }]).onConflictDoNothing();
-            }
-          }
-        });
+        await db.insert(resources).values(resourcesData).onConflictDoNothing().returning();
 
         return {
           status: "ok",

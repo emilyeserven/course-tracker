@@ -17,10 +17,9 @@ import {
 import {
   createProvider,
   createTag,
-  createTopic,
   fetchProviders,
   fetchTagGroups,
-  fetchTopics, tagGroupsToOptions,
+  tagGroupsToOptions,
   toOptions,
   upsertResource,
   uuidv4,
@@ -30,14 +29,12 @@ interface UseResourceEditFormOptions {
   id: string;
   isNew: boolean;
   data: Resource | undefined;
-  /** `?topicId=` prefill, only honored for new resources. */
-  topicIdSearch?: string;
   skipBlock: () => void;
   invalidateRelated: () => Promise<void>;
 }
 
 /**
- * Bundles the resource edit form's data layer: the topics/providers/tag-group
+ * Bundles the resource edit form's data layer: the providers/tag-group
  * queries and their derived combobox options, the change-tracked save form
  * (payload assembly delegated to `buildResourcePayload`), and the provider-cost
  * mirroring. Lives in the route component (so the form instance — and any
@@ -48,19 +45,11 @@ export function useResourceEditForm({
   id,
   isNew,
   data,
-  topicIdSearch,
   skipBlock,
   invalidateRelated,
 }: UseResourceEditFormOptions) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const {
-    data: topics,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
 
   const {
     data: providers,
@@ -76,7 +65,6 @@ export function useResourceEditForm({
     queryFn: () => fetchTagGroups(),
   });
 
-  const topicOptions = useMemo(() => toOptions(topics), [topics]);
   const providerOptions = useMemo(() => toOptions(providers), [providers]);
   const tagOptions = useMemo(() => tagGroupsToOptions(tagGroups), [tagGroups]);
   // Tag groups themselves (not the tags within them) — used as the "Tag Group"
@@ -101,10 +89,6 @@ export function useResourceEditForm({
       tracksProgress: data?.tracksProgress ?? true,
       cost: data?.cost?.cost != null ? Number(data.cost.cost) : null,
       dateExpires: data?.dateExpires ? new Date(data.dateExpires) : null,
-      topicId:
-        (Array.isArray(data?.topics) && data.topics[0]?.id)
-        || (isNew ? (topicIdSearch ?? "") : "")
-        || "",
       courseProviderId: data?.provider?.id ?? "",
       providerIsSelf: data?.providerIsSelf ?? false,
       easeOfStarting: data?.easeOfStarting ?? "",
@@ -112,7 +96,7 @@ export function useResourceEditForm({
       interactivity: data?.interactivity ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
     }),
-    [data, isNew, topicIdSearch],
+    [data],
   );
 
   const form = useAppForm({
@@ -162,10 +146,11 @@ export function useResourceEditForm({
   });
 
   const {
-    currentValues,
-    isSubmitting,
-    hasChanges,
-  } = useFormChangeState(form, startingValues);
+    currentValues, isSubmitting, hasChanges,
+  } = useFormChangeState(
+    form,
+    startingValues,
+  );
 
   // A self-provider mirrors the resource's url, which a provider requires, so
   // the option is only offered once the resource has a url.
@@ -181,16 +166,6 @@ export function useResourceEditForm({
       form.setFieldValue("cost", providerCost);
     }
   }
-
-  const createTopicOption = async (
-    values: Record<string, unknown>,
-  ): Promise<string> => {
-    const result = await createTopic(values);
-    await queryClient.invalidateQueries({
-      queryKey: ["topics"],
-    });
-    return result.id;
-  };
 
   const createProviderOption = async (
     values: Record<string, unknown>,
@@ -237,7 +212,6 @@ export function useResourceEditForm({
 
   return {
     form,
-    topicOptions,
     providerOptions,
     tagOptions,
     tagGroupOptions,
@@ -247,7 +221,6 @@ export function useResourceEditForm({
     isCostFromPlatform,
     providerUrlMissing,
     modulesAreExhaustive,
-    createTopicOption,
     createProviderOption,
     createTagOption,
     setProgressMode,

@@ -21,8 +21,6 @@ describe("queryKeys", () => {
   });
 
   test("entity list/detail keys embed the id", () => {
-    expect(queryKeys.topics.list()).toEqual(["topics"]);
-    expect(queryKeys.topics.detail("t1")).toEqual(["topic", "t1"]);
     expect(queryKeys.tasks.list()).toEqual(["tasks"]);
     expect(queryKeys.tasks.detail("t1")).toEqual(["task", "t1"]);
     expect(queryKeys.routines.list()).toEqual(["routines"]);

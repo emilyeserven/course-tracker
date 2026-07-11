@@ -3,7 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { ExternalLink } from "lucide-react";
 
-import { EntityLink, StatusIndicator, TopicList } from "@/components/boxElements";
+import { EntityLink, StatusIndicator } from "@/components/boxElements";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyDash } from "@/components/ui/EmptyDash";
@@ -91,27 +91,6 @@ const columns: ColumnDef<ResourceInResources>[] = [
           >
             {row.original.provider.name}
           </EntityLink>
-        )
-        : (
-          <EmptyDash />
-        ),
-  },
-  {
-    id: "topics",
-    header: "Topics",
-    meta: {
-      headClassName: `whitespace-nowrap ${HIDE_LG}`,
-      cellClassName: `whitespace-nowrap ${HIDE_LG}`,
-    },
-    cell: ({
-      row,
-    }) =>
-      row.original.topics && row.original.topics.length > 0
-        ? (
-          <TopicList
-            topics={row.original.topics}
-            isPills={false}
-          />
         )
         : (
           <EmptyDash />

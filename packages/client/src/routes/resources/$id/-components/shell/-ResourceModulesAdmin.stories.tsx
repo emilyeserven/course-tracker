@@ -31,7 +31,6 @@ const resourceDetail: Resource = {
   progressTotal: 0,
   status: "active",
   modulesAreExhaustive: false,
-  topics: [],
 };
 
 // Seed everything `useResourceModules` reads via useQuery so the admin renders

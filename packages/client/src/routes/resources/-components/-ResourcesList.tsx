@@ -1,8 +1,4 @@
-import type {
-  CourseProvider,
-  ResourceInResources,
-  TopicForTopicsPage,
-} from "@emstack/types";
+import type { CourseProvider, ResourceInResources } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
@@ -31,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { useStoredViewMode } from "@/hooks/useStoredViewMode";
 
-type SortOption = "alpha" | "progress" | "provider" | "topic";
+type SortOption = "alpha" | "progress" | "provider";
 
 function getProgressPercent(course: ResourceInResources): number {
   if (course.progressTotal === 0) return 0;
@@ -50,10 +46,6 @@ function sortCourses(
         return getProgressPercent(b) - getProgressPercent(a);
       case "provider":
         return (a.provider?.name ?? "").localeCompare(b.provider?.name ?? "");
-      case "topic":
-        return (a.topics?.[0]?.name ?? "").localeCompare(
-          b.topics?.[0]?.name ?? "",
-        );
     }
   });
 }
@@ -61,21 +53,13 @@ function sortCourses(
 export interface ResourcesListProps {
   resources: ResourceInResources[];
   providers: CourseProvider[];
-  topics: TopicForTopicsPage[];
-  initialTopicId?: string;
 }
 
 export function ResourcesList({
-  resources,
-  providers,
-  topics,
-  initialTopicId,
+  resources, providers,
 }: ResourcesListProps) {
   const [search, setSearch] = useState("");
   const [filterProvider, setFilterProvider] = useState<string | undefined>();
-  const [filterTopic, setFilterTopic] = useState<string | undefined>(
-    initialTopicId,
-  );
   const [sortBy, setSortBy] = useState<SortOption>("alpha");
   const [sortAsc, setSortAsc] = useState(true);
   const {
@@ -102,27 +86,15 @@ export function ResourcesList({
       result = result.filter(c => c.provider?.id === filterProvider);
     }
 
-    if (filterTopic === "none") {
-      result = result.filter(c => !c.topics || c.topics.length === 0);
-    }
-    else if (filterTopic) {
-      result = result.filter(c =>
-        c.topics?.some(t => t.id === filterTopic));
-    }
-
     const sorted = sortCourses(result, sortBy);
     return sortAsc ? sorted : sorted.reverse();
-  }, [resources, search, filterProvider, filterTopic, sortBy, sortAsc]);
+  }, [resources, search, filterProvider, sortBy, sortAsc]);
 
-  const hasActiveFilters = filterProvider || filterTopic;
+  const hasActiveFilters = filterProvider;
 
   const totalCourseCount = resources.length;
   const noProviderCount = useMemo(
     () => resources.filter(c => !c.provider).length,
-    [resources],
-  );
-  const noTopicCount = useMemo(
-    () => resources.filter(c => !c.topics || c.topics.length === 0).length,
     [resources],
   );
 
@@ -156,28 +128,10 @@ export function ResourcesList({
                   }))}
               />
 
-              <FilterSelect
-                placeholder="Topic"
-                value={filterTopic}
-                onChange={setFilterTopic}
-                allLabel="All Topics"
-                totalCount={totalCourseCount}
-                noneLabel="No Topic"
-                noneCount={noTopicCount}
-                options={topics
-                  .filter(t => (t.resourceCount ?? 0) > 0)
-                  .map(t => ({
-                    value: t.id,
-                    label: t.name,
-                    count: t.resourceCount ?? 0,
-                  }))}
-              />
-
               {hasActiveFilters && (
                 <ClearFiltersButton
                   onClick={() => {
                     setFilterProvider(undefined);
-                    setFilterTopic(undefined);
                   }}
                 />
               )}
@@ -196,7 +150,6 @@ export function ResourcesList({
                   <SelectItem value="alpha">A-Z</SelectItem>
                   <SelectItem value="progress">Progress</SelectItem>
                   <SelectItem value="provider">Provider</SelectItem>
-                  <SelectItem value="topic">Topic</SelectItem>
                 </SelectContent>
               </Select>
               <Button

@@ -44,7 +44,7 @@ export function TagGroupsAdmin() {
       </div>
       <p className="text-sm text-muted-foreground">
         Tag groups organize tags. Tags belong to one group and can be applied to
-        tasks, resources, and topics.
+        tasks and resources.
       </p>
       {isPending
         ? (

@@ -65,7 +65,7 @@ export function DetailsTab({
             label="Connected To"
             options={connectionOptions}
             groupByPrefix
-            placeholder="Search topics, tasks, resources..."
+            placeholder="Search tasks, resources..."
           />
         )}
       </form.AppField>

@@ -18,7 +18,6 @@ const newRoutineSchema = z.object({
 
 /** Prefill source: the create page's validated search params. */
 export interface NewRoutineSearch {
-  topicId?: string;
   connectedType?: RoutineConnectionType;
   connectedId?: string;
   mode?: RoutineMode;
@@ -33,9 +32,9 @@ interface UseNewRoutineFormArgs {
 
 /**
  * Form state + create for the new-routine tab: derives prefilled connections
- * from the search params (the generic `connectedType/connectedId` pair or the
- * legacy `topicId` alias) and, on submit, seeds the weekly grid from an optional
- * `entryType/entryId` before creating the routine.
+ * from the search params (the generic `connectedType/connectedId` pair) and, on
+ * submit, seeds the weekly grid from an optional `entryType/entryId` before
+ * creating the routine.
  */
 export function useNewRoutineForm({
   search,
@@ -52,14 +51,8 @@ export function useNewRoutineForm({
         id: search.connectedId,
       });
     }
-    if (search.topicId) {
-      out.push({
-        type: "topic",
-        id: search.topicId,
-      });
-    }
     return out;
-  }, [search.connectedType, search.connectedId, search.topicId]);
+  }, [search.connectedType, search.connectedId]);
 
   const form = useAppForm({
     defaultValues: {

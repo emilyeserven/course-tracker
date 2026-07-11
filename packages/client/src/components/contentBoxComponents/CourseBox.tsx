@@ -12,7 +12,6 @@ import {
   Description,
   EntityLink,
   StatusIndicator,
-  TopicList,
 } from "@/components/boxElements";
 import {
   ContentBox,
@@ -31,7 +30,6 @@ export function CourseBox({
   provider,
   url,
   name,
-  topics,
   dateExpires,
   description,
   progressCurrent = 0,
@@ -76,7 +74,8 @@ export function CourseBox({
             <EntityLink
               entity="resources"
               id={id}
-            >{name}
+            >
+              {name}
             </EntityLink>
           </h3>
         </ContentBoxTitle>
@@ -99,7 +98,6 @@ export function CourseBox({
             </EntityLink>
           </h4>
         )}
-        <TopicList topics={topics} />
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>

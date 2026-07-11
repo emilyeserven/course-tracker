@@ -109,13 +109,13 @@ export const curatedSchema = {
   },
 } as const;
 
-// A routine's polymorphic connection to a topic / task / resource / bookmark.
+// A routine's polymorphic connection to a task / resource / bookmark.
 // `id` is the connected entity's id. For local types the name is resolved on
 // read; for "bookmark" (external, no local row) the client also sends the cached
 // `name`/`url`, which are stored on the connection.
 const routineConnectionTypeEnum = {
   type: "string",
-  enum: ["topic", "task", "resource", "bookmark"],
+  enum: ["task", "resource", "bookmark"],
 } as const;
 
 const routineConnectionItemSchema = {

@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpenIcon, Building2Icon, LightbulbIcon } from "lucide-react";
+import { BookOpenIcon, Building2Icon } from "lucide-react";
 
 import { OverviewCardGrid, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-import { fetchProviders, fetchResources, fetchTopics } from "@/utils";
+import { fetchProviders, fetchResources } from "@/utils";
 import {
   providerConnectionCount,
   resourceConnectionCount,
-  topicConnectionCount,
 } from "@/utils/connectionCounts";
 import { queryKeys } from "@/utils/queryKeys";
 import { topConnected } from "@/utils/topConnected";
@@ -30,18 +29,12 @@ function Records() {
     queryKey: queryKeys.resources.list(),
     queryFn: () => fetchResources(),
   });
-  const {
-    data: topics,
-  } = useQuery({
-    queryKey: queryKeys.topics.list(),
-    queryFn: () => fetchTopics(),
-  });
 
   return (
     <div>
       <PageHeader
         pageTitle="Records"
-        description="Everything you're learning from and about — the providers, resources, and topics that make up your knowledge base."
+        description="Everything you're learning from — the providers and resources that make up your knowledge base."
       />
       <div className="container">
         <OverviewCardGrid
@@ -68,18 +61,6 @@ function Records() {
                 resources,
                 r => r.name,
                 resourceConnectionCount,
-              ),
-            },
-            {
-              to: "/topics",
-              title: "Topics",
-              description: ENTITY_DESCRIPTIONS.topics,
-              icon: LightbulbIcon,
-              entity: "topics",
-              topConnected: topConnected(
-                topics,
-                t => t.name,
-                topicConnectionCount,
               ),
             },
           ]}

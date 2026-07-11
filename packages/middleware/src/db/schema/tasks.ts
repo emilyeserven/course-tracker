@@ -25,7 +25,6 @@ export const tasks = pgTable("tasks", {
   // Optional due date for the whole Task List, paralleling a Curated Routine's
   // end date.
   dueDate: date("due_date"),
-  topicId: varchar("topic_id"),
   // TODO(tag-reform-followup): drop taskTypeId once the new Tag Groups + Tags
   // system fully replaces Task Types on tasks.
   taskTypeId: varchar("task_type_id"),

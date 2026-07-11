@@ -18,10 +18,12 @@ function Host() {
     resourceOptions,
     moduleGroupsByResource,
     modulesByResource,
-  } = useRoutineDetailsForm(makeRoutine({
-    mode: "curated",
-  }), () =>
-    Promise.resolve());
+  } = useRoutineDetailsForm(
+    makeRoutine({
+      mode: "curated",
+    }),
+    () => Promise.resolve(),
+  );
   return (
     <CuratedScheduleSection
       form={form}
@@ -41,7 +43,6 @@ const meta: Meta<typeof CuratedScheduleSection> = {
   decorators: [
     queryStoryDecorator(
       seededQueryClient([
-        [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
         [["modules-all"], []],

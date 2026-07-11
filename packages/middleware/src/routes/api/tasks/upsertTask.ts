@@ -19,7 +19,7 @@ export default createUpsertHandler<TaskBody>({
   table: tasks,
   bodySchema: taskBodySchema,
   buildRow: buildTaskRow,
-  updateableColumns: ["name", "description", "dueDate", "topicId", "taskTypeId"],
+  updateableColumns: ["name", "description", "dueDate", "taskTypeId"],
   junctions: [
     {
       table: tasksToTags,

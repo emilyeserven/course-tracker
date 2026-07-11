@@ -3,6 +3,7 @@ import { resources } from "@/db/schema";
 import { migrateAddCuratedRoutineMode } from "./migrateAddCuratedRoutineMode.ts";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
 import { migrateDropDomains } from "./migrateDropDomains.ts";
+import { migrateDropTopics } from "./migrateDropTopics.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
 import { migrateModuleStatus } from "./migrateModuleStatus.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
@@ -69,6 +70,18 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to sweep dangling routine connections:", err);
+    throw err;
+  }
+
+  // Drop the removed Topics subsystem (tables + tasks.topic_id + 'topic'
+  // connections) before push diffs the schema, which no longer defines them.
+  // After the sweep / legacy-column backfill so it cleans up any 'topic' rows
+  // those produce.
+  try {
+    await migrateDropTopics();
+  }
+  catch (err) {
+    console.error("Failed to drop topics tables:", err);
     throw err;
   }
 

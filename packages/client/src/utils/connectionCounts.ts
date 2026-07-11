@@ -3,7 +3,6 @@ import type {
   ResourceInResources,
   Routine,
   Task,
-  TopicForTopicsPage,
 } from "@emstack/types";
 
 // Per-type "total links across all relationship types" counts, computed from
@@ -12,18 +11,12 @@ import type {
 // tweak what counts as a connection later. Pair these with the `topConnected`
 // ranker (see ./topConnected) to drive the overview tiles.
 
-export function topicConnectionCount(topic: TopicForTopicsPage): number {
-  return (
-    (topic.resourceCount ?? 0)
-    + (topic.taskCount ?? 0)
-    + (topic.dailyCount ?? 0)
-  );
-}
-
-// The resources list payload (ResourceInResources) carries linked topics only —
-// no tags — so a resource's connectedness is its linked-topic count.
-export function resourceConnectionCount(resource: ResourceInResources): number {
-  return resource.topics?.length ?? 0;
+// The resources list payload (ResourceInResources) no longer carries linked
+// entities of its own, so a resource contributes no connection count here.
+export function resourceConnectionCount(
+  _resource: ResourceInResources,
+): number {
+  return 0;
 }
 
 export function providerConnectionCount(provider: CourseProvider): number {
@@ -38,8 +31,7 @@ export function routineConnectionCount(routine: Routine): number {
 // task-local resources. Both are link rows, so both count toward the total.
 export function taskConnectionCount(task: Task): number {
   return (
-    (task.topic ? 1 : 0)
-    + (task.tags?.length ?? 0)
+    (task.tags?.length ?? 0)
     + (task.resourceLinks?.length ?? 0)
     + (task.resources?.length ?? 0)
   );

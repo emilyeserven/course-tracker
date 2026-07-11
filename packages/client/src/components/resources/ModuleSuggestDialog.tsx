@@ -26,7 +26,6 @@ interface Props extends ControlledDialogProps {
   resourceDescription: string | null;
   resourceUrl: string | null;
   providerName: string | null;
-  topicNames: string[];
   existingGroupNames: string[];
   existingUngroupedModuleNames: string[];
   onApplied: () => void;
@@ -189,7 +188,6 @@ function buildPrompt(args: {
   resourceDescription: string | null;
   resourceUrl: string | null;
   providerName: string | null;
-  topicNames: string[];
   existingGroupNames: string[];
   existingUngroupedModuleNames: string[];
   userNotes: string;
@@ -199,7 +197,6 @@ function buildPrompt(args: {
     resourceDescription,
     resourceUrl,
     providerName,
-    topicNames,
     existingGroupNames,
     existingUngroupedModuleNames,
     userNotes,
@@ -222,7 +219,6 @@ Resource info:
 - Description: ${description}
 - URL: ${url}
 - Provider: ${provider}
-- Topics: ${topicNames.length > 0 ? topicNames.join(", ") : "(none)"}
 
 Module groups I've already added (do not duplicate):
 ${bulletList(existingGroupNames)}
@@ -275,7 +271,6 @@ export function ModuleSuggestDialog({
   resourceDescription,
   resourceUrl,
   providerName,
-  topicNames,
   existingGroupNames,
   existingUngroupedModuleNames,
   onApplied,
@@ -294,7 +289,6 @@ export function ModuleSuggestDialog({
         resourceDescription,
         resourceUrl,
         providerName,
-        topicNames,
         existingGroupNames,
         existingUngroupedModuleNames,
         userNotes: notes,
@@ -304,7 +298,6 @@ export function ModuleSuggestDialog({
       resourceDescription,
       resourceUrl,
       providerName,
-      topicNames,
       existingGroupNames,
       existingUngroupedModuleNames,
       notes,

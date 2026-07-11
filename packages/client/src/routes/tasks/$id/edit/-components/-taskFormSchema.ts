@@ -7,7 +7,6 @@ export const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   description: z.string().max(2000),
   dueDate: z.date().nullable(),
-  topicId: z.string(),
   taskTypeId: z.string(),
   tagIds: z.array(z.string()),
   bookmarks: z.array(
