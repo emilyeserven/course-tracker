@@ -148,6 +148,11 @@ export default async function (server: FastifyInstance) {
                   interactivity: true,
                 },
               },
+              bookmarks: {
+                orderBy: (b, {
+                  asc,
+                }) => asc(b.position),
+              },
             },
             orderBy: (t, {
               asc,

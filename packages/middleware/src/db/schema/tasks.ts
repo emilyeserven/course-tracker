@@ -133,3 +133,23 @@ export const taskBookmarks = pgTable("task_bookmarks", {
   url: varchar(),
   position: integer(),
 });
+
+// Same as task_bookmarks, but associates a single todo with bookmarks. Cascades
+// with its todo: task_todos rows are rebuilt (delete + reinsert) on every task
+// save, so these rows are re-synced from the todo payload in the task handlers'
+// afterCreate/afterUpsert step (see syncTodoBookmarks). `bookmarkId` is the
+// external Simple Bookmarks id (no FK); `title` / `url` are the cached label.
+export const todoBookmarks = pgTable("todo_bookmarks", {
+  id: varchar().primaryKey(),
+  todoId: varchar("todo_id")
+    .notNull()
+    .references(() => taskTodos.id, {
+      onDelete: "cascade",
+    }),
+  bookmarkId: varchar("bookmark_id").notNull(),
+  title: varchar({
+    length: 500,
+  }).notNull(),
+  url: varchar(),
+  position: integer(),
+});

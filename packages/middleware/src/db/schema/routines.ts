@@ -40,11 +40,14 @@ export const routines = pgTable("routines", {
   weeklyTarget: integer("weekly_target"),
 });
 
-// Polymorphic many-to-many link from a routine to Topics, Tasks, and/or
-// Resources. UUID PK so a routine can hold multiple links (mirrors
-// topics_to_resources / tasks_to_resources). `connected_id` has no FK because
-// it points at one of three tables; dangling rows (target deleted) are dropped
-// at read time, exactly like dangling weekly-grid entries.
+// Polymorphic many-to-many link from a routine to Topics, Tasks, Resources,
+// and/or external Simple Bookmarks bookmarks. UUID PK so a routine can hold
+// multiple links (mirrors topics_to_resources / tasks_to_resources).
+// `connected_id` has no FK because it points at one of several tables (or an
+// external bookmark). For local types, dangling rows (target deleted) are
+// dropped at read time. For "bookmark", there is no local row to resolve, so the
+// display title/url are cached here (cached_title/cached_url) and such rows are
+// never auto-dropped — matching the task/todo bookmark chips.
 export const routineConnections = pgTable("routine_connections", {
   id: varchar().primaryKey(),
   routineId: varchar("routine_id")
@@ -52,6 +55,9 @@ export const routineConnections = pgTable("routine_connections", {
     .references(() => routines.id),
   connectedType: varchar("connected_type").$type<RoutineConnectionType>().notNull(),
   connectedId: varchar("connected_id").notNull(),
+  // Cached label for "bookmark" connections (null for local types).
+  cachedTitle: varchar("cached_title"),
+  cachedUrl: varchar("cached_url"),
   position: integer(),
 });
 

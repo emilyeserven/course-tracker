@@ -1,5 +1,6 @@
 import type { DailyCompletionStatus } from "./Daily";
 import type { ResourceLinkNarrowing } from "./ResourceLinkTarget";
+import type { TaskBookmark } from "./TaskBookmark";
 
 // A todo within a Task List. Modeled like a Curated Routine entry
 // (RoutineReferenceItem): it carries a status (same 5-state set as routine
@@ -21,6 +22,9 @@ export interface TaskTodo extends ResourceLinkNarrowing {
   // Optional link to a top-level Resource. Both moduleGroupId/moduleId null =
   // whole-resource link; all three null = plain checklist item.
   resourceId?: string | null;
+  // Associations to Simple Bookmarks bookmarks (coexists with the resource link
+  // during the incremental migration to bookmark-backed links).
+  bookmarks?: TaskBookmark[];
 }
 
 // A todo is "complete" when its status reached the goal threshold. Shared by

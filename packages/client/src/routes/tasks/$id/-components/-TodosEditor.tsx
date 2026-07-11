@@ -118,9 +118,12 @@ export function TodosEditor({
   }
 
   function handleDelete(todoId: string) {
-    mutation.mutate(todos.filter(t => t.id !== todoId), {
-      onSuccess: () => setEditingId(null),
-    });
+    mutation.mutate(
+      todos.filter(t => t.id !== todoId),
+      {
+        onSuccess: () => setEditingId(null),
+      },
+    );
   }
 
   function cycleStatus(todo: TaskTodo) {
@@ -147,6 +150,7 @@ export function TodosEditor({
       resourceId: null,
       moduleGroupId: null,
       moduleId: null,
+      bookmarks: [],
     });
   }
 
@@ -205,9 +209,10 @@ export function TodosEditor({
               );
             }
             const statusOption = getDailyStatusOption(todo.status);
-            const linkedResource = todo.resource
-              ?? resourceOptions.find(r => r.id === todo.resourceId)
-              ?? null;
+            const linkedResource
+              = todo.resource
+                ?? resourceOptions.find(r => r.id === todo.resourceId)
+                ?? null;
             return (
               <li
                 key={todo.id}
@@ -250,6 +255,36 @@ export function TodosEditor({
                       {linkedResource.name}
                     </Badge>
                   )}
+                  {(todo.bookmarks ?? []).map(b => (
+                    <Badge
+                      key={b.bookmarkId}
+                      variant="outline"
+                      className="
+                        border-amber-200 bg-amber-50 text-amber-900
+                        dark:border-amber-900/50 dark:bg-amber-950/40
+                        dark:text-amber-200
+                      "
+                    >
+                      {b.url
+                        ? (
+                          <a
+                            href={b.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="
+                              inline-flex items-center gap-1
+                              hover:underline
+                            "
+                          >
+                            {b.title}
+                            <ExternalLinkIcon className="size-3" />
+                          </a>
+                        )
+                        : (
+                          b.title
+                        )}
+                    </Badge>
+                  ))}
                   <div
                     className="
                       ml-auto flex items-center gap-1 opacity-0 transition

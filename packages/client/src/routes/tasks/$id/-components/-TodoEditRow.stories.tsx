@@ -4,6 +4,7 @@ import { fn } from "storybook/test";
 
 import { TodoEditRow } from "./-TodoEditRow";
 
+import { QueryStub } from "@/test-utils/QueryStub";
 import { smokeText } from "@/test-utils/storyPlay";
 import { makeTaskTodo } from "@/test-utils/tasksFixtures";
 
@@ -27,9 +28,11 @@ const meta: Meta<typeof TodoEditRow> = {
   },
   decorators: [
     Story => (
-      <ul className="max-w-2xl rounded-md border">
-        <Story />
-      </ul>
+      <QueryStub>
+        <ul className="max-w-2xl rounded-md border">
+          <Story />
+        </ul>
+      </QueryStub>
     ),
   ],
 };

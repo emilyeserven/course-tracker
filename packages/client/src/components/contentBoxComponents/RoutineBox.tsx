@@ -80,8 +80,7 @@ export function RoutineBox({
   // only applies when the grid is empty — i.e. no task, resource, or freeform
   // item is assigned at all. (connections are categorical, not the assignment.)
   const dailyHasNoAssignment
-    = isDaily
-      && !Object.values(weekly ?? {}).some(entry => !!entry?.id);
+    = isDaily && !Object.values(weekly ?? {}).some(entry => !!entry?.id);
   const scheduledCount = weekly
     ? Object.values(weekly).filter(Boolean).length
     : 0;
@@ -114,12 +113,24 @@ export function RoutineBox({
                       hover:bg-primary hover:text-primary-foreground
                     "
                   >
-                    <EntityLink
-                      entity={connectionEntityKind(c.type)}
-                      id={c.id}
-                    >
-                      {c.name ?? c.id}
-                    </EntityLink>
+                    {c.type === "bookmark"
+                      ? (
+                        <a
+                          href={c.url ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {c.name ?? c.id}
+                        </a>
+                      )
+                      : (
+                        <EntityLink
+                          entity={connectionEntityKind(c.type)}
+                          id={c.id}
+                        >
+                          {c.name ?? c.id}
+                        </EntityLink>
+                      )}
                   </Badge>
                 ))
               )

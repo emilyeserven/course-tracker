@@ -4,14 +4,19 @@ import type { RoutineConnectionType } from "@emstack/types";
 
 import { toOptions } from "./selectOptions";
 
-// EntityLink's entity kind (plural route segment) for each connection type.
-const ENTITY_KIND_BY_TYPE: Record<RoutineConnectionType, EntityKind> = {
+// Connection types with a local route/row. "bookmark" is external (no local
+// route) and is handled separately by a bookmark picker, so it never flows
+// through the encode/decode/EntityLink paths below.
+export type LocalConnectionType = Exclude<RoutineConnectionType, "bookmark">;
+
+// EntityLink's entity kind (plural route segment) for each local connection type.
+const ENTITY_KIND_BY_TYPE: Record<LocalConnectionType, EntityKind> = {
   topic: "topics",
   task: "tasks",
   resource: "resources",
 };
 
-export function connectionEntityKind(type: RoutineConnectionType) {
+export function connectionEntityKind(type: LocalConnectionType) {
   return ENTITY_KIND_BY_TYPE[type];
 }
 
@@ -19,26 +24,26 @@ export function connectionEntityKind(type: RoutineConnectionType) {
 // round-trip the entity type. Entity ids are uuids (no colon), so splitting on
 // the first colon is safe. Dropdown grouping is driven by each option's explicit
 // `group` field (see buildConnectionOptions), not by this value prefix.
-const GROUP_LABEL_BY_TYPE: Record<RoutineConnectionType, string> = {
+const GROUP_LABEL_BY_TYPE: Record<LocalConnectionType, string> = {
   topic: "Topic",
   task: "Task",
   resource: "Resource",
 };
-const TYPE_BY_GROUP_LABEL: Record<string, RoutineConnectionType> = {
+const TYPE_BY_GROUP_LABEL: Record<string, LocalConnectionType> = {
   Topic: "topic",
   Task: "task",
   Resource: "resource",
 };
 
 export function encodeConnection(c: {
-  type: RoutineConnectionType;
+  type: LocalConnectionType;
   id: string;
 }) {
   return `${GROUP_LABEL_BY_TYPE[c.type]}:${c.id}`;
 }
 
 export function decodeConnection(value: string): {
-  type: RoutineConnectionType;
+  type: LocalConnectionType;
   id: string;
 } | null {
   const idx = value.indexOf(":");

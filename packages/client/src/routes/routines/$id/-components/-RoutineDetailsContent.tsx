@@ -31,11 +31,9 @@ export function RoutineDetailsContent({
   data,
 }: RoutineDetailsContentProps) {
   const {
-    taskNames,
-    resourceNames,
-    moduleNames,
-    moduleGroupNames,
-  } = useTaskResourceNames();
+    taskNames, resourceNames, moduleNames, moduleGroupNames,
+  }
+    = useTaskResourceNames();
 
   const weekly = data.weekly ?? {};
   const isDaily = data.mode === "daily";
@@ -71,11 +69,7 @@ export function RoutineDetailsContent({
               font-medium
             "
           >
-            {isCurated
-              ? "Curated"
-              : isDaily
-                ? "Daily Task"
-                : "Weekly Schedule"}
+            {isCurated ? "Curated" : isDaily ? "Daily Task" : "Weekly Schedule"}
           </span>
         </InfoArea>
         <InfoArea
@@ -93,9 +87,9 @@ export function RoutineDetailsContent({
               <span className="inline-flex items-center gap-1">
                 <FlameIcon
                   size={16}
-                  className={chain > 0
-                    ? "text-orange-600"
-                    : "text-muted-foreground"}
+                  className={
+                    chain > 0 ? "text-orange-600" : "text-muted-foreground"
+                  }
                 />
                 <strong>{chain}</strong>
                 <span className="text-muted-foreground">day chain</span>
@@ -103,9 +97,9 @@ export function RoutineDetailsContent({
               <span className="inline-flex items-center gap-1">
                 <LaughIcon
                   size={16}
-                  className={total > 0
-                    ? "text-emerald-600"
-                    : "text-muted-foreground"}
+                  className={
+                    total > 0 ? "text-emerald-600" : "text-muted-foreground"
+                  }
                 />
                 <strong>{total}</strong>
                 <span className="text-muted-foreground">total days</span>
@@ -121,22 +115,44 @@ export function RoutineDetailsContent({
         <ul className="flex flex-col gap-1">
           {data.connections?.map(c => (
             <li key={`${c.type}:${c.id}`}>
-              <EntityLink
-                entity={connectionEntityKind(c.type)}
-                id={c.id}
-                className={`
-                  font-bold text-blue-800
-                  hover:text-blue-600
-                  dark:text-blue-300
-                `}
-              >
-                <span
-                  className="mr-2 text-xs text-muted-foreground uppercase"
-                >
-                  {c.type}
-                </span>
-                {c.name ?? c.id}
-              </EntityLink>
+              {c.type === "bookmark"
+                ? (
+                  <a
+                    href={c.url ?? undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`
+                      font-bold text-blue-800
+                      hover:text-blue-600
+                      dark:text-blue-300
+                    `}
+                  >
+                    <span
+                      className="mr-2 text-xs text-muted-foreground uppercase"
+                    >
+                      {c.type}
+                    </span>
+                    {c.name ?? c.id}
+                  </a>
+                )
+                : (
+                  <EntityLink
+                    entity={connectionEntityKind(c.type)}
+                    id={c.id}
+                    className={`
+                      font-bold text-blue-800
+                      hover:text-blue-600
+                      dark:text-blue-300
+                    `}
+                  >
+                    <span
+                      className="mr-2 text-xs text-muted-foreground uppercase"
+                    >
+                      {c.type}
+                    </span>
+                    {c.name ?? c.id}
+                  </EntityLink>
+                )}
             </li>
           ))}
         </ul>
@@ -157,9 +173,7 @@ export function RoutineDetailsContent({
                     border-border/60 py-1
                   "
                 >
-                  <span className="text-sm font-medium">
-                    {DAY_LABELS[day]}
-                  </span>
+                  <span className="text-sm font-medium">{DAY_LABELS[day]}</span>
                   {entry
                     ? (
                       <RoutineEntryLabel
@@ -171,9 +185,7 @@ export function RoutineDetailsContent({
                       />
                     )
                     : (
-                      <span
-                        className="text-sm text-muted-foreground italic"
-                      >
+                      <span className="text-sm text-muted-foreground italic">
                         Nothing scheduled
                       </span>
                     )}
@@ -190,9 +202,7 @@ export function RoutineDetailsContent({
         >
           {data.curated?.endDate && (
             <p className="mb-2 text-sm text-muted-foreground">
-              Ends
-              {" "}
-              {formatCuratedDateLabel(data.curated.endDate)}
+              Ends {formatCuratedDateLabel(data.curated.endDate)}
             </p>
           )}
           {curatedDates.length > 0
@@ -222,9 +232,7 @@ export function RoutineDetailsContent({
                           />
                         )
                         : (
-                          <span
-                            className="text-sm text-muted-foreground italic"
-                          >
+                          <span className="text-sm text-muted-foreground italic">
                             Nothing scheduled
                           </span>
                         )}

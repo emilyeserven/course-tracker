@@ -5,15 +5,19 @@ export type RoutineReferenceType = "task" | "resource" | "freeform";
 
 // A routine can be connected to any number of these entity kinds. The
 // connection is the routine's categorical link (what it's "about"); it is
-// separate from the weekly grid, which is the per-day activity.
-export type RoutineConnectionType = "topic" | "task" | "resource";
+// separate from the weekly grid, which is the per-day activity. "bookmark"
+// points at an external Simple Bookmarks bookmark (no local row).
+export type RoutineConnectionType = "topic" | "task" | "resource" | "bookmark";
 
-// A single polymorphic connection. `name` is resolved on read for display and
-// omitted on write (the client sends only `type` + `id`).
+// A single polymorphic connection. For local types, `name` is resolved on read
+// and the client sends only `type` + `id`. For "bookmark", the bookmark lives in
+// a separate app with no local row, so the client sends `name` (cached title) +
+// `url` too and they are stored on the connection; `url` is the link-out target.
 export interface RoutineConnection {
   type: RoutineConnectionType;
   id: string;
   name?: string | null;
+  url?: string | null;
 }
 
 // A routine is a weekly schedule (each weekday can differ), a daily task (the

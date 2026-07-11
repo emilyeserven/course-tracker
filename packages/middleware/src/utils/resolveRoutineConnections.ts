@@ -6,6 +6,9 @@ import type { RoutineConnection } from "@emstack/types";
 export interface RawRoutineConnection {
   connectedType: RoutineConnectionType;
   connectedId: string;
+  // Bookmark connections carry their own cached label (no local row to resolve).
+  cachedTitle?: string | null;
+  cachedUrl?: string | null;
 }
 
 // A shared RoutineConnection with its display name resolved on read (always
@@ -75,7 +78,10 @@ export async function resolveRoutineConnections<
       : Promise.resolve([]),
   ]);
 
-  const nameByType: Record<RoutineConnectionType, Map<string, string>> = {
+  const nameByType: Record<
+    Exclude<RoutineConnectionType, "bookmark">,
+    Map<string, string>
+  > = {
     topic: new Map(topicRows.map(r => [r.id, r.name])),
     task: new Map(taskRows.map(r => [r.id, r.name])),
     resource: new Map(resourceRows.map(r => [r.id, r.name])),
@@ -87,6 +93,16 @@ export async function resolveRoutineConnections<
     } = row;
     const connections = (raw ?? [])
       .map((c): ResolvedRoutineConnection | null => {
+        // Bookmark connections have no local row — render the cached label and
+        // never drop them (a deleted bookmark just leaves a stale chip).
+        if (c.connectedType === "bookmark") {
+          return {
+            type: "bookmark",
+            id: c.connectedId,
+            name: c.cachedTitle ?? "Bookmark",
+            url: c.cachedUrl ?? null,
+          };
+        }
         const name = nameByType[c.connectedType].get(c.connectedId);
         return name
           ? {
