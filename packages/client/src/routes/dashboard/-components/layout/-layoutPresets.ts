@@ -64,7 +64,7 @@ export const LAYOUT_PRESETS: LayoutPreset[] = [
   {
     key: "tasks",
     name: "Tasks & habits",
-    description: "Dailies, Todoist tasks, and radars.",
-    buildTiles: () => stackTiles(["doNow", "doneForDay", "todoist", "radars"]),
+    description: "Dailies and Todoist tasks.",
+    buildTiles: () => stackTiles(["doNow", "doneForDay", "todoist"]),
   },
 ];

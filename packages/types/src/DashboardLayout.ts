@@ -7,8 +7,6 @@ export const DASHBOARD_TILE_IDS = [
   "underutilizedProviders",
   "coursesByAmortization",
   "coursesInProgress",
-  "radars",
-  "exploreSomething",
   "readwise",
   "todoist",
   "googleCalendar",

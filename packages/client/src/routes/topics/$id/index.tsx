@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { EditIcon } from "lucide-react";
 
-import { DomainLinkList } from "./-components/-DomainLinkList";
 import { RoutineLinkList } from "./-components/-RoutineLinkList";
 
 import {
@@ -12,7 +11,10 @@ import {
   PageHeader,
   ResourceLinksSection,
 } from "@/components/layout";
-import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
+import {
+  EntityError,
+  EntityPending,
+} from "@/components/listControls/EntityStates";
 import { fetchRoutines, fetchSingleTopic } from "@/utils";
 
 export const Route = createFileRoute("/topics/$id/")({
@@ -78,14 +80,6 @@ function SingleTopic() {
         >
           <p>{data?.reason}</p>
         </InfoArea>
-        <div>
-          <InfoArea
-            header="Domains"
-            condition={!!data?.domains && data.domains.length > 0}
-          >
-            <DomainLinkList domains={data?.domains ?? []} />
-          </InfoArea>
-        </div>
         <ResourceLinksSection
           resources={data?.resources}
           resourceCount={data?.resourceCount}

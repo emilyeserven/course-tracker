@@ -1,8 +1,5 @@
-import type { Domain } from "@emstack/types";
-
 import { describe, expect, test } from "vitest";
 
-import { domainConnectionCount } from "./connectionCounts.ts";
 import { topConnected } from "./topConnected.ts";
 
 describe("topConnected ranker", () => {
@@ -66,8 +63,13 @@ describe("topConnected ranker", () => {
     expect(topConnected(items, getName, getCount, 2)).toHaveLength(2);
   });
 
-  test("uses the supplied name accessor (domains expose `title`)", () => {
-    const domains: Domain[] = [
+  test("uses the supplied name accessor (rows exposing `title`)", () => {
+    interface TitledRow {
+      id: string;
+      title: string;
+      topicCount: number;
+    }
+    const rows: TitledRow[] = [
       {
         id: "d1",
         title: "Backend",
@@ -79,7 +81,13 @@ describe("topConnected ranker", () => {
         topicCount: 7,
       },
     ];
-    expect(topConnected(domains, d => d.title, domainConnectionCount)).toEqual([
+    expect(
+      topConnected(
+        rows,
+        r => r.title,
+        r => r.topicCount,
+      ),
+    ).toEqual([
       {
         id: "d2",
         name: "Frontend",

@@ -5,7 +5,6 @@ export * from "./courses";
 export * from "./dailyCriteriaTemplates";
 export * from "./dashboardLayouts";
 export * from "./enums";
-export * from "./radar";
 export * from "./relations";
 export * from "./routines";
 export * from "./settings";

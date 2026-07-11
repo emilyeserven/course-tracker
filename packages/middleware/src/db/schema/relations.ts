@@ -5,7 +5,6 @@
 import { relations } from "drizzle-orm";
 
 import { courseProviders, interactions, moduleGroups, modules, resources } from "./courses";
-import { domains, domainWithinScopeTopics, radarBlips } from "./radar";
 import { routineConnections, routines } from "./routines";
 import { moduleGroupTags, moduleTags, resourceTags, tagGroups, tags, tasksToTags, topicsToTags } from "./tags";
 import { taskBookmarks, taskResources, tasks, tasksToResources, taskTodos, taskTypes, todoBookmarks } from "./tasks";
@@ -265,34 +264,9 @@ export const topicsRelations = relations(topics, ({
   many,
 }) => ({
   topicsToResources: many(topicsToResources),
-  radarBlips: many(radarBlips),
-  domainWithinScope: many(domainWithinScopeTopics),
   topicsToTags: many(topicsToTags),
   tasks: many(tasks),
 }));
-
-export const domainsRelations = relations(domains, ({
-  many,
-}) => ({
-  radarBlips: many(radarBlips),
-  withinScopeTopics: many(domainWithinScopeTopics),
-}));
-
-export const domainWithinScopeTopicsRelations = relations(
-  domainWithinScopeTopics,
-  ({
-    one,
-  }) => ({
-    topic: one(topics, {
-      fields: [domainWithinScopeTopics.topicId],
-      references: [topics.id],
-    }),
-    domain: one(domains, {
-      fields: [domainWithinScopeTopics.domainId],
-      references: [domains.id],
-    }),
-  }),
-);
 
 export const topicsToResourcesRelation = relations(topicsToResources, ({
   one,
@@ -333,18 +307,5 @@ export const tasksToResourcesRelations = relations(tasksToResources, ({
   module: one(modules, {
     fields: [tasksToResources.moduleId],
     references: [modules.id],
-  }),
-}));
-
-export const radarBlipsRelations = relations(radarBlips, ({
-  one,
-}) => ({
-  domain: one(domains, {
-    fields: [radarBlips.domainId],
-    references: [domains.id],
-  }),
-  topic: one(topics, {
-    fields: [radarBlips.topicId],
-    references: [topics.id],
   }),
 }));

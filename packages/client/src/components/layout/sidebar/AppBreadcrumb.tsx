@@ -68,18 +68,6 @@ const SEGMENT_MAP: Record<string, SegmentEntry> = {
     label: "Topics",
     to: "/topics",
   },
-  plans: {
-    label: "Plans",
-    to: "/plans",
-  },
-  domains: {
-    section: {
-      label: "Plans",
-      to: "/plans",
-    },
-    label: "Domains",
-    to: "/domains",
-  },
   actions: {
     label: "Actions",
     to: "/actions",
@@ -113,16 +101,20 @@ const SEGMENT_MAP: Record<string, SegmentEntry> = {
 function buildCrumbs(pathname: string): Crumb[] {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length === 0) {
-    return [{
-      label: "Dashboard",
-    }];
+    return [
+      {
+        label: "Dashboard",
+      },
+    ];
   }
 
   const entry = SEGMENT_MAP[segments[0]];
   if (!entry) {
-    return [{
-      label: segments[0],
-    }];
+    return [
+      {
+        label: segments[0],
+      },
+    ];
   }
 
   const crumbs: Crumb[] = [];
@@ -163,7 +155,9 @@ export function AppBreadcrumb() {
             <Fragment key={`${crumb.label}-${index}`}>
               <BreadcrumbItem>
                 {isLast || !crumb.to
-                  ? <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  ? (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  )
                   : (
                     <BreadcrumbLink asChild>
                       <Link to={crumb.to}>{crumb.label}</Link>

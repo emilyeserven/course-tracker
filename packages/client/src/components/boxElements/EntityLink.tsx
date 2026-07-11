@@ -6,7 +6,6 @@ export type EntityKind
   = | "resources"
     | "topics"
     | "providers"
-    | "domains"
     | "tasks"
     | "routines";
 
@@ -14,7 +13,6 @@ const TO_BY_KIND: Record<EntityKind, string> = {
   resources: "/resources/$id",
   topics: "/topics/$id",
   providers: "/providers/$id",
-  domains: "/domains/$id",
   tasks: "/tasks/$id",
   routines: "/routines/$id",
 };

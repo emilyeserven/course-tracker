@@ -1,6 +1,5 @@
 import type { QuickAddKey } from "./quickAddOptions";
 
-import { QuickAddDomainDialog } from "./QuickAddDomainDialog";
 import { QuickAddProviderDialog } from "./QuickAddProviderDialog";
 import { QuickAddReadwiseDialog } from "./QuickAddReadwiseDialog";
 import { QuickAddResourceDialog } from "./QuickAddResourceDialog";
@@ -19,8 +18,7 @@ interface QuickAddDialogsProps {
  * to the root so the desktop dropdown and the mobile menu share one set.
  */
 export function QuickAddDialogs({
-  active,
-  onClose,
+  active, onClose,
 }: QuickAddDialogsProps) {
   const onOpenChange = (open: boolean) => {
     if (!open) onClose();
@@ -46,10 +44,6 @@ export function QuickAddDialogs({
       />
       <QuickAddTopicDialog
         open={active === "topic"}
-        onOpenChange={onOpenChange}
-      />
-      <QuickAddDomainDialog
-        open={active === "domain"}
         onOpenChange={onOpenChange}
       />
       <QuickAddRoutineDialog

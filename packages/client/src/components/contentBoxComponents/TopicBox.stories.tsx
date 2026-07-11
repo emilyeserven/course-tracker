@@ -9,16 +9,17 @@ import { smokeText } from "@/test-utils/storyPlay";
 const meta: Meta<typeof TopicBox> = {
   component: TopicBox,
   args: makeTopicRow(),
-  decorators: [cardStoryDecorator({
-    constrained: true,
-  })],
+  decorators: [
+    cardStoryDecorator({
+      constrained: true,
+    }),
+  ],
 };
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// "Frontend" is the domain tag rendered via DomainTagList.
 export const Default: Story = {
-  play: smokeText("TypeScript", "Frontend"),
+  play: smokeText("TypeScript"),
 };

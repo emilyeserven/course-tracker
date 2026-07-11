@@ -25,7 +25,6 @@ export default async function (server: FastifyInstance) {
         readwiseKeyHint: maskKey(readwiseKey),
         todoistConfigured: Boolean(todoistKey),
         todoistKeyHint: maskKey(todoistKey),
-        focusedDomainIds: row?.focusedDomainIds ?? [],
         moduleHintTemplates: row?.moduleHintTemplates ?? [],
       };
     },

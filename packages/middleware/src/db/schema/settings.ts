@@ -17,13 +17,6 @@ export const appSettings = pgTable("app_settings", {
     .$type<CalendarFeed[]>()
     .notNull()
     .default([]),
-  // Ordered ids of the domains the user has marked "Focused". Capped at 3 by the
-  // update handler; ordering drives the focused tabs in the dashboard's
-  // "Explore Something" card.
-  focusedDomainIds: jsonb("focused_domain_ids")
-    .$type<string[]>()
-    .notNull()
-    .default([]),
   // Reusable hint templates for naming a resource's group/module hierarchy. Each
   // resource references one by id (resources.modules_config.hintTemplateId); its
   // hints surface as placeholders when editing that resource's groups/modules.

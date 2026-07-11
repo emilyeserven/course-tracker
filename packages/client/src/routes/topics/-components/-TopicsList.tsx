@@ -1,5 +1,5 @@
 import type { TopicsTableSort } from "@/components/contentBoxComponents";
-import type { Domain, TopicForTopicsPage } from "@emstack/types";
+import type { TopicForTopicsPage } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -13,8 +13,6 @@ import {
 } from "@/components/contentBoxComponents";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
-  ClearFiltersButton,
-  FilterSelect,
   ListSearchInput,
   OnboardingEmptyState,
   ViewModeToggle,
@@ -89,11 +87,6 @@ function optionToSort(option: SortOption): TopicsTableSort {
   }
 }
 
-function firstDomainTitle(topic: TopicForTopicsPage): string {
-  const first = topic.domains?.find(d => d.id !== undefined);
-  return first?.title ?? "";
-}
-
 function sortTopics(
   topics: TopicForTopicsPage[],
   sort: TopicsTableSort,
@@ -103,10 +96,6 @@ function sortTopics(
     switch (sort.column) {
       case "name":
         return a.name.localeCompare(b.name) * dir;
-      case "domains": {
-        const cmp = firstDomainTitle(a).localeCompare(firstDomainTitle(b));
-        return cmp !== 0 ? cmp * dir : a.name.localeCompare(b.name);
-      }
       case "resources":
         return (
           ((a.resourceCount ?? 0) - (b.resourceCount ?? 0)) * dir
@@ -128,7 +117,6 @@ function sortTopics(
 
 export interface TopicsListProps {
   topics: TopicForTopicsPage[];
-  domains: Domain[];
   // Deletes the given topics; the caller owns the network call, query
   // invalidation, and success/error toast. Rejects on failure so the confirm
   // dialog stays open for a retry.
@@ -136,10 +124,9 @@ export interface TopicsListProps {
 }
 
 export function TopicsList({
-  topics, domains, onBulkDelete,
+  topics, onBulkDelete,
 }: TopicsListProps) {
   const [search, setSearch] = useState("");
-  const [filterDomain, setFilterDomain] = useState<string | undefined>();
   const [sort, setSort] = useState<TopicsTableSort>(DEFAULT_SORT);
   const {
     viewMode, setViewMode: updateViewMode,
@@ -154,24 +141,11 @@ export function TopicsList({
 
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter((t) => {
-        const nameMatch = t.name.toLowerCase().includes(q);
-        const domainMatch = t.domains?.some(d =>
-          d.title.toLowerCase().includes(q));
-        return nameMatch || domainMatch;
-      });
-    }
-
-    if (filterDomain === "none") {
-      result = result.filter(t => !t.domains || t.domains.length === 0);
-    }
-    else if (filterDomain) {
-      result = result.filter(t =>
-        t.domains?.some(d => d.id === filterDomain));
+      result = result.filter(t => t.name.toLowerCase().includes(q));
     }
 
     return sortTopics(result, sort);
-  }, [topics, search, filterDomain, sort]);
+  }, [topics, search, sort]);
 
   const filteredIds = useMemo(
     () => filteredAndSorted.map(t => t.id),
@@ -217,20 +191,6 @@ export function TopicsList({
     }
   };
 
-  const hasActiveFilters = filterDomain;
-
-  const totalTopicCount = useMemo(
-    () => topics.filter(t => t.name !== "").length,
-    [topics],
-  );
-  const noDomainCount = useMemo(
-    () =>
-      topics.filter(
-        t => t.name !== "" && (!t.domains || t.domains.length === 0),
-      ).length,
-    [topics],
-  );
-
   return (
     <>
       <div className="container flex flex-col gap-4">
@@ -245,31 +205,6 @@ export function TopicsList({
                   value={search}
                   onChange={setSearch}
                 />
-
-                <FilterSelect
-                  placeholder="Domain"
-                  value={filterDomain}
-                  onChange={setFilterDomain}
-                  allLabel="All Domains"
-                  totalCount={totalTopicCount}
-                  noneLabel="No Domain"
-                  noneCount={noDomainCount}
-                  options={domains
-                    .filter(d => (d.topicCount ?? 0) > 0)
-                    .map(d => ({
-                      value: d.id,
-                      label: d.title,
-                      count: d.topicCount ?? 0,
-                    }))}
-                />
-
-                {hasActiveFilters && (
-                  <ClearFiltersButton
-                    onClick={() => {
-                      setFilterDomain(undefined);
-                    }}
-                  />
-                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -422,7 +357,7 @@ export function TopicsList({
             ? "Delete 1 topic?"
             : `Delete ${selectedIds.size} topics?`
         }
-        description="This will remove the selected topics and any links to courses, domains, and radar blips. This cannot be undone."
+        description="This will remove the selected topics and any links to courses. This cannot be undone."
         confirmLabel={isDeleting ? "Deleting..." : "Delete"}
         cancelLabel="Cancel"
         onConfirm={handleBulkDelete}

@@ -10,7 +10,7 @@ import {
   PageHeader,
 } from "@/components/listControls";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-import { bulkDeleteTopics, fetchDomains, fetchTopics } from "@/utils";
+import { bulkDeleteTopics, fetchTopics } from "@/utils";
 
 export const Route = createFileRoute("/topics/")({
   component: Topics,
@@ -36,21 +36,11 @@ function Topics() {
     queryFn: () => fetchTopics(),
   });
 
-  const {
-    data: domains,
-  } = useQuery({
-    queryKey: ["domains"],
-    queryFn: () => fetchDomains(),
-  });
-
   const handleBulkDelete = async (ids: string[]) => {
     try {
       await bulkDeleteTopics(ids);
       await queryClient.invalidateQueries({
         queryKey: ["topics"],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["domains"],
       });
       toast.success(
         ids.length === 1 ? "1 topic deleted." : `${ids.length} topics deleted.`,
@@ -71,7 +61,6 @@ function Topics() {
       />
       <TopicsList
         topics={topics ?? []}
-        domains={domains ?? []}
         onBulkDelete={handleBulkDelete}
       />
     </div>

@@ -4,7 +4,6 @@ import {
   CriteriaTemplatesSection,
   DashboardLayoutsSection,
   DataToolsSection,
-  FocusedDomainsSection,
   GoogleCalendarSection,
   ReadwiseSection,
   ResourceHintTemplatesSection,
@@ -20,7 +19,6 @@ import { PageHeader, PageTabs } from "@/components/layout";
 const TAB_VALUES = [
   "tasks",
   "routines",
-  "domains",
   "resources",
   "dashboard",
   "connections",
@@ -87,11 +85,6 @@ function Settings() {
                   <RoutineTemplatesSection />
                 </>
               ),
-            },
-            {
-              value: "domains",
-              label: "Domains Settings",
-              content: <FocusedDomainsSection />,
             },
             {
               value: "resources",

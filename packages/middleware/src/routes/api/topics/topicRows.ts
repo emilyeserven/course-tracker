@@ -24,7 +24,6 @@ export type TopicResourceLinkInput = Pick<
 >;
 
 export interface TopicBody extends TopicBodyFields {
-  domainIds?: string[];
   tagIds?: string[];
   resourceLinks?: TopicResourceLinkInput[];
 }
@@ -39,12 +38,6 @@ export const topicBodySchema = {
     },
     description: nullableString,
     reason: nullableString,
-    domainIds: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
     tagIds: tagIdsArraySchema,
     resourceLinks: resourceLinksArraySchema,
   },

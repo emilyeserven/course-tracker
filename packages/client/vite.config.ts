@@ -28,10 +28,12 @@ export default defineConfig(({
   },
   plugins: [
     ...(mode !== "test"
-      ? [tanstackRouter({
-        target: "react",
-        autoCodeSplitting: true,
-      })]
+      ? [
+        tanstackRouter({
+          target: "react",
+          autoCodeSplitting: true,
+        }),
+      ]
       : []),
     react(),
     tailwindcss(),
@@ -114,7 +116,6 @@ export default defineConfig(({
             "**/.{idea,git,cache,output,temp}/**",
             "**/src/routes/settings/-components/advanced/-DataToolsSection.stories.tsx",
             "**/src/routes/settings/-components/connections/-TodoistSection.stories.tsx",
-            "**/src/components/radar/RadarConfigIllustrations.stories.tsx",
           ],
           // Block real /api network calls during the run (stories seed query
           // data instead) — kills the ECONNREFUSED proxy round-trips/noise.

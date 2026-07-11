@@ -57,14 +57,6 @@ export function PageHeader({
                   Providers
                 </Link>
               )}
-              {pageSection === "domains" && (
-                <Link
-                  to="/domains"
-                  className="text-sm uppercase"
-                >
-                  Domains
-                </Link>
-              )}
               {pageSection === "dailies" && (
                 <Link
                   to="/routines/tracker"
