@@ -38,17 +38,25 @@ import {
 } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
+const scheduleRowFields = {
+  type: z.enum(["", "task", "resource", "freeform", "bookmark"]),
+  id: z.string(),
+  moduleId: z.string(),
+  moduleGroupId: z.string(),
+  notes: z.string(),
+  location: z.string(),
+  prependText: z.string(),
+  appendText: z.string(),
+  title: z.string(),
+  url: z.string(),
+  sectionId: z.string(),
+  sectionLabel: z.string(),
+} as const;
+
 const weeklyRowSchema = z
   .object({
     day: z.enum(["0", "1", "2", "3", "4", "5", "6"]),
-    type: z.enum(["", "task", "resource", "freeform"]),
-    id: z.string(),
-    moduleId: z.string(),
-    moduleGroupId: z.string(),
-    notes: z.string(),
-    location: z.string(),
-    prependText: z.string(),
-    appendText: z.string(),
+    ...scheduleRowFields,
   })
   .refine(row => row.type === "" || row.id.length > 0, {
     message: "Required",
@@ -58,14 +66,7 @@ const weeklyRowSchema = z
 const curatedRowSchema = z
   .object({
     date: z.string(),
-    type: z.enum(["", "task", "resource", "freeform"]),
-    id: z.string(),
-    moduleId: z.string(),
-    moduleGroupId: z.string(),
-    notes: z.string(),
-    location: z.string(),
-    prependText: z.string(),
-    appendText: z.string(),
+    ...scheduleRowFields,
   })
   .refine(row => row.type === "" || row.id.length > 0, {
     message: "Required",
@@ -346,6 +347,10 @@ export function useRoutineDetailsForm(
             location: "",
             prependText: "",
             appendText: "",
+            title: "",
+            url: "",
+            sectionId: "",
+            sectionLabel: "",
           },
       ),
     );

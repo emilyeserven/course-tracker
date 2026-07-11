@@ -11,7 +11,7 @@ import type {
 // implementation is the cross-package `@emstack/types` helper the middleware shares.
 export { routineEntryName as weeklyEntryName } from "@emstack/types";
 
-export type WeeklyRowType = "" | "task" | "resource" | "freeform";
+export type WeeklyRowType = "" | "task" | "resource" | "freeform" | "bookmark";
 
 // Curated mode picks an end date at most this many days past today; the per-date
 // editor never shows more rows than that.
@@ -34,6 +34,12 @@ export interface WeeklyRow {
   // sentence. "" = nothing to prepend/append.
   prependText: string;
   appendText: string;
+  // Bookmark entries only: cached title/url + optional section narrowing.
+  // "" = none. `id` holds the external bookmarkId.
+  title: string;
+  url: string;
+  sectionId: string;
+  sectionLabel: string;
 }
 
 // A weekly entry without its day key — the shared item shape Daily Task mode
@@ -74,6 +80,10 @@ function entryRowFields(entry: RoutineReferenceItem | undefined): WeeklyEntry {
     location: entry?.location ?? "",
     prependText: entry?.prependText ?? "",
     appendText: entry?.appendText ?? "",
+    title: entry?.title ?? "",
+    url: entry?.url ?? "",
+    sectionId: entry?.sectionId ?? "",
+    sectionLabel: entry?.sectionLabel ?? "",
   };
 }
 
@@ -107,6 +117,21 @@ function referenceItemFromRow(
     }
     else if (row.moduleGroupId) {
       item.moduleGroupId = row.moduleGroupId;
+    }
+  }
+  // Bookmark entries carry their cached title/url + optional section narrowing.
+  if (type === "bookmark") {
+    if (row.title) {
+      item.title = row.title;
+    }
+    if (row.url) {
+      item.url = row.url;
+    }
+    if (row.sectionId) {
+      item.sectionId = row.sectionId;
+    }
+    if (row.sectionLabel) {
+      item.sectionLabel = row.sectionLabel;
     }
   }
   if (row.notes) {
@@ -155,6 +180,10 @@ export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
       location: found.location,
       prependText: found.prependText,
       appendText: found.appendText,
+      title: found.title,
+      url: found.url,
+      sectionId: found.sectionId,
+      sectionLabel: found.sectionLabel,
     }
     : {
       type: "",
@@ -165,6 +194,10 @@ export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
       location: "",
       prependText: "",
       appendText: "",
+      title: "",
+      url: "",
+      sectionId: "",
+      sectionLabel: "",
     };
 }
 
@@ -177,6 +210,10 @@ export function fillAllDays(entry: {
   location?: string;
   prependText?: string;
   appendText?: string;
+  title?: string;
+  url?: string;
+  sectionId?: string;
+  sectionLabel?: string;
 }): WeeklyRow[] {
   return ALL_DAYS.map(day => ({
     day,
@@ -188,6 +225,10 @@ export function fillAllDays(entry: {
     location: entry.location ?? "",
     prependText: entry.prependText ?? "",
     appendText: entry.appendText ?? "",
+    title: entry.title ?? "",
+    url: entry.url ?? "",
+    sectionId: entry.sectionId ?? "",
+    sectionLabel: entry.sectionLabel ?? "",
   }));
 }
 

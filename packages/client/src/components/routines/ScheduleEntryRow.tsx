@@ -3,6 +3,7 @@ import type { SelectOption } from "@/utils";
 
 import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
+import { BookmarkPicker } from "@/components/formFields";
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
 import { effectiveEntryUrl } from "@/components/routines/weekly";
@@ -48,13 +49,15 @@ function rowPreview(
   const itemName
     = row.type === "freeform"
       ? row.id
-      : row.type === "resource"
-        ? resourceEntryLabel({
-          resourceName: optionsMap.get(row.id) ?? "",
-          moduleName: moduleLabel,
-          groupName: groupLabel,
-        })
-        : (optionsMap.get(row.id) ?? "");
+      : row.type === "bookmark"
+        ? (row.title || row.id)
+        : row.type === "resource"
+          ? resourceEntryLabel({
+            resourceName: optionsMap.get(row.id) ?? "",
+            moduleName: moduleLabel,
+            groupName: groupLabel,
+          })
+          : (optionsMap.get(row.id) ?? "");
   return {
     showPreview:
       !!itemName && (!!row.prependText.trim() || !!row.appendText.trim()),
@@ -129,7 +132,7 @@ export function ScheduleEntryRow({
           value={row.type}
           onChange={(e) => {
             // Changing the type clears the chosen item (different option set),
-            // any module narrowing, and any note/location.
+            // any module / bookmark narrowing, and any note/location.
             onChange({
               type: e.target.value as WeeklyRowType,
               id: "",
@@ -137,6 +140,10 @@ export function ScheduleEntryRow({
               moduleGroupId: "",
               notes: "",
               location: "",
+              title: "",
+              url: "",
+              sectionId: "",
+              sectionLabel: "",
             });
           }}
           className="
@@ -146,6 +153,7 @@ export function ScheduleEntryRow({
           <option value="">— None —</option>
           <option value="task">Task</option>
           <option value="resource">Resource</option>
+          <option value="bookmark">Bookmark</option>
           <option value="freeform">Freeform</option>
         </select>
 
@@ -164,38 +172,74 @@ export function ScheduleEntryRow({
               "
             />
           )
-          : (
-            <Combobox
-              items={itemOptions.map(o => o.value)}
-              value={row.id || null}
-              onValueChange={val =>
+          : row.type === "bookmark"
+            ? (
+              // Single-slot bookmark: reuse the multi-select picker, keeping only
+              // the most-recently chosen bookmark (a schedule entry is one item).
+              <BookmarkPicker
+                value={row.id
+                  ? [{
+                    bookmarkId: row.id,
+                    title: row.title,
+                    url: row.url || null,
+                    sectionId: row.sectionId || null,
+                    sectionLabel: row.sectionLabel || null,
+                  }]
+                  : []}
+                onChange={(next) => {
+                  const last = next[next.length - 1];
+                  onChange(
+                    last
+                      ? {
+                        id: last.bookmarkId,
+                        title: last.title,
+                        url: last.url ?? "",
+                        sectionId: last.sectionId ?? "",
+                        sectionLabel: last.sectionLabel ?? "",
+                      }
+                      : {
+                        id: "",
+                        title: "",
+                        url: "",
+                        sectionId: "",
+                        sectionLabel: "",
+                      },
+                  );
+                }}
+              />
+            )
+            : (
+              <Combobox
+                items={itemOptions.map(o => o.value)}
+                value={row.id || null}
+                onValueChange={val =>
                 // A different resource has different modules, so clear any
                 // existing narrowing when the picked item changes.
-                onChange({
-                  id: val ?? "",
-                  moduleId: "",
-                  moduleGroupId: "",
-                })}
-              onInputValueChange={val => onInputValueChange(val)}
-              itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-            >
-              <ComboboxInput
-                placeholder={
-                  row.type === "task"
-                    ? "Search tasks..."
-                    : row.type === "resource"
-                      ? "Search resources..."
-                      : "Pick a type first"
-                }
-                showClear
-                disabled={!row.type}
-              />
-              <TaskResourceComboboxContent
-                optionsMap={optionsMap}
-                onAddNew={row.type === "resource" ? onAddResource : undefined}
-              />
-            </Combobox>
-          )}
+                  onChange({
+                    id: val ?? "",
+                    moduleId: "",
+                    moduleGroupId: "",
+                  })}
+                onInputValueChange={val => onInputValueChange(val)}
+                itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
+              >
+                <ComboboxInput
+                  placeholder={
+                    row.type === "task"
+                      ? "Search tasks..."
+                      : row.type === "resource"
+                        ? "Search resources..."
+                        : "Pick a type first"
+                  }
+                  showClear
+                  disabled={!row.type}
+                />
+                <TaskResourceComboboxContent
+                  optionsMap={optionsMap}
+                  onAddNew={row.type === "resource" ? onAddResource : undefined}
+                />
+              </Combobox>
+            )}
       </div>
 
       {showModulePickers && (

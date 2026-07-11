@@ -17,6 +17,10 @@ export function routineEntryName(
   if (entry.type === "freeform") {
     return entry.id;
   }
+  if (entry.type === "bookmark") {
+    // External bookmark: no id→name map; the cached title lives on the entry.
+    return entry.title ?? entry.id;
+  }
   if (entry.type === "task") {
     return taskNames.get(entry.id) ?? entry.id;
   }

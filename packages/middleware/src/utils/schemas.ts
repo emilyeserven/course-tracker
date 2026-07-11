@@ -57,7 +57,7 @@ const routineReferenceItemSchema = {
   properties: {
     type: {
       type: "string",
-      enum: ["task", "resource", "freeform"],
+      enum: ["task", "resource", "freeform", "bookmark"],
     },
     id: {
       type: "string",
@@ -70,6 +70,11 @@ const routineReferenceItemSchema = {
     location: nullableString,
     prependText: nullableString,
     appendText: nullableString,
+    // Bookmark entries only: cached title/url + optional section narrowing.
+    title: nullableString,
+    url: nullableString,
+    sectionId: nullableString,
+    sectionLabel: nullableString,
   },
 } as const;
 
@@ -208,7 +213,7 @@ export const completionSchema = {
       properties: {
         type: {
           type: "string",
-          enum: ["task", "resource", "freeform"],
+          enum: ["task", "resource", "freeform", "bookmark"],
         },
         id: {
           type: "string",

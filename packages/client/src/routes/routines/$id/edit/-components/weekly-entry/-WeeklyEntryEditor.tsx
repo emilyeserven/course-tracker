@@ -2,10 +2,7 @@ import type { WeeklyEntryEditorProps } from "./-useWeeklyEntryEditor";
 
 import { ActionableSentencePreview } from "./-ActionableSentencePreview";
 import { TaskResourceFreeformPicker } from "./-TaskResourceFreeformPicker";
-import {
-  useWeeklyEntryEditor,
-
-} from "./-useWeeklyEntryEditor";
+import { useWeeklyEntryEditor } from "./-useWeeklyEntryEditor";
 
 import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
 
@@ -16,7 +13,16 @@ import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddRe
 // and derivations live in -useWeeklyEntryEditor.
 export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
   const {
-    type, id, notes, location, prependText, appendText,
+    type,
+    id,
+    notes,
+    location,
+    prependText,
+    appendText,
+    title,
+    url,
+    sectionId,
+    sectionLabel,
   } = props;
   const {
     itemOptions,
@@ -40,6 +46,10 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
       <TaskResourceFreeformPicker
         type={type}
         id={id}
+        title={title}
+        url={url}
+        sectionId={sectionId}
+        sectionLabel={sectionLabel}
         itemOptions={itemOptions}
         optionsMap={optionsMap}
         onEmit={emit}

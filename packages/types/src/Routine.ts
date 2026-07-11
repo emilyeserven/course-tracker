@@ -1,7 +1,7 @@
 import type { DailyCompletion, DailyCriteria } from "./Daily";
 import type { EntityStatus } from "./EntityStatus";
 
-export type RoutineReferenceType = "task" | "resource" | "freeform";
+export type RoutineReferenceType = "task" | "resource" | "freeform" | "bookmark";
 
 // A routine can be connected to any number of these entity kinds. The
 // connection is the routine's categorical link (what it's "about"); it is
@@ -50,6 +50,14 @@ export interface RoutineReferenceItem {
   // means the name stands alone.
   prependText?: string | null;
   appendText?: string | null;
+  // Bookmark entries (type === "bookmark") only. A bookmark is external (no
+  // loadable entity), so its display title/url are cached on the entry; `id` is
+  // the external bookmarkId. Optional section narrowing mirrors the resource
+  // module narrowing above.
+  title?: string | null;
+  url?: string | null;
+  sectionId?: string | null;
+  sectionLabel?: string | null;
 }
 
 // Day-of-week keys follow Date.getDay(): "0" = Sunday ... "6" = Saturday.
