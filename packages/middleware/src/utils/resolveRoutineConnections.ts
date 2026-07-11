@@ -6,9 +6,12 @@ import type { RoutineConnection } from "@emstack/types";
 export interface RawRoutineConnection {
   connectedType: RoutineConnectionType;
   connectedId: string;
-  // Bookmark connections carry their own cached label (no local row to resolve).
+  // Bookmark connections carry their own cached label (no local row to resolve)
+  // plus optional section narrowing.
   cachedTitle?: string | null;
   cachedUrl?: string | null;
+  sectionId?: string | null;
+  sectionLabel?: string | null;
 }
 
 // A shared RoutineConnection with its display name resolved on read (always
@@ -101,6 +104,8 @@ export async function resolveRoutineConnections<
             id: c.connectedId,
             name: c.cachedTitle ?? "Bookmark",
             url: c.cachedUrl ?? null,
+            sectionId: c.sectionId ?? null,
+            sectionLabel: c.sectionLabel ?? null,
           };
         }
         const name = nameByType[c.connectedType].get(c.connectedId);

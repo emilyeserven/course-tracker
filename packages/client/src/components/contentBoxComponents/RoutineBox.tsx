@@ -121,6 +121,7 @@ export function RoutineBox({
                           rel="noreferrer"
                         >
                           {c.name ?? c.id}
+                          {c.sectionLabel ? ` › ${c.sectionLabel}` : ""}
                         </a>
                       )
                       : (

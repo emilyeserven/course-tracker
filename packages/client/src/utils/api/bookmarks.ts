@@ -1,4 +1,4 @@
-import type { BookmarkSummary } from "@emstack/types";
+import type { BookmarkSection, BookmarkSummary } from "@emstack/types";
 
 import { fetchJson, postJson } from "./client";
 
@@ -9,6 +9,14 @@ import { fetchJson, postJson } from "./client";
 export function searchBookmarks(query: string): Promise<BookmarkSummary[]> {
   return fetchJson<BookmarkSummary[]>(
     `/api/bookmarks/search?q=${encodeURIComponent(query)}`,
+  );
+}
+
+export function fetchBookmarkSections(
+  bookmarkId: string,
+): Promise<BookmarkSection[]> {
+  return fetchJson<BookmarkSection[]>(
+    `/api/bookmarks/${encodeURIComponent(bookmarkId)}/sections`,
   );
 }
 

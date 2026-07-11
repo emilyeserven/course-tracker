@@ -10,3 +10,13 @@ export interface BookmarkSummary {
   // absent here too.
   url: string | null;
 }
+
+// One selectable section within a bookmark, flattened from the bookmark's
+// two-tier SectionEntry list (any entry — group or leaf — is selectable). `id`
+// is the SectionEntry id (unique within the bookmark); `label` is a readable
+// name with tier context (e.g. "Part I › Chapter 3"). Returned by the
+// course-tracker proxy GET /api/bookmarks/:id/sections.
+export interface BookmarkSection {
+  id: string;
+  label: string;
+}

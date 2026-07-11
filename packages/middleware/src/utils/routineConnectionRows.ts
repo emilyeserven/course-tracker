@@ -8,7 +8,7 @@ import type { RoutineConnection } from "@emstack/types";
 // sends the cached `name`/`url` (see resolveRoutineConnections).
 export type RoutineConnectionInput = Pick<
   RoutineConnection,
-  "type" | "id" | "name" | "url"
+  "type" | "id" | "name" | "url" | "sectionId" | "sectionLabel"
 >;
 
 // Dedupe by (type, id) and produce routine_connections rows with stable
@@ -30,6 +30,8 @@ export function buildRoutineConnectionRows(
     connectedId: string;
     cachedTitle: string | null;
     cachedUrl: string | null;
+    sectionId: string | null;
+    sectionLabel: string | null;
     position: number;
   }[] = [];
   for (const c of connections) {
@@ -41,13 +43,16 @@ export function buildRoutineConnectionRows(
       continue;
     }
     seen.add(key);
+    const isBookmark = c.type === "bookmark";
     rows.push({
       id: uuidv4(),
       routineId,
       connectedType: c.type,
       connectedId: c.id,
-      cachedTitle: c.type === "bookmark" ? c.name ?? null : null,
-      cachedUrl: c.type === "bookmark" ? c.url ?? null : null,
+      cachedTitle: isBookmark ? c.name ?? null : null,
+      cachedUrl: isBookmark ? c.url ?? null : null,
+      sectionId: isBookmark ? c.sectionId ?? null : null,
+      sectionLabel: isBookmark ? c.sectionLabel ?? null : null,
       position: rows.length,
     });
   }

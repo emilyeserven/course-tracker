@@ -283,6 +283,11 @@ export function TodosEditor({
                         : (
                           b.title
                         )}
+                      {b.sectionLabel && (
+                        <span className="ml-1 opacity-70">
+                          › {b.sectionLabel}
+                        </span>
+                      )}
                     </Badge>
                   ))}
                   <div

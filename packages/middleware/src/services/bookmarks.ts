@@ -1,4 +1,4 @@
-import type { BookmarkSummary } from "@emstack/types";
+import type { BookmarkSection, BookmarkSummary } from "@emstack/types";
 
 // Base URL of the companion Simple Bookmarks app. Configurable so the same
 // build works across environments; defaults to the self-hosted instance.
@@ -94,6 +94,53 @@ export async function resolveBookmarkByUrl(url: string): Promise<BookmarkSummary
   const body = (await response.json()) as RawUrlCheckResult;
   const match = body.exactMatch ?? body.pathMatch ?? null;
   return match ? mapBookmark(match) : null;
+}
+
+// A bookmark's section entries live under one or more "sections" custom
+// properties; each entry is two-tier (a header with optional child leaves).
+interface RawSectionEntry {
+  id: string;
+  name?: string | null;
+  children?: RawSectionEntry[] | null;
+}
+interface RawSectionsValue {
+  sections?: RawSectionEntry[] | null;
+}
+interface RawBookmarkDetail {
+  sectionsValues?: RawSectionsValue[] | null;
+}
+
+/**
+ * Fetch a bookmark's sections, flattened to a pickable list. Any entry (tier-1
+ * header or tier-2 leaf) is selectable; leaves are labelled with their parent
+ * for context ("Part I › Chapter 3"). Entry ids are unique within a bookmark.
+ */
+export async function getBookmarkSections(
+  bookmarkId: string,
+): Promise<BookmarkSection[]> {
+  const response = await bookmarksFetch(
+    `/api/bookmarks/${encodeURIComponent(bookmarkId)}`,
+  );
+  assertOk(response);
+
+  const body = (await response.json()) as RawBookmarkDetail;
+  const sections: BookmarkSection[] = [];
+  for (const value of body.sectionsValues ?? []) {
+    for (const entry of value.sections ?? []) {
+      const name = entry.name?.trim() || "Untitled section";
+      sections.push({
+        id: entry.id,
+        label: name,
+      });
+      for (const child of entry.children ?? []) {
+        sections.push({
+          id: child.id,
+          label: `${name} › ${child.name?.trim() || "Untitled"}`,
+        });
+      }
+    }
+  }
+  return sections;
 }
 
 /**

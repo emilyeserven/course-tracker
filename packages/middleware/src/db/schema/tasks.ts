@@ -131,6 +131,11 @@ export const taskBookmarks = pgTable("task_bookmarks", {
     length: 500,
   }).notNull(),
   url: varchar(),
+  // Optional narrowing to a section of the bookmark (null = whole bookmark).
+  // `section_id` is the external SectionEntry id; `section_label` is the cached
+  // label so the chip renders without refetching.
+  sectionId: varchar("section_id"),
+  sectionLabel: varchar("section_label"),
   position: integer(),
 });
 
@@ -151,5 +156,8 @@ export const todoBookmarks = pgTable("todo_bookmarks", {
     length: 500,
   }).notNull(),
   url: varchar(),
+  // Optional narrowing to a section of the bookmark (null = whole bookmark).
+  sectionId: varchar("section_id"),
+  sectionLabel: varchar("section_label"),
   position: integer(),
 });

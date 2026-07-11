@@ -58,6 +58,11 @@ export const routineConnections = pgTable("routine_connections", {
   // Cached label for "bookmark" connections (null for local types).
   cachedTitle: varchar("cached_title"),
   cachedUrl: varchar("cached_url"),
+  // Bookmark connections only: optional narrowing to a section (null = whole
+  // bookmark). `section_id` is the external SectionEntry id; `section_label` the
+  // cached label.
+  sectionId: varchar("section_id"),
+  sectionLabel: varchar("section_label"),
   position: integer(),
 });
 

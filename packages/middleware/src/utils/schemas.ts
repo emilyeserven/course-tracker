@@ -122,9 +122,12 @@ const routineConnectionItemSchema = {
     id: {
       type: "string",
     },
-    // Bookmark connections only: cached title/url (ignored for local types).
+    // Bookmark connections only: cached title/url + optional section narrowing
+    // (ignored for local types).
     name: nullableString,
     url: nullableString,
+    sectionId: nullableString,
+    sectionLabel: nullableString,
   },
 } as const;
 
@@ -371,6 +374,9 @@ const bookmarkLinkSchema = {
       type: "string",
     },
     url: nullableString,
+    // Optional narrowing to a section of the bookmark (null = whole bookmark).
+    sectionId: nullableString,
+    sectionLabel: nullableString,
   },
 } as const;
 

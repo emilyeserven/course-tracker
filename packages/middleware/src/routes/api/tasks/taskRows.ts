@@ -34,6 +34,8 @@ export interface BookmarkInput {
   bookmarkId: string;
   title: string;
   url?: string | null;
+  sectionId?: string | null;
+  sectionLabel?: string | null;
 }
 
 export interface TaskResourceInput {
@@ -163,6 +165,8 @@ export function buildBookmarkRows(
     bookmarkId: string;
     title: string;
     url: string | null;
+    sectionId: string | null;
+    sectionLabel: string | null;
     position: number;
   }[] = [];
   bookmarks.forEach((b, index) => {
@@ -174,6 +178,8 @@ export function buildBookmarkRows(
       bookmarkId: b.bookmarkId,
       title: b.title,
       url: b.url ?? null,
+      sectionId: b.sectionId ?? null,
+      sectionLabel: b.sectionLabel ?? null,
       position: index,
     });
   });
@@ -193,6 +199,8 @@ export function buildTodoBookmarkRows(
     bookmarkId: string;
     title: string;
     url: string | null;
+    sectionId: string | null;
+    sectionLabel: string | null;
     position: number;
   }[] = [];
   bookmarks.forEach((b, index) => {
@@ -204,6 +212,8 @@ export function buildTodoBookmarkRows(
       bookmarkId: b.bookmarkId,
       title: b.title,
       url: b.url ?? null,
+      sectionId: b.sectionId ?? null,
+      sectionLabel: b.sectionLabel ?? null,
       position: index,
     });
   });

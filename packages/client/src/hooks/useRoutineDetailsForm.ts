@@ -1,5 +1,5 @@
 import type { LocalConnectionType } from "@/utils";
-import type { RoutineConnection, Routine } from "@emstack/types";
+import type { RoutineConnection, Routine, TaskBookmark } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -84,6 +84,8 @@ const detailsSchema = z.object({
       bookmarkId: z.string(),
       title: z.string(),
       url: z.string().nullable(),
+      sectionId: z.string().nullable().optional(),
+      sectionLabel: z.string().nullable().optional(),
       position: z.number().nullable().optional(),
     }),
   ),
@@ -173,16 +175,22 @@ export function useRoutineDetailsForm(
       name: routine.name ?? "",
       description: routine.description ?? "",
       connections: allConnections
-        .filter((c): c is RoutineConnection & { type: LocalConnectionType } =>
-          c.type !== "bookmark")
+        .filter(
+          (c): c is RoutineConnection & { type: LocalConnectionType } =>
+            c.type !== "bookmark",
+        )
         .map(encodeConnection),
       bookmarks: allConnections
         .filter(c => c.type === "bookmark")
-        .map(c => ({
-          bookmarkId: c.id,
-          title: c.name ?? "",
-          url: c.url ?? null,
-        })),
+        .map(
+          (c): TaskBookmark => ({
+            bookmarkId: c.id,
+            title: c.name ?? "",
+            url: c.url ?? null,
+            sectionId: c.sectionId ?? null,
+            sectionLabel: c.sectionLabel ?? null,
+          }),
+        ),
       status: routine.status ?? "active",
       mode: routine.mode ?? "weekly",
       weekly: weeklyToRows(routine.weekly),
@@ -212,12 +220,16 @@ export function useRoutineDetailsForm(
           .filter((c): c is NonNullable<typeof c> => c !== null);
         // Bookmark connections carry their cached title/url so the server can
         // store them (no local row to resolve on read).
-        const bookmarkConnections: RoutineConnection[] = value.bookmarks.map(b => ({
-          type: "bookmark",
-          id: b.bookmarkId,
-          name: b.title,
-          url: b.url,
-        }));
+        const bookmarkConnections: RoutineConnection[] = value.bookmarks.map(
+          b => ({
+            type: "bookmark",
+            id: b.bookmarkId,
+            name: b.title,
+            url: b.url,
+            sectionId: b.sectionId ?? null,
+            sectionLabel: b.sectionLabel ?? null,
+          }),
+        );
         const connections = [...localConnections, ...bookmarkConnections];
 
         await upsertRoutine(routine.id, {
@@ -261,7 +273,9 @@ export function useRoutineDetailsForm(
                   moduleGroupsByResource,
                   modulesByResource,
                 ),
-                value.curatedEndDate ? getDateKey(value.curatedEndDate) : null,
+                value.curatedEndDate
+                  ? getDateKey(value.curatedEndDate)
+                  : null,
               )
               : {
                 endDate: null,
@@ -285,9 +299,11 @@ export function useRoutineDetailsForm(
   });
 
   const {
-    currentValues,
-    hasChanges,
-  } = useFormChangeState(form, startingValues);
+    currentValues, hasChanges,
+  } = useFormChangeState(
+    form,
+    startingValues,
+  );
   const isDaily = currentValues.mode === "daily";
   const isCurated = currentValues.mode === "curated";
 
