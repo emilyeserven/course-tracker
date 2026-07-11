@@ -1,7 +1,8 @@
-import { taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
+import { taskBookmarks, taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
 import { createCreateHandler } from "@/utils/createCreateHandler";
 
 import {
+  buildBookmarkRows,
   buildResourceLinkRows,
   buildTagRows,
   buildTaskResourceRows,
@@ -25,6 +26,10 @@ export default createCreateHandler<TaskBody>({
     {
       table: tasksToResources,
       buildRows: (body, id) => buildResourceLinkRows(body.resourceLinks, id),
+    },
+    {
+      table: taskBookmarks,
+      buildRows: (body, id) => buildBookmarkRows(body.bookmarks, id),
     },
     {
       table: taskResources,

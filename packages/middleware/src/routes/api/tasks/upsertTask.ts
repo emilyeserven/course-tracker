@@ -1,7 +1,8 @@
-import { taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
+import { taskBookmarks, taskResources, taskTodos, tasks, tasksToResources, tasksToTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 
 import {
+  buildBookmarkRows,
   buildResourceLinkRows,
   buildTagRows,
   buildTaskResourceRows,
@@ -28,6 +29,11 @@ export default createUpsertHandler<TaskBody>({
       table: tasksToResources,
       foreignKey: tasksToResources.taskId,
       buildRows: (body, id) => buildResourceLinkRows(body.resourceLinks, id),
+    },
+    {
+      table: taskBookmarks,
+      foreignKey: taskBookmarks.taskId,
+      buildRows: (body, id) => buildBookmarkRows(body.bookmarks, id),
     },
     {
       table: taskResources,

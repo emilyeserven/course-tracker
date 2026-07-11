@@ -2,6 +2,7 @@
 // Typed API clients, split by domain. Each entity gets a createEntityClient
 // instance plus named function re-exports; see ./client for the base helpers.
 export * from "./admin";
+export * from "./bookmarks";
 export * from "./client";
 export * from "./dailies";
 export * from "./dashboardLayouts";

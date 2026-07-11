@@ -83,6 +83,11 @@ export default async function (server: FastifyInstance) {
               asc,
             }) => asc(j.position),
           },
+          bookmarks: {
+            orderBy: (b, {
+              asc,
+            }) => asc(b.position),
+          },
           resources: {
             with: {
               resource: {

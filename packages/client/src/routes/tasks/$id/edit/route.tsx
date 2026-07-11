@@ -13,7 +13,7 @@ import {
   PageHeader,
   UnsavedChangesDialog,
 } from "@/components/editPage";
-import { useAppForm } from "@/components/formFields";
+import { BookmarkPicker, useAppForm } from "@/components/formFields";
 import { toTodoInput } from "@/components/tasks/todoPayload";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { useFormChangeState } from "@/hooks/useFormChangeState";
@@ -23,7 +23,8 @@ import {
   fetchSingleTask,
   fetchTagGroups,
   fetchTaskTypes,
-  fetchTopics, queryKeys,
+  fetchTopics,
+  queryKeys,
   tagGroupsToOptions,
   toOptions,
   upsertTask,
@@ -110,6 +111,7 @@ function SingleTaskEdit() {
       topicId: data?.topicId ?? (isNew ? (search.topicId ?? "") : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
+      bookmarks: data?.bookmarks ?? [],
     }),
     [data, isNew, search.topicId],
   );
@@ -135,14 +137,14 @@ function SingleTaskEdit() {
         topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
         tagIds: value.tagIds,
+        bookmarks: value.bookmarks,
         todos: existingTodos,
       });
     },
   });
 
   const {
-    isSubmitting,
-    hasChanges,
+    isSubmitting, hasChanges,
   } = useFormChangeState(form, startingValues);
 
   const handleDelete = makeDeleteHandler({
@@ -222,6 +224,18 @@ function SingleTaskEdit() {
               />
             )}
           </form.AppField>
+
+          <form.Field name="bookmarks">
+            {field => (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Bookmarks</span>
+                <BookmarkPicker
+                  value={field.state.value}
+                  onChange={next => field.handleChange(next)}
+                />
+              </div>
+            )}
+          </form.Field>
 
           <form.AppField name="description">
             {field => (

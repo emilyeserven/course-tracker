@@ -68,6 +68,9 @@ export const queryKeys = {
   settings: {
     detail: () => ["settings"] as const,
   },
+  bookmarks: {
+    search: (query: string) => ["bookmarks", "search", query] as const,
+  },
   readwise: {
     readingList: () => ["readwise", "reading-list"] as const,
   },

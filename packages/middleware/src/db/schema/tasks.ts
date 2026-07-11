@@ -112,3 +112,24 @@ export const tasksToResources = pgTable("tasks_to_courses", {
   }),
   position: integer(),
 });
+
+// Junction associating a task with a Simple Bookmarks bookmark. `bookmarkId` is
+// the bookmark's id in the companion app — there is deliberately NO foreign key
+// because bookmarks live in a separate database. `title` / `url` are a
+// denormalized cache of the bookmark at association time so a task's bookmark
+// chips still render when Simple Bookmarks is unreachable. A task can hold
+// multiple rows (multiple bookmarks); handlers dedupe by bookmarkId at write
+// time. This is the first step of migrating item→resource links to
+// item→bookmark links; it coexists with tasks_to_courses.
+export const taskBookmarks = pgTable("task_bookmarks", {
+  id: varchar().primaryKey(),
+  taskId: varchar("task_id")
+    .notNull()
+    .references(() => tasks.id),
+  bookmarkId: varchar("bookmark_id").notNull(),
+  title: varchar({
+    length: 500,
+  }).notNull(),
+  url: varchar(),
+  position: integer(),
+});

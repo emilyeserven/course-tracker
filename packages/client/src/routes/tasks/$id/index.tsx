@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { EditIcon } from "lucide-react";
+import { EditIcon, ExternalLinkIcon } from "lucide-react";
 
 import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
 import { TodosEditor } from "./-components/-TodosEditor";
 
 import { InfoArea, PageActions, PageHeader } from "@/components/layout";
-import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
+import {
+  EntityError,
+  EntityPending,
+} from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchRoutines, fetchSingleTask } from "@/utils";
 
@@ -50,11 +53,12 @@ function SingleTask() {
   }
 
   // A task → routine link is either a weekly-grid entry or a connection.
-  const linkedRoutines = (routines ?? []).filter(r =>
-    Object.values(r.weekly ?? {}).some(
-      e => e?.type === "task" && e.id === id,
-    )
-    || (r.connections ?? []).some(c => c.type === "task" && c.id === id));
+  const linkedRoutines = (routines ?? []).filter(
+    r =>
+      Object.values(r.weekly ?? {}).some(
+        e => e?.type === "task" && e.id === id,
+      ) || (r.connections ?? []).some(c => c.type === "task" && c.id === id),
+  );
 
   return (
     <div>
@@ -103,6 +107,41 @@ function SingleTask() {
           >
             {data.topic?.name}
           </Link>
+        </InfoArea>
+        <InfoArea
+          header="Bookmarks"
+          condition={(data.bookmarks ?? []).length > 0}
+        >
+          <ul className="flex flex-wrap gap-2">
+            {(data.bookmarks ?? []).map(b => (
+              <li
+                key={b.bookmarkId}
+                className="
+                  flex items-center gap-1.5 rounded-md border border-border
+                  bg-muted px-2 py-1 text-sm
+                "
+              >
+                {b.url
+                  ? (
+                    <a
+                      href={b.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="
+                        inline-flex items-center gap-1
+                        hover:underline
+                      "
+                    >
+                      {b.title}
+                      <ExternalLinkIcon className="size-3" />
+                    </a>
+                  )
+                  : (
+                    <span>{b.title}</span>
+                  )}
+              </li>
+            ))}
+          </ul>
         </InfoArea>
         <InfoArea
           header="Due Date"
