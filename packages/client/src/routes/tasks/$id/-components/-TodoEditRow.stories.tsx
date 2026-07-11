@@ -14,14 +14,6 @@ const meta: Meta<typeof TodoEditRow> = {
     todo: makeTaskTodo({
       name: "Read the introduction",
     }),
-    resourceOptions: [
-      {
-        id: "resource-1",
-        name: "Starter repo",
-      },
-    ],
-    moduleGroups: [],
-    modules: [],
     isSaving: false,
     onSave: fn(),
     onCancel: fn(),

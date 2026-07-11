@@ -1,4 +1,4 @@
-import type { Module, ModuleGroup, TaskTodo } from "@emstack/types";
+import type { TaskTodo } from "@emstack/types";
 
 import { useState } from "react";
 
@@ -19,10 +19,6 @@ import { TEXT_MAX_LENGTH } from "@/constants/stringLimits";
 
 interface TodoEditRowProps {
   todo: TaskTodo;
-  resourceOptions: { id: string;
-    name: string; }[];
-  moduleGroups: ModuleGroup[];
-  modules: Module[];
   isNew?: boolean;
   isSaving: boolean;
   onSave: (todo: TaskTodo) => void;
@@ -30,21 +26,10 @@ interface TodoEditRowProps {
   onDelete?: () => void;
 }
 
-const NO_RESOURCE = "__none";
-
-const selectClass = `
-  flex h-9 w-full rounded-md border bg-background px-2 text-sm
-  disabled:cursor-not-allowed disabled:opacity-50
-`;
-
-// Inline editor for a single todo: name, status, due date, an optional resource
-// link (with module-group / module narrowing), location and url. Mirrors a
-// Curated Routine entry's editing shape.
+// Inline editor for a single todo: name, status, due date, associated
+// bookmarks (with optional section narrowing), location and url.
 export function TodoEditRow({
   todo,
-  resourceOptions,
-  moduleGroups,
-  modules,
   isNew = false,
   isSaving,
   onSave,
@@ -59,19 +44,6 @@ export function TodoEditRow({
       ...next,
     }));
   }
-
-  const groupsForResource = draft.resourceId
-    ? moduleGroups.filter(g => g.resourceId === draft.resourceId)
-    : [];
-  const modulesForRow = !draft.resourceId
-    ? []
-    : draft.moduleGroupId
-      ? modules.filter(
-        m =>
-          m.resourceId === draft.resourceId
-          && m.moduleGroupId === draft.moduleGroupId,
-      )
-      : modules.filter(m => m.resourceId === draft.resourceId);
 
   function handleSave() {
     const name = draft.name.trim();
@@ -159,93 +131,6 @@ export function TodoEditRow({
             className="w-40"
           />
         </div>
-      </div>
-
-      <div
-        className="
-          grid grid-cols-1 gap-2
-          sm:grid-cols-3
-        "
-      >
-        <select
-          aria-label="Resource"
-          value={draft.resourceId ?? NO_RESOURCE}
-          onChange={(e) => {
-            const value = e.target.value;
-            patch({
-              resourceId: value === NO_RESOURCE ? null : value,
-              moduleGroupId: null,
-              moduleId: null,
-            });
-          }}
-          disabled={isSaving}
-          className={selectClass}
-        >
-          <option value={NO_RESOURCE}>— No resource —</option>
-          {resourceOptions.map(r => (
-            <option
-              key={r.id}
-              value={r.id}
-            >
-              {r.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          aria-label="Module Group"
-          value={draft.moduleGroupId ?? ""}
-          onChange={(e) => {
-            const nextGroupId = e.target.value || null;
-            patch({
-              moduleGroupId: nextGroupId,
-              moduleId:
-                draft.moduleId
-                && nextGroupId
-                && !modules.some(
-                  m =>
-                    m.id === draft.moduleId && m.moduleGroupId === nextGroupId,
-                )
-                  ? null
-                  : draft.moduleId,
-            });
-          }}
-          disabled={
-            isSaving || !draft.resourceId || groupsForResource.length === 0
-          }
-          className={selectClass}
-        >
-          <option value="">— Any group —</option>
-          {groupsForResource.map(g => (
-            <option
-              key={g.id}
-              value={g.id}
-            >
-              {g.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          aria-label="Module"
-          value={draft.moduleId ?? ""}
-          onChange={e =>
-            patch({
-              moduleId: e.target.value || null,
-            })}
-          disabled={isSaving || !draft.resourceId || modulesForRow.length === 0}
-          className={selectClass}
-        >
-          <option value="">— Any module —</option>
-          {modulesForRow.map(m => (
-            <option
-              key={m.id}
-              value={m.id}
-            >
-              {m.name}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div
