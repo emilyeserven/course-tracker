@@ -68,9 +68,29 @@ export const DAY_LABELS: Record<RoutineWeekday, string> = {
   6: "Saturday",
 };
 
+// Any row-like source of the editable entry fields: a stored RoutineReferenceItem,
+// a WeeklyRow/WeeklyEntry, or the loose entry `fillAllDays` accepts. All fields
+// optional (and nullable, for the stored item), defaulting to "".
+interface EntryFieldsSource {
+  type?: WeeklyRowType | RoutineReferenceType | null;
+  id?: string | null;
+  moduleId?: string | null;
+  moduleGroupId?: string | null;
+  notes?: string | null;
+  location?: string | null;
+  prependText?: string | null;
+  appendText?: string | null;
+  title?: string | null;
+  url?: string | null;
+  sectionId?: string | null;
+  sectionLabel?: string | null;
+}
+
 // The shared editable fields of a schedule row, defaulted from an optional stored
-// entry (empty slots become blank strings). Callers add the `day` / `date` key.
-function entryRowFields(entry: RoutineReferenceItem | undefined): WeeklyEntry {
+// entry / row (empty slots become blank strings). Callers add the `day` / `date`
+// key. The single place the entry field set is enumerated — weeklyToRows,
+// curatedToRows, representativeRow, and fillAllDays all route through it.
+function entryRowFields(entry: EntryFieldsSource | undefined): WeeklyEntry {
   return {
     type: entry?.type ?? "",
     id: entry?.id ?? "",
@@ -169,66 +189,14 @@ export function rowsToWeekly(rows: WeeklyRow[]): RoutineWeekly {
 // surfaces; otherwise the controlled type <select> would snap back to "None" and
 // the item picker would never enable.
 export function representativeRow(rows: WeeklyRow[]): WeeklyEntry {
-  const found = rows.find(r => r.type !== "");
-  return found
-    ? {
-      type: found.type,
-      id: found.id,
-      moduleId: found.moduleId,
-      moduleGroupId: found.moduleGroupId,
-      notes: found.notes,
-      location: found.location,
-      prependText: found.prependText,
-      appendText: found.appendText,
-      title: found.title,
-      url: found.url,
-      sectionId: found.sectionId,
-      sectionLabel: found.sectionLabel,
-    }
-    : {
-      type: "",
-      id: "",
-      moduleId: "",
-      moduleGroupId: "",
-      notes: "",
-      location: "",
-      prependText: "",
-      appendText: "",
-      title: "",
-      url: "",
-      sectionId: "",
-      sectionLabel: "",
-    };
+  return entryRowFields(rows.find(r => r.type !== ""));
 }
 
-export function fillAllDays(entry: {
-  type: WeeklyRowType;
-  id: string;
-  moduleId?: string;
-  moduleGroupId?: string;
-  notes?: string;
-  location?: string;
-  prependText?: string;
-  appendText?: string;
-  title?: string;
-  url?: string;
-  sectionId?: string;
-  sectionLabel?: string;
-}): WeeklyRow[] {
+export function fillAllDays(entry: EntryFieldsSource): WeeklyRow[] {
+  const fields = entryRowFields(entry);
   return ALL_DAYS.map(day => ({
     day,
-    type: entry.type,
-    id: entry.id,
-    moduleId: entry.moduleId ?? "",
-    moduleGroupId: entry.moduleGroupId ?? "",
-    notes: entry.notes ?? "",
-    location: entry.location ?? "",
-    prependText: entry.prependText ?? "",
-    appendText: entry.appendText ?? "",
-    title: entry.title ?? "",
-    url: entry.url ?? "",
-    sectionId: entry.sectionId ?? "",
-    sectionLabel: entry.sectionLabel ?? "",
+    ...fields,
   }));
 }
 

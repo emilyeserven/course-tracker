@@ -3,11 +3,9 @@ import type { SelectOption } from "@/utils";
 
 import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
-import { BookmarkPicker } from "@/components/formFields";
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
-import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import { ScheduleItemControl } from "@/components/routines/ScheduleItemControl";
 import { effectiveEntryUrl } from "@/components/routines/weekly";
-import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
   // Displayed label for the row (e.g. "Monday" or "Mon, Jun 15").
@@ -157,89 +155,20 @@ export function ScheduleEntryRow({
           <option value="freeform">Freeform</option>
         </select>
 
-        {row.type === "freeform"
-          ? (
-            <input
-              aria-label={`${ariaPrefix} description`}
-              value={row.id}
-              onChange={e =>
-                onChange({
-                  id: e.target.value,
-                })}
-              placeholder="Describe the activity…"
-              className="
-                flex h-9 w-full rounded-md border bg-background px-2 text-sm
-              "
-            />
-          )
-          : row.type === "bookmark"
-            ? (
-              // Single-slot bookmark: reuse the multi-select picker, keeping only
-              // the most-recently chosen bookmark (a schedule entry is one item).
-              <BookmarkPicker
-                value={row.id
-                  ? [{
-                    bookmarkId: row.id,
-                    title: row.title,
-                    url: row.url || null,
-                    sectionId: row.sectionId || null,
-                    sectionLabel: row.sectionLabel || null,
-                  }]
-                  : []}
-                onChange={(next) => {
-                  const last = next[next.length - 1];
-                  onChange(
-                    last
-                      ? {
-                        id: last.bookmarkId,
-                        title: last.title,
-                        url: last.url ?? "",
-                        sectionId: last.sectionId ?? "",
-                        sectionLabel: last.sectionLabel ?? "",
-                      }
-                      : {
-                        id: "",
-                        title: "",
-                        url: "",
-                        sectionId: "",
-                        sectionLabel: "",
-                      },
-                  );
-                }}
-              />
-            )
-            : (
-              <Combobox
-                items={itemOptions.map(o => o.value)}
-                value={row.id || null}
-                onValueChange={val =>
-                // A different resource has different modules, so clear any
-                // existing narrowing when the picked item changes.
-                  onChange({
-                    id: val ?? "",
-                    moduleId: "",
-                    moduleGroupId: "",
-                  })}
-                onInputValueChange={val => onInputValueChange(val)}
-                itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-              >
-                <ComboboxInput
-                  placeholder={
-                    row.type === "task"
-                      ? "Search tasks..."
-                      : row.type === "resource"
-                        ? "Search resources..."
-                        : "Pick a type first"
-                  }
-                  showClear
-                  disabled={!row.type}
-                />
-                <TaskResourceComboboxContent
-                  optionsMap={optionsMap}
-                  onAddNew={row.type === "resource" ? onAddResource : undefined}
-                />
-              </Combobox>
-            )}
+        <ScheduleItemControl
+          ariaPrefix={ariaPrefix}
+          type={row.type}
+          id={row.id}
+          title={row.title}
+          url={row.url}
+          sectionId={row.sectionId}
+          sectionLabel={row.sectionLabel}
+          itemOptions={itemOptions}
+          optionsMap={optionsMap}
+          onChange={onChange}
+          onInputValueChange={onInputValueChange}
+          onAddResource={onAddResource}
+        />
       </div>
 
       {showModulePickers && (

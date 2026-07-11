@@ -1,10 +1,7 @@
 import type { WeeklyEntry, WeeklyRowType } from "@/components/routines/weekly";
 import type { SelectOption } from "@/utils";
-import type { ReactNode } from "react";
 
-import { BookmarkPicker } from "@/components/formFields";
-import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
-import { Combobox, ComboboxInput } from "@/components/ui/combobox";
+import { ScheduleItemControl } from "@/components/routines/ScheduleItemControl";
 
 interface TaskResourceFreeformPickerProps {
   type: WeeklyRowType;
@@ -21,9 +18,9 @@ interface TaskResourceFreeformPickerProps {
   onRequestAddResource: () => void;
 }
 
-// The type selector + item picker row: a task/resource combobox, a bookmark
-// picker, or a freeform text input depending on the chosen type. Internal to
-// -WeeklyEntryEditor.
+// The type selector + item picker row for Daily-mode: the value control is the
+// shared ScheduleItemControl (task/resource combobox, bookmark picker, or
+// freeform input). Internal to -WeeklyEntryEditor.
 export function TaskResourceFreeformPicker({
   type,
   id,
@@ -37,89 +34,6 @@ export function TaskResourceFreeformPicker({
   onInputValueChange,
   onRequestAddResource,
 }: TaskResourceFreeformPickerProps) {
-  let itemControl: ReactNode;
-  if (type === "freeform") {
-    itemControl = (
-      <input
-        aria-label="Daily task description"
-        value={id}
-        onChange={e =>
-          onEmit({
-            id: e.target.value,
-          })}
-        placeholder="Describe the activity…"
-        className="flex h-9 w-full rounded-md border bg-background px-2 text-sm"
-      />
-    );
-  }
-  else if (type === "bookmark") {
-    // Single-slot bookmark: reuse the multi-select picker, keeping only the
-    // most-recently chosen bookmark (an entry is one item).
-    itemControl = (
-      <BookmarkPicker
-        value={id
-          ? [{
-            bookmarkId: id,
-            title,
-            url: url || null,
-            sectionId: sectionId || null,
-            sectionLabel: sectionLabel || null,
-          }]
-          : []}
-        onChange={(next) => {
-          const last = next[next.length - 1];
-          onEmit(
-            last
-              ? {
-                id: last.bookmarkId,
-                title: last.title,
-                url: last.url ?? "",
-                sectionId: last.sectionId ?? "",
-                sectionLabel: last.sectionLabel ?? "",
-              }
-              : {
-                id: "",
-                title: "",
-                url: "",
-                sectionId: "",
-                sectionLabel: "",
-              },
-          );
-        }}
-      />
-    );
-  }
-  else {
-    itemControl = (
-      <Combobox
-        items={itemOptions.map(o => o.value)}
-        value={id || null}
-        onValueChange={val =>
-          onEmit({
-            id: val ?? "",
-          })}
-        onInputValueChange={val => onInputValueChange(val)}
-        itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-      >
-        <ComboboxInput
-          placeholder={
-            type === "task"
-              ? "Search tasks..."
-              : type === "resource"
-                ? "Search resources..."
-                : "Pick a type first"
-          }
-          showClear
-          disabled={!type}
-        />
-        <TaskResourceComboboxContent
-          optionsMap={optionsMap}
-          onAddNew={type === "resource" ? onRequestAddResource : undefined}
-        />
-      </Combobox>
-    );
-  }
-
   return (
     <div className="grid grid-cols-[140px_1fr] items-center gap-2">
       <select
@@ -149,7 +63,20 @@ export function TaskResourceFreeformPicker({
         <option value="freeform">Freeform</option>
       </select>
 
-      {itemControl}
+      <ScheduleItemControl
+        ariaPrefix="Daily task"
+        type={type}
+        id={id}
+        title={title}
+        url={url}
+        sectionId={sectionId}
+        sectionLabel={sectionLabel}
+        itemOptions={itemOptions}
+        optionsMap={optionsMap}
+        onChange={onEmit}
+        onInputValueChange={onInputValueChange}
+        onAddResource={onRequestAddResource}
+      />
     </div>
   );
 }
