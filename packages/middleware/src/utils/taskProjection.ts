@@ -32,7 +32,21 @@ interface TaskBookmarkRow {
   bookmarkId: string;
   title: string;
   url: string | null;
+  sectionId: string | null;
+  sectionLabel: string | null;
   position: number | null;
+}
+
+function mapBookmark(b: TaskBookmarkRow): TaskBookmark {
+  return {
+    id: b.id,
+    bookmarkId: b.bookmarkId,
+    title: b.title,
+    url: b.url ?? null,
+    sectionId: b.sectionId ?? null,
+    sectionLabel: b.sectionLabel ?? null,
+    position: b.position ?? null,
+  };
 }
 
 interface TaskResourceRow {
@@ -138,13 +152,7 @@ export function mapTask(task: TaskProjectionRow): Task {
     bookmarks: (task.bookmarks ?? [])
       .slice()
       .sort(byPosition)
-      .map((b): TaskBookmark => ({
-        id: b.id,
-        bookmarkId: b.bookmarkId,
-        title: b.title,
-        url: b.url ?? null,
-        position: b.position ?? null,
-      })),
+      .map(mapBookmark),
     resources: (task.resources ?? [])
       .slice()
       .sort(byPosition)
@@ -184,13 +192,7 @@ export function mapTask(task: TaskProjectionRow): Task {
         bookmarks: (t.bookmarks ?? [])
           .slice()
           .sort(byPosition)
-          .map((b): TaskBookmark => ({
-            id: b.id,
-            bookmarkId: b.bookmarkId,
-            title: b.title,
-            url: b.url ?? null,
-            position: b.position ?? null,
-          })),
+          .map(mapBookmark),
       })),
   };
 }

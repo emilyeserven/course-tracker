@@ -70,6 +70,8 @@ export const queryKeys = {
   },
   bookmarks: {
     search: (query: string) => ["bookmarks", "search", query] as const,
+    sections: (bookmarkId: string) =>
+      ["bookmarks", "sections", bookmarkId] as const,
   },
   readwise: {
     readingList: () => ["readwise", "reading-list"] as const,

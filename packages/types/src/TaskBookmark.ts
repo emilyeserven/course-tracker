@@ -12,5 +12,10 @@ export interface TaskBookmark {
   bookmarkId: string;
   title: string;
   url: string | null;
+  // Optional narrowing to a specific section of the bookmark. Null = the whole
+  // bookmark. `sectionId` is the external SectionEntry id; `sectionLabel` is the
+  // cached readable label so the chip renders without refetching.
+  sectionId?: string | null;
+  sectionLabel?: string | null;
   position?: number | null;
 }

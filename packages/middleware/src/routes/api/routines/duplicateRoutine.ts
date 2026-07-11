@@ -64,6 +64,8 @@ export default async function (server: FastifyInstance) {
             connectedId: c.connectedId,
             cachedTitle: c.cachedTitle,
             cachedUrl: c.cachedUrl,
+            sectionId: c.sectionId,
+            sectionLabel: c.sectionLabel,
             position: c.position,
           })),
         );

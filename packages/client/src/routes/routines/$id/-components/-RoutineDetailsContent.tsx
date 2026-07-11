@@ -133,6 +133,11 @@ export function RoutineDetailsContent({
                       {c.type}
                     </span>
                     {c.name ?? c.id}
+                    {c.sectionLabel && (
+                      <span className="ml-1 font-normal opacity-70">
+                        › {c.sectionLabel}
+                      </span>
+                    )}
                   </a>
                 )
                 : (

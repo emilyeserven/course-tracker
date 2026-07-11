@@ -139,6 +139,11 @@ function SingleTask() {
                   : (
                     <span>{b.title}</span>
                   )}
+                {b.sectionLabel && (
+                  <span className="text-muted-foreground">
+                    › {b.sectionLabel}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

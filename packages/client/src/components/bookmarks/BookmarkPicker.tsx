@@ -8,6 +8,7 @@ import { ExternalLinkIcon, Loader2, PlusIcon, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   createBookmark,
+  fetchBookmarkSections,
   isHttpUrl,
   queryKeys,
   resolveBookmark,
@@ -73,6 +74,23 @@ export function BookmarkPicker({
     onChange(value.filter(v => v.bookmarkId !== bookmarkId));
   }
 
+  function setSection(
+    bookmarkId: string,
+    sectionId: string | null,
+    sectionLabel: string | null,
+  ) {
+    onChange(
+      value.map(v =>
+        v.bookmarkId === bookmarkId
+          ? {
+            ...v,
+            sectionId,
+            sectionLabel,
+          }
+          : v),
+    );
+  }
+
   async function addByUrl() {
     if (!trimmed) return;
     setIsAdding(true);
@@ -106,43 +124,13 @@ export function BookmarkPicker({
       {value.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {value.map(b => (
-            <li
+            <BookmarkChip
               key={b.bookmarkId}
-              className="
-                flex items-center gap-1.5 rounded-md border border-border
-                bg-muted px-2 py-1 text-sm
-              "
-            >
-              {b.url
-                ? (
-                  <a
-                    href={b.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="
-                      inline-flex items-center gap-1
-                      hover:underline
-                    "
-                  >
-                    {b.title}
-                    <ExternalLinkIcon className="size-3" />
-                  </a>
-                )
-                : (
-                  <span>{b.title}</span>
-                )}
-              <button
-                type="button"
-                onClick={() => remove(b.bookmarkId)}
-                aria-label={`Remove ${b.title}`}
-                className="
-                  text-muted-foreground
-                  hover:text-foreground
-                "
-              >
-                <XIcon className="size-3.5" />
-              </button>
-            </li>
+              association={b}
+              onRemove={() => remove(b.bookmarkId)}
+              onChangeSection={(sectionId, sectionLabel) =>
+                setSection(b.bookmarkId, sectionId, sectionLabel)}
+            />
           ))}
         </ul>
       )}
@@ -250,5 +238,91 @@ export function BookmarkPicker({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
+  );
+}
+
+interface BookmarkChipProps {
+  association: TaskBookmark;
+  onRemove: () => void;
+  onChangeSection: (sectionId: string | null, sectionLabel: string | null) => void;
+}
+
+// A single associated-bookmark chip: title link, remove, and — when the bookmark
+// has sections — a live-fetched dropdown to narrow the association to one section.
+function BookmarkChip({
+  association,
+  onRemove,
+  onChangeSection,
+}: BookmarkChipProps) {
+  const {
+    data: sections = [],
+  } = useQuery({
+    queryKey: queryKeys.bookmarks.sections(association.bookmarkId),
+    queryFn: () => fetchBookmarkSections(association.bookmarkId),
+  });
+
+  return (
+    <li
+      className="
+        flex items-center gap-1.5 rounded-md border border-border bg-muted px-2
+        py-1 text-sm
+      "
+    >
+      {association.url
+        ? (
+          <a
+            href={association.url}
+            target="_blank"
+            rel="noreferrer"
+            className="
+              inline-flex items-center gap-1
+              hover:underline
+            "
+          >
+            {association.title}
+            <ExternalLinkIcon className="size-3" />
+          </a>
+        )
+        : (
+          <span>{association.title}</span>
+        )}
+
+      {sections.length > 0 && (
+        <select
+          aria-label={`Section of ${association.title}`}
+          value={association.sectionId ?? ""}
+          onChange={(e) => {
+            const id = e.target.value || null;
+            const label = id
+              ? sections.find(s => s.id === id)?.label ?? null
+              : null;
+            onChangeSection(id, label);
+          }}
+          className="rounded-sm border bg-background px-1 py-0.5 text-xs"
+        >
+          <option value="">Whole bookmark</option>
+          {sections.map(s => (
+            <option
+              key={s.id}
+              value={s.id}
+            >
+              {s.label}
+            </option>
+          ))}
+        </select>
+      )}
+
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Remove ${association.title}`}
+        className="
+          text-muted-foreground
+          hover:text-foreground
+        "
+      >
+        <XIcon className="size-3.5" />
+      </button>
+    </li>
   );
 }

@@ -4,10 +4,12 @@ import { FastifyInstance } from "fastify";
 import {
   BookmarksError,
   createBookmark,
+  getBookmarkSections,
   resolveBookmarkByUrl,
   searchBookmarks,
 } from "@/services/bookmarks";
 import { sendBadRequest } from "@/utils/errors";
+import { idParamSchema } from "@/utils/schemas";
 
 // Proxy endpoints backed by src/services/bookmarks.ts. They front the companion
 // Simple Bookmarks API so the browser stays same-origin, the bookmarks base URL
@@ -80,6 +82,30 @@ export default async function (server: FastifyInstance) {
         });
       }
       return sendBadRequest(reply, "Failed to resolve URL in Simple Bookmarks.");
+    }
+  });
+
+  const sectionsSchema = {
+    schema: {
+      description: "List a bookmark's sections (flattened, pickable)",
+      params: idParamSchema,
+    },
+  } as const;
+
+  fastify.get("/:id/sections", sectionsSchema, async (request, reply) => {
+    const {
+      id,
+    } = request.params;
+    try {
+      return await getBookmarkSections(id);
+    }
+    catch (err) {
+      if (err instanceof BookmarksError) {
+        return reply.code(err.statusCode).send({
+          message: err.message,
+        });
+      }
+      return sendBadRequest(reply, "Failed to load bookmark sections.");
     }
   });
 

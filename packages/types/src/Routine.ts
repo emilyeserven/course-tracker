@@ -18,6 +18,10 @@ export interface RoutineConnection {
   id: string;
   name?: string | null;
   url?: string | null;
+  // Bookmark connections only: optional narrowing to a section of the bookmark
+  // (null = whole bookmark). `sectionLabel` is the cached readable label.
+  sectionId?: string | null;
+  sectionLabel?: string | null;
 }
 
 // A routine is a weekly schedule (each weekday can differ), a daily task (the
