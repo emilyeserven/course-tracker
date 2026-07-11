@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Trash2Icon } from "lucide-react";
 
 import { DAILY_STATUS_OPTIONS } from "@/components/dailies/dailyStatusMeta";
+import { BookmarkPicker } from "@/components/formFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -98,9 +99,10 @@ export function TodoEditRow({
           </label>
           <Input
             value={draft.name}
-            onChange={e => patch({
-              name: e.target.value,
-            })}
+            onChange={e =>
+              patch({
+                name: e.target.value,
+              })}
             placeholder="What needs doing?"
             maxLength={TEXT_MAX_LENGTH}
             disabled={isSaving}
@@ -149,9 +151,10 @@ export function TodoEditRow({
             id={`todo-due-${draft.id}`}
             type="date"
             value={draft.dueDate ?? ""}
-            onChange={e => patch({
-              dueDate: e.target.value || null,
-            })}
+            onChange={e =>
+              patch({
+                dueDate: e.target.value || null,
+              })}
             disabled={isSaving}
             className="w-40"
           />
@@ -201,8 +204,7 @@ export function TodoEditRow({
                 && nextGroupId
                 && !modules.some(
                   m =>
-                    m.id === draft.moduleId
-                    && m.moduleGroupId === nextGroupId,
+                    m.id === draft.moduleId && m.moduleGroupId === nextGroupId,
                 )
                   ? null
                   : draft.moduleId,
@@ -227,12 +229,11 @@ export function TodoEditRow({
         <select
           aria-label="Module"
           value={draft.moduleId ?? ""}
-          onChange={e => patch({
-            moduleId: e.target.value || null,
-          })}
-          disabled={
-            isSaving || !draft.resourceId || modulesForRow.length === 0
-          }
+          onChange={e =>
+            patch({
+              moduleId: e.target.value || null,
+            })}
+          disabled={isSaving || !draft.resourceId || modulesForRow.length === 0}
           className={selectClass}
         >
           <option value="">— Any module —</option>
@@ -255,9 +256,10 @@ export function TodoEditRow({
       >
         <Input
           value={draft.url ?? ""}
-          onChange={e => patch({
-            url: e.target.value,
-          })}
+          onChange={e =>
+            patch({
+              url: e.target.value,
+            })}
           placeholder="Link (https://...)"
           type="url"
           disabled={isSaving}
@@ -265,13 +267,27 @@ export function TodoEditRow({
         />
         <Input
           value={draft.note ?? ""}
-          onChange={e => patch({
-            note: e.target.value,
-          })}
+          onChange={e =>
+            patch({
+              note: e.target.value,
+            })}
           placeholder="Note (optional)"
           maxLength={TEXT_MAX_LENGTH}
           disabled={isSaving}
           className="flex-1"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-muted-foreground">
+          Bookmarks
+        </label>
+        <BookmarkPicker
+          value={draft.bookmarks ?? []}
+          onChange={next =>
+            patch({
+              bookmarks: next,
+            })}
         />
       </div>
 

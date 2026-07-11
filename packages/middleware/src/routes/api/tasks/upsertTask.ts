@@ -10,6 +10,7 @@ import {
   buildTodoRows,
   taskBodySchema,
 } from "./taskRows";
+import { syncTodoBookmarks } from "./syncTodoBookmarks";
 
 import type { TaskBody } from "./taskRows";
 
@@ -46,4 +47,7 @@ export default createUpsertHandler<TaskBody>({
       buildRows: (body, id) => buildTodoRows(body.todos, id),
     },
   ],
+  // task_todos are rebuilt above (delete + reinsert), cascade-clearing their
+  // todo_bookmarks; re-sync them from the todo payload once the rows exist.
+  afterUpsert: body => syncTodoBookmarks(body.todos),
 });

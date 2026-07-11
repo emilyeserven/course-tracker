@@ -10,6 +10,7 @@ import {
   buildTodoRows,
   taskBodySchema,
 } from "./taskRows";
+import { syncTodoBookmarks } from "./syncTodoBookmarks";
 
 import type { TaskBody } from "./taskRows";
 
@@ -40,4 +41,7 @@ export default createCreateHandler<TaskBody>({
       buildRows: (body, id) => buildTodoRows(body.todos, id),
     },
   ],
+  // task_todos are inserted above; their bookmarks are a nested junction synced
+  // from the todo payload once the todo rows exist.
+  afterCreate: body => syncTodoBookmarks(body.todos),
 });

@@ -8,7 +8,7 @@ import { courseProviders, interactions, moduleGroups, modules, resources } from 
 import { domains, domainWithinScopeTopics, radarBlips } from "./radar";
 import { routineConnections, routines } from "./routines";
 import { moduleGroupTags, moduleTags, resourceTags, tagGroups, tags, tasksToTags, topicsToTags } from "./tags";
-import { taskBookmarks, taskResources, tasks, tasksToResources, taskTodos, taskTypes } from "./tasks";
+import { taskBookmarks, taskResources, tasks, tasksToResources, taskTodos, taskTypes, todoBookmarks } from "./tasks";
 import { topics, topicsToResources } from "./topics";
 
 export const interactionsRelations = relations(interactions, ({
@@ -168,7 +168,7 @@ export const taskResourcesRelations = relations(taskResources, ({
 }));
 
 export const taskTodosRelations = relations(taskTodos, ({
-  one,
+  one, many,
 }) => ({
   task: one(tasks, {
     fields: [taskTodos.taskId],
@@ -185,6 +185,16 @@ export const taskTodosRelations = relations(taskTodos, ({
   module: one(modules, {
     fields: [taskTodos.moduleId],
     references: [modules.id],
+  }),
+  bookmarks: many(todoBookmarks),
+}));
+
+export const todoBookmarksRelations = relations(todoBookmarks, ({
+  one,
+}) => ({
+  todo: one(taskTodos, {
+    fields: [todoBookmarks.todoId],
+    references: [taskTodos.id],
   }),
 }));
 

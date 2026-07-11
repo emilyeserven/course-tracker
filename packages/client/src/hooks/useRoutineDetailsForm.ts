@@ -1,4 +1,5 @@
-import type { Routine } from "@emstack/types";
+import type { LocalConnectionType } from "@/utils";
+import type { RoutineConnection, Routine } from "@emstack/types";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -75,6 +76,17 @@ const detailsSchema = z.object({
   name: z.string().min(1, "Name is required").max(NAME_MAX_LENGTH),
   description: z.string().max(2000),
   connections: z.array(z.string()),
+  // Bookmark connections are managed by a separate async picker (search/create),
+  // not the preloaded connections multi-select; merged into `connections` on save.
+  bookmarks: z.array(
+    z.object({
+      id: z.string().optional(),
+      bookmarkId: z.string(),
+      title: z.string(),
+      url: z.string().nullable(),
+      position: z.number().nullable().optional(),
+    }),
+  ),
   status: z.enum(["active", "inactive", "complete", "paused"]),
   mode: z.enum(["weekly", "daily", "curated"]),
   weekly: z.array(weeklyRowSchema).length(7),
@@ -156,10 +168,21 @@ export function useRoutineDetailsForm(
 
   const startingValues = useMemo(() => {
     const curatedEndKey = routine.curated?.endDate ?? null;
+    const allConnections = routine.connections ?? [];
     return {
       name: routine.name ?? "",
       description: routine.description ?? "",
-      connections: (routine.connections ?? []).map(encodeConnection),
+      connections: allConnections
+        .filter((c): c is RoutineConnection & { type: LocalConnectionType } =>
+          c.type !== "bookmark")
+        .map(encodeConnection),
+      bookmarks: allConnections
+        .filter(c => c.type === "bookmark")
+        .map(c => ({
+          bookmarkId: c.id,
+          title: c.name ?? "",
+          url: c.url ?? null,
+        })),
       status: routine.status ?? "active",
       mode: routine.mode ?? "weekly",
       weekly: weeklyToRows(routine.weekly),
@@ -184,9 +207,18 @@ export function useRoutineDetailsForm(
     }) => {
       setIsSaving(true);
       try {
-        const connections = value.connections
+        const localConnections = value.connections
           .map(decodeConnection)
           .filter((c): c is NonNullable<typeof c> => c !== null);
+        // Bookmark connections carry their cached title/url so the server can
+        // store them (no local row to resolve on read).
+        const bookmarkConnections: RoutineConnection[] = value.bookmarks.map(b => ({
+          type: "bookmark",
+          id: b.bookmarkId,
+          name: b.title,
+          url: b.url,
+        }));
+        const connections = [...localConnections, ...bookmarkConnections];
 
         await upsertRoutine(routine.id, {
           name: value.name,

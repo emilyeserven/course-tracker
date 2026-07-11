@@ -62,6 +62,8 @@ export default async function (server: FastifyInstance) {
             routineId: newId,
             connectedType: c.connectedType,
             connectedId: c.connectedId,
+            cachedTitle: c.cachedTitle,
+            cachedUrl: c.cachedUrl,
             position: c.position,
           })),
         );

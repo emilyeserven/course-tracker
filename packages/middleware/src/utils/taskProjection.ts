@@ -66,6 +66,7 @@ interface TaskTodoRow {
   resource: LinkTargetRow | null;
   moduleGroup: LinkTargetRow | null;
   module: LinkTargetRow | null;
+  bookmarks: TaskBookmarkRow[];
 }
 
 // The fields mapTask reads. The single-task and list task queries produce a
@@ -180,6 +181,16 @@ export function mapTask(task: TaskProjectionRow): Task {
         moduleGroup: mapLinkTarget(t.moduleGroup),
         moduleId: t.moduleId ?? null,
         module: mapLinkTarget(t.module),
+        bookmarks: (t.bookmarks ?? [])
+          .slice()
+          .sort(byPosition)
+          .map((b): TaskBookmark => ({
+            id: b.id,
+            bookmarkId: b.bookmarkId,
+            title: b.title,
+            url: b.url ?? null,
+            position: b.position ?? null,
+          })),
       })),
   };
 }

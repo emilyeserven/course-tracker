@@ -57,6 +57,7 @@ export interface TodoInput {
   resourceId?: string | null;
   moduleGroupId?: string | null;
   moduleId?: string | null;
+  bookmarks?: BookmarkInput[];
 }
 
 export interface TaskBody extends TaskBodyFields {
@@ -170,6 +171,36 @@ export function buildBookmarkRows(
     rows.push({
       id: b.id || makeId(),
       taskId,
+      bookmarkId: b.bookmarkId,
+      title: b.title,
+      url: b.url ?? null,
+      position: index,
+    });
+  });
+  return rows;
+}
+
+export function buildTodoBookmarkRows(
+  bookmarks: readonly BookmarkInput[] | undefined,
+  todoId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (bookmarks === undefined) return undefined;
+  const seen = new Set<string>();
+  const rows: {
+    id: string;
+    todoId: string;
+    bookmarkId: string;
+    title: string;
+    url: string | null;
+    position: number;
+  }[] = [];
+  bookmarks.forEach((b, index) => {
+    if (seen.has(b.bookmarkId)) return;
+    seen.add(b.bookmarkId);
+    rows.push({
+      id: b.id || makeId(),
+      todoId,
       bookmarkId: b.bookmarkId,
       title: b.title,
       url: b.url ?? null,
