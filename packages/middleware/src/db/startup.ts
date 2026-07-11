@@ -2,6 +2,7 @@ import { db } from "@/db/index";
 import { resources } from "@/db/schema";
 import { migrateAddCuratedRoutineMode } from "./migrateAddCuratedRoutineMode.ts";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
+import { migrateDropDomains } from "./migrateDropDomains.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
 import { migrateModuleStatus } from "./migrateModuleStatus.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
@@ -34,6 +35,16 @@ export async function runMigrations() {
   }
   catch (err) {
     console.error("Failed to drop legacy dailies table:", err);
+    throw err;
+  }
+
+  // Drop the removed Domains/radar subsystem (tables + focused_domain_ids
+  // column) before push diffs the schema, which no longer defines them.
+  try {
+    await migrateDropDomains();
+  }
+  catch (err) {
+    console.error("Failed to drop domains/radar tables:", err);
     throw err;
   }
 

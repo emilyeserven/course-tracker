@@ -4,14 +4,11 @@ import {
   dashboardLayouts,
   resources,
   resourceTags,
-  domains,
-  domainWithinScopeTopics,
   interactions,
   moduleGroups,
   moduleGroupTags,
   modules,
   moduleTags,
-  radarBlips,
   routineConnections,
   routines,
   routineTemplates,
@@ -44,8 +41,6 @@ export async function clearData() {
   await db.delete(moduleGroupTags);
   await db.delete(resourceTags);
   await db.delete(topicsToResources);
-  await db.delete(radarBlips);
-  await db.delete(domainWithinScopeTopics);
   await db.delete(routineConnections);
   // Standalone / parent tables
   await db.delete(tags);
@@ -61,5 +56,4 @@ export async function clearData() {
   await db.delete(topics);
   await db.delete(resources);
   await db.delete(courseProviders);
-  await db.delete(domains);
 }

@@ -20,7 +20,6 @@ const client = seededQueryClient([
       readwiseKeyHint: "…aB3x",
       todoistConfigured: true,
       todoistKeyHint: "…aB3x",
-      focusedDomainIds: [],
       moduleHintTemplates: [],
     } satisfies AppSettingsSummary,
   ],

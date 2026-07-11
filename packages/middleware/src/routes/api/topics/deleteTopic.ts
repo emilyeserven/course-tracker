@@ -1,6 +1,4 @@
 import {
-  domainWithinScopeTopics,
-  radarBlips,
   topics,
   topicsToResources,
   topicsToTags,
@@ -14,20 +12,12 @@ export default createDeleteHandler({
   routineConnectionType: "topic",
   junctions: [
     {
-      table: radarBlips,
-      foreignKey: radarBlips.topicId,
-    },
-    {
       table: topicsToResources,
       foreignKey: topicsToResources.topicId,
     },
     {
       table: topicsToTags,
       foreignKey: topicsToTags.topicId,
-    },
-    {
-      table: domainWithinScopeTopics,
-      foreignKey: domainWithinScopeTopics.topicId,
     },
   ],
 });

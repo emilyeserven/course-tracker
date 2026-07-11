@@ -7,6 +7,5 @@ export { EditForm } from "@/components/layout/EditForm";
 export { EditPageFooter } from "@/components/layout/EditPageFooter";
 export { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
 export { PageHeader } from "@/components/layout/PageHeader";
-export { PageTabs } from "@/components/layout/PageTabs";
 export { Button } from "@/components/ui/button";
 export { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";

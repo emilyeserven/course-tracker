@@ -4,7 +4,6 @@ import {
   BookOpenIcon,
   Building2Icon,
   CircleCheckIcon,
-  CompassIcon,
   LibraryIcon,
   ListTodoIcon,
   RepeatIcon,
@@ -17,7 +16,6 @@ export type QuickAddKey
     | "resource"
     | "provider"
     | "topic"
-    | "domain"
     | "routine"
     | "task";
 
@@ -61,12 +59,6 @@ export const QUICK_ADD_OPTIONS: QuickAddOption[] = [
     key: "topic",
     label: "Topic",
     icon: TagIcon,
-    group: "tracker",
-  },
-  {
-    key: "domain",
-    label: "Domain",
-    icon: CompassIcon,
     group: "tracker",
   },
   {

@@ -22,10 +22,12 @@ describe("encode/decode connection", () => {
   });
 
   test("encodes with a capitalized group prefix for nice headers", () => {
-    expect(encodeConnection({
-      type: "topic",
-      id: "t1",
-    })).toBe("Topic:t1");
+    expect(
+      encodeConnection({
+        type: "topic",
+        id: "t1",
+      }),
+    ).toBe("Topic:t1");
   });
 
   test("decodes an id that itself contains nothing weird", () => {
@@ -55,24 +57,30 @@ describe("connectionEntityKind", () => {
 describe("buildConnectionOptions", () => {
   test("prefixes each entity value by type and tags it with a dropdown group", () => {
     const options = buildConnectionOptions(
-      [{
-        id: "t1",
-        name: "React",
-      }],
-      [{
-        id: "k1",
-        name: "Finish module",
-      }],
-      [{
-        id: "r1",
-        name: "Docs site",
-      }],
+      [
+        {
+          id: "t1",
+          name: "React",
+        },
+      ],
+      [
+        {
+          id: "k1",
+          name: "Finish module",
+        },
+      ],
+      [
+        {
+          id: "r1",
+          name: "Docs site",
+        },
+      ],
     );
     expect(options).toEqual([
       {
         value: "Topic:t1",
         label: "React",
-        group: "Topics · No domain",
+        group: "Topics",
       },
       {
         value: "Task:k1",
@@ -87,37 +95,16 @@ describe("buildConnectionOptions", () => {
     ]);
   });
 
-  test("groups topics by domain, sorted with No domain last and names sorted", () => {
+  test("groups all topics under a single Topics group", () => {
     const options = buildConnectionOptions(
       [
         {
           id: "t1",
           name: "Zebra",
-          domains: [{
-            id: "d2",
-            title: "Tooling",
-          }],
         },
         {
           id: "t2",
           name: "Apple",
-          domains: [{
-            id: "d1",
-            title: "Frontend",
-          }],
-        },
-        {
-          id: "t3",
-          name: "Mango",
-          domains: [],
-        },
-        {
-          id: "t4",
-          name: "Bravo",
-          domains: [{
-            id: "d1",
-            title: "Frontend",
-          }],
         },
       ],
       [],
@@ -125,57 +112,14 @@ describe("buildConnectionOptions", () => {
     );
     expect(options).toEqual([
       {
-        value: "Topic:t2",
-        label: "Apple",
-        group: "Topics · Frontend",
-      },
-      {
-        value: "Topic:t4",
-        label: "Bravo",
-        group: "Topics · Frontend",
-      },
-      {
         value: "Topic:t1",
         label: "Zebra",
-        group: "Topics · Tooling",
+        group: "Topics",
       },
       {
-        value: "Topic:t3",
-        label: "Mango",
-        group: "Topics · No domain",
-      },
-    ]);
-  });
-
-  test("lists a multi-domain topic once under each of its domains", () => {
-    const options = buildConnectionOptions(
-      [{
-        id: "t1",
-        name: "React",
-        domains: [
-          {
-            id: "d1",
-            title: "Frontend",
-          },
-          {
-            id: "d2",
-            title: "Tooling",
-          },
-        ],
-      }],
-      [],
-      [],
-    );
-    expect(options).toEqual([
-      {
-        value: "Topic:t1",
-        label: "React",
-        group: "Topics · Frontend",
-      },
-      {
-        value: "Topic:t1",
-        label: "React",
-        group: "Topics · Tooling",
+        value: "Topic:t2",
+        label: "Apple",
+        group: "Topics",
       },
     ]);
   });

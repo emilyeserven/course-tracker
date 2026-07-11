@@ -5,7 +5,6 @@ import { BookIcon } from "lucide-react";
 import {
   CourseMetaItem,
   Description,
-  DomainTagList,
   EntityLink,
 } from "@/components/boxElements";
 import {
@@ -22,7 +21,6 @@ export function TopicBox({
   name,
   description,
   resourceCount,
-  domains,
 }: TopicForTopicsPage) {
   return (
     <ContentBox>
@@ -40,10 +38,6 @@ export function TopicBox({
         </ContentBoxTitle>
       </ContentBoxHeader>
       <ContentBoxBody>
-        <DomainTagList
-          domains={domains}
-          className="mb-2"
-        />
         <Description description={description} />
       </ContentBoxBody>
       <ContentBoxFooter>

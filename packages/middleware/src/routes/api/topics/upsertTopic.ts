@@ -1,6 +1,5 @@
 import { topics, topicsToResources, topicsToTags } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
-import { syncDomainMembershipByTopic } from "@/utils/syncMembershipBlips";
 
 import {
   buildTopicResourceLinkRows,
@@ -29,9 +28,4 @@ export default createUpsertHandler<TopicBody>({
       buildRows: (body, id) => buildTopicResourceLinkRows(body.resourceLinks, id),
     },
   ],
-  afterUpsert: async (body, id) => {
-    if (body.domainIds !== undefined) {
-      await syncDomainMembershipByTopic(id, Array.from(new Set(body.domainIds)));
-    }
-  },
 });

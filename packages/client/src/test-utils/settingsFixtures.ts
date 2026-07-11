@@ -22,7 +22,6 @@ export function makeAppSettings(
     readwiseKeyHint: null,
     todoistConfigured: false,
     todoistKeyHint: null,
-    focusedDomainIds: [],
     moduleHintTemplates: [],
     ...overrides,
   };

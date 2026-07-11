@@ -33,13 +33,6 @@ describe("queryKeys", () => {
     expect(queryKeys.providers.detail("p1")).toEqual(["provider", "p1"]);
   });
 
-  test("domain keys including radar and explore", () => {
-    expect(queryKeys.domains.list()).toEqual(["domains"]);
-    expect(queryKeys.domains.detail("d1")).toEqual(["domain", "d1"]);
-    expect(queryKeys.domains.radar("d1")).toEqual(["radar", "d1"]);
-    expect(queryKeys.domains.explore()).toEqual(["domains-explore"]);
-  });
-
   test("singleton list keys", () => {
     expect(queryKeys.tagGroups.list()).toEqual(["tagGroups"]);
     expect(queryKeys.taskTypes.list()).toEqual(["taskTypes"]);

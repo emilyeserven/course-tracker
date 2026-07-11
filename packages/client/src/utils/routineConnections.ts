@@ -35,10 +35,8 @@ const TYPE_BY_GROUP_LABEL: Record<string, LocalConnectionType> = {
   Resource: "resource",
 };
 
-export function encodeConnection(c: {
-  type: LocalConnectionType;
-  id: string;
-}) {
+export function encodeConnection(c: { type: LocalConnectionType;
+  id: string; }) {
   return `${GROUP_LABEL_BY_TYPE[c.type]}:${c.id}`;
 }
 
@@ -61,67 +59,24 @@ export function decodeConnection(value: string): {
   };
 }
 
-const NO_DOMAIN_GROUP = "Topics · No domain";
-
-function topicGroupLabel(domainTitle: string) {
-  return `Topics · ${domainTitle}`;
-}
-
 // Combined option list for the connections multi-select. Labels stay the bare
 // entity name; each option carries an explicit `group` for the dropdown header.
-// Topics are grouped under "Topics · <domain>" (one entry per domain a topic
-// belongs to, so a multi-domain topic appears under each), with topics that have
-// no domain bucketed under "Topics · No domain". Tasks and Resources get their
-// own groups. Domain groups sort alphabetically by title with "No domain" last;
-// entities sort by name within a group.
+// Topics, Tasks and Resources each get their own group; entities sort by name
+// within a group.
 export function buildConnectionOptions(
-  topics: {
-    id: string;
-    name: string;
-    domains?: { id: string;
-      title: string; }[] | null;
-  }[] | null | undefined,
+  topics: { id: string;
+    name: string; }[] | null | undefined,
   tasks: { id: string;
     name: string; }[] | null | undefined,
   resources: { id: string;
     name: string; }[] | null | undefined,
 ): SelectOption[] {
-  const byDomainTitle = new Map<string, SelectOption[]>();
-  const noDomain: SelectOption[] = [];
-
-  for (const topic of topics ?? []) {
-    const domains = topic.domains ?? [];
-    if (domains.length === 0) {
-      noDomain.push({
-        value: `Topic:${topic.id}`,
-        label: topic.name,
-        group: NO_DOMAIN_GROUP,
-      });
-      continue;
-    }
-    for (const domain of domains) {
-      const bucket = byDomainTitle.get(domain.title) ?? [];
-      bucket.push({
-        value: `Topic:${topic.id}`,
-        label: topic.name,
-        group: topicGroupLabel(domain.title),
-      });
-      byDomainTitle.set(domain.title, bucket);
-    }
-  }
-
-  const byLabel = (a: SelectOption, b: SelectOption) =>
-    a.label.localeCompare(b.label);
-
-  const topicOptions: SelectOption[] = [
-    ...Array.from(byDomainTitle.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .flatMap(([, bucket]) => bucket.sort(byLabel)),
-    ...noDomain.sort(byLabel),
-  ];
-
   return [
-    ...topicOptions,
+    ...toOptions(topics).map(o => ({
+      value: `Topic:${o.value}`,
+      label: o.label,
+      group: "Topics",
+    })),
     ...toOptions(tasks).map(o => ({
       value: `Task:${o.value}`,
       label: o.label,

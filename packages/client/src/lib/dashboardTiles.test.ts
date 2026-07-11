@@ -66,7 +66,7 @@ describe("sortTilesForMobile", () => {
 
   test("breaks ties on the same row by column", () => {
     const right: DashboardLayoutTile = {
-      tileId: "radars",
+      tileId: "coursesInProgress",
       x: 2,
       y: 0,
       w: 2,
@@ -81,7 +81,7 @@ describe("sortTilesForMobile", () => {
     };
     expect(sortTilesForMobile([right, left]).map(t => t.tileId)).toEqual([
       "doNow",
-      "radars",
+      "coursesInProgress",
     ]);
   });
 
@@ -95,15 +95,17 @@ describe("sortTilesForMobile", () => {
 
 describe("toggleTile", () => {
   test("removes a tile that is present", () => {
-    const next = toggleTile(buildDefaultTiles(), "radars");
+    const next = toggleTile(buildDefaultTiles(), "coursesInProgress");
     expect(next).toHaveLength(buildDefaultTiles().length - 1);
-    expect(next.some(t => t.tileId === "radars")).toBe(false);
+    expect(next.some(t => t.tileId === "coursesInProgress")).toBe(false);
   });
 
   test("appends a missing tile below the existing ones", () => {
-    const without = buildDefaultTiles().filter(t => t.tileId !== "radars");
-    const next = toggleTile(without, "radars");
-    const added = next.find(t => t.tileId === "radars");
+    const without = buildDefaultTiles().filter(
+      t => t.tileId !== "coursesInProgress",
+    );
+    const next = toggleTile(without, "coursesInProgress");
+    const added = next.find(t => t.tileId === "coursesInProgress");
     const bottom = Math.max(...without.map(t => t.y + t.h));
     expect(added).toMatchObject({
       x: 0,
@@ -128,7 +130,7 @@ describe("tilesEqual", () => {
   test("detects a moved tile", () => {
     const tiles = buildDefaultTiles();
     const moved = tiles.map(t =>
-      t.tileId === "radars"
+      t.tileId === "coursesInProgress"
         ? {
           ...t,
           x: 0,

@@ -7,7 +7,6 @@ import apiFormSubmit from "./submitOnboardData";
 import resources from "./resources/routes";
 import topics from "./topics/routes";
 import providers from "./providers/routes";
-import domains from "./domains/routes";
 import routines from "./routines/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
@@ -43,9 +42,6 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(providers, {
     prefix: "/providers",
-  });
-  fastify.register(domains, {
-    prefix: "/domains",
   });
   fastify.register(routines, {
     prefix: "/routines",

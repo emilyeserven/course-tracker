@@ -4,8 +4,6 @@ import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
-  domainWithinScopeTopics,
-  radarBlips,
   routineConnections,
   topics,
   topicsToResources,
@@ -37,16 +35,12 @@ export default async function (server: FastifyInstance) {
   fastify.post("/bulk-delete", bulkDeleteSchema, async function (request) {
     const ids = Array.from(new Set(request.body.ids));
 
-    await db.delete(radarBlips).where(inArray(radarBlips.topicId, ids));
     await db
       .delete(topicsToResources)
       .where(inArray(topicsToResources.topicId, ids));
     await db
       .delete(topicsToTags)
       .where(inArray(topicsToTags.topicId, ids));
-    await db
-      .delete(domainWithinScopeTopics)
-      .where(inArray(domainWithinScopeTopics.topicId, ids));
     // routine_connections has no FK on connected_id (polymorphic), so clean up
     // the topics' rows explicitly — they'd dangle forever otherwise.
     await db.delete(routineConnections).where(

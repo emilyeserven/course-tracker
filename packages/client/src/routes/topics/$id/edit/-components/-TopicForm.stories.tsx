@@ -4,7 +4,7 @@ import type { QueryKey } from "@tanstack/react-query";
 
 import { TopicForm } from "./-TopicForm";
 
-import { makeDomain, makeResources } from "@/test-utils/boxFixtures";
+import { makeResources } from "@/test-utils/boxFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import {
   queryStubDecorator,
@@ -19,12 +19,6 @@ const topicDetail: Topic = {
   name: "TypeScript",
   description: "Static typing for JavaScript.",
   reason: "Career growth.",
-  domains: [
-    {
-      id: "domain-1",
-      title: "Frontend Engineering",
-    },
-  ],
   tags: [],
   resourceLinks: [],
 };
@@ -33,7 +27,6 @@ const topicDetail: Topic = {
 // for the edit form (the create form leaves it out — its query is disabled).
 function buildClient(seedDetail: boolean) {
   const entries: [QueryKey, unknown][] = [
-    [["domains"], [makeDomain()]],
     [["tagGroups"], []],
     [["resources"], makeResources()],
     [["module-groups-all"], []],

@@ -57,16 +57,6 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
-          radarBlips: {
-            with: {
-              domain: {
-                columns: {
-                  id: true,
-                  title: true,
-                },
-              },
-            },
-          },
           tasks: {
             columns: {
               id: true,
@@ -83,17 +73,6 @@ export default async function (server: FastifyInstance) {
         const dailyCount
           = topic.tasks?.filter(t => dailyTaskIds.has(t.id)).length ?? 0;
 
-        const domainsById = new Map<string, { id: string;
-          title: string; }>();
-        for (const blip of topic.radarBlips ?? []) {
-          if (blip.domain?.id && blip.domain.title && !domainsById.has(blip.domain.id)) {
-            domainsById.set(blip.domain.id, {
-              id: blip.domain.id,
-              title: blip.domain.title,
-            });
-          }
-        }
-
         return {
           id: topic.id,
           name: topic.name,
@@ -102,7 +81,6 @@ export default async function (server: FastifyInstance) {
           resourceCount: resourceCount,
           taskCount: taskCount,
           dailyCount: dailyCount,
-          domains: Array.from(domainsById.values()),
         };
       });
 

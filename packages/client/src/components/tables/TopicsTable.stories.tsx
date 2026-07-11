@@ -41,8 +41,8 @@ export const ResponsiveColumns: Story = {
     await expect(nameHead).not.toHaveClass("hidden");
     // Detail columns hide below their breakpoint.
     await expect(await canvas.findByText("Description")).toHaveClass("hidden");
-    const domainsHead = (await canvas.findByText("Domains")).closest("th");
-    await expect(domainsHead).toHaveClass("hidden");
+    const resourcesHead = (await canvas.findByText("Resources")).closest("th");
+    await expect(resourcesHead).toHaveClass("hidden");
   },
 };
 

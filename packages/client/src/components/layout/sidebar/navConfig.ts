@@ -5,7 +5,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Building2Icon,
   CircleCheckIcon,
-  CompassIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   RepeatIcon,
@@ -14,7 +13,6 @@ import {
 } from "lucide-react";
 
 import {
-  fetchDomains,
   fetchProviders,
   fetchResources,
   fetchRoutines,
@@ -133,30 +131,6 @@ export const NAV_SECTIONS: NavSection[] = [
           (await fetchTopics()).map(t => ({
             id: t.id,
             name: t.name,
-          })),
-      },
-    ],
-  },
-  {
-    label: "Plans",
-    categories: [
-      {
-        label: "Domains",
-        icon: CompassIcon,
-        listTo: "/domains",
-        quickAddKey: "domain",
-        getDetailLink: id => ({
-          to: "/domains/$id",
-          params: {
-            id,
-          },
-        }),
-        queryKey: queryKeys.domains.list(),
-        // Domains use `title` for display; every other entity uses `name`.
-        load: async () =>
-          (await fetchDomains()).map(d => ({
-            id: d.id,
-            name: d.title,
           })),
       },
     ],

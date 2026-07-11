@@ -1,6 +1,5 @@
 import type {
   CourseProvider,
-  Domain,
   ResourceInResources,
   Routine,
   RoutineTodayAction,
@@ -62,16 +61,6 @@ export function makeResources(count = 3): ResourceInResources[] {
         progressTotal: count,
       }),
   );
-}
-
-export function makeDomain(overrides: Partial<Domain> = {}): Domain {
-  return {
-    id: "domain-1",
-    title: "Frontend Engineering",
-    description: "Everything related to building user interfaces.",
-    topicCount: 5,
-    ...overrides,
-  };
 }
 
 export function makeProvider(
@@ -180,16 +169,6 @@ export function makeTopicRow(
     resourceCount: 4,
     taskCount: 2,
     dailyCount: 1,
-    domains: [
-      {
-        id: "domain-1",
-        title: "Frontend",
-      },
-      {
-        id: "domain-2",
-        title: "Tooling",
-      },
-    ],
     ...overrides,
   };
 }

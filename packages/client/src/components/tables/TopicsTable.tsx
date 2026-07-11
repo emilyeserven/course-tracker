@@ -8,7 +8,7 @@ import type {
 
 import { useMemo } from "react";
 
-import { DomainTagList, EntityLink } from "@/components/boxElements";
+import { EntityLink } from "@/components/boxElements";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { EmptyDash } from "@/components/ui/EmptyDash";
@@ -18,12 +18,7 @@ import {
 } from "@/components/ui/manualSort";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 
-export type TopicsTableSortColumn
-  = | "name"
-    | "domains"
-    | "resources"
-    | "tasks"
-    | "dailies";
+export type TopicsTableSortColumn = "name" | "resources" | "tasks" | "dailies";
 export type TopicsTableSortDirection = SortDirection;
 
 export interface TopicsTableSort {
@@ -51,25 +46,14 @@ interface TopicsTableProps extends TopicsTableSortControl {
 // restores it above it. Keeps narrow phones to select + name.
 const HIDE_SM = "hidden sm:table-cell";
 const HIDE_MD = "hidden md:table-cell";
-const HIDE_LG = "hidden lg:table-cell";
 
-// name/domains sort ascending on first click; the count columns sort descending.
+// name sorts ascending on first click; the count columns sort descending.
 const SORT_DESC_FIRST: Record<TopicsTableSortColumn, boolean> = {
   name: false,
-  domains: false,
   resources: true,
   tasks: true,
   dailies: true,
 };
-
-function domainsCell(topic: TopicForTopicsPage) {
-  return (
-    <DomainTagList
-      domains={topic.domains}
-      fallback={<EmptyDash />}
-    />
-  );
-}
 
 export function TopicsTable({
   topics,
@@ -170,25 +154,6 @@ export function TopicsTable({
             {row.original.name}
           </EntityLink>
         ),
-      },
-      {
-        id: "domains",
-        sortDescFirst: SORT_DESC_FIRST.domains,
-        header: ({
-          column,
-        }) => (
-          <DataTableColumnHeader
-            column={column}
-            label="Domains"
-          />
-        ),
-        meta: {
-          headClassName: `whitespace-nowrap ${HIDE_LG}`,
-          cellClassName: `whitespace-nowrap ${HIDE_LG}`,
-        },
-        cell: ({
-          row,
-        }) => domainsCell(row.original),
       },
       {
         id: "description",

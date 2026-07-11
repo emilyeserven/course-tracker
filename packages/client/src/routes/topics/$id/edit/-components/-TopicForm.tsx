@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 
@@ -18,15 +18,14 @@ import { ResourceLinksPicker, useAppForm } from "@/components/formFields";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { useFormChangeState } from "@/hooks/useFormChangeState";
 import {
-  createDomain,
   createTopic,
   deleteSingleTopic,
   fetchResources,
-  fetchDomains,
   fetchModuleGroups,
   fetchModules,
   fetchSingleTopic,
-  fetchTagGroups, queryKeys,
+  fetchTagGroups,
+  queryKeys,
   tagGroupsToOptions,
   upsertTopic,
 } from "@/utils";
@@ -40,7 +39,6 @@ export function TopicForm({
   id, isNew,
 }: TopicFormProps) {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const {
     data, shouldBlockFn, makeDeleteHandler, makeSubmitHandler,
@@ -50,15 +48,8 @@ export function TopicForm({
       isNew,
       queryKey: ["topic", id],
       queryFn: () => fetchSingleTopic(id),
-      relatedQueryKeys: [queryKeys.topics.list(), queryKeys.domains.list()],
+      relatedQueryKeys: [queryKeys.topics.list()],
     });
-
-  const {
-    data: domainsData,
-  } = useQuery({
-    queryKey: ["domains"],
-    queryFn: () => fetchDomains(),
-  });
 
   // fallow-ignore-next-line code-duplication
   const {
@@ -89,17 +80,6 @@ export function TopicForm({
     queryFn: () => fetchModules(),
   });
 
-  const domainOptions = useMemo(
-    () =>
-      (domainsData ?? [])
-        .filter(d => d.title)
-        .map(d => ({
-          value: d.id,
-          label: d.title,
-        })),
-    [domainsData],
-  );
-
   const tagOptions = useMemo(() => tagGroupsToOptions(tagGroups), [tagGroups]);
 
   const startingValues = useMemo(
@@ -107,7 +87,6 @@ export function TopicForm({
       name: data?.name ?? "",
       description: data?.description ?? "",
       reason: data?.reason ?? "",
-      domainIds: data?.domains?.map(d => d.id) ?? [],
       tagIds: (data?.tags ?? []).map(t => t.id),
       resourceLinks: (data?.resourceLinks ?? []).map((l, i) => ({
         key: l.id ?? `existing-${i}`,
@@ -144,7 +123,6 @@ export function TopicForm({
         name: value.name,
         description: value.description || null,
         reason: value.reason || null,
-        domainIds: value.domainIds,
         tagIds: value.tagIds,
         resourceLinks: value.resourceLinks
           .filter(l => l.resourceId)
@@ -158,8 +136,7 @@ export function TopicForm({
   });
 
   const {
-    isSubmitting,
-    hasChanges,
+    isSubmitting, hasChanges,
   } = useFormChangeState(form, startingValues);
 
   const handleDelete = makeDeleteHandler({
@@ -211,34 +188,6 @@ export function TopicForm({
               <field.TextareaField
                 label="Reason"
                 placeholder="Why are you learning this?"
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="domainIds">
-            {field => (
-              <field.MultiComboboxField
-                label="Domains"
-                options={domainOptions}
-                placeholder="Search domains..."
-                create={{
-                  itemLabel: "domain",
-                  fields: [
-                    {
-                      name: "title",
-                      label: "Title",
-                      required: true,
-                      isPrimary: true,
-                    },
-                  ],
-                  onCreate: async (values) => {
-                    const result = await createDomain(values);
-                    await queryClient.invalidateQueries({
-                      queryKey: ["domains"],
-                    });
-                    return result.id;
-                  },
-                }}
               />
             )}
           </form.AppField>

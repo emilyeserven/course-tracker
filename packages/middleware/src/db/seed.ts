@@ -2,8 +2,6 @@ import {
   courseProviders,
   resources,
   dailyCriteriaTemplates,
-  domains,
-  radarBlips,
   tagGroups,
   tags,
   topics,
@@ -241,55 +239,6 @@ export async function seed() {
         },
       ])
       .onConflictDoNothing();
-  }
-
-  const domainWebDevData: typeof domains.$inferInsert = {
-    id: "c1a2b3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-    title: "Web Development",
-    description: "Building applications for the web.",
-  };
-  const domainLanguageLearningData: typeof domains.$inferInsert = {
-    id: "d2b3c4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
-    title: "Language Learning",
-    description: "Studying foreign languages.",
-  };
-
-  const domainWebDev = await db
-    .insert(domains)
-    .values([domainWebDevData])
-    .onConflictDoNothing()
-    .returning();
-
-  const domainLanguageLearning = await db
-    .insert(domains)
-    .values([domainLanguageLearningData])
-    .onConflictDoNothing()
-    .returning();
-
-  const seedBlips: (typeof radarBlips.$inferInsert)[] = [];
-  if (domainWebDev[0] && topicReact[0]) {
-    seedBlips.push({
-      id: uuidv4(),
-      domainId: domainWebDev[0].id,
-      topicId: topicReact[0].id,
-    });
-  }
-  if (domainWebDev[0] && topicTypescript[0]) {
-    seedBlips.push({
-      id: uuidv4(),
-      domainId: domainWebDev[0].id,
-      topicId: topicTypescript[0].id,
-    });
-  }
-  if (domainLanguageLearning[0] && topicJapanese[0]) {
-    seedBlips.push({
-      id: uuidv4(),
-      domainId: domainLanguageLearning[0].id,
-      topicId: topicJapanese[0].id,
-    });
-  }
-  if (seedBlips.length > 0) {
-    await db.insert(radarBlips).values(seedBlips).onConflictDoNothing();
   }
 
   await db

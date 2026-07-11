@@ -49,16 +49,6 @@ export default async function (server: FastifyInstance) {
               },
             },
           },
-          radarBlips: {
-            with: {
-              domain: {
-                columns: {
-                  id: true,
-                  title: true,
-                },
-              },
-            },
-          },
           topicsToTags: {
             with: {
               tag: true,
@@ -77,19 +67,6 @@ export default async function (server: FastifyInstance) {
       const resourceCount = topic.topicsToResources?.length ?? 0;
       const resources = processResourceLinks(topic.topicsToResources, "resource");
 
-      const domainsById = new Map<string, {
-        id: string;
-        title: string;
-      }>();
-      for (const blip of topic.radarBlips ?? []) {
-        if (blip.domain && !domainsById.has(blip.domain.id)) {
-          domainsById.set(blip.domain.id, {
-            id: blip.domain.id,
-            title: blip.domain.title,
-          });
-        }
-      }
-      const domains = Array.from(domainsById.values());
       const tags = (topic.topicsToTags ?? []).map(j => j.tag);
 
       const resourceLinks = (topic.topicsToResources ?? []).map(j => ({
@@ -125,7 +102,6 @@ export default async function (server: FastifyInstance) {
         reason: topic.reason,
         resourceCount: resourceCount,
         resources: resources,
-        domains,
         tags,
         resourceLinks,
       };
