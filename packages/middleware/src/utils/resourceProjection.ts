@@ -1,6 +1,8 @@
-import { processCost } from "@/utils/processCost";
-import { toProviderBlock } from "@/utils/providerProjection";
-import { processResourceLinks } from "@/utils/processResourceLinks";
+// Sibling utils are imported relatively (not via the `@/` alias) so the Node
+// test runner can load this module directly — see the middleware CLAUDE.md.
+import { processCost } from "./processCost.ts";
+import { toProviderBlock } from "./providerProjection.ts";
+import { processResourceLinks } from "./processResourceLinks.ts";
 import type {
   CostData,
   Resource,

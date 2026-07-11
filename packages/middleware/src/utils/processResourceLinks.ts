@@ -1,4 +1,4 @@
-import { TopicsToResources } from "@emstack/types";
+import type { TopicsToResources } from "@emstack/types";
 
 interface NamedRef {
   id: string;
