@@ -3,6 +3,7 @@ import type {
   ResourceLinkTarget,
   Tag,
   Task,
+  TaskBookmark,
   TaskResourceLevel,
 } from "@emstack/types";
 
@@ -24,6 +25,14 @@ interface TaskResourceJoinRow {
   resource: LinkTargetRow | null;
   moduleGroup: LinkTargetRow | null;
   module: LinkTargetRow | null;
+}
+
+interface TaskBookmarkRow {
+  id: string;
+  bookmarkId: string;
+  title: string;
+  url: string | null;
+  position: number | null;
 }
 
 interface TaskResourceRow {
@@ -74,6 +83,7 @@ interface TaskProjectionRow {
     tags: string[] | null; } | null;
   tasksToTags: { tag: Tag }[];
   tasksToResources: TaskResourceJoinRow[];
+  bookmarks: TaskBookmarkRow[];
   resources: TaskResourceRow[];
   todos: TaskTodoRow[];
 }
@@ -124,6 +134,16 @@ export function mapTask(task: TaskProjectionRow): Task {
       module: mapLinkTarget(j.module),
       position: j.position ?? null,
     })),
+    bookmarks: (task.bookmarks ?? [])
+      .slice()
+      .sort(byPosition)
+      .map((b): TaskBookmark => ({
+        id: b.id,
+        bookmarkId: b.bookmarkId,
+        title: b.title,
+        url: b.url ?? null,
+        position: b.position ?? null,
+      })),
     resources: (task.resources ?? [])
       .slice()
       .sort(byPosition)

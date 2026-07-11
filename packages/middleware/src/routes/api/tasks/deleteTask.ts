@@ -1,4 +1,5 @@
 import {
+  taskBookmarks,
   taskResources,
   taskTodos,
   tasks,
@@ -20,6 +21,10 @@ export default createDeleteHandler({
     {
       table: tasksToResources,
       foreignKey: tasksToResources.taskId,
+    },
+    {
+      table: taskBookmarks,
+      foreignKey: taskBookmarks.taskId,
     },
     {
       table: taskResources,

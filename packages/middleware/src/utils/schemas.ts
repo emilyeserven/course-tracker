@@ -349,6 +349,31 @@ export const resourceLinksArraySchema = {
   items: resourceLinkSchema,
 } as const;
 
+// A task's association to a Simple Bookmarks bookmark. `bookmarkId` is the
+// external id in the companion app; `title` / `url` are the denormalized cache
+// stored so the chip renders when Simple Bookmarks is unreachable.
+const bookmarkLinkSchema = {
+  type: "object",
+  required: ["bookmarkId", "title"],
+  properties: {
+    id: {
+      type: "string",
+    },
+    bookmarkId: {
+      type: "string",
+    },
+    title: {
+      type: "string",
+    },
+    url: nullableString,
+  },
+} as const;
+
+export const bookmarkLinksArraySchema = {
+  type: "array",
+  items: bookmarkLinkSchema,
+} as const;
+
 // Schema for a task's freeform resource entry. Ease/time/interactivity/tags
 // now live on the linked Resource/ModuleGroup/Module — when a row is linked,
 // those properties are read from the linked entity rather than overridden

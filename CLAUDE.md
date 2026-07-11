@@ -132,6 +132,7 @@ Project skills live in `.claude/skills/<name>/SKILL.md`. The `/`-command name co
 | Variable | Package | Purpose | Default |
 |---|---|---|---|
 | `DATABASE_URL` | middleware | PostgreSQL connection string | — |
+| `BOOKMARKS_API_URL` | middleware | Base URL of the companion Simple Bookmarks app (proxied for bookmark search/resolve/create) | `http://eserve-raspi:3000` |
 | `POSTGRES_USER` | docker-compose | Database user | `postgres` |
 | `POSTGRES_PASSWORD` | docker-compose | Database password | `password` |
 | `POSTGRES_DB` | docker-compose | Database name | `coursetracker` |

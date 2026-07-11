@@ -10,4 +10,13 @@ export const formSchema = z.object({
   topicId: z.string(),
   taskTypeId: z.string(),
   tagIds: z.array(z.string()),
+  bookmarks: z.array(
+    z.object({
+      id: z.string().optional(),
+      bookmarkId: z.string(),
+      title: z.string(),
+      url: z.string().nullable(),
+      position: z.number().nullable().optional(),
+    }),
+  ),
 });

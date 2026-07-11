@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { DailyCompletionStatus, TaskResourceLink } from "@emstack/types";
 
 import {
+  bookmarkLinksArraySchema,
   nullableString,
   resourceLinksArraySchema,
   resourceSchema,
@@ -27,6 +28,13 @@ export type ResourceLinkInput = Pick<
   TaskResourceLink,
   "resourceId" | "moduleGroupId" | "moduleId"
 >;
+
+export interface BookmarkInput {
+  id?: string | null;
+  bookmarkId: string;
+  title: string;
+  url?: string | null;
+}
 
 export interface TaskResourceInput {
   id?: string | null;
@@ -54,6 +62,7 @@ export interface TodoInput {
 export interface TaskBody extends TaskBodyFields {
   tagIds?: string[];
   resourceLinks?: ResourceLinkInput[];
+  bookmarks?: BookmarkInput[];
   resources?: TaskResourceInput[];
   todos?: TodoInput[];
 }
@@ -70,6 +79,7 @@ export const taskBodySchema = {
     taskTypeId: nullableString,
     tagIds: tagIdsArraySchema,
     resourceLinks: resourceLinksArraySchema,
+    bookmarks: bookmarkLinksArraySchema,
     resources: {
       type: "array",
       items: resourceSchema,
@@ -132,6 +142,37 @@ export function buildResourceLinkRows(
       resourceId: link.resourceId,
       moduleGroupId: link.moduleGroupId ?? null,
       moduleId: link.moduleId ?? null,
+      position: index,
+    });
+  });
+  return rows;
+}
+
+export function buildBookmarkRows(
+  bookmarks: readonly BookmarkInput[] | undefined,
+  taskId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (bookmarks === undefined) return undefined;
+  // Dedupe by bookmarkId so a task holds at most one row per bookmark.
+  const seen = new Set<string>();
+  const rows: {
+    id: string;
+    taskId: string;
+    bookmarkId: string;
+    title: string;
+    url: string | null;
+    position: number;
+  }[] = [];
+  bookmarks.forEach((b, index) => {
+    if (seen.has(b.bookmarkId)) return;
+    seen.add(b.bookmarkId);
+    rows.push({
+      id: b.id || makeId(),
+      taskId,
+      bookmarkId: b.bookmarkId,
+      title: b.title,
+      url: b.url ?? null,
       position: index,
     });
   });

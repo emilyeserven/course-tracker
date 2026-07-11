@@ -1,4 +1,5 @@
 import type { Tag } from "./Tag";
+import type { TaskBookmark } from "./TaskBookmark";
 import type { TaskResource } from "./TaskResource";
 import type { TaskResourceLink } from "./TaskResourceLink";
 import type { TaskTodo } from "./TaskTodo";
@@ -21,6 +22,9 @@ export interface Task {
     tags: string[]; } | null;
   tags?: Tag[];
   resourceLinks?: TaskResourceLink[];
+  // Associations to Simple Bookmarks bookmarks (coexists with resourceLinks
+  // during the incremental migration away from local Resources).
+  bookmarks?: TaskBookmark[];
   resources?: TaskResource[];
   todos?: TaskTodo[];
 }

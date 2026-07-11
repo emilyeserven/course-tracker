@@ -23,6 +23,7 @@ import settings from "./settings/routes";
 import readwise from "./readwise/routes";
 import todoist from "./todoist/routes";
 import googleCalendar from "./google-calendar/routes";
+import bookmarks from "./bookmarks/routes";
 
 export default async function (server: FastifyInstance) {
   const fastify = server.withTypeProvider<JsonSchemaToTsProvider>();
@@ -90,5 +91,8 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(googleCalendar, {
     prefix: "/google-calendar",
+  });
+  fastify.register(bookmarks, {
+    prefix: "/bookmarks",
   });
 }
