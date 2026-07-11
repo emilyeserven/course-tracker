@@ -47,6 +47,10 @@ function resolveBaseName(
   entry: RoutineReferenceItem | null,
   resolved: ResolvedConnections,
 ): string | null {
+  // External bookmark: the cached title is on the entry (nothing to resolve).
+  if (entry?.type === "bookmark") {
+    return entry.title ?? entry.id;
+  }
   if (resolved.resource) {
     return resourceEntryLabel({
       resourceName: resolved.resource.name,

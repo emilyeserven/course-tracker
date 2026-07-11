@@ -2,7 +2,7 @@ import type { Task, TaskTodo } from "@emstack/types";
 
 import { useMemo, useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLinkIcon, PencilIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,22 +13,15 @@ import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import { toTodoInput } from "@/components/tasks/todoPayload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  fetchModuleGroups,
-  fetchModules,
-  fetchResources,
-  upsertTask,
-} from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
+import { upsertTask } from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
 interface TodosEditorProps {
   task: Task;
 }
 
-// The merged To-Do editor: each todo carries a status, an optional due date, an
-// optional linked resource (with narrowing) and a note — replacing the old
-// separate To-Do's checklist and Resources table.
+// The To-Do editor: each todo carries a status, an optional due date, a note,
+// and associated bookmarks (with optional section narrowing).
 export function TodosEditor({
   task,
 }: TodosEditorProps) {
@@ -49,36 +42,6 @@ export function TodosEditor({
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftNew, setDraftNew] = useState<TaskTodo | null>(null);
-
-  const {
-    data: resources,
-  } = useQuery({
-    queryKey: queryKeys.resources.list(),
-    queryFn: () => fetchResources(),
-  });
-  const {
-    data: moduleGroups,
-  } = useQuery({
-    queryKey: ["module-groups-all"],
-    queryFn: () => fetchModuleGroups(),
-  });
-  const {
-    data: modules,
-  } = useQuery({
-    queryKey: ["modules-all"],
-    queryFn: () => fetchModules(),
-  });
-
-  const resourceOptions = useMemo(
-    () =>
-      [...(resources ?? [])]
-        .map(r => ({
-          id: r.id,
-          name: r.name,
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [resources],
-  );
 
   const mutation = useMutation({
     mutationFn: (nextTodos: TaskTodo[]) =>
@@ -183,9 +146,6 @@ export function TodosEditor({
             <TodoEditRow
               key={draftNew.id}
               todo={draftNew}
-              resourceOptions={resourceOptions}
-              moduleGroups={moduleGroups ?? []}
-              modules={modules ?? []}
               isNew
               isSaving={mutation.isPending}
               onSave={saveNew}
@@ -198,9 +158,6 @@ export function TodosEditor({
                 <TodoEditRow
                   key={todo.id}
                   todo={todo}
-                  resourceOptions={resourceOptions}
-                  moduleGroups={moduleGroups ?? []}
-                  modules={modules ?? []}
                   isSaving={mutation.isPending}
                   onSave={saveEdit}
                   onCancel={() => setEditingId(null)}
@@ -209,10 +166,6 @@ export function TodosEditor({
               );
             }
             const statusOption = getDailyStatusOption(todo.status);
-            const linkedResource
-              = todo.resource
-                ?? resourceOptions.find(r => r.id === todo.resourceId)
-                ?? null;
             return (
               <li
                 key={todo.id}
@@ -241,18 +194,6 @@ export function TodosEditor({
                       className="bg-muted/40"
                     >
                       due {todo.dueDate}
-                    </Badge>
-                  )}
-                  {linkedResource && (
-                    <Badge
-                      variant="outline"
-                      className="
-                        border-blue-200 bg-blue-50 text-blue-900
-                        dark:border-blue-900/50 dark:bg-blue-950/40
-                        dark:text-blue-200
-                      "
-                    >
-                      {linkedResource.name}
                     </Badge>
                   )}
                   {(todo.bookmarks ?? []).map(b => (

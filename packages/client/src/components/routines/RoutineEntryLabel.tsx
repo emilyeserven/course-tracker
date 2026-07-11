@@ -38,25 +38,42 @@ export function RoutineEntryLabel({
   // (freeform) — no type badge, so it can sit inside an actionable sentence.
   const nameNode = entry.type === "freeform"
     ? entry.id
-    : (
-      <EntityLink
-        entity={entry.type === "task" ? "tasks" : "resources"}
-        id={entry.id}
-        className="
-          text-blue-800
-          hover:text-blue-600
-          dark:text-blue-300
-        "
-      >
-        {routineEntryName(
-          entry,
-          taskNames,
-          resourceNames,
-          moduleNames,
-          moduleGroupNames,
-        )}
-      </EntityLink>
-    );
+    : entry.type === "bookmark"
+      ? (
+        // External bookmark: link out (no local route), cached title + section.
+        <a
+          href={entry.url ?? undefined}
+          target="_blank"
+          rel="noreferrer"
+          className="
+            text-blue-800
+            hover:text-blue-600
+            dark:text-blue-300
+          "
+        >
+          {entry.title ?? entry.id}
+          {entry.sectionLabel ? ` › ${entry.sectionLabel}` : ""}
+        </a>
+      )
+      : (
+        <EntityLink
+          entity={entry.type === "task" ? "tasks" : "resources"}
+          id={entry.id}
+          className="
+            text-blue-800
+            hover:text-blue-600
+            dark:text-blue-300
+          "
+        >
+          {routineEntryName(
+            entry,
+            taskNames,
+            resourceNames,
+            moduleNames,
+            moduleGroupNames,
+          )}
+        </EntityLink>
+      );
 
   const actionable = (
     <ActionableSentence

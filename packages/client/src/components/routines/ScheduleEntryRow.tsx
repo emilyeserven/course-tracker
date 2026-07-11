@@ -4,9 +4,8 @@ import type { SelectOption } from "@/utils";
 import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
 
 import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
-import { TaskResourceComboboxContent } from "@/components/routines/TaskResourceComboboxContent";
+import { ScheduleItemControl } from "@/components/routines/ScheduleItemControl";
 import { effectiveEntryUrl } from "@/components/routines/weekly";
-import { Combobox, ComboboxInput } from "@/components/ui/combobox";
 
 interface ScheduleEntryRowProps {
   // Displayed label for the row (e.g. "Monday" or "Mon, Jun 15").
@@ -48,13 +47,15 @@ function rowPreview(
   const itemName
     = row.type === "freeform"
       ? row.id
-      : row.type === "resource"
-        ? resourceEntryLabel({
-          resourceName: optionsMap.get(row.id) ?? "",
-          moduleName: moduleLabel,
-          groupName: groupLabel,
-        })
-        : (optionsMap.get(row.id) ?? "");
+      : row.type === "bookmark"
+        ? (row.title || row.id)
+        : row.type === "resource"
+          ? resourceEntryLabel({
+            resourceName: optionsMap.get(row.id) ?? "",
+            moduleName: moduleLabel,
+            groupName: groupLabel,
+          })
+          : (optionsMap.get(row.id) ?? "");
   return {
     showPreview:
       !!itemName && (!!row.prependText.trim() || !!row.appendText.trim()),
@@ -129,7 +130,7 @@ export function ScheduleEntryRow({
           value={row.type}
           onChange={(e) => {
             // Changing the type clears the chosen item (different option set),
-            // any module narrowing, and any note/location.
+            // any module / bookmark narrowing, and any note/location.
             onChange({
               type: e.target.value as WeeklyRowType,
               id: "",
@@ -137,6 +138,10 @@ export function ScheduleEntryRow({
               moduleGroupId: "",
               notes: "",
               location: "",
+              title: "",
+              url: "",
+              sectionId: "",
+              sectionLabel: "",
             });
           }}
           className="
@@ -146,56 +151,24 @@ export function ScheduleEntryRow({
           <option value="">— None —</option>
           <option value="task">Task</option>
           <option value="resource">Resource</option>
+          <option value="bookmark">Bookmark</option>
           <option value="freeform">Freeform</option>
         </select>
 
-        {row.type === "freeform"
-          ? (
-            <input
-              aria-label={`${ariaPrefix} description`}
-              value={row.id}
-              onChange={e =>
-                onChange({
-                  id: e.target.value,
-                })}
-              placeholder="Describe the activity…"
-              className="
-                flex h-9 w-full rounded-md border bg-background px-2 text-sm
-              "
-            />
-          )
-          : (
-            <Combobox
-              items={itemOptions.map(o => o.value)}
-              value={row.id || null}
-              onValueChange={val =>
-                // A different resource has different modules, so clear any
-                // existing narrowing when the picked item changes.
-                onChange({
-                  id: val ?? "",
-                  moduleId: "",
-                  moduleGroupId: "",
-                })}
-              onInputValueChange={val => onInputValueChange(val)}
-              itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
-            >
-              <ComboboxInput
-                placeholder={
-                  row.type === "task"
-                    ? "Search tasks..."
-                    : row.type === "resource"
-                      ? "Search resources..."
-                      : "Pick a type first"
-                }
-                showClear
-                disabled={!row.type}
-              />
-              <TaskResourceComboboxContent
-                optionsMap={optionsMap}
-                onAddNew={row.type === "resource" ? onAddResource : undefined}
-              />
-            </Combobox>
-          )}
+        <ScheduleItemControl
+          ariaPrefix={ariaPrefix}
+          type={row.type}
+          id={row.id}
+          title={row.title}
+          url={row.url}
+          sectionId={row.sectionId}
+          sectionLabel={row.sectionLabel}
+          itemOptions={itemOptions}
+          optionsMap={optionsMap}
+          onChange={onChange}
+          onInputValueChange={onInputValueChange}
+          onAddResource={onAddResource}
+        />
       </div>
 
       {showModulePickers && (

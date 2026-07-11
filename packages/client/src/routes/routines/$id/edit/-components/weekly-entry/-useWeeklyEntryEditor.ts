@@ -30,6 +30,10 @@ export function useWeeklyEntryEditor({
   location,
   prependText,
   appendText,
+  title,
+  url,
+  sectionId,
+  sectionLabel,
   onChange,
   taskOptions,
   resourceOptions,
@@ -55,6 +59,10 @@ export function useWeeklyEntryEditor({
       location,
       prependText,
       appendText,
+      title,
+      url,
+      sectionId,
+      sectionLabel,
       ...patch,
     });
   }
@@ -74,7 +82,12 @@ export function useWeeklyEntryEditor({
     [],
   );
 
-  const itemName = type === "freeform" ? id : (optionsMap.get(id) ?? "");
+  const itemName
+    = type === "freeform"
+      ? id
+      : type === "bookmark"
+        ? title || id
+        : (optionsMap.get(id) ?? "");
   const showPreview
     = !!itemName && (!!prependText.trim() || !!appendText.trim());
   const preview = buildActionableSentence({

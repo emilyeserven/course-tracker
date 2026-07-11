@@ -68,6 +68,10 @@ export function WeeklyScheduleField({
             location: "",
             prependText: "",
             appendText: "",
+            title: "",
+            url: "",
+            sectionId: "",
+            sectionLabel: "",
           };
           const {
             groupOptions, moduleOptions,
