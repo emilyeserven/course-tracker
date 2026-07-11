@@ -20,9 +20,6 @@ import {
   tasksToTags,
   taskTodos,
   taskTypes,
-  topics,
-  topicsToResources,
-  topicsToTags,
 } from "@/db/schema";
 import { db } from "@/db/index";
 
@@ -36,11 +33,9 @@ export async function clearData() {
   await db.delete(tasksToResources);
   await db.delete(taskResources);
   await db.delete(taskTodos);
-  await db.delete(topicsToTags);
   await db.delete(moduleTags);
   await db.delete(moduleGroupTags);
   await db.delete(resourceTags);
-  await db.delete(topicsToResources);
   await db.delete(routineConnections);
   // Standalone / parent tables
   await db.delete(tags);
@@ -53,7 +48,6 @@ export async function clearData() {
   await db.delete(taskTypes);
   await db.delete(modules);
   await db.delete(moduleGroups);
-  await db.delete(topics);
   await db.delete(resources);
   await db.delete(courseProviders);
 }

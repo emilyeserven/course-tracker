@@ -176,7 +176,6 @@ export default async function (server: FastifyInstance) {
           name: routine.name,
           description: routine.description ?? null,
           dueDate: routine.curated?.endDate ?? null,
-          topicId: null,
           taskTypeId: null,
         });
         if (todoRows.length) {

@@ -23,32 +23,20 @@ import {
   fetchSingleTask,
   fetchTagGroups,
   fetchTaskTypes,
-  fetchTopics,
   queryKeys,
   tagGroupsToOptions,
   toOptions,
   upsertTask,
 } from "@/utils";
 
-export interface TaskEditSearch {
-  topicId?: string;
-}
-
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: SingleTaskEdit,
-  validateSearch: (search: Record<string, unknown>): TaskEditSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
-  }),
 });
 
 function SingleTaskEdit() {
   const {
     id,
   } = Route.useParams();
-  const search = Route.useSearch();
   const isNew = id === "new";
   const navigate = useNavigate();
 
@@ -77,13 +65,6 @@ function SingleTaskEdit() {
   });
 
   const {
-    data: topics,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
-
-  const {
     data: taskTypes,
   } = useQuery({
     queryKey: ["taskTypes"],
@@ -97,8 +78,6 @@ function SingleTaskEdit() {
     queryFn: () => fetchTagGroups(),
   });
 
-  const topicOptions = toOptions(topics);
-
   const taskTypeOptions = toOptions(taskTypes);
 
   const tagOptions = tagGroupsToOptions(tagGroups);
@@ -108,12 +87,11 @@ function SingleTaskEdit() {
       name: data?.name ?? "",
       description: data?.description ?? "",
       dueDate: data?.dueDate ? new Date(data.dueDate) : null,
-      topicId: data?.topicId ?? (isNew ? (search.topicId ?? "") : ""),
       taskTypeId: data?.taskTypeId ?? "",
       tagIds: (data?.tags ?? []).map(t => t.id),
       bookmarks: data?.bookmarks ?? [],
     }),
-    [data, isNew, search.topicId],
+    [data],
   );
 
   const form = useAppForm({
@@ -134,7 +112,6 @@ function SingleTaskEdit() {
         dueDate: value.dueDate
           ? value.dueDate.toISOString().split("T")[0]
           : null,
-        topicId: value.topicId || null,
         taskTypeId: value.taskTypeId || null,
         tagIds: value.tagIds,
         bookmarks: value.bookmarks,
@@ -190,16 +167,6 @@ function SingleTaskEdit() {
               <field.DatePickerField
                 label="Due Date"
                 placeholder="No due date"
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="topicId">
-            {field => (
-              <field.ComboboxField
-                label="Topic"
-                options={topicOptions}
-                placeholder="Search topics..."
               />
             )}
           </form.AppField>

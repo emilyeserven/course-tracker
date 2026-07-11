@@ -16,7 +16,6 @@ const meta: Meta<typeof ModuleSuggestDialog> = {
     resourceDescription: "A practical introduction.",
     resourceUrl: "https://example.com/course",
     providerName: "Acme Learning",
-    topicNames: ["TypeScript", "Tooling"],
     existingGroupNames: [],
     existingUngroupedModuleNames: [],
     onApplied: fn(),

@@ -44,7 +44,6 @@ const meta: Meta<typeof WeeklyScheduleSection> = {
   decorators: [
     queryStoryDecorator(
       seededQueryClient([
-        [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
         [["modules-all"], []],

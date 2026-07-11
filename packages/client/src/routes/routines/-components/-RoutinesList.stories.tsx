@@ -16,7 +16,7 @@ const routines: Routine[] = [
     status: "active",
     connections: [
       {
-        type: "topic",
+        type: "task",
         id: "t1",
         name: "React",
       },

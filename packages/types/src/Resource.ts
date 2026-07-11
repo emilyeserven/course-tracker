@@ -1,6 +1,5 @@
 import type { CostData } from "./CostData";
 import type { EntityStatus } from "./EntityStatus";
-import type { MinimalTopic } from "./MinimalTopic";
 import type { Module } from "./Module";
 import type { ModuleGroup } from "./ModuleGroup";
 import type { ModulesConfig } from "./ModulesConfig";
@@ -35,7 +34,6 @@ export interface Resource extends ResourceLevelAttributes {
    */
   tracksProgress?: boolean;
   modulesAreExhaustive?: boolean;
-  topics?: MinimalTopic[];
   provider?: {
     name: string;
     id: string;

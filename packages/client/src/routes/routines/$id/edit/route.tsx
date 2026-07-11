@@ -27,8 +27,6 @@ const TAB_VALUES = ["details", "entries", "criteria"] as const;
 type EditTab = (typeof TAB_VALUES)[number];
 
 export interface RoutineEditSearch {
-  // Legacy alias: a bare `?topicId=` still prefills a topic connection.
-  topicId?: string;
   connectedType?: RoutineConnectionType;
   connectedId?: string;
   mode?: RoutineMode;
@@ -40,14 +38,8 @@ export interface RoutineEditSearch {
 export const Route = createFileRoute("/routines/$id/edit")({
   component: SingleRoutineEdit,
   validateSearch: (search: Record<string, unknown>): RoutineEditSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
     connectedType:
-      search.connectedType === "topic"
-      || search.connectedType === "task"
-      || search.connectedType === "resource"
+      search.connectedType === "task" || search.connectedType === "resource"
         ? search.connectedType
         : undefined,
     connectedId:
@@ -145,20 +137,22 @@ function ExistingRoutineEdit({
   const handleDelete = makeDeleteHandler({
     deleteFn: deleteSingleRoutine,
     entityLabel: "routine",
-    navigateToList: () => navigate({
-      to: "/routines",
-    }),
+    navigateToList: () =>
+      navigate({
+        to: "/routines",
+      }),
   });
 
   const handleDuplicate = makeDuplicateHandler({
     duplicateFn: duplicateRoutine,
     entityLabel: "routine",
-    navigateToEntity: newId => navigate({
-      to: "/routines/$id/edit",
-      params: {
-        id: newId,
-      },
-    }),
+    navigateToEntity: newId =>
+      navigate({
+        to: "/routines/$id/edit",
+        params: {
+          id: newId,
+        },
+      }),
   });
 
   function changeTab(next: EditTab) {
@@ -258,9 +252,7 @@ function ExistingRoutineEdit({
           </Button>
         </EditPageFooter>
       </div>
-      <UnsavedChangesDialog
-        shouldBlockFn={shouldBlockFn(anyTabHasChanges)}
-      />
+      <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(anyTabHasChanges)} />
     </div>
   );
 }

@@ -4,20 +4,17 @@ import { isTodoComplete } from "@emstack/types";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon, CheckSquareIcon } from "lucide-react";
 
-import { CourseMetaItem, Description, EntityLink } from "@/components/boxElements";
+import { CourseMetaItem, Description } from "@/components/boxElements";
 import {
   ContentBox,
   ContentBoxBody,
   ContentBoxFooter,
   ContentBoxHeader,
-  ContentBoxHeaderBar,
   ContentBoxTitle,
 } from "@/components/contentBoxComponents/ContentBox";
-import { Badge } from "@/components/ui/badge";
-import { EmptyHint } from "@/components/ui/EmptyHint";
 
 export function TaskBox({
-  id, name, description, topic, dueDate, todos,
+  id, name, description, dueDate, todos,
 }: Task) {
   const totalTodos = todos?.length ?? 0;
   const doneTodos = todos?.filter(t => isTodoComplete(t.status)).length ?? 0;
@@ -25,31 +22,6 @@ export function TaskBox({
   return (
     <ContentBox>
       <ContentBoxHeader>
-        <ContentBoxHeaderBar>
-          <div className="flex flex-row items-center gap-2">
-            {topic
-              ? (
-                <Badge
-                  asChild
-                  variant="secondary"
-                  className="
-                    bg-muted
-                    hover:bg-primary hover:text-primary-foreground
-                  "
-                >
-                  <EntityLink
-                    entity="topics"
-                    id={topic.id}
-                  >
-                    {topic.name}
-                  </EntityLink>
-                </Badge>
-              )
-              : (
-                <EmptyHint>No topic</EmptyHint>
-              )}
-          </div>
-        </ContentBoxHeaderBar>
         <ContentBoxTitle>
           <h3 className="text-xl">
             <Link

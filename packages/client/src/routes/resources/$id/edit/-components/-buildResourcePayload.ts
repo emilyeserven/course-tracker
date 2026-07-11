@@ -15,7 +15,6 @@ export const formSchema = z.object({
   tracksProgress: z.boolean(),
   cost: z.number().min(0).nullable(),
   dateExpires: z.date().nullable(),
-  topicId: z.string(),
   courseProviderId: z.string(),
   providerIsSelf: z.boolean(),
   easeOfStarting: z.enum(["", "low", "medium", "high"]),
@@ -41,7 +40,6 @@ export interface ResourceFormValues {
   tracksProgress: boolean;
   cost: number | null;
   dateExpires: Date | null;
-  topicId: string;
   courseProviderId: string;
   providerIsSelf: boolean;
   easeOfStarting: string;
@@ -93,7 +91,6 @@ export function buildResourcePayload(
       ? value.dateExpires.toISOString().split("T")[0]
       : null,
     isExpires: !!value.dateExpires,
-    topicId: value.topicId || null,
     courseProviderId: value.courseProviderId || null,
     providerIsSelf: value.providerIsSelf,
     easeOfStarting: value.easeOfStarting || null,

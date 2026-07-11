@@ -1,6 +1,5 @@
 import type { CourseProvider } from "./CourseProvider";
 import type { ResourceStatus } from "./Resource";
-import type { TopicsToResources } from "./TopicsToResources";
 
 export interface ResourceFromServer {
   id: string;
@@ -16,5 +15,4 @@ export interface ResourceFromServer {
   status?: ResourceStatus | null;
   courseProviderId?: string | null;
   courseProvider?: Partial<CourseProvider> | null;
-  topicsToResources?: TopicsToResources[] | null;
 }

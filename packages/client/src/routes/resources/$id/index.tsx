@@ -16,14 +16,17 @@ import {
   ResourceModulesAdmin,
 } from "./-components";
 
-import { TopicList } from "@/components/boxElements";
 import { RoutineBox } from "@/components/contentBoxComponents";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import { InfoArea, InfoRow, PageTabs } from "@/components/layout";
 import { TagChip } from "@/components/tasks/TagChip";
 import { Button } from "@/components/ui/button";
 import { useResourceModuleProgress } from "@/hooks/useResourceModuleProgress";
-import { fetchRoutines, fetchSingleResource, makePercentageComplete } from "@/utils";
+import {
+  fetchRoutines,
+  fetchSingleResource,
+  makePercentageComplete,
+} from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
 const TAB_VALUES = ["details", "modules", "routines", "interactions"] as const;
@@ -87,11 +90,13 @@ function SingleCourse() {
   );
 
   // A resource → routine link is either a weekly-grid entry or a connection.
-  const linkedRoutines = (routines ?? []).filter(r =>
-    Object.values(r.weekly ?? {}).some(
-      e => e?.type === "resource" && e.id === id,
-    )
-    || (r.connections ?? []).some(c => c.type === "resource" && c.id === id));
+  const linkedRoutines = (routines ?? []).filter(
+    r =>
+      Object.values(r.weekly ?? {}).some(
+        e => e?.type === "resource" && e.id === id,
+      )
+      || (r.connections ?? []).some(c => c.type === "resource" && c.id === id),
+  );
 
   function changeTab(next: ResourceTab) {
     navigate({
@@ -129,11 +134,7 @@ function SingleCourse() {
           {
             value: "modules",
             label: "Modules",
-            content: (
-              <ResourceModulesAdmin
-                resourceId={id}
-              />
-            ),
+            content: <ResourceModulesAdmin resourceId={id} />,
           },
           {
             value: "routines",
@@ -230,7 +231,6 @@ function ResourceDetailsTab({
   percentComplete: string | undefined;
   moduleProgress: ResourceModuleProgress;
 }) {
-  const topics = data.topics ?? null;
   // Labels are no longer renamed per resource; always use the default.
   const moduleLabel = DEFAULT_MODULE_LABEL;
   return (
@@ -262,15 +262,6 @@ function ResourceDetailsTab({
               {data.provider.name}
             </Link>
           )}
-        </InfoArea>
-        <InfoArea
-          header={`Topic${topics && topics.length > 1 ? "s" : ""}`}
-          condition={!!topics}
-        >
-          <TopicList
-            topics={data.topics}
-            isPills={false}
-          />
         </InfoArea>
         <InfoArea
           header={`Tag${data.tags && data.tags.length > 1 ? "s" : ""}`}
@@ -333,9 +324,7 @@ function ResourceDetailsTab({
       <InfoRow
         header="Effort & Engagement"
         condition={
-          !!data.easeOfStarting
-          || !!data.timeNeeded
-          || !!data.interactivity
+          !!data.easeOfStarting || !!data.timeNeeded || !!data.interactivity
         }
       >
         <InfoArea
@@ -402,9 +391,7 @@ function ModuleProgressDisplay({
   moduleLabel: string;
 }) {
   const {
-    completedCount,
-    totalCount,
-    percentComplete,
+    completedCount, totalCount, percentComplete,
   } = progress;
 
   if (totalCount === 0) {

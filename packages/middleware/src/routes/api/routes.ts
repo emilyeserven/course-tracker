@@ -5,7 +5,6 @@ import apiSeed from "./seed";
 import apiClear from "./clearData";
 import apiFormSubmit from "./submitOnboardData";
 import resources from "./resources/routes";
-import topics from "./topics/routes";
 import providers from "./providers/routes";
 import routines from "./routines/routes";
 import tasks from "./tasks/routes";
@@ -36,9 +35,6 @@ export default async function (server: FastifyInstance) {
   fastify.register(apiFormSubmit);
   fastify.register(resources, {
     prefix: "/resources",
-  });
-  fastify.register(topics, {
-    prefix: "/topics",
   });
   fastify.register(providers, {
     prefix: "/providers",

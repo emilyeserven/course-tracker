@@ -89,10 +89,7 @@ interface TaskProjectionRow {
   id: string;
   name: string;
   description: string | null;
-  topicId: string | null;
   taskTypeId: string | null;
-  topic: { id: string;
-    name: string; } | null;
   taskType: { id: string;
     name: string;
     tags: string[] | null; } | null;
@@ -123,13 +120,6 @@ export function mapTask(task: TaskProjectionRow): Task {
     id: task.id,
     name: task.name,
     description: task.description,
-    topicId: task.topicId ?? null,
-    topic: task.topic
-      ? {
-        id: task.topic.id,
-        name: task.topic.name,
-      }
-      : null,
     taskTypeId: task.taskTypeId ?? null,
     taskType: task.taskType
       ? {

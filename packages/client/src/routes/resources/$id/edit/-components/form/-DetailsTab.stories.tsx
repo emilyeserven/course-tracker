@@ -13,7 +13,7 @@ import {
 } from "@/test-utils/storyDecorators";
 
 // The route owns the form instance, so build one via the real hook and hand it to
-// the (presentational) DetailsTab. Topics/providers/tag-groups feed comboboxes;
+// the (presentational) DetailsTab. Providers/tag-groups feed comboboxes;
 // empty lists are enough for the form to render.
 function Host({
   isNew,
@@ -44,7 +44,6 @@ const meta: Meta<typeof DetailsTab> = {
     queryStubDecorator(
       () =>
         seededQueryClient([
-          [["topics"], []],
           [["providers"], []],
           [["tagGroups"], []],
         ]),

@@ -36,7 +36,7 @@ interface CreateHandlerOptions<TBody> {
  * POST `/` counterpart to createUpsertHandler: generates a fresh uuid, inserts
  * the row and any junction rows, and responds `{ status: "ok", id }`. Share
  * the bodySchema and row builders with the entity's upsert handler (see
- * `topics/topicRows.ts`).
+ * `tasks/taskRows.ts`).
  */
 export function createCreateHandler<TBody = Record<string, unknown>>(
   options: CreateHandlerOptions<TBody>,

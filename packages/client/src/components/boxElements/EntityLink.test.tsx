@@ -12,9 +12,10 @@ describe("EntityLink", () => {
     render(
       <RouterStub>
         <EntityLink
-          entity="topics"
+          entity="resources"
           id={1}
-        >React
+        >
+          React
         </EntityLink>
       </RouterStub>,
     );

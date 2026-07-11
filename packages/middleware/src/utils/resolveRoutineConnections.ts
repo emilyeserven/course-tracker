@@ -27,16 +27,12 @@ export async function resolveRoutineConnections<
 >(rows: T[]): Promise<(Omit<T, "connections"> & {
   connections: ResolvedRoutineConnection[];
 })[]> {
-  const topicIds = new Set<string>();
   const taskIds = new Set<string>();
   const resourceIds = new Set<string>();
 
   for (const row of rows) {
     for (const c of row.connections ?? []) {
-      if (c.connectedType === "topic") {
-        topicIds.add(c.connectedId);
-      }
-      else if (c.connectedType === "task") {
+      if (c.connectedType === "task") {
         taskIds.add(c.connectedId);
       }
       else if (c.connectedType === "resource") {
@@ -45,18 +41,7 @@ export async function resolveRoutineConnections<
     }
   }
 
-  const [topicRows, taskRows, resourceRows] = await Promise.all([
-    topicIds.size
-      ? db.query.topics.findMany({
-        where: (t, {
-          inArray,
-        }) => inArray(t.id, [...topicIds]),
-        columns: {
-          id: true,
-          name: true,
-        },
-      })
-      : Promise.resolve([]),
+  const [taskRows, resourceRows] = await Promise.all([
     taskIds.size
       ? db.query.tasks.findMany({
         where: (t, {
@@ -85,7 +70,6 @@ export async function resolveRoutineConnections<
     Exclude<RoutineConnectionType, "bookmark">,
     Map<string, string>
   > = {
-    topic: new Map(topicRows.map(r => [r.id, r.name])),
     task: new Map(taskRows.map(r => [r.id, r.name])),
     resource: new Map(resourceRows.map(r => [r.id, r.name])),
   };

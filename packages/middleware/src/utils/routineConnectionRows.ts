@@ -12,7 +12,7 @@ export type RoutineConnectionInput = Pick<
 >;
 
 // Dedupe by (type, id) and produce routine_connections rows with stable
-// positions, matching the junction-build pattern used for topics/tasks links.
+// positions, matching the junction-build pattern used for task/resource links.
 // For bookmark connections the cached title/url are persisted; for local types
 // they stay null (the name is resolved from the target table on read).
 export function buildRoutineConnectionRows(

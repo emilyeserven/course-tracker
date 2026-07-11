@@ -14,7 +14,7 @@ interface ResourceLinksSectionProps {
 
 /**
  * "Resources" detail-page section: an InfoArea listing linked resources as
- * bulleted links. Shared by the provider and topic detail pages.
+ * bulleted links. Used by the provider detail page.
  */
 export function ResourceLinksSection({
   resources,
@@ -32,7 +32,6 @@ export function ResourceLinksSection({
               <li key={course.id}>
                 <Link
                   to="/resources/$id"
-                  from="/topics/$id"
                   params={{
                     id: course.id + "",
                   }}

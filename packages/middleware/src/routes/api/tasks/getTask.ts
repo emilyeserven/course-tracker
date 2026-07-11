@@ -28,12 +28,6 @@ export default async function (server: FastifyInstance) {
           eq,
         }) => eq(tasks.id, id),
         with: {
-          topic: {
-            columns: {
-              id: true,
-              name: true,
-            },
-          },
           taskType: {
             columns: {
               id: true,

@@ -23,8 +23,6 @@ import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
 import { fetchRoutines } from "@/utils";
 
 export interface RoutinesSearch {
-  // Legacy alias: `?topicId=` still prefilters by that topic connection.
-  topicId?: string;
   connectedType?: RoutineConnectionType;
   connectedId?: string;
 }
@@ -34,14 +32,8 @@ export const Route = createFileRoute("/routines/")({
   errorComponent: RoutinesError,
   pendingComponent: RoutinesPending,
   validateSearch: (search: Record<string, unknown>): RoutinesSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
     connectedType:
-      search.connectedType === "topic"
-      || search.connectedType === "task"
-      || search.connectedType === "resource"
+      search.connectedType === "task" || search.connectedType === "resource"
         ? search.connectedType
         : undefined,
     connectedId:
@@ -64,9 +56,7 @@ function Routines() {
   const initialConnection
     = urlSearch.connectedType && urlSearch.connectedId
       ? `${urlSearch.connectedType}:${urlSearch.connectedId}`
-      : urlSearch.topicId
-        ? `topic:${urlSearch.topicId}`
-        : undefined;
+      : undefined;
 
   const {
     data: routines,
@@ -80,7 +70,8 @@ function Routines() {
   // `id`; a resource entry may narrow to a module or group).
   const {
     taskNames, resourceNames, moduleNames, moduleGroupNames,
-  } = useTaskResourceNames();
+  }
+    = useTaskResourceNames();
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
 
   // Today's scheduled entry for a weekly routine, resolved to a display name plus

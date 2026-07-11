@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchResources, fetchProviders, fetchTopics } from "@/utils";
+import { fetchResources, fetchProviders } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
 
 /**
@@ -16,26 +16,13 @@ export function useShowOnboard(): boolean {
   });
 
   const {
-    data: topicsData,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
-
-  const {
     data: providersData,
   } = useQuery({
     queryKey: ["providers"],
     queryFn: () => fetchProviders(),
   });
 
-  const allLoaded
-    = resourcesData !== undefined
-      && topicsData !== undefined
-      && providersData !== undefined;
+  const allLoaded = resourcesData !== undefined && providersData !== undefined;
 
-  return (
-    !allLoaded
-    || (!resourcesData?.length && !topicsData?.length && !providersData?.length)
-  );
+  return !allLoaded || (!resourcesData?.length && !providersData?.length);
 }

@@ -132,7 +132,6 @@ export function makeModuleAdminResource(
     progressTotal: 0,
     status: "active",
     modulesAreExhaustive: false,
-    topics: [],
     ...overrides,
   };
 }
@@ -142,12 +141,14 @@ export function makeModuleAdminResource(
  * so module-admin sections render their loaded state without a network call.
  * Shared by the module-admin section stories (header / grouping / item).
  */
-export function seededModuleAdminClient(seed: {
-  resourceId?: string;
-  groups?: ModuleGroup[];
-  modules?: Module[];
-  modulesAreExhaustive?: boolean;
-} = {}) {
+export function seededModuleAdminClient(
+  seed: {
+    resourceId?: string;
+    groups?: ModuleGroup[];
+    modules?: Module[];
+    modulesAreExhaustive?: boolean;
+  } = {},
+) {
   const resourceId = seed.resourceId ?? "resource-1";
   return seededQueryClient([
     [queryKeys.resources.moduleGroups(resourceId), seed.groups ?? []],

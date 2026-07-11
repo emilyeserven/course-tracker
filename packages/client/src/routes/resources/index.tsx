@@ -12,23 +12,13 @@ import {
 } from "@/components/listControls";
 import { Button } from "@/components/ui/button";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
-import { fetchProviders, fetchResources, fetchTopics } from "@/utils";
+import { fetchProviders, fetchResources } from "@/utils";
 import { queryKeys } from "@/utils/queryKeys";
-
-export interface ResourcesSearch {
-  topicId?: string;
-}
 
 export const Route = createFileRoute("/resources/")({
   component: Courses,
   errorComponent: CoursesError,
   pendingComponent: CoursesPending,
-  validateSearch: (search: Record<string, unknown>): ResourcesSearch => ({
-    topicId:
-      typeof search.topicId === "string" && search.topicId
-        ? search.topicId
-        : undefined,
-  }),
 });
 
 function CoursesPending() {
@@ -40,8 +30,6 @@ function CoursesError() {
 }
 
 function Courses() {
-  const urlSearch = Route.useSearch();
-
   const {
     data: resources,
   } = useQuery({
@@ -54,13 +42,6 @@ function Courses() {
   } = useQuery({
     queryKey: ["providers"],
     queryFn: () => fetchProviders(),
-  });
-
-  const {
-    data: topics,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
   });
 
   return (
@@ -86,8 +67,6 @@ function Courses() {
       <ResourcesList
         resources={resources ?? []}
         providers={providers ?? []}
-        topics={topics ?? []}
-        initialTopicId={urlSearch.topicId}
       />
     </div>
   );

@@ -27,7 +27,6 @@ function emptyRow(overrides: Partial<Row> = {}): Row {
     cost: null,
     modulesConfig: null,
     courseProvider: null,
-    topicsToResources: [],
     resourceTags: [],
     ...overrides,
   };
@@ -48,7 +47,6 @@ test("mapResource fills defaults for a fully-null row", () => {
   assert.strictEqual(result.interactivity, null);
   assert.strictEqual(result.modulesConfig, null);
   assert.strictEqual(result.provider, undefined);
-  assert.deepStrictEqual(result.topics, []);
   assert.deepStrictEqual(result.tags, []);
   assert.deepStrictEqual(result.cost, {
     cost: null,
@@ -160,46 +158,6 @@ test("mapResource uses the resource's own cost when fees are not shared", () => 
     cost: "50",
     isCostFromPlatform: false,
   });
-});
-
-test("mapResource flattens topic links and drops null-sided rows", () => {
-  const result = mapResource(
-    emptyRow({
-      topicsToResources: [
-        {
-          topicId: "t1",
-          resourceId: "res-1",
-          topic: {
-            id: "t1",
-            name: "React",
-          },
-        },
-        {
-          topicId: "t2",
-          resourceId: "res-1",
-          topic: null,
-        },
-        {
-          topicId: "t3",
-          resourceId: "res-1",
-          topic: {
-            id: "t3",
-            name: "TypeScript",
-          },
-        },
-      ],
-    }),
-  );
-  assert.deepStrictEqual(result.topics, [
-    {
-      id: "t1",
-      name: "React",
-    },
-    {
-      id: "t3",
-      name: "TypeScript",
-    },
-  ]);
 });
 
 test("mapResource maps resourceTags down to their tag objects", () => {

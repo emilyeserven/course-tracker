@@ -9,7 +9,6 @@ import {
   LibraryIcon,
   RepeatIcon,
   SparklesIcon,
-  TagIcon,
 } from "lucide-react";
 
 import {
@@ -17,7 +16,6 @@ import {
   fetchResources,
   fetchRoutines,
   fetchTasks,
-  fetchTopics,
 } from "@/utils/api";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -113,24 +111,6 @@ export const NAV_SECTIONS: NavSection[] = [
           (await fetchResources()).map(r => ({
             id: r.id,
             name: r.name,
-          })),
-      },
-      {
-        label: "Topics",
-        icon: TagIcon,
-        listTo: "/topics",
-        quickAddKey: "topic",
-        getDetailLink: id => ({
-          to: "/topics/$id",
-          params: {
-            id,
-          },
-        }),
-        queryKey: queryKeys.topics.list(),
-        load: async () =>
-          (await fetchTopics()).map(t => ({
-            id: t.id,
-            name: t.name,
           })),
       },
     ],

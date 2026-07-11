@@ -10,4 +10,3 @@ export { OverviewCardGrid } from "./OverviewCardGrid";
 export { PageActions } from "./PageActions";
 export { PageHeader } from "./PageHeader";
 export { PageTabs } from "./PageTabs";
-export { ResourceLinksSection } from "./ResourceLinksSection";

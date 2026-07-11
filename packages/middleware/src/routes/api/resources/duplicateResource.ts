@@ -1,7 +1,7 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
 import { db } from "@/db";
-import { resources, topicsToResources } from "@/db/schema";
+import { resources } from "@/db/schema";
 import { sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
 import { v4 as uuidv4 } from "uuid";
@@ -28,9 +28,6 @@ export default async function (server: FastifyInstance) {
         where: (c, {
           eq,
         }) => eq(c.id, id),
-        with: {
-          topicsToResources: true,
-        },
       });
 
       if (!source) {
@@ -62,15 +59,6 @@ export default async function (server: FastifyInstance) {
         modulesConfig: source.modulesConfig ?? null,
         tracksProgress: source.tracksProgress ?? true,
       });
-
-      const topicLinks = (source.topicsToResources ?? []).map(t => ({
-        id: uuidv4(),
-        topicId: t.topicId,
-        resourceId: newId,
-      }));
-      if (topicLinks.length > 0) {
-        await db.insert(topicsToResources).values(topicLinks);
-      }
 
       return {
         status: "ok",

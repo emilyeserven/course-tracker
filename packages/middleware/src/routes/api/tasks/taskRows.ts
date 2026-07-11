@@ -20,7 +20,6 @@ export interface TaskBodyFields {
   name: string;
   description?: string | null;
   dueDate?: string | null;
-  topicId?: string | null;
   taskTypeId?: string | null;
 }
 
@@ -78,7 +77,6 @@ export const taskBodySchema = {
       type: "string",
     },
     description: nullableString,
-    topicId: nullableString,
     taskTypeId: nullableString,
     tagIds: tagIdsArraySchema,
     resourceLinks: resourceLinksArraySchema,
@@ -100,7 +98,6 @@ export function buildTaskRow(body: TaskBodyFields, id: string) {
     name: body.name,
     description: body.description ?? null,
     dueDate: body.dueDate || null,
-    topicId: body.topicId || null,
     taskTypeId: body.taskTypeId || null,
   };
 }

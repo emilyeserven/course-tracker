@@ -12,15 +12,15 @@ const meta: Meta<typeof OverviewCardGrid> = {
   args: {
     items: [
       {
-        to: "/topics",
-        title: "Topics",
-        description: "Browse all topics.",
+        to: "/resources",
+        title: "Resources",
+        description: "Browse all resources.",
         icon: BookIcon,
       },
       {
-        to: "/domains",
-        title: "Domains",
-        description: "Browse all domains.",
+        to: "/providers",
+        title: "Providers",
+        description: "Browse all providers.",
         icon: LayersIcon,
       },
     ],
@@ -33,5 +33,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: smokeText("Topics", "Domains"),
+  play: smokeText("Resources", "Providers"),
 };

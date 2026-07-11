@@ -17,13 +17,12 @@ const meta: Meta<typeof DetailsTab> = {
     onSaved: fn(() => Promise.resolve()),
     onChangeStateChange: fn(),
   },
-  // useRoutineDetailsForm reads topics/tasks/resources for its combobox options,
+  // useRoutineDetailsForm reads tasks/resources for its combobox options,
   // and the weekly-mode Quick Fill menu reads the routine templates. Empty lists
   // are enough — the form renders its fields regardless.
   decorators: [
     queryStoryDecorator(
       seededQueryClient([
-        [["topics"], []],
         [["tasks"], []],
         [["resources"], []],
         [["modules-all"], []],
@@ -64,8 +63,10 @@ export const Weekly: Story = {
   },
   // The Quick Fill menu is rendered only in weekly mode (the schedule grid), so
   // it's the unambiguous signal the weekly branch is active.
-  play: smokePlay([{
-    role: "button",
-    name: /quick fill/i,
-  }]),
+  play: smokePlay([
+    {
+      role: "button",
+      name: /quick fill/i,
+    },
+  ]),
 };

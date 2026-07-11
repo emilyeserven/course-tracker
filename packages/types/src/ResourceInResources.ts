@@ -11,12 +11,6 @@ export interface ResourceInResources {
   progressCurrent: number;
   progressTotal: number;
   status: ResourceStatus;
-  topics?: (
-    {
-      name: string;
-      id: string;
-    }
-  )[];
   provider?: {
     name: string;
     id: string;

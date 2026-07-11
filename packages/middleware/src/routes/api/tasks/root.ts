@@ -10,12 +10,6 @@ export default async function (server: FastifyInstance) {
   fastify.get("/", async () => {
     const rawData = await db.query.tasks.findMany({
       with: {
-        topic: {
-          columns: {
-            id: true,
-            name: true,
-          },
-        },
         taskType: {
           columns: {
             id: true,

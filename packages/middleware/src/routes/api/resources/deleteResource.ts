@@ -12,7 +12,6 @@ import {
   resourceTags,
   routineConnections,
   tasksToResources,
-  topicsToResources,
 } from "@/db/schema";
 import { idParamSchema } from "@/utils/schemas";
 
@@ -31,7 +30,6 @@ export default async function (server: FastifyInstance) {
       id,
     } = request.params;
 
-    await db.delete(topicsToResources).where(eq(topicsToResources.resourceId, id));
     await db.delete(tasksToResources).where(eq(tasksToResources.resourceId, id));
     await db.delete(resourceTags).where(eq(resourceTags.resourceId, id));
     // routine_connections has no FK on connected_id (polymorphic), so clean up

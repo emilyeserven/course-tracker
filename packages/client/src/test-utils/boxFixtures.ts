@@ -4,13 +4,12 @@ import type {
   Routine,
   RoutineTodayAction,
   Task,
-  TopicForTopicsPage,
 } from "@emstack/types";
 
 /**
  * Mock-data builders for the `components/contentBoxComponents/*` stories. Each `make*` takes a
  * partial override and fills in sensible defaults, so a story only specifies the
- * fields it cares about. Mirrors the pattern in `radarFixtures.ts`.
+ * fields it cares about.
  */
 
 export function makeResource(
@@ -30,16 +29,6 @@ export function makeResource(
     progressCurrent: 3,
     progressTotal: 10,
     status: "active",
-    topics: [
-      {
-        id: "topic-1",
-        name: "TypeScript",
-      },
-      {
-        id: "topic-2",
-        name: "Tooling",
-      },
-    ],
     provider: {
       id: "provider-1",
       name: "Acme Learning",
@@ -83,10 +72,6 @@ export function makeTask(overrides: Partial<Task> = {}): Task {
     id: "task-1",
     name: "Finish the tutorial project",
     description: "Build the sample app end to end.",
-    topic: {
-      id: "topic-1",
-      name: "TypeScript",
-    },
     resources: [
       {
         id: "task-resource-1",
@@ -157,34 +142,4 @@ export function makeRoutine(
     ],
     ...overrides,
   };
-}
-
-export function makeTopicRow(
-  overrides: Partial<TopicForTopicsPage> = {},
-): TopicForTopicsPage {
-  return {
-    id: "topic-1",
-    name: "TypeScript",
-    description: "Static typing for JavaScript.",
-    resourceCount: 4,
-    taskCount: 2,
-    dailyCount: 1,
-    ...overrides,
-  };
-}
-
-export function makeTopicRows(count = 3): TopicForTopicsPage[] {
-  return Array.from(
-    {
-      length: count,
-    },
-    (_, i) =>
-      makeTopicRow({
-        id: `topic-${i + 1}`,
-        name: `Topic ${i + 1}`,
-        resourceCount: i,
-        taskCount: i,
-        dailyCount: i,
-      }),
-  );
 }

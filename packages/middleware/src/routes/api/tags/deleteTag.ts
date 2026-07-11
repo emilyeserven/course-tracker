@@ -4,7 +4,6 @@ import {
   resourceTags,
   tags,
   tasksToTags,
-  topicsToTags,
 } from "@/db/schema";
 import { createDeleteHandler } from "@/utils/createDeleteHandler";
 
@@ -16,10 +15,6 @@ export default createDeleteHandler({
     {
       table: tasksToTags,
       foreignKey: tasksToTags.tagId,
-    },
-    {
-      table: topicsToTags,
-      foreignKey: topicsToTags.tagId,
     },
     {
       table: resourceTags,

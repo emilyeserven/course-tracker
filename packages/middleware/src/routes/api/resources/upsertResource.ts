@@ -1,12 +1,10 @@
 import { eq } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
 import type { ModulesConfig, ResourceType, TaskResourceLevel } from "@emstack/types";
 import { db } from "@/db";
 import {
   courseProviders,
   resources,
   resourceTags,
-  topicsToResources,
 } from "@/db/schema";
 import { createUpsertHandler } from "@/utils/createUpsertHandler";
 import {
@@ -34,7 +32,6 @@ interface CourseBody {
   isCostFromPlatform?: boolean;
   dateExpires?: string | null;
   isExpires?: boolean | null;
-  topicId?: string | null;
   courseProviderId?: string | null;
   providerIsSelf?: boolean;
   modulesAreExhaustive?: boolean;
@@ -97,7 +94,6 @@ export default createUpsertHandler<CourseBody>({
       },
       dateExpires: nullableString,
       isExpires: nullableBoolean,
-      topicId: nullableString,
       courseProviderId: nullableString,
       providerIsSelf: {
         type: "boolean",
@@ -173,18 +169,6 @@ export default createUpsertHandler<CourseBody>({
     }
   },
   junctions: [
-    {
-      table: topicsToResources,
-      foreignKey: topicsToResources.resourceId,
-      buildRows: (body, id) =>
-        body.topicId
-          ? [{
-            id: uuidv4(),
-            topicId: body.topicId,
-            resourceId: id,
-          }]
-          : [],
-    },
     {
       table: resourceTags,
       foreignKey: resourceTags.resourceId,

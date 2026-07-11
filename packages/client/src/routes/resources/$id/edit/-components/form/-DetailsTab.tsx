@@ -34,7 +34,6 @@ export function DetailsTab({
 }: DetailsTabProps) {
   const {
     form,
-    topicOptions,
     providerOptions,
     tagOptions,
     tagGroupOptions,
@@ -43,7 +42,6 @@ export function DetailsTab({
     isCostFromPlatform,
     providerUrlMissing,
     modulesAreExhaustive,
-    createTopicOption,
     createProviderOption,
     createTagOption,
     setProgressMode,
@@ -80,28 +78,6 @@ export function DetailsTab({
                 value: t,
                 label: RESOURCE_TYPE_LABELS[t],
               }))}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="topicId">
-          {field => (
-            <field.ComboboxField
-              label="Topic"
-              options={topicOptions}
-              placeholder="Search topics..."
-              create={{
-                itemLabel: "topic",
-                fields: [
-                  {
-                    name: "name",
-                    label: "Name",
-                    required: true,
-                    isPrimary: true,
-                  },
-                ],
-                onCreate: createTopicOption,
-              }}
             />
           )}
         </form.AppField>

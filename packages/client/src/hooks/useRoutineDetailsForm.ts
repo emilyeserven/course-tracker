@@ -29,7 +29,6 @@ import {
   fetchModules,
   fetchResources,
   fetchTasks,
-  fetchTopics,
   getDateKey,
   getTodayKey,
   groupOptionsByResource,
@@ -107,7 +106,7 @@ function keyToDate(key: string): Date {
 }
 
 /**
- * Bundles the Details tab's data layer: the topics/tasks/resources queries and
+ * Bundles the Details tab's data layer: the tasks/resources queries and
  * their derived combobox options, plus the change-tracked save form. Keeps the
  * tab component presentational.
  */
@@ -116,13 +115,6 @@ export function useRoutineDetailsForm(
   onSaved: () => Promise<void>,
   onChangeStateChange?: (hasChanges: boolean) => void,
 ) {
-  const {
-    data: topics,
-  } = useQuery({
-    queryKey: ["topics"],
-    queryFn: () => fetchTopics(),
-  });
-
   const {
     data: tasks,
   } = useQuery({
@@ -163,8 +155,8 @@ export function useRoutineDetailsForm(
     [moduleGroups],
   );
   const connectionOptions = useMemo(
-    () => buildConnectionOptions(topics, tasks, resources),
-    [topics, tasks, resources],
+    () => buildConnectionOptions(tasks, resources),
+    [tasks, resources],
   );
 
   const todayKey = getTodayKey();

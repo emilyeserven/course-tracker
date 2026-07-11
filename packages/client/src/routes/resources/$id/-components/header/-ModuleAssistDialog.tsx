@@ -13,7 +13,6 @@ function deriveResourceContext(resource: Resource | undefined) {
       resourceDescription: null,
       resourceUrl: null,
       providerName: null,
-      topicNames: [] as string[],
     };
   }
   return {
@@ -21,7 +20,6 @@ function deriveResourceContext(resource: Resource | undefined) {
     resourceDescription: resource.description ?? null,
     resourceUrl: resource.url ?? null,
     providerName: resource.provider?.name ?? null,
-    topicNames: (resource.topics ?? []).map(t => t.name),
   };
 }
 
@@ -53,7 +51,6 @@ export function ModuleAssistDialog({
       resourceDescription={context.resourceDescription}
       resourceUrl={context.resourceUrl}
       providerName={context.providerName}
-      topicNames={context.topicNames}
       existingGroupNames={groups.map(g => g.name)}
       existingUngroupedModuleNames={ungroupedModules.map(m => m.name)}
       onApplied={() => invalidateAll()}

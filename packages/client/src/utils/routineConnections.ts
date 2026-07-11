@@ -11,7 +11,6 @@ export type LocalConnectionType = Exclude<RoutineConnectionType, "bookmark">;
 
 // EntityLink's entity kind (plural route segment) for each local connection type.
 const ENTITY_KIND_BY_TYPE: Record<LocalConnectionType, EntityKind> = {
-  topic: "topics",
   task: "tasks",
   resource: "resources",
 };
@@ -25,12 +24,10 @@ export function connectionEntityKind(type: LocalConnectionType) {
 // the first colon is safe. Dropdown grouping is driven by each option's explicit
 // `group` field (see buildConnectionOptions), not by this value prefix.
 const GROUP_LABEL_BY_TYPE: Record<LocalConnectionType, string> = {
-  topic: "Topic",
   task: "Task",
   resource: "Resource",
 };
 const TYPE_BY_GROUP_LABEL: Record<string, LocalConnectionType> = {
-  Topic: "topic",
   Task: "task",
   Resource: "resource",
 };
@@ -61,22 +58,15 @@ export function decodeConnection(value: string): {
 
 // Combined option list for the connections multi-select. Labels stay the bare
 // entity name; each option carries an explicit `group` for the dropdown header.
-// Topics, Tasks and Resources each get their own group; entities sort by name
+// Tasks and Resources each get their own group; entities sort by name
 // within a group.
 export function buildConnectionOptions(
-  topics: { id: string;
-    name: string; }[] | null | undefined,
   tasks: { id: string;
     name: string; }[] | null | undefined,
   resources: { id: string;
     name: string; }[] | null | undefined,
 ): SelectOption[] {
   return [
-    ...toOptions(topics).map(o => ({
-      value: `Topic:${o.value}`,
-      label: o.label,
-      group: "Topics",
-    })),
     ...toOptions(tasks).map(o => ({
       value: `Task:${o.value}`,
       label: o.label,

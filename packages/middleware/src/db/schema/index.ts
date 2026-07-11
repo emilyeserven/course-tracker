@@ -10,5 +10,4 @@ export * from "./routines";
 export * from "./settings";
 export * from "./tags";
 export * from "./tasks";
-export * from "./topics";
 export * from "./users";

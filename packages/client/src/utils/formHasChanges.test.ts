@@ -23,21 +23,36 @@ describe("formHasChanges", () => {
   });
 
   test("returns true when a scalar changes", () => {
-    expect(formHasChanges({
-      name: "b",
-    }, {
-      name: "a",
-    })).toBe(true);
-    expect(formHasChanges({
-      count: 4,
-    }, {
-      count: 3,
-    })).toBe(true);
-    expect(formHasChanges({
-      done: true,
-    }, {
-      done: false,
-    })).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          name: "b",
+        },
+        {
+          name: "a",
+        },
+      ),
+    ).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          count: 4,
+        },
+        {
+          count: 3,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          done: true,
+        },
+        {
+          done: false,
+        },
+      ),
+    ).toBe(true);
   });
 
   // The core regression: a refetch produces new array references with equal
@@ -60,11 +75,11 @@ describe("formHasChanges", () => {
     expect(
       formHasChanges(
         {
-          connections: ["topic:a", "task:b"],
+          connections: ["resource:a", "task:b"],
           weekly: weeklyRows(),
         },
         {
-          connections: ["topic:a", "task:b"],
+          connections: ["resource:a", "task:b"],
           weekly: weeklyRows(),
         },
       ),
@@ -72,22 +87,37 @@ describe("formHasChanges", () => {
   });
 
   test("returns true for changed, reordered, or different-length arrays", () => {
-    expect(formHasChanges({
-      ids: ["a", "c"],
-    }, {
-      ids: ["a", "b"],
-    })).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          ids: ["a", "c"],
+        },
+        {
+          ids: ["a", "b"],
+        },
+      ),
+    ).toBe(true);
     // order-sensitive
-    expect(formHasChanges({
-      ids: ["b", "a"],
-    }, {
-      ids: ["a", "b"],
-    })).toBe(true);
-    expect(formHasChanges({
-      ids: ["a"],
-    }, {
-      ids: ["a", "b"],
-    })).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          ids: ["b", "a"],
+        },
+        {
+          ids: ["a", "b"],
+        },
+      ),
+    ).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          ids: ["a"],
+        },
+        {
+          ids: ["a", "b"],
+        },
+      ),
+    ).toBe(true);
   });
 
   test("compares nested objects by value", () => {
@@ -149,26 +179,39 @@ describe("formHasChanges", () => {
   });
 
   test("treats null distinct from empty string and undefined", () => {
-    expect(formHasChanges({
-      v: "",
-    }, {
-      v: null,
-    })).toBe(true);
-    expect(formHasChanges({
-      v: undefined,
-    }, {
-      v: null,
-    })).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          v: "",
+        },
+        {
+          v: null,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      formHasChanges(
+        {
+          v: undefined,
+        },
+        {
+          v: null,
+        },
+      ),
+    ).toBe(true);
   });
 
   test("only compares keys present in the baseline", () => {
     expect(
-      formHasChanges({
-        a: 1,
-        extra: 99,
-      }, {
-        a: 1,
-      }),
+      formHasChanges(
+        {
+          a: 1,
+          extra: 99,
+        },
+        {
+          a: 1,
+        },
+      ),
     ).toBe(false);
   });
 });

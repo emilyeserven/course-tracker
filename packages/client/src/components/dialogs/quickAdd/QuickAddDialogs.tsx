@@ -6,7 +6,6 @@ import { QuickAddResourceDialog } from "./QuickAddResourceDialog";
 import { QuickAddRoutineDialog } from "./QuickAddRoutineDialog";
 import { QuickAddTaskDialog } from "./QuickAddTaskDialog";
 import { QuickAddTodoistDialog } from "./QuickAddTodoistDialog";
-import { QuickAddTopicDialog } from "./QuickAddTopicDialog";
 
 interface QuickAddDialogsProps {
   active: QuickAddKey | null;
@@ -40,10 +39,6 @@ export function QuickAddDialogs({
       />
       <QuickAddProviderDialog
         open={active === "provider"}
-        onOpenChange={onOpenChange}
-      />
-      <QuickAddTopicDialog
-        open={active === "topic"}
         onOpenChange={onOpenChange}
       />
       <QuickAddRoutineDialog

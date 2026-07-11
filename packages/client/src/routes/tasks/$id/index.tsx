@@ -91,24 +91,6 @@ function SingleTask() {
           />
         </InfoArea>
         <InfoArea
-          header="Topic"
-          condition={!!data.topic}
-        >
-          <Link
-            to="/topics/$id"
-            params={{
-              id: data.topic?.id ?? "",
-            }}
-            className={`
-              font-bold text-blue-800
-              hover:text-blue-600
-              dark:text-blue-300
-            `}
-          >
-            {data.topic?.name}
-          </Link>
-        </InfoArea>
-        <InfoArea
           header="Bookmarks"
           condition={(data.bookmarks ?? []).length > 0}
         >
