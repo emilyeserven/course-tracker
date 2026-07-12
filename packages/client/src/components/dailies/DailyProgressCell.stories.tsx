@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { expect, within } from "storybook/test";
+
 import { DailyProgressCell } from "./DailyProgressCell";
 
 import { makeDaily } from "@/test-utils/dailiesFixtures";
@@ -45,6 +47,31 @@ export const BookmarkProgress: Story = {
         title: "Kubernetes for Developers",
       },
     }),
+  },
+};
+
+// A bookmark with no real progress (zero total) is not a ring: it falls
+// through to the infinity ("Daily Drills") icon, never an empty progress bar.
+export const BookmarkNoProgress: Story = {
+  args: {
+    daily: makeDaily({
+      bookmarkProgress: {
+        current: 0,
+        total: 0,
+        title: "Untracked Bookmark",
+      },
+    }),
+  },
+  play: async ({
+    canvasElement,
+  }) => {
+    const canvas = within(canvasElement);
+    // No reading-progress ring — the bookmark branch is skipped for a zero total.
+    await expect(
+      canvas.queryByRole("button", {
+        name: /bookmark progress/i,
+      }),
+    ).toBeNull();
   },
 };
 

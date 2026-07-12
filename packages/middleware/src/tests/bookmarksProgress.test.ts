@@ -39,6 +39,15 @@ test("getBookmarkProgress maps requested ids and drops bookmarks without progres
       id: "b",
       progressValues: [],
     },
+    // Requested and has a progress record, but a zero total is not real
+    // progress — omitted so the caller falls back to the infinity icon.
+    {
+      id: "d",
+      progressValues: [{
+        current: 0,
+        total: 0,
+      }],
+    },
     // Has progress but was not requested — ignored.
     {
       id: "c",
@@ -49,13 +58,14 @@ test("getBookmarkProgress maps requested ids and drops bookmarks without progres
     },
   ]);
 
-  const map = await getBookmarkProgress(["a", "b"]);
+  const map = await getBookmarkProgress(["a", "b", "d"]);
 
   assert.deepStrictEqual(map.get("a"), {
     current: 45,
     total: 320,
   });
   assert.strictEqual(map.has("b"), false);
+  assert.strictEqual(map.has("d"), false);
   assert.strictEqual(map.has("c"), false);
   assert.strictEqual(map.size, 1);
 });

@@ -96,6 +96,24 @@ export function entryForCompletionDate(
   return representativeEntry(weekly);
 }
 
+// The bookmark whose reading progress drives a routine's projected progress ring
+// for a given day: strictly today's scheduled entry, and only when that entry is
+// a bookmark. Task, freeform, and unscheduled days yield null — their progress
+// comes from the task's to-dos (or none at all). A routine's categorical
+// bookmark *connection* deliberately never supplies progress here.
+export function activeBookmarkForEntry(
+  entry: RoutineReferenceItem | null,
+): { id: string;
+  title: string; } | null {
+  if (entry?.type !== "bookmark") {
+    return null;
+  }
+  return {
+    id: entry.id,
+    title: entry.title?.trim() || "Bookmark",
+  };
+}
+
 // Freeze a scheduled entry into the parts stored on a logged completion. The
 // freeform name is the entry's own text; a bookmark uses its cached title; a
 // task resolves via the given name map, falling back to its id when the target

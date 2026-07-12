@@ -8,6 +8,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 
 import {
+  activeBookmarkForEntry,
   activeEntry,
   curatedEntry,
   currentDateKey,
@@ -126,6 +127,41 @@ test("entryForCompletionDate resolves weekly by weekday, curated by date, daily 
     entryForCompletionDate("daily", weekly, null, "2026-06-16"),
     mondayTask,
   );
+});
+
+test("activeBookmarkForEntry returns the bookmark only for a bookmark entry", () => {
+  // Progress is driven strictly by today's scheduled entry: a bookmark entry
+  // yields its id + cached title (trimmed, defaulting to "Bookmark").
+  assert.deepStrictEqual(activeBookmarkForEntry(wednesdayBookmark), {
+    id: "bm-wed",
+    title: "Pimsleur",
+  });
+  assert.deepStrictEqual(
+    activeBookmarkForEntry({
+      type: "bookmark",
+      id: "bm-untitled",
+      title: "  ",
+    }),
+    {
+      id: "bm-untitled",
+      title: "Bookmark",
+    },
+  );
+});
+
+test("activeBookmarkForEntry ignores task, freeform, and empty days", () => {
+  // Task / freeform / unscheduled days get their progress elsewhere (the task's
+  // to-dos or none) — never from a bookmark, and never from a categorical
+  // bookmark connection, which this helper deliberately does not consult.
+  assert.strictEqual(activeBookmarkForEntry(mondayTask), null);
+  assert.strictEqual(
+    activeBookmarkForEntry({
+      type: "freeform",
+      id: "Stretch",
+    }),
+    null,
+  );
+  assert.strictEqual(activeBookmarkForEntry(null), null);
 });
 
 test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot)", () => {
