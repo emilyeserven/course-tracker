@@ -2,6 +2,7 @@ import type { Routine } from "@emstack/types";
 
 import { FlameIcon, LaughIcon } from "lucide-react";
 
+import { OpenBookmarkPageButton } from "@/components/bookmarks";
 import { EntityLink } from "@/components/boxElements";
 import { InfoArea } from "@/components/layout";
 import {
@@ -11,6 +12,7 @@ import {
   formatCuratedDateLabel,
   RoutineEntryLabel,
 } from "@/components/routines";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import { useTaskResourceNames } from "@/hooks/useTaskResourceNames";
 import {
   connectionEntityKind,
@@ -32,8 +34,10 @@ export function RoutineDetailsContent({
 }: RoutineDetailsContentProps) {
   const {
     taskNames,
-  }
-    = useTaskResourceNames();
+  } = useTaskResourceNames();
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
 
   const weekly = data.weekly ?? {};
   const isDaily = data.mode === "daily";
@@ -117,28 +121,41 @@ export function RoutineDetailsContent({
             <li key={`${c.type}:${c.id}`}>
               {c.type === "bookmark"
                 ? (
-                  <a
-                    href={c.url ?? undefined}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`
-                      font-bold text-blue-800
-                      hover:text-blue-600
-                      dark:text-blue-300
-                    `}
-                  >
-                    <span
-                      className="mr-2 text-xs text-muted-foreground uppercase"
+                  <span className="inline-flex items-center gap-1">
+                    <a
+                      href={
+                        resolveHref({
+                          externalId: c.id,
+                          url: c.url ?? null,
+                        }) ?? undefined
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`
+                        font-bold text-blue-800
+                        hover:text-blue-600
+                        dark:text-blue-300
+                      `}
                     >
-                      {c.type}
-                    </span>
-                    {c.name ?? c.id}
-                    {c.sectionLabel && (
-                      <span className="ml-1 font-normal opacity-70">
-                        › {c.sectionLabel}
+                      <span
+                        className="mr-2 text-xs text-muted-foreground uppercase"
+                      >
+                        {c.type}
                       </span>
-                    )}
-                  </a>
+                      {c.name ?? c.id}
+                      {c.sectionLabel && (
+                        <span className="ml-1 font-normal opacity-70">
+                          › {c.sectionLabel}
+                        </span>
+                      )}
+                    </a>
+                    <OpenBookmarkPageButton
+                      linkable={{
+                        externalId: c.id,
+                        url: c.url ?? null,
+                      }}
+                    />
+                  </span>
                 )
                 : (
                   <EntityLink

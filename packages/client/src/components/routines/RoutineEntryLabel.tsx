@@ -3,8 +3,10 @@ import type { RoutineReferenceItem } from "@emstack/types";
 import { routineEntryName } from "@emstack/types";
 import { MapPinIcon } from "lucide-react";
 
+import { OpenBookmarkPageButton } from "@/components/bookmarks";
 import { EntityLink } from "@/components/boxElements";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 
 interface RoutineEntryLabelProps {
   entry: RoutineReferenceItem;
@@ -23,40 +25,61 @@ export function RoutineEntryLabel({
   taskNames,
   showMeta = true,
 }: RoutineEntryLabelProps) {
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
+
   // The entry's name as a clickable link (task) or plain text (freeform) — no
   // type badge, so it can sit inside an actionable sentence.
-  const nameNode = entry.type === "freeform"
-    ? entry.id
-    : entry.type === "bookmark"
-      ? (
-        // External bookmark: link out (no local route), cached title + section.
-        <a
-          href={entry.url ?? undefined}
-          target="_blank"
-          rel="noreferrer"
-          className="
-            text-blue-800
-            hover:text-blue-600
-            dark:text-blue-300
-          "
-        >
-          {entry.title ?? entry.id}
-          {entry.sectionLabel ? ` › ${entry.sectionLabel}` : ""}
-        </a>
-      )
-      : (
-        <EntityLink
-          entity="tasks"
-          id={entry.id}
-          className="
-            text-blue-800
-            hover:text-blue-600
-            dark:text-blue-300
-          "
-        >
-          {routineEntryName(entry, taskNames)}
-        </EntityLink>
+  function renderName() {
+    if (entry.type === "freeform") {
+      return entry.id;
+    }
+    if (entry.type === "bookmark") {
+      // External bookmark: link out (honoring the click preference), cached title
+      // + section, plus a shortcut to its Simple Bookmarks page.
+      const linkable = {
+        externalId: entry.id,
+        url: entry.url ?? null,
+      };
+      return (
+        <>
+          <a
+            href={resolveHref(linkable) ?? undefined}
+            target="_blank"
+            rel="noreferrer"
+            className="
+              text-blue-800
+              hover:text-blue-600
+              dark:text-blue-300
+            "
+          >
+            {entry.title ?? entry.id}
+            {entry.sectionLabel ? ` › ${entry.sectionLabel}` : ""}
+          </a>
+          <OpenBookmarkPageButton
+            linkable={linkable}
+            className="ml-1 align-middle"
+          />
+        </>
       );
+    }
+    return (
+      <EntityLink
+        entity="tasks"
+        id={entry.id}
+        className="
+          text-blue-800
+          hover:text-blue-600
+          dark:text-blue-300
+        "
+      >
+        {routineEntryName(entry, taskNames)}
+      </EntityLink>
+    );
+  }
+
+  const nameNode = renderName();
 
   const actionable = (
     <ActionableSentence

@@ -22,6 +22,9 @@ function makeAppSettings(
     readwiseKeyHint: null,
     todoistConfigured: false,
     todoistKeyHint: null,
+    bookmarkApiUrl: null,
+    bookmarkApiUrlResolved: "http://eserve-raspi:3000",
+    bookmarkClickTarget: "page",
     ...overrides,
   };
 }

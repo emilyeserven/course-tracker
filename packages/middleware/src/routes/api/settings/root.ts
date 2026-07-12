@@ -1,8 +1,9 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { FastifyInstance } from "fastify";
-import type { AppSettingsSummary } from "@emstack/types";
+import type { AppSettingsSummary, BookmarkClickTarget } from "@emstack/types";
 import { db } from "@/db";
 import { appSettings } from "@/db/schema";
+import { resolveBookmarksBaseUrl } from "@/services/bookmarks";
 
 // Build a short, non-reversible hint so the UI can confirm a key is saved
 // without ever exposing the secret itself.
@@ -25,6 +26,10 @@ export default async function (server: FastifyInstance) {
         readwiseKeyHint: maskKey(readwiseKey),
         todoistConfigured: Boolean(todoistKey),
         todoistKeyHint: maskKey(todoistKey),
+        bookmarkApiUrl: row?.bookmarkApiUrl ?? null,
+        bookmarkApiUrlResolved: resolveBookmarksBaseUrl(row?.bookmarkApiUrl),
+        bookmarkClickTarget:
+          (row?.bookmarkClickTarget as BookmarkClickTarget | undefined) ?? "page",
       };
     },
   );

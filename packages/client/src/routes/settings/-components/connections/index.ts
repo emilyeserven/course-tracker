@@ -4,3 +4,4 @@
 export { ReadwiseSection } from "./-ReadwiseSection";
 export { TodoistSection } from "./-TodoistSection";
 export { GoogleCalendarSection } from "./-GoogleCalendarSection";
+export { BookmarksSection } from "./-BookmarksSection";

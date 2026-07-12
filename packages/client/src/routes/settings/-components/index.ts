@@ -12,6 +12,7 @@ export {
   ReadwiseSection,
   TodoistSection,
   GoogleCalendarSection,
+  BookmarksSection,
 } from "./connections";
 export { ThemeSection } from "./display";
 export { DataToolsSection } from "./advanced";

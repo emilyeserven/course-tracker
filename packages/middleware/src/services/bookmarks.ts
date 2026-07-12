@@ -4,9 +4,35 @@ import type { BookmarkSection, BookmarkSummary } from "@emstack/types";
 // build works across environments; defaults to the self-hosted instance.
 const DEFAULT_BASE_URL = "http://eserve-raspi:3000";
 
-function baseUrl(): string {
-  const configured = process.env.BOOKMARKS_API_URL?.trim();
+// Resolve the effective base URL from an optional stored override: the DB value
+// wins, then the BOOKMARKS_API_URL env var, then the built-in default. Trailing
+// slashes are stripped so callers can concatenate paths. Pure (no DB read) so it
+// is unit-testable and reused by the settings GET to report the resolved value.
+export function resolveBookmarksBaseUrl(override?: string | null): string {
+  const configured = override?.trim() || process.env.BOOKMARKS_API_URL?.trim();
   return (configured || DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
+
+// The effective base URL, reading the stored override from app settings first
+// (mirrors getReadwiseToken's DB-first-then-env resolution). `db` is imported
+// lazily so this module stays free of a static `@/db` dependency — that keeps it
+// loadable under `node --test` (which doesn't resolve the `@/` alias), matching
+// the googleCalendarIcs/googleCalendar split. If settings can't be read, fall
+// back to the env/default URL so bookmark proxying still works.
+export async function getBookmarksBaseUrl(): Promise<string> {
+  try {
+    const {
+      db,
+    } = await import("@/db");
+    const {
+      appSettings,
+    } = await import("@/db/schema");
+    const [row] = await db.select().from(appSettings).limit(1);
+    return resolveBookmarksBaseUrl(row?.bookmarkApiUrl);
+  }
+  catch {
+    return resolveBookmarksBaseUrl(null);
+  }
 }
 
 /** Error carrying an HTTP status so the route can map it to a friendly reply. */
@@ -50,7 +76,7 @@ function mapBookmark(b: RawBookmark): BookmarkSummary {
 async function bookmarksFetch(path: string, init?: RequestInit): Promise<Response> {
   try {
     // fallow-ignore-next-line security-sink
-    return await fetch(`${baseUrl()}${path}`, init);
+    return await fetch(`${await getBookmarksBaseUrl()}${path}`, init);
   }
   catch {
     throw new BookmarksError("Could not reach Simple Bookmarks.", 502);

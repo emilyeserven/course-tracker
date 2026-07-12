@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import { routeTree } from "./routeTree.gen.ts";
 
+import { BookmarkLinkingProvider } from "@/components/bookmarks";
 import { STORAGE_KEYS } from "@/constants/storageKeys";
 import { ThemeProvider } from "@/context/ThemeProvider.tsx";
 
@@ -31,15 +32,17 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          defaultTheme="light"
-          storageKey={STORAGE_KEYS.theme}
-        >
-          <RouterProvider
-            router={router}
-            context={queryClient}
-          />
-        </ThemeProvider>
+        <BookmarkLinkingProvider>
+          <ThemeProvider
+            defaultTheme="light"
+            storageKey={STORAGE_KEYS.theme}
+          >
+            <RouterProvider
+              router={router}
+              context={queryClient}
+            />
+          </ThemeProvider>
+        </BookmarkLinkingProvider>
       </QueryClientProvider>
     </StrictMode>,
   );

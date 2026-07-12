@@ -8,11 +8,13 @@ import { toast } from "sonner";
 
 import { TodoEditRow } from "./-TodoEditRow";
 
+import { OpenBookmarkPageButton } from "@/components/bookmarks";
 import { DailyStatusCircle } from "@/components/dailies/DailyStatusCircle";
 import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import { toTodoInput } from "@/components/tasks/todoPayload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import { upsertTask } from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
@@ -42,6 +44,10 @@ export function TodosEditor({
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftNew, setDraftNew] = useState<TaskTodo | null>(null);
+
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
 
   const mutation = useMutation({
     mutationFn: (nextTodos: TaskTodo[]) =>
@@ -193,41 +199,52 @@ export function TodosEditor({
                       due {todo.dueDate}
                     </Badge>
                   )}
-                  {(todo.bookmarks ?? []).map(b => (
-                    <Badge
-                      key={b.bookmarkId}
-                      variant="outline"
-                      className="
-                        border-amber-200 bg-amber-50 text-amber-900
-                        dark:border-amber-900/50 dark:bg-amber-950/40
-                        dark:text-amber-200
-                      "
-                    >
-                      {b.url
-                        ? (
-                          <a
-                            href={b.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="
-                              inline-flex items-center gap-1
-                              hover:underline
-                            "
-                          >
-                            {b.title}
-                            <ExternalLinkIcon className="size-3" />
-                          </a>
-                        )
-                        : (
-                          b.title
+                  {(todo.bookmarks ?? []).map((b) => {
+                    const linkable = {
+                      externalId: b.bookmarkId,
+                      url: b.url,
+                    };
+                    const href = resolveHref(linkable);
+                    return (
+                      <Badge
+                        key={b.bookmarkId}
+                        variant="outline"
+                        className="
+                          border-amber-200 bg-amber-50 text-amber-900
+                          dark:border-amber-900/50 dark:bg-amber-950/40
+                          dark:text-amber-200
+                        "
+                      >
+                        {href
+                          ? (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="
+                                inline-flex items-center gap-1
+                                hover:underline
+                              "
+                            >
+                              {b.title}
+                              <ExternalLinkIcon className="size-3" />
+                            </a>
+                          )
+                          : (
+                            b.title
+                          )}
+                        <OpenBookmarkPageButton
+                          linkable={linkable}
+                          className="ml-1"
+                        />
+                        {b.sectionLabel && (
+                          <span className="ml-1 opacity-70">
+                            › {b.sectionLabel}
+                          </span>
                         )}
-                      {b.sectionLabel && (
-                        <span className="ml-1 opacity-70">
-                          › {b.sectionLabel}
-                        </span>
-                      )}
-                    </Badge>
-                  ))}
+                      </Badge>
+                    );
+                  })}
                   <div
                     className="
                       ml-auto flex items-center gap-1 opacity-0 transition

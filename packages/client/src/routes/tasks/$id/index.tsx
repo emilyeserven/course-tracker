@@ -5,12 +5,14 @@ import { EditIcon, ExternalLinkIcon } from "lucide-react";
 import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
 import { TodosEditor } from "./-components/-TodosEditor";
 
+import { OpenBookmarkPageButton } from "@/components/bookmarks";
 import { InfoArea, PageActions, PageHeader } from "@/components/layout";
 import {
   EntityError,
   EntityPending,
 } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import { fetchRoutines, fetchSingleTask } from "@/utils";
 
 export const Route = createFileRoute("/tasks/$id/")({
@@ -43,6 +45,10 @@ function SingleTask() {
     queryKey: ["routines"],
     queryFn: () => fetchRoutines(),
   });
+
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
 
   if (isPending) {
     return <TaskPending />;
@@ -95,39 +101,47 @@ function SingleTask() {
           condition={(data.bookmarks ?? []).length > 0}
         >
           <ul className="flex flex-wrap gap-2">
-            {(data.bookmarks ?? []).map(b => (
-              <li
-                key={b.bookmarkId}
-                className="
-                  flex items-center gap-1.5 rounded-md border border-border
-                  bg-muted px-2 py-1 text-sm
-                "
-              >
-                {b.url
-                  ? (
-                    <a
-                      href={b.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="
-                        inline-flex items-center gap-1
-                        hover:underline
-                      "
-                    >
-                      {b.title}
-                      <ExternalLinkIcon className="size-3" />
-                    </a>
-                  )
-                  : (
-                    <span>{b.title}</span>
+            {(data.bookmarks ?? []).map((b) => {
+              const linkable = {
+                externalId: b.bookmarkId,
+                url: b.url,
+              };
+              const href = resolveHref(linkable);
+              return (
+                <li
+                  key={b.bookmarkId}
+                  className="
+                    flex items-center gap-1.5 rounded-md border border-border
+                    bg-muted px-2 py-1 text-sm
+                  "
+                >
+                  {href
+                    ? (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="
+                          inline-flex items-center gap-1
+                          hover:underline
+                        "
+                      >
+                        {b.title}
+                        <ExternalLinkIcon className="size-3" />
+                      </a>
+                    )
+                    : (
+                      <span>{b.title}</span>
+                    )}
+                  <OpenBookmarkPageButton linkable={linkable} />
+                  {b.sectionLabel && (
+                    <span className="text-muted-foreground">
+                      › {b.sectionLabel}
+                    </span>
                   )}
-                {b.sectionLabel && (
-                  <span className="text-muted-foreground">
-                    › {b.sectionLabel}
-                  </span>
-                )}
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </InfoArea>
         <InfoArea

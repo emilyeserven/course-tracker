@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLinkIcon, Loader2, PlusIcon, XIcon } from "lucide-react";
 
+import { OpenBookmarkPageButton } from "./OpenBookmarkPageButton";
+
 import { Input } from "@/components/ui/input";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import {
   createBookmark,
   fetchBookmarkSections,
@@ -244,7 +247,10 @@ export function BookmarkPicker({
 interface BookmarkChipProps {
   association: TaskBookmark;
   onRemove: () => void;
-  onChangeSection: (sectionId: string | null, sectionLabel: string | null) => void;
+  onChangeSection: (
+    sectionId: string | null,
+    sectionLabel: string | null,
+  ) => void;
 }
 
 // A single associated-bookmark chip: title link, remove, and — when the bookmark
@@ -261,6 +267,15 @@ function BookmarkChip({
     queryFn: () => fetchBookmarkSections(association.bookmarkId),
   });
 
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
+  const linkable = {
+    externalId: association.bookmarkId,
+    url: association.url,
+  };
+  const href = resolveHref(linkable);
+
   return (
     <li
       className="
@@ -268,10 +283,10 @@ function BookmarkChip({
         py-1 text-sm
       "
     >
-      {association.url
+      {href
         ? (
           <a
-            href={association.url}
+            href={href}
             target="_blank"
             rel="noreferrer"
             className="
@@ -286,6 +301,7 @@ function BookmarkChip({
         : (
           <span>{association.title}</span>
         )}
+      <OpenBookmarkPageButton linkable={linkable} />
 
       {sections.length > 0 && (
         <select
@@ -294,7 +310,7 @@ function BookmarkChip({
           onChange={(e) => {
             const id = e.target.value || null;
             const label = id
-              ? sections.find(s => s.id === id)?.label ?? null
+              ? (sections.find(s => s.id === id)?.label ?? null)
               : null;
             onChangeSection(id, label);
           }}
