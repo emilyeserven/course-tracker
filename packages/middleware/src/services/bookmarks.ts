@@ -113,7 +113,10 @@ export async function getBookmarkProgress(
     for (const bookmark of all) {
       if (!wanted.has(bookmark.id)) continue;
       const value = bookmark.progressValues?.[0];
-      if (value) {
+      // A zero/absent total is not real progress (e.g. a bookmark that tracks
+      // progress but hasn't set a total) — treat it as "no progress" so the
+      // caller falls back to the infinity icon rather than an empty ring.
+      if (value && value.total > 0) {
         progress.set(bookmark.id, {
           current: value.current,
           total: value.total,

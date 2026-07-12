@@ -18,6 +18,7 @@ import type {
 } from "./routineActionParts";
 import { resolveActionParts } from "./routineActionParts";
 import {
+  activeBookmarkForEntry,
   currentDateKey,
   entryForCompletionDate,
   representativeEntry,
@@ -27,7 +28,12 @@ import {
 // module (unit-tested there directly). Re-export only the ones the projection's
 // callers consume from here, so they keep a single import site; the rest are
 // imported from routineWeekday directly.
-export { currentDateKey, entryForCompletionDate, representativeEntry };
+export {
+  activeBookmarkForEntry,
+  currentDateKey,
+  entryForCompletionDate,
+  representativeEntry,
+};
 export type { ResolvedConnections, ResolvedTask };
 
 // The routine columns (plus its resolved connections) the projection reads.

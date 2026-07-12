@@ -5,6 +5,7 @@ import { getBookmarkProgress } from "@/services/bookmarks";
 import { nullableRoutineModeEnum } from "@/utils/schemas";
 import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
+  activeBookmarkForEntry,
   currentDateKey,
   entryForCompletionDate,
   mapRoutineToDaily,
@@ -67,9 +68,10 @@ export default async function (server: FastifyInstance) {
 
     // Batch-resolve every active task id up front to avoid N+1. (Bookmark and
     // freeform entries carry their own display label on the entry.) In the same
-    // pass, note each routine's "active bookmark" — today's scheduled bookmark
-    // entry, else the routine's first bookmark connection — so we can enrich it
-    // with reading progress from Simple Bookmarks below.
+    // pass, note each routine's "active bookmark" — strictly today's scheduled
+    // bookmark entry — so we can enrich it with reading progress from Simple
+    // Bookmarks below. Task days use the task's to-do progress instead, and a
+    // routine's categorical bookmark connection never drives the progress ring.
     const taskIds: string[] = [];
     const activeBookmarkByRoutine = new Map<string, { id: string;
       title: string; }>();
@@ -83,20 +85,9 @@ export default async function (server: FastifyInstance) {
       if (entry?.type === "task") {
         taskIds.push(entry.id);
       }
-      if (entry?.type === "bookmark") {
-        activeBookmarkByRoutine.set(routine.id, {
-          id: entry.id,
-          title: entry.title?.trim() || "Bookmark",
-        });
-      }
-      else {
-        const connection = routine.connections.find(c => c.type === "bookmark");
-        if (connection) {
-          activeBookmarkByRoutine.set(routine.id, {
-            id: connection.id,
-            title: connection.name?.trim() || "Bookmark",
-          });
-        }
+      const activeBookmark = activeBookmarkForEntry(entry);
+      if (activeBookmark) {
+        activeBookmarkByRoutine.set(routine.id, activeBookmark);
       }
     }
 
@@ -143,9 +134,11 @@ export default async function (server: FastifyInstance) {
         task,
       }, dateKey);
 
+      // Only a positive total is real reading progress; a zero/absent total
+      // leaves bookmarkProgress null so the cell shows the infinity icon.
       const activeBookmark = activeBookmarkByRoutine.get(routine.id);
       const progress = activeBookmark && progressMap.get(activeBookmark.id);
-      daily.bookmarkProgress = progress
+      daily.bookmarkProgress = progress && progress.total > 0
         ? {
           current: progress.current,
           total: progress.total,

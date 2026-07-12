@@ -90,13 +90,15 @@ export function DailyProgressCell({
   const bookmarkProgress = daily.bookmarkProgress;
 
   // Bookmark reading progress takes precedence: when the daily's active
-  // bookmark tracks progress in Simple Bookmarks, show how far through the
-  // material we are instead of the task's to-do completion.
-  if (bookmarkProgress) {
+  // bookmark tracks real progress in Simple Bookmarks (a positive total), show
+  // how far through the material we are instead of the task's to-do completion.
+  // A zero/absent total is not real progress, so fall through to the infinity
+  // icon rather than render an empty ring.
+  if (bookmarkProgress && bookmarkProgress.total > 0) {
     const {
       current, total, title,
     } = bookmarkProgress;
-    const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+    const percent = Math.round((current / total) * 100);
     return (
       <HoverProgressPopover
         ariaLabel={`Bookmark progress ${percent}%`}
@@ -106,7 +108,7 @@ export function DailyProgressCell({
         <div className="flex flex-col gap-1 text-sm">
           <div className="font-medium">{title}</div>
           <div className="text-muted-foreground">
-            {total > 0 ? `${current} / ${total} (${percent}%)` : "No progress yet"}
+            {`${current} / ${total} (${percent}%)`}
           </div>
         </div>
       </HoverProgressPopover>
