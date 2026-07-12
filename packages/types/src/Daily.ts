@@ -59,6 +59,17 @@ export interface DailyTaskProgress {
   todosComplete: number;
 }
 
+// Numeric reading/watching progress pulled from the companion Simple Bookmarks
+// app for the daily's active bookmark (today's scheduled bookmark entry, else
+// the routine's first bookmark connection). `current`/`total` come from the
+// bookmark's progressValues; `title` is the cached bookmark title for display.
+// Absent/null when the item has no bookmark or that bookmark has no progress.
+export interface DailyBookmarkProgress {
+  current: number;
+  total: number;
+  title: string;
+}
+
 export interface Daily {
   id: string;
   name: string;
@@ -94,6 +105,11 @@ export interface Daily {
     name: string;
     progress?: DailyTaskProgress;
   } | null;
+  // Reading/watching progress for the daily's active bookmark, fetched from
+  // Simple Bookmarks at projection time. When present it drives the tracker's
+  // Progress ring in place of task to-do progress; null when there's no linked
+  // bookmark or it has no tracked progress. Absent on non-routine dailies.
+  bookmarkProgress?: DailyBookmarkProgress | null;
   // Per-weekday scheduled grid (unresolved names). Present only on weekly-mode
   // routine projections; absent/null for daily-mode dailies.
   weekly?: RoutineWeekly | null;

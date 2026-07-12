@@ -24,6 +24,10 @@ interface RawBookmark {
   id: string;
   title?: string | null;
   url?: string | null;
+  // Numeric progress custom-properties (e.g. page 45 of 320). In practice a
+  // bookmark carries at most one, so consumers read progressValues[0].
+  progressValues?: { current: number;
+    total: number; }[] | null;
 }
 
 // The subset of GET /api/bookmarks/url-check we consume: the exact / path match
@@ -82,6 +86,47 @@ export async function searchBookmarks(
     : mapped;
 
   return matches.slice(0, limit);
+}
+
+/**
+ * Fetch numeric reading progress for a set of bookmark ids, keyed by id. Reuses
+ * the single full-list endpoint (Simple Bookmarks has no batch-by-id lookup and
+ * the library is bounded) and keeps only bookmarks that have progress. Best
+ * effort: any failure (unreachable app, bad response) resolves to an empty map
+ * so callers — the dashboard's daily projection — still render without it.
+ */
+export async function getBookmarkProgress(
+  ids: string[],
+): Promise<Map<string, { current: number;
+  total: number; }>> {
+  const progress = new Map<string, { current: number;
+    total: number; }>();
+  if (ids.length === 0) {
+    return progress;
+  }
+
+  const wanted = new Set(ids);
+  try {
+    const response = await bookmarksFetch("/api/bookmarks");
+    assertOk(response);
+    const all = (await response.json()) as RawBookmark[];
+    for (const bookmark of all) {
+      if (!wanted.has(bookmark.id)) continue;
+      const value = bookmark.progressValues?.[0];
+      if (value) {
+        progress.set(bookmark.id, {
+          current: value.current,
+          total: value.total,
+        });
+      }
+    }
+  }
+  catch {
+    // Simple Bookmarks unreachable or malformed — degrade to no progress.
+    return new Map();
+  }
+
+  return progress;
 }
 
 /** Resolve a URL to an already-saved bookmark, or null if none exists. */

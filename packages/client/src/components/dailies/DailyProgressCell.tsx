@@ -87,6 +87,32 @@ function HoverProgressPopover({
 export function DailyProgressCell({
   daily,
 }: DailyProgressCellProps) {
+  const bookmarkProgress = daily.bookmarkProgress;
+
+  // Bookmark reading progress takes precedence: when the daily's active
+  // bookmark tracks progress in Simple Bookmarks, show how far through the
+  // material we are instead of the task's to-do completion.
+  if (bookmarkProgress) {
+    const {
+      current, total, title,
+    } = bookmarkProgress;
+    const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+    return (
+      <HoverProgressPopover
+        ariaLabel={`Bookmark progress ${percent}%`}
+        current={current}
+        total={total}
+      >
+        <div className="flex flex-col gap-1 text-sm">
+          <div className="font-medium">{title}</div>
+          <div className="text-muted-foreground">
+            {total > 0 ? `${current} / ${total} (${percent}%)` : "No progress yet"}
+          </div>
+        </div>
+      </HoverProgressPopover>
+    );
+  }
+
   const taskProgress = daily.task?.progress;
 
   if (taskProgress) {

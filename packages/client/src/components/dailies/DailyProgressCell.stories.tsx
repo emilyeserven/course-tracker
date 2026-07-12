@@ -34,3 +34,37 @@ export const DailyDrills: Story = {
     daily: makeDaily({}),
   },
 };
+
+// Bookmark path: reading progress from Simple Bookmarks drives the ring.
+export const BookmarkProgress: Story = {
+  args: {
+    daily: makeDaily({
+      bookmarkProgress: {
+        current: 45,
+        total: 320,
+        title: "Kubernetes for Developers",
+      },
+    }),
+  },
+};
+
+// Bookmark progress takes precedence over task to-do progress.
+export const BookmarkOverTask: Story = {
+  args: {
+    daily: makeDaily({
+      task: {
+        id: "t1",
+        name: "Build the widget",
+        progress: {
+          todosTotal: 3,
+          todosComplete: 2,
+        },
+      },
+      bookmarkProgress: {
+        current: 10,
+        total: 40,
+        title: "Practical IoT Hacking",
+      },
+    }),
+  },
+};
