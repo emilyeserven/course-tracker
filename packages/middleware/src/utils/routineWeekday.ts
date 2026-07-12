@@ -114,6 +114,43 @@ export function activeBookmarkForEntry(
   };
 }
 
+// A bookmark reading-progress lookup (bookmark id → current/total), as returned
+// by getBookmarkProgress.
+export type BookmarkProgressMap = Map<string, { current: number;
+  total: number; }>;
+
+// A task's own bookmark rows the projection reads to back a to-do-less task's
+// progress ring.
+export interface TaskBookmarkRow {
+  bookmarkId: string;
+  title: string;
+  position: number | null;
+}
+
+// The first of a task's own bookmarks (by position) that reports real reading
+// progress (total > 0), shaped as { id, title } for daily.bookmarkProgress. Used
+// when today's routine item is a task with no to-dos, so its linked reading
+// material drives the ring instead. Null when none has progress.
+export function firstTaskBookmarkWithProgress(
+  bookmarks: TaskBookmarkRow[],
+  progress: BookmarkProgressMap,
+): { id: string;
+  title: string; } | null {
+  const ordered = [...bookmarks].sort(
+    (a, b) => (a.position ?? 0) - (b.position ?? 0),
+  );
+  for (const bookmark of ordered) {
+    const value = progress.get(bookmark.bookmarkId);
+    if (value && value.total > 0) {
+      return {
+        id: bookmark.bookmarkId,
+        title: bookmark.title.trim() || "Bookmark",
+      };
+    }
+  }
+  return null;
+}
+
 // Freeze a scheduled entry into the parts stored on a logged completion. The
 // freeform name is the entry's own text; a bookmark uses its cached title; a
 // task resolves via the given name map, falling back to its id when the target

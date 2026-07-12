@@ -16,6 +16,7 @@ import {
   entryForCompletionDate,
   entryToCompletionParts,
   entryToCompletionRef,
+  firstTaskBookmarkWithProgress,
   representativeEntry,
   weekdayForDateKey,
 } from "../utils/routineWeekday.ts";
@@ -147,6 +148,95 @@ test("activeBookmarkForEntry returns the bookmark only for a bookmark entry", ()
       title: "Bookmark",
     },
   );
+});
+
+test("firstTaskBookmarkWithProgress picks the earliest positioned bookmark with progress", () => {
+  const progress = new Map([
+    ["bm-a", {
+      current: 0,
+      total: 0,
+    }], // has a record but no real progress → skipped
+    ["bm-b", {
+      current: 5,
+      total: 40,
+    }],
+    ["bm-c", {
+      current: 10,
+      total: 100,
+    }],
+  ]);
+  // Out of order on input; bm-b (position 1) beats bm-c (position 2), and bm-a
+  // (position 0) is skipped for having total 0.
+  const result = firstTaskBookmarkWithProgress(
+    [
+      {
+        bookmarkId: "bm-c",
+        title: "C",
+        position: 2,
+      },
+      {
+        bookmarkId: "bm-a",
+        title: "A",
+        position: 0,
+      },
+      {
+        bookmarkId: "bm-b",
+        title: "B",
+        position: 1,
+      },
+    ],
+    progress,
+  );
+  assert.deepStrictEqual(result, {
+    id: "bm-b",
+    title: "B",
+  });
+});
+
+test("firstTaskBookmarkWithProgress returns null when no bookmark has progress", () => {
+  const progress = new Map([["bm-a", {
+    current: 0,
+    total: 0,
+  }]]);
+  assert.strictEqual(
+    firstTaskBookmarkWithProgress(
+      [
+        {
+          bookmarkId: "bm-a",
+          title: "A",
+          position: 0,
+        },
+        {
+          bookmarkId: "bm-missing",
+          title: "Missing",
+          position: 1,
+        },
+      ],
+      progress,
+    ),
+    null,
+  );
+  assert.strictEqual(firstTaskBookmarkWithProgress([], progress), null);
+});
+
+test("firstTaskBookmarkWithProgress falls back to a default title when blank", () => {
+  const result = firstTaskBookmarkWithProgress(
+    [
+      {
+        bookmarkId: "bm-a",
+        title: "   ",
+        position: 0,
+      },
+    ],
+    new Map([["bm-a", {
+      current: 3,
+      total: 9,
+    }]]),
+  );
+  assert.deepStrictEqual(result, {
+    id: "bm-a",
+    title: "Bookmark",
+  });
 });
 
 test("activeBookmarkForEntry ignores task, freeform, and empty days", () => {

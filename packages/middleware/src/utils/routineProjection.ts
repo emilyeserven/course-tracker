@@ -21,6 +21,7 @@ import {
   activeBookmarkForEntry,
   currentDateKey,
   entryForCompletionDate,
+  firstTaskBookmarkWithProgress,
   representativeEntry,
 } from "./routineWeekday";
 
@@ -32,6 +33,7 @@ export {
   activeBookmarkForEntry,
   currentDateKey,
   entryForCompletionDate,
+  firstTaskBookmarkWithProgress,
   representativeEntry,
 };
 export type { ResolvedConnections, ResolvedTask };
