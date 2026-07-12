@@ -18,8 +18,10 @@ export function resolveBookmarksBaseUrl(override?: string | null): string {
 // lazily so this module stays free of a static `@/db` dependency — that keeps it
 // loadable under `node --test` (which doesn't resolve the `@/` alias), matching
 // the googleCalendarIcs/googleCalendar split. If settings can't be read, fall
-// back to the env/default URL so bookmark proxying still works.
-export async function getBookmarksBaseUrl(): Promise<string> {
+// back to the env/default URL so bookmark proxying still works. Internal only —
+// bookmarksFetch resolves the base URL through it; the settings GET reports the
+// resolved value via the pure resolveBookmarksBaseUrl instead.
+async function getBookmarksBaseUrl(): Promise<string> {
   try {
     const {
       db,
