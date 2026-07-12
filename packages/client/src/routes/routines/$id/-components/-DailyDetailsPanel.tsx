@@ -129,12 +129,6 @@ export function DailyDetailsPanel({
             <p>{data.location}</p>
           </InfoArea>
           <InfoArea
-            header="Provider"
-            condition={!!data.provider}
-          >
-            <p>{data.provider?.name}</p>
-          </InfoArea>
-          <InfoArea
             header="Last 14 days"
             condition={true}
           >

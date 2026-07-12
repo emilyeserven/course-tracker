@@ -1,11 +1,9 @@
 import type { WeeklyEntry, WeeklyRowType } from "./weekly";
 import type { SelectOption } from "@/utils";
 
-import { buildActionableSentence, resourceEntryLabel } from "@emstack/types";
+import { buildActionableSentence } from "@emstack/types";
 
-import { ModuleNarrowingFields } from "@/components/routines/ModuleNarrowingFields";
 import { ScheduleItemControl } from "@/components/routines/ScheduleItemControl";
-import { effectiveEntryUrl } from "@/components/routines/weekly";
 
 interface ScheduleEntryRowProps {
   // Displayed label for the row (e.g. "Monday" or "Mon, Jun 15").
@@ -15,47 +13,26 @@ interface ScheduleEntryRowProps {
   ariaPrefix: string;
   row: WeeklyEntry;
   taskOptions: SelectOption[];
-  resourceOptions: SelectOption[];
-  // Module groups / modules belonging to the row's currently-chosen resource.
-  // Empty unless the entry is a resource with a populated module hierarchy.
-  groupOptions: SelectOption[];
-  moduleOptions: SelectOption[];
   onChange: (patch: Partial<WeeklyEntry>) => void;
-  // Open the "add resource" dialog targeting this row.
-  onAddResource: () => void;
-  // Surface the combobox's typed text so the parent can seed the add dialog.
-  onInputValueChange: (val: string) => void;
+  // Optional: surface the combobox's typed text (unused now that pickers filter
+  // a static task list client-side).
+  onInputValueChange?: (val: string) => void;
 }
 
 // The resolved item name and its actionable-sentence preview for a row, pulled
-// out of the component to keep its complexity down. A resource entry's narrowing
-// (module/group) name replaces the resource name in the label (see
-// resourceEntryLabel); the preview only shows once there's prepend/append text.
+// out of the component to keep its complexity down. The preview only shows once
+// there's prepend/append text.
 function rowPreview(
   row: WeeklyEntry,
   optionsMap: Map<string, string>,
-  groupOptions: SelectOption[],
-  moduleOptions: SelectOption[],
 ): { showPreview: boolean;
   preview: string; } {
-  const moduleLabel = row.moduleId
-    ? moduleOptions.find(o => o.value === row.moduleId)?.label
-    : null;
-  const groupLabel = row.moduleGroupId
-    ? groupOptions.find(o => o.value === row.moduleGroupId)?.label
-    : null;
   const itemName
     = row.type === "freeform"
       ? row.id
       : row.type === "bookmark"
-        ? (row.title || row.id)
-        : row.type === "resource"
-          ? resourceEntryLabel({
-            resourceName: optionsMap.get(row.id) ?? "",
-            moduleName: moduleLabel,
-            groupName: groupLabel,
-          })
-          : (optionsMap.get(row.id) ?? "");
+        ? row.title || row.id
+        : (optionsMap.get(row.id) ?? "");
   return {
     showPreview:
       !!itemName && (!!row.prependText.trim() || !!row.appendText.trim()),
@@ -67,54 +44,22 @@ function rowPreview(
   };
 }
 
-// One schedule row's editor: type select, task/resource picker (or freeform
-// input), an optional module-group/module narrowing for resource entries, then
-// optional notes / location / prepend / append with a live preview. Shared by
-// WeeklyScheduleField (per weekday) and CuratedScheduleField (per date).
+// One schedule row's editor: type select, task picker (or bookmark/freeform
+// input), then optional notes / location / prepend / append with a live preview.
+// Shared by WeeklyScheduleField (per weekday) and CuratedScheduleField (per date).
 export function ScheduleEntryRow({
   label,
   ariaPrefix,
   row,
   taskOptions,
-  resourceOptions,
-  groupOptions,
-  moduleOptions,
   onChange,
-  onAddResource,
   onInputValueChange,
 }: ScheduleEntryRowProps) {
-  const itemOptions
-    = row.type === "task"
-      ? taskOptions
-      : row.type === "resource"
-        ? resourceOptions
-        : [];
+  const itemOptions = row.type === "task" ? taskOptions : [];
   const optionsMap = new Map(itemOptions.map(o => [o.value, o.label]));
-  // Item name + live preview (a resource entry's narrowing name replaces the
-  // resource name); derived in a helper to keep this component's complexity down.
   const {
-    showPreview,
-    preview,
-  } = rowPreview(row, optionsMap, groupOptions, moduleOptions);
-  // The module narrowing only makes sense once a resource is chosen, and only
-  // when that resource actually has modules / groups to pick from.
-  const showModulePickers
-    = row.type === "resource"
-      && !!row.id
-      && (groupOptions.length > 0 || moduleOptions.length > 0);
-
-  // The most-specific link for the current resource / module / group selection.
-  // Shown as the location input's placeholder (and persisted on save when the
-  // field is left blank). The "use link" button is only offered once the user has
-  // typed a value that differs from the link.
-  const linkUrl = effectiveEntryUrl(
-    row,
-    resourceOptions,
-    groupOptions,
-    moduleOptions,
-  );
-  const showLinkOffer
-    = !!linkUrl && row.location !== "" && row.location !== linkUrl;
+    showPreview, preview,
+  } = rowPreview(row, optionsMap);
 
   return (
     <li
@@ -130,12 +75,10 @@ export function ScheduleEntryRow({
           value={row.type}
           onChange={(e) => {
             // Changing the type clears the chosen item (different option set),
-            // any module / bookmark narrowing, and any note/location.
+            // any bookmark narrowing, and any note/location.
             onChange({
               type: e.target.value as WeeklyRowType,
               id: "",
-              moduleId: "",
-              moduleGroupId: "",
               notes: "",
               location: "",
               title: "",
@@ -150,7 +93,6 @@ export function ScheduleEntryRow({
         >
           <option value="">— None —</option>
           <option value="task">Task</option>
-          <option value="resource">Resource</option>
           <option value="bookmark">Bookmark</option>
           <option value="freeform">Freeform</option>
         </select>
@@ -167,19 +109,8 @@ export function ScheduleEntryRow({
           optionsMap={optionsMap}
           onChange={onChange}
           onInputValueChange={onInputValueChange}
-          onAddResource={onAddResource}
         />
       </div>
-
-      {showModulePickers && (
-        <ModuleNarrowingFields
-          ariaPrefix={ariaPrefix}
-          row={row}
-          groupOptions={groupOptions}
-          moduleOptions={moduleOptions}
-          onChange={onChange}
-        />
-      )}
 
       {row.type !== "" && (
         <>
@@ -197,37 +128,16 @@ export function ScheduleEntryRow({
           />
           <input
             aria-label={`${ariaPrefix} location`}
-            // Show the resource link as a placeholder (rather than baking it into
-            // the value), so a blank field reads as "uses the resource link" —
-            // both when empty and when the stored location equals the link.
-            value={row.location === linkUrl ? "" : row.location}
+            value={row.location}
             onChange={e =>
               onChange({
                 location: e.target.value,
               })}
-            placeholder={
-              linkUrl || "Location (e.g. gym, Spanish app, or a URL)…"
-            }
+            placeholder="Location (e.g. gym, Spanish app, or a URL)…"
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
-          {showLinkOffer && (
-            <button
-              type="button"
-              aria-label={`${ariaPrefix} use resource link`}
-              onClick={() =>
-                onChange({
-                  location: linkUrl,
-                })}
-              className="
-                self-start text-xs text-primary underline-offset-2
-                hover:underline
-              "
-            >
-              Use link from resource
-            </button>
-          )}
           <div
             className="
               grid grid-cols-1 gap-1.5

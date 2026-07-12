@@ -34,21 +34,6 @@ export const TILE_META: Record<DashboardTileId, DashboardTileMeta> = {
     minW: 1,
     minH: 4,
   },
-  underutilizedProviders: {
-    title: "Underutilized Providers",
-    minW: 1,
-    minH: 4,
-  },
-  coursesByAmortization: {
-    title: "Cost per Unit",
-    minW: 1,
-    minH: 4,
-  },
-  coursesInProgress: {
-    title: "Resources in Progress",
-    minW: 1,
-    minH: 4,
-  },
   readwise: {
     title: "Readwise",
     minW: 1,
@@ -145,18 +130,6 @@ const DEFAULT_TILE_HEIGHTS: { tileId: DashboardTileId;
   },
   {
     tileId: "todoist",
-    h: 7,
-  },
-  {
-    tileId: "coursesInProgress",
-    h: 7,
-  },
-  {
-    tileId: "underutilizedProviders",
-    h: 7,
-  },
-  {
-    tileId: "coursesByAmortization",
     h: 7,
   },
   {

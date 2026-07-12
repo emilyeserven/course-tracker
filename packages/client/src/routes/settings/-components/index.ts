@@ -7,7 +7,6 @@ export {
   CriteriaTemplatesSection,
   RoutineTemplatesSection,
 } from "./routineTemplates";
-export { ResourceHintTemplatesSection } from "./resources";
 export { DashboardLayoutsSection } from "./dashboard";
 export {
   ReadwiseSection,

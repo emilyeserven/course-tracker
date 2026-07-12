@@ -22,21 +22,6 @@ export const nullableInteger = {
   type: ["integer", "null"],
 } as const;
 
-export const courseStatusEnum = {
-  type: "string",
-  enum: ["active", "inactive", "complete"],
-} as const;
-
-export const nullableResourceLevelEnum = {
-  type: ["string", "null"],
-  enum: ["low", "medium", "high", null],
-} as const;
-
-export const moduleStatusEnum = {
-  type: "string",
-  enum: ["unstarted", "in_progress", "complete"],
-} as const;
-
 // Routines use the full lifecycle status set, including "inactive" as a manual
 // status (any number of routines may be active at once).
 export const nullableRoutineStatusEnum = {
@@ -57,15 +42,11 @@ const routineReferenceItemSchema = {
   properties: {
     type: {
       type: "string",
-      enum: ["task", "resource", "freeform", "bookmark"],
+      enum: ["task", "freeform", "bookmark"],
     },
     id: {
       type: "string",
     },
-    // Resource entries may narrow to a specific module or module group (mutually
-    // exclusive). Absent/null = the whole resource.
-    moduleId: nullableString,
-    moduleGroupId: nullableString,
     notes: nullableString,
     location: nullableString,
     prependText: nullableString,
@@ -109,13 +90,13 @@ export const curatedSchema = {
   },
 } as const;
 
-// A routine's polymorphic connection to a task / resource / bookmark.
+// A routine's polymorphic connection to a task / bookmark.
 // `id` is the connected entity's id. For local types the name is resolved on
 // read; for "bookmark" (external, no local row) the client also sends the cached
 // `name`/`url`, which are stored on the connection.
 const routineConnectionTypeEnum = {
   type: "string",
-  enum: ["task", "resource", "bookmark"],
+  enum: ["task", "bookmark"],
 } as const;
 
 const routineConnectionItemSchema = {
@@ -144,41 +125,6 @@ export const routineConnectionsSchema = {
 const dailyCompletionStatusEnum = {
   type: "string",
   enum: ["incomplete", "touched", "goal", "exceeded", "freeze"],
-} as const;
-
-const interactionProgressEnum = {
-  type: "string",
-  enum: ["incomplete", "started", "complete"],
-} as const;
-
-const nullableInteractionDifficultyEnum = {
-  type: ["string", "null"],
-  enum: ["easy", "medium", "hard", null],
-} as const;
-
-const nullableInteractionUnderstandingEnum = {
-  type: ["string", "null"],
-  enum: ["none", "basic", "comfortable", "proficient", "mastered", null],
-} as const;
-
-export const interactionBodySchema = {
-  type: "object",
-  required: ["resourceId", "date", "progress"],
-  properties: {
-    resourceId: {
-      type: "string",
-      minLength: 1,
-    },
-    moduleGroupId: nullableString,
-    moduleId: nullableString,
-    date: {
-      type: "string",
-    },
-    progress: interactionProgressEnum,
-    note: nullableString,
-    difficulty: nullableInteractionDifficultyEnum,
-    understanding: nullableInteractionUnderstandingEnum,
-  },
 } as const;
 
 export const completionSchema = {
@@ -213,7 +159,7 @@ export const completionSchema = {
       properties: {
         type: {
           type: "string",
-          enum: ["task", "resource", "freeform", "bookmark"],
+          enum: ["task", "freeform", "bookmark"],
         },
         id: {
           type: "string",
@@ -345,23 +291,6 @@ export const tagIdsArraySchema = {
   },
 } as const;
 
-const resourceLinkSchema = {
-  type: "object",
-  required: ["resourceId"],
-  properties: {
-    resourceId: {
-      type: "string",
-    },
-    moduleGroupId: nullableString,
-    moduleId: nullableString,
-  },
-} as const;
-
-export const resourceLinksArraySchema = {
-  type: "array",
-  items: resourceLinkSchema,
-} as const;
-
 // A task's association to a Simple Bookmarks bookmark. `bookmarkId` is the
 // external id in the companion app; `title` / `url` are the denormalized cache
 // stored so the chip renders when Simple Bookmarks is unreachable.
@@ -390,34 +319,6 @@ export const bookmarkLinksArraySchema = {
   items: bookmarkLinkSchema,
 } as const;
 
-// Schema for a task's freeform resource entry. Ease/time/interactivity/tags
-// now live on the linked Resource/ModuleGroup/Module — when a row is linked,
-// those properties are read from the linked entity rather than overridden
-// here.
-export const resourceSchema = {
-  type: "object",
-  required: ["name"],
-  properties: {
-    id: {
-      type: "string",
-    },
-    name: {
-      type: "string",
-    },
-    url: nullableString,
-    usedYet: {
-      type: "boolean",
-    },
-    // Optional link to a top-level Resource. resourceId can be null while
-    // moduleGroupId / moduleId stay null too — the row is a freeform task
-    // resource. If resourceId is set, moduleGroupId / moduleId narrow the
-    // sub-target.
-    resourceId: nullableString,
-    moduleGroupId: nullableString,
-    moduleId: nullableString,
-  },
-} as const;
-
 export const todoSchema = {
   type: "object",
   required: ["name"],
@@ -434,12 +335,7 @@ export const todoSchema = {
     note: nullableString,
     location: nullableString,
     url: nullableString,
-    // Optional link to a single top-level Resource, narrowed to a module group
-    // or module. resourceId null = plain checklist todo.
-    resourceId: nullableString,
-    moduleGroupId: nullableString,
-    moduleId: nullableString,
-    // Associations to Simple Bookmarks bookmarks (coexists with the resource link).
+    // Associations to Simple Bookmarks bookmarks.
     bookmarks: bookmarkLinksArraySchema,
   },
 } as const;

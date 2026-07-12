@@ -4,9 +4,7 @@ import { ActionableSentencePreview } from "./-ActionableSentencePreview";
 import { TaskResourceFreeformPicker } from "./-TaskResourceFreeformPicker";
 import { useWeeklyEntryEditor } from "./-useWeeklyEntryEditor";
 
-import { QuickAddResourceDialog } from "@/components/dialogs/quickAdd/QuickAddResourceDialog";
-
-// A single task / resource / freeform picker — the same control the weekly grid
+// A single task / bookmark / freeform picker — the same control the weekly grid
 // uses per day, but standalone for Daily Task mode (the chosen entry is applied
 // to every weekday). Also carries the optional note and prepend/append text that
 // build the daily's actionable sentence. A thin composer over its leaves; state
@@ -25,17 +23,9 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
     sectionLabel,
   } = props;
   const {
-    itemOptions,
-    optionsMap,
-    addOpen,
-    setAddOpen,
-    inputValue,
-    setInputValue,
-    emit,
-    linkUrl,
-    showPreview,
-    preview,
-  } = useWeeklyEntryEditor(props);
+    itemOptions, optionsMap, emit, showPreview, preview,
+  }
+    = useWeeklyEntryEditor(props);
 
   return (
     <div
@@ -53,8 +43,6 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
         itemOptions={itemOptions}
         optionsMap={optionsMap}
         onEmit={emit}
-        onInputValueChange={setInputValue}
-        onRequestAddResource={() => setAddOpen(true)}
       />
 
       {type !== "" && (
@@ -73,36 +61,16 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
           />
           <input
             aria-label="Daily task location"
-            // Show the resource link as a placeholder rather than baking it into
-            // the value, so a blank field reads as "uses the resource link".
-            value={location === linkUrl ? "" : location}
+            value={location}
             onChange={e =>
               emit({
                 location: e.target.value,
               })}
-            placeholder={
-              linkUrl || "Location (e.g. gym, Spanish app, or a URL)…"
-            }
+            placeholder="Location (e.g. gym, Spanish app, or a URL)…"
             className="
               flex h-9 w-full rounded-md border bg-background px-2 text-sm
             "
           />
-          {linkUrl && location !== "" && location !== linkUrl && (
-            <button
-              type="button"
-              aria-label="Daily task use resource link"
-              onClick={() =>
-                emit({
-                  location: linkUrl,
-                })}
-              className="
-                self-start text-xs text-primary underline-offset-2
-                hover:underline
-              "
-            >
-              Use link from resource
-            </button>
-          )}
           <div
             className="
               grid grid-cols-1 gap-1.5
@@ -137,16 +105,6 @@ export function WeeklyEntryEditor(props: WeeklyEntryEditorProps) {
           {showPreview && <ActionableSentencePreview preview={preview} />}
         </>
       )}
-
-      <QuickAddResourceDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        initialName={inputValue}
-        onCreated={newId =>
-          emit({
-            id: newId,
-          })}
-      />
     </div>
   );
 }

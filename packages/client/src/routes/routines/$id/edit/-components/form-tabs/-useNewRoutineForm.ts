@@ -21,7 +21,7 @@ export interface NewRoutineSearch {
   connectedType?: RoutineConnectionType;
   connectedId?: string;
   mode?: RoutineMode;
-  entryType?: "task" | "resource";
+  entryType?: "task";
   entryId?: string;
 }
 

@@ -2,21 +2,9 @@ import type { QuickAddKey } from "@/components/dialogs/quickAdd";
 import type { LinkProps } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 
-import {
-  Building2Icon,
-  CircleCheckIcon,
-  LayoutDashboardIcon,
-  LibraryIcon,
-  RepeatIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { CircleCheckIcon, LayoutDashboardIcon, RepeatIcon } from "lucide-react";
 
-import {
-  fetchProviders,
-  fetchResources,
-  fetchRoutines,
-  fetchTasks,
-} from "@/utils/api";
+import { fetchRoutines, fetchTasks } from "@/utils/api";
 import { queryKeys } from "@/utils/queryKeys";
 
 /** A single entity row shown under a collapsible category. */
@@ -66,55 +54,7 @@ export const STANDALONE_LINKS: NavLink[] = [
   },
 ];
 
-/** Shown only when onboarding is incomplete (see `useShowOnboard`). */
-export const ONBOARD_LINK: NavLink = {
-  label: "Onboard",
-  to: "/onboard",
-  icon: SparklesIcon,
-};
-
 export const NAV_SECTIONS: NavSection[] = [
-  {
-    label: "Records",
-    categories: [
-      {
-        label: "Providers",
-        icon: Building2Icon,
-        listTo: "/providers",
-        quickAddKey: "provider",
-        getDetailLink: id => ({
-          to: "/providers/$id",
-          params: {
-            id,
-          },
-        }),
-        queryKey: queryKeys.providers.list(),
-        load: async () =>
-          (await fetchProviders()).map(p => ({
-            id: p.id,
-            name: p.name,
-          })),
-      },
-      {
-        label: "Resources",
-        icon: LibraryIcon,
-        listTo: "/resources",
-        quickAddKey: "resource",
-        getDetailLink: id => ({
-          to: "/resources/$id",
-          params: {
-            id,
-          },
-        }),
-        queryKey: queryKeys.resources.list(),
-        load: async () =>
-          (await fetchResources()).map(r => ({
-            id: r.id,
-            name: r.name,
-          })),
-      },
-    ],
-  },
   {
     label: "Actions",
     categories: [

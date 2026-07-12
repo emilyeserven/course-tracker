@@ -7,7 +7,6 @@ import { resolveRoutineConnections } from "@/utils/resolveRoutineConnections";
 import {
   mapRoutineToDaily,
   representativeEntry,
-  type ResolvedResource,
   type ResolvedTask,
   type RoutineRow,
 } from "@/utils/routineProjection";
@@ -53,10 +52,9 @@ export default async function (server: FastifyInstance) {
       }
 
       // Daily mode: resolve the representative weekly entry so the response is a
-      // Daily-compatible shape (task/resource progress) for the tracker UI.
+      // Daily-compatible shape (task progress) for the tracker UI.
       const entry = representativeEntry(resolved.weekly);
       let task: ResolvedTask | null = null;
-      let resource: ResolvedResource | null = null;
 
       if (entry && entry.type === "task") {
         task = (await db.query.tasks.findFirst({
@@ -68,12 +66,6 @@ export default async function (server: FastifyInstance) {
             name: true,
           },
           with: {
-            resources: {
-              columns: {
-                id: true,
-                usedYet: true,
-              },
-            },
             todos: {
               columns: {
                 id: true,
@@ -83,24 +75,9 @@ export default async function (server: FastifyInstance) {
           },
         })) ?? null;
       }
-      else if (entry && entry.type === "resource") {
-        resource = (await db.query.resources.findFirst({
-          where: (resources, {
-            eq,
-          }) => eq(resources.id, entry.id),
-          columns: {
-            id: true,
-            name: true,
-            progressCurrent: true,
-            progressTotal: true,
-            tracksProgress: true,
-          },
-        })) ?? null;
-      }
 
       return mapRoutineToDaily(resolved as RoutineRow, {
         task,
-        resource,
       });
     },
   );

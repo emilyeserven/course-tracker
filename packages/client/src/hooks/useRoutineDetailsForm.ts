@@ -12,7 +12,6 @@ import {
   curatedDateRange,
   curatedToRows,
   fillAllDays,
-  fillEffectiveLocations,
   MAX_CURATED_DAYS,
   representativeRow,
   rowsToCurated,
@@ -25,23 +24,16 @@ import {
   buildConnectionOptions,
   decodeConnection,
   encodeConnection,
-  fetchModuleGroups,
-  fetchModules,
-  fetchResources,
   fetchTasks,
   getDateKey,
   getTodayKey,
-  groupOptionsByResource,
   toOptions,
   upsertRoutine,
 } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 const scheduleRowFields = {
-  type: z.enum(["", "task", "resource", "freeform", "bookmark"]),
+  type: z.enum(["", "task", "freeform", "bookmark"]),
   id: z.string(),
-  moduleId: z.string(),
-  moduleGroupId: z.string(),
   notes: z.string(),
   location: z.string(),
   prependText: z.string(),
@@ -122,41 +114,10 @@ export function useRoutineDetailsForm(
     queryFn: () => fetchTasks(),
   });
 
-  const {
-    data: resources,
-  } = useQuery({
-    queryKey: queryKeys.resources.list(),
-    queryFn: () => fetchResources(),
-  });
-
-  // All modules / module groups, fetched once and bucketed by resource so a
-  // resource entry's row can offer the narrowing pickers (see ScheduleEntryRow).
-  const {
-    data: modules,
-  } = useQuery({
-    queryKey: queryKeys.modules.list(),
-    queryFn: () => fetchModules(),
-  });
-  const {
-    data: moduleGroups,
-  } = useQuery({
-    queryKey: queryKeys.moduleGroups.list(),
-    queryFn: () => fetchModuleGroups(),
-  });
-
   const taskOptions = useMemo(() => toOptions(tasks), [tasks]);
-  const resourceOptions = useMemo(() => toOptions(resources), [resources]);
-  const modulesByResource = useMemo(
-    () => groupOptionsByResource(modules),
-    [modules],
-  );
-  const moduleGroupsByResource = useMemo(
-    () => groupOptionsByResource(moduleGroups),
-    [moduleGroups],
-  );
   const connectionOptions = useMemo(
-    () => buildConnectionOptions(tasks, resources),
-    [tasks, resources],
+    () => buildConnectionOptions(tasks),
+    [tasks],
   );
 
   const todayKey = getTodayKey();
@@ -233,39 +194,18 @@ export function useRoutineDetailsForm(
           mode: value.mode,
           // Daily mode mirrors the single chosen entry onto all 7 days so
           // "today's item" resolves identically every day. Curated mode keys by
-          // date instead, so its weekly grid is cleared. fillEffectiveLocations
-          // bakes the resource link into any blank location (shown as a
-          // placeholder in the editor) so it's persisted.
+          // date instead, so its weekly grid is cleared.
           weekly:
             value.mode === "daily"
-              ? rowsToWeekly(
-                fillEffectiveLocations(
-                  fillAllDays(representativeRow(value.weekly)),
-                  resourceOptions,
-                  moduleGroupsByResource,
-                  modulesByResource,
-                ),
-              )
+              ? rowsToWeekly(fillAllDays(representativeRow(value.weekly)))
               : value.mode === "curated"
                 ? {}
-                : rowsToWeekly(
-                  fillEffectiveLocations(
-                    value.weekly,
-                    resourceOptions,
-                    moduleGroupsByResource,
-                    modulesByResource,
-                  ),
-                ),
+                : rowsToWeekly(value.weekly),
           // Curated schedule (date-keyed); cleared for weekly/daily routines.
           curated:
             value.mode === "curated"
               ? rowsToCurated(
-                fillEffectiveLocations(
-                  value.curated,
-                  resourceOptions,
-                  moduleGroupsByResource,
-                  modulesByResource,
-                ),
+                value.curated,
                 value.curatedEndDate
                   ? getDateKey(value.curatedEndDate)
                   : null,
@@ -333,8 +273,6 @@ export function useRoutineDetailsForm(
             date: key,
             type: "" as const,
             id: "",
-            moduleId: "",
-            moduleGroupId: "",
             notes: "",
             location: "",
             prependText: "",
@@ -352,9 +290,6 @@ export function useRoutineDetailsForm(
     form,
     connectionOptions,
     taskOptions,
-    resourceOptions,
-    modulesByResource,
-    moduleGroupsByResource,
     isDaily,
     isCurated,
     curatedWindow,

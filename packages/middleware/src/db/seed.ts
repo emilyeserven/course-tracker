@@ -1,6 +1,4 @@
 import {
-  courseProviders,
-  resources,
   dailyCriteriaTemplates,
   tagGroups,
   tags,
@@ -11,125 +9,6 @@ import { clearData } from "@/db/clearData";
 
 export async function seed() {
   await clearData();
-
-  const uidevData: typeof courseProviders.$inferInsert = {
-    id: "aab7a7c4-e776-45f3-84fa-7c966bb6b36b",
-    name: "ui.dev",
-    isRecurring: true,
-    recurPeriodUnit: "years",
-    recurPeriod: 1,
-    cost: "396",
-    recurDate: "2025/08/22",
-    isCourseFeesShared: true,
-    url: "https://ui.dev/",
-  };
-  const satoriReaderData: typeof courseProviders.$inferInsert = {
-    id: "82baa63a-d363-4587-840c-41abf0da53f0",
-    name: "Satori Reader",
-    isRecurring: true,
-    recurPeriodUnit: "years",
-    recurPeriod: 1,
-    cost: "89",
-    recurDate: "2025/11/06",
-    isCourseFeesShared: true,
-    url: "https://www.satorireader.com/",
-  };
-  const udemyData: typeof courseProviders.$inferInsert = {
-    id: "e3bf9848-c7b7-4791-a868-020df4187e94",
-    name: "Udemy",
-    isRecurring: false,
-    isCourseFeesShared: false,
-    url: "https://www.udemy.com/",
-  };
-
-  const providerUidev = await db
-    .insert(courseProviders)
-    .values([uidevData])
-    .onConflictDoNothing()
-    .returning();
-
-  const providerSatori = await db
-    .insert(courseProviders)
-    .values([satoriReaderData])
-    .onConflictDoNothing()
-    .returning();
-
-  const providerUdemy = await db
-    .insert(courseProviders)
-    .values([udemyData])
-    .onConflictDoNothing()
-    .returning();
-
-  const reactCourseData: typeof resources.$inferInsert = {
-    id: "67059232-ed82-43fc-8e9f-15c23a1d32aa",
-    name: "react.gg",
-    description: "React course with videos and graphics.",
-    url: "https://ui.dev/c/react",
-    progressCurrent: 0,
-    progressTotal: 146,
-    status: "active",
-    isCostFromPlatform: true,
-    courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
-  };
-  const typescriptCourseData: typeof resources.$inferInsert = {
-    id: "e09b541d-8e03-4d00-9f7e-bd75acd0c903",
-    name: "Typescript",
-    url: "https://ui.dev/c/typescript",
-    progressCurrent: 26,
-    progressTotal: 113,
-    status: "inactive",
-    isCostFromPlatform: true,
-    courseProviderId: providerUidev[0] ? providerUidev[0].id : null,
-  };
-  const akikoData: typeof resources.$inferInsert = {
-    id: "05ea0e1b-74d7-4710-9a67-1b04556c6553",
-    name: "Akiko's American Foreign Exchange",
-    description: "Story with accessible Japanese.",
-    url: "https://www.satorireader.com/series/akiko-nikki",
-    progressCurrent: 9,
-    progressTotal: 133,
-    status: "inactive",
-    isCostFromPlatform: true,
-    courseProviderId: providerSatori[0] ? providerSatori[0].id : null,
-  };
-  const npmPackageCourseData: typeof resources.$inferInsert = {
-    id: "664b3245-6505-416f-b959-4c82a3573b12",
-    name: "Creating NPM packages: The Complete Guide",
-    description: "NPM packages are their own art...",
-    url: "https://www.udemy.com/course/creating-npm-packages-the-complete-guide/",
-    cost: "10.62",
-    isCostFromPlatform: false,
-    isExpires: false,
-    status: "inactive",
-    progressCurrent: 0,
-    progressTotal: 74,
-    minutesLength: 341,
-    courseProviderId: providerUdemy[0] ? providerUdemy[0].id : null,
-  };
-
-  await db
-    .insert(resources)
-    .values([reactCourseData])
-    .onConflictDoNothing()
-    .returning();
-
-  await db
-    .insert(resources)
-    .values([typescriptCourseData])
-    .onConflictDoNothing()
-    .returning();
-
-  await db
-    .insert(resources)
-    .values([npmPackageCourseData])
-    .onConflictDoNothing()
-    .returning();
-
-  await db
-    .insert(resources)
-    .values([akikoData])
-    .onConflictDoNothing()
-    .returning();
 
   await db
     .insert(usersTable)
@@ -152,7 +31,7 @@ export async function seed() {
   const formatGroupData: typeof tagGroups.$inferInsert = {
     id: "9b2a1c40-8d3a-4d6c-9f2a-1e30c8d2a402",
     name: "format",
-    description: "Resource format / medium",
+    description: "Content format / medium",
     position: 1,
   };
 

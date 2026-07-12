@@ -10,7 +10,6 @@ import {
   DailiesActiveListView,
   DailiesLimitSetting,
   DailiesViewModeToggle,
-  DailyResourceIndicator,
   DailyTaskIndicator,
   DailyTitle,
   DailyTrackerRow,
@@ -27,9 +26,7 @@ import {
 /** Title link + resource/task indicators, shared by the paused & completed tables. */
 function DailyNameCell({
   daily,
-}: {
-  daily: Daily;
-}) {
+}: { daily: Daily }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       <Link
@@ -44,7 +41,6 @@ function DailyNameCell({
       >
         <DailyTitle daily={daily} />
       </Link>
-      <DailyResourceIndicator daily={daily} />
       <DailyTaskIndicator daily={daily} />
     </span>
   );

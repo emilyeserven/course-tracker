@@ -1,9 +1,4 @@
-import type {
-  Module,
-  ModuleGroup,
-  TagGroup,
-  TaskTodo,
-} from "@emstack/types";
+import type { TagGroup, TaskTodo } from "@emstack/types";
 
 /**
  * Mock-data factories for the `components/tasks/*` stories. Each `make*` takes a
@@ -23,31 +18,6 @@ export function makeTaskTodo(overrides: Partial<TaskTodo> = {}): TaskTodo {
     location: null,
     url: null,
     position: 0,
-    resourceId: null,
-    moduleGroupId: null,
-    moduleId: null,
-    ...overrides,
-  };
-}
-
-export function makeModuleGroup(
-  overrides: Partial<ModuleGroup> = {},
-): ModuleGroup {
-  return {
-    id: "module-group-1",
-    resourceId: "resource-1",
-    name: "Part One",
-    ...overrides,
-  };
-}
-
-export function makeModule(overrides: Partial<Module> = {}): Module {
-  return {
-    id: "module-1",
-    resourceId: "resource-1",
-    moduleGroupId: "module-group-1",
-    name: "Chapter 1",
-    status: "unstarted",
     ...overrides,
   };
 }
@@ -70,4 +40,24 @@ export function makeTagGroup(overrides: Partial<TagGroup> = {}): TagGroup {
     ],
     ...overrides,
   };
+}
+
+export function makeTagGroups(count = 2): TagGroup[] {
+  return Array.from(
+    {
+      length: count,
+    },
+    (_, i) =>
+      makeTagGroup({
+        id: `tag-group-${i + 1}`,
+        name: `Group ${i + 1}`,
+        tags: [
+          {
+            id: `tag-${i + 1}-a`,
+            groupId: `tag-group-${i + 1}`,
+            name: `Tag ${i + 1}A`,
+          },
+        ],
+      }),
+  );
 }

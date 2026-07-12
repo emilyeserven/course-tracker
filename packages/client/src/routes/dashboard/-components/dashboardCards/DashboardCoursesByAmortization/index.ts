@@ -1,1 +1,0 @@
-export { DashboardCoursesByAmortization } from "./-DashboardCoursesByAmortization";

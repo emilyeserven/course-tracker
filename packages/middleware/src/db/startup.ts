@@ -1,11 +1,11 @@
 import { db } from "@/db/index";
-import { resources } from "@/db/schema";
+import { tagGroups } from "@/db/schema";
 import { migrateAddCuratedRoutineMode } from "./migrateAddCuratedRoutineMode.ts";
 import { migrateDropDailies } from "./migrateDropDailies.ts";
 import { migrateDropDomains } from "./migrateDropDomains.ts";
+import { migrateDropResources } from "./migrateDropResources.ts";
 import { migrateDropTopics } from "./migrateDropTopics.ts";
 import { migrateDropLegacyRoutineColumns } from "./migrateDropLegacyRoutineColumns.ts";
-import { migrateModuleStatus } from "./migrateModuleStatus.ts";
 import { migrateSweepRoutineConnectionOrphans } from "./migrateSweepRoutineConnectionOrphans.ts";
 import { migrateTodosRicherShape } from "./migrateTodosRicherShape.ts";
 import { seed } from "./seed.ts";
@@ -85,23 +85,23 @@ export async function runMigrations() {
     throw err;
   }
 
-  // Replace the legacy boolean `modules.is_complete` with the tri-state
-  // `modules.status` enum, creating the type + dropping the old column before
-  // drizzle-kit push diffs the modules table (push can't do either
-  // non-interactively). Independent of the routine migrations above.
+  // Drop the removed Resource/Provider/Module/Interaction subsystem (tables +
+  // resource↔task/tag junctions + task_todos resource columns + settings hint
+  // templates + 'resource' connections + resource enum types) before push diffs
+  // the schema, which no longer defines them. After the orphan sweep, which no
+  // longer references the resources table it drops.
   try {
-    await migrateModuleStatus();
+    await migrateDropResources();
   }
   catch (err) {
-    console.error("Failed to migrate module status:", err);
+    console.error("Failed to drop resources tables:", err);
     throw err;
   }
 
   // Evolve task_todos into Curated-entry-like items (status enum + due date +
-  // single resource link) and fold the deprecated task-level resources into
-  // todos. Creates the dailyCompletionStatus enum + drops the old is_complete
-  // boolean before drizzle-kit push diffs task_todos (push can't do either
-  // non-interactively). Independent of the migrations above.
+  // note/location). Creates the dailyCompletionStatus enum + drops the old
+  // is_complete boolean before drizzle-kit push diffs task_todos (push can't do
+  // either non-interactively). Independent of the migrations above.
   try {
     await migrateTodosRicherShape();
   }
@@ -112,8 +112,8 @@ export async function runMigrations() {
 }
 
 export async function seedIfEmpty() {
-  const currentResources = await db.select().from(resources);
-  if (currentResources.length === 0) {
+  const currentTagGroups = await db.select().from(tagGroups);
+  if (currentTagGroups.length === 0) {
     await seed();
   }
 }

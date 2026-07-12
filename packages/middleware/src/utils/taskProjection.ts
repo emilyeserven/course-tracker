@@ -1,31 +1,9 @@
 import type {
   DailyCompletionStatus,
-  ResourceLinkTarget,
   Tag,
   Task,
   TaskBookmark,
-  TaskResourceLevel,
 } from "@emstack/types";
-
-// A Resource / ModuleGroup / Module target as selected by the task queries.
-interface LinkTargetRow {
-  id: string;
-  name: string;
-  easeOfStarting: TaskResourceLevel | null;
-  timeNeeded: TaskResourceLevel | null;
-  interactivity: TaskResourceLevel | null;
-}
-
-interface TaskResourceJoinRow {
-  id: string;
-  resourceId: string;
-  moduleGroupId: string | null;
-  moduleId: string | null;
-  position: number | null;
-  resource: LinkTargetRow | null;
-  moduleGroup: LinkTargetRow | null;
-  module: LinkTargetRow | null;
-}
 
 interface TaskBookmarkRow {
   id: string;
@@ -49,21 +27,6 @@ function mapBookmark(b: TaskBookmarkRow): TaskBookmark {
   };
 }
 
-interface TaskResourceRow {
-  id: string;
-  taskId: string;
-  name: string;
-  url: string | null;
-  usedYet: boolean;
-  position: number | null;
-  resourceId: string | null;
-  moduleGroupId: string | null;
-  moduleId: string | null;
-  resource: LinkTargetRow | null;
-  moduleGroup: LinkTargetRow | null;
-  module: LinkTargetRow | null;
-}
-
 interface TaskTodoRow {
   id: string;
   taskId: string;
@@ -74,12 +37,6 @@ interface TaskTodoRow {
   location: string | null;
   url: string | null;
   position: number | null;
-  resourceId: string | null;
-  moduleGroupId: string | null;
-  moduleId: string | null;
-  resource: LinkTargetRow | null;
-  moduleGroup: LinkTargetRow | null;
-  module: LinkTargetRow | null;
   bookmarks: TaskBookmarkRow[];
 }
 
@@ -94,22 +51,8 @@ interface TaskProjectionRow {
     name: string;
     tags: string[] | null; } | null;
   tasksToTags: { tag: Tag }[];
-  tasksToResources: TaskResourceJoinRow[];
   bookmarks: TaskBookmarkRow[];
-  resources: TaskResourceRow[];
   todos: TaskTodoRow[];
-}
-
-function mapLinkTarget(t: LinkTargetRow | null): ResourceLinkTarget | null {
-  return t
-    ? {
-      id: t.id,
-      name: t.name,
-      easeOfStarting: t.easeOfStarting ?? null,
-      timeNeeded: t.timeNeeded ?? null,
-      interactivity: t.interactivity ?? null,
-    }
-    : null;
 }
 
 const byPosition = (a: { position: number | null }, b: { position: number | null }) =>
@@ -129,37 +72,10 @@ export function mapTask(task: TaskProjectionRow): Task {
       }
       : null,
     tags: (task.tasksToTags ?? []).map(j => j.tag),
-    resourceLinks: (task.tasksToResources ?? []).map(j => ({
-      id: j.id,
-      resourceId: j.resourceId,
-      resource: mapLinkTarget(j.resource),
-      moduleGroupId: j.moduleGroupId ?? null,
-      moduleGroup: mapLinkTarget(j.moduleGroup),
-      moduleId: j.moduleId ?? null,
-      module: mapLinkTarget(j.module),
-      position: j.position ?? null,
-    })),
     bookmarks: (task.bookmarks ?? [])
       .slice()
       .sort(byPosition)
       .map(mapBookmark),
-    resources: (task.resources ?? [])
-      .slice()
-      .sort(byPosition)
-      .map(r => ({
-        id: r.id,
-        taskId: r.taskId,
-        name: r.name,
-        url: r.url,
-        usedYet: r.usedYet,
-        position: r.position,
-        resourceId: r.resourceId ?? null,
-        resource: mapLinkTarget(r.resource),
-        moduleGroupId: r.moduleGroupId ?? null,
-        moduleGroup: mapLinkTarget(r.moduleGroup),
-        moduleId: r.moduleId ?? null,
-        module: mapLinkTarget(r.module),
-      })),
     todos: (task.todos ?? [])
       .slice()
       .sort(byPosition)
@@ -173,12 +89,6 @@ export function mapTask(task: TaskProjectionRow): Task {
         location: t.location ?? null,
         url: t.url ?? null,
         position: t.position,
-        resourceId: t.resourceId ?? null,
-        resource: mapLinkTarget(t.resource),
-        moduleGroupId: t.moduleGroupId ?? null,
-        moduleGroup: mapLinkTarget(t.moduleGroup),
-        moduleId: t.moduleId ?? null,
-        module: mapLinkTarget(t.module),
         bookmarks: (t.bookmarks ?? [])
           .slice()
           .sort(byPosition)

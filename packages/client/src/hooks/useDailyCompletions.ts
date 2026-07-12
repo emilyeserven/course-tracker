@@ -148,22 +148,24 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
 
   // Weekly routines schedule a different item per weekday and curated routines
   // per date; surface that item on each date row. The grids carry unresolved
-  // ids, so resolve task/resource names from the (already cached) lists.
+  // ids, so resolve task names from the (already cached) list.
   const isWeekly = daily.mode === "weekly";
   const isCurated = daily.mode === "curated";
   const weekly = daily.weekly ?? {};
   const curatedEntries = daily.curated?.entries ?? {};
 
   const {
-    taskNames, resourceNames, moduleNames, moduleGroupNames,
+    taskNames,
   } = useTaskResourceNames(isWeekly || isCurated);
 
   const completionsByDate = useMemo(() => {
     const map = new Map<
       string,
-      { status: DailyCompletionStatus | null;
+      {
+        status: DailyCompletionStatus | null;
         note: string | null;
-        entryParts: DailyCompletionEntryParts | null; }
+        entryParts: DailyCompletionEntryParts | null;
+      }
     >();
     for (const c of daily.completions) {
       map.set(c.date, {
@@ -239,10 +241,10 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
           note: string | null;
         },
     ) => {
+      // Recent re-updates re-bake to the current schedule; older entries
+      // (beyond REBAKE_WINDOW_DAYS) keep their frozen snapshot.
       const completions
         = args.kind === "status"
-          // Recent re-updates re-bake to the current schedule; older entries
-          // (beyond REBAKE_WINDOW_DAYS) keep their frozen snapshot.
           ? withCompletion(daily, args.dateKey, args.status, realToday)
           : withCompletionNote(daily, args.dateKey, args.note);
       return upsertDaily(daily.id, {
@@ -250,7 +252,6 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
         location: daily.location ?? null,
         description: daily.description ?? null,
         completions,
-        courseProviderId: daily.provider?.id ?? null,
       });
     },
     onSuccess: async () => {
@@ -304,9 +305,6 @@ export function useDailyCompletions(daily: Daily, readOnly = false) {
 
     isWeekly,
     taskNames,
-    resourceNames,
-    moduleNames,
-    moduleGroupNames,
 
     rows,
     hasRows: visibleDateKeys.length > 0,

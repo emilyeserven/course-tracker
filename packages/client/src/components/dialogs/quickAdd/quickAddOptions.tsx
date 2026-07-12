@@ -2,20 +2,12 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   BookOpenIcon,
-  Building2Icon,
   CircleCheckIcon,
-  LibraryIcon,
   ListTodoIcon,
   RepeatIcon,
 } from "lucide-react";
 
-export type QuickAddKey
-  = | "readwise"
-    | "todoist"
-    | "resource"
-    | "provider"
-    | "routine"
-    | "task";
+export type QuickAddKey = "readwise" | "todoist" | "routine" | "task";
 
 export type QuickAddGroup = "external" | "tracker";
 
@@ -40,18 +32,6 @@ export const QUICK_ADD_OPTIONS: QuickAddOption[] = [
     label: "Todoist",
     icon: ListTodoIcon,
     group: "external",
-  },
-  {
-    key: "resource",
-    label: "Resource",
-    icon: LibraryIcon,
-    group: "tracker",
-  },
-  {
-    key: "provider",
-    label: "Provider",
-    icon: Building2Icon,
-    group: "tracker",
   },
   {
     key: "routine",

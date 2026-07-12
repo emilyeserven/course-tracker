@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
-import { moduleGroups, modules, resources } from "./courses";
 import { dailyCompletionStatusEnum } from "./enums";
 
 // TODO(tag-reform-followup): drop this table once the Tag Groups + Tags system
@@ -30,39 +29,10 @@ export const tasks = pgTable("tasks", {
   taskTypeId: varchar("task_type_id"),
 });
 
-// DEPRECATED. Task-local resource entries now live on individual todos
-// (task_todos.resource_id + narrowing). Kept only so migrateTodosRicherShape can
-// read existing rows; once that migration has shipped to prod, drop this table
-// and tasks_to_courses together.
-// TODO(taskresource-followup): drop after migrateTodosRicherShape ships to prod.
-export const taskResources = pgTable("task_resources", {
-  id: varchar().primaryKey(),
-  taskId: varchar("task_id").notNull(),
-  name: varchar({
-    length: 255,
-  }).notNull(),
-  url: varchar(),
-  usedYet: boolean("used_yet").default(false).notNull(),
-  position: integer(),
-  // Optional link to a top-level Resource, narrowed to a module group or
-  // single module. Both null = the link targets the whole resource; all
-  // three null = no link (legacy / freeform task resource).
-  resourceId: varchar("resource_id").references(() => resources.id, {
-    onDelete: "set null",
-  }),
-  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
-    onDelete: "set null",
-  }),
-  moduleId: varchar("module_id").references(() => modules.id, {
-    onDelete: "set null",
-  }),
-});
-
 // A todo within a Task List, shaped like a Curated Routine entry: it carries a
 // status (same 5-state set as routine tasks), an optional due date, optional
-// note/location, and an optional link to a single Resource (narrowed to a
-// module group or module). All three resource columns null = a plain checklist
-// item.
+// note/location, and any number of Simple Bookmarks bookmark links (via
+// todo_bookmarks). No bookmarks = a plain checklist item.
 export const taskTodos = pgTable("task_todos", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id").notNull(),
@@ -75,41 +45,6 @@ export const taskTodos = pgTable("task_todos", {
   location: varchar(),
   url: varchar(),
   position: integer(),
-  // Optional link to a top-level Resource, narrowed to a module group or single
-  // module. Both null = whole-resource link; all three null = no link (plain
-  // checklist todo).
-  resourceId: varchar("resource_id").references(() => resources.id, {
-    onDelete: "set null",
-  }),
-  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
-    onDelete: "set null",
-  }),
-  moduleId: varchar("module_id").references(() => modules.id, {
-    onDelete: "set null",
-  }),
-});
-
-// New junction so tasks can reference resources. Optionally narrowed to a
-// module group or single module within that resource. A task can hold
-// multiple rows per resource (e.g. whole-resource + a specific module).
-// Uniqueness of the (taskId, resourceId, moduleGroupId, moduleId) tuple is
-// not enforced at the DB level (drizzle-kit can't easily express
-// partial-unique on nullable columns); handlers dedupe at write time.
-export const tasksToResources = pgTable("tasks_to_courses", {
-  id: varchar().primaryKey(),
-  taskId: varchar("task_id")
-    .notNull()
-    .references(() => tasks.id),
-  resourceId: varchar("resource_id")
-    .notNull()
-    .references(() => resources.id),
-  moduleGroupId: varchar("module_group_id").references(() => moduleGroups.id, {
-    onDelete: "set null",
-  }),
-  moduleId: varchar("module_id").references(() => modules.id, {
-    onDelete: "set null",
-  }),
-  position: integer(),
 });
 
 // Junction associating a task with a Simple Bookmarks bookmark. `bookmarkId` is
@@ -118,8 +53,7 @@ export const tasksToResources = pgTable("tasks_to_courses", {
 // denormalized cache of the bookmark at association time so a task's bookmark
 // chips still render when Simple Bookmarks is unreachable. A task can hold
 // multiple rows (multiple bookmarks); handlers dedupe by bookmarkId at write
-// time. This is the first step of migrating item→resource links to
-// item→bookmark links; it coexists with tasks_to_courses.
+// time. These bookmark links replaced the removed local Resource associations.
 export const taskBookmarks = pgTable("task_bookmarks", {
   id: varchar().primaryKey(),
   taskId: varchar("task_id")

@@ -30,7 +30,7 @@ export function RoutineTodayCard({
 }: RoutineTodayCardProps) {
   const weekTargetWindow = useWeekTargetWindow();
   const {
-    taskNames, resourceNames, moduleNames, moduleGroupNames,
+    taskNames,
   } = useTaskResourceNames();
   const statusMutation = useRoutineStatusMutation(data.id);
 
@@ -109,9 +109,6 @@ export function RoutineTodayCard({
                 <RoutineEntryLabel
                   entry={todayEntry}
                   taskNames={taskNames}
-                  resourceNames={resourceNames}
-                  moduleNames={moduleNames}
-                  moduleGroupNames={moduleGroupNames}
                   showMeta={false}
                 />
               </p>

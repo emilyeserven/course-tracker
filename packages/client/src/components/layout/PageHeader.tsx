@@ -33,22 +33,6 @@ export function PageHeader({
         <div className="flex w-full flex-col items-start gap-1">
           {pageSection && (
             <div className="flex flex-row gap-3">
-              {pageSection === "resources" && (
-                <Link
-                  to="/resources"
-                  className="text-sm uppercase"
-                >
-                  Resources
-                </Link>
-              )}
-              {pageSection === "providers" && (
-                <Link
-                  to="/providers"
-                  className="text-sm uppercase"
-                >
-                  Providers
-                </Link>
-              )}
               {pageSection === "dailies" && (
                 <Link
                   to="/routines/tracker"

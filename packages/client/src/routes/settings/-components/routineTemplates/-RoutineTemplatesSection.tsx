@@ -13,16 +13,11 @@ import { NEW_ROW_ID } from "@/constants/sentinels";
 import {
   createRoutineTemplate,
   deleteSingleRoutineTemplate,
-  fetchModuleGroups,
-  fetchModules,
-  fetchResources,
   fetchRoutineTemplates,
   fetchTasks,
-  groupOptionsByResource,
   toOptions,
   upsertRoutineTemplate,
 } from "@/utils";
-import { queryKeys } from "@/utils/queryKeys";
 
 function makeEmptyRoutineTemplate(): RoutineTemplate {
   return {
@@ -49,21 +44,6 @@ export function RoutineTemplatesSection() {
   const tasksQuery = useQuery({
     queryKey: ["tasks"],
     queryFn: () => fetchTasks(),
-  });
-
-  const resourcesQuery = useQuery({
-    queryKey: queryKeys.resources.list(),
-    queryFn: () => fetchResources(),
-  });
-
-  const modulesQuery = useQuery({
-    queryKey: queryKeys.modules.list(),
-    queryFn: () => fetchModules(),
-  });
-
-  const moduleGroupsQuery = useQuery({
-    queryKey: queryKeys.moduleGroups.list(),
-    queryFn: () => fetchModuleGroups(),
   });
 
   const upsertRoutineTemplateMutation = useMutation({
@@ -121,9 +101,6 @@ export function RoutineTemplatesSection() {
     ? (routineTemplates.find(t => t.id === editingRoutineTemplateId) ?? null)
     : null;
   const taskOptions = toOptions(tasksQuery.data);
-  const resourceOptions = toOptions(resourcesQuery.data);
-  const moduleGroupsByResource = groupOptionsByResource(moduleGroupsQuery.data);
-  const modulesByResource = groupOptionsByResource(modulesQuery.data);
 
   return (
     <>
@@ -197,9 +174,6 @@ export function RoutineTemplatesSection() {
         open={editingRoutineTemplateId !== null}
         template={editingRoutineTemplate}
         taskOptions={taskOptions}
-        resourceOptions={resourceOptions}
-        moduleGroupsByResource={moduleGroupsByResource}
-        modulesByResource={modulesByResource}
         onOpenChange={(open) => {
           if (!open) setEditingRoutineTemplateId(null);
         }}
@@ -223,9 +197,6 @@ export function RoutineTemplatesSection() {
         }
         isNew
         taskOptions={taskOptions}
-        resourceOptions={resourceOptions}
-        moduleGroupsByResource={moduleGroupsByResource}
-        modulesByResource={modulesByResource}
         onOpenChange={(open) => {
           if (!open) setCreatingNewRoutineTemplate(false);
         }}

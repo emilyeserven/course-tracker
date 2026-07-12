@@ -15,12 +15,7 @@ function Host({
   mode,
 }: { mode: RoutineMode }) {
   const {
-    form,
-    isDaily,
-    taskOptions,
-    resourceOptions,
-    moduleGroupsByResource,
-    modulesByResource,
+    form, isDaily, taskOptions,
   } = useRoutineDetailsForm(
     makeRoutine({
       mode,
@@ -32,9 +27,6 @@ function Host({
       form={form}
       isDaily={isDaily}
       taskOptions={taskOptions}
-      resourceOptions={resourceOptions}
-      moduleGroupsByResource={moduleGroupsByResource}
-      modulesByResource={modulesByResource}
     />
   );
 }

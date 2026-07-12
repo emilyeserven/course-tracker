@@ -107,17 +107,6 @@ export function queryStoryDecorator(client?: QueryClient): Decorator {
   };
 }
 
-/** Wraps the story in a width-constrained container (defaults to `max-w-sm`). */
-export function constrainedStoryDecorator(className = "max-w-sm"): Decorator {
-  return function ConstrainedStoryWrapper(Story) {
-    return (
-      <div className={className}>
-        <Story />
-      </div>
-    );
-  };
-}
-
 /** Wraps the story in a single context provider component. */
 export function providerStoryDecorator(
   Provider: ComponentType<{ children: ReactNode }>,

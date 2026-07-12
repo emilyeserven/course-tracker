@@ -9,7 +9,7 @@ import {
 
 describe("encode/decode connection", () => {
   test("round-trips each connection type", () => {
-    for (const type of ["task", "resource"] as const) {
+    for (const type of ["task"] as const) {
       const encoded = encodeConnection({
         type,
         id: "abc-123",
@@ -31,8 +31,8 @@ describe("encode/decode connection", () => {
   });
 
   test("decodes an id that itself contains nothing weird", () => {
-    expect(decodeConnection("Resource:uuid-with-no-colon")).toEqual({
-      type: "resource",
+    expect(decodeConnection("Task:uuid-with-no-colon")).toEqual({
+      type: "task",
       id: "uuid-with-no-colon",
     });
   });
@@ -49,54 +49,37 @@ describe("encode/decode connection", () => {
 describe("connectionEntityKind", () => {
   test("maps connection types to EntityLink kinds", () => {
     expect(connectionEntityKind("task")).toBe("tasks");
-    expect(connectionEntityKind("resource")).toBe("resources");
   });
 });
 
 describe("buildConnectionOptions", () => {
   test("prefixes each entity value by type and tags it with a dropdown group", () => {
-    const options = buildConnectionOptions(
-      [
-        {
-          id: "k1",
-          name: "Finish module",
-        },
-      ],
-      [
-        {
-          id: "r1",
-          name: "Docs site",
-        },
-      ],
-    );
+    const options = buildConnectionOptions([
+      {
+        id: "k1",
+        name: "Finish module",
+      },
+    ]);
     expect(options).toEqual([
       {
         value: "Task:k1",
         label: "Finish module",
         group: "Tasks",
       },
-      {
-        value: "Resource:r1",
-        label: "Docs site",
-        group: "Resources",
-      },
     ]);
   });
 
   test("groups all tasks under a single Tasks group", () => {
-    const options = buildConnectionOptions(
-      [
-        {
-          id: "k1",
-          name: "Zebra",
-        },
-        {
-          id: "k2",
-          name: "Apple",
-        },
-      ],
-      [],
-    );
+    const options = buildConnectionOptions([
+      {
+        id: "k1",
+        name: "Zebra",
+      },
+      {
+        id: "k2",
+        name: "Apple",
+      },
+    ]);
     expect(options).toEqual([
       {
         value: "Task:k1",
@@ -112,6 +95,6 @@ describe("buildConnectionOptions", () => {
   });
 
   test("handles missing lists", () => {
-    expect(buildConnectionOptions(null, undefined)).toEqual([]);
+    expect(buildConnectionOptions(null)).toEqual([]);
   });
 });

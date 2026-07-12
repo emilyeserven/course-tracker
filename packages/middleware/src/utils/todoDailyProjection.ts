@@ -14,9 +14,6 @@ export interface TaskForTodoDailies {
     status: DailyCompletionStatus;
     dueDate: string | null;
     location: string | null;
-    resourceId: string | null;
-    moduleGroupId: string | null;
-    moduleId: string | null;
   }[];
 }
 
@@ -52,17 +49,10 @@ export function todoDailiesForTask(
   return task.todos
     .filter(todo => shouldSurface(todo, todayKey))
     .map((todo) => {
-      const entry = todo.resourceId
-        ? {
-          type: "resource" as const,
-          id: todo.resourceId,
-          moduleGroupId: todo.moduleGroupId,
-          moduleId: todo.moduleId,
-        }
-        : {
-          type: "freeform" as const,
-          id: todo.name,
-        };
+      const entry = {
+        type: "freeform" as const,
+        id: todo.name,
+      };
       return {
         id: `todo:${todo.id}`,
         kind: "todo",
@@ -87,12 +77,8 @@ export function todoDailiesForTask(
           progress: {
             todosTotal,
             todosComplete,
-            resourcesTotal: 0,
-            resourcesUsed: 0,
           },
         },
-        moduleGroupId: todo.moduleGroupId,
-        moduleId: todo.moduleId,
         // Synthetic single-day curated schedule so isScheduledForDay(today) is
         // true and the row classifies like a curated routine.
         mode: "curated",

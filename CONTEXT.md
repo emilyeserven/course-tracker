@@ -12,15 +12,14 @@ bookmarks by their external `id` and caches a title/URL for display; it never ow
 bookmark data.
 _Avoid_: Link, URL, Resource (when you mean the Simple Bookmarks entity)
 
-**Resource**:
-A local learning resource (a course or a book) carrying progress, cost, and modules.
-Being phased out — the things that reference Resources are migrating to reference
-Bookmarks instead. Prefer Bookmark for new associations.
-_Avoid_: Course (legacy name; the table is still `resources`/`tasks_to_courses`)
+**Resource** _(removed)_:
+Formerly a local learning resource (a course or a book) carrying progress, cost,
+providers, modules/sections, and a usage log. Fully removed — record-keeping now
+lives entirely in Simple Bookmarks; items associate with **Bookmarks** instead.
+Kept here only so the term is recognized in history/older discussion.
 
 **Task**:
-A named list of to-dos toward a learning goal. May be associated with Bookmarks
-(and, during the transition, Resources).
+A named list of to-dos toward a learning goal. May be associated with Bookmarks.
 _Avoid_: Todo (a Task *contains* todos; they are not the same)
 
 **Routine**:

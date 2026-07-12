@@ -24,7 +24,6 @@ const meta: Meta<typeof TaskResourceFreeformPicker> = {
     optionsMap: new Map(taskOptions.map(o => [o.value, o.label])),
     onEmit: fn(),
     onInputValueChange: fn(),
-    onRequestAddResource: fn(),
   },
   decorators: [
     Story => (

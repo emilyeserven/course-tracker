@@ -1,12 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
-import type { DailyCompletionStatus, TaskResourceLink } from "@emstack/types";
+import type { DailyCompletionStatus } from "@emstack/types";
 
 import {
   bookmarkLinksArraySchema,
   nullableString,
-  resourceLinksArraySchema,
-  resourceSchema,
   tagIdsArraySchema,
   todoSchema,
 } from "../../../utils/schemas.ts";
@@ -23,11 +21,6 @@ export interface TaskBodyFields {
   taskTypeId?: string | null;
 }
 
-export type ResourceLinkInput = Pick<
-  TaskResourceLink,
-  "resourceId" | "moduleGroupId" | "moduleId"
->;
-
 export interface BookmarkInput {
   id?: string | null;
   bookmarkId: string;
@@ -35,16 +28,6 @@ export interface BookmarkInput {
   url?: string | null;
   sectionId?: string | null;
   sectionLabel?: string | null;
-}
-
-export interface TaskResourceInput {
-  id?: string | null;
-  name: string;
-  url?: string | null;
-  usedYet?: boolean | null;
-  resourceId?: string | null;
-  moduleGroupId?: string | null;
-  moduleId?: string | null;
 }
 
 export interface TodoInput {
@@ -55,17 +38,12 @@ export interface TodoInput {
   note?: string | null;
   location?: string | null;
   url?: string | null;
-  resourceId?: string | null;
-  moduleGroupId?: string | null;
-  moduleId?: string | null;
   bookmarks?: BookmarkInput[];
 }
 
 export interface TaskBody extends TaskBodyFields {
   tagIds?: string[];
-  resourceLinks?: ResourceLinkInput[];
   bookmarks?: BookmarkInput[];
-  resources?: TaskResourceInput[];
   todos?: TodoInput[];
 }
 
@@ -79,12 +57,7 @@ export const taskBodySchema = {
     description: nullableString,
     taskTypeId: nullableString,
     tagIds: tagIdsArraySchema,
-    resourceLinks: resourceLinksArraySchema,
     bookmarks: bookmarkLinksArraySchema,
-    resources: {
-      type: "array",
-      items: resourceSchema,
-    },
     todos: {
       type: "array",
       items: todoSchema,
@@ -112,40 +85,6 @@ export function buildTagRows(
     tagId,
     position: index,
   }));
-}
-
-export function buildResourceLinkRows(
-  resourceLinks: readonly ResourceLinkInput[] | undefined,
-  taskId: string,
-  makeId: () => string = uuidv4,
-) {
-  if (resourceLinks === undefined) return undefined;
-  // Dedupe by the full (resourceId, moduleGroupId, moduleId) tuple so a task
-  // can hold multiple rows per resource (e.g. whole-resource + a specific
-  // module) without duplicates.
-  const seen = new Set<string>();
-  const rows: {
-    id: string;
-    taskId: string;
-    resourceId: string;
-    moduleGroupId: string | null;
-    moduleId: string | null;
-    position: number;
-  }[] = [];
-  resourceLinks.forEach((link, index) => {
-    const key = `${link.resourceId}|${link.moduleGroupId ?? ""}|${link.moduleId ?? ""}`;
-    if (seen.has(key)) return;
-    seen.add(key);
-    rows.push({
-      id: makeId(),
-      taskId,
-      resourceId: link.resourceId,
-      moduleGroupId: link.moduleGroupId ?? null,
-      moduleId: link.moduleId ?? null,
-      position: index,
-    });
-  });
-  return rows;
 }
 
 export function buildBookmarkRows(
@@ -217,27 +156,6 @@ export function buildTodoBookmarkRows(
   return rows;
 }
 
-export function buildTaskResourceRows(
-  resources: readonly TaskResourceInput[] | undefined,
-  taskId: string,
-  makeId: () => string = uuidv4,
-) {
-  if (resources === undefined) return undefined;
-  return resources.map((r, index) => ({
-    id: r.id || makeId(),
-    taskId,
-    name: r.name,
-    url: r.url ?? null,
-    usedYet: r.usedYet ?? false,
-    position: index,
-    resourceId: r.resourceId ?? null,
-    // A module-group / module narrowing only makes sense under a resource
-    // link; drop it when no resourceId is set.
-    moduleGroupId: r.resourceId ? r.moduleGroupId ?? null : null,
-    moduleId: r.resourceId ? r.moduleId ?? null : null,
-  }));
-}
-
 export function buildTodoRows(
   todos: readonly TodoInput[] | undefined,
   taskId: string,
@@ -254,10 +172,5 @@ export function buildTodoRows(
     location: t.location ?? null,
     url: t.url ?? null,
     position: index,
-    resourceId: t.resourceId ?? null,
-    // A module-group / module narrowing only makes sense under a resource link;
-    // drop it when no resourceId is set.
-    moduleGroupId: t.resourceId ? t.moduleGroupId ?? null : null,
-    moduleId: t.resourceId ? t.moduleId ?? null : null,
   }));
 }

@@ -1,6 +1,8 @@
 import { expect, userEvent, within } from "storybook/test";
 
-interface PlayContext { canvasElement: HTMLElement }
+interface PlayContext {
+  canvasElement: HTMLElement;
+}
 
 /**
  * Smoke-test play asserting each named text is present. The first is awaited
@@ -12,7 +14,8 @@ export function smokeText(...names: (string | RegExp)[]) {
   }: PlayContext) => {
     const canvas = within(canvasElement);
     for (const [i, name] of names.entries()) {
-      const el = i === 0 ? await canvas.findByText(name) : canvas.getByText(name);
+      const el
+        = i === 0 ? await canvas.findByText(name) : canvas.getByText(name);
       await expect(el).toBeInTheDocument();
     }
   };
@@ -105,25 +108,11 @@ export function clickButtonExpectChange(
     args: { onChange: (...callArgs: never[]) => unknown };
   }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", {
-      name: buttonName,
-    }));
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: buttonName,
+      }),
+    );
     await expect(args.onChange).toHaveBeenCalledWith(expected);
   };
-}
-
-/**
- * Play function for list stories: click the "Table view" toggle and assert a
- * table renders. Shared by the resources and topics list stories.
- */
-export async function playTableViewToggle({
-  canvasElement,
-}: PlayContext) {
-  const canvas = within(canvasElement);
-  await userEvent.click(
-    canvas.getByRole("button", {
-      name: "Table view",
-    }),
-  );
-  await expect(canvas.getByRole("table")).toBeInTheDocument();
 }

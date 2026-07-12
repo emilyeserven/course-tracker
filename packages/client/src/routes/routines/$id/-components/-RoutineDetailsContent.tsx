@@ -31,7 +31,7 @@ export function RoutineDetailsContent({
   data,
 }: RoutineDetailsContentProps) {
   const {
-    taskNames, resourceNames, moduleNames, moduleGroupNames,
+    taskNames,
   }
     = useTaskResourceNames();
 
@@ -184,9 +184,6 @@ export function RoutineDetailsContent({
                       <RoutineEntryLabel
                         entry={entry}
                         taskNames={taskNames}
-                        resourceNames={resourceNames}
-                        moduleNames={moduleNames}
-                        moduleGroupNames={moduleGroupNames}
                       />
                     )
                     : (
@@ -231,9 +228,6 @@ export function RoutineDetailsContent({
                           <RoutineEntryLabel
                             entry={entry}
                             taskNames={taskNames}
-                            resourceNames={resourceNames}
-                            moduleNames={moduleNames}
-                            moduleGroupNames={moduleGroupNames}
                           />
                         )
                         : (

@@ -6,7 +6,6 @@ import {
   DataToolsSection,
   GoogleCalendarSection,
   ReadwiseSection,
-  ResourceHintTemplatesSection,
   RoutineTemplatesSection,
   TagGroupsAdmin,
   TaskTypesSection,
@@ -19,7 +18,6 @@ import { PageHeader, PageTabs } from "@/components/layout";
 const TAB_VALUES = [
   "tasks",
   "routines",
-  "resources",
   "dashboard",
   "connections",
   "display",
@@ -85,11 +83,6 @@ function Settings() {
                   <RoutineTemplatesSection />
                 </>
               ),
-            },
-            {
-              value: "resources",
-              label: "Resource Settings",
-              content: <ResourceHintTemplatesSection />,
             },
             {
               value: "dashboard",

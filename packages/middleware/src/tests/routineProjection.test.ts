@@ -27,15 +27,16 @@ const mondayTask: RoutineReferenceItem = {
   appendText: "for 10 minutes",
 };
 
-const wednesdayResource: RoutineReferenceItem = {
-  type: "resource",
-  id: "res-wed",
+const wednesdayBookmark: RoutineReferenceItem = {
+  type: "bookmark",
+  id: "bm-wed",
+  title: "Pimsleur",
 };
 
 // Scheduled Monday ("1") and Wednesday ("3"); Tuesday ("2") is unscheduled.
 const weekly: RoutineWeekly = {
   1: mondayTask,
-  3: wednesdayResource,
+  3: wednesdayBookmark,
 };
 
 const curatedTask: RoutineReferenceItem = {
@@ -67,7 +68,7 @@ test("representativeEntry returns the first populated day, null when empty", () 
 
 test("activeEntry returns the current weekday's entry for weekly routines", () => {
   assert.strictEqual(activeEntry(weekly, "weekly", "1"), mondayTask);
-  assert.strictEqual(activeEntry(weekly, "weekly", "3"), wednesdayResource);
+  assert.strictEqual(activeEntry(weekly, "weekly", "3"), wednesdayBookmark);
 });
 
 test("activeEntry returns null for an unscheduled weekday in weekly mode", () => {
@@ -129,20 +130,19 @@ test("entryForCompletionDate resolves weekly by weekday, curated by date, daily 
 
 test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot)", () => {
   const taskNames = new Map([["task-mon", "Spanish flashcards"]]);
-  const resourceNames = new Map([["res-wed", "Pimsleur"]]);
 
   // Task: resolved name with prepend/append carried through.
   assert.deepStrictEqual(
-    entryToCompletionParts(mondayTask, taskNames, resourceNames),
+    entryToCompletionParts(mondayTask, taskNames),
     {
       prependText: "Review",
       name: "Spanish flashcards",
       appendText: "for 10 minutes",
     },
   );
-  // Resource without affixes → null affixes.
+  // Bookmark: the cached title on the entry IS the name (no affixes here).
   assert.deepStrictEqual(
-    entryToCompletionParts(wednesdayResource, taskNames, resourceNames),
+    entryToCompletionParts(wednesdayBookmark, taskNames),
     {
       prependText: null,
       name: "Pimsleur",
@@ -157,7 +157,6 @@ test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot
         id: "Stretch",
       },
       taskNames,
-      resourceNames,
     ),
     {
       prependText: null,
@@ -173,7 +172,6 @@ test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot
         id: "task-gone",
       },
       taskNames,
-      resourceNames,
     ),
     {
       prependText: null,
@@ -183,87 +181,21 @@ test("entryToCompletionParts freezes resolved name + affixes (the baked snapshot
   );
   // Nothing scheduled → null.
   assert.strictEqual(
-    entryToCompletionParts(null, taskNames, resourceNames),
+    entryToCompletionParts(null, taskNames),
     null,
   );
 });
 
-test("entryToCompletionParts freezes the module/group name for a narrowed resource", () => {
-  const taskNames = new Map<string, string>();
-  const resourceNames = new Map([["res-1", "Duolingo Spanish"]]);
-  const moduleNames = new Map([["mod-1", "Basics 1"]]);
-  const moduleGroupNames = new Map([["grp-1", "Unit 1"]]);
-
-  // A specific module → the module name stands in for the resource name.
-  assert.deepStrictEqual(
-    entryToCompletionParts(
-      {
-        type: "resource",
-        id: "res-1",
-        moduleId: "mod-1",
-      },
-      taskNames,
-      resourceNames,
-      moduleNames,
-      moduleGroupNames,
-    ),
-    {
-      prependText: null,
-      name: "Basics 1",
-      appendText: null,
-    },
-  );
-
-  // A module group → the group name stands in.
-  assert.deepStrictEqual(
-    entryToCompletionParts(
-      {
-        type: "resource",
-        id: "res-1",
-        moduleGroupId: "grp-1",
-      },
-      taskNames,
-      resourceNames,
-      moduleNames,
-      moduleGroupNames,
-    ),
-    {
-      prependText: null,
-      name: "Unit 1",
-      appendText: null,
-    },
-  );
-
-  // No narrowing → the resource name stands.
-  assert.deepStrictEqual(
-    entryToCompletionParts(
-      {
-        type: "resource",
-        id: "res-1",
-      },
-      taskNames,
-      resourceNames,
-      moduleNames,
-      moduleGroupNames,
-    ),
-    {
-      prependText: null,
-      name: "Duolingo Spanish",
-      appendText: null,
-    },
-  );
-});
-
 test("entryToCompletionRef freezes the scheduled item's kind + id", () => {
-  // Task / resource entries keep their type + id (affixes are dropped — the ref
+  // Task / bookmark entries keep their type + id (affixes are dropped — the ref
   // is for matching by id, not display).
   assert.deepStrictEqual(entryToCompletionRef(mondayTask), {
     type: "task",
     id: "task-mon",
   });
-  assert.deepStrictEqual(entryToCompletionRef(wednesdayResource), {
-    type: "resource",
-    id: "res-wed",
+  assert.deepStrictEqual(entryToCompletionRef(wednesdayBookmark), {
+    type: "bookmark",
+    id: "bm-wed",
   });
   // Nothing scheduled → null.
   assert.strictEqual(entryToCompletionRef(null), null);

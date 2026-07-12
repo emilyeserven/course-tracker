@@ -2,9 +2,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 
 import {
-  buildResourceLinkRows,
   buildTagRows,
-  buildTaskResourceRows,
   buildTaskRow,
   buildTodoRows,
 } from "../routes/api/tasks/taskRows.ts";
@@ -61,115 +59,6 @@ test("buildTagRows skips when undefined, clears on [], dedupes and positions", (
   ]);
 });
 
-test("buildResourceLinkRows dedupes by full (resource, group, module) tuple", () => {
-  assert.strictEqual(buildResourceLinkRows(undefined, "t1"), undefined);
-  assert.deepStrictEqual(buildResourceLinkRows([], "t1"), []);
-
-  const rows = buildResourceLinkRows(
-    [
-      {
-        resourceId: "r1",
-      },
-      {
-        resourceId: "r1",
-        moduleId: "m1",
-      },
-      // exact duplicate of the first entry — dropped
-      {
-        resourceId: "r1",
-        moduleGroupId: null,
-        moduleId: null,
-      },
-      {
-        resourceId: "r1",
-        moduleGroupId: "g1",
-      },
-    ],
-    "t1",
-    sequentialIds(),
-  );
-
-  assert.deepStrictEqual(rows, [
-    {
-      id: "gen-1",
-      taskId: "t1",
-      resourceId: "r1",
-      moduleGroupId: null,
-      moduleId: null,
-      position: 0,
-    },
-    {
-      id: "gen-2",
-      taskId: "t1",
-      resourceId: "r1",
-      moduleGroupId: null,
-      moduleId: "m1",
-      position: 1,
-    },
-    // position keeps the original array index (3), matching the
-    // pre-extraction handler behavior where dedup skips an index.
-    {
-      id: "gen-3",
-      taskId: "t1",
-      resourceId: "r1",
-      moduleGroupId: "g1",
-      moduleId: null,
-      position: 3,
-    },
-  ]);
-});
-
-test("buildTaskResourceRows keeps given ids, generates missing ones, gates narrowing on resourceId", () => {
-  assert.strictEqual(buildTaskResourceRows(undefined, "t1"), undefined);
-
-  const rows = buildTaskResourceRows(
-    [
-      {
-        id: "existing",
-        name: "Linked",
-        resourceId: "r1",
-        moduleGroupId: "g1",
-        moduleId: "m1",
-      },
-      {
-        name: "Freeform",
-        url: "https://example.com",
-        usedYet: true,
-        // narrowing without a resourceId is dropped
-        moduleGroupId: "g1",
-        moduleId: "m1",
-      },
-    ],
-    "t1",
-    sequentialIds(),
-  );
-
-  assert.deepStrictEqual(rows, [
-    {
-      id: "existing",
-      taskId: "t1",
-      name: "Linked",
-      url: null,
-      usedYet: false,
-      position: 0,
-      resourceId: "r1",
-      moduleGroupId: "g1",
-      moduleId: "m1",
-    },
-    {
-      id: "gen-1",
-      taskId: "t1",
-      name: "Freeform",
-      url: "https://example.com",
-      usedYet: true,
-      position: 1,
-      resourceId: null,
-      moduleGroupId: null,
-      moduleId: null,
-    },
-  ]);
-});
-
 test("buildTodoRows fills defaults and positions in order", () => {
   assert.strictEqual(buildTodoRows(undefined, "t1"), undefined);
 
@@ -184,8 +73,6 @@ test("buildTodoRows fills defaults and positions in order", () => {
         name: "Second",
         status: "goal",
         url: "https://example.com",
-        resourceId: "res-1",
-        moduleId: "mod-1",
       },
     ],
     "t1",
@@ -203,9 +90,6 @@ test("buildTodoRows fills defaults and positions in order", () => {
       location: null,
       url: null,
       position: 0,
-      resourceId: null,
-      moduleGroupId: null,
-      moduleId: null,
     },
     {
       id: "todo-2",
@@ -217,9 +101,6 @@ test("buildTodoRows fills defaults and positions in order", () => {
       location: null,
       url: "https://example.com",
       position: 1,
-      resourceId: "res-1",
-      moduleGroupId: null,
-      moduleId: "mod-1",
     },
   ]);
 });

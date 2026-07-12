@@ -16,9 +16,6 @@ interface WeeklyScheduleSectionProps {
   form: DetailsForm["form"];
   isDaily: boolean;
   taskOptions: DetailsForm["taskOptions"];
-  resourceOptions: DetailsForm["resourceOptions"];
-  moduleGroupsByResource: DetailsForm["moduleGroupsByResource"];
-  modulesByResource: DetailsForm["modulesByResource"];
 }
 
 // The non-curated schedule block on the `weekly` field: a single repeated entry
@@ -28,9 +25,6 @@ export function WeeklyScheduleSection({
   form,
   isDaily,
   taskOptions,
-  resourceOptions,
-  moduleGroupsByResource,
-  modulesByResource,
 }: WeeklyScheduleSectionProps) {
   return (
     <form.Field name="weekly">
@@ -48,7 +42,6 @@ export function WeeklyScheduleSection({
                   {...representativeRow(field.state.value)}
                   onChange={next => field.handleChange(fillAllDays(next))}
                   taskOptions={taskOptions}
-                  resourceOptions={resourceOptions}
                 />
               </div>
             </div>
@@ -69,9 +62,6 @@ export function WeeklyScheduleSection({
                 value={field.state.value}
                 onChange={next => field.handleChange(next)}
                 taskOptions={taskOptions}
-                resourceOptions={resourceOptions}
-                moduleGroupsByResource={moduleGroupsByResource}
-                modulesByResource={modulesByResource}
               />
             </div>
           )}

@@ -318,16 +318,10 @@ export function classifyDaily(
 }
 
 export function getDailyProgressPercent(daily: Daily): number {
-  const course = daily.resource;
-  if (course) {
-    const total = course.progressTotal ?? 0;
-    const current = course.progressCurrent ?? 0;
-    return total > 0 ? current / total : 0;
-  }
   const taskProgress = daily.task?.progress;
   if (taskProgress) {
-    const total = taskProgress.todosTotal + taskProgress.resourcesTotal;
-    const done = taskProgress.todosComplete + taskProgress.resourcesUsed;
+    const total = taskProgress.todosTotal;
+    const done = taskProgress.todosComplete;
     return total > 0 ? done / total : 0;
   }
   return 0;

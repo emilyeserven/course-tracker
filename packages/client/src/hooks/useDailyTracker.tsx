@@ -6,7 +6,10 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { makeManualSortHandler, toSortingState } from "@/components/ui/manualSort";
+import {
+  makeManualSortHandler,
+  toSortingState,
+} from "@/components/ui/manualSort";
 import {
   getDailyProgressPercent,
   getRecentDays,
@@ -107,8 +110,6 @@ export function useDailyStatusMutation(todayKey: string) {
         location: daily.location ?? null,
         description: daily.description ?? null,
         completions,
-        courseProviderId: daily.provider?.id ?? null,
-        resourceId: daily.resource?.id ?? null,
       });
     },
     onSuccess: async () => {

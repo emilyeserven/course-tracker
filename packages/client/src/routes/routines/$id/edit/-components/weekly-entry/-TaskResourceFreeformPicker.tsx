@@ -14,13 +14,12 @@ interface TaskResourceFreeformPickerProps {
   itemOptions: SelectOption[];
   optionsMap: Map<string, string>;
   onEmit: (patch: Partial<WeeklyEntry>) => void;
-  onInputValueChange: (val: string) => void;
-  onRequestAddResource: () => void;
+  onInputValueChange?: (val: string) => void;
 }
 
 // The type selector + item picker row for Daily-mode: the value control is the
-// shared ScheduleItemControl (task/resource combobox, bookmark picker, or
-// freeform input). Internal to -WeeklyEntryEditor.
+// shared ScheduleItemControl (task combobox, bookmark picker, or freeform
+// input). Internal to -WeeklyEntryEditor.
 export function TaskResourceFreeformPicker({
   type,
   id,
@@ -32,7 +31,6 @@ export function TaskResourceFreeformPicker({
   optionsMap,
   onEmit,
   onInputValueChange,
-  onRequestAddResource,
 }: TaskResourceFreeformPickerProps) {
   return (
     <div className="grid grid-cols-[140px_1fr] items-center gap-2">
@@ -58,7 +56,6 @@ export function TaskResourceFreeformPicker({
       >
         <option value="">— None —</option>
         <option value="task">Task</option>
-        <option value="resource">Resource</option>
         <option value="bookmark">Bookmark</option>
         <option value="freeform">Freeform</option>
       </select>
@@ -75,7 +72,6 @@ export function TaskResourceFreeformPicker({
         optionsMap={optionsMap}
         onChange={onEmit}
         onInputValueChange={onInputValueChange}
-        onAddResource={onRequestAddResource}
       />
     </div>
   );

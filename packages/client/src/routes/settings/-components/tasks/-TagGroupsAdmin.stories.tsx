@@ -4,8 +4,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TagGroupsAdmin } from "./-TagGroupsAdmin";
 
 import { QueryStub } from "@/test-utils/QueryStub";
-import { makeTagGroups } from "@/test-utils/resourceModulesFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
+import { makeTagGroups } from "@/test-utils/tasksFixtures";
 
 // Reads tag groups via useQuery(["tagGroups"]); seed a client so it renders
 // without a network call. Mutations are never fired, so they stay inert.

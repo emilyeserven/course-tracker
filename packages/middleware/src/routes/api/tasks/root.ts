@@ -25,105 +25,13 @@ export default async function (server: FastifyInstance) {
             asc,
           }) => asc(j.position),
         },
-        tasksToResources: {
-          with: {
-            resource: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            moduleGroup: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            module: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-          },
-          orderBy: (j, {
-            asc,
-          }) => asc(j.position),
-        },
         bookmarks: {
           orderBy: (b, {
             asc,
           }) => asc(b.position),
         },
-        resources: {
-          with: {
-            resource: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            moduleGroup: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            module: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-          },
-        },
         todos: {
           with: {
-            resource: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            moduleGroup: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
-            module: {
-              columns: {
-                id: true,
-                name: true,
-                easeOfStarting: true,
-                timeNeeded: true,
-                interactivity: true,
-              },
-            },
             bookmarks: {
               orderBy: (b, {
                 asc,

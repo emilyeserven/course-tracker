@@ -18,7 +18,11 @@ import { DailyStatusCircle, DailyStatusConnector } from "./dailyCells";
 import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 import { RoutineEntryLabel } from "@/components/routines/RoutineEntryLabel";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useDailyCompletions } from "@/hooks/useDailyCompletions";
 import { cn } from "@/lib/utils";
 
@@ -45,9 +49,6 @@ export function DailyCompletionsManager({
     canGoNext,
     toggleExpanded,
     taskNames,
-    resourceNames,
-    moduleNames,
-    moduleGroupNames,
     rows,
     hasRows,
     mutationPending,
@@ -186,9 +187,6 @@ export function DailyCompletionsManager({
                             <RoutineEntryLabel
                               entry={scheduledEntry}
                               taskNames={taskNames}
-                              resourceNames={resourceNames}
-                              moduleNames={moduleNames}
-                              moduleGroupNames={moduleGroupNames}
                               showMeta={false}
                             />
                           </span>

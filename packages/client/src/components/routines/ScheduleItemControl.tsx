@@ -18,14 +18,13 @@ interface ScheduleItemControlProps {
   itemOptions: SelectOption[];
   optionsMap: Map<string, string>;
   onChange: (patch: Partial<WeeklyEntry>) => void;
-  onInputValueChange: (val: string) => void;
-  onAddResource: () => void;
+  onInputValueChange?: (val: string) => void;
 }
 
 // The item picker for a schedule entry — a freeform text input, a single-slot
-// bookmark picker, or a task/resource combobox, chosen by `type`. The type
-// <select> lives in the caller; this is just the value control. Shared by the
-// weekly/curated grid rows (ScheduleEntryRow) and the Daily-mode editor.
+// bookmark picker, or a task combobox, chosen by `type`. The type <select> lives
+// in the caller; this is just the value control. Shared by the weekly/curated
+// grid rows (ScheduleEntryRow) and the Daily-mode editor.
 export function ScheduleItemControl({
   ariaPrefix,
   type,
@@ -38,7 +37,6 @@ export function ScheduleItemControl({
   optionsMap,
   onChange,
   onInputValueChange,
-  onAddResource,
 }: ScheduleItemControlProps): ReactNode {
   if (type === "freeform") {
     return (
@@ -82,31 +80,18 @@ export function ScheduleItemControl({
       items={itemOptions.map(o => o.value)}
       value={id || null}
       onValueChange={val =>
-        // A different resource has different modules, so clear any existing
-        // narrowing when the picked item changes (no-op for task/daily).
         onChange({
           id: val ?? "",
-          moduleId: "",
-          moduleGroupId: "",
         })}
-      onInputValueChange={val => onInputValueChange(val)}
+      onInputValueChange={onInputValueChange}
       itemToStringLabel={(val: string) => optionsMap.get(val) ?? ""}
     >
       <ComboboxInput
-        placeholder={
-          type === "task"
-            ? "Search tasks..."
-            : type === "resource"
-              ? "Search resources..."
-              : "Pick a type first"
-        }
+        placeholder={type === "task" ? "Search tasks..." : "Pick a type first"}
         showClear
         disabled={!type}
       />
-      <TaskResourceComboboxContent
-        optionsMap={optionsMap}
-        onAddNew={type === "resource" ? onAddResource : undefined}
-      />
+      <TaskResourceComboboxContent optionsMap={optionsMap} />
     </Combobox>
   );
 }
