@@ -8,6 +8,7 @@ import {
   activeBookmarkForEntry,
   currentDateKey,
   entryForCompletionDate,
+  firstTaskBookmarkWithProgress,
   mapRoutineToDaily,
   type RoutineRow,
 } from "@/utils/routineProjection";
@@ -107,6 +108,14 @@ export default async function (server: FastifyInstance) {
               status: true,
             },
           },
+          // A to-do-less task's own bookmark backs its progress ring (below).
+          bookmarks: {
+            columns: {
+              bookmarkId: true,
+              title: true,
+              position: true,
+            },
+          },
         },
       })
       : [];
@@ -115,10 +124,20 @@ export default async function (server: FastifyInstance) {
 
     // Enrich active bookmarks with reading progress in a single call (best
     // effort — an unreachable Simple Bookmarks yields an empty map and the
-    // dailies still render, falling back to task/infinity progress).
-    const progressMap = await getBookmarkProgress(
-      [...new Set([...activeBookmarkByRoutine.values()].map(b => b.id))],
+    // dailies still render, falling back to task/infinity progress). Include the
+    // bookmarks of any to-do-less task scheduled today, so we can fall back to
+    // the task's own reading progress when it has no to-dos to count.
+    const bookmarkIds = new Set(
+      [...activeBookmarkByRoutine.values()].map(b => b.id),
     );
+    for (const task of taskRows) {
+      if ((task.todos?.length ?? 0) === 0) {
+        for (const bookmark of task.bookmarks ?? []) {
+          bookmarkIds.add(bookmark.bookmarkId);
+        }
+      }
+    }
+    const progressMap = await getBookmarkProgress([...bookmarkIds]);
 
     return withConnections.map((routine) => {
       const entry = entryForCompletionDate(
@@ -134,11 +153,28 @@ export default async function (server: FastifyInstance) {
         task,
       }, dateKey);
 
+      // The routine's own scheduled bookmark entry drives the ring. When today's
+      // item is a task with NO to-dos, fall back to the task's own bookmark
+      // reading progress instead (to-do completion takes precedence whenever the
+      // task has to-dos). Also drop the empty to-do block so a to-do-less task
+      // with no such bookmark shows the infinity icon rather than a "0 / 0" ring.
+      let activeBookmark = activeBookmarkByRoutine.get(routine.id);
+      if (!activeBookmark && task && (task.todos?.length ?? 0) === 0) {
+        activeBookmark
+          = firstTaskBookmarkWithProgress(task.bookmarks ?? [], progressMap)
+            ?? undefined;
+        if (daily.task) {
+          daily.task = {
+            ...daily.task,
+            progress: undefined,
+          };
+        }
+      }
+
       // Only a positive total is real reading progress; a zero/absent total
       // leaves bookmarkProgress null so the cell shows the infinity icon.
-      const activeBookmark = activeBookmarkByRoutine.get(routine.id);
       const progress = activeBookmark && progressMap.get(activeBookmark.id);
-      daily.bookmarkProgress = progress && progress.total > 0
+      daily.bookmarkProgress = activeBookmark && progress && progress.total > 0
         ? {
           current: progress.current,
           total: progress.total,
