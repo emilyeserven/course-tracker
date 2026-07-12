@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { RoutineTodayCard } from "./-RoutineTodayCard";
 
-import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
+import { makeRoutine, makeTask } from "@/test-utils/boxFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
@@ -25,14 +25,7 @@ const meta = {
   decorators: [
     Story => (
       <RouterStub>
-        <QueryStub
-          client={seededQueryClient([
-            [["tasks"], [makeTask()]],
-            [["resources"], makeResources()],
-            [["modules-all"], []],
-            [["module-groups-all"], []],
-          ])}
-        >
+        <QueryStub client={seededQueryClient([[["tasks"], [makeTask()]]])}>
           <Story />
         </QueryStub>
       </RouterStub>
@@ -46,9 +39,11 @@ type Story = StoryObj<typeof meta>;
 
 // Daily routine: today's entry plus the today-status control.
 export const Default: Story = {
-  play: smokePlay([{
-    text: "Today's Task",
-  }]),
+  play: smokePlay([
+    {
+      text: "Today's Task",
+    },
+  ]),
 };
 
 // A routine with nothing scheduled today shows the rest-day copy.
@@ -59,9 +54,11 @@ export const NothingToday: Story = {
       weekly: {},
     }),
   },
-  play: smokePlay([{
-    text: /nothing, take a break/i,
-  }]),
+  play: smokePlay([
+    {
+      text: /nothing, take a break/i,
+    },
+  ]),
 };
 
 // Curated routine: today's entry is keyed by absolute date (weekly is empty), so
@@ -75,14 +72,17 @@ export const Curated: Story = {
         endDate: dateKeyOffset(2),
         entries: {
           [getTodayKey()]: {
-            type: "resource",
-            id: "resource-1",
+            type: "bookmark",
+            id: "bookmark-1",
+            title: "Reference doc",
           },
         },
       },
     }),
   },
-  play: smokePlay([{
-    text: "Course 1",
-  }]),
+  play: smokePlay([
+    {
+      text: "Reference doc",
+    },
+  ]),
 };

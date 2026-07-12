@@ -32,33 +32,9 @@ const SEGMENT_MAP: Record<string, SegmentEntry> = {
     label: "Dashboard",
     to: "/dashboard",
   },
-  onboard: {
-    label: "Onboard",
-    to: "/onboard",
-  },
   settings: {
     label: "Settings",
     to: "/settings",
-  },
-  records: {
-    label: "Records",
-    to: "/records",
-  },
-  providers: {
-    section: {
-      label: "Records",
-      to: "/records",
-    },
-    label: "Providers",
-    to: "/providers",
-  },
-  resources: {
-    section: {
-      label: "Records",
-      to: "/records",
-    },
-    label: "Resources",
-    to: "/resources",
   },
   actions: {
     label: "Actions",

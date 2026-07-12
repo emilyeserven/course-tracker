@@ -19,7 +19,7 @@ Two homes, by audience:
 **Stays put — don't move into `@/types/`:**
 - Single-use component props → colocate (often non-exported) in the component file.
 - Shared types tightly coupled to runtime helpers/consts → keep in their module (e.g. `DashboardTileProps`/`GridLayoutItem` in `lib/dashboardTiles.ts`, `SelectOption` in `utils/selectOptions.ts`, the context union types in `src/context/`).
-- Feature-domain types → keep in the feature folder (`components/radar/`, `components/dailies/`, …).
+- Feature-domain types → keep in the feature folder (`components/dailies/`, `components/routines/`, …).
 - Types shared by several files **within one directory** but not the wider client → a local `types.ts` (or `<area>Props.ts`) in that directory is fine. `@/types/` is for genuinely client-wide types; don't promote a directory-scoped type there just to centralize it.
 
 ## Fetch layer (`src/utils/api/`)
@@ -55,14 +55,12 @@ Organized by purpose under `src/components/`:
 - `ui/` — shadcn-style primitives (add new ones via the shadcn CLI, which now writes here). Includes the vendored shadcn-derived files (`button.tsx`, `calendar.tsx`, `combobox.tsx`, `input.tsx`, `input-group.tsx`, `popover.tsx`, `radio-group.tsx`, `textarea.tsx`, `sonner.tsx`): keep edits minimal and preserve their scoped eslint-disable comments. Imported by direct file path (`@/components/ui/button`) — no barrel.
 - `dialogs/` — shared app dialogs that compose the `ui/` `Dialog`/`AlertDialog` primitives (`ConfirmDialog`, `UnsavedChangesDialog`, `LayoutNameDialog`, `EditModalFooter`), imported by direct path like `ui/`. `dialogs/quickAdd/` holds the quick-add dialog family (`QuickAddMenu` + per-entity `QuickAdd*Dialog`, with its own `index.ts` barrel). Dialogs coupled to a single feature stay in that feature folder (e.g. `dailies/DailyStatusModal`, `resources/ModuleSuggestDialog`).
 - `layout/` — page chrome (`PageHeader`, `EditPageFooter`, `NavDropdown`, `OverviewCardGrid`, `EditFormActions`, `LayoutMenuActions`, …)
-- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, the entity boxes) and their building blocks. Import boxes from `contentBoxComponents/` (the `index.ts` barrel re-exports the boxes plus the table, so a page rendering several imports from one module). The entity boxes (`CourseBox`, `DomainBox`, `ProviderBox`, `TaskBox`) are a deliberate cohesive card family — they share `ContentBox` and the `boxElements/` primitives — so they stay centralized here even though each has a single consuming index route (decided in #323); don't colocate them into `*.-components/`.
-- `tables/` — table components (`CoursesTable`)
-- `resources/` — resource/module components
-- `dailies/`, `routines/`, `radar/`, `tasks/` — feature components ("dailies" components render the daily-tracker view of routines)
+- `contentBoxComponents/` / `boxElements/` — content-box cards (`ContentBox`, `DashboardCard`, `TaskBox`, `RoutineBox`) and their building blocks. Import boxes from `contentBoxComponents/` (the `index.ts` barrel re-exports them, so a page rendering several imports from one module). The entity boxes share `ContentBox` and the `boxElements/` primitives and stay centralized here even though each has a single consuming index route (decided in #323); don't colocate them into `*.-components/`.
+- `dailies/`, `routines/`, `tasks/`, `bookmarks/` — feature components ("dailies" components render the daily-tracker view of routines; "bookmarks" holds the pickers that associate items with the companion Simple Bookmarks app)
 - `forms/` — field-composition primitives; `formFields/` — TanStack Form-aware fields
 - `utils/` — shared cva variant definitions (`badgeVariants`, `buttonVariants`)
 - `listControls/` — list/index page chrome. Holds its own list-specific implementations (`EntityStates`, `ListPageControls`, `FilterOptionCount`) **and** re-exports shared chrome from `layout/` (`PageHeader`, `ViewModeToggle`, `OnboardingEmptyState`) through its `index.ts`, so a list page pulls everything from one module.
-- `editPage/`, `infoCard/` — **single-import aggregator barrels** (each is an `index.ts` only): `editPage/` re-exports the entity edit-page shell (`PageHeader`, `EditForm`, `EditPageFooter`, `PageTabs`, `UnsavedChangesDialog`, …), `infoCard/` the read-only `$id.index` view sections (`InfoArea`, `InfoRow`, `ResourceLinksSection`, `YesNoDisplay`). Implementations stay in their original homes (`layout/`, `dialogs/`, `boxElements/`, …) — these barrels only re-export.
+- `editPage/`, `infoCard/` — **single-import aggregator barrels** (each is an `index.ts` only): `editPage/` re-exports the entity edit-page shell (`PageHeader`, `EditForm`, `EditPageFooter`, `PageTabs`, `UnsavedChangesDialog`, …), `infoCard/` the read-only `$id.index` view sections (`InfoArea`, `InfoRow`, `YesNoDisplay`). Implementations stay in their original homes (`layout/`, `dialogs/`, `boxElements/`, …) — these barrels only re-export.
 
 Theme support via ThemeProvider context (`src/hooks/useTheme.ts`, dark/light mode).
 

@@ -9,33 +9,22 @@ import { ActionableSentence } from "@/components/dailies/ActionableSentence";
 interface RoutineEntryLabelProps {
   entry: RoutineReferenceItem;
   taskNames: Map<string, string>;
-  resourceNames: Map<string, string>;
-  // A resource entry may narrow to a module or module group; these resolve that
-  // narrower name, which stands in for the resource name. Optional — omitted
-  // means "whole resource" rendering only.
-  moduleNames?: Map<string, string>;
-  moduleGroupNames?: Map<string, string>;
   // When true (default), render the full presentation: a leading TYPE badge plus
   // any notes/location. When false, render only the actionable sentence (compact
   // form used inline, e.g. inside a Day Entries row).
   showMeta?: boolean;
 }
 
-// Renders a routine's per-day reference item (task / resource / freeform) as an
-// actionable sentence, resolving the task/resource name from the supplied maps
-// and linking task/resource entries to their detail pages. A resource entry that
-// narrows to a module/group shows that narrower name (linking still targets the
-// owning resource).
+// Renders a routine's per-day reference item (task / bookmark / freeform) as an
+// actionable sentence, resolving the task name from the supplied map and linking
+// task entries to their detail pages.
 export function RoutineEntryLabel({
   entry,
   taskNames,
-  resourceNames,
-  moduleNames,
-  moduleGroupNames,
   showMeta = true,
 }: RoutineEntryLabelProps) {
-  // The entry's name as a clickable link (task / resource) or plain text
-  // (freeform) — no type badge, so it can sit inside an actionable sentence.
+  // The entry's name as a clickable link (task) or plain text (freeform) — no
+  // type badge, so it can sit inside an actionable sentence.
   const nameNode = entry.type === "freeform"
     ? entry.id
     : entry.type === "bookmark"
@@ -57,7 +46,7 @@ export function RoutineEntryLabel({
       )
       : (
         <EntityLink
-          entity={entry.type === "task" ? "tasks" : "resources"}
+          entity="tasks"
           id={entry.id}
           className="
             text-blue-800
@@ -65,13 +54,7 @@ export function RoutineEntryLabel({
             dark:text-blue-300
           "
         >
-          {routineEntryName(
-            entry,
-            taskNames,
-            resourceNames,
-            moduleNames,
-            moduleGroupNames,
-          )}
+          {routineEntryName(entry, taskNames)}
         </EntityLink>
       );
 

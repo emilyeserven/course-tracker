@@ -12,34 +12,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TasksRouteRouteImport } from './routes/tasks/route'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as RoutinesRouteRouteImport } from './routes/routines/route'
-import { Route as ResourcesRouteRouteImport } from './routes/resources/route'
-import { Route as RecordsRouteRouteImport } from './routes/records/route'
-import { Route as ProvidersRouteRouteImport } from './routes/providers/route'
-import { Route as OnboardRouteRouteImport } from './routes/onboard/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as DailiesRouteRouteImport } from './routes/dailies/route'
 import { Route as ActionsRouteRouteImport } from './routes/actions/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksIndexRouteImport } from './routes/tasks/index'
 import { Route as RoutinesIndexRouteImport } from './routes/routines/index'
-import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
-import { Route as ProvidersIndexRouteImport } from './routes/providers/index'
 import { Route as DailiesIndexRouteImport } from './routes/dailies/index'
 import { Route as TasksIdRouteRouteImport } from './routes/tasks/$id/route'
 import { Route as RoutinesTrackerRouteRouteImport } from './routes/routines/tracker/route'
 import { Route as RoutinesIdRouteRouteImport } from './routes/routines/$id/route'
-import { Route as ResourcesIdRouteRouteImport } from './routes/resources/$id/route'
-import { Route as ProvidersIdRouteRouteImport } from './routes/providers/$id/route'
 import { Route as DailiesIdRouteRouteImport } from './routes/dailies/$id/route'
 import { Route as TasksIdIndexRouteImport } from './routes/tasks/$id/index'
 import { Route as RoutinesIdIndexRouteImport } from './routes/routines/$id/index'
-import { Route as ResourcesIdIndexRouteImport } from './routes/resources/$id/index'
-import { Route as ProvidersIdIndexRouteImport } from './routes/providers/$id/index'
 import { Route as DailiesIdIndexRouteImport } from './routes/dailies/$id/index'
 import { Route as TasksIdEditRouteRouteImport } from './routes/tasks/$id/edit/route'
 import { Route as RoutinesIdEditRouteRouteImport } from './routes/routines/$id/edit/route'
-import { Route as ResourcesIdEditRouteRouteImport } from './routes/resources/$id/edit/route'
-import { Route as ProvidersIdEditRouteRouteImport } from './routes/providers/$id/edit/route'
 import { Route as DailiesIdEditRouteRouteImport } from './routes/dailies/$id/edit/route'
 
 const TasksRouteRoute = TasksRouteRouteImport.update({
@@ -55,26 +43,6 @@ const SettingsRouteRoute = SettingsRouteRouteImport.update({
 const RoutinesRouteRoute = RoutinesRouteRouteImport.update({
   id: '/routines',
   path: '/routines',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResourcesRouteRoute = ResourcesRouteRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecordsRouteRoute = RecordsRouteRouteImport.update({
-  id: '/records',
-  path: '/records',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProvidersRouteRoute = ProvidersRouteRouteImport.update({
-  id: '/providers',
-  path: '/providers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardRouteRoute = OnboardRouteRouteImport.update({
-  id: '/onboard',
-  path: '/onboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -107,16 +75,6 @@ const RoutinesIndexRoute = RoutinesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RoutinesRouteRoute,
 } as any)
-const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ResourcesRouteRoute,
-} as any)
-const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ProvidersRouteRoute,
-} as any)
 const DailiesIndexRoute = DailiesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -137,16 +95,6 @@ const RoutinesIdRouteRoute = RoutinesIdRouteRouteImport.update({
   path: '/$id',
   getParentRoute: () => RoutinesRouteRoute,
 } as any)
-const ResourcesIdRouteRoute = ResourcesIdRouteRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ResourcesRouteRoute,
-} as any)
-const ProvidersIdRouteRoute = ProvidersIdRouteRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ProvidersRouteRoute,
-} as any)
 const DailiesIdRouteRoute = DailiesIdRouteRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -161,16 +109,6 @@ const RoutinesIdIndexRoute = RoutinesIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => RoutinesIdRouteRoute,
-} as any)
-const ResourcesIdIndexRoute = ResourcesIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ResourcesIdRouteRoute,
-} as any)
-const ProvidersIdIndexRoute = ProvidersIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ProvidersIdRouteRoute,
 } as any)
 const DailiesIdIndexRoute = DailiesIdIndexRouteImport.update({
   id: '/',
@@ -187,16 +125,6 @@ const RoutinesIdEditRouteRoute = RoutinesIdEditRouteRouteImport.update({
   path: '/edit',
   getParentRoute: () => RoutinesIdRouteRoute,
 } as any)
-const ResourcesIdEditRouteRoute = ResourcesIdEditRouteRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => ResourcesIdRouteRoute,
-} as any)
-const ProvidersIdEditRouteRoute = ProvidersIdEditRouteRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => ProvidersIdRouteRoute,
-} as any)
 const DailiesIdEditRouteRoute = DailiesIdEditRouteRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -208,32 +136,20 @@ export interface FileRoutesByFullPath {
   '/actions': typeof ActionsRouteRoute
   '/dailies': typeof DailiesRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRoute
-  '/onboard': typeof OnboardRouteRoute
-  '/providers': typeof ProvidersRouteRouteWithChildren
-  '/records': typeof RecordsRouteRoute
-  '/resources': typeof ResourcesRouteRouteWithChildren
   '/routines': typeof RoutinesRouteRouteWithChildren
   '/settings': typeof SettingsRouteRoute
   '/tasks': typeof TasksRouteRouteWithChildren
   '/dailies/$id': typeof DailiesIdRouteRouteWithChildren
-  '/providers/$id': typeof ProvidersIdRouteRouteWithChildren
-  '/resources/$id': typeof ResourcesIdRouteRouteWithChildren
   '/routines/$id': typeof RoutinesIdRouteRouteWithChildren
   '/routines/tracker': typeof RoutinesTrackerRouteRoute
   '/tasks/$id': typeof TasksIdRouteRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
-  '/providers/': typeof ProvidersIndexRoute
-  '/resources/': typeof ResourcesIndexRoute
   '/routines/': typeof RoutinesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
-  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
   '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
   '/tasks/$id/edit': typeof TasksIdEditRouteRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
-  '/providers/$id/': typeof ProvidersIdIndexRoute
-  '/resources/$id/': typeof ResourcesIdIndexRoute
   '/routines/$id/': typeof RoutinesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
 }
@@ -241,23 +157,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRouteRoute
   '/dashboard': typeof DashboardRouteRoute
-  '/onboard': typeof OnboardRouteRoute
-  '/records': typeof RecordsRouteRoute
   '/settings': typeof SettingsRouteRoute
   '/routines/tracker': typeof RoutinesTrackerRouteRoute
   '/dailies': typeof DailiesIndexRoute
-  '/providers': typeof ProvidersIndexRoute
-  '/resources': typeof ResourcesIndexRoute
   '/routines': typeof RoutinesIndexRoute
   '/tasks': typeof TasksIndexRoute
   '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
-  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
   '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
   '/tasks/$id/edit': typeof TasksIdEditRouteRoute
   '/dailies/$id': typeof DailiesIdIndexRoute
-  '/providers/$id': typeof ProvidersIdIndexRoute
-  '/resources/$id': typeof ResourcesIdIndexRoute
   '/routines/$id': typeof RoutinesIdIndexRoute
   '/tasks/$id': typeof TasksIdIndexRoute
 }
@@ -267,32 +175,20 @@ export interface FileRoutesById {
   '/actions': typeof ActionsRouteRoute
   '/dailies': typeof DailiesRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRoute
-  '/onboard': typeof OnboardRouteRoute
-  '/providers': typeof ProvidersRouteRouteWithChildren
-  '/records': typeof RecordsRouteRoute
-  '/resources': typeof ResourcesRouteRouteWithChildren
   '/routines': typeof RoutinesRouteRouteWithChildren
   '/settings': typeof SettingsRouteRoute
   '/tasks': typeof TasksRouteRouteWithChildren
   '/dailies/$id': typeof DailiesIdRouteRouteWithChildren
-  '/providers/$id': typeof ProvidersIdRouteRouteWithChildren
-  '/resources/$id': typeof ResourcesIdRouteRouteWithChildren
   '/routines/$id': typeof RoutinesIdRouteRouteWithChildren
   '/routines/tracker': typeof RoutinesTrackerRouteRoute
   '/tasks/$id': typeof TasksIdRouteRouteWithChildren
   '/dailies/': typeof DailiesIndexRoute
-  '/providers/': typeof ProvidersIndexRoute
-  '/resources/': typeof ResourcesIndexRoute
   '/routines/': typeof RoutinesIndexRoute
   '/tasks/': typeof TasksIndexRoute
   '/dailies/$id/edit': typeof DailiesIdEditRouteRoute
-  '/providers/$id/edit': typeof ProvidersIdEditRouteRoute
-  '/resources/$id/edit': typeof ResourcesIdEditRouteRoute
   '/routines/$id/edit': typeof RoutinesIdEditRouteRoute
   '/tasks/$id/edit': typeof TasksIdEditRouteRoute
   '/dailies/$id/': typeof DailiesIdIndexRoute
-  '/providers/$id/': typeof ProvidersIdIndexRoute
-  '/resources/$id/': typeof ResourcesIdIndexRoute
   '/routines/$id/': typeof RoutinesIdIndexRoute
   '/tasks/$id/': typeof TasksIdIndexRoute
 }
@@ -303,32 +199,20 @@ export interface FileRouteTypes {
     | '/actions'
     | '/dailies'
     | '/dashboard'
-    | '/onboard'
-    | '/providers'
-    | '/records'
-    | '/resources'
     | '/routines'
     | '/settings'
     | '/tasks'
     | '/dailies/$id'
-    | '/providers/$id'
-    | '/resources/$id'
     | '/routines/$id'
     | '/routines/tracker'
     | '/tasks/$id'
     | '/dailies/'
-    | '/providers/'
-    | '/resources/'
     | '/routines/'
     | '/tasks/'
     | '/dailies/$id/edit'
-    | '/providers/$id/edit'
-    | '/resources/$id/edit'
     | '/routines/$id/edit'
     | '/tasks/$id/edit'
     | '/dailies/$id/'
-    | '/providers/$id/'
-    | '/resources/$id/'
     | '/routines/$id/'
     | '/tasks/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -336,23 +220,15 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/dashboard'
-    | '/onboard'
-    | '/records'
     | '/settings'
     | '/routines/tracker'
     | '/dailies'
-    | '/providers'
-    | '/resources'
     | '/routines'
     | '/tasks'
     | '/dailies/$id/edit'
-    | '/providers/$id/edit'
-    | '/resources/$id/edit'
     | '/routines/$id/edit'
     | '/tasks/$id/edit'
     | '/dailies/$id'
-    | '/providers/$id'
-    | '/resources/$id'
     | '/routines/$id'
     | '/tasks/$id'
   id:
@@ -361,32 +237,20 @@ export interface FileRouteTypes {
     | '/actions'
     | '/dailies'
     | '/dashboard'
-    | '/onboard'
-    | '/providers'
-    | '/records'
-    | '/resources'
     | '/routines'
     | '/settings'
     | '/tasks'
     | '/dailies/$id'
-    | '/providers/$id'
-    | '/resources/$id'
     | '/routines/$id'
     | '/routines/tracker'
     | '/tasks/$id'
     | '/dailies/'
-    | '/providers/'
-    | '/resources/'
     | '/routines/'
     | '/tasks/'
     | '/dailies/$id/edit'
-    | '/providers/$id/edit'
-    | '/resources/$id/edit'
     | '/routines/$id/edit'
     | '/tasks/$id/edit'
     | '/dailies/$id/'
-    | '/providers/$id/'
-    | '/resources/$id/'
     | '/routines/$id/'
     | '/tasks/$id/'
   fileRoutesById: FileRoutesById
@@ -396,10 +260,6 @@ export interface RootRouteChildren {
   ActionsRouteRoute: typeof ActionsRouteRoute
   DailiesRouteRoute: typeof DailiesRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRoute
-  OnboardRouteRoute: typeof OnboardRouteRoute
-  ProvidersRouteRoute: typeof ProvidersRouteRouteWithChildren
-  RecordsRouteRoute: typeof RecordsRouteRoute
-  ResourcesRouteRoute: typeof ResourcesRouteRouteWithChildren
   RoutinesRouteRoute: typeof RoutinesRouteRouteWithChildren
   SettingsRouteRoute: typeof SettingsRouteRoute
   TasksRouteRoute: typeof TasksRouteRouteWithChildren
@@ -426,34 +286,6 @@ declare module '@tanstack/react-router' {
       path: '/routines'
       fullPath: '/routines'
       preLoaderRoute: typeof RoutinesRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/resources': {
-      id: '/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof ResourcesRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/records': {
-      id: '/records'
-      path: '/records'
-      fullPath: '/records'
-      preLoaderRoute: typeof RecordsRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/providers': {
-      id: '/providers'
-      path: '/providers'
-      fullPath: '/providers'
-      preLoaderRoute: typeof ProvidersRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboard': {
-      id: '/onboard'
-      path: '/onboard'
-      fullPath: '/onboard'
-      preLoaderRoute: typeof OnboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -498,20 +330,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoutinesIndexRouteImport
       parentRoute: typeof RoutinesRouteRoute
     }
-    '/resources/': {
-      id: '/resources/'
-      path: '/'
-      fullPath: '/resources/'
-      preLoaderRoute: typeof ResourcesIndexRouteImport
-      parentRoute: typeof ResourcesRouteRoute
-    }
-    '/providers/': {
-      id: '/providers/'
-      path: '/'
-      fullPath: '/providers/'
-      preLoaderRoute: typeof ProvidersIndexRouteImport
-      parentRoute: typeof ProvidersRouteRoute
-    }
     '/dailies/': {
       id: '/dailies/'
       path: '/'
@@ -540,20 +358,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoutinesIdRouteRouteImport
       parentRoute: typeof RoutinesRouteRoute
     }
-    '/resources/$id': {
-      id: '/resources/$id'
-      path: '/$id'
-      fullPath: '/resources/$id'
-      preLoaderRoute: typeof ResourcesIdRouteRouteImport
-      parentRoute: typeof ResourcesRouteRoute
-    }
-    '/providers/$id': {
-      id: '/providers/$id'
-      path: '/$id'
-      fullPath: '/providers/$id'
-      preLoaderRoute: typeof ProvidersIdRouteRouteImport
-      parentRoute: typeof ProvidersRouteRoute
-    }
     '/dailies/$id': {
       id: '/dailies/$id'
       path: '/$id'
@@ -575,20 +379,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoutinesIdIndexRouteImport
       parentRoute: typeof RoutinesIdRouteRoute
     }
-    '/resources/$id/': {
-      id: '/resources/$id/'
-      path: '/'
-      fullPath: '/resources/$id/'
-      preLoaderRoute: typeof ResourcesIdIndexRouteImport
-      parentRoute: typeof ResourcesIdRouteRoute
-    }
-    '/providers/$id/': {
-      id: '/providers/$id/'
-      path: '/'
-      fullPath: '/providers/$id/'
-      preLoaderRoute: typeof ProvidersIdIndexRouteImport
-      parentRoute: typeof ProvidersIdRouteRoute
-    }
     '/dailies/$id/': {
       id: '/dailies/$id/'
       path: '/'
@@ -609,20 +399,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/routines/$id/edit'
       preLoaderRoute: typeof RoutinesIdEditRouteRouteImport
       parentRoute: typeof RoutinesIdRouteRoute
-    }
-    '/resources/$id/edit': {
-      id: '/resources/$id/edit'
-      path: '/edit'
-      fullPath: '/resources/$id/edit'
-      preLoaderRoute: typeof ResourcesIdEditRouteRouteImport
-      parentRoute: typeof ResourcesIdRouteRoute
-    }
-    '/providers/$id/edit': {
-      id: '/providers/$id/edit'
-      path: '/edit'
-      fullPath: '/providers/$id/edit'
-      preLoaderRoute: typeof ProvidersIdEditRouteRouteImport
-      parentRoute: typeof ProvidersIdRouteRoute
     }
     '/dailies/$id/edit': {
       id: '/dailies/$id/edit'
@@ -660,60 +436,6 @@ const DailiesRouteRouteChildren: DailiesRouteRouteChildren = {
 
 const DailiesRouteRouteWithChildren = DailiesRouteRoute._addFileChildren(
   DailiesRouteRouteChildren,
-)
-
-interface ProvidersIdRouteRouteChildren {
-  ProvidersIdEditRouteRoute: typeof ProvidersIdEditRouteRoute
-  ProvidersIdIndexRoute: typeof ProvidersIdIndexRoute
-}
-
-const ProvidersIdRouteRouteChildren: ProvidersIdRouteRouteChildren = {
-  ProvidersIdEditRouteRoute: ProvidersIdEditRouteRoute,
-  ProvidersIdIndexRoute: ProvidersIdIndexRoute,
-}
-
-const ProvidersIdRouteRouteWithChildren =
-  ProvidersIdRouteRoute._addFileChildren(ProvidersIdRouteRouteChildren)
-
-interface ProvidersRouteRouteChildren {
-  ProvidersIdRouteRoute: typeof ProvidersIdRouteRouteWithChildren
-  ProvidersIndexRoute: typeof ProvidersIndexRoute
-}
-
-const ProvidersRouteRouteChildren: ProvidersRouteRouteChildren = {
-  ProvidersIdRouteRoute: ProvidersIdRouteRouteWithChildren,
-  ProvidersIndexRoute: ProvidersIndexRoute,
-}
-
-const ProvidersRouteRouteWithChildren = ProvidersRouteRoute._addFileChildren(
-  ProvidersRouteRouteChildren,
-)
-
-interface ResourcesIdRouteRouteChildren {
-  ResourcesIdEditRouteRoute: typeof ResourcesIdEditRouteRoute
-  ResourcesIdIndexRoute: typeof ResourcesIdIndexRoute
-}
-
-const ResourcesIdRouteRouteChildren: ResourcesIdRouteRouteChildren = {
-  ResourcesIdEditRouteRoute: ResourcesIdEditRouteRoute,
-  ResourcesIdIndexRoute: ResourcesIdIndexRoute,
-}
-
-const ResourcesIdRouteRouteWithChildren =
-  ResourcesIdRouteRoute._addFileChildren(ResourcesIdRouteRouteChildren)
-
-interface ResourcesRouteRouteChildren {
-  ResourcesIdRouteRoute: typeof ResourcesIdRouteRouteWithChildren
-  ResourcesIndexRoute: typeof ResourcesIndexRoute
-}
-
-const ResourcesRouteRouteChildren: ResourcesRouteRouteChildren = {
-  ResourcesIdRouteRoute: ResourcesIdRouteRouteWithChildren,
-  ResourcesIndexRoute: ResourcesIndexRoute,
-}
-
-const ResourcesRouteRouteWithChildren = ResourcesRouteRoute._addFileChildren(
-  ResourcesRouteRouteChildren,
 )
 
 interface RoutinesIdRouteRouteChildren {
@@ -779,10 +501,6 @@ const rootRouteChildren: RootRouteChildren = {
   ActionsRouteRoute: ActionsRouteRoute,
   DailiesRouteRoute: DailiesRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRoute,
-  OnboardRouteRoute: OnboardRouteRoute,
-  ProvidersRouteRoute: ProvidersRouteRouteWithChildren,
-  RecordsRouteRoute: RecordsRouteRoute,
-  ResourcesRouteRoute: ResourcesRouteRouteWithChildren,
   RoutinesRouteRoute: RoutinesRouteRouteWithChildren,
   SettingsRouteRoute: SettingsRouteRoute,
   TasksRouteRoute: TasksRouteRouteWithChildren,

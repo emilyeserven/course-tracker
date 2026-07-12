@@ -7,7 +7,7 @@ import { DailyTrackerRow } from "./DailyTrackerRow";
 import {
   makeDaily,
   makeRecentCompletions,
-  makeResource,
+  makeTask,
 } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
 import { RouterStub } from "@/test-utils/RouterStub";
@@ -18,7 +18,7 @@ const meta: Meta<typeof DailyTrackerRow> = {
   args: {
     daily: makeDaily({
       name: "Spanish practice",
-      resource: makeResource({
+      task: makeTask({
         name: "Duolingo Spanish",
       }),
       taskId: "task-1",

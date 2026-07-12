@@ -7,7 +7,6 @@ import { DailiesActiveListView } from "./DailiesActiveListView";
 import {
   makeDaily,
   makeRecentCompletions,
-  makeResource,
   makeTask,
 } from "@/test-utils/dailiesFixtures";
 import { QueryStub } from "@/test-utils/QueryStub";
@@ -19,7 +18,7 @@ const dailies = [
     id: "d1",
     name: "Spanish practice",
     location: "https://duolingo.com",
-    resource: makeResource({
+    task: makeTask({
       name: "Duolingo Spanish",
     }),
     completions: makeRecentCompletions(["goal", "touched", "goal", "goal"]),

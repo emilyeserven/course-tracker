@@ -15,18 +15,6 @@ import { getTodayKey, shiftDateKey } from "@/utils";
  * date the suite runs on.
  */
 
-export function makeResource(
-  overrides: Partial<NonNullable<Daily["resource"]>> = {},
-): NonNullable<Daily["resource"]> {
-  return {
-    id: "res-1",
-    name: "Structure and Interpretation of Computer Programs",
-    progressCurrent: 15,
-    progressTotal: 50,
-    ...overrides,
-  };
-}
-
 export function makeTask(
   overrides: Partial<NonNullable<Daily["task"]>> = {},
 ): NonNullable<Daily["task"]> {
@@ -36,8 +24,6 @@ export function makeTask(
     progress: {
       todosTotal: 5,
       todosComplete: 3,
-      resourcesTotal: 2,
-      resourcesUsed: 1,
     },
     ...overrides,
   };

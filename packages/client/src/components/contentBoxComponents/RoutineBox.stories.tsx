@@ -8,10 +8,12 @@ import { cardStoryDecorator } from "@/test-utils/storyDecorators";
 const meta: Meta<typeof RoutineBox> = {
   component: RoutineBox,
   args: makeRoutine(),
-  decorators: [cardStoryDecorator({
-    tooltip: true,
-    constrained: true,
-  })],
+  decorators: [
+    cardStoryDecorator({
+      tooltip: true,
+      constrained: true,
+    }),
+  ],
 };
 
 export default meta;
@@ -44,12 +46,13 @@ export const DailyResourceNoWarning: Story = {
   args: makeRoutine({
     name: "Read the docs",
     connections: [],
-    // A daily routine assigned a resource (not a task) still counts as
+    // A daily routine assigned a bookmark (not a task) still counts as
     // assigned, so the caution must not appear.
     weekly: {
       1: {
-        type: "resource",
-        id: "res-1",
+        type: "bookmark",
+        id: "bm-1",
+        title: "Reference doc",
       },
     },
   }),

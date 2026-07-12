@@ -1,22 +1,8 @@
 // Central registry of TanStack Query keys. Keys are cache identifiers only —
 // renaming one just causes a one-time refetch — but they must be consistent
 // for invalidation to work, so always take them from here instead of inlining
-// string arrays. The `resource` keys replace the legacy "courses"/"course"
-// strings.
+// string arrays.
 export const queryKeys = {
-  resources: {
-    list: () => ["resources"] as const,
-    detail: (id: string) => ["resource", id] as const,
-    modules: (resourceId: string) => ["resource-modules", resourceId] as const,
-    moduleGroups: (resourceId: string) =>
-      ["resource-module-groups", resourceId] as const,
-    interactions: (resourceId: string) =>
-      ["resource-interactions", resourceId] as const,
-    routineInteractions: (resourceId: string) =>
-      ["resource-routine-interactions", resourceId] as const,
-    todoInteractions: (resourceId: string) =>
-      ["resource-todo-interactions", resourceId] as const,
-  },
   tasks: {
     list: () => ["tasks"] as const,
     detail: (id: string) => ["task", id] as const,
@@ -30,21 +16,11 @@ export const queryKeys = {
     list: () => ["dailies"] as const,
     detail: (id: string) => ["daily", id] as const,
   },
-  providers: {
-    list: () => ["providers"] as const,
-    detail: (id: string) => ["provider", id] as const,
-  },
   tagGroups: {
     list: () => ["tagGroups"] as const,
   },
   taskTypes: {
     list: () => ["taskTypes"] as const,
-  },
-  modules: {
-    list: () => ["modules-all"] as const,
-  },
-  moduleGroups: {
-    list: () => ["module-groups-all"] as const,
   },
   routineTemplates: {
     list: () => ["routineTemplates"] as const,

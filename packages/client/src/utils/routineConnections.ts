@@ -12,7 +12,6 @@ export type LocalConnectionType = Exclude<RoutineConnectionType, "bookmark">;
 // EntityLink's entity kind (plural route segment) for each local connection type.
 const ENTITY_KIND_BY_TYPE: Record<LocalConnectionType, EntityKind> = {
   task: "tasks",
-  resource: "resources",
 };
 
 export function connectionEntityKind(type: LocalConnectionType) {
@@ -25,11 +24,9 @@ export function connectionEntityKind(type: LocalConnectionType) {
 // `group` field (see buildConnectionOptions), not by this value prefix.
 const GROUP_LABEL_BY_TYPE: Record<LocalConnectionType, string> = {
   task: "Task",
-  resource: "Resource",
 };
 const TYPE_BY_GROUP_LABEL: Record<string, LocalConnectionType> = {
   Task: "task",
-  Resource: "resource",
 };
 
 export function encodeConnection(c: { type: LocalConnectionType;
@@ -56,26 +53,16 @@ export function decodeConnection(value: string): {
   };
 }
 
-// Combined option list for the connections multi-select. Labels stay the bare
-// entity name; each option carries an explicit `group` for the dropdown header.
-// Tasks and Resources each get their own group; entities sort by name
-// within a group.
+// Option list for the connections multi-select. Labels stay the bare entity
+// name; each option carries an explicit `group` for the dropdown header.
+// Entities sort by name within a group.
 export function buildConnectionOptions(
   tasks: { id: string;
     name: string; }[] | null | undefined,
-  resources: { id: string;
-    name: string; }[] | null | undefined,
 ): SelectOption[] {
-  return [
-    ...toOptions(tasks).map(o => ({
-      value: `Task:${o.value}`,
-      label: o.label,
-      group: "Tasks",
-    })),
-    ...toOptions(resources).map(o => ({
-      value: `Resource:${o.value}`,
-      label: o.label,
-      group: "Resources",
-    })),
-  ];
+  return toOptions(tasks).map(o => ({
+    value: `Task:${o.value}`,
+    label: o.label,
+    group: "Tasks",
+  }));
 }

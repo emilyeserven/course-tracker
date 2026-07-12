@@ -18,7 +18,7 @@ const convertSchema = {
   schema: {
     description:
       "Convert a curated routine into a Task List: each dated entry becomes a "
-      + "todo (due date, status, resource link), then the routine is archived "
+      + "todo (due date, status), then the routine is archived "
       + "(status = inactive). Returns the new task id.",
     params: idParamSchema,
   },
@@ -69,87 +69,35 @@ export default async function (server: FastifyInstance) {
         }
       }
 
-      // Batch-resolve names for task/resource/module/group references so each
-      // todo's name reads the same as the routine's schedule did.
+      // Batch-resolve task names so each todo's name reads the same as the
+      // routine's schedule did. Bookmark and freeform entries carry their own
+      // display label on the entry.
       const taskIds = new Set<string>();
-      const resourceIds = new Set<string>();
-      const moduleIds = new Set<string>();
-      const moduleGroupIds = new Set<string>();
       for (const key of dateKeys) {
         const entry = entries[key] as RoutineReferenceItem;
         if (entry.type === "task") {
           taskIds.add(entry.id);
         }
-        else if (entry.type === "resource") {
-          resourceIds.add(entry.id);
-          if (entry.moduleId) moduleIds.add(entry.moduleId);
-          if (entry.moduleGroupId) moduleGroupIds.add(entry.moduleGroupId);
-        }
       }
 
-      const [taskRows, resourceRows, moduleRows, moduleGroupRows] = await Promise.all([
-        taskIds.size
-          ? db.query.tasks.findMany({
-            where: (t, {
-              inArray,
-            }) => inArray(t.id, [...taskIds]),
-            columns: {
-              id: true,
-              name: true,
-            },
-          })
-          : Promise.resolve([]),
-        resourceIds.size
-          ? db.query.resources.findMany({
-            where: (r, {
-              inArray,
-            }) => inArray(r.id, [...resourceIds]),
-            columns: {
-              id: true,
-              name: true,
-            },
-          })
-          : Promise.resolve([]),
-        moduleIds.size
-          ? db.query.modules.findMany({
-            where: (m, {
-              inArray,
-            }) => inArray(m.id, [...moduleIds]),
-            columns: {
-              id: true,
-              name: true,
-            },
-          })
-          : Promise.resolve([]),
-        moduleGroupIds.size
-          ? db.query.moduleGroups.findMany({
-            where: (g, {
-              inArray,
-            }) => inArray(g.id, [...moduleGroupIds]),
-            columns: {
-              id: true,
-              name: true,
-            },
-          })
-          : Promise.resolve([]),
-      ]);
+      const taskRows = taskIds.size
+        ? await db.query.tasks.findMany({
+          where: (t, {
+            inArray,
+          }) => inArray(t.id, [...taskIds]),
+          columns: {
+            id: true,
+            name: true,
+          },
+        })
+        : [];
 
       const taskNames = new Map(taskRows.map(r => [r.id, r.name]));
-      const resourceNames = new Map(resourceRows.map(r => [r.id, r.name]));
-      const moduleNames = new Map(moduleRows.map(r => [r.id, r.name]));
-      const moduleGroupNames = new Map(moduleGroupRows.map(r => [r.id, r.name]));
 
       const newTaskId = uuidv4();
       const todoRows = dateKeys.map((key, index) => {
         const entry = entries[key] as RoutineReferenceItem;
-        const baseName = routineEntryName(
-          entry,
-          taskNames,
-          resourceNames,
-          moduleNames,
-          moduleGroupNames,
-        );
-        const isResource = entry.type === "resource";
+        const baseName = routineEntryName(entry, taskNames);
         return {
           id: uuidv4(),
           taskId: newTaskId,
@@ -164,9 +112,6 @@ export default async function (server: FastifyInstance) {
           location: entry.location ?? null,
           url: null,
           position: index,
-          resourceId: isResource ? entry.id : null,
-          moduleGroupId: isResource ? entry.moduleGroupId ?? null : null,
-          moduleId: isResource ? entry.moduleId ?? null : null,
         };
       });
 

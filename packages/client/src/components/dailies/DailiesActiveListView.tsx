@@ -9,7 +9,6 @@ import {
   DailyCommentPopover,
   DailyLocationCell,
   DailyProgressCell,
-  DailyResourceIndicator,
   DailyStatusCircle,
   DailyStatusConnector,
   DailyTaskIndicator,
@@ -125,7 +124,9 @@ export function DailiesActiveListView({
                             ? "text-orange-600"
                             : "text-muted-foreground",
                       )}
-                      title={chain > 0 ? `${chain}-day chain` : "No active chain"}
+                      title={
+                        chain > 0 ? `${chain}-day chain` : "No active chain"
+                      }
                     >
                       <FlameIcon className="size-4" />
                       {chain}
@@ -133,7 +134,9 @@ export function DailiesActiveListView({
                     <span
                       className={cn(
                         "inline-flex items-center gap-1.5",
-                        total > 0 ? "text-emerald-600" : "text-muted-foreground",
+                        total > 0
+                          ? "text-emerald-600"
+                          : "text-muted-foreground",
                       )}
                       title={`${total} total day${total === 1 ? "" : "s"} completed`}
                     >
@@ -146,7 +149,6 @@ export function DailiesActiveListView({
                         [&_a>svg]:size-5
                       "
                     >
-                      <DailyResourceIndicator daily={daily} />
                       <DailyTaskIndicator daily={daily} />
                     </span>
                   </div>

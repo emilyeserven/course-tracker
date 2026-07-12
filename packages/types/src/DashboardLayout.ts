@@ -4,9 +4,6 @@
 export const DASHBOARD_TILE_IDS = [
   "doNow",
   "doneForDay",
-  "underutilizedProviders",
-  "coursesByAmortization",
-  "coursesInProgress",
   "readwise",
   "todoist",
   "googleCalendar",

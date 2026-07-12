@@ -1,8 +1,6 @@
 import type { QuickAddKey } from "./quickAddOptions";
 
-import { QuickAddProviderDialog } from "./QuickAddProviderDialog";
 import { QuickAddReadwiseDialog } from "./QuickAddReadwiseDialog";
-import { QuickAddResourceDialog } from "./QuickAddResourceDialog";
 import { QuickAddRoutineDialog } from "./QuickAddRoutineDialog";
 import { QuickAddTaskDialog } from "./QuickAddTaskDialog";
 import { QuickAddTodoistDialog } from "./QuickAddTodoistDialog";
@@ -31,14 +29,6 @@ export function QuickAddDialogs({
       />
       <QuickAddTodoistDialog
         open={active === "todoist"}
-        onOpenChange={onOpenChange}
-      />
-      <QuickAddResourceDialog
-        open={active === "resource"}
-        onOpenChange={onOpenChange}
-      />
-      <QuickAddProviderDialog
-        open={active === "provider"}
         onOpenChange={onOpenChange}
       />
       <QuickAddRoutineDialog

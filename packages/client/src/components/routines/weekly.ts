@@ -1,4 +1,3 @@
-import type { SelectOption } from "@/utils";
 import type {
   RoutineCurated,
   RoutineReferenceItem,
@@ -11,7 +10,7 @@ import type {
 // implementation is the cross-package `@emstack/types` helper the middleware shares.
 export { routineEntryName as weeklyEntryName } from "@emstack/types";
 
-export type WeeklyRowType = "" | "task" | "resource" | "freeform" | "bookmark";
+export type WeeklyRowType = "" | "task" | "freeform" | "bookmark";
 
 // Curated mode picks an end date at most this many days past today; the per-date
 // editor never shows more rows than that.
@@ -22,10 +21,6 @@ export interface WeeklyRow {
   // "" = no entry scheduled for this day.
   type: WeeklyRowType;
   id: string;
-  // Resource entries may narrow to a specific module or module group (mutually
-  // exclusive). "" = the whole resource. Ignored for task/freeform entries.
-  moduleId: string;
-  moduleGroupId: string;
   // Optional free-text note for this day's item. "" = no note.
   notes: string;
   // Optional place/link where this day's item happens. "" = no location.
@@ -74,8 +69,6 @@ export const DAY_LABELS: Record<RoutineWeekday, string> = {
 interface EntryFieldsSource {
   type?: WeeklyRowType | RoutineReferenceType | null;
   id?: string | null;
-  moduleId?: string | null;
-  moduleGroupId?: string | null;
   notes?: string | null;
   location?: string | null;
   prependText?: string | null;
@@ -94,8 +87,6 @@ function entryRowFields(entry: EntryFieldsSource | undefined): WeeklyEntry {
   return {
     type: entry?.type ?? "",
     id: entry?.id ?? "",
-    moduleId: entry?.moduleId ?? "",
-    moduleGroupId: entry?.moduleGroupId ?? "",
     notes: entry?.notes ?? "",
     location: entry?.location ?? "",
     prependText: entry?.prependText ?? "",
@@ -129,16 +120,6 @@ function referenceItemFromRow(
     type,
     id: row.id,
   };
-  // Module narrowing only applies to resource entries, and the two are mutually
-  // exclusive — persist at most one.
-  if (type === "resource") {
-    if (row.moduleId) {
-      item.moduleId = row.moduleId;
-    }
-    else if (row.moduleGroupId) {
-      item.moduleGroupId = row.moduleGroupId;
-    }
-  }
   // Bookmark entries carry their cached title/url + optional section narrowing.
   if (type === "bookmark") {
     if (row.title) {
@@ -272,82 +253,5 @@ export function rowsToCurated(
   return {
     endDate,
     entries,
-  };
-}
-
-// The most-specific link for a resource entry, used to autofill/offer its
-// location: a chosen module's url wins over its group's, which wins over the
-// resource's (mirroring resourceEntryLabel's narrowing precedence). A chosen
-// module implies its parent group, so an absent explicit group falls back to the
-// module's own `group`. Returns "" for task / freeform entries, or when nothing
-// in the chain carries a link. `groupOptions` / `moduleOptions` are the chosen
-// resource's narrowing options (empty when none, e.g. Daily mode).
-export function effectiveEntryUrl(
-  row: Pick<WeeklyEntry, "type" | "id" | "moduleId" | "moduleGroupId">,
-  resourceOptions: SelectOption[],
-  groupOptions: SelectOption[],
-  moduleOptions: SelectOption[],
-): string {
-  if (row.type !== "resource") {
-    return "";
-  }
-  const selectedModule = row.moduleId
-    ? moduleOptions.find(o => o.value === row.moduleId)
-    : undefined;
-  const effectiveGroupId = row.moduleGroupId || selectedModule?.group || "";
-  const groupUrl = effectiveGroupId
-    ? groupOptions.find(o => o.value === effectiveGroupId)?.url
-    : undefined;
-  const resourceUrl = resourceOptions.find(o => o.value === row.id)?.url;
-  return selectedModule?.url || groupUrl || resourceUrl || "";
-}
-
-// Default an empty location to the entry's effective link, so a resource entry
-// whose location is left blank persists (and elsewhere renders) its resource /
-// module / group url. Rows with text the user typed are left untouched, as are
-// task / freeform / no-link rows (effectiveEntryUrl returns "" for them). Applied
-// at save time — the editors show the link as a placeholder rather than baking it
-// into the field value, so this is where the placeholder url becomes the stored
-// value. Generic over the row shape so it serves both weekly rows (keyed by
-// `day`) and curated rows (keyed by `date`). `moduleGroupsByResource` /
-// `modulesByResource` are the same per-resource narrowing maps the editor uses.
-export function fillEffectiveLocations<T extends WeeklyEntry>(
-  rows: T[],
-  resourceOptions: SelectOption[],
-  moduleGroupsByResource: Map<string, SelectOption[]>,
-  modulesByResource: Map<string, SelectOption[]>,
-): T[] {
-  return rows.map((row) => {
-    if (row.location) {
-      return row;
-    }
-    const url = effectiveEntryUrl(
-      row,
-      resourceOptions,
-      moduleGroupsByResource.get(row.id) ?? [],
-      modulesByResource.get(row.id) ?? [],
-    );
-    return url
-      ? {
-        ...row,
-        location: url,
-      }
-      : row;
-  });
-}
-
-// The per-resource module-group / module narrowing options for a schedule row —
-// empty for non-resource rows (or a resource without a chosen id), so the shared
-// ScheduleEntryRow shows no narrowing UI. Shared by the weekly + curated editors.
-export function rowNarrowingOptions(
-  row: Pick<WeeklyEntry, "type" | "id">,
-  moduleGroupsByResource: Map<string, SelectOption[]>,
-  modulesByResource: Map<string, SelectOption[]>,
-): { groupOptions: SelectOption[];
-  moduleOptions: SelectOption[]; } {
-  const isResource = row.type === "resource" && !!row.id;
-  return {
-    groupOptions: isResource ? (moduleGroupsByResource.get(row.id) ?? []) : [],
-    moduleOptions: isResource ? (modulesByResource.get(row.id) ?? []) : [],
   };
 }

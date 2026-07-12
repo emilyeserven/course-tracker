@@ -1,13 +1,13 @@
 import type { DailyCompletion, DailyCriteria } from "./Daily";
 import type { EntityStatus } from "./EntityStatus";
 
-export type RoutineReferenceType = "task" | "resource" | "freeform" | "bookmark";
+export type RoutineReferenceType = "task" | "freeform" | "bookmark";
 
 // A routine can be connected to any number of these entity kinds. The
 // connection is the routine's categorical link (what it's "about"); it is
 // separate from the weekly grid, which is the per-day activity. "bookmark"
 // points at an external Simple Bookmarks bookmark (no local row).
-export type RoutineConnectionType = "task" | "resource" | "bookmark";
+export type RoutineConnectionType = "task" | "bookmark";
 
 // A single polymorphic connection. For local types, `name` is resolved on read
 // and the client sends only `type` + `id`. For "bookmark", the bookmark lives in
@@ -33,12 +33,6 @@ export type RoutineMode = "weekly" | "daily" | "curated";
 export interface RoutineReferenceItem {
   type: RoutineReferenceType;
   id: string;
-  // Resource entries (type === "resource") may narrow to a specific part of the
-  // resource: either a single module or a whole module group. Mutually exclusive
-  // — at most one is set; both empty/absent means the whole resource. Meaningless
-  // for task/freeform entries.
-  moduleId?: string | null;
-  moduleGroupId?: string | null;
   // Optional free-text annotation for this day's scheduled item (e.g. "focus
   // on the subjunctive"). Empty/absent means no note.
   notes?: string | null;
@@ -52,8 +46,8 @@ export interface RoutineReferenceItem {
   appendText?: string | null;
   // Bookmark entries (type === "bookmark") only. A bookmark is external (no
   // loadable entity), so its display title/url are cached on the entry; `id` is
-  // the external bookmarkId. Optional section narrowing mirrors the resource
-  // module narrowing above.
+  // the external bookmarkId. Optional narrowing to a section of the bookmark
+  // (null = whole bookmark).
   title?: string | null;
   url?: string | null;
   sectionId?: string | null;
@@ -93,7 +87,7 @@ export interface Routine {
   weeklyTarget?: number | null;
 }
 
-// The resolved entry a weekly routine schedules for today (task / resource /
+// The resolved entry a weekly routine schedules for today (task / bookmark /
 // freeform name plus any affixes), computed by the client so a card can show
 // today's task in place of the routine name.
 export interface RoutineTodayAction {

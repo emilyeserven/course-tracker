@@ -12,7 +12,6 @@ export type {
   DailyCriteria,
   DashboardLayoutTile,
   DashboardTileId,
-  ModulesConfig,
   RoutineConnectionType,
   RoutineCurated,
   RoutineReferenceItem,
@@ -20,13 +19,6 @@ export type {
   RoutineWeekly,
 } from "@emstack/types";
 
-export const recurPeriodUnitEnum = pgEnum("recurPeriodUnit", ["days", "months", "years"]);
-export const resourceTypeEnum = pgEnum("resourceType", ["website", "book"]);
 export const statusEnum = pgEnum("status", ["active", "inactive", "complete", "paused"]);
 export const dailyCompletionStatusEnum = pgEnum("dailyCompletionStatus", ["incomplete", "touched", "goal", "exceeded", "freeze"]);
-export const resourceLevelEnum = pgEnum("resourceLevel", ["low", "medium", "high"]);
-export const moduleStatusEnum = pgEnum("module_status", ["unstarted", "in_progress", "complete"]);
 export const routineModeEnum = pgEnum("routine_mode", ["weekly", "daily", "curated"]);
-export const interactionProgressEnum = pgEnum("interaction_progress", ["incomplete", "started", "complete"]);
-export const interactionDifficultyEnum = pgEnum("interaction_difficulty", ["easy", "medium", "hard"]);
-export const interactionUnderstandingEnum = pgEnum("interaction_understanding", ["none", "basic", "comfortable", "proficient", "mastered"]);

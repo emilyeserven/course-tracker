@@ -20,7 +20,6 @@ const client = seededQueryClient([
       readwiseKeyHint: "…aB3x",
       todoistConfigured: true,
       todoistKeyHint: "…aB3x",
-      moduleHintTemplates: [],
     } satisfies AppSettingsSummary,
   ],
 ]);
@@ -28,7 +27,7 @@ const client = seededQueryClient([
 const meta: Meta<typeof QuickAddDialogs> = {
   component: QuickAddDialogs,
   args: {
-    active: "resource",
+    active: "task",
     onClose: fn(),
   },
   decorators: [
@@ -46,22 +45,11 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// active="resource" opens the resource quick-add dialog (portaled to body).
-export const ResourceActive: Story = {
+// active="task" opens the task quick-add dialog (portaled to body).
+export const TaskActive: Story = {
   play: async () => {
     const body = within(document.body);
-    await expect(await body.findByText("Add Resource")).toBeInTheDocument();
-  },
-};
-
-// Switching `active` opens a different dialog from the same mounted set.
-export const ProviderActive: Story = {
-  args: {
-    active: "provider",
-  },
-  play: async () => {
-    const body = within(document.body);
-    await expect(await body.findByText("Add Provider")).toBeInTheDocument();
+    await expect(await body.findByText("Add Task")).toBeInTheDocument();
   },
 };
 

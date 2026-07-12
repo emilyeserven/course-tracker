@@ -4,14 +4,11 @@ import { expect, within } from "storybook/test";
 
 import { EntityError, EntityPending } from "./EntityStates";
 
-import { RouterStub } from "@/test-utils/RouterStub";
-
-// `EntityPending` is the meta component; `EntityError` renders a router <Link>,
-// so it's shown as a separate story wrapped in RouterStub.
+// `EntityPending` is the meta component; `EntityError` is shown as a separate story.
 const meta: Meta<typeof EntityPending> = {
   component: EntityPending,
   args: {
-    entity: "courses",
+    entity: "tasks",
   },
 };
 
@@ -24,32 +21,18 @@ export const Pending: Story = {
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/loading your courses/i)).toBeInTheDocument();
+    await expect(canvas.getByText(/loading your tasks/i)).toBeInTheDocument();
   },
 };
 
-// EntityError renders a TanStack <Link>, so it needs router context. RouterStub
-// mounts async, so assert with findBy*.
 export const Error: Story = {
-  decorators: [
-    Story => (
-      <RouterStub>
-        <Story />
-      </RouterStub>
-    ),
-  ],
-  render: () => <EntityError entity="topics" />,
+  render: () => <EntityError entity="routines" />,
   play: async ({
     canvasElement,
   }) => {
     const canvas = within(canvasElement);
     await expect(
-      await canvas.findByText(/error loading your topics/i),
-    ).toBeInTheDocument();
-    await expect(
-      await canvas.findByRole("link", {
-        name: "Onboarding Wizard",
-      }),
+      canvas.getByText(/error loading your routines/i),
     ).toBeInTheDocument();
   },
 };

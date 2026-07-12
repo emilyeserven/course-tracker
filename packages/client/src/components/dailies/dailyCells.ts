@@ -8,7 +8,6 @@ export { DailyCadenceBadge } from "./DailyCadenceBadge";
 export { DailyCommentPopover } from "./DailyCommentPopover";
 export { DailyLocationCell } from "./DailyLocationCell";
 export { DailyProgressCell } from "./DailyProgressCell";
-export { DailyResourceIndicator } from "./DailyResourceIndicator";
 export { DailyStatusCircle } from "./DailyStatusCircle";
 export { DailyStatusConnector } from "./DailyStatusConnector";
 export { DailyTaskIndicator } from "./DailyTaskIndicator";

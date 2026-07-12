@@ -14,7 +14,7 @@ import { queryKeys } from "@/utils/queryKeys";
  * defaults, mirroring the other `test-utils/*Fixtures.ts` factories.
  */
 
-export function makeAppSettings(
+function makeAppSettings(
   overrides: Partial<AppSettingsSummary> = {},
 ): AppSettingsSummary {
   return {
@@ -22,7 +22,6 @@ export function makeAppSettings(
     readwiseKeyHint: null,
     todoistConfigured: false,
     todoistKeyHint: null,
-    moduleHintTemplates: [],
     ...overrides,
   };
 }

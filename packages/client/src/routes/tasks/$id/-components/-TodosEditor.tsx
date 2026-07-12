@@ -110,9 +110,6 @@ export function TodosEditor({
       location: null,
       url: null,
       position: todos.length,
-      resourceId: null,
-      moduleGroupId: null,
-      moduleId: null,
       bookmarks: [],
     });
   }

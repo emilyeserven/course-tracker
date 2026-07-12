@@ -33,7 +33,7 @@ export const Route = createFileRoute("/routines/")({
   pendingComponent: RoutinesPending,
   validateSearch: (search: Record<string, unknown>): RoutinesSearch => ({
     connectedType:
-      search.connectedType === "task" || search.connectedType === "resource"
+      search.connectedType === "task" || search.connectedType === "bookmark"
         ? search.connectedType
         : undefined,
     connectedId:
@@ -65,11 +65,11 @@ function Routines() {
     queryFn: () => fetchRoutines(),
   });
 
-  // Resolve scheduled task / resource / module names so a weekly routine can show
-  // today's entry in place of its name (freeform entries carry their own text in
-  // `id`; a resource entry may narrow to a module or group).
+  // Resolve scheduled task names so a weekly routine can show today's entry in
+  // place of its name (freeform and bookmark entries carry their own label on
+  // the entry).
   const {
-    taskNames, resourceNames, moduleNames, moduleGroupNames,
+    taskNames,
   }
     = useTaskResourceNames();
   const todayWeekday = String(new Date().getDay()) as RoutineWeekday;
@@ -86,13 +86,7 @@ function Routines() {
       return null;
     }
     return {
-      name: weeklyEntryName(
-        entry,
-        taskNames,
-        resourceNames,
-        moduleNames,
-        moduleGroupNames,
-      ),
+      name: weeklyEntryName(entry, taskNames),
       prependText: entry.prependText,
       appendText: entry.appendText,
     };

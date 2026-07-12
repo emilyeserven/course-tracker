@@ -18,6 +18,10 @@ Resources are being phased out but kept for now (they still carry cost/amortizat
 the interactions log, and modules); their eventual fate — migrate to bookmark
 custom-properties or drop — is deferred to a later increment.
 
+_Update: that increment landed — see [ADR 0002](0002-remove-the-resource-subsystem.md),
+which removes the Resource subsystem entirely and resolves the deferred question by
+dropping cost/interactions/providers with no migration._
+
 ## Status
 
-accepted
+accepted (superseded in part by ADR 0002)

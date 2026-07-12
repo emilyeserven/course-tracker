@@ -27,8 +27,6 @@ export function useDailyComment(daily: Daily) {
         location: daily.location ?? null,
         description: daily.description ?? null,
         completions,
-        courseProviderId: daily.provider?.id ?? null,
-        resourceId: daily.resource?.id ?? null,
         taskId: daily.taskId ?? daily.task?.id ?? null,
         status: daily.status ?? "active",
         criteria: daily.criteria ?? {},

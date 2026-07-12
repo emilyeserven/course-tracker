@@ -1,6 +1,4 @@
 import type {
-  CourseProvider,
-  ResourceInResources,
   Routine,
   RoutineTodayAction,
   Task,
@@ -12,80 +10,11 @@ import type {
  * fields it cares about.
  */
 
-export function makeResource(
-  overrides: Partial<ResourceInResources> = {},
-): ResourceInResources {
-  return {
-    id: "resource-1",
-    name: "Intro to TypeScript",
-    description: "A practical, project-based introduction to TypeScript.",
-    url: "https://example.com/course",
-    dateExpires: "2026-12-31",
-    cost: {
-      cost: "49.99",
-      isCostFromPlatform: false,
-      splitBy: 1,
-    },
-    progressCurrent: 3,
-    progressTotal: 10,
-    status: "active",
-    provider: {
-      id: "provider-1",
-      name: "Acme Learning",
-    },
-    ...overrides,
-  };
-}
-
-export function makeResources(count = 3): ResourceInResources[] {
-  return Array.from(
-    {
-      length: count,
-    },
-    (_, i) =>
-      makeResource({
-        id: `resource-${i + 1}`,
-        name: `Course ${i + 1}`,
-        progressCurrent: i,
-        progressTotal: count,
-      }),
-  );
-}
-
-export function makeProvider(
-  overrides: Partial<CourseProvider> = {},
-): CourseProvider {
-  return {
-    id: "provider-1",
-    name: "Acme Learning",
-    description: "An online learning platform.",
-    url: "https://example.com",
-    cost: "19.99",
-    isCourseFeesShared: true,
-    resourceCount: 4,
-    ...overrides,
-  };
-}
-
 export function makeTask(overrides: Partial<Task> = {}): Task {
   return {
     id: "task-1",
     name: "Finish the tutorial project",
     description: "Build the sample app end to end.",
-    resources: [
-      {
-        id: "task-resource-1",
-        taskId: "task-1",
-        name: "Starter repo",
-        usedYet: true,
-      },
-      {
-        id: "task-resource-2",
-        taskId: "task-1",
-        name: "Reference docs",
-        usedYet: false,
-      },
-    ],
     ...overrides,
   };
 }

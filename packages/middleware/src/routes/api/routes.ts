@@ -3,17 +3,11 @@ import { FastifyInstance } from "fastify";
 
 import apiSeed from "./seed";
 import apiClear from "./clearData";
-import apiFormSubmit from "./submitOnboardData";
-import resources from "./resources/routes";
-import providers from "./providers/routes";
 import routines from "./routines/routes";
 import tasks from "./tasks/routes";
 import taskTypes from "./task-types/routes";
 import tagGroups from "./tag-groups/routes";
 import tags from "./tags/routes";
-import moduleGroups from "./module-groups/routes";
-import modules from "./modules/routes";
-import interactions from "./interactions/routes";
 import dailyCriteriaTemplates from "./daily-criteria-templates/routes";
 import routineTemplates from "./routine-templates/routes";
 import dashboardLayouts from "./dashboard-layouts/routes";
@@ -32,13 +26,6 @@ export default async function (server: FastifyInstance) {
     fastify.register(apiSeed);
     fastify.register(apiClear);
   }
-  fastify.register(apiFormSubmit);
-  fastify.register(resources, {
-    prefix: "/resources",
-  });
-  fastify.register(providers, {
-    prefix: "/providers",
-  });
   fastify.register(routines, {
     prefix: "/routines",
   });
@@ -53,15 +40,6 @@ export default async function (server: FastifyInstance) {
   });
   fastify.register(tags, {
     prefix: "/tags",
-  });
-  fastify.register(moduleGroups, {
-    prefix: "/module-groups",
-  });
-  fastify.register(modules, {
-    prefix: "/modules",
-  });
-  fastify.register(interactions, {
-    prefix: "/interactions",
   });
   fastify.register(dailyCriteriaTemplates, {
     prefix: "/daily-criteria-templates",

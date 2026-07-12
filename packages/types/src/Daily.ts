@@ -57,8 +57,6 @@ export type DailyStatus = EntityStatus;
 export interface DailyTaskProgress {
   todosTotal: number;
   todosComplete: number;
-  resourcesTotal: number;
-  resourcesUsed: number;
 }
 
 export interface Daily {
@@ -71,7 +69,7 @@ export interface Daily {
   kind?: "routine" | "todo";
   // Set when kind === "todo": the Task List and todo this row projects.
   todoId?: string | null;
-  // The representative entry's resolved name (task/resource/freeform), wrapped
+  // The representative entry's resolved name (task/bookmark/freeform), wrapped
   // with any prepend/append text into a natural sentence (e.g. "Review Spanish
   // flashcards for 10 minutes"). Null unless the daily is assigned to something;
   // consumers fall back to `name` (the routine title).
@@ -96,23 +94,6 @@ export interface Daily {
     name: string;
     progress?: DailyTaskProgress;
   } | null;
-  provider?: {
-    name: string;
-    id: string;
-  };
-  resource?: {
-    id: string;
-    name: string;
-    progressCurrent: number;
-    progressTotal: number;
-    // When false, the linked resource opts out of progress tracking — the
-    // tracker's Progress column shows an infinity icon instead of a radial.
-    tracksProgress?: boolean;
-  };
-  // Optional sub-target within the linked course. At most one of these
-  // is set; both null = the daily targets the whole course.
-  moduleGroupId?: string | null;
-  moduleId?: string | null;
   // Per-weekday scheduled grid (unresolved names). Present only on weekly-mode
   // routine projections; absent/null for daily-mode dailies.
   weekly?: RoutineWeekly | null;

@@ -12,9 +12,6 @@ export function toTodoInput(t: TaskTodo) {
     note: t.note ?? null,
     location: t.location ?? null,
     url: t.url ?? null,
-    resourceId: t.resourceId ?? null,
-    moduleGroupId: t.moduleGroupId ?? null,
-    moduleId: t.moduleId ?? null,
     // Round-trip bookmarks: task_todos are rebuilt on every save, so omitting
     // these would drop a todo's bookmark associations on any edit.
     bookmarks: (t.bookmarks ?? []).map(b => ({

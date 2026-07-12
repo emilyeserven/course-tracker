@@ -30,7 +30,7 @@ export interface RoutineEditSearch {
   connectedType?: RoutineConnectionType;
   connectedId?: string;
   mode?: RoutineMode;
-  entryType?: "task" | "resource";
+  entryType?: "task";
   entryId?: string;
   tab?: EditTab;
 }
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/routines/$id/edit")({
   component: SingleRoutineEdit,
   validateSearch: (search: Record<string, unknown>): RoutineEditSearch => ({
     connectedType:
-      search.connectedType === "task" || search.connectedType === "resource"
+      search.connectedType === "task" || search.connectedType === "bookmark"
         ? search.connectedType
         : undefined,
     connectedId:
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/routines/$id/edit")({
         ? search.mode
         : undefined,
     entryType:
-      search.entryType === "task" || search.entryType === "resource"
+      search.entryType === "task"
         ? search.entryType
         : undefined,
     entryId:

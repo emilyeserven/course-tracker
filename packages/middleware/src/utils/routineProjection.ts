@@ -14,7 +14,6 @@ import type { DailyProjectionRow } from "./dailyProjection";
 import { mapDaily } from "./dailyProjection";
 import type {
   ResolvedConnections,
-  ResolvedResource,
   ResolvedTask,
 } from "./routineActionParts";
 import { resolveActionParts } from "./routineActionParts";
@@ -29,7 +28,7 @@ import {
 // callers consume from here, so they keep a single import site; the rest are
 // imported from routineWeekday directly.
 export { currentDateKey, entryForCompletionDate, representativeEntry };
-export type { ResolvedConnections, ResolvedResource, ResolvedTask };
+export type { ResolvedConnections, ResolvedTask };
 
 // The routine columns (plus its resolved connections) the projection reads.
 export interface RoutineRow {
@@ -58,8 +57,7 @@ export type RoutineDaily = Daily & {
 };
 
 // Assemble the DailyProjectionRow mapDaily expects from a routine, its active
-// entry, and the resolved connections. Provider/module sub-targeting is
-// intentionally dropped in the unified routine model (always null).
+// entry, and the resolved connections.
 function toDailyRow(
   routine: RoutineRow,
   entry: RoutineReferenceItem | null,
@@ -74,10 +72,6 @@ function toDailyRow(
     status: routine.status,
     criteria: routine.criteria ?? {},
     taskId: resolved.task?.id ?? null,
-    moduleGroupId: null,
-    moduleId: null,
-    courseProvider: null,
-    resource: resolved.resource ?? null,
     task: resolved.task ?? null,
   };
 }

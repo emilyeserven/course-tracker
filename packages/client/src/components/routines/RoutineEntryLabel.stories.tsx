@@ -5,9 +5,6 @@ import { RoutineEntryLabel } from "./RoutineEntryLabel";
 import { RouterStub } from "@/test-utils/RouterStub";
 import {
   makeReferenceItem,
-  moduleGroupNames,
-  moduleNames,
-  resourceNames,
   taskNames,
 } from "@/test-utils/routinesFixtures";
 
@@ -16,11 +13,8 @@ const meta = {
   args: {
     entry: makeReferenceItem(),
     taskNames,
-    resourceNames,
-    moduleNames,
-    moduleGroupNames,
   },
-  // Task/resource entries render an EntityLink (<Link>), so a router is required.
+  // Task entries render an EntityLink (<Link>), so a router is required.
   decorators: [
     Story => (
       <RouterStub>
@@ -47,23 +41,13 @@ export const TaskEntry: Story = {
   },
 };
 
-export const ResourceEntry: Story = {
+// A bookmark entry renders its cached title.
+export const BookmarkEntry: Story = {
   args: {
     entry: makeReferenceItem({
-      type: "resource",
-      id: "resource-1",
-    }),
-  },
-};
-
-// A resource entry narrowed to a specific module shows the module name in place
-// of the resource name.
-export const ResourceModuleEntry: Story = {
-  args: {
-    entry: makeReferenceItem({
-      type: "resource",
-      id: "resource-1",
-      moduleId: "module-2",
+      type: "bookmark",
+      id: "bookmark-1",
+      title: "Reference doc",
     }),
   },
 };

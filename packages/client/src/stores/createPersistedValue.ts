@@ -74,7 +74,7 @@ const storeCache = new Map<string, PersistedValueStore<unknown>>();
  *
  * Stores are cached per key, so calling this during render with a stable key
  * (the call sites all pass literals) returns the same store every time — safe
- * to select from like any Zustand hook. `useStoredViewMode` is used with two
+ * to select from like any Zustand hook. A given hook may be used with several
  * different keys, hence the cache rather than a single global store.
  */
 export function createPersistedValueStore<T>(

@@ -1,12 +1,14 @@
-import type { Resource } from "@emstack/types";
+import type { EntityStatus } from "@emstack/types";
 
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export type ResourceProgress = Partial<
-  Pick<Resource, "progressCurrent" | "progressTotal" | "status">
->;
+export interface ResourceProgress {
+  progressCurrent?: number | null;
+  progressTotal?: number | null;
+  status?: EntityStatus | null;
+}
 
 interface ContentBoxProgressProps extends ResourceProgress {
   isRounded?: boolean;
@@ -19,7 +21,7 @@ export function ProgressBar({
   isRounded = true,
   ...props
 }: React.ComponentProps<"div"> & ContentBoxProgressProps) {
-  if (!progressCurrent || progressCurrent === 0 || progressTotal === 0) {
+  if (!progressCurrent || !progressTotal) {
     return <></>;
   }
   return (

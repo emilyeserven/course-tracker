@@ -25,9 +25,6 @@ interface RoutineTemplateEditModalProps extends ControlledDialogProps {
   isSaving?: boolean;
   deleteDisabled?: boolean;
   taskOptions: SelectOption[];
-  resourceOptions: SelectOption[];
-  moduleGroupsByResource: Map<string, SelectOption[]>;
-  modulesByResource: Map<string, SelectOption[]>;
 }
 
 export function RoutineTemplateEditModal({
@@ -40,9 +37,6 @@ export function RoutineTemplateEditModal({
   isSaving = false,
   deleteDisabled = false,
   taskOptions,
-  resourceOptions,
-  moduleGroupsByResource,
-  modulesByResource,
 }: RoutineTemplateEditModalProps) {
   const [label, setLabel] = useState(template?.label ?? "");
   const [rows, setRows] = useState<WeeklyRow[]>(weeklyToRows(template?.weekly));
@@ -78,8 +72,8 @@ export function RoutineTemplateEditModal({
           </DialogTitle>
           <DialogDescription>
             {isNew
-              ? "Name the template and set its weekly schedule of tasks and resources."
-              : "Update the template's label and weekly schedule of tasks and resources."}
+              ? "Name the template and set its weekly schedule of tasks."
+              : "Update the template's label and weekly schedule of tasks."}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -110,9 +104,6 @@ export function RoutineTemplateEditModal({
               value={rows}
               onChange={setRows}
               taskOptions={taskOptions}
-              resourceOptions={resourceOptions}
-              moduleGroupsByResource={moduleGroupsByResource}
-              modulesByResource={modulesByResource}
             />
           </div>
           <EditModalFooter

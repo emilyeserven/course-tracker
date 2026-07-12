@@ -4,7 +4,7 @@ import { expect, within } from "storybook/test";
 
 import { RoutineDetailsContent } from "./-RoutineDetailsContent";
 
-import { makeRoutine, makeResources, makeTask } from "@/test-utils/boxFixtures";
+import { makeRoutine, makeTask } from "@/test-utils/boxFixtures";
 import { seededQueryClient } from "@/test-utils/seededQueryClient";
 import { queryStoryDecorator } from "@/test-utils/storyDecorators";
 import { smokePlay } from "@/test-utils/storyPlay";
@@ -26,14 +26,7 @@ const meta = {
   // useTaskResourceNames reads the task/resource lists to resolve weekly-schedule
   // entry names.
   decorators: [
-    queryStoryDecorator(
-      seededQueryClient([
-        [["tasks"], [makeTask()]],
-        [["resources"], makeResources()],
-        [["modules-all"], []],
-        [["module-groups-all"], []],
-      ]),
-    ),
+    queryStoryDecorator(seededQueryClient([[["tasks"], [makeTask()]]])),
   ],
 } satisfies Meta<typeof RoutineDetailsContent>;
 
@@ -85,8 +78,9 @@ export const Curated: Story = {
         endDate: dateKeyOffset(2),
         entries: {
           [getTodayKey()]: {
-            type: "resource",
-            id: "resource-1",
+            type: "bookmark",
+            id: "bookmark-1",
+            title: "Reference doc",
           },
         },
       },
@@ -100,7 +94,7 @@ export const Curated: Story = {
       text: "Curated Schedule",
     },
     {
-      text: "Course 1",
+      text: "Reference doc",
     },
   ]),
 };

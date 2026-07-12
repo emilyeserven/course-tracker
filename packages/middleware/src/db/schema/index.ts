@@ -1,7 +1,6 @@
 // Drizzle schema, split by domain. Table modules may import each other's
 // tables for FK references (lazy callbacks, no cycles); all relations()
 // declarations live in relations.ts.
-export * from "./courses";
 export * from "./dailyCriteriaTemplates";
 export * from "./dashboardLayouts";
 export * from "./enums";

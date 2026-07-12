@@ -9,8 +9,7 @@ export function DataToolsSection() {
   const navigate = useNavigate();
 
   const {
-    isFetching: isSeedFetching,
-    refetch: seedRefetch,
+    isFetching: isSeedFetching, refetch: seedRefetch,
   } = useQuery({
     enabled: false,
     queryKey: ["seed"],
@@ -18,8 +17,7 @@ export function DataToolsSection() {
   });
 
   const {
-    isFetching: isClearFetching,
-    refetch: clearRefetch,
+    isFetching: isClearFetching, refetch: clearRefetch,
   } = useQuery({
     enabled: false,
     queryKey: ["clear"],
@@ -31,7 +29,7 @@ export function DataToolsSection() {
 
     if (clearRefetchResult.status === "success") {
       navigate({
-        to: "/resources",
+        to: "/dashboard",
         reloadDocument: true,
       });
     }
@@ -41,7 +39,7 @@ export function DataToolsSection() {
     const seedRefetchResult = await seedRefetch();
     if (seedRefetchResult.status === "success") {
       navigate({
-        to: "/resources",
+        to: "/dashboard",
         reloadDocument: true,
       });
     }

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, within } from "storybook/test";
 
 import { TaskResourceComboboxContent } from "./TaskResourceComboboxContent";
 
@@ -43,24 +43,8 @@ export const Default: Story = {
   play: async () => {
     const body = within(document.body);
     await expect(await body.findByText("Read a chapter")).toBeInTheDocument();
-    await expect(body.getByText("Write practice exercises")).toBeInTheDocument();
-  },
-};
-
-// With onAddNew, a pinned "Add resource" row sits above the results and fires the
-// callback on click.
-export const WithAddNew: Story = {
-  args: {
-    onAddNew: fn(),
-  },
-  play: async ({
-    args,
-  }) => {
-    const body = within(document.body);
-    const addButton = await body.findByRole("button", {
-      name: "Add resource",
-    });
-    await userEvent.click(addButton);
-    await expect(args.onAddNew).toHaveBeenCalled();
+    await expect(
+      body.getByText("Write practice exercises"),
+    ).toBeInTheDocument();
   },
 };

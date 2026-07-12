@@ -2,7 +2,6 @@
 export * from "./connectionCounts";
 export * from "./copyTextToClipboard";
 export * from "./dailyHelpers";
-export * from "./FieldChangeHighlightProvider";
 export * from "./fetchFunctions";
 export * from "./fieldChangeHighlight";
 export * from "./fieldContext";
@@ -10,7 +9,6 @@ export * from "./formatCurrency";
 export * from "./formHasChanges";
 export * from "./isHttpUrl";
 export * from "./makePercentageComplete";
-export * from "./moduleProgress";
 export * from "./parseCost";
 export * from "./queryKeys";
 export * from "./routineConnections";

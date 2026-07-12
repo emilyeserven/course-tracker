@@ -13,9 +13,6 @@ function todo(
     status: "incomplete",
     dueDate: null,
     location: null,
-    resourceId: null,
-    moduleGroupId: null,
-    moduleId: null,
     ...over,
   };
 }
@@ -72,9 +69,9 @@ test("projects a todo as a synthetic single-day curated daily with task progress
     task([
       todo({
         id: "a",
+        name: "Do the thing",
         dueDate: TODAY,
         status: "incomplete",
-        resourceId: "res-1",
       }),
       todo({
         id: "b",
@@ -90,8 +87,9 @@ test("projects a todo as a synthetic single-day curated daily with task progress
   assert.strictEqual(daily.taskId, "task-1");
   assert.strictEqual(daily.mode, "curated");
   assert.strictEqual(daily.curated?.endDate, TODAY);
-  // Synthetic entry keyed at today so it classifies as "now".
-  assert.strictEqual(daily.curated?.entries[TODAY]?.id, "res-1");
+  // Synthetic freeform entry keyed at today (id is the todo name) so it
+  // classifies as "now".
+  assert.strictEqual(daily.curated?.entries[TODAY]?.id, "Do the thing");
   assert.strictEqual(daily.completions[0]?.date, TODAY);
   assert.strictEqual(daily.completions[0]?.status, "incomplete");
   // Parent Task List progress: 1 of 2 todos done (the "goal" one).

@@ -11,7 +11,6 @@ import {
   DailyCommentPopover,
   DailyLocationCell,
   DailyProgressCell,
-  DailyResourceIndicator,
   DailyStatusCircle,
   DailyStatusConnector,
   DailyTaskIndicator,
@@ -101,7 +100,6 @@ export function DailyTrackerRow({
       {vis.type && (
         <td className="p-2">
           <span className="inline-flex items-center gap-1.5">
-            <DailyResourceIndicator daily={daily} />
             <DailyTaskIndicator daily={daily} />
           </span>
         </td>

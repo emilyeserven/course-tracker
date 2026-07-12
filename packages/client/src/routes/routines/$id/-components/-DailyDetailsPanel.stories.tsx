@@ -14,10 +14,6 @@ const daily = makeDaily({
   name: "Spanish practice",
   description: "Build conversational fluency.",
   location: "Library, desk 4",
-  provider: {
-    id: "prov-1",
-    name: "Duolingo",
-  },
   completions: makeRecentCompletions([
     "goal",
     "touched",

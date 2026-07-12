@@ -28,50 +28,32 @@ export async function resolveRoutineConnections<
   connections: ResolvedRoutineConnection[];
 })[]> {
   const taskIds = new Set<string>();
-  const resourceIds = new Set<string>();
 
   for (const row of rows) {
     for (const c of row.connections ?? []) {
       if (c.connectedType === "task") {
         taskIds.add(c.connectedId);
       }
-      else if (c.connectedType === "resource") {
-        resourceIds.add(c.connectedId);
-      }
     }
   }
 
-  const [taskRows, resourceRows] = await Promise.all([
-    taskIds.size
-      ? db.query.tasks.findMany({
-        where: (t, {
-          inArray,
-        }) => inArray(t.id, [...taskIds]),
-        columns: {
-          id: true,
-          name: true,
-        },
-      })
-      : Promise.resolve([]),
-    resourceIds.size
-      ? db.query.resources.findMany({
-        where: (r, {
-          inArray,
-        }) => inArray(r.id, [...resourceIds]),
-        columns: {
-          id: true,
-          name: true,
-        },
-      })
-      : Promise.resolve([]),
-  ]);
+  const taskRows = taskIds.size
+    ? await db.query.tasks.findMany({
+      where: (t, {
+        inArray,
+      }) => inArray(t.id, [...taskIds]),
+      columns: {
+        id: true,
+        name: true,
+      },
+    })
+    : [];
 
   const nameByType: Record<
     Exclude<RoutineConnectionType, "bookmark">,
     Map<string, string>
   > = {
     task: new Map(taskRows.map(r => [r.id, r.name])),
-    resource: new Map(resourceRows.map(r => [r.id, r.name])),
   };
 
   return rows.map((row) => {

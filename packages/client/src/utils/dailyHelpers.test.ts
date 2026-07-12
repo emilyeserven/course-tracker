@@ -667,45 +667,32 @@ describe("getRecentDays", () => {
 });
 
 describe("getDailyProgressPercent", () => {
-  test("uses the linked resource progress when present", () => {
-    const daily = makeDaily({
-      resource: {
-        id: "r-1",
-        name: "Course",
-        progressCurrent: 3,
-        progressTotal: 4,
-      },
-    });
-    expect(getDailyProgressPercent(daily)).toBe(0.75);
-  });
-
-  test("guards against a zero resource total", () => {
-    const daily = makeDaily({
-      resource: {
-        id: "r-1",
-        name: "Course",
-        progressCurrent: 0,
-        progressTotal: 0,
-      },
-    });
-    expect(getDailyProgressPercent(daily)).toBe(0);
-  });
-
-  test("falls back to task todo/resource progress", () => {
+  test("uses the linked task todo progress when present", () => {
     const daily = makeDaily({
       task: {
         id: "t-1",
         name: "Task",
         progress: {
-          todosTotal: 2,
-          todosComplete: 1,
-          resourcesTotal: 2,
-          resourcesUsed: 2,
+          todosTotal: 4,
+          todosComplete: 3,
         },
       },
     });
-    // (1 + 2) / (2 + 2) = 0.75
     expect(getDailyProgressPercent(daily)).toBe(0.75);
+  });
+
+  test("guards against a zero todo total", () => {
+    const daily = makeDaily({
+      task: {
+        id: "t-1",
+        name: "Task",
+        progress: {
+          todosTotal: 0,
+          todosComplete: 0,
+        },
+      },
+    });
+    expect(getDailyProgressPercent(daily)).toBe(0);
   });
 
   test("returns 0 when nothing is linked", () => {

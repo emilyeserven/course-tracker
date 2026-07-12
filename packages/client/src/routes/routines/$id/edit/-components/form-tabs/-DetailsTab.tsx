@@ -26,9 +26,6 @@ export function DetailsTab({
     form,
     connectionOptions,
     taskOptions,
-    resourceOptions,
-    modulesByResource,
-    moduleGroupsByResource,
     isDaily,
     isCurated,
     curatedWindow,
@@ -65,7 +62,7 @@ export function DetailsTab({
             label="Connected To"
             options={connectionOptions}
             groupByPrefix
-            placeholder="Search tasks, resources..."
+            placeholder="Search tasks..."
           />
         )}
       </form.AppField>
@@ -107,9 +104,6 @@ export function DetailsTab({
             setCuratedEndDate={setCuratedEndDate}
             curatedWindow={curatedWindow}
             taskOptions={taskOptions}
-            resourceOptions={resourceOptions}
-            moduleGroupsByResource={moduleGroupsByResource}
-            modulesByResource={modulesByResource}
           />
         )
         : (
@@ -117,9 +111,6 @@ export function DetailsTab({
             form={form}
             isDaily={isDaily}
             taskOptions={taskOptions}
-            resourceOptions={resourceOptions}
-            moduleGroupsByResource={moduleGroupsByResource}
-            modulesByResource={modulesByResource}
           />
         )}
 

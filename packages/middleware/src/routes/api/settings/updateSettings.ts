@@ -16,28 +16,6 @@ const updateSchema = {
       properties: {
         readwiseApiKey: nullableString,
         todoistApiKey: nullableString,
-        moduleHintTemplates: {
-          type: "array",
-          items: {
-            type: "object",
-            required: ["id", "name", "groupHint", "moduleHint"],
-            properties: {
-              id: {
-                type: "string",
-              },
-              name: {
-                type: "string",
-              },
-              groupHint: {
-                type: "string",
-              },
-              moduleHint: {
-                type: "string",
-              },
-            },
-            additionalProperties: false,
-          },
-        },
       },
     },
   },
@@ -64,10 +42,6 @@ export default async function (server: FastifyInstance) {
       }
       if (request.body.todoistApiKey !== undefined) {
         updates.todoistApiKey = normalizeKey(request.body.todoistApiKey);
-      }
-      if (request.body.moduleHintTemplates !== undefined) {
-        // Replaces the saved hint templates wholesale.
-        updates.moduleHintTemplates = request.body.moduleHintTemplates;
       }
 
       if (Object.keys(updates).length > 0) {

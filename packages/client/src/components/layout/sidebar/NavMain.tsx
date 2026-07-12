@@ -3,7 +3,7 @@ import type { QuickAddKey } from "@/components/dialogs/quickAdd";
 import { Link } from "@tanstack/react-router";
 
 import { NavCategory } from "./NavCategory";
-import { NAV_SECTIONS, ONBOARD_LINK, STANDALONE_LINKS } from "./navConfig";
+import { NAV_SECTIONS, STANDALONE_LINKS } from "./navConfig";
 
 import {
   SidebarGroup,
@@ -12,7 +12,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useShowOnboard } from "@/hooks/useShowOnboard";
 
 /** The sidebar body: standalone links plus the collapsible record sections. */
 export function NavMain({
@@ -20,10 +19,7 @@ export function NavMain({
 }: {
   onQuickAdd: (key: QuickAddKey) => void;
 }) {
-  const showOnboard = useShowOnboard();
-  const standaloneLinks = showOnboard
-    ? [...STANDALONE_LINKS, ONBOARD_LINK]
-    : STANDALONE_LINKS;
+  const standaloneLinks = STANDALONE_LINKS;
 
   return (
     <>
