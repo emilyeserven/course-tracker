@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Course Tracker ("emstack") — a full-stack TypeScript monorepo for tracking learning resources (courses/books/etc.), topics, routines (including a daily habit tracker — "dailies" are a projection of routines, not a separate entity), and tasks. Built with pnpm workspaces.
+Course Tracker ("emstack") — a full-stack TypeScript monorepo, now a lean actionable dashboard for tracking tasks and routines (including a daily habit tracker — "dailies" are a projection of routines, not a separate entity). Learning-material record-keeping (links, categorization, progress, sections) is delegated to a companion app, **Simple Bookmarks** (`BOOKMARKS_API_URL`); tasks, todos, and routines associate with external bookmarks rather than storing local resources. Built with pnpm workspaces.
 
 ## Tech Stack
 
@@ -126,6 +126,20 @@ Project skills live in `.claude/skills/<name>/SKILL.md`. The `/`-command name co
 
 - **`review-pr` is the deliberate exception.** It's the only skill carrying `disable-model-invocation: true`, `allowed-tools`, and `context: fork`. These are intentional, not drift: `review-pr` is a **manual** `/review-pr` (never auto-invoked) that runs in a **forked subagent** with a scoped toolset. Leave them in place.
 - **`fallow/` is vendored** (see the fallow note under Code Quality). Its frontmatter carries upstream `license` and `metadata` keys that are **not** part of Claude's schema — don't hand-edit; re-sync with `pnpm fallow:sync-skill`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues (via the `gh` CLI). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
 ## Environment Variables
 
