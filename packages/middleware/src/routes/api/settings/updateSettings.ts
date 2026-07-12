@@ -8,6 +8,13 @@ import { nullableString } from "@/utils/schemas";
 // concept, so every write targets the same row.
 const SETTINGS_ROW_ID = "global";
 
+// "page" (underlying link) or "bookmark" (Simple Bookmarks page); null clears
+// back to the "page" default.
+const nullableBookmarkClickTargetEnum = {
+  type: ["string", "null"],
+  enum: ["page", "bookmark", null],
+} as const;
+
 const updateSchema = {
   schema: {
     description: "Update application settings (e.g. the Readwise or Todoist API keys)",
@@ -16,6 +23,8 @@ const updateSchema = {
       properties: {
         readwiseApiKey: nullableString,
         todoistApiKey: nullableString,
+        bookmarkApiUrl: nullableString,
+        bookmarkClickTarget: nullableBookmarkClickTargetEnum,
       },
     },
   },
@@ -42,6 +51,13 @@ export default async function (server: FastifyInstance) {
       }
       if (request.body.todoistApiKey !== undefined) {
         updates.todoistApiKey = normalizeKey(request.body.todoistApiKey);
+      }
+      if (request.body.bookmarkApiUrl !== undefined) {
+        updates.bookmarkApiUrl = normalizeKey(request.body.bookmarkApiUrl);
+      }
+      if (request.body.bookmarkClickTarget !== undefined) {
+        // A blank/null choice clears back to the "page" default.
+        updates.bookmarkClickTarget = request.body.bookmarkClickTarget ?? "page";
       }
 
       if (Object.keys(updates).length > 0) {

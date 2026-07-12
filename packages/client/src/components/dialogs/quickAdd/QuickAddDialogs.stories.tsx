@@ -20,6 +20,9 @@ const client = seededQueryClient([
       readwiseKeyHint: "…aB3x",
       todoistConfigured: true,
       todoistKeyHint: "…aB3x",
+      bookmarkApiUrl: null,
+      bookmarkApiUrlResolved: "http://eserve-raspi:3000",
+      bookmarkClickTarget: "page",
     } satisfies AppSettingsSummary,
   ],
 ]);

@@ -4,9 +4,12 @@ import type {
   RoutineWeekday,
 } from "@emstack/types";
 
+import { Fragment } from "react";
+
 import { Link } from "@tanstack/react-router";
 import { AlertTriangleIcon, FlameIcon, LaughIcon } from "lucide-react";
 
+import { OpenBookmarkPageButton } from "@/components/bookmarks";
 import { Description, EntityLink } from "@/components/boxElements";
 import {
   ContentBox,
@@ -24,6 +27,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import { cn } from "@/lib/utils";
 import {
   connectionEntityKind,
@@ -75,6 +79,9 @@ export function RoutineBox({
   completions,
   todayAction,
 }: Routine & { todayAction?: RoutineTodayAction | null }) {
+  const {
+    resolveHref,
+  } = useBookmarkLinking();
   const isDaily = mode === "daily";
   // A daily routine mirrors the same entry on every weekday, so the caution
   // only applies when the grid is empty — i.e. no task, resource, or freeform
@@ -104,35 +111,49 @@ export function RoutineBox({
             {connections && connections.length > 0
               ? (
                 connections.map(c => (
-                  <Badge
-                    key={`${c.type}:${c.id}`}
-                    asChild
-                    variant="secondary"
-                    className="
-                      bg-muted
-                      hover:bg-primary hover:text-primary-foreground
-                    "
-                  >
-                    {c.type === "bookmark"
-                      ? (
-                        <a
-                          href={c.url ?? undefined}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {c.name ?? c.id}
-                          {c.sectionLabel ? ` › ${c.sectionLabel}` : ""}
-                        </a>
-                      )
-                      : (
-                        <EntityLink
-                          entity={connectionEntityKind(c.type)}
-                          id={c.id}
-                        >
-                          {c.name ?? c.id}
-                        </EntityLink>
-                      )}
-                  </Badge>
+                  <Fragment key={`${c.type}:${c.id}`}>
+                    <Badge
+                      asChild
+                      variant="secondary"
+                      className="
+                        bg-muted
+                        hover:bg-primary hover:text-primary-foreground
+                      "
+                    >
+                      {c.type === "bookmark"
+                        ? (
+                          <a
+                            href={
+                              resolveHref({
+                                externalId: c.id,
+                                url: c.url ?? null,
+                              }) ?? undefined
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {c.name ?? c.id}
+                            {c.sectionLabel ? ` › ${c.sectionLabel}` : ""}
+                          </a>
+                        )
+                        : (
+                          <EntityLink
+                            entity={connectionEntityKind(c.type)}
+                            id={c.id}
+                          >
+                            {c.name ?? c.id}
+                          </EntityLink>
+                        )}
+                    </Badge>
+                    {c.type === "bookmark" && (
+                      <OpenBookmarkPageButton
+                        linkable={{
+                          externalId: c.id,
+                          url: c.url ?? null,
+                        }}
+                      />
+                    )}
+                  </Fragment>
                 ))
               )
               : (

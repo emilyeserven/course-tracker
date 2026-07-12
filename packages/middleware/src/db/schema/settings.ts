@@ -1,5 +1,5 @@
 import { jsonb, pgTable, varchar } from "drizzle-orm/pg-core";
-import type { CalendarFeed } from "@emstack/types";
+import type { BookmarkClickTarget, CalendarFeed } from "@emstack/types";
 
 // Single-row application settings. The row is keyed by a constant id ("global")
 // and created on first write via onConflictDoUpdate — there is no multi-user
@@ -17,4 +17,13 @@ export const appSettings = pgTable("app_settings", {
     .$type<CalendarFeed[]>()
     .notNull()
     .default([]),
+  // Optional override for the Simple Bookmarks base URL. Null = use the
+  // BOOKMARKS_API_URL env var / built-in default (see services/bookmarks.ts).
+  bookmarkApiUrl: varchar("bookmark_api_url"),
+  // Whether clicking a bookmark opens its underlying page or its Simple
+  // Bookmarks page. Defaults to "page" (the underlying link).
+  bookmarkClickTarget: varchar("bookmark_click_target")
+    .$type<BookmarkClickTarget>()
+    .notNull()
+    .default("page"),
 });

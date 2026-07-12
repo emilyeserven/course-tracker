@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import {
+  BookmarksSection,
   CriteriaTemplatesSection,
   DashboardLayoutsSection,
   DataToolsSection,
@@ -97,6 +98,7 @@ function Settings() {
                   <ReadwiseSection />
                   <TodoistSection />
                   <GoogleCalendarSection />
+                  <BookmarksSection />
                 </>
               ),
             },

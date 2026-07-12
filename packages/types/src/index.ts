@@ -9,6 +9,7 @@ export * from "./DailyCriteriaTemplate.js";
 export * from "./DashboardLayout.js";
 export * from "./Readwise.js";
 export * from "./Bookmark.js";
+export * from "./BookmarkClickTarget.js";
 export * from "./Routine.js";
 export * from "./RoutineTemplate.js";
 export * from "./Tag.js";
