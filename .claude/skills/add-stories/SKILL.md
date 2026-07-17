@@ -20,16 +20,16 @@ components themselves. The one exception is route shells (Tier C below), where
 the prescribed move is a behavior-preserving *extract* before storying.
 
 Coverage is tracked in a **story-coverage tracker** issue, split into per-area
-sub-issues (formFields, layout, resources, routes, …) — same model as the
+sub-issues (formFields, layout, dailies, routes, …) — same model as the
 import/max-dependencies cleanup tracker. This skill is the repeatable procedure
 for one such area.
 
 Stories already exist for ~40-50% of components; whole areas are done
-(`contentBoxComponents/`, `boxElements/`, `dailies/`, `radar/`, `tables/`). Don't
+(`contentBoxComponents/`, `boxElements/`, `dailies/`, `routines/`). Don't
 re-story those. The shared infra is already in place — reuse it, don't reinvent.
 
 > _Components, files, and fixtures named below (e.g. `InfoRow`,
-> `-ResourcesList.stories.tsx`, `useResourceModules`) are illustrations — they
+> `-TodoEditRow.stories.tsx`, `useDailyCompletions`) are illustrations — they
 > show the **shape** of the pattern, not required targets. Apply the method to
 > whatever's in your scope. Per-area worked examples (fixtures added, tricky
 > decorators) live in `references/area-notes.md` — illustrative reference, not
@@ -38,8 +38,7 @@ re-story those. The shared infra is already in place — reuse it, don't reinven
 ## 1. Inventory the target area — what's actually uncovered
 
 Story files are **co-located** next to the component and a story's filename
-**need not match** its component file (e.g. `radarLegendItem.tsx` →
-`BlipLegendItem.stories.tsx`). So don't audit by filename match alone — grep each
+**need not match** its component file. So don't audit by filename match alone — grep each
 component's export for a referencing story. A quick first pass for a folder:
 
 ```bash
@@ -79,7 +78,7 @@ Open the file and look at what it imports/calls — that dictates the decorators
 ## 3. Author the story (the canonical pattern)
 
 Mirror `components/ui/Badge.stories.tsx` (Tier A) and
-`routes/resources.-components/-ResourcesList.stories.tsx` (Tier B). Rules:
+`routes/tasks/$id/-components/-TodoEditRow.stories.tsx` (Tier B). Rules:
 
 - **CSF3:** `import type { Meta, StoryObj } from "@storybook/react-vite";`
 - **Test helpers from `storybook/test`** — the bare package, **NOT**
@@ -101,7 +100,8 @@ Mirror `components/ui/Badge.stories.tsx` (Tier A) and
   (trips `no-empty-function`).
 - **Mock data from fixtures.** Use the `make*` factories in
   `src/test-utils/*Fixtures.ts` (`boxFixtures`, `dailiesFixtures`,
-  `radarFixtures`) — `makeResource`, `makeDaily`, `makeBlip`, `makeTopics`, … —
+  `tasksFixtures`, `routinesFixtures`) — `makeDaily`, `makeTaskTodo`,
+  `makeRoutine`, … —
   with partial overrides. Extend a factory rather than hand-rolling literals. If
   an area has no factory yet and you're writing several stories, add a
   `test-utils/<area>Fixtures.ts` instead of duplicating args per story.
@@ -119,7 +119,6 @@ There are **no global decorators** in `.storybook/preview.ts`, and don't add any
   that *reads* via `useQuery`, build a `QueryClient`, seed it with
   `setQueryData(queryKeys.…, data)` (keys from `@/utils/queryKeys`), and pass it
   as the `client` prop so the component sees data without a network call.
-- **Settings** → `SettingsProvider` from `@/context/SettingsProvider`.
 - **Tooltips** → `TooltipProvider` from `@/components/ui/tooltip`.
 - **Radix menu items** (`DropdownMenuItem` and friends) need their menu context:
   wrap in `<DropdownMenu open><DropdownMenuContent forceMount>…</…>`. The content
@@ -129,8 +128,7 @@ There are **no global decorators** in `.storybook/preview.ts`, and don't add any
   `<svg>`, `TableRow` in `<Table><TableBody>`. Give width-dependent components a
   sizing wrapper (`<div className="max-w-sm">`).
 - **Persisted UI state** (localStorage view-mode etc.) → reset in
-  `beforeEach: () => window.localStorage.clear()`
-  (see `-ResourcesList.stories.tsx`).
+  `beforeEach: () => window.localStorage.clear()`.
 
 Compose decorators by nesting (outermost first), e.g.
 `RouterStub > TooltipProvider > sizing div > Story`.
@@ -139,13 +137,13 @@ Compose decorators by nesting (outermost first), e.g.
 
 Route shells are thin glue (fetch + `useSearch` → render a presentational child).
 The established convention covers them by **storying their extracted leaf**, which
-already takes plain props (`-ResourcesList` gets `resources`/`providers`/`topics`;
-`-DashboardGrid` exports `GridTile`). So:
+already takes plain props (`-DashboardGrid` exports `GridTile`;
+`-TodosEditor` delegates rows to `-TodoReadRow`/`-TodoEditRow`). So:
 
-1. **Route already delegates to a props-driven `routes/<x>.-components/-X.tsx`
+1. **Route already delegates to a props-driven `routes/<x>/-components/-X.tsx`
    leaf** → story that leaf (Tier A/B). Done.
 2. **Route holds inline render logic worth covering** → first *extract* it into a
-   `routes/<x>.-components/-X.tsx` presentational component (props in,
+   `routes/<x>/-components/-X.tsx` presentational component (props in,
    behavior-preserving — mirrors the existing route structure), wire the route to
    render it, regenerate the route tree
    (`pnpm --filter=@emstack/client run routeTree`, expect no routing diff — the

@@ -26,11 +26,11 @@ Two homes for components (see `packages/client/CLAUDE.md`):
   `components/ui/` (the shadcn primitives, incl. `button`, `combobox`, `popover`,
   `input`, …), `components/layout/`, `components/formFields/`, and the shared
   `components/dialogs/` family. Also feature folders (`dailies/`, `routines/`,
-  `radar/`, `tasks/`, `resources/`, `boxes/`, …). No component lives directly in
+  `tasks/`, `bookmarks/`, `contentBoxComponents/`, …). No component lives directly in
   `components/` — everything is in a themed subdirectory.
-- **Route-private** — sibling `*.-components/` folders (the `.-` prefix keeps
-  them out of TanStack routing), imported by relative path like
-  `./dashboard.-components/-DashboardGrid`.
+- **Route-private** — `-components/` folders nested in a route's directory
+  (the leading `-` keeps them out of TanStack routing), imported by relative
+  path like `./-components` from the route file.
 
 Two things drift over time, and this skill checks both:
 
@@ -47,7 +47,7 @@ Parse `$ARGUMENTS`:
 
 - **Empty** → scan the whole client (`packages/client/src`).
 - **A route name or folder path** (e.g. `/check-components dashboard` or
-  `/check-components packages/client/src/components/radar`) → scope the scan to
+  `/check-components packages/client/src/components/dailies`) → scope the scan to
   that route family / directory.
 
 Assume `pnpm install` has been run. All paths below are relative to the repo root.
@@ -58,14 +58,14 @@ Enumerate the route-private folders and their **owning route prefix** (derive it
 from the folder name — strip the `.-components` suffix and any dynamic segments):
 
 ```bash
-# All route-private folders (there are ~4 today)
-ls -d packages/client/src/routes/*.-components 2>/dev/null
+# All route-private folders
+find packages/client/src/routes -type d -name '-components' 2>/dev/null
 ```
 
-- `dashboard.-components/` → route family **`dashboard`**
-- `settings.-components/` → **`settings`**
-- `routines.$id.edit.-components/` → **`routines`**
-- `domains.$id.edit.-components/` → **`domains`**
+- `dashboard/-components/` → route family **`dashboard`**
+- `settings/-components/` → **`settings`**
+- `routines/$id/-components/` and `routines/$id/edit/-components/` → **`routines`**
+- `tasks/$id/-components/` → **`tasks`**
 
 Then enumerate the shared library and mark the **off-limits primitives** — these
 are *never* colocation candidates no matter how few consumers they have:
@@ -85,10 +85,10 @@ For each candidate component, find every importer across the **whole package**
 (consumers live in routes, hooks, and other components). Match both import forms:
 
 ```bash
-# absolute alias form, e.g. @/components/radar/BlipLegend
+# absolute alias form, e.g. @/components/dailies/DailyStatusCircle
 grep -rn "@/components/<subpath>/<Name>" packages/client/src --include=*.tsx --include=*.ts
-# relative route-private form, e.g. ./dashboard.-components/-DashboardGrid
-grep -rn "\.-components/-<Name>" packages/client/src --include=*.tsx --include=*.ts
+# relative route-private form, e.g. ./-components/-DashboardGrid
+grep -rn "\-components/-<Name>" packages/client/src --include=*.tsx --include=*.ts
 ```
 
 Derive each importer's **route family** from its path under `src/routes/` (the
@@ -148,7 +148,7 @@ Produce a findings report grouped **one section per category**, and **within eac
 category split by feature or path group**:
 
 - **Colocate** (Check 1) — split by target route family (colocate-`dailies`,
-  colocate-`radar`, …)
+  colocate-`tasks`, …)
 - **Promote** (Check 2a) — split by source `*.-components/` folder
 - **Dedupe** (Check 2b) — split by feature / the shared component involved
 
