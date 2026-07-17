@@ -124,7 +124,7 @@
 }
 
 @utility container {
-    @apply m-auto flex max-w-[1200px] w-full px-4;
+    @apply mx-auto flex max-w-[1200px] w-full px-4;
 }
 
 @utility card-grid {

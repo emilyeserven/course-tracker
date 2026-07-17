@@ -32,7 +32,7 @@ export function NewRoutineForm({
         pageTitle="New Routine"
         pageSection="routines"
       />
-      <div className="m-auto w-full max-w-[1200px] px-4">
+      <div className="mx-auto w-full max-w-[1200px] px-4">
         <EditForm
           onSubmit={form.handleSubmit}
           className="flex max-w-3xl flex-col gap-8"

@@ -150,7 +150,7 @@ function SingleTaskEdit() {
           />
         )}
       </PageHeader>
-      <div className="m-auto w-full max-w-[1200px] px-4">
+      <div className="mx-auto w-full max-w-[1200px] px-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();

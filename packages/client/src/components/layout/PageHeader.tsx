@@ -61,7 +61,7 @@ export function PageHeader({
           )}
           <div
             className="
-              m-auto flex w-full flex-col items-start gap-2
+              mx-auto flex w-full flex-col items-start gap-2
               sm:flex-row sm:justify-between
             "
           >
