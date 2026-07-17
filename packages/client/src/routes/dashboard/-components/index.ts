@@ -5,18 +5,15 @@
 export {
   AddLayoutDialog,
   DashboardGrid,
+  LayoutManagerDialogs,
   LayoutTab,
+  useDashboardTileSaver,
   VisibleTilesDialog,
 } from "./layout";
 export {
   buildDefaultTiles,
-  needsNormalization,
   normalizeTiles,
-  tilesEqual,
-  toggleTile,
 } from "@/lib/dashboardTiles";
-export { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
-export { LayoutNameDialog } from "@/components/dialogs/LayoutNameDialog";
 export { PageContainer } from "@/components/layout/PageContainer";
 export { PageHeader } from "@/components/layout/PageHeader";
 export { Button } from "@/components/ui/button";
