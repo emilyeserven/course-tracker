@@ -93,7 +93,6 @@ export function useTaskEditForm(id: string, isNew: boolean) {
       // Todos are edited on the detail page; preserve them untouched here.
       const existingTodos = (data?.todos ?? []).map(toTodoInput);
 
-      // fallow-ignore-next-line code-duplication
       await submitTask({
         name: value.name,
         description: value.description || null,
