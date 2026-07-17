@@ -15,6 +15,7 @@ import {
   DailyTrackerRow,
   TooManyDailiesWarning,
 } from "@/components/dailies";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { DataTable } from "@/components/ui/data-table";
 import {
   getDaysBetweenFirstAndLastEntry,
@@ -142,7 +143,7 @@ export function TrackerTables({
   recentDaysCount,
 }: RoutineTrackerState) {
   return (
-    <div className="container flex flex-col gap-4">
+    <PageContainer className="flex flex-col gap-4">
       {(!baseSorted || baseSorted.length === 0) && (
         <p className="text-sm text-muted-foreground">
           <i>No routines yet!</i>
@@ -249,6 +250,6 @@ export function TrackerTables({
           />
         </DashboardCard>
       )}
-    </div>
+    </PageContainer>
   );
 }

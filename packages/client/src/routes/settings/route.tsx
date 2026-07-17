@@ -14,7 +14,7 @@ import {
   TodoistSection,
 } from "./-components";
 
-import { PageHeader, PageTabs } from "@/components/layout";
+import { PageContainer, PageHeader, PageTabs } from "@/components/layout";
 
 const TAB_VALUES = [
   "tasks",
@@ -60,7 +60,7 @@ function Settings() {
   return (
     <div>
       <PageHeader pageTitle="Settings" />
-      <div className="container">
+      <PageContainer>
         <PageTabs
           value={tab}
           onValueChange={changeTab}
@@ -114,7 +114,7 @@ function Settings() {
             },
           ]}
         />
-      </div>
+      </PageContainer>
     </div>
   );
 }

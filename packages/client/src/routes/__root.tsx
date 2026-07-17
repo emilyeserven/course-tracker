@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 
 import { QuickAddDialogs } from "@/components/dialogs/quickAdd";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { AppBreadcrumb, AppSidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -40,9 +41,9 @@ const RootLayout: React.FunctionComponent = () => {
             className="ml-auto flex items-center gap-2"
           />
         </header>
-        <div className="container mb-8 flex-col py-4">
+        <PageContainer className="mb-8 flex flex-col py-4">
           <Outlet />
-        </div>
+        </PageContainer>
       </SidebarInset>
       <QuickAddDialogs
         active={activeQuickAdd}

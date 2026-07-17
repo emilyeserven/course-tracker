@@ -123,10 +123,6 @@
     }
 }
 
-@utility container {
-    @apply mx-auto flex max-w-[1200px] w-full px-4;
-}
-
 @utility card-grid {
     @apply grid grid-cols-1 gap-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3 w-full
 }

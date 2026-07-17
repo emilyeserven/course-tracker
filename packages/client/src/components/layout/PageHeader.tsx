@@ -3,6 +3,8 @@ import type { ResourceProgress } from "@/components/ui/ProgressBar";
 
 import { Link } from "@tanstack/react-router";
 
+import { PageContainer } from "./PageContainer";
+
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +31,7 @@ export function PageHeader({
         "py-4": !progressCurrent || progressCurrent === 0,
       })}
     >
-      <div className="container">
+      <PageContainer>
         <div className="flex w-full flex-col items-start gap-1">
           {pageSection && (
             <div className="flex flex-row gap-3">
@@ -76,7 +78,7 @@ export function PageHeader({
             {children && <div>{children}</div>}
           </div>
         </div>
-      </div>
+      </PageContainer>
       {progressCurrent && progressCurrent !== 0
         ? (
           <ProgressBar

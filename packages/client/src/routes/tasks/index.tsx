@@ -13,6 +13,7 @@ import {
   EntityPending,
   ListEmptyStates,
   ListSearchInput,
+  PageContainer,
   PageHeader,
 } from "@/components/listControls";
 import { Button } from "@/components/ui/button";
@@ -82,7 +83,7 @@ function Tasks() {
         pageSection=""
         description={ENTITY_DESCRIPTIONS.tasks}
       />
-      <div className="container flex flex-col gap-4">
+      <PageContainer className="flex flex-col gap-4">
         {data && data.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <ListSearchInput
@@ -109,7 +110,7 @@ function Tasks() {
             ))}
           </div>
         )}
-      </div>
+      </PageContainer>
     </div>
   );
 }

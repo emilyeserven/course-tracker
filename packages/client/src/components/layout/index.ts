@@ -6,5 +6,6 @@ export { EditPageFooter } from "./EditPageFooter";
 export { InfoArea } from "./InfoArea";
 export { OverviewCardGrid } from "./OverviewCardGrid";
 export { PageActions } from "./PageActions";
+export { PageContainer } from "./PageContainer";
 export { PageHeader } from "./PageHeader";
 export { PageTabs } from "./PageTabs";

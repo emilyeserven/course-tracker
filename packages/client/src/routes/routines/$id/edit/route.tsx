@@ -13,7 +13,12 @@ import {
 } from "./-components";
 
 import { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";
-import { EditPageFooter, PageHeader, PageTabs } from "@/components/layout";
+import {
+  EditPageFooter,
+  PageContainer,
+  PageHeader,
+  PageTabs,
+} from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import {
@@ -195,7 +200,7 @@ function ExistingRoutineEdit({
           </Button>
         </Link>
       </PageHeader>
-      <div className="container flex flex-col gap-6">
+      <PageContainer className="flex flex-col gap-6">
         <PageTabs
           value={tab}
           onValueChange={changeTab}
@@ -251,7 +256,7 @@ function ExistingRoutineEdit({
             Done
           </Button>
         </EditPageFooter>
-      </div>
+      </PageContainer>
       <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(anyTabHasChanges)} />
     </div>
   );

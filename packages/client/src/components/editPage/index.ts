@@ -5,6 +5,7 @@
 // re-exports them so an edit page pulls its shell from one module.
 export { EditPageFooter } from "@/components/layout/EditPageFooter";
 export { EntityHeaderButton } from "@/components/layout/EntityHeaderButton";
+export { PageContainer } from "@/components/layout/PageContainer";
 export { PageHeader } from "@/components/layout/PageHeader";
 export { Button } from "@/components/ui/button";
 export { UnsavedChangesDialog } from "@/components/dialogs/UnsavedChangesDialog";

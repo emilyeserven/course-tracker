@@ -12,6 +12,7 @@ import {
   FilterSelect,
   ListEmptyStates,
   ListSearchInput,
+  PageContainer,
 } from "@/components/listControls";
 import {
   Select,
@@ -118,7 +119,7 @@ export function RoutinesList({
   );
 
   return (
-    <div className="container flex flex-col gap-4">
+    <PageContainer className="flex flex-col gap-4">
       {routines.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <ListSearchInput
@@ -183,6 +184,6 @@ export function RoutinesList({
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

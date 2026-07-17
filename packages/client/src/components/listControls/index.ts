@@ -10,4 +10,5 @@ export {
   ListEmptyStates,
   ListSearchInput,
 } from "./ListPageControls";
+export { PageContainer } from "@/components/layout/PageContainer";
 export { PageHeader } from "@/components/layout/PageHeader";

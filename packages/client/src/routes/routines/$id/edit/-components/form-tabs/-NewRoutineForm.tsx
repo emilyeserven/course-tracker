@@ -5,7 +5,12 @@ import { Loader2 } from "lucide-react";
 import { MODE_OPTIONS } from "../-routineFormMeta";
 import { useNewRoutineForm } from "./-useNewRoutineForm";
 
-import { EditForm, EditPageFooter, PageHeader } from "@/components/layout";
+import {
+  EditForm,
+  EditPageFooter,
+  PageContainer,
+  PageHeader,
+} from "@/components/layout";
 import { Button } from "@/components/ui/button";
 
 interface NewRoutineFormProps {
@@ -32,7 +37,7 @@ export function NewRoutineForm({
         pageTitle="New Routine"
         pageSection="routines"
       />
-      <div className="mx-auto w-full max-w-[1200px] px-4">
+      <PageContainer>
         <EditForm
           onSubmit={form.handleSubmit}
           className="flex max-w-3xl flex-col gap-8"
@@ -69,7 +74,7 @@ export function NewRoutineForm({
             </Button>
           </EditPageFooter>
         </EditForm>
-      </div>
+      </PageContainer>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarCheckIcon, ListTodoIcon } from "lucide-react";
 
-import { OverviewCardGrid, PageHeader } from "@/components/layout";
+import { OverviewCardGrid, PageContainer, PageHeader } from "@/components/layout";
 import { ENTITY_DESCRIPTIONS } from "@/lib/entityDescriptions";
 import { fetchRoutines, fetchTasks } from "@/utils";
 import {
@@ -36,7 +36,7 @@ function Actions() {
         pageTitle="Actions"
         description="The things you actually do — recurring routines and one-off tasks that move your learning forward."
       />
-      <div className="container">
+      <PageContainer>
         <OverviewCardGrid
           className="md:grid-cols-2"
           items={[
@@ -66,7 +66,7 @@ function Actions() {
             },
           ]}
         />
-      </div>
+      </PageContainer>
     </div>
   );
 }
