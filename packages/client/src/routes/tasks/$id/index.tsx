@@ -6,7 +6,12 @@ import { LinkedRoutinesSection } from "./-components/-LinkedRoutinesSection";
 import { TodosEditor } from "./-components/-TodosEditor";
 
 import { OpenBookmarkPageButton } from "@/components/bookmarks";
-import { InfoArea, PageActions, PageHeader } from "@/components/layout";
+import {
+  InfoArea,
+  PageActions,
+  PageContainer,
+  PageHeader,
+} from "@/components/layout";
 import {
   EntityError,
   EntityPending,
@@ -86,7 +91,7 @@ function SingleTask() {
         pageTitle={data.name}
         pageSection="tasks"
       />
-      <div className="container flex flex-col gap-12">
+      <PageContainer className="flex flex-col gap-12">
         <InfoArea
           header="Routines"
           condition={true}
@@ -162,7 +167,7 @@ function SingleTask() {
         >
           <TodosEditor task={data} />
         </InfoArea>
-      </div>
+      </PageContainer>
     </div>
   );
 }

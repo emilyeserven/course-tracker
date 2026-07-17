@@ -17,6 +17,7 @@ export {
 } from "@/lib/dashboardTiles";
 export { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 export { LayoutNameDialog } from "@/components/dialogs/LayoutNameDialog";
+export { PageContainer } from "@/components/layout/PageContainer";
 export { PageHeader } from "@/components/layout/PageHeader";
 export { Button } from "@/components/ui/button";
 export { Tabs, TabsList } from "@/components/ui/tabs";

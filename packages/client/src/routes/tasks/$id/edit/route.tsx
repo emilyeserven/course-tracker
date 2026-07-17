@@ -10,6 +10,7 @@ import {
   Button,
   EditPageFooter,
   EntityHeaderButton,
+  PageContainer,
   PageHeader,
   UnsavedChangesDialog,
 } from "@/components/editPage";
@@ -150,7 +151,7 @@ function SingleTaskEdit() {
           />
         )}
       </PageHeader>
-      <div className="m-auto w-full max-w-[1200px] px-4">
+      <PageContainer>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -249,7 +250,7 @@ function SingleTaskEdit() {
           </EditPageFooter>
         </form>
         <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
-      </div>
+      </PageContainer>
     </div>
   );
 }

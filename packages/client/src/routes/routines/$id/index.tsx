@@ -11,7 +11,7 @@ import { RoutineDetailsContent } from "./-components/-RoutineDetailsContent";
 import { RoutineTodayCard } from "./-components/-RoutineTodayCard";
 
 import { DAILY_DETAIL_TABS } from "@/components/dailies";
-import { PageActions, PageHeader } from "@/components/layout";
+import { PageActions, PageContainer, PageHeader } from "@/components/layout";
 import { EntityError, EntityPending } from "@/components/listControls/EntityStates";
 import { Button } from "@/components/ui/button";
 import { fetchSingleRoutine } from "@/utils";
@@ -107,7 +107,7 @@ function SingleRoutine() {
           </Button>
         </Link>
       </PageActions>
-      <div className="container flex flex-col gap-12">
+      <PageContainer className="flex flex-col gap-12">
         <RoutineTodayCard data={data} />
         <DailyDetailsPanel
           dailyId={id}
@@ -135,7 +135,7 @@ function SingleRoutine() {
           )}
           detailsContent={<RoutineDetailsContent data={data} />}
         />
-      </div>
+      </PageContainer>
     </div>
   );
 }

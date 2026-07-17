@@ -21,6 +21,7 @@ import {
   LayoutTab,
   needsNormalization,
   normalizeTiles,
+  PageContainer,
   PageHeader,
   Tabs,
   TabsList,
@@ -229,7 +230,7 @@ function Dashboard() {
   return (
     <div>
       <PageHeader pageTitle="Dashboard" />
-      <div className="container flex flex-col gap-3">
+      <PageContainer className="flex flex-col gap-3">
         {isPending && (
           <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         )}
@@ -283,7 +284,7 @@ function Dashboard() {
               )}
           </>
         )}
-      </div>
+      </PageContainer>
 
       <VisibleTilesDialog
         open={tilesTarget !== null}

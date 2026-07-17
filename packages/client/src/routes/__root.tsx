@@ -40,7 +40,7 @@ const RootLayout: React.FunctionComponent = () => {
             className="ml-auto flex items-center gap-2"
           />
         </header>
-        <div className="container mb-8 flex-col py-4">
+        <div className="flex flex-1 flex-col pb-8">
           <Outlet />
         </div>
       </SidebarInset>
