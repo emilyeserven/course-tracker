@@ -150,7 +150,7 @@ A source file is "covered" when a test exercises its behavior. Treat a source fi
   - `packages/types/src/routineEntryName.ts` — `routineEntryName` (see 2.4)
   - `packages/types/src/actionableSentence.ts` — `buildActionableSentence`
   - `packages/client/src/lib/*` (e.g. `dashboardTiles.ts`, `entityDescriptions.ts`) and `packages/client/src/utils/*`
-  - `packages/middleware/src/utils/*` projections (`taskProjection.ts`, `resourceProjection.ts`, `dailyProjection.ts`, `routineProjection.ts`) and `packages/middleware/src/services/*`
+  - `packages/middleware/src/utils/*` projections (`taskProjection.ts`, `dailyProjection.ts`, `routineProjection.ts`, `todoDailyProjection.ts`) and `packages/middleware/src/services/*`
 - Prefer pure functions / utilities / services first (no DOM or HTTP harness); component tests second.
 
 **2.3 — Write the tests (match the package's runner).** Use the runner belonging to the package. Mirror a neighboring test for imports and harness — client tests reuse `src/test-utils/` fixtures and decorators; middleware tests follow `packages/middleware/src/tests/`. Write **behavior** tests (representative + edge inputs: empty, boundary, fallback arm), not change-detector snapshots. Cover each condition arm plus the default path for branchy logic. The `tdd` skill covers this repo's test-first flow if useful.
@@ -381,7 +381,7 @@ Iteration N:
 
 Ephemeral container, no human watching. Build the run so a crash costs at most one phase.
 
-- **Checkpoint by pushing, not just committing.** Push after **every iteration** (`git push -u origin claude/overnight-cleanup-skill-ql29ur`, with retry/backoff on network errors per the session's git instructions) — unpushed commits die with the container.
+- **Checkpoint by pushing, not just committing.** Push after **every iteration** (`git push -u origin <your session's designated claude/* branch>`, with retry/backoff on network errors per the session's git instructions) — unpushed commits die with the container.
 - **Cap the work** — ~6 loop iterations max; stop early on the "same score" rule. Never loop one phase forever: if a finding hasn't moved after ~2 attempts, skip it, note it, move on.
 - **Resume safely** — at startup read `git log --oneline` and the run-log to see which phases already committed this run; don't redo or double-commit.
 - **Never leave the tree dirty or red** — if a phase can't go green quickly, `git restore` / `git stash` it and continue. A clean tree at every phase boundary is what makes a crash recoverable.
@@ -421,7 +421,7 @@ Do this only at the very end — after all phases, all commits, and the branch i
 **Push the sweep branch** (retry with backoff on network errors):
 
 ```bash
-git push -u origin claude/overnight-cleanup-skill-ql29ur
+git push -u origin <your session's designated claude/* branch>
 ```
 
 **Open the PR** against `master` with the GitHub MCP tools (`mcp__github__create_pull_request`; if a PR already exists for the branch, **update** it via `mcp__github__update_pull_request` instead of opening a second). CI's `pr-title` check lints the title independently of commits, so get it right the first time:

@@ -20,11 +20,13 @@ duplicate type/interface declarations, run that too.
 
 Shared primitives live in `packages/client/src/components/ui/` (shadcn-derived)
 and the root-level `components/*.tsx` vendored files. Feature components live in
-`components/<feature>/` (`radar/`, `dailies/`, `tasks/`, …). Most condensing is
+`components/<feature>/` (`bookmarks/`, `dailies/`, `tasks/`, …). Most condensing is
 pulling hand-rolled markup back toward a primitive, or lifting a copy-pasted
 block into one shared component.
 
-> _Components named below (e.g. `BlipLegendItem`, `SelectAllCheckbox`) are
+> _Components named below (e.g. `SelectAllCheckbox`) are **historical**
+> illustrations — several (the radar/topics examples) were since removed with
+> their subsystems, but the condensation patterns they teach still apply. They are
 > illustrations from earlier runs of this skill — they show the **shape** of a
 > fix, not required targets. Apply the method to whatever's in your scope._
 
@@ -100,7 +102,7 @@ content/render slots so it stays dumb.
 - **Don't over-parameterize.** A "shared" component with one caller, or three
   render-slot props that each fire once, earns nothing — inline it.
 - **Keep the home right.** Cross-cutting primitives go in `components/ui/`;
-  feature-only pieces stay in `components/<feature>/`. Don't drag a radar-specific
+  feature-only pieces stay in `components/<feature>/`. Don't drag a feature-specific
   component into `ui/` just because it was extracted.
 - **Match existing layout/styling.** A reuse that shifts padding, rounding, or
   font size is a behavior change — verify the merged classes render the same.
@@ -124,7 +126,7 @@ include (`**/*.test.{ts,tsx}`) finds tests either way.
 
 If the ask is broader than the components you touched — e.g. "every component in
 this folder needs a story" — first reuse the mock-data factories: extract shared
-`make*` builders into `test-utils/radarFixtures.ts` (blips/quadrants/rings/topics
+`make*` builders into a shared `test-utils/<area>Fixtures.ts` (see `tasksFixtures.ts`
 + a `byId` map helper) instead of re-rolling args in each story. One
 `*.stories.tsx` per component file covering the primary export (plus meaningful
 siblings — e.g. both illustrations); heavy containers get a single representative
@@ -164,8 +166,7 @@ render story. A render-only story (no `play`) still smoke-tests rendering.
 - **jsdom gotcha**: `fireEvent.click` fires `onChange` even on a `disabled`
   input, so don't assert "disabled ⇒ handler not called" in jsdom — assert the
   `disabled` attribute instead.
-- **Story file naming need not match the component file** (e.g. `radarLegendItem.tsx`
-  → `BlipLegendItem.stories.tsx`). Don't audit coverage by filename match alone;
+- **Story file naming need not match the component file.** Don't audit coverage by filename match alone;
   grep each component's export for a referencing `.stories.tsx`.
 
 ## 6. Verify

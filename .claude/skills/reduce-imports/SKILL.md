@@ -13,12 +13,12 @@ description: >-
 
 `pnpm lint` warns on `import/max-dependencies` for many files in
 `packages/client`. The cleanup is tracked in an **import/max-dependencies
-cleanup tracker** issue, split into per-area issues (dailies, resources,
+cleanup tracker** issue, split into per-area issues (dailies, tasks,
 routines, routes, …). This skill is the repeatable procedure for one such area.
 Quality only — behavior must not change. For behavior cleanups use `/simplify`;
 for bugs use `/code-review`.
 
-> _Hooks, files, and components named below (e.g. `useResourceModules`,
+> _Hooks, files, and components named below (e.g. `useDailyCompletions`,
 > `DailyRecentDaysStrip`) are illustrations — they show the **shape** of a fix,
 > not required targets. Apply the method to whatever's in your scope. Per-area
 > worked examples and learnings live in `references/area-notes.md` — illustrative
@@ -74,7 +74,7 @@ those imports; the component is left rendering JSX from a
 presentational-ready return value.
 
 Mirror the existing bundled-hook pattern — for example:
-- `hooks/useResourceModules.ts` — rich `{ data…, mutations…, handlers… }` return.
+- `hooks/useDailyCompletions.ts` — rich `{ data…, mutations…, handlers… }` return.
 - `hooks/useDailyTracker.tsx`, `hooks/useDailyCompletions.ts` — feature hooks
   returning pre-derived rows + action callbacks. Return *computed* values
   (formatted labels, `canGoNext`, per-row flags) so the component imports no

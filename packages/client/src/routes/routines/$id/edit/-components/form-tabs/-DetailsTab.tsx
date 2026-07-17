@@ -6,7 +6,7 @@ import { CuratedScheduleSection } from "./-CuratedScheduleSection";
 import { modeOptionsFor, STATUS_OPTIONS } from "../-routineFormMeta";
 import { WeeklyScheduleSection } from "./-WeeklyScheduleSection";
 
-import { BookmarkPicker } from "@/components/formFields";
+import { BookmarksFieldGroup } from "@/components/bookmarks/BookmarksFieldGroup";
 import { EditForm } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { useRoutineDetailsForm } from "@/hooks/useRoutineDetailsForm";
@@ -69,13 +69,10 @@ export function DetailsTab({
 
       <form.Field name="bookmarks">
         {field => (
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Bookmarks</span>
-            <BookmarkPicker
-              value={field.state.value}
-              onChange={next => field.handleChange(next)}
-            />
-          </div>
+          <BookmarksFieldGroup
+            value={field.state.value}
+            onChange={next => field.handleChange(next)}
+          />
         )}
       </form.Field>
 

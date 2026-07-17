@@ -1,6 +1,6 @@
 import type { Daily, DailyCompletion, RoutineWeekly } from "@emstack/types";
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import {
   classifyDaily,
@@ -353,11 +353,16 @@ describe("classifyDaily", () => {
 
 describe("getTodayKey", () => {
   test("returns a YYYY-MM-DD key matching the local date", () => {
-    const key = getTodayKey();
-    expect(key).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    const now = new Date();
-    const expected = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    expect(key).toBe(expected);
+    // Pin the clock: deriving the expected key from a second `new Date()`
+    // races the midnight rollover.
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(2026, 5, 11, 22, 30));
+      expect(getTodayKey()).toBe("2026-06-11");
+    }
+    finally {
+      vi.useRealTimers();
+    }
   });
 });
 

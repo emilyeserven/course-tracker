@@ -29,10 +29,10 @@ those are handed off (`condense-components`, `condense-types`).
 - Route-private components live in a sibling `*.-components/` folder; the `.-`
   prefix keeps them out of TanStack routing. Component files keep a leading `-`
   (e.g. `-DetailsTab.tsx`) **inside subfolders too**.
-- Precedent for subfolders: `routes/domains.$id.-components/` is split into
-  `radar/` and `topicLists/`, each with an `index.ts` barrel that re-exports only
+- Precedent for subfolders: `routes/dashboard/-components/` is split into
+  `layout/` and `dashboardCards/`, each with an `index.ts` barrel that re-exports only
   the **public surface**; extracted internal leaves are intentionally not
-  re-exported (read `domains.$id.-components/radar/index.ts` for the comment
+  re-exported (read `dashboard/-components/index.ts` for the comment
   style).
 - Shared library lives in `src/components/**` (imported via `@/components/...`).
   No component sits at the `components/` root — a `components/structure.test.ts`
@@ -42,7 +42,7 @@ those are handed off (`condense-components`, `condense-types`).
 
 Parse `$ARGUMENTS`:
 
-- **A folder/route** (e.g. `/organize-components domains.$id.edit` or a full
+- **A folder/route** (e.g. `/organize-components routines/$id/edit` or a full
   `packages/client/src/routes/<x>.-components` path) → organize that folder.
 - **Empty** → ask which `*.-components/` folder to organize, or list candidates:
   ```bash
@@ -60,8 +60,8 @@ what it imports/renders. Identify:
   presentational panel — these belong together).
 - **Shared-parent groups** (components only ever rendered by one other component
   in the folder).
-- **Same-concern families** (e.g. all the radar-config pieces, all the
-  domain-metadata forms).
+- **Same-concern families** (e.g. all the dashboard-layout pieces, all the
+  routine-template forms).
 
 For a large folder, delegate the read to an **Explore agent** and have it return a
 grouped inventory with `file:line` references.
@@ -143,7 +143,7 @@ Shared notes:
 - **Unify near-identical siblings.** If two blocks differ only by their data
   (e.g. an "adopted" vs "ignored" strip), extract **one** parameterized leaf and
   render it twice with different props rather than two near-copies.
-- If a shared data type lives in the parent (e.g. `BlipDraft`, a `*Draft`
+- If a shared data type lives in the parent (e.g. a `*Draft`
   interface), import it `import type` into the leaf — type-only imports don't
   create a runtime cycle even when the parent also imports the leaf.
 - **Don't over-decompose.** Leave already-small components, containers, and the
@@ -185,7 +185,7 @@ repo CSF3 conventions (see `/add-stories` and the sibling stories in the folder)
   include `fn()` spies (import `fn` from `storybook/test`) — `satisfies Meta` +
   `fn()` triggers TS2742, so reserve `satisfies` for spy-free metas.
 - Reuse fixture factories from `@/test-utils/*Fixtures.ts` (e.g.
-  `radarFixtures` → `makeTopics`/`makeQuadrants`/`makeRings`/`makeBlips`) rather
+  `tasksFixtures` → `makeTaskTodo`/`makeTagGroup`) rather
   than hand-rolling literals. Mirror the args the sibling container story already
   builds.
 - Add decorators only when the component needs them: a `<ul>` wrapper for a leaf

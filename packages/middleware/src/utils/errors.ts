@@ -1,4 +1,4 @@
-import { FastifyReply } from "fastify";
+import type { FastifyReply } from "fastify";
 
 export function sendNotFound(reply: FastifyReply, resource: string) {
   return reply.status(404).send({

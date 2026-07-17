@@ -9,7 +9,7 @@ description: >-
 
 # Add a new entity (course-tracker)
 
-Work through the layers in order; each one depends on the previous. `references/file-checklist.md` lists every file a finished entity touches — diff your work against it before declaring done. Mirror an existing entity of similar shape throughout (junctions → **topics**; plain → **providers**; JSONB-heavy → **routines**).
+Work through the layers in order; each one depends on the previous. `references/file-checklist.md` lists every file a finished entity touches — diff your work against it before declaring done. Mirror an existing entity of similar shape throughout (junction-ful → **tasks**; plain → **task-types**; JSONB-heavy → **routines**).
 
 ## 1. Schema — `packages/middleware/src/db/schema/`
 
@@ -23,7 +23,7 @@ Work through the layers in order; each one depends on the previous. `references/
 
 ## 3. Middleware — `packages/middleware/src/routes/api/<name>/`
 
-Files (see `topics/` for the junction-ful version, `providers/` for the minimal one):
+Files (see `tasks/` for the junction-ful version, `task-types/` for the minimal one):
 
 - `<name>Rows.ts` — `<Name>Body` interface, `<name>BodySchema` (reuse `src/utils/schemas.ts` fragments; import it **relatively** — `../../../utils/schemas.ts` — so `node --test` can load the file), `build<Name>Row`, junction row builders (return `undefined` when input absent, `[]` to clear).
 - `create<Name>.ts` — `createCreateHandler` from `src/utils/createCreateHandler.ts`.
@@ -39,21 +39,21 @@ Files (see `topics/` for the junction-ful version, `providers/` for the minimal 
 
 ## 5. Client routes — `packages/client/src/routes/`
 
-- `<name>.tsx` (layout, usually a bare `<Outlet/>`), `<name>.index.tsx` (list), `<name>.$id.tsx`, `<name>.$id.index.tsx` (detail), `<name>.$id.edit.tsx` (edit/create — `id === "new"`).
-- Edit page: `useEditFormPage` (`makeSubmitHandler` + `makeDeleteHandler` + `shouldBlockFn`), `useAppForm` with a zod schema, `EditPageFooter` + `UnsavedChangesDialog`. Copy `topics.$id.edit.tsx`.
-- Loading/error: `EntityPending` / `EntityError` from `components/EntityStates.tsx`.
+- Folder-based routes: `<name>/route.tsx` (layout, usually a bare `<Outlet/>`), `<name>/index.tsx` (list), `<name>/$id/route.tsx`, `<name>/$id/index.tsx` (detail), `<name>/$id/edit/route.tsx` (edit/create — `id === "new"`).
+- Edit page: `useEditFormPage` (`makeSubmitHandler` + `makeDeleteHandler` + `shouldBlockFn`), `useAppForm` with a zod schema, `EditPageFooter` + `UnsavedChangesDialog`. Copy `tasks/$id/edit/route.tsx`.
+- Loading/error: `EntityPending` / `EntityError` from `components/listControls/EntityStates.tsx`.
 - List card → new `components/contentBoxComponents/<Name>Box.tsx` if the list shows cards (add it to the `contentBoxComponents/index.ts` barrel).
 - Regenerate the route tree: `pnpm --filter=@emstack/client run routeTree` (never edit `routeTree.gen.ts`).
 
 ## 6. Navigation
 
-- `src/routes/__root.tsx`: add a `<Link>` inside the matching `NavDropdown` (desktop) **and** the mobile menu lower in the file.
+- `components/layout/sidebar/navConfig.ts`: add a `NavCategory` (list link, quick-add key, detail-link builder, lazy `load`) under the matching `NavSection` — the collapsible sidebar renders from this config.
 - `components/layout/PageHeader.tsx`: add the new `pageSection` if the header maps sections.
 
 ## 7. Verify
 
 ```bash
-pnpm push:dev && pnpm typecheck && pnpm lint && pnpm test && pnpm build
+pnpm push:dev && pnpm typecheck && pnpm lint && pnpm --filter=@emstack/client exec vitest run && pnpm --filter=@emstack/middleware test && pnpm build
 ```
 
 Runtime smoke (server running via `pnpm dev`): POST → GET list → GET single → PUT → DELETE through `http://localhost:3001/api/<name>`, then click through list → create → edit → delete in the UI at `http://localhost:5173`. Check `git diff --stat`: `routeTree.gen.ts` should be regenerated, nothing else unexpected.

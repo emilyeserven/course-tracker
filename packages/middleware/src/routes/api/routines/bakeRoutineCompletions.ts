@@ -7,6 +7,7 @@ import {
   entryToCompletionParts,
   entryToCompletionRef,
 } from "@/utils/routineWeekday";
+import { taskNamesByIds } from "@/utils/taskNames";
 
 import type { RoutineBody } from "./routineRows";
 import type { DailyCompletion, RoutineReferenceItem } from "@emstack/types";
@@ -84,19 +85,7 @@ export async function bakeRoutineCompletions(
     }
   }
 
-  const taskRows = taskIds.size
-    ? await db.query.tasks.findMany({
-      where: (t, {
-        inArray,
-      }) => inArray(t.id, [...taskIds]),
-      columns: {
-        id: true,
-        name: true,
-      },
-    })
-    : [];
-
-  const taskNames = new Map(taskRows.map(r => [r.id, r.name]));
+  const taskNames = await taskNamesByIds(taskIds);
 
   const baked: DailyCompletion[] = completions.map((c) => {
     if (!(c.status && c.entryParts === undefined)) {

@@ -1,12 +1,8 @@
-import type {
-  DashboardLayout,
-  DashboardLayoutTile,
-  DashboardTileId,
-} from "@emstack/types";
+import type { DashboardLayoutTile } from "@emstack/types";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -15,34 +11,27 @@ import {
   AddLayoutDialog,
   buildDefaultTiles,
   Button,
-  ConfirmDialog,
   DashboardGrid,
-  LayoutNameDialog,
+  LayoutManagerDialogs,
   LayoutTab,
-  needsNormalization,
   normalizeTiles,
   PageContainer,
   PageHeader,
   Tabs,
   TabsList,
-  tilesEqual,
-  toggleTile,
+  useDashboardTileSaver,
   VisibleTilesDialog,
 } from "./-components";
 
 import { useActiveDashboardLayoutId } from "@/hooks/useActiveDashboardLayoutId";
 import { useDashboardLayoutManager } from "@/hooks/useDashboardLayoutManager";
-import { createDashboardLayout, upsertDashboardLayout } from "@/utils/api";
-import { queryKeys } from "@/utils/queryKeys";
+import { createDashboardLayout } from "@/utils/api";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const SAVE_DEBOUNCE_MS = 600;
-
 function Dashboard() {
-  const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [tilesTargetId, setTilesTargetId] = useState<string | null>(null);
 
@@ -127,105 +116,15 @@ function Dashboard() {
     }
   }, [isPending, error, layouts, autoCreate]);
 
-  // Tile moves/resizes save through an optimistic cache write with no
-  // invalidate on success — a refetch mid-drag would snap tiles back.
-  const saveTilesMutation = useMutation({
-    mutationFn: ({
-      layout,
-      tiles,
-    }: {
-      layout: DashboardLayout;
-      tiles: DashboardLayoutTile[];
-    }) =>
-      upsertDashboardLayout(layout.id, {
-        name: layout.name,
-        position: layout.position ?? null,
-        tiles,
-        isTemplate: layout.isTemplate ?? false,
-      }),
-    onMutate: ({
-      layout, tiles,
-    }) => {
-      queryClient.setQueryData<DashboardLayout[]>(
-        queryKeys.dashboardLayouts.list(),
-        prev =>
-          prev?.map(l =>
-            l.id === layout.id
-              ? {
-                ...l,
-                tiles,
-              }
-              : l),
-      );
-    },
-    onError: (err: Error) => {
-      toast.error(err.message);
-      void invalidate();
-    },
-  });
-
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-  useEffect(() => () => clearTimeout(saveTimerRef.current), []);
-
-  // Self-heal: persist the normalized tiles once when a layout still holds a
-  // legacy id, so the database catches up even without a manual drag/resize.
-  const healedRef = useRef<Set<string>>(new Set());
   const {
-    mutate: saveTiles,
-  } = saveTilesMutation;
-  useEffect(() => {
-    if (!activeLayout || !needsNormalization(activeLayout.tiles)) return;
-    if (healedRef.current.has(activeLayout.id)) return;
-    healedRef.current.add(activeLayout.id);
-    saveTiles({
-      layout: activeLayout,
-      tiles: normalizeTiles(activeLayout.tiles),
-    });
-  }, [activeLayout, saveTiles]);
-
-  const handleTilesChange = (tiles: DashboardLayoutTile[]) => {
-    // Ignore the grid's mount/compaction echoes — only real moves save.
-    if (!activeLayout || tilesEqual(tiles, normalizedTiles)) return;
-    clearTimeout(saveTimerRef.current);
-    const layout = activeLayout;
-    saveTimerRef.current = setTimeout(() => {
-      saveTilesMutation.mutate({
-        layout,
-        tiles,
-      });
-    }, SAVE_DEBOUNCE_MS);
-  };
-
-  const handleToggleTile = (
-    layout: DashboardLayout,
-    tileId: DashboardTileId,
-  ) => {
-    clearTimeout(saveTimerRef.current);
-    saveTilesMutation.mutate({
-      layout,
-      tiles: toggleTile(normalizeTiles(layout.tiles), tileId),
-    });
-  };
-
-  const handleUpdateTile = (
-    tileId: DashboardTileId,
-    patch: Partial<DashboardLayoutTile>,
-  ) => {
-    if (!activeLayout) return;
-    clearTimeout(saveTimerRef.current);
-    saveTilesMutation.mutate({
-      layout: activeLayout,
-      tiles: normalizedTiles.map(t =>
-        t.tileId === tileId
-          ? {
-            ...t,
-            ...patch,
-          }
-          : t),
-    });
-  };
+    handleTilesChange,
+    handleToggleTile,
+    handleUpdateTile,
+  } = useDashboardTileSaver({
+    activeLayout,
+    normalizedTiles,
+    invalidate,
+  });
 
   return (
     <div>
@@ -307,41 +206,18 @@ function Dashboard() {
           })}
       />
 
-      <LayoutNameDialog
-        open={renameTarget !== null}
-        title="Rename layout"
-        initialName={renameTarget?.name ?? ""}
-        isSaving={isRenaming}
-        onOpenChange={(open) => {
-          if (!open) closeRename();
-        }}
-        onSubmit={submitRename}
-      />
-
-      <LayoutNameDialog
-        open={saveAsTarget !== null}
-        title="Save as layout"
-        submitLabel="Save"
-        initialName={saveAsTarget?.name ?? ""}
-        isSaving={isSavingPreset}
-        onOpenChange={(open) => {
-          if (!open) closeSaveAs();
-        }}
-        onSubmit={submitSaveAs}
-      />
-
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        title="Delete layout?"
-        description={
-          deleteTarget
-            ? `"${deleteTarget.name}" will be removed. This can't be undone.`
-            : undefined
-        }
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        onConfirm={confirmDelete}
-        onCancel={closeDelete}
+      <LayoutManagerDialogs
+        renameTarget={renameTarget}
+        isRenaming={isRenaming}
+        closeRename={closeRename}
+        submitRename={submitRename}
+        saveAsTarget={saveAsTarget}
+        isSavingPreset={isSavingPreset}
+        closeSaveAs={closeSaveAs}
+        submitSaveAs={submitSaveAs}
+        deleteTarget={deleteTarget}
+        closeDelete={closeDelete}
+        confirmDelete={confirmDelete}
       />
     </div>
   );

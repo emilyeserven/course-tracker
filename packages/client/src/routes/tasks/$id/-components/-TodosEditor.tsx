@@ -3,23 +3,29 @@ import type { Task, TaskTodo } from "@emstack/types";
 import { useMemo, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon, PencilIcon, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { TodoEditRow } from "./-TodoEditRow";
+import { TodoReadRow } from "./-TodoReadRow";
 
-import { OpenBookmarkPageButton } from "@/components/bookmarks";
-import { DailyStatusCircle } from "@/components/dailies/DailyStatusCircle";
-import { getDailyStatusOption } from "@/components/dailies/dailyStatusMeta";
 import { toTodoInput } from "@/components/tasks/todoPayload";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useBookmarkLinking } from "@/hooks/useBookmarkLinking";
 import { upsertTask } from "@/utils";
 import { uuidv4 } from "@/utils/uuid";
 
 interface TodosEditorProps {
   task: Task;
+}
+
+// Due-dated todos first (soonest first), then by position.
+function compareTodosForDisplay(a: TaskTodo, b: TaskTodo): number {
+  const ad = a.dueDate ?? "";
+  const bd = b.dueDate ?? "";
+  if (ad && bd && ad !== bd) return ad.localeCompare(bd);
+  if (ad && !bd) return -1;
+  if (!ad && bd) return 1;
+  return (a.position ?? 0) - (b.position ?? 0);
 }
 
 // The To-Do editor: each todo carries a status, an optional due date, a note,
@@ -29,25 +35,12 @@ export function TodosEditor({
 }: TodosEditorProps) {
   const queryClient = useQueryClient();
   const todos = useMemo(
-    () =>
-      [...(task.todos ?? [])].sort((a, b) => {
-        // Due-dated todos first (soonest first), then by position.
-        const ad = a.dueDate ?? "";
-        const bd = b.dueDate ?? "";
-        if (ad && bd && ad !== bd) return ad.localeCompare(bd);
-        if (ad && !bd) return -1;
-        if (!ad && bd) return 1;
-        return (a.position ?? 0) - (b.position ?? 0);
-      }),
+    () => [...(task.todos ?? [])].sort(compareTodosForDisplay),
     [task.todos],
   );
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftNew, setDraftNew] = useState<TaskTodo | null>(null);
-
-  const {
-    resolveHref,
-  } = useBookmarkLinking();
 
   const mutation = useMutation({
     mutationFn: (nextTodos: TaskTodo[]) =>
@@ -155,9 +148,9 @@ export function TodosEditor({
               onCancel={() => setDraftNew(null)}
             />
           )}
-          {todos.map((todo) => {
-            if (todo.id === editingId) {
-              return (
+          {todos.map(todo =>
+            todo.id === editingId
+              ? (
                 <TodoEditRow
                   key={todo.id}
                   todo={todo}
@@ -166,133 +159,19 @@ export function TodosEditor({
                   onCancel={() => setEditingId(null)}
                   onDelete={() => handleDelete(todo.id)}
                 />
-              );
-            }
-            const statusOption = getDailyStatusOption(todo.status);
-            return (
-              <li
-                key={todo.id}
-                className="
-                  group flex flex-col gap-1 p-3
-                  hover:bg-muted/40
-                "
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => cycleStatus(todo)}
-                    disabled={mutation.isPending || isAnyEditing}
-                    aria-label={`Status: ${statusOption.label}. Toggle.`}
-                    title={statusOption.label}
-                  >
-                    <DailyStatusCircle
-                      status={todo.status}
-                      size="sm"
-                    />
-                  </button>
-                  <span className="text-sm font-medium">{todo.name}</span>
-                  {todo.dueDate && (
-                    <Badge
-                      variant="outline"
-                      className="bg-muted/40"
-                    >
-                      due {todo.dueDate}
-                    </Badge>
-                  )}
-                  {(todo.bookmarks ?? []).map((b) => {
-                    const linkable = {
-                      externalId: b.bookmarkId,
-                      url: b.url,
-                    };
-                    const href = resolveHref(linkable);
-                    return (
-                      <Badge
-                        key={b.bookmarkId}
-                        variant="outline"
-                        className="
-                          border-amber-200 bg-amber-50 text-amber-900
-                          dark:border-amber-900/50 dark:bg-amber-950/40
-                          dark:text-amber-200
-                        "
-                      >
-                        {href
-                          ? (
-                            <a
-                              href={href}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="
-                                inline-flex items-center gap-1
-                                hover:underline
-                              "
-                            >
-                              {b.title}
-                              <ExternalLinkIcon className="size-3" />
-                            </a>
-                          )
-                          : (
-                            b.title
-                          )}
-                        <OpenBookmarkPageButton
-                          linkable={linkable}
-                          className="ml-1"
-                        />
-                        {b.sectionLabel && (
-                          <span className="ml-1 opacity-70">
-                            › {b.sectionLabel}
-                          </span>
-                        )}
-                      </Badge>
-                    );
-                  })}
-                  <div
-                    className="
-                      ml-auto flex items-center gap-1 opacity-0 transition
-                      group-hover:opacity-100
-                      focus-within:opacity-100
-                    "
-                  >
-                    {todo.url && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        asChild
-                        title={todo.url}
-                      >
-                        <a
-                          href={todo.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open link for ${todo.name}`}
-                        >
-                          <ExternalLinkIcon className="size-3.5" />
-                        </a>
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => {
-                        setDraftNew(null);
-                        setEditingId(todo.id);
-                      }}
-                      disabled={mutation.isPending || isAnyEditing}
-                      aria-label={`Edit ${todo.name}`}
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </Button>
-                  </div>
-                </div>
-                {todo.note && (
-                  <p className="pl-6 text-sm text-muted-foreground">
-                    {todo.note}
-                  </p>
-                )}
-              </li>
-            );
-          })}
+              )
+              : (
+                <TodoReadRow
+                  key={todo.id}
+                  todo={todo}
+                  actionsDisabled={mutation.isPending || isAnyEditing}
+                  onToggleStatus={() => cycleStatus(todo)}
+                  onStartEdit={() => {
+                    setDraftNew(null);
+                    setEditingId(todo.id);
+                  }}
+                />
+              ))}
         </ul>
       )}
     </div>
