@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -9,6 +10,7 @@ import {
   CardTitle,
 } from "./card";
 
+import { Button } from "@/components/ui/button";
 import { smokeText } from "@/test-utils/storyPlay";
 
 const meta = {
@@ -32,6 +34,14 @@ export const Default: Story = {
       <CardHeader>
         <CardTitle>Card title</CardTitle>
         <CardDescription>Card description</CardDescription>
+        <CardAction>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Action
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent>Card content</CardContent>
       <CardFooter>Card footer</CardFooter>
