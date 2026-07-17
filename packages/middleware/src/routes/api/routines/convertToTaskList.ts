@@ -11,6 +11,7 @@ import { db } from "@/db";
 import { routines, taskTodos, tasks } from "@/db/schema";
 import { sendBadRequest, sendNotFound } from "@/utils/errors";
 import { idParamSchema } from "@/utils/schemas";
+import { taskNamesByIds } from "@/utils/taskNames";
 
 import type { DailyCompletionStatus, RoutineReferenceItem } from "@emstack/types";
 
@@ -80,19 +81,7 @@ export default async function (server: FastifyInstance) {
         }
       }
 
-      const taskRows = taskIds.size
-        ? await db.query.tasks.findMany({
-          where: (t, {
-            inArray,
-          }) => inArray(t.id, [...taskIds]),
-          columns: {
-            id: true,
-            name: true,
-          },
-        })
-        : [];
-
-      const taskNames = new Map(taskRows.map(r => [r.id, r.name]));
+      const taskNames = await taskNamesByIds(taskIds);
 
       const newTaskId = uuidv4();
       const todoRows = dateKeys.map((key, index) => {

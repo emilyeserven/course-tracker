@@ -87,17 +87,16 @@ export function buildTagRows(
   }));
 }
 
-export function buildBookmarkRows(
-  bookmarks: readonly BookmarkInput[] | undefined,
-  taskId: string,
-  makeId: () => string = uuidv4,
+// Shared core of the task-level and todo-level bookmark builders: dedupe by
+// bookmarkId (an owner holds at most one row per bookmark) and normalize the
+// cached fields. The owner column is spread on by the exported wrappers.
+function buildBookmarkRowsCore(
+  bookmarks: readonly BookmarkInput[],
+  makeId: () => string,
 ) {
-  if (bookmarks === undefined) return undefined;
-  // Dedupe by bookmarkId so a task holds at most one row per bookmark.
   const seen = new Set<string>();
   const rows: {
     id: string;
-    taskId: string;
     bookmarkId: string;
     title: string;
     url: string | null;
@@ -110,7 +109,6 @@ export function buildBookmarkRows(
     seen.add(b.bookmarkId);
     rows.push({
       id: b.id || makeId(),
-      taskId,
       bookmarkId: b.bookmarkId,
       title: b.title,
       url: b.url ?? null,
@@ -122,38 +120,28 @@ export function buildBookmarkRows(
   return rows;
 }
 
+export function buildBookmarkRows(
+  bookmarks: readonly BookmarkInput[] | undefined,
+  taskId: string,
+  makeId: () => string = uuidv4,
+) {
+  if (bookmarks === undefined) return undefined;
+  return buildBookmarkRowsCore(bookmarks, makeId).map(row => ({
+    taskId,
+    ...row,
+  }));
+}
+
 export function buildTodoBookmarkRows(
   bookmarks: readonly BookmarkInput[] | undefined,
   todoId: string,
   makeId: () => string = uuidv4,
 ) {
   if (bookmarks === undefined) return undefined;
-  const seen = new Set<string>();
-  const rows: {
-    id: string;
-    todoId: string;
-    bookmarkId: string;
-    title: string;
-    url: string | null;
-    sectionId: string | null;
-    sectionLabel: string | null;
-    position: number;
-  }[] = [];
-  bookmarks.forEach((b, index) => {
-    if (seen.has(b.bookmarkId)) return;
-    seen.add(b.bookmarkId);
-    rows.push({
-      id: b.id || makeId(),
-      todoId,
-      bookmarkId: b.bookmarkId,
-      title: b.title,
-      url: b.url ?? null,
-      sectionId: b.sectionId ?? null,
-      sectionLabel: b.sectionLabel ?? null,
-      position: index,
-    });
-  });
-  return rows;
+  return buildBookmarkRowsCore(bookmarks, makeId).map(row => ({
+    todoId,
+    ...row,
+  }));
 }
 
 export function buildTodoRows(

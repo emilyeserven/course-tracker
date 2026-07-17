@@ -6,6 +6,7 @@ import { EyeIcon, Loader2 } from "lucide-react";
 
 import { formSchema } from "./-components/-taskFormSchema";
 
+import { BookmarksFieldGroup } from "@/components/bookmarks/BookmarksFieldGroup";
 import {
   Button,
   EditPageFooter,
@@ -14,7 +15,7 @@ import {
   PageHeader,
   UnsavedChangesDialog,
 } from "@/components/editPage";
-import { BookmarkPicker, useAppForm } from "@/components/formFields";
+import { useAppForm } from "@/components/formFields";
 import { toTodoInput } from "@/components/tasks/todoPayload";
 import { useEditFormPage } from "@/hooks/useEditFormPage";
 import { useFormChangeState } from "@/hooks/useFormChangeState";
@@ -195,13 +196,10 @@ function SingleTaskEdit() {
 
           <form.Field name="bookmarks">
             {field => (
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium">Bookmarks</span>
-                <BookmarkPicker
-                  value={field.state.value}
-                  onChange={next => field.handleChange(next)}
-                />
-              </div>
+              <BookmarksFieldGroup
+                value={field.state.value}
+                onChange={next => field.handleChange(next)}
+              />
             )}
           </form.Field>
 

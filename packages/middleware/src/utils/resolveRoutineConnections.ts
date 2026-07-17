@@ -1,5 +1,6 @@
-import { db } from "@/db";
 import type { RoutineConnectionType } from "@/db/schema";
+
+import { taskNamesByIds } from "@/utils/taskNames";
 
 import type { RoutineConnection } from "@emstack/types";
 
@@ -37,23 +38,11 @@ export async function resolveRoutineConnections<
     }
   }
 
-  const taskRows = taskIds.size
-    ? await db.query.tasks.findMany({
-      where: (t, {
-        inArray,
-      }) => inArray(t.id, [...taskIds]),
-      columns: {
-        id: true,
-        name: true,
-      },
-    })
-    : [];
-
   const nameByType: Record<
     Exclude<RoutineConnectionType, "bookmark">,
     Map<string, string>
   > = {
-    task: new Map(taskRows.map(r => [r.id, r.name])),
+    task: await taskNamesByIds(taskIds),
   };
 
   return rows.map((row) => {
