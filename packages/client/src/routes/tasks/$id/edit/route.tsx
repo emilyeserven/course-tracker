@@ -1,10 +1,7 @@
-import { useMemo } from "react";
-
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { EyeIcon, Loader2 } from "lucide-react";
 
-import { formSchema } from "./-components/-taskFormSchema";
+import { useTaskEditForm } from "./-components/-useTaskEditForm";
 
 import { BookmarksFieldGroup } from "@/components/bookmarks/BookmarksFieldGroup";
 import {
@@ -15,21 +12,6 @@ import {
   PageHeader,
   UnsavedChangesDialog,
 } from "@/components/editPage";
-import { useAppForm } from "@/components/formFields";
-import { toTodoInput } from "@/components/tasks/todoPayload";
-import { useEditFormPage } from "@/hooks/useEditFormPage";
-import { useFormChangeState } from "@/hooks/useFormChangeState";
-import {
-  createTask,
-  deleteSingleTask,
-  fetchSingleTask,
-  fetchTagGroups,
-  fetchTaskTypes,
-  queryKeys,
-  tagGroupsToOptions,
-  toOptions,
-  upsertTask,
-} from "@/utils";
 
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: SingleTaskEdit,
@@ -43,97 +25,13 @@ function SingleTaskEdit() {
   const navigate = useNavigate();
 
   const {
-    data, shouldBlockFn, makeDeleteHandler, makeSubmitHandler,
-  }
-    = useEditFormPage({
-      id,
-      isNew,
-      queryKey: ["task", id],
-      queryFn: () => fetchSingleTask(id),
-      relatedQueryKeys: [queryKeys.tasks.list()],
-    });
-
-  const submitTask = makeSubmitHandler({
-    createFn: createTask,
-    upsertFn: upsertTask,
-    entityLabel: "task",
-    navigateToEntity: taskId =>
-      navigate({
-        to: "/tasks/$id",
-        params: {
-          id: taskId,
-        },
-      }),
-  });
-
-  const {
-    data: taskTypes,
-  } = useQuery({
-    queryKey: ["taskTypes"],
-    queryFn: () => fetchTaskTypes(),
-  });
-
-  const {
-    data: tagGroups,
-  } = useQuery({
-    queryKey: ["tagGroups"],
-    queryFn: () => fetchTagGroups(),
-  });
-
-  const taskTypeOptions = toOptions(taskTypes);
-
-  const tagOptions = tagGroupsToOptions(tagGroups);
-
-  const startingValues = useMemo(
-    () => ({
-      name: data?.name ?? "",
-      description: data?.description ?? "",
-      dueDate: data?.dueDate ? new Date(data.dueDate) : null,
-      taskTypeId: data?.taskTypeId ?? "",
-      tagIds: (data?.tags ?? []).map(t => t.id),
-      bookmarks: data?.bookmarks ?? [],
-    }),
-    [data],
-  );
-
-  const form = useAppForm({
-    defaultValues: startingValues,
-    validators: {
-      onSubmit: formSchema,
-    },
-    onSubmit: async ({
-      value,
-    }) => {
-      // Todos are edited on the detail page; preserve them untouched here.
-      const existingTodos = (data?.todos ?? []).map(toTodoInput);
-
-      // fallow-ignore-next-line code-duplication
-      await submitTask({
-        name: value.name,
-        description: value.description || null,
-        dueDate: value.dueDate
-          ? value.dueDate.toISOString().split("T")[0]
-          : null,
-        taskTypeId: value.taskTypeId || null,
-        tagIds: value.tagIds,
-        bookmarks: value.bookmarks,
-        todos: existingTodos,
-      });
-    },
-  });
-
-  const {
-    isSubmitting, hasChanges,
-  } = useFormChangeState(form, startingValues);
-
-  const handleDelete = makeDeleteHandler({
-    deleteFn: deleteSingleTask,
-    entityLabel: "task",
-    navigateToList: () =>
-      navigate({
-        to: "/tasks",
-      }),
-  });
+    form,
+    isSubmitting,
+    handleDelete,
+    taskTypeOptions,
+    tagOptions,
+    shouldBlock,
+  } = useTaskEditForm(id, isNew);
 
   return (
     <div>
@@ -247,7 +145,7 @@ function SingleTaskEdit() {
             </Button>
           </EditPageFooter>
         </form>
-        <UnsavedChangesDialog shouldBlockFn={shouldBlockFn(hasChanges)} />
+        <UnsavedChangesDialog shouldBlockFn={shouldBlock} />
       </PageContainer>
     </div>
   );

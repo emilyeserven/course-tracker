@@ -17,5 +17,8 @@ export {
 } from "./weekly";
 export { CuratedEndDateField } from "./CuratedEndDateField";
 export { CuratedScheduleField } from "./CuratedScheduleField";
+export { RoutineConnectionBadges } from "./RoutineConnectionBadges";
+export { RoutineDayStrip } from "./RoutineDayStrip";
 export { RoutineEntryLabel } from "./RoutineEntryLabel";
+export { RoutineStreakStats } from "./RoutineStreakStats";
 export { WeeklyScheduleField } from "./WeeklyScheduleField";
